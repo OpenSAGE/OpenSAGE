@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using OpenSage.Content.Translation.Providers;
 using OpenSage.Data;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Content.Translation
 {
@@ -26,10 +27,29 @@ namespace OpenSage.Content.Translation
                     {
                         return;
                     }
+
                     CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = value;
                     OnLanguageChanged();
                 }
             }
+
+            public void SetCultureFromLanguage(string language)
+            {
+                //TODO: just a hack for now
+                var cultureString = "";
+                switch (language)
+                {
+                    case "german":
+                        cultureString = "de-DE";
+                        break;
+                    case "english":
+                    default:
+                        cultureString = "en-US";
+                        break;
+                }
+                CurrentLanguage = new CultureInfo(cultureString);
+            }
+
             public IReadOnlyCollection<string> Labels
             {
                 get
@@ -98,7 +118,7 @@ namespace OpenSage.Content.Translation
                         providers.Add(provider);
                     }
                 }
-                if (shouldNotifyLanguageChange && providers == DefaultProviders)
+                if (shouldNotifyLanguageChange && Equals(providers, DefaultProviders))
                 {
                     OnLanguageChanged();
                 }
@@ -106,12 +126,14 @@ namespace OpenSage.Content.Translation
 
             public void UnregisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true)
             {
-                if (_translationProviders.TryGetValue(provider.Name, out var providers))
+                if (!_translationProviders.TryGetValue(provider.Name, out _))
                 {
-                    if (_translationProviders.Remove(provider.Name) && shouldNotifyLanguageChange)
-                    {
-                        OnLanguageChanged();
-                    }
+                    return;
+                }
+
+                if (_translationProviders.Remove(provider.Name) && shouldNotifyLanguageChange)
+                {
+                    OnLanguageChanged();
                 }
             }
 
@@ -178,7 +200,6 @@ namespace OpenSage.Content.Translation
         public static void LoadGameCsf(FileSystem fileSystem, string language, SageGame game)
         {
             var path = string.Empty;
-            FileSystemEntry file = null;
             while (!(fileSystem is null))
             {
                 switch (game)
@@ -204,26 +225,31 @@ namespace OpenSage.Content.Translation
                         path = "data/gamestrings";
                         break;
                 }
+
+                FileSystemEntry file;
                 if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
                 {
                     using (var stream = file.Open())
                     {
+                        Instance.SetCultureFromLanguage(language);
                         Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
                     }
+
                     return;
                 }
-                else if (!((file = fileSystem.GetFile($"{path}.str")) is null))
+
+                if (!((file = fileSystem.GetFile($"{path}.str")) is null))
                 {
                     using (var stream = file.Open())
                     {
-                        Instance.RegisterProvider(new StrTranslationProvider(stream, "en-US")); // TODO: set lang
+                        Instance.SetCultureFromLanguage(language);
+                        Instance.RegisterProvider(new StrTranslationProvider(stream, language));
                     }
+
                     return;
                 }
-                else
-                {
-                    fileSystem = fileSystem.NextFileSystem;
-                }
+
+                fileSystem = fileSystem.NextFileSystem;
             }
         }
     }
