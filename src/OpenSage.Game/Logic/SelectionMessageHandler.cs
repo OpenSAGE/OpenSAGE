@@ -39,7 +39,6 @@ namespace OpenSage.Logic
                     {
                         _system.OnEndDragSelection();
                     }
-
                     break;
             }
 

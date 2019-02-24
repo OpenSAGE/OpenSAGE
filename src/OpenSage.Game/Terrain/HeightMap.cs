@@ -55,6 +55,20 @@ namespace OpenSage.Terrain
             return (fAverageHi * fFractionalY) + (fAverageLo * (1.0f - fFractionalY));
         }
 
+        public Vector3 GetNormal(float x, float y)
+        {
+            // convert coordinates to heightmap scale
+            x = x / HorizontalScale + _heightMapData.BorderWidth;
+            y = y / HorizontalScale + _heightMapData.BorderWidth;
+
+            if (x >= Width || y >= Height || x < 0 || y < 0)
+            {
+                return new Vector3(0, 0, 1.0f);
+            }
+
+            return Normals[(int)x, (int)y];
+        }
+
         public Vector3 GetPosition(int x, int y) => new Vector3(
             (x - _heightMapData.BorderWidth) * HorizontalScale,
             (y - _heightMapData.BorderWidth) * HorizontalScale,

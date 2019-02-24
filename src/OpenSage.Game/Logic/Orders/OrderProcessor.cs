@@ -57,6 +57,14 @@ namespace OpenSage.Logic.Orders
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
+                    case OrderType.SetRallyPoint:
+                          var objIds = order.Arguments.Skip(1)
+                            .Select(x => (int) x.Value.ObjectId)
+                            .Select(_game.Scene3D.GameObjects.GetObjectById)
+                            .ToArray();
+                        _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
+                        break;
+
                     case OrderType.Unknown27:
                         _game.EndGame();
                         break;

@@ -33,7 +33,9 @@ namespace OpenSage.Content
                         @"Maps\MapCache.ini");
                     break;
                 case Subsystem.ObjectCreation:
-                    LoadFiles(@"Data\INI\Default\Object.ini");
+                    LoadFiles(
+                        @"Data\INI\Default\Object.ini",
+                        @"Data\INI\Locomotor.ini");
                     _iniDataContext.LoadIniFiles(@"Data\INI\Object");
                     break;
                 case Subsystem.Players:

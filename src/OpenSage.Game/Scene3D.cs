@@ -172,7 +172,7 @@ namespace OpenSage
         {
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.LogicTick(frame);
+                gameObject.LogicTick(frame, Terrain.HeightMap);
             }
         }
 

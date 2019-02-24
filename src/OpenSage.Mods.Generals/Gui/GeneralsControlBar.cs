@@ -7,6 +7,7 @@ using OpenSage.Gui;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
@@ -199,11 +200,12 @@ namespace OpenSage.Mods.Generals.Gui
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
+                            ObjectDefinition objectDefinition;
                             Order order = null;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
-                                    var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
                                     context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
                                     break;
 
@@ -215,6 +217,10 @@ namespace OpenSage.Mods.Generals.Gui
                                     order = CreateOrder(OrderType.Sell);
                                     break;
 
+                                case CommandType.UnitBuild:
+                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+                                    context.Game.OrderGenerator.StartConstructUnit(objectDefinition);
+                                    break;
                                 default:
                                     throw new NotImplementedException();
                             }

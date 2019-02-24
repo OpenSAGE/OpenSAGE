@@ -100,6 +100,14 @@ namespace OpenSage.Logic
             }
         }
 
+        public void SetRallyPointForSelectedObjects(Player player, GameObject[] objects, Vector3 rallyPoint)
+        {
+            foreach (var obj in objects)
+            {
+                obj.RallyPoint = rallyPoint;
+            }
+        }
+
         public void ClearSelectedObjects(Player player)
         {
             player.DeselectUnits();
