@@ -165,7 +165,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldRegionEffects LivingWorldRegionEffects { get; internal set; }
 
-        public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
+        public Dictionary<string, Locomotor> Locomotors { get; } = new Dictionary<string, Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();

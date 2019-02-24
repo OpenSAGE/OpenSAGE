@@ -91,5 +91,20 @@ namespace OpenSage.Logic
 
             ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
         }
+
+        public void StartConstructUnit(ObjectDefinition unitDefinition)
+        {
+            // TODO: Handle ONLY_BY_AI
+            // TODO: Copy default settings from DefaultThingTemplate
+
+            // TODO: Check that the building can build that unit.
+            // TODO: Check that the unit has been unlocked.
+            // TODO: Check that the building isn't building something else right now?
+
+            var gameData = Game.ContentManager.IniDataContext.GameData;
+            var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(unitDefinition) + 1;
+
+            ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
+        }
     }
 }

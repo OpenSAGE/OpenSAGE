@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
@@ -52,10 +53,18 @@ namespace OpenSage.Logic
             {
                 _selectedUnits = units.ToSet();
             }
+            foreach (var unit in _selectedUnits)
+            {
+                unit.IsSelected = true;
+            }
         }
 
         public void DeselectUnits()
         {
+            foreach (var unit in _selectedUnits)
+            {
+                unit.IsSelected = false;
+            }
             _selectedUnits.Clear();
         }
 

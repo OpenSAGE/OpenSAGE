@@ -112,7 +112,12 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldRegionEffects", (parser, x) => x.LivingWorldRegionEffects = LivingWorldRegionEffects.Parse(parser) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
-            { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
+            { "Locomotor", (parser, context) =>
+                {
+                    var locomotor = Locomotor.Parse(parser);
+                    context.Locomotors[locomotor.Name] = locomotor;
+                }
+            },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
@@ -342,6 +347,20 @@ namespace OpenSage.Data.Ini.Parser
             while ((token = GetNextTokenOptional()).HasValue)
             {
                 result.Add(token.Value.Text);
+            }
+
+            return result.ToArray();
+        }
+
+        public T[] ParseAssetReferenceArray<T>(Dictionary<string, T> objects)
+        {
+            var result = new List<T>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                var name = token.Value.Text;
+                result.Add(objects[name]);
             }
 
             return result.ToArray();
