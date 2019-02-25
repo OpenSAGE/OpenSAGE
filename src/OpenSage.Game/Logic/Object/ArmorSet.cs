@@ -7,18 +7,19 @@ namespace OpenSage.Logic.Object
     {
         internal static ArmorSet Parse(IniParser parser)
         {
-            return parser.ParseBlock(FieldParseTable);
+            var res = parser.ParseBlock(FieldParseTable);
+            return res;
         }
 
         private static readonly IniParseTable<ArmorSet> FieldParseTable = new IniParseTable<ArmorSet>
         {
             { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumBitArray<ArmorSetCondition>() },
-            { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
+            { "Armor", (parser, x) => x.Armor = parser.ParseArmorReference() },
             { "DamageFX", (parser, x) => x.DamageFX = parser.ParseAssetReference() },
         };
 
         public BitArray<ArmorSetCondition> Conditions { get; private set; }
-        public string Armor { get; private set; }
+        public Armor Armor { get; private set; }
         public string DamageFX { get; private set; }
     }
 }

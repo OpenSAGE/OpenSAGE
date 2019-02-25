@@ -30,7 +30,9 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public AptButtonTooltipMap AptButtonTooltipMap { get; internal set;  }
 
-        public List<Armor> Armors { get; } = new List<Armor>();
+        public Dictionary<string, Armor> Armors { get; } = new Dictionary<string, Armor>();
+
+        public Armor GetArmor(string name) => GetDictionaryObject(name, Armors);
 
         [AddedIn(SageGame.Bfme2)]
         public List<ArmyDefinition> ArmyDefinitions { get; } = new List<ArmyDefinition>();
@@ -305,6 +307,16 @@ namespace OpenSage.Data.Ini
             if (source == null) return "";
             var streamReader = new StreamReader(source.Open());
             return streamReader.ReadToEnd();
+        }
+
+        public T GetDictionaryObject<T>(string name, Dictionary<string, T> values)
+            where T: class, new()
+        {
+            if (!values.ContainsKey(name))
+            {
+                values.Add(name, new T());
+            }
+            return values[name];
         }
     }
 }

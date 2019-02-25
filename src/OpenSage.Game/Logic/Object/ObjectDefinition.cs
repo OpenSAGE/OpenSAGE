@@ -7,11 +7,23 @@ namespace OpenSage.Logic.Object
 {
     public class ObjectDefinition : BaseInheritableAsset
     {
+        private static ObjectDefinition DefaultThingTemplate { get; set; } = new ObjectDefinition();
+
         internal static ObjectDefinition Parse(IniParser parser)
         {
-            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
+            ObjectDefinition result = null;
+            var name = parser.ParseString();
+            if (name == "DefaultThingTemplate")
+            {
+                result = DefaultThingTemplate;
+            }
+            else
+            {
+                result = (ObjectDefinition) DefaultThingTemplate.MemberwiseClone();
+            }
+            
+            parser.ParseBlockContent(result, FieldParseTable);
+            return result;
         }
 
         internal static ObjectDefinition ParseReskin(IniParser parser)
