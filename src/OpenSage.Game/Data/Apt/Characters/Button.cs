@@ -27,11 +27,11 @@ namespace OpenSage.Data.Apt.Characters
         public int Depth;
         public Matrix2x2 RotScale;
         public Vector2 Translation;
-        public ColorRgba Color;
+        public ColorRgbaF Color;
         public Vector4 Unknown;
 
         public ButtonRecord(ButtonRecordFlags flags,uint reserved, uint character, int depth, Matrix2x2 rotscale,
-            Vector2 translation, ColorRgba color, Vector4 unknown)
+            Vector2 translation, ColorRgbaF color, Vector4 unknown)
         {
             Flags = flags;
             Character = character;
@@ -51,7 +51,7 @@ namespace OpenSage.Data.Apt.Characters
                 reader.ReadInt32(),
                 reader.ReadMatrix2x2(),
                 reader.ReadVector2(),
-                reader.ReadColorRgba(),
+                reader.ReadColorRgbaF(),
                 reader.ReadVector4()
                 );
         }
