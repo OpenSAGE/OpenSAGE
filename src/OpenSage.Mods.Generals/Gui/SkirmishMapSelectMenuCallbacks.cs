@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -50,9 +50,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 if (mapCache.IsMultiplayer)
                 {
-                    string mapKey = mapCache.GetNameKey();
-
-                    items.Add(new ListBoxDataItem(mapCache, new[] { "", _game.ContentManager.TranslationManager.Lookup(mapKey) }, listBoxMaps.TextColor));
+                    items.Add(new ListBoxDataItem(mapCache, new[] { "", mapCache.GetNameKey().Translate() }, listBoxMaps.TextColor));
                 }
             }
 

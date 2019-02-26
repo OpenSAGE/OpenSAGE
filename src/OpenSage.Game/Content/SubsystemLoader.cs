@@ -34,7 +34,7 @@ namespace OpenSage.Content
                     break;
                 case Subsystem.ObjectCreation:
                     LoadFiles(
-                        @"Data\INI\Default\Armor.ini",
+                        @"Data\INI\Armor.ini",
                         @"Data\INI\Default\Object.ini");
                     _iniDataContext.LoadIniFiles(@"Data\INI\Object");
                     break;

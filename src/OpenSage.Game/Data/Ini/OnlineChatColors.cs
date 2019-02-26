@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -11,67 +12,67 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<OnlineChatColors> FieldParseTable = new IniParseTable<OnlineChatColors>
         {
-            { "Default", (parser, x) => x.Default = IniColorRgb.Parse(parser) },
-            { "CurrentRoom", (parser, x) => x.CurrentRoom = IniColorRgb.Parse(parser) },
-            { "ChatRoom", (parser, x) => x.ChatRoom = IniColorRgb.Parse(parser) },
-            { "Game", (parser, x) => x.Game = IniColorRgb.Parse(parser) },
-            { "GameFull", (parser, x) => x.GameFull = IniColorRgb.Parse(parser) },
-            { "GameCRCMismatch", (parser, x) => x.GameCrcMismatch = IniColorRgb.Parse(parser) },
-            { "PlayerNormal", (parser, x) => x.PlayerNormal = IniColorRgb.Parse(parser) },
-            { "PlayerOwner", (parser, x) => x.PlayerOwner = IniColorRgb.Parse(parser) },
-            { "PlayerBuddy", (parser, x) => x.PlayerBuddy = IniColorRgb.Parse(parser) },
-            { "PlayerSelf", (parser, x) => x.PlayerSelf = IniColorRgb.Parse(parser) },
-            { "PlayerIgnored", (parser, x) => x.PlayerIgnored = IniColorRgb.Parse(parser) },
-            { "ChatNormal", (parser, x) => x.ChatNormal = IniColorRgb.Parse(parser) },
-            { "ChatEmote", (parser, x) => x.ChatEmote = IniColorRgb.Parse(parser) },
-            { "ChatOwner", (parser, x) => x.ChatOwner = IniColorRgb.Parse(parser) },
-            { "ChatOwnerEmote", (parser, x) => x.ChatOwnerEmote = IniColorRgb.Parse(parser) },
-            { "ChatPriv", (parser, x) => x.ChatPriv = IniColorRgb.Parse(parser) },
-            { "ChatPrivEmote", (parser, x) => x.ChatPrivEmote = IniColorRgb.Parse(parser) },
-            { "ChatPrivOwner", (parser, x) => x.ChatPrivOwner = IniColorRgb.Parse(parser) },
-            { "ChatPrivOwnerEmote", (parser, x) => x.ChatPrivOwnerEmote = IniColorRgb.Parse(parser) },
-            { "ChatBuddy", (parser, x) => x.ChatBuddy = IniColorRgb.Parse(parser) },
-            { "ChatSelf", (parser, x) => x.ChatSelf = IniColorRgb.Parse(parser) },
-            { "AcceptTrue", (parser, x) => x.AcceptTrue = IniColorRgb.Parse(parser) },
-            { "AcceptFalse", (parser, x) => x.AcceptFalse = IniColorRgb.Parse(parser) },
-            { "MapSelected", (parser, x) => x.MapSelected = IniColorRgb.Parse(parser) },
-            { "MapUnselected", (parser, x) => x.MapUnselected = IniColorRgb.Parse(parser) },
-            { "MOTD", (parser, x) => x.Motd = IniColorRgb.Parse(parser) },
-            { "MOTDHeading", (parser, x) => x.MotdHeading = IniColorRgb.Parse(parser) },
-            { "OfflinePlayerBuddy", (parser, x) => x.OfflinePlayerBuddy = IniColorRgb.Parse(parser) },
-            { "OfflinePlayerIgnored", (parser, x) => x.OfflinePlayerIgnored = IniColorRgb.Parse(parser) },
+            { "Default", (parser, x) => x.Default = parser.ParseColorRgb() },
+            { "CurrentRoom", (parser, x) => x.CurrentRoom = parser.ParseColorRgb() },
+            { "ChatRoom", (parser, x) => x.ChatRoom = parser.ParseColorRgb() },
+            { "Game", (parser, x) => x.Game = parser.ParseColorRgb() },
+            { "GameFull", (parser, x) => x.GameFull = parser.ParseColorRgb() },
+            { "GameCRCMismatch", (parser, x) => x.GameCrcMismatch = parser.ParseColorRgb() },
+            { "PlayerNormal", (parser, x) => x.PlayerNormal = parser.ParseColorRgb() },
+            { "PlayerOwner", (parser, x) => x.PlayerOwner = parser.ParseColorRgb() },
+            { "PlayerBuddy", (parser, x) => x.PlayerBuddy = parser.ParseColorRgb() },
+            { "PlayerSelf", (parser, x) => x.PlayerSelf = parser.ParseColorRgb() },
+            { "PlayerIgnored", (parser, x) => x.PlayerIgnored = parser.ParseColorRgb() },
+            { "ChatNormal", (parser, x) => x.ChatNormal = parser.ParseColorRgb() },
+            { "ChatEmote", (parser, x) => x.ChatEmote = parser.ParseColorRgb() },
+            { "ChatOwner", (parser, x) => x.ChatOwner = parser.ParseColorRgb() },
+            { "ChatOwnerEmote", (parser, x) => x.ChatOwnerEmote = parser.ParseColorRgb() },
+            { "ChatPriv", (parser, x) => x.ChatPriv = parser.ParseColorRgb() },
+            { "ChatPrivEmote", (parser, x) => x.ChatPrivEmote = parser.ParseColorRgb() },
+            { "ChatPrivOwner", (parser, x) => x.ChatPrivOwner = parser.ParseColorRgb() },
+            { "ChatPrivOwnerEmote", (parser, x) => x.ChatPrivOwnerEmote = parser.ParseColorRgb() },
+            { "ChatBuddy", (parser, x) => x.ChatBuddy = parser.ParseColorRgb() },
+            { "ChatSelf", (parser, x) => x.ChatSelf = parser.ParseColorRgb() },
+            { "AcceptTrue", (parser, x) => x.AcceptTrue = parser.ParseColorRgb() },
+            { "AcceptFalse", (parser, x) => x.AcceptFalse = parser.ParseColorRgb() },
+            { "MapSelected", (parser, x) => x.MapSelected = parser.ParseColorRgb() },
+            { "MapUnselected", (parser, x) => x.MapUnselected = parser.ParseColorRgb() },
+            { "MOTD", (parser, x) => x.Motd = parser.ParseColorRgb() },
+            { "MOTDHeading", (parser, x) => x.MotdHeading = parser.ParseColorRgb() },
+            { "OfflinePlayerBuddy", (parser, x) => x.OfflinePlayerBuddy = parser.ParseColorRgb() },
+            { "OfflinePlayerIgnored", (parser, x) => x.OfflinePlayerIgnored = parser.ParseColorRgb() },
         };
 
-        public IniColorRgb Default { get; private set; }
-        public IniColorRgb CurrentRoom { get; private set; }
-        public IniColorRgb ChatRoom { get; private set; }
-        public IniColorRgb Game { get; private set; }
-        public IniColorRgb GameFull { get; private set; }
-        public IniColorRgb GameCrcMismatch { get; private set; }
-        public IniColorRgb PlayerNormal { get; private set; }
-        public IniColorRgb PlayerOwner { get; private set; }
-        public IniColorRgb PlayerBuddy { get; private set; }
-        public IniColorRgb PlayerSelf { get; private set; }
-        public IniColorRgb PlayerIgnored { get; private set; }
-        public IniColorRgb ChatNormal { get; private set; }
-        public IniColorRgb ChatEmote { get; private set; }
-        public IniColorRgb ChatOwner { get; private set; }
-        public IniColorRgb ChatOwnerEmote { get; private set; }
-        public IniColorRgb ChatPriv { get; private set; }
-        public IniColorRgb ChatPrivEmote { get; private set; }
-        public IniColorRgb ChatPrivOwner { get; private set; }
-        public IniColorRgb ChatPrivOwnerEmote { get; private set; }
-        public IniColorRgb ChatBuddy { get; private set; }
-        public IniColorRgb ChatSelf { get; private set; }
-        public IniColorRgb AcceptTrue { get; private set; }
-        public IniColorRgb AcceptFalse { get; private set; }
-        public IniColorRgb MapSelected { get; private set; }
-        public IniColorRgb MapUnselected { get; private set; }
-        public IniColorRgb Motd { get; private set; }
-        public IniColorRgb MotdHeading { get; private set; }
+        public ColorRgb Default { get; private set; }
+        public ColorRgb CurrentRoom { get; private set; }
+        public ColorRgb ChatRoom { get; private set; }
+        public ColorRgb Game { get; private set; }
+        public ColorRgb GameFull { get; private set; }
+        public ColorRgb GameCrcMismatch { get; private set; }
+        public ColorRgb PlayerNormal { get; private set; }
+        public ColorRgb PlayerOwner { get; private set; }
+        public ColorRgb PlayerBuddy { get; private set; }
+        public ColorRgb PlayerSelf { get; private set; }
+        public ColorRgb PlayerIgnored { get; private set; }
+        public ColorRgb ChatNormal { get; private set; }
+        public ColorRgb ChatEmote { get; private set; }
+        public ColorRgb ChatOwner { get; private set; }
+        public ColorRgb ChatOwnerEmote { get; private set; }
+        public ColorRgb ChatPriv { get; private set; }
+        public ColorRgb ChatPrivEmote { get; private set; }
+        public ColorRgb ChatPrivOwner { get; private set; }
+        public ColorRgb ChatPrivOwnerEmote { get; private set; }
+        public ColorRgb ChatBuddy { get; private set; }
+        public ColorRgb ChatSelf { get; private set; }
+        public ColorRgb AcceptTrue { get; private set; }
+        public ColorRgb AcceptFalse { get; private set; }
+        public ColorRgb MapSelected { get; private set; }
+        public ColorRgb MapUnselected { get; private set; }
+        public ColorRgb Motd { get; private set; }
+        public ColorRgb MotdHeading { get; private set; }
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb OfflinePlayerBuddy { get; private set; }
+        public ColorRgb OfflinePlayerBuddy { get; private set; }
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb OfflinePlayerIgnored { get; private set; }
+        public ColorRgb OfflinePlayerIgnored { get; private set; }
     }
 }

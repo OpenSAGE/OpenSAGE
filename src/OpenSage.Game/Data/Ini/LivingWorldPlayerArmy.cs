@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -12,8 +13,8 @@ namespace OpenSage.Data.Ini
         {
             { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
             { "DisplayNameTag", (parser, x) => x.DisplayNameTag = parser.ParseLocalizedStringKey() },
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
-            { "NightColor", (parser, x) => x.NightColor = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
+            { "NightColor", (parser, x) => x.NightColor = parser.ParseColorRgb() },
             { "MinCommandPoints", (parser, x) => x.MinCommandPoints = parser.ParseInteger() },
             { "ReplenishArmyName", (parser, x) => x.ReplenishArmyName = parser.ParseAssetReference() },
 
@@ -22,8 +23,8 @@ namespace OpenSage.Data.Ini
 
         public string Name { get; private set; }
         public string DisplayNameTag { get; private set; }
-        public IniColorRgb Color { get; private set; }
-        public IniColorRgb NightColor { get; private set; }
+        public ColorRgb Color { get; private set; }
+        public ColorRgb NightColor { get; private set; }
         public int MinCommandPoints { get; private set; }
         public string ReplenishArmyName { get; private set; }
 

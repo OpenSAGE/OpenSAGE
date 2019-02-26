@@ -13,8 +13,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public Color()
         {
             //list of builtin functions
-            _builtinFunctions = new Dictionary<string, Action<ObjectContext, Value[]>>();
-            _builtinFunctions["setRGB"] = (ObjectContext ctx, Value[] args) => { _color = ColorRgba.FromHex(_color, args.First().ToString()); };
+            _builtinFunctions = new Dictionary<string, Action<ObjectContext, Value[]>>
+            {
+                ["setRGB"] = (ObjectContext ctx, Value[] args) => { _color = ColorRgba.FromHex(_color, args.First().ToString()); }
+            };
         }
 
         public override bool IsBuiltInFunction(string name)

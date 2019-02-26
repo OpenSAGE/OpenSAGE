@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -17,7 +18,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<BridgeTemplate> FieldParseTable = new IniParseTable<BridgeTemplate>
         {
             { "BridgeScale", (parser, x) => x.BridgeScale = parser.ParseFloat() },
-            { "RadarColor", (parser, x) => x.RadarColor = IniColorRgb.Parse(parser) },
+            { "RadarColor", (parser, x) => x.RadarColor = parser.ParseColorRgb() },
             { "BridgeModelName", (parser, x) => x.BridgeModelName = parser.ParseFileName() },
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "BridgeModelNameDamaged", (parser, x) => x.BridgeModelNameDamaged = parser.ParseFileName() },
@@ -45,7 +46,7 @@ namespace OpenSage.Data.Ini
         public string Name { get; private set; }
 
         public float BridgeScale { get; private set; }
-        public IniColorRgb RadarColor { get; private set; }
+        public ColorRgb RadarColor { get; private set; }
         public string BridgeModelName { get; private set; }
         public string Texture { get; private set; }
         public string BridgeModelNameDamaged { get; private set; }

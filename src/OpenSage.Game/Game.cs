@@ -54,6 +54,11 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting { get; }
+		
+        /// <summary>
+        /// Load lua script engine.
+        /// </summary>
+        public LuaScriptEngine Lua { get; set; }
 
         /// <summary>
         /// Gets the selection system.
@@ -258,6 +263,8 @@ namespace OpenSage
                 Graphics = AddDisposable(new GraphicsSystem(this));
 
                 Scripting = AddDisposable(new ScriptingSystem(this));
+
+                Lua = AddDisposable(new LuaScriptEngine(this));
 
                 Scene2D = new Scene2D(this);
 

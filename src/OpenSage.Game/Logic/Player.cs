@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
-using OpenSage.Content.Util;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -68,7 +68,7 @@ namespace OpenSage.Logic
 
             var name = mapPlayer.Properties["playerName"].Value as string;
             var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;
-            var translatedDisplayName = content.TranslationManager.Lookup(displayName);
+            var translatedDisplayName = displayName.Translate();
 
             var isHuman = (bool) mapPlayer.Properties["playerIsHuman"].Value;
 
@@ -82,7 +82,7 @@ namespace OpenSage.Logic
             }
             else if (template != null) // Template is null for the neutral faction
             {
-                color = template.PreferredColor.ToColorRgb();
+                color = template.PreferredColor;
             }
             else
             {
@@ -133,9 +133,9 @@ namespace OpenSage.Logic
             {
                 Side = template.Side,
                 Name = template.Name,
-                DisplayName = content.TranslationManager.Lookup(template.DisplayName),
+                DisplayName = template.DisplayName.Translate(),
                 Money = (uint) template.StartMoney,
-                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor.ToColorRgb()
+                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor
             };
         }
     }

@@ -304,7 +304,12 @@ namespace OpenSage.Data.Ini
         public string GetIniFileContent(string filePath)
         {
             var source = _fileSystem.GetFile(filePath);
-            if (source == null) return "";
+
+            if (source == null)
+            {
+                return "";
+            }
+
             var streamReader = new StreamReader(source.Open());
             return streamReader.ReadToEnd();
         }

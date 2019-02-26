@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 using System.Numerics;
 
 namespace OpenSage.Data.Ini
@@ -53,8 +54,8 @@ namespace OpenSage.Data.Ini
         {
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
             { "Blend", (parser, x) => x.Blend = parser.ParseFloat() },
-            { "BaseColor", (parser, x) => x.BaseColor = IniColorRgb.Parse(parser) },
-            { "EffectColor", (parser, x) => x.EffectColor = IniColorRgb.Parse(parser) },
+            { "BaseColor", (parser, x) => x.BaseColor = parser.ParseColorRgb() },
+            { "EffectColor", (parser, x) => x.EffectColor = parser.ParseColorRgb() },
             { "EffectSaturation", (parser, x) => x.EffectSaturation = parser.ParseFloat() },
             { "BaseSaturation", (parser, x) => x.BaseSaturation = parser.ParseFloat() },
             { "Velocity", (parser, x) => x.Velocity = parser.ParseFloat() },
@@ -66,8 +67,8 @@ namespace OpenSage.Data.Ini
 
         public float Scale { get; private set; }
         public float Blend { get; private set; }
-        public IniColorRgb BaseColor { get; private set; }
-        public IniColorRgb EffectColor { get; private set; }
+        public ColorRgb BaseColor { get; private set; }
+        public ColorRgb EffectColor { get; private set; }
         public float EffectSaturation { get; private set; }
         public float BaseSaturation { get; private set; }
         public float Velocity { get; private set; }
@@ -89,7 +90,7 @@ namespace OpenSage.Data.Ini
             { "AlphaTexture", (parser, x) => x.AlphaTexture = parser.ParseFileName() },
             { "PropagateSpeed", (parser, x) => x.PropagateSpeed = parser.ParseFloat() },
             { "Angle", (parser, x) => x.Angle = parser.ParseInteger() },
-            { "DarkeningFactor", (parser, x) => x.DarkeningFactor = IniColorRgb.Parse(parser) },
+            { "DarkeningFactor", (parser, x) => x.DarkeningFactor = parser.ParseColorRgb() },
             { "DarkeningRate", (parser, x) => x.DarkeningRate = parser.ParseInteger() },
             { "LighteningRate", (parser, x) => x.LighteningRate = parser.ParseInteger() },
             { "CloudScrollSpeed", (parser, x) => x.CloudScrollSpeed = parser.ParseFloat() },
@@ -104,7 +105,7 @@ namespace OpenSage.Data.Ini
             { "LightningDuration", (parser, x) => x.LightningDuration = parser.ParseFloat() },
             { "LightningFrequency", (parser, x) => x.LightningFrequency = parser.ParseFloat() },
             { "LightningIntensity", (parser, x) => x.LightningIntensity = parser.ParseFloat() },
-            { "LightningShadowColor", (parser, x) => x.LightningShadowColor = IniColorRgb.Parse(parser) },
+            { "LightningShadowColor", (parser, x) => x.LightningShadowColor = parser.ParseColorRgb() },
             { "LightningShadowIntensity", (parser, x) => x.LightningShadowIntensity = parser.ParseFloat() },
             { "LightningLightPosition1", (parser, x) => x.LightningLightPosition1 = parser.ParseVector2() },
             { "LightningLightPosition2", (parser, x) => x.LightningLightPosition2 = parser.ParseVector2() },
@@ -117,7 +118,7 @@ namespace OpenSage.Data.Ini
         public string AlphaTexture { get; private set; }
         public float PropagateSpeed { get; private set; }
         public int Angle { get; private set; }
-        public IniColorRgb DarkeningFactor { get; private set; }
+        public ColorRgb DarkeningFactor { get; private set; }
         public int DarkeningRate { get; private set; }
         public int LighteningRate { get; private set; }
         public float CloudScrollSpeed { get; private set; }
@@ -132,7 +133,7 @@ namespace OpenSage.Data.Ini
         public float LightningDuration { get; private set; }
         public float LightningFrequency { get; private set; }
         public float LightningIntensity { get; private set; }
-        public IniColorRgb LightningShadowColor { get; private set; }
+        public ColorRgb LightningShadowColor { get; private set; }
         public float LightningShadowIntensity { get; private set; }
         public Vector2 LightningLightPosition1 { get; private set; }
         public Vector2 LightningLightPosition2 { get; private set; }

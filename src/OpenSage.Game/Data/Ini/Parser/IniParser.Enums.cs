@@ -127,7 +127,9 @@ namespace OpenSage.Data.Ini.Parser
             var token = GetNextToken();
 
             if (stringToValueMap.TryGetValue(token.Text.ToUpperInvariant(), out var enumValue))
+            {
                 return enumValue;
+            }
 
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
         }
@@ -144,7 +146,9 @@ namespace OpenSage.Data.Ini.Parser
             var stringToValueMap = GetEnumMap<T>();
 
             if (stringToValueMap.TryGetValue(token.Text.ToUpperInvariant(), out var enumValue))
+            {
                 return (T)(object)enumValue;
+            }
 
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
         }
@@ -160,7 +164,9 @@ namespace OpenSage.Data.Ini.Parser
             while ((token = GetNextTokenOptional()) != null)
             {
                 if (!stringToValueMap.TryGetValue(token.Value.Text.ToUpperInvariant(), out var enumValue))
+                {
                     throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Value.Text}'", token.Value.Position);
+                }
 
                 // Ugh.
                 result = (T) (object) ((int) (object) result | (int) (object) enumValue);
@@ -181,7 +187,10 @@ namespace OpenSage.Data.Ini.Parser
             {
                 var value = token.Value.Text.ToUpperInvariant();
                 if (!ParseBitValue(stringToValueMap, result, value, inLine: true))
+                {
                     return result;
+                }
+
                 GetNextTokenOptional(SeparatorsColon); //to proceed
             }
 
@@ -246,9 +255,13 @@ namespace OpenSage.Data.Ini.Parser
                     if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
                     {
                         if (inLine)
+                        {
                             return false;
+                        }
                         else
+                        {
                             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", CurrentPosition);
+                        }
                     }
 
                     // Ugh.

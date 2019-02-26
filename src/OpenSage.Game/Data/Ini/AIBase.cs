@@ -18,7 +18,7 @@ namespace OpenSage.Data.Ini
             { "Map", (parser, x) => x.Map = parser.ParseQuotedString() },
             { "GameMapToUseOn", (parser, x) => x.GameMapToUseOn = parser.ParseQuotedString() },
             { "PlayerPositions", (parser, x) => x.PlayerPositions = parser.ParseInteger() },
-            { "AllowsArbirtaryRotation", (parser, x) => x.AllowsArbirtaryRotation = parser.ParseBoolean() }
+            { "AllowsArbirtaryRotation", (parser, x) => x.AllowsArbitraryRotation = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -26,6 +26,6 @@ namespace OpenSage.Data.Ini
         public string Map { get; private set; }
         public string GameMapToUseOn { get; private set; }
         public int PlayerPositions { get; private set; }
-        public bool AllowsArbirtaryRotation { get; private set; }
+        public bool AllowsArbitraryRotation { get; private set; }
     }
 }

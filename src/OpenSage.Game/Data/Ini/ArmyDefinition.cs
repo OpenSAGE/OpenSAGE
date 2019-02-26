@@ -56,7 +56,7 @@ namespace OpenSage.Data.Ini
             { "ChanceToUseAllUnitsForDefenseTarget_Large", (parser, x) => x.ChanceToUseAllUnitsForDefenseTarget_Large = parser.ParsePercentage() },
             { "TacticalAITargets", (parser, x) => x.TacticalAITargets = parser.ParseAssetReferenceArray() },
             { "MaxTeamsPerTarget", (parser, x) => x.MaxTeamsPerTarget = parser.ParseIntegerArray() },
-            { "AIEconomyAssigment", (parser, x) => x.AIEconomyAssigment = AIEconomyAssigment.Parse(parser) },
+            { "AIEconomyAssigment", (parser, x) => x.AIEconomyAssignment = AIEconomyAssignment.Parse(parser) },
             { "AIWallNodeAssignment", (parser, x) => x.AIWallNodeAssignment = AIWallNodeAssignment.Parse(parser) },
             { "ArmyMemberDefinition", (parser, x) => x.ArmyMemberDefinitions.Add(ArmyMemberDefinition.Parse(parser)) },
             { "HeroBuildOrder", (parser, x) => x.HeroBuildOrder = parser.ParseAssetReferenceArray() },
@@ -110,7 +110,7 @@ namespace OpenSage.Data.Ini
         public string[] TacticalAITargets { get; private set; }
         public int[] MaxTeamsPerTarget { get; private set; }
 
-        public AIEconomyAssigment AIEconomyAssigment { get; private set; }
+        public AIEconomyAssignment AIEconomyAssignment { get; private set; }
         public AIWallNodeAssignment AIWallNodeAssignment { get; private set; }
 
         public List<ArmyMemberDefinition> ArmyMemberDefinitions { get; } = new List<ArmyMemberDefinition>();
@@ -120,16 +120,16 @@ namespace OpenSage.Data.Ini
         public string[] ScavangedResourceBuildings { get; private set; }
     }
 
-    public class AIEconomyAssigment
+    public class AIEconomyAssignment
     {
-        internal static AIEconomyAssigment Parse(IniParser parser)
+        internal static AIEconomyAssignment Parse(IniParser parser)
         {
              return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<AIEconomyAssigment> FieldParseTable = new IniParseTable<AIEconomyAssigment>
+        private static readonly IniParseTable<AIEconomyAssignment> FieldParseTable = new IniParseTable<AIEconomyAssignment>
         {
             { "TemplateName", (parser, x) => x.TemplateName = parser.ParseAssetReference() }
         };

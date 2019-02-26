@@ -140,7 +140,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new InitObject();
                         break;
                     case InstructionType.TypeOf:
-                        instruction = new InitObject();
+                        instruction = new TypeOf();
                         break;
                     case InstructionType.Add2:
                         instruction = new Add2();

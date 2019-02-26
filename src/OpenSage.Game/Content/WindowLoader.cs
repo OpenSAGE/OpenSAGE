@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Wnd;
@@ -268,7 +269,7 @@ namespace OpenSage.Content
 
             result.TextColor = wndWindow.TextColor.Enabled.ToColorRgbaF();
 
-            result.Text = contentManager.TranslationManager.Lookup(wndWindow.Text);
+            result.Text = wndWindow.Text.Translate();
 
             // TODO: TextBorderColor
 

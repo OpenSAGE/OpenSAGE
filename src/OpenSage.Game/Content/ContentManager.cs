@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics;
@@ -65,7 +66,7 @@ namespace OpenSage.Content
         /// </summary>
         public DataContext DataContext { get; }
 
-        public TranslationManager TranslationManager { get; }
+        public ITranslationManager TranslationManager { get; }
 
         public WndImageLoader WndImageLoader { get; }
 
@@ -146,7 +147,8 @@ namespace OpenSage.Content
 
                 _cachedObjects = new Dictionary<string, object>();
 
-                TranslationManager = new TranslationManager(fileSystem, sageGame, Language);
+                TranslationManager = Translation.TranslationManager.Instance;
+                Translation.TranslationManager.LoadGameCsf(fileSystem, Language, sageGame);
 
                 _cachedFonts = new Dictionary<FontKey, Font>();
 

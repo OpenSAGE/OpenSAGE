@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -18,10 +19,10 @@ namespace OpenSage.Data.Ini
             { "SkyboxTextureW", (parser, x) => x.SkyboxTextureW = parser.ParseFileName() },
             { "SkyboxTextureT", (parser, x) => x.SkyboxTextureT = parser.ParseFileName() },
 
-            { "StandingWaterColor", (parser, x) => x.StandingWaterColor = IniColorRgb.Parse(parser) },
+            { "StandingWaterColor", (parser, x) => x.StandingWaterColor = parser.ParseColorRgb() },
             { "StandingWaterTexture", (parser, x) => x.StandingWaterTexture = parser.ParseFileName() },
             { "AdditiveBlending", (parser, x) => x.AdditiveBlending = parser.ParseBoolean() },
-            { "RadarWaterColor", (parser, x) => x.RadarWaterColor = IniColorRgb.Parse(parser) },
+            { "RadarWaterColor", (parser, x) => x.RadarWaterColor = parser.ParseColorRgb() },
             { "RiverTransparencyMultiplier", (parser, x) => x.RiverTransparencyMultiplier = parser.ParseFloat() },
             { "ReflectionPlaneZ", (parser, x) => x.ReflectionPlaneZ = parser.ParseFloat() },
             { "ReflectionOn", (parser, x) => x.ReflectionOn = parser.ParseBoolean() },
@@ -38,7 +39,7 @@ namespace OpenSage.Data.Ini
         public string SkyboxTextureT { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public IniColorRgb StandingWaterColor { get; private set; }
+        public ColorRgb StandingWaterColor { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string StandingWaterTexture { get; private set; }
@@ -47,7 +48,7 @@ namespace OpenSage.Data.Ini
         public bool AdditiveBlending { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public IniColorRgb RadarWaterColor { get; private set; }
+        public ColorRgb RadarWaterColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float RiverTransparencyMultiplier { get; private set; }

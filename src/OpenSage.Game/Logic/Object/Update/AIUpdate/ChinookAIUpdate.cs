@@ -1,5 +1,5 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
                 { "PerRopeDelayMin", (parser, x) => x.PerRopeDelayMin = parser.ParseInteger() },
                 { "PerRopeDelayMax", (parser, x) => x.PerRopeDelayMax = parser.ParseInteger() },
                 { "RopeWidth", (parser, x) => x.RopeWidth = parser.ParseFloat() },
-                { "RopeColor", (parser, x) => x.RopeColor = IniColorRgb.Parse(parser) },
+                { "RopeColor", (parser, x) => x.RopeColor = parser.ParseColorRgb() },
                 { "RopeWobbleLen", (parser, x) => x.RopeWobbleLen = parser.ParseInteger() },
                 { "RopeWobbleAmplitude", (parser, x) => x.RopeWobbleAmplitude = parser.ParseFloat() },
                 { "RopeWobbleRate", (parser, x) => x.RopeWobbleRate = parser.ParseInteger() },
@@ -47,7 +47,7 @@ namespace OpenSage.Logic.Object
         public int PerRopeDelayMin { get; private set; }
         public int PerRopeDelayMax { get; private set; }
         public float RopeWidth { get; private set; }
-        public IniColorRgb RopeColor { get; private set; }
+        public ColorRgb RopeColor { get; private set; }
         public int RopeWobbleLen { get; private set; }
         public float RopeWobbleAmplitude { get; private set; }
         public int RopeWobbleRate { get; private set; }
