@@ -12,7 +12,7 @@ namespace OpenSage.Data.Ini
                 FieldParseTable);
         }
 
-        private static new readonly IniParseTable<AmbientStream> FieldParseTable = BaseSingleSound.FieldParseTable
+        private new static readonly IniParseTable<AmbientStream> FieldParseTable = BaseSingleSound.FieldParseTable
             .Concat(new IniParseTable<AmbientStream>
             {
                 { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },

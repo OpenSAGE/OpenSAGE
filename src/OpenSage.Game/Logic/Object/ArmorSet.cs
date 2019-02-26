@@ -7,8 +7,7 @@ namespace OpenSage.Logic.Object
     {
         internal static ArmorSet Parse(IniParser parser)
         {
-            var res = parser.ParseBlock(FieldParseTable);
-            return res;
+            return parser.ParseBlock(FieldParseTable);
         }
 
         private static readonly IniParseTable<ArmorSet> FieldParseTable = new IniParseTable<ArmorSet>

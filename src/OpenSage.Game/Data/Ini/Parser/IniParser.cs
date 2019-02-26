@@ -722,6 +722,7 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public bool ParseBlockContent<T>(
+            Action<T, string> setNameCallback,
             Dictionary<string, T> values,
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
@@ -735,7 +736,9 @@ namespace OpenSage.Data.Ini.Parser
             else
             {
                 t = new T();
+                values.Add(name, t);
             }
+            setNameCallback(t, name);
             return ParseBlockContent(t, fieldParserProvider);
         }
 

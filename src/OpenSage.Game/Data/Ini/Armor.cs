@@ -7,7 +7,10 @@ namespace OpenSage.Data.Ini
     {
         internal static void Parse(IniParser parser, IniDataContext context)
         {
-            parser.ParseBlockContent(context.Armors, FieldParseTable);
+            parser.ParseBlockContent(
+                (x, name) => x.Name = name,
+                context.Armors,
+                FieldParseTable);
         }
 
         private static readonly IniParseTable<Armor> FieldParseTable = new IniParseTable<Armor>
