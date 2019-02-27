@@ -5,14 +5,12 @@ namespace OpenSage.Data.Ini
 {
     public sealed class CommandSet
     {
-        internal static CommandSet Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable,
-                new IniArbitraryFieldParserProvider<CommandSet>(
+        internal static void Parse(IniParser parser, IniDataContext context) => parser.ParseBlockContent(
+            (x, name) => x.Name = name,
+            context.CommandSets,
+            FieldParseTable,
+            new IniArbitraryFieldParserProvider<CommandSet>(
                     (x, name) => x.Buttons[int.Parse(name)] = parser.ParseAssetReference()));
-        }
 
         private static readonly IniParseTable<CommandSet> FieldParseTable = new IniParseTable<CommandSet>
         {

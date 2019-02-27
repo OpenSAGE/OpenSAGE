@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
             { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
             { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
-            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseOptionalLocalizedStringKey() },
+            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
             { "FenceWidth", (parser, x) => x.FenceWidth = parser.ParseFloat() },
@@ -219,7 +219,7 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseLocomotorReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -404,7 +404,7 @@ namespace OpenSage.Logic.Object
         public bool IsPrerequisite { get; private set; }
         public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
         public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
-        public string CommandSet { get; private set; }
+        public CommandSet CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
 
@@ -780,7 +780,7 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSetCondition, string[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, string[]>();
+        public Dictionary<LocomotorSetCondition, Locomotor[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, Locomotor[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 

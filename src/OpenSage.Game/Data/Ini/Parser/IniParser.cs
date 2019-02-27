@@ -50,7 +50,7 @@ namespace OpenSage.Data.Ini.Parser
             { "CloudEffect", (parser, context) => context.Environment.CloudEffect = CloudEffect.Parse(parser) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
-            { "CommandSet", (parser, context) => context.CommandSets.Add(CommandSet.Parse(parser)) },
+            { "CommandSet", (parser, context) => CommandSet.Parse(parser, context) },
             { "ControlBarResizer", (parser, context) => context.ControlBarResizers.Add(ControlBarResizer.Parse(parser)) },
             { "ControlBarScheme", (parser, context) => context.ControlBarSchemes.Add(ControlBarScheme.Parse(parser)) },
             { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
@@ -112,7 +112,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldRegionEffects", (parser, x) => x.LivingWorldRegionEffects = LivingWorldRegionEffects.Parse(parser) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
-            { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
+            { "Locomotor", (parser, context) => Locomotor.Parse(parser, context) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
@@ -724,7 +724,8 @@ namespace OpenSage.Data.Ini.Parser
         public bool ParseBlockContent<T>(
             Action<T, string> setNameCallback,
             Dictionary<string, T> values,
-            IIniFieldParserProvider<T> fieldParserProvider)
+            IIniFieldParserProvider<T> fieldParserProvider,
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
             where T : class, new()
         {
             var name = ParseString();
@@ -739,7 +740,7 @@ namespace OpenSage.Data.Ini.Parser
                 values.Add(name, t);
             }
             setNameCallback(t, name);
-            return ParseBlockContent(t, fieldParserProvider);
+            return ParseBlockContent(t, fieldParserProvider, false, fieldParserProviderFallback);
         }
 
         public bool ParseBlockContent<T>(

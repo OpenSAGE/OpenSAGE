@@ -31,7 +31,6 @@ namespace OpenSage.Data.Ini
         public AptButtonTooltipMap AptButtonTooltipMap { get; internal set;  }
 
         public Dictionary<string, Armor> Armors { get; } = new Dictionary<string, Armor>();
-
         public Armor GetArmor(string name) => GetDictionaryObject(name, Armors);
 
         [AddedIn(SageGame.Bfme2)]
@@ -74,7 +73,10 @@ namespace OpenSage.Data.Ini
         public ChallengeGenerals ChallengeGenerals { get; internal set; }
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
-        public List<CommandSet> CommandSets { get; } = new List<CommandSet>();
+
+        public Dictionary<string, CommandSet> CommandSets { get; } = new Dictionary<string, CommandSet>();
+        public CommandSet GetCommandSet(string name) => GetDictionaryObject(name, CommandSets);
+
         public List<ControlBarResizer> ControlBarResizers { get; } = new List<ControlBarResizer>();
         public ControlBarSchemeCollection ControlBarSchemes { get; } = new ControlBarSchemeCollection();
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
@@ -167,7 +169,9 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldRegionEffects LivingWorldRegionEffects { get; internal set; }
 
-        public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
+        public Dictionary<string, Locomotor> Locomotors { get; } = new Dictionary<string, Locomotor>();
+        public Locomotor GetLocomotor(string name) => GetDictionaryObject(name, Locomotors);
+
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();

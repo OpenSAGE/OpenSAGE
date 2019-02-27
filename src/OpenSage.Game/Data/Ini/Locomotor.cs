@@ -4,12 +4,10 @@ namespace OpenSage.Data.Ini
 {
     public sealed class Locomotor
     {
-        internal static Locomotor Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
-                 FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, IniDataContext context) => parser.ParseBlockContent(
+            (x, name) => x.Name = name,
+            context.Locomotors,
+            FieldParseTable);
 
         private static readonly IniParseTable<Locomotor> FieldParseTable = new IniParseTable<Locomotor>
         {

@@ -302,7 +302,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
-                var commandSet = controlBar._contentManager.IniDataContext.CommandSets.Find(x => x.Name == unit.Definition.CommandSet);
+                var commandSet = unit.Definition.CommandSet;
                 ApplyCommandSet(controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
