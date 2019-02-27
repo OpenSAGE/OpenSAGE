@@ -20,7 +20,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "AptButtonTooltipMap", (parser, context) => context.AptButtonTooltipMap = AptButtonTooltipMap.Parse(parser) },
-            { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
+            { "Armor", (parser, context) => Armor.Parse(parser, context) },
             { "ArmyDefinition", (parser, context) => context.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
             { "ArmySummaryDescription", (parser, x) => x.ArmySummaryDescription = ArmySummaryDescription.Parse(parser) },
             { "AudioEvent", (parser, context) =>
@@ -719,6 +719,27 @@ namespace OpenSage.Data.Ini.Parser
             ParseBlockContent(result, fieldParserProvider);
 
             return result;
+        }
+
+        public bool ParseBlockContent<T>(
+            Action<T, string> setNameCallback,
+            Dictionary<string, T> values,
+            IIniFieldParserProvider<T> fieldParserProvider)
+            where T : class, new()
+        {
+            var name = ParseString();
+            T t;
+            if (values.ContainsKey(name))
+            {
+                t = values[name];
+            }
+            else
+            {
+                t = new T();
+                values.Add(name, t);
+            }
+            setNameCallback(t, name);
+            return ParseBlockContent(t, fieldParserProvider);
         }
 
         public bool ParseBlockContent<T>(
