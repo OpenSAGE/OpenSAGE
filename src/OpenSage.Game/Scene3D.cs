@@ -172,7 +172,7 @@ namespace OpenSage
         {
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.LogicTick(frame, Terrain.HeightMap);
+                gameObject.LogicTick(frame);
             }
         }
 
@@ -182,7 +182,7 @@ namespace OpenSage
 
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.LocalLogicTick(gameTime, tickT);
+                gameObject.LocalLogicTick(gameTime, tickT, Terrain.HeightMap);
             }
 
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);

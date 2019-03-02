@@ -26,6 +26,19 @@ namespace OpenSage.Logic
             }
         }
 
+        public void OnMove()
+        {
+            if (!_worldPosition.HasValue)
+            {           
+                return;
+            }
+
+            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
+            {
+                unit.MoveTo(_worldPosition.Value, Game.Audio);
+            }
+        }
+
         public void OnActivate()
         {
             if (!_worldPosition.HasValue || ActiveGenerator == null)
