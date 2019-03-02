@@ -21,9 +21,7 @@ namespace OpenSage.Logic
 
         public void Update()
         {
-            _priority = _orderGeneratorSystem.HasActiveOrderGenerator ?
-                HandlingPriority.OrderGeneratorPriority :
-                HandlingPriority.Disabled;
+            _priority = HandlingPriority.OrderGeneratorPriority;
         }
 
         public override InputMessageResult HandleMessage(InputMessage message)
@@ -44,6 +42,11 @@ namespace OpenSage.Logic
                     }
                     break;
                 case InputMessageType.MouseLeftButtonDown:
+                    if (_orderGeneratorSystem.ActiveGenerator == null)
+                    {
+                        break;
+                    }
+
                     if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
                         _orderGeneratorSystem.OnActivate();
@@ -53,15 +56,24 @@ namespace OpenSage.Logic
                     _isDragging = true;
                     // Copy initial position to drag end position so that delta is 0 if the drag ends immediately
                     _dragEndPosition = _mousePosition;
-                    
+
                     return InputMessageResult.Handled;
                 case InputMessageType.MouseLeftButtonUp:
+                    if (_orderGeneratorSystem.ActiveGenerator == null)
+                    {
+                        break;
+                    }
+
                     if (_isDragging)
                     {
                         _orderGeneratorSystem.OnActivate();
                     }
 
                     _isDragging = false;
+
+                    return InputMessageResult.Handled;
+                case InputMessageType.MouseRightButtonDown:
+                    _orderGeneratorSystem.OnMove();
 
                     return InputMessageResult.Handled;
             }

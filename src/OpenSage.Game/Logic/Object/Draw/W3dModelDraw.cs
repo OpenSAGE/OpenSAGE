@@ -124,7 +124,17 @@ namespace OpenSage.Logic.Object
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
         {
             ModelInstance modelInstance = null;
-            if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
+            if(conditionState.Model == null)
+            {
+                // Load default model
+                var w3dFilePath = Path.Combine("Art", "W3D", _defaultConditionState.Model + ".W3D");
+                var model = _contentManager.Load<Model>(w3dFilePath);
+                if (model != null)
+                {
+                    modelInstance = model.CreateInstance(_contentManager);
+                }
+            }
+            else if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
                 var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
                 var model = _contentManager.Load<Model>(w3dFilePath);

@@ -43,6 +43,7 @@ namespace OpenSage.Logic.Object
 
         private IniDataContext Context { get; set; }
 
+        private Vector3? TargetPoint { get; set; }
 
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
         {
@@ -89,42 +90,55 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void LogicTick(ulong frame, HeightMap heightMap)
+        internal void LogicTick(ulong frame)
         {
             // TODO: Update modules.
+                     
+        }
+
+        internal void MoveTo(Vector3 targetPos, AudioSystem gameAudio)
+        {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
-                if (IsSelected)
-                {
-                    //todo get movement speed from current locomotor
-                    var speed = CurrentLocomotor.Speed / 10.0f;
-
-                    var direction = new Vector3(1.0f, 0.0f, 0);
-                    Transform.Translation += direction * speed;
-
-                    var x = Transform.Translation.X;
-                    var y = Transform.Translation.Y;
-                    var z = heightMap.GetHeight(x, y);
-
-                    
-                    Transform.Translation = new Vector3(x, y, z);
-
-                    //if (Definition.KindOf.Get(ObjectKinds.Vehicle))
-                    //{
-                    //    var normal = heightMap.GetNormal(x, y);
-                    //    Transform.Rotation = Quaternion.CreateFromYawPitchRoll(normal.X, normal.Y, normal.Z);
-                    //}
-                    
-                }
+                TargetPoint = targetPos;
             }
-            
+
+            if (Definition.VoiceMove != null)
+            {
+                gameAudio.PlayAudioEvent(Definition.VoiceMove);
+            }
+
+            var flags = new BitArray<ModelConditionFlag>();
+            flags.Set(ModelConditionFlag.Moving, true);
+            SetModelConditionFlags(flags);
         }
 
-        internal void LocalLogicTick(in TimeInterval gameTime, float tickT)
+        internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
+            if (TargetPoint.HasValue)
+            {
+                // This locomotor speed is distance/second
+                var distance = CurrentLocomotor.Speed * (gameTime.DeltaTime.Milliseconds / 1000.0f);
+
+                var direction = Vector3.Normalize(TargetPoint.Value - Transform.Translation);
+                Transform.Translation += direction * distance;
+
+                var x = Transform.Translation.X;
+                var y = Transform.Translation.Y;
+                var z = heightMap.GetHeight(x, y);
+
+                Transform.Translation = new Vector3(x, y, z);
+
+                if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
+                {
+                    TargetPoint = null;
+                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+                }
+            }
+
             foreach (var drawModule in DrawModules)
             {
                 drawModule.Update(gameTime);
