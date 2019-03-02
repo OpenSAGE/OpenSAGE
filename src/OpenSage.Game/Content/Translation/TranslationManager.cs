@@ -37,7 +37,7 @@ namespace OpenSage.Content.Translation
             {
                 //TODO: just a hack for now
                 var cultureString = "";
-                switch (language)
+                switch (language.ToLower())
                 {
                     case "german":
                         cultureString = "de-DE";
@@ -71,6 +71,7 @@ namespace OpenSage.Content.Translation
                     return result;
                 }
             }
+
             public IReadOnlyList<ITranslationProvider> DefaultProviders
             {
                 get
@@ -118,6 +119,7 @@ namespace OpenSage.Content.Translation
                         providers.Add(provider);
                     }
                 }
+
                 if (shouldNotifyLanguageChange && Equals(providers, DefaultProviders))
                 {
                     OnLanguageChanged();
@@ -144,11 +146,13 @@ namespace OpenSage.Content.Translation
                 {
                     return string.Empty;
                 }
+
                 // If the string does not contain a Category/Label separator we return the string
                 if (!str.Contains(':'))
                 {
                     return str;
                 }
+
                 string result;
                 foreach (var provider in DefaultProviders)
                 {
@@ -157,6 +161,7 @@ namespace OpenSage.Content.Translation
                         return result;
                     }
                 }
+
                 return string.Format(_missing, str);
             }
 
@@ -197,7 +202,7 @@ namespace OpenSage.Content.Translation
 
         public static ITranslationManager Instance => _lazy.Value;
 
-        public static void LoadGameCsf(FileSystem fileSystem, string language, SageGame game)
+        public static void LoadGameStrings(FileSystem fileSystem, string language, SageGame game)
         {
             var path = string.Empty;
             while (!(fileSystem is null))
@@ -213,7 +218,14 @@ namespace OpenSage.Content.Translation
                         break;
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
-                        path = "data/lotr";
+                        if(language=="German")
+                        {
+                            path = "lotr";
+                        }
+                        else
+                        {
+                            path = "data/lotr";
+                        }
                         break;
                     case SageGame.Cnc3:
                     case SageGame.Cnc3KanesWrath:

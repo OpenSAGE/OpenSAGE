@@ -148,7 +148,7 @@ namespace OpenSage.Content
                 _cachedObjects = new Dictionary<string, object>();
 
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameCsf(fileSystem, Language, sageGame);
+                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
 
                 _cachedFonts = new Dictionary<FontKey, Font>();
 
