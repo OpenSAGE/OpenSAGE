@@ -241,7 +241,10 @@ namespace OpenSage.Data.Ini
         public List<WaterSet> WaterSets { get; } = new List<WaterSet>();
         public List<WaterTextureList> WaterTextureLists { get; } = new List<WaterTextureList>();
         public WaterTransparency WaterTransparency { get; internal set; }
-        public List<Weapon> Weapons { get; } = new List<Weapon>();
+
+        public Dictionary<string, Weapon> Weapons { get; } = new Dictionary<string, Weapon>();
+        public Weapon GetWeapon(string name) => GetDictionaryObject(name, Weapons);
+
         public Weather Weather { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]

@@ -7,12 +7,10 @@ namespace OpenSage.Data.Ini
 {
     public sealed class Weapon
     {
-        internal static Weapon Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, IniDataContext context) => parser.ParseBlockContent(
+            (x, name) => x.Name = name,
+            context.Weapons,
+            FieldParseTable);
 
         private static readonly IniParseTable<Weapon> FieldParseTable = new IniParseTable<Weapon>
         {
