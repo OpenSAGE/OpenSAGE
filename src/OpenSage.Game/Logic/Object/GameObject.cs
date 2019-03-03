@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
         public Team Team { get; set; }
 
         public bool IsSelectable { get; set; }
-        
+
         public bool IsSelected { get; set; }
 
         public Vector3 RallyPoint { get; set; }
@@ -44,6 +44,8 @@ namespace OpenSage.Logic.Object
         private IniDataContext Context { get; set; }
 
         private Vector3? TargetPoint { get; set; }
+
+        private TimeSpan ConstructionStart { get; set; }
 
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
         {
@@ -93,10 +95,9 @@ namespace OpenSage.Logic.Object
         internal void LogicTick(ulong frame)
         {
             // TODO: Update modules.
-                     
         }
 
-        internal void MoveTo(Vector3 targetPos, AudioSystem gameAudio)
+        internal void MoveTo(Vector3 targetPos)
         {
             if (Definition.KindOf == null) return;
 
@@ -104,11 +105,8 @@ namespace OpenSage.Logic.Object
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
                 TargetPoint = targetPos;
-            }
 
-            if (Definition.VoiceMove != null)
-            {
-                gameAudio.PlayAudioEvent(Definition.VoiceMove);
+                //TODO: calculate angle
             }
 
             var flags = new BitArray<ModelConditionFlag>();
@@ -116,9 +114,29 @@ namespace OpenSage.Logic.Object
             SetModelConditionFlags(flags);
         }
 
+        internal void StartConstruction(in TimeInterval gameTime)
+        {
+            if (Definition.KindOf == null) return;
+
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                var flags = new BitArray<ModelConditionFlag>();
+                flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+                flags.Set(ModelConditionFlag.AwaitingConstruction, true);
+                flags.Set(ModelConditionFlag.PartiallyConstructed, true);
+                SetModelConditionFlags(flags);
+                ConstructionStart = gameTime.TotalTime;
+                //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
+            }
+        }
+
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            if (TargetPoint.HasValue)
+            var flags = new BitArray<ModelConditionFlag>();
+
+            // Check if the unit is currently moving
+            flags.Set(ModelConditionFlag.Moving, true);
+            if (ModelConditionFlags.And(flags).AnyBitSet && TargetPoint.HasValue)
             {
                 // This locomotor speed is distance/second
                 var distance = CurrentLocomotor.Speed * (gameTime.DeltaTime.Milliseconds / 1000.0f);
@@ -139,6 +157,20 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            // Check if the unit is being constructed
+            flags.SetAll(false);
+            flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+            flags.Set(ModelConditionFlag.AwaitingConstruction, true);
+            flags.Set(ModelConditionFlag.PartiallyConstructed, true);
+            if (ModelConditionFlags.And(flags).AnyBitSet)
+            {
+                if (gameTime.TotalTime > (ConstructionStart + TimeSpan.FromSeconds(Definition.BuildTime)))
+                {
+                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+                }
+            }
+
+            // Update all draw modules
             foreach (var drawModule in DrawModules)
             {
                 drawModule.Update(gameTime);
@@ -191,6 +223,14 @@ namespace OpenSage.Logic.Object
             if (Definition.VoiceSelect != null)
             {
                 gameAudio.PlayAudioEvent(Definition.VoiceSelect);
+            }
+        }
+
+        public void OnLocalMove(AudioSystem gameAudio)
+        {
+            if (Definition.VoiceMove != null)
+            {
+                gameAudio.PlayAudioEvent(Definition.VoiceMove);
             }
         }
 

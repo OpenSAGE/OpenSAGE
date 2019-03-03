@@ -123,6 +123,15 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
+        public static Order CreateMoveOrder(int playerId, Vector3 targetPosition)
+        {
+            var order = new Order(playerId, OrderType.MoveTo);
+
+            order.AddPositionArgument(targetPosition);
+
+            return order;
+        }
+
         public static Order CreateBuildObject(int playerId, int objectDefinitionId, Vector3 position, float angle)
         {
             var order = new Order(playerId, OrderType.BuildObject);

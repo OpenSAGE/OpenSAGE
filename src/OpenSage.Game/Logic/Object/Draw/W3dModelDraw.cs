@@ -152,7 +152,7 @@ namespace OpenSage.Logic.Object
                 var firstAnimation = conditionState.ConditionAnimations
                     .Concat(conditionState.IdleAnimations)
                     .LastOrDefault();
-                if (firstAnimation != null)
+                if (firstAnimation != null && !string.Equals(firstAnimation.Animation, "NONE", StringComparison.OrdinalIgnoreCase))
                 {
                     if (!_contentManager.DataContext.Animations.TryGetValue(firstAnimation.Animation, out var animation))
                     {
