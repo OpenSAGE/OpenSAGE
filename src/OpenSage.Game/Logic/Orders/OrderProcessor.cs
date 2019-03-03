@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Data.Ini;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.Orders
 {
@@ -22,15 +24,30 @@ namespace OpenSage.Logic.Orders
                 switch (order.OrderType)
                 {
                     // TODO
+                    case OrderType.MoveTo:
+                        {
+                            var targetPosition = order.Arguments[0].Value.Position;
+                            foreach(var unit in player.SelectedUnits)
+                            {
+                                //TODO: only play this for local players
+                                unit.OnLocalMove(_game.Audio);
 
+                                unit.MoveTo(targetPosition);
+                            }
+                        }
+                        break;
                     case OrderType.BuildObject:
-                        var objectDefinitionId = order.Arguments[0].Value.Integer;
-                        var objectDefinition = _game.ContentManager.IniDataContext.Objects[objectDefinitionId - 1];
-                        var position = order.Arguments[1].Value.Position;
-                        var angle = order.Arguments[2].Value.Float;
-                        var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
-                        gameObject.Transform.Translation = position;
-                        gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var objectDefinition = _game.ContentManager.IniDataContext.Objects[objectDefinitionId - 1];
+                            var position = order.Arguments[1].Value.Position;
+                            var angle = order.Arguments[2].Value.Float;
+                            var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
+
+                            gameObject.Transform.Translation = position;
+                            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+                            gameObject.StartConstruction(_game.MapTime);
+                        }
                         break;
 
                     case OrderType.Sell:

@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
+using OpenSage.Logic.Orders;
 
 namespace OpenSage.Logic
 {
@@ -29,14 +30,12 @@ namespace OpenSage.Logic
         public void OnMove()
         {
             if (!_worldPosition.HasValue)
-            {           
+            {
                 return;
             }
 
-            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
-            {
-                unit.MoveTo(_worldPosition.Value, Game.Audio);
-            }
+            var order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+            Game.NetworkMessageBuffer.AddLocalOrder(order);
         }
 
         public void OnActivate()
