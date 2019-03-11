@@ -44,6 +44,7 @@ namespace OpenSage.Logic.Object
         private IniDataContext Context { get; set; }
 
         private Vector3? TargetPoint { get; set; }
+        private float TargetAngle { get; set; }
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -105,8 +106,8 @@ namespace OpenSage.Logic.Object
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
                 TargetPoint = targetPos;
-
-                //TODO: calculate angle
+                var delta = TargetPoint.Value - Transform.Translation;
+                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);            
             }
 
             var flags = new BitArray<ModelConditionFlag>();
@@ -139,9 +140,29 @@ namespace OpenSage.Logic.Object
             if (ModelConditionFlags.And(flags).AnyBitSet && TargetPoint.HasValue)
             {
                 // This locomotor speed is distance/second
-                var distance = CurrentLocomotor.Speed * (gameTime.DeltaTime.Milliseconds / 1000.0f);
+                var delta = TargetPoint.Value - Transform.Translation;
+                var distance = CurrentLocomotor.Speed * deltaTime;
+                if (delta.Length() < distance) distance = delta.Length();
 
-                var direction = Vector3.Normalize(TargetPoint.Value - Transform.Translation);
+                var currentAngle = -Transform.EulerAngles.Z;
+                var angleDelta = TargetAngle - currentAngle;
+
+                var d = CurrentLocomotor.TurnRate * deltaTime * 0.1f;
+                var newAngle = currentAngle + (angleDelta * d);
+                //var newAngle = currentAngle + d;
+
+                if (Math.Abs(angleDelta) > 0.1f)
+                {
+                    var pitch = 0.0f;
+                    if (Definition.KindOf.Get(ObjectKinds.Vehicle))
+                    {
+                        var normal = heightMap.GetNormal(x, y);
+                        pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
+                    }
+                    Transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
+                }              
+
+                var direction = Vector3.Normalize(delta);
                 Transform.Translation += direction * distance;
 
                 var x = Transform.Translation.X;
@@ -154,7 +175,7 @@ namespace OpenSage.Logic.Object
                 {
                     TargetPoint = null;
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
-                }
+                }             
             }
 
             // Check if the unit is being constructed
