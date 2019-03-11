@@ -20,20 +20,11 @@ namespace OpenSage.Data.Sav
             using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
             {
                 var chunkHeaders = new List<SaveChunkHeader>();
+                var chunkHeader = SaveChunkHeader.Parse(reader);
 
-                while (true)
+                while (!chunkHeader.IsEof)
                 {
-                    var chunkHeader = SaveChunkHeader.Parse(reader);
                     chunkHeaders.Add(chunkHeader);
-
-                    if (chunkHeader.IsEof)
-                    {
-                        if (stream.Position != stream.Length)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        break;
-                    }
 
                     var end = stream.Position + chunkHeader.DataLength;
 
@@ -277,6 +268,13 @@ namespace OpenSage.Data.Sav
                     {
                         throw new InvalidDataException($"Error parsing chunk '{chunkHeader.Name}'. Expected stream to be at position {end} but was at {stream.Position}.");
                     }
+
+                    chunkHeader = SaveChunkHeader.Parse(reader);
+                }
+
+                if (stream.Position != stream.Length)
+                {
+                    throw new InvalidDataException();
                 }
 
                 var chunkHeaderNames = string.Join(Environment.NewLine, chunkHeaders.Select(x => x.Name));
@@ -341,10 +339,7 @@ namespace OpenSage.Data.Sav
                     throw new InvalidDataException();
                 }
 
-                if (result.Unknown2 != 1u)
-                {
-                    //throw new InvalidDataException();
-                }
+                //TODO: Check for result.Unknown2
 
                 return result;
             }
