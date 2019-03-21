@@ -1,16 +1,36 @@
 {
-    "version": "0.1.0",
-    "command": "dotnet",
-    "isShellCommand": true,
-    "args": [],
+    "version": "2.0.0",
+    "type": "shell",
     "tasks": [
         {
-            "taskName": "build",
+            "label": "build",
+            "command": "dotnet",
             "args": [
-                "${workspaceRoot}/OpenZH.Data.Tests/OpenZH.Data.Tests.csproj"
+                "build",
+                "${workspaceRoot}/OpenSage.Game/OpenSage.Game.csproj"
             ],
-            "isBuildCommand": true,
-            "problemMatcher": "$msCompile"
-        }
+            "group": "build",
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceRoot}/OpenSage.Game.Tests/OpenSage.Game.Tests.csproj"
+            ],
+            "group": "test",
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "buildAptEditor",
+            // Powershell command
+            "command": "Invoke-Expression",
+            "args": [
+                "chcp 65001; dotnet build ${workspaceRoot}/OpenSage.Tools.AptEditor/OpenSage.Tools.AptEditor.csproj | % { $_ -replace \\\"^([^\\(]*)(.cs\\(.*)\\\",\\\"${workspaceRoot}\\OpenSage.Tools.AptEditor\\$1$2\\\" }",
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile",
+        },
     ]
 }

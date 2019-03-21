@@ -5,6 +5,20 @@
    "version": "0.2.0",
    "configurations": [
         {
+            "name": "Apt Editor",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "buildAptEditor",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceRoot}/OpenSage.Tools.AptEditor/bin/Debug/netcoreapp2.2/OpenSage.Tools.AptEditor.dll",
+            "args": [],
+            "cwd": "${workspaceRoot}/OpenSage.Tools.AptEditor",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "externalTerminal",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
