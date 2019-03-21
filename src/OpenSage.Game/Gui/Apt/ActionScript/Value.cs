@@ -175,6 +175,17 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _number;
         }
 
+        // TODO: implement integer conversion etc.
+        public double ToReal()
+        {
+            if(Type == ValueType.Float) {
+                return _decimal;
+            }
+
+            // TODO
+            throw new InvalidOperationException();
+        }
+
         public bool ToBoolean()
         {
             if (Type == ValueType.String || Type == ValueType.Object)

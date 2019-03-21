@@ -14,7 +14,7 @@ namespace OpenSage.Data.Apt
         internal bool IsEmpty = true;
         internal string MovieName;
         internal FileSystem FileSystem;
-        internal ImageMap ImageMap;
+        public ImageMap ImageMap { get; private set; }
         internal Dictionary<uint, Geometry> GeometryMap;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
