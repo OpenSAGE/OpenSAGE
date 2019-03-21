@@ -15,9 +15,8 @@ namespace OpenSage.Data.Apt.FrameItems
         {
             var action = new InitAction();
             action.Sprite = reader.ReadUInt32();
-            var instructions = new InstructionCollection(reader.BaseStream);
-            instructions.Parse();
-            action.Instructions = instructions;
+            var instructionsPosition = reader.ReadUInt32();
+            action.Instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
             return action;
         }
     }

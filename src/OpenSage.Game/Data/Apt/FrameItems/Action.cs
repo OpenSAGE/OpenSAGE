@@ -12,8 +12,8 @@ namespace OpenSage.Data.Apt.FrameItems
         public static Action Parse(BinaryReader reader)
         {
             var action = new Action();
-            action.Instructions = new InstructionCollection(reader.BaseStream);
-            action.Instructions.Parse();
+            var instructionsPosition = reader.ReadUInt32();
+            action.Instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
             return action;
         }
     }
