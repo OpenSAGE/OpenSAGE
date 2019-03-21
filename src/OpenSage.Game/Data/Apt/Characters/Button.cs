@@ -105,8 +105,8 @@ namespace OpenSage.Data.Apt.Characters
             var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
             var input = reader.ReadUInt16AsEnum<ButtonInput>();
             var reserved = reader.ReadByte();
-            var instructions = new InstructionCollection(reader.BaseStream);
-            instructions.Parse();
+            var instructionsPosition = reader.ReadUInt32();
+            var instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
 
             return new ButtonAction(flags, input, reserved, instructions);
         }
