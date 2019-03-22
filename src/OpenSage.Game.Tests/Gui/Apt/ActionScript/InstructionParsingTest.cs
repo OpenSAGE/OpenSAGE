@@ -49,8 +49,6 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             _output = output;
         }
 
-        
-
         // variableName should be parameter2
         // instruction count should be 19 instead of 20
         private Stream Get19SimpleInstructions(string variableName, string wrongValue, string rightValue, int afterInstructionPosition)
