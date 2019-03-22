@@ -76,10 +76,6 @@ namespace OpenSage.Gui.Apt.ActionScript
             _instructions = instructions;
         }
 
-        /* public InstructionCollection(IList<InstructionBase> list) : base(list)
-        {
-        } */
-
         public IReadOnlyCollection<KeyValuePair<int, InstructionBase>> GetPositionedInstructions()
         {
             return _instructions;
