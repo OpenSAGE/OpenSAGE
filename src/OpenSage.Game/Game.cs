@@ -279,8 +279,12 @@ namespace OpenSage
 
                 SetCursor("Arrow");
 
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
-                CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
+                // Prevent crashing on RA3 since RA3's assets can't be parsed yet
+                if(SageGame != SageGame.Ra3)
+                {
+                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
+                    CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
+                }
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
 
