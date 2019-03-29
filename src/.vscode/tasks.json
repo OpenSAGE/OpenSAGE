@@ -25,9 +25,9 @@
         {
             "label": "buildAptEditor",
             // Powershell command
-            "command": "Invoke-Expression",
+            "command": "powershell",
             "args": [
-                "chcp 65001; dotnet build ${workspaceRoot}/OpenSage.Tools.AptEditor/OpenSage.Tools.AptEditor.csproj | % { $_ -replace \\\"^([^\\(]*)(.cs\\(.*)\\\",\\\"${workspaceRoot}\\OpenSage.Tools.AptEditor\\$1$2\\\" }",
+                "chcp 65001; dotnet build ${workspaceRoot}/OpenSage.Tools.AptEditor/OpenSage.Tools.AptEditor.csproj | % { if($_.Contains(“warning”) -or $_.Contains(“error”)) { $proj = $_.Split(“[]”)[1]; $proj = $proj.Remove($proj.LastIndexOf(“\\”)); return (($proj + “\\” + $_).Trim() + “`n”);  } else { Write-Output $_; } }"// | % { $_ -replace \\\"^([^\\(]*)(.cs\\(.*)\\\",\\\"${workspaceRoot}\\OpenSage.Tools.AptEditor\\$1$2\\\" }",
             ],
             "group": "build",
             "problemMatcher": "$msCompile",

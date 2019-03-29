@@ -175,6 +175,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _number;
         }
 
+        /// Used by AptEditor to get actual id ofconstant / register
+        public uint GetIDValue()
+        {
+            if(Type != ValueType.Constant && Type != ValueType.Register)
+                throw new InvalidOperationException();
+            
+            return (uint)_number;
+        }
+
         // TODO: implement integer conversion etc.
         public double ToReal()
         {

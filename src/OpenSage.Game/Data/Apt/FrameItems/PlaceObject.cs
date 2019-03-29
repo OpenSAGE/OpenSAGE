@@ -134,5 +134,14 @@ namespace OpenSage.Data.Apt.FrameItems
 
             return placeobject;
         }
+
+        public static PlaceObject CreatePlace(int depth, int character)
+        {
+            var placeObject = new PlaceObject();
+            placeObject.Flags = PlaceObjectFlags.HasCharacter;
+            placeObject.Depth = depth;
+            placeObject.Character = character;
+            return placeObject;
+        }
     }
 }

@@ -117,6 +117,57 @@ namespace OpenSage.Gui.Apt
             }
         }
 
+        // Mainly used for AptEditor, since currently we can't handle all actions properly anyway.
+        public void PlayToFrameNoActions(uint frameNumber)
+        {
+
+            if(_currentFrame > frameNumber)
+            {
+                // reset to initial state
+                Create(_sprite, Context, Parent);
+                // reset all subitems
+                foreach (var item in _content.Items.Values)
+                {
+                    // RenderItem does not need to be updated
+                    if(item is SpriteItem)
+                    {
+                        ((SpriteItem)item).PlayToFrameNoActions(0);
+                    }
+                }
+            }
+
+            for (var i = _currentFrame; i <= frameNumber; ++i)
+            {
+                SwitchToFrameNoActions(i);
+            }
+        }
+
+        // Used by AptEditor as well
+        public void SwitchToFrameNoActions(uint frameNumber)
+        {
+            _currentFrame = (uint)(frameNumber % _sprite.Frames.Count);
+            var frame = _sprite.Frames[(int) _currentFrame];
+
+            //process all frame items
+            foreach (var item in frame.FrameItems)
+            {
+                if (!(item is FrameLabel))
+                {
+                    HandleFrameItemNoActions(item);
+                }
+            }
+
+            //update all subitems
+            foreach (var item in _content.Items.Values)
+            {
+                // RenderItem does not need to be updated (well, probably yes for buttons)
+                if(item is SpriteItem)
+                {
+                    ((SpriteItem)item).SwitchToFrameNoActions(frameNumber);
+                }
+            }
+        }
+
         public void Stop()
         {
             _state = PlayState.STOPPED;
@@ -211,6 +262,53 @@ namespace OpenSage.Gui.Apt
                     {
                         throw new InvalidOperationException("BackgroundColor can only be set from root!");
                     }
+                    break;
+                default:
+                    throw new NotImplementedException("Unimplemented frameitem");
+            }
+        }
+
+        // Mainly used for AptEditor, since currently we can't handle all actions properly anyway.
+        private void HandleFrameItemNoActions(FrameItem item)
+        {
+            switch (item)
+            {
+                case PlaceObject po:
+                    //place a new display item
+                    if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                       !po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        PlaceItem(po);
+                    }
+                    //modify an existing display item
+                    else if (!po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                              po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        MoveItem(po);
+                    }
+                    //this will erase an existing item and place a new item right away
+                    else if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                             po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        PlaceItem(po);
+                    }
+                    break;
+                case RemoveObject ro:
+                    _content.Items.Remove(ro.Depth);
+                    break;
+                case BackgroundColor bg:
+                    if (SetBackgroundColor != null)
+                    {
+                        SetBackgroundColor(bg.Color.ToColorRgbaF());
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("BackgroundColor can only be set from root!");
+                    }
+                    break;
+                case Action action:
+                case InitAction initAction:
+                    //Console.WriteLine("Skipped frameitem " + item.GetType().Name);
                     break;
                 default:
                     throw new NotImplementedException("Unimplemented frameitem");
