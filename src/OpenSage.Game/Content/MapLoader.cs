@@ -114,6 +114,7 @@ namespace OpenSage.Content
                 materialResourceSet);
 
             var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+            cloudTexture.Name = "Cloud texture";
 
             var cloudResourceLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
@@ -123,6 +124,7 @@ namespace OpenSage.Content
                 new ResourceSetDescription(
                     cloudResourceLayout,
                     cloudTexture)));
+            cloudResourceSet.Name = "Cloud resource set";
 
             var terrain = new Terrain.Terrain(
                 heightMap,

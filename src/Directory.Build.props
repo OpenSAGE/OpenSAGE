@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <VeldridVersion>4.5.0</VeldridVersion>
-    <ImGuiVersion>5.66.0</ImGuiVersion>
+    <VeldridVersion>4.6.1</VeldridVersion>
+    <ImGuiVersion>5.67.0-gf467b46317</ImGuiVersion>
     <SharpAudioVersion>0.1.0-beta1-0016-gf1593d4dc3</SharpAudioVersion>
   </PropertyGroup>
 </Project>
