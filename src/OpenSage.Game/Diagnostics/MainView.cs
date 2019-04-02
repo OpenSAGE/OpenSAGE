@@ -6,6 +6,7 @@ using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
+using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
@@ -152,6 +153,67 @@ namespace OpenSage.Diagnostics
                     {
                         _context.Game.Window.Fullscreen = isFullscreen;
                     }
+                    ImGui.EndMenu();
+                }
+
+                if (_context.Game.Configuration.UseRenderDoc && ImGui.BeginMenu("RenderDoc"))
+                {
+                    var renderDoc = Game.RenderDoc;
+
+                    if (ImGui.MenuItem("Trigger Capture"))
+                    {
+                        renderDoc.TriggerCapture();
+                    }
+                    if (ImGui.BeginMenu("Options"))
+                    {
+                        bool allowVsync = renderDoc.AllowVSync;
+                        if (ImGui.Checkbox("Allow VSync", ref allowVsync))
+                        {
+                            renderDoc.AllowVSync = allowVsync;
+                        }
+                        bool validation = renderDoc.APIValidation;
+                        if (ImGui.Checkbox("API Validation", ref validation))
+                        {
+                            renderDoc.APIValidation = validation;
+                        }
+                        int delayForDebugger = (int) renderDoc.DelayForDebugger;
+                        if (ImGui.InputInt("Debugger Delay", ref delayForDebugger))
+                        {
+                            delayForDebugger = Math.Clamp(delayForDebugger, 0, int.MaxValue);
+                            renderDoc.DelayForDebugger = (uint) delayForDebugger;
+                        }
+                        bool verifyBufferAccess = renderDoc.VerifyBufferAccess;
+                        if (ImGui.Checkbox("Verify Buffer Access", ref verifyBufferAccess))
+                        {
+                            renderDoc.VerifyBufferAccess = verifyBufferAccess;
+                        }
+                        bool overlayEnabled = renderDoc.OverlayEnabled;
+                        if (ImGui.Checkbox("Overlay Visible", ref overlayEnabled))
+                        {
+                            renderDoc.OverlayEnabled = overlayEnabled;
+                        }
+                        bool overlayFrameRate = renderDoc.OverlayFrameRate;
+                        if (ImGui.Checkbox("Overlay Frame Rate", ref overlayFrameRate))
+                        {
+                            renderDoc.OverlayFrameRate = overlayFrameRate;
+                        }
+                        bool overlayFrameNumber = renderDoc.OverlayFrameNumber;
+                        if (ImGui.Checkbox("Overlay Frame Number", ref overlayFrameNumber))
+                        {
+                            renderDoc.OverlayFrameNumber = overlayFrameNumber;
+                        }
+                        bool overlayCaptureList = renderDoc.OverlayCaptureList;
+                        if (ImGui.Checkbox("Overlay Capture List", ref overlayCaptureList))
+                        {
+                            renderDoc.OverlayCaptureList = overlayCaptureList;
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.MenuItem("Launch Replay UI"))
+                    {
+                        renderDoc.LaunchReplayUI();
+                    }
+                  
                     ImGui.EndMenu();
                 }
 

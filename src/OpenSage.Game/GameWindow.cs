@@ -62,7 +62,8 @@ namespace OpenSage
 
             var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, null, true, ResourceBindingModel.Improved)
             {
-                SwapchainSrgbFormat = false
+                SwapchainSrgbFormat = false,
+                PreferStandardClipSpaceYDirection = true
             };
 
             var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
