@@ -2,7 +2,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <VeldridVersion>4.6.1</VeldridVersion>
-    <ImGuiVersion>5.67.0-gf467b46317</ImGuiVersion>
+    <ImGuiVersion>5.69</ImGuiVersion>
     <SharpAudioVersion>0.1.0-beta1-0016-gf1593d4dc3</SharpAudioVersion>
   </PropertyGroup>
 </Project>

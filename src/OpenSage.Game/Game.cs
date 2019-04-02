@@ -118,6 +118,11 @@ namespace OpenSage
         private readonly DeltaTimer _mapTimer;
 
         /// <summary>
+        /// Used for RenderDoc integration
+        /// </summary>
+        public static RenderDoc RenderDoc;
+
+        /// <summary>
         /// The amount of time the game has been in this map while running logic updates.
         /// </summary>
         public TimeInterval MapTime { get; private set; }
@@ -145,7 +150,7 @@ namespace OpenSage
         public SageGame SageGame => Definition.Game;
 
         public Configuration Configuration { get; private set; }
-
+        
         public string UserDataLeafName
         {
             get
@@ -215,18 +220,31 @@ namespace OpenSage
 
         public Game(
             GameInstallation installation,
+            GraphicsBackend? preferredBackend) :
+            this(installation, preferredBackend, new Configuration())
+        {
+        }
+
+        public Game(
+            GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            bool fullscreen = false)
+            Configuration config)
         {
             using (GameTrace.TraceDurationEvent("Game()"))
             {
-                // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
-                Configuration = new Configuration();
+                Configuration = config;
+
+                // TODO: This should probably be done in some dynamic way.
+                // We can't change our backend at runtime though. See NeoDemo.cs
+                if (Configuration.UseRenderDoc && RenderDoc == null)
+                {
+                    RenderDoc.Load(out RenderDoc);
+                }
 
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
                 Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
-                                                        100, 100, 1024, 768, preferredBackend, fullscreen));
+                                                        100, 100, 1024, 768, preferredBackend, Configuration.UseFullscreen));
                 GraphicsDevice = Window.GraphicsDevice;
 
                 Panel = AddDisposable(new GamePanel(GraphicsDevice));
