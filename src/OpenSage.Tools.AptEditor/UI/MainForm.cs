@@ -23,6 +23,7 @@ namespace OpenSage.Tools.AptEditor.UI
         private bool _menuOpenClicked;
         private string _inputAptPath;
         private string _lastErrorMessageForModalPopUp;
+        private string _lastSeriousError;
         private double _lastFps;
         private DateTime _lastUpdate;
         private DateTime _lastFpsUpdate;
@@ -44,6 +45,10 @@ namespace OpenSage.Tools.AptEditor.UI
 
             _popUps.Add(new ImGuiUtility.ModalPopUp("OpenAptFilePopUp", () => _menuOpenClicked, DrawOpenFileDialog));
             _popUps.Add(new ImGuiUtility.ModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt));
+            _popUps.Add(new ImGuiUtility.ModalPopUp("CriticalErrorPrompt",
+                                                    () => _lastSeriousError != null,
+                                                    DrawCriticalErrorPrompt,
+                                                    ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar));
 
             _lastUpdate = DateTime.Now;
         }
@@ -112,6 +117,10 @@ namespace OpenSage.Tools.AptEditor.UI
                         $"Failed to open apt file {loadFailure.Message}.\n" +
                         "Consider add more search paths (File Menu > Add Search Path).";
                 }
+                catch(Exception unhandleled)
+                {
+                    _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
+                }
                 _inputAptPath = null;
             }
 
@@ -129,14 +138,21 @@ namespace OpenSage.Tools.AptEditor.UI
 
             ImGui.End();
 
-            if(_manager.AptManager != null)
+            try
             {
-                _manager.Render(commandList);
-
-                foreach(var widget in _widgets)
+                if(_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)
                 {
-                    widget.Draw(_manager);
+                    _manager.Render(commandList);
+
+                    foreach(var widget in _widgets)
+                    {
+                        widget.Draw(_manager);
+                    }
                 }
+            }
+            catch(Exception unhandleled)
+            {
+                _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
             }
 
             foreach(var popUp in _popUps)
@@ -178,7 +194,22 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             ImGui.SetItemDefaultFocus();
+        }
 
+        private void DrawCriticalErrorPrompt()
+        {
+            ImGui.TextColored(new Vector4(1, 0.2f, 0.2f, 1), "Unhandleled exception:");
+            ImGui.Text(_lastSeriousError);
+            ImGui.TextColored(new Vector4(1, 0.2f, 0.2f, 1), "Press Ok to exit");
+
+            if (ImGui.Button("Ok"))
+            {
+                _lastSeriousError = null;
+                ImGui.CloseCurrentPopup();
+                Environment.Exit(1);
+            }
+
+            ImGui.SetItemDefaultFocus();
         }
     }
 }

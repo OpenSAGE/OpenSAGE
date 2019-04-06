@@ -71,23 +71,21 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal class LogicalAction
     {
-        public IReadOnlyList<InstructionBase> Instructions => _managedInstructions.Items;
-        private LogicalInstructions _managedInstructions;
+        public LogicalInstructions Instructions { get; set; }
         public LogicalAction(Action action)
         {
-            _managedInstructions = new LogicalInstructions(action.Instructions);
+            Instructions = new LogicalInstructions(action.Instructions);
         }
     }
 
     internal class LogicalInitAction
     {
         public uint Sprite { get; private set; }
-        public IReadOnlyList<InstructionBase> Instructions => _managedInstructions.Items;
-        private LogicalInstructions _managedInstructions;
+        public LogicalInstructions Instructions { get; private set; }
         public LogicalInitAction(InitAction initAction)
         {
             Sprite = initAction.Sprite;
-            _managedInstructions = new LogicalInstructions(initAction.Instructions);
+            Instructions = new LogicalInstructions(initAction.Instructions);
         }
     }
 

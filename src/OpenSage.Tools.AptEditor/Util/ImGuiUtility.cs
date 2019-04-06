@@ -11,9 +11,9 @@ namespace OpenSage.Tools.AptEditor.Util
     {
         public static bool InputText(string label, byte[] textBuffer, out string result)
         {
-            var temp = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None);
-            result = TrimToNullByte(Encoding.UTF8.GetString(textBuffer)).TrimEnd('\0');
-            return temp;
+            var input = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None);
+            result = TrimToNullByte(Encoding.UTF8.GetString(textBuffer));
+            return input;
         }
 
         /// <summary>
@@ -61,12 +61,14 @@ namespace OpenSage.Tools.AptEditor.Util
             public Func<bool> OpenCondition { get; set; }
             public Action DrawAction { get; set; }
             public void Open() => ImGui.OpenPopup(ID);
+            public ImGuiWindowFlags Flags { get; set; }
             private bool _open = true;
-            public ModalPopUp(string id, Func<bool> openCondition, Action drawAction)
+            public ModalPopUp(string id, Func<bool> openCondition, Action drawAction, ImGuiWindowFlags flags = ImGuiWindowFlags.AlwaysAutoResize)
             {
                 ID = id;
                 OpenCondition = openCondition;
                 DrawAction = drawAction;
+                Flags = flags;
             }
 
             public void Update()
@@ -85,7 +87,7 @@ namespace OpenSage.Tools.AptEditor.Util
                 }
 
                 bool popUpOpen = true;
-                if (ImGui.BeginPopupModal(ID, ref popUpOpen, ImGuiWindowFlags.AlwaysAutoResize))
+                if (ImGui.BeginPopupModal(ID, ref popUpOpen, Flags))
                 {
                     DrawAction();
                     ImGui.EndPopup();

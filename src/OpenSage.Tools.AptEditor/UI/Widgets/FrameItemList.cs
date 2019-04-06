@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -13,6 +14,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         public const string Name = "Frame Properties";
         private FrameItemUtilities _utilities;
+        private InstructionEditor _currentFrameAction;
         public FrameItemList()
         {
             _utilities = new FrameItemUtilities();
@@ -27,6 +29,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
             else if(!_utilities.Active)
             {
+                _currentFrameAction = null;
                 return;
             }
 
@@ -71,7 +74,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
                 foreach(var item in _utilities.FrameActions)
                 {
-                    ImGui.Button("Frame Action");
+                    if(ImGui.Button("Frame Action"))
+                    {
+                        _currentFrameAction = new InstructionEditor(item.Instructions);
+                    }
                 }
                 ImGui.Separator();
 
@@ -82,7 +88,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     ImGui.TextColored(indexColor, $"{item.Sprite}");
                     ImGui.SameLine(35, 5);
-                    ImGui.Button("Sprite InitAction");
+                    if(ImGui.Button("Sprite InitAction"))
+                    {
+                        _currentFrameAction = new InstructionEditor(item.Instructions);
+                    }
                 }
                 ImGui.Separator();
 
@@ -120,6 +129,12 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Unindent();
             }
             ImGui.End();
+
+            // Draw Frame's Action / InitAction
+            if(_currentFrameAction != null)
+            {
+                _currentFrameAction.Draw(manager);
+            }
         }
 
         private static void ProcessPlaceCharacter(AptSceneManager manager, LogicalPlaceObject placeObject)
