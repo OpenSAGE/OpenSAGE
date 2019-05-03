@@ -49,8 +49,13 @@ namespace OpenSage.Launcher
               .WithParsed(opts => Run(opts));
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static void Run(Options opts)
         {
+
+            logger.Info("Starting...");
+
             var definition = GameDefinition.FromGame(opts.Game);
 
             var installation = GameInstallation
@@ -74,6 +79,8 @@ namespace OpenSage.Launcher
                 Environment.Exit(1);
             }
 
+            logger.Debug($"Have installation of {definition.DisplayName}");
+
             Platform.Start();
 
             var traceEnabled = !string.IsNullOrEmpty(opts.TraceFile);
@@ -91,6 +98,8 @@ namespace OpenSage.Launcher
                 LoadShellMap = !opts.NoShellmap,
             };
 
+            logger.Debug($"Have configuration");
+
             using (var game = new Game(installation, opts.Renderer, config))
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
@@ -99,6 +108,7 @@ namespace OpenSage.Launcher
 
                 if (opts.Map == null)
                 {
+                    logger.Debug("Showing main menu");
                     game.ShowMainMenu();
                 }
                 else
@@ -109,11 +119,14 @@ namespace OpenSage.Launcher
                         new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
                     };
 
+                    logger.Debug("Starting multiplayer game");
                     game.StartMultiPlayerGame(opts.Map,
                          new EchoConnection(),
                          pSettings,
                          0);
                 }
+
+                logger.Debug("Starting game");
 
                 game.Run();
             }

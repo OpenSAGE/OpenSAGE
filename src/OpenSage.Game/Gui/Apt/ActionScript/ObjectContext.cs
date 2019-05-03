@@ -9,6 +9,9 @@ namespace OpenSage.Gui.Apt.ActionScript
 {
     public class ObjectContext
     {
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        
         /// <summary>
         /// The item that this context is connected to
         /// </summary>
@@ -63,7 +66,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return result;
             }
 
-            Debug.WriteLine("[WARN] Undefined variable: " + name);
+            logger.Warn($"[WARN] Undefined variable: {name}");
             return Value.Undefined();
         }
 

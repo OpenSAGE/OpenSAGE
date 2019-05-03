@@ -147,11 +147,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public ObjectContext ToObject()
         {
             if (Type == ValueType.Undefined)
             {
-                Debug.WriteLine("Cannot create object from undefined!");
+                logger.Error("Cannot create object from undefined!");
                 return null;
             }
 

@@ -59,6 +59,9 @@ namespace OpenSage.Content.Translation.Providers
 
         private class Csf
         {
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+
             private const int _magicCsf = 0x43534620;
             private const int _magicLabel = 0x4C424C20;
             private const int _magicLString = 0x53545220;
@@ -89,7 +92,7 @@ namespace OpenSage.Content.Translation.Providers
                     if (numLabels != numStrings)
                     {
                         // throw new NotSupportedException("Csf substrings are not supported.");
-                        Debug.WriteLine("[CSF] Number of labels and strings mismatch.");
+                        logger.Warn("[CSF] Number of labels and strings mismatch.");
                     }
                     csf._numStrings = numStrings;
                     reader.ReadUInt32(); // reserved
@@ -117,7 +120,7 @@ namespace OpenSage.Content.Translation.Providers
                     if (language is null)
                     {
                         language = "en-US";
-                        Console.WriteLine($"Unknown language id {languageCode} for game {game}.");
+                        logger.Warn($"Unknown language id {languageCode} for game {game}.");
                     }
                     csf._language = language;
                     string label;
@@ -152,7 +155,7 @@ namespace OpenSage.Content.Translation.Providers
                                 if (colonIdx == -1)
                                 {
                                     categoryLabel = string.Empty;
-                                    Console.WriteLine($"Empty category found for {label}.");
+                                    logger.Warn($"Empty category found for {label}.");
                                 }
                                 else
                                 {
@@ -166,7 +169,7 @@ namespace OpenSage.Content.Translation.Providers
                                 label = label.Substring(colonIdx + 1);
                                 if (category.ContainsKey(label))
                                 {
-                                    Console.WriteLine($"[CSF] String duplication: '{categoryLabel}:{label}' -> '{category[label]}', new value: '{str}'");
+                                    logger.Warn($"[CSF] String duplication: '{categoryLabel}:{label}' -> '{category[label]}', new value: '{str}'");
                                 }
                                 else
                                 {
@@ -177,11 +180,11 @@ namespace OpenSage.Content.Translation.Providers
                             {
                                 if (magic == _magicLString)
                                 {
-                                    Console.WriteLine($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}' from {label}.");
+                                    logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}' from {label}.");
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}{reader.ReadUInt32PrefixedAsciiString()}' from {label}.");
+                                    logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}{reader.ReadUInt32PrefixedAsciiString()}' from {label}.");
                                 }
                             }
                         }
@@ -234,12 +237,15 @@ namespace OpenSage.Content.Translation.Providers
             Csf.ReadCsf(_csf, stream, game);
         }
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public override string GetString(string str)
         {
             Debug.Assert(!(str is null), $"{nameof(str)} is null");
             if (!_csf.TryGetString(str, out var result))
             {
-                Console.WriteLine($"Requested string '{str}' not found in '{Name}'.");
+                logger.Warn($"Requested string '{str}' not found in '{Name}'.");
             }
             return result;
         }
