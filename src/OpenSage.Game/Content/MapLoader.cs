@@ -334,6 +334,8 @@ namespace OpenSage.Content
             return gameObject;
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private void LoadObjects(
             ContentManager contentManager,
             HeightMap heightMap,
@@ -392,9 +394,9 @@ namespace OpenSage.Content
                     case RoadType.BridgeStart:
                     case RoadType.BridgeEnd:
                         // Multiple invalid bridges can be found in e.g GLA01.
-                        // TODO: Log a warning.
                         if ((i + 1) >= mapObjects.Length || !mapObjects[i + 1].RoadType.HasFlag(RoadType.BridgeEnd))
                         {
+                            logger.Warn($"Invalid bridge: {mapObject.ToString()}, skipping...");
                             continue;
                         }
 
@@ -422,9 +424,9 @@ namespace OpenSage.Content
 
                         // Some maps have roads with invalid start- or endpoints.
                         // We'll skip processing them altogether.
-                        // TODO: Log a warning.
                         if (mapObject.TypeName == "" || roadEnd.TypeName == "")
                         {
+                            logger.Warn($"Road {mapObject.ToString()} has invalid start- or endpoint, skipping...");
                             continue;
                         }
 
