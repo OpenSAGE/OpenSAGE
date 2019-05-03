@@ -29,6 +29,9 @@ namespace OpenSage.Gui.Apt
             _actionList = new List<InstructionCollection>();
         }
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
             var button = Character as Button;
@@ -50,7 +53,7 @@ namespace OpenSage.Gui.Apt
                 {
                     if (!_isHovered)
                     {
-                        Debug.WriteLine("Hit: " + mousePos.X + "-" + mousePos.Y);
+                        logger.Debug("Hit: " + mousePos.X + "-" + mousePos.Y);
                         var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
                         if (idx != -1)
                         {
@@ -61,7 +64,7 @@ namespace OpenSage.Gui.Apt
 
                     if(_isHovered && mouseDown && !_isDown)
                     {
-                        Debug.WriteLine("Down: " + mousePos.X + "-" + mousePos.Y);
+                        logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
                         var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
                         if (idx != -1)
                         {
@@ -72,7 +75,7 @@ namespace OpenSage.Gui.Apt
 
                     if(_isHovered && !mouseDown && _isDown)
                     {
-                        Debug.WriteLine("Up: " + mousePos.X + "-" + mousePos.Y);
+                        logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
                         var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
                         if (idx != -1)
                         {
@@ -93,7 +96,7 @@ namespace OpenSage.Gui.Apt
                     _actionList.Add(button.Actions[idx].Instructions);
                 }
                 _isHovered = false;
-                Debug.WriteLine("Unhovered: " + mousePos.X + "-" + mousePos.Y);
+                logger.Debug("Unhovered: " + mousePos.X + "-" + mousePos.Y);
             }
             return false;
         }

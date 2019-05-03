@@ -36,6 +36,9 @@ namespace OpenSage.Content.Translation.Providers
                 _strings = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
             }
 
+
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
             public static void ReadStr(Str str, Stream stream, string language)
             {
                 str._language = language;
@@ -271,7 +274,7 @@ namespace OpenSage.Content.Translation.Providers
                                 }
                                 if (dict.ContainsKey(label))
                                 {
-                                    Console.WriteLine($"[STR] String duplication: '{category}:{label}' -> '{dict[label]}', new value: '{value}'");
+                                    logger.Info($"[STR] String duplication: '{category}:{label}' -> '{dict[label]}', new value: '{value}'");
                                 }
                                 else
                                 {
@@ -334,12 +337,15 @@ namespace OpenSage.Content.Translation.Providers
             Str.ReadStr(_str, stream, language);
         }
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public override string GetString(string str)
         {
             Debug.Assert(!(str is null), $"{nameof(str)} is null");
             if (!_str.TryGetString(str, out var result))
             {
-                Console.WriteLine($"Requested string '{str}' not found in '{Name}'.");
+                logger.Warn($"Requested string '{str}' not found in '{Name}'.");
             }
             return result;
         }

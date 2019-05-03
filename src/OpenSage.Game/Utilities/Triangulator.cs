@@ -74,7 +74,7 @@ namespace OpenSage.Utilities
             out Vector2[] outputVertices,
             out ushort[] indices)
         {
-            Log("\nBeginning triangulation...");
+            Log("Beginning triangulation...");
 
             List<Triangle> triangles = new List<Triangle>();
 
@@ -146,7 +146,7 @@ namespace OpenSage.Utilities
         /// <returns>The new array of vertices that can be passed to Triangulate to properly triangulate the shape with the hole.</returns>
         public static Vector2[] CutHoleInShape(Vector2[] shapeVerts, Vector2[] holeVerts)
         {
-            Log("\nCutting hole into shape...");
+            Log("Cutting hole into shape...");
 
             //make sure the shape vertices are wound counter clockwise and the hole vertices clockwise
             shapeVerts = EnsureWindingOrder(shapeVerts, WindingOrder.CounterClockwise);
@@ -303,7 +303,7 @@ namespace OpenSage.Utilities
         /// <returns>A new set of vertices if the winding order didn't match; otherwise the original set.</returns>
         public static Vector2[] EnsureWindingOrder(Vector2[] vertices, WindingOrder windingOrder)
         {
-            Log("\nEnsuring winding order of {0}...", windingOrder);
+            Log("Ensuring winding order of {0}...", windingOrder);
             if (DetermineWindingOrder(vertices) != windingOrder)
             {
                 Log("Reversing vertices...");
@@ -325,7 +325,7 @@ namespace OpenSage.Utilities
         /// <returns>The new vertices for the polygon with the opposite winding order.</returns>
         public static Vector2[] ReverseWindingOrder(Vector2[] vertices)
         {
-            Log("\nReversing winding order...");
+            Log("Reversing winding order...");
             Vector2[] newVerts = new Vector2[vertices.Length];
 
 #if DEBUG
@@ -404,7 +404,7 @@ namespace OpenSage.Utilities
             //remove the ear from the shape
             earVertices.RemoveAt(0);
             polygonVertices.RemoveAt(polygonVertices.IndexOf(ear));
-            Log("\nRemoved Ear: {0}", ear);
+            Log("Removed Ear: {0}", ear);
 
             //validate the neighboring vertices
             ValidateAdjacentVertex(prev);
@@ -569,9 +569,13 @@ namespace OpenSage.Utilities
 
         #region Log
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         [Conditional("DEBUG")]
         private static void Log(string format, params object[] parameters)
         {
+            logger.Debug(format, parameters);
             //System.Console.WriteLine(format, parameters);
         }
 

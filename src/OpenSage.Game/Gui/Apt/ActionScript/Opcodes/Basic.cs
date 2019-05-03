@@ -44,9 +44,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Trace;
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public override void Execute(ActionContext context)
         {
-            Debug.WriteLine("[TRACE] " + context.Stack.Pop().ToString());
+            logger.Debug($"[TRACE] {context.Stack.Pop().ToString()}");
         }
     }
 

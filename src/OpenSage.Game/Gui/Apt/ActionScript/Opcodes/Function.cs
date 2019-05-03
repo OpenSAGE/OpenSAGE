@@ -7,11 +7,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     public static class FunctionCommon
     {
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static void ExecuteFunction(string funcName, Value[] args, ObjectContext scope, ActionContext context)
         {
             if (scope == null)
             {
-                Debug.WriteLine("[ERROR] cannot execute function \"" + funcName + "\" on null object");
+                logger.Error($"Cannot execute function \"{funcName}\" on null object");
                 return;
             }
 
@@ -34,7 +37,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 }
                 else
                 {
-                    Debug.WriteLine("[WARN] can't find function: " + funcName);
+                    logger.Warn($"Can't find function: {funcName}");
                 }
             }
         }
