@@ -98,6 +98,8 @@ namespace OpenSage.Data
                 .Where(Directory.Exists);
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
         {
             GameInstallation baseGameInstallation = null;
@@ -109,7 +111,7 @@ namespace OpenSage.Data
 
                 if (baseGameInstallation == null)
                 {
-                    // TODO: Log a warning / info message?
+                    logger.Warn("No game installations found");
                     return Enumerable.Empty<GameInstallation>();
                 }
             }

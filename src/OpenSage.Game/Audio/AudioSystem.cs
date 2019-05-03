@@ -124,11 +124,13 @@ namespace OpenSage.Audio
             return new SoundStream(entry.Open(), _engine);
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void PlayAudioEvent(string eventName)
         {
             if (!Game.ContentManager.IniDataContext.AudioEvents.TryGetValue(eventName, out var ev))
             {
-                // TODO: Log a warning about a missing AudioEvent
+                logger.Warn($"Missing AudioEvent: {eventName}");
                 return;
             }
 
@@ -136,7 +138,7 @@ namespace OpenSage.Audio
 
             if (entry == null)
             {
-                // TODO: Log a warning about a missing audio file.
+                logger.Warn($"Missing Audio File: {ev.Name}");
                 return;
             }
 
