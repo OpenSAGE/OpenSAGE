@@ -24,14 +24,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/netcoreapp2.2/OpenSage.Launcher.dll",
             "args": [
-                "--renderer", "OpenGL",
                 "--developermode", "true",
                 "--game", "0"
-            ],
-            "env": {
-                //change this to your path, possibly
-                "CNC_GENERALS_PATH": "/home/daan/games/generals/"
-            }
+            ]
         },
         
         {
@@ -40,15 +35,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/netcoreapp2.2/OpenSage.Launcher.dll",
             "args": [
-                "--renderer", "OpenGL",
                 "--developermode", "true",
                 "--game", "1"
-            ],
-            "env": {
-                //change this to your path, possibly
-                "CNC_GENERALS_PATH": "/home/daan/games/generals/",
-                "CNC_GENERALS_ZH_PATH": "/home/daan/games/zero-hour/"
-            }
+            ]
         }
     ]
 }
