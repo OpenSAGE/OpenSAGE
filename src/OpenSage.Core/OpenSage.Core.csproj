@@ -6,6 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
+    <PackageReference Include="NLog.Config" Version="4.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
