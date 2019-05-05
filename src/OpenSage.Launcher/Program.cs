@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandLine;
+using NLog.Targets;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
 using OpenSage.Logic;
@@ -45,6 +46,8 @@ namespace OpenSage.Launcher
 
         public static void Main(string[] args)
         {
+            Target.Register<Core.InternalLogger>("OpenSage");
+
             Parser.Default.ParseArguments<Options>(args)
               .WithParsed(opts => Run(opts));
         }
@@ -53,7 +56,6 @@ namespace OpenSage.Launcher
 
         public static void Run(Options opts)
         {
-
             logger.Info("Starting...");
 
             var definition = GameDefinition.FromGame(opts.Game);
