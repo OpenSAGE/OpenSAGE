@@ -134,11 +134,16 @@ namespace OpenSage.Logic.Object
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             var flags = new BitArray<ModelConditionFlag>();
+            var deltaTime = gameTime.DeltaTime.Milliseconds / 1000.0f;
 
             // Check if the unit is currently moving
             flags.Set(ModelConditionFlag.Moving, true);
             if (ModelConditionFlags.And(flags).AnyBitSet && TargetPoint.HasValue)
             {
+                var x = Transform.Translation.X;
+                var y = Transform.Translation.Y;
+                var trans = Transform.Translation;
+
                 // This locomotor speed is distance/second
                 var delta = TargetPoint.Value - Transform.Translation;
                 var distance = CurrentLocomotor.Speed * deltaTime;
@@ -160,22 +165,18 @@ namespace OpenSage.Logic.Object
                         pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
                     }
                     Transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
-                }              
+                }
 
                 var direction = Vector3.Normalize(delta);
-                Transform.Translation += direction * distance;
-
-                var x = Transform.Translation.X;
-                var y = Transform.Translation.Y;
-                var z = heightMap.GetHeight(x, y);
-
-                Transform.Translation = new Vector3(x, y, z);
+                trans += direction * distance;
+                trans.Z = heightMap.GetHeight(x, y);
+                Transform.Translation = trans;
 
                 if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
                 {
                     TargetPoint = null;
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
-                }             
+                }
             }
 
             // Check if the unit is being constructed
