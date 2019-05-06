@@ -158,26 +158,33 @@ namespace OpenSage.Logic.Object
                     {
                         var splitName = firstAnimation.Animation.Split('.');
 
-                        var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
-                        W3dFile w3dFile;
-                        using (var entryStream = w3dEntry.Open())
-                        {
-                            w3dFile = W3dFile.FromStream(entryStream, w3dEntry.FilePath);
-                        }
+                        if(splitName.Length > 1){
 
-                        var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
-                        if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new NotSupportedException();
-                        }
+                            var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
+                            var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
+                            W3dFile w3dFile;
+                            using (var entryStream = w3dEntry.Open())
+                            {
+                                w3dFile = W3dFile.FromStream(entryStream, w3dEntry.FilePath);
+                            }
 
-                        animation = animations[0];
+                            var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
+                            if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))
+                            {
+                                throw new NotSupportedException();
+                            }
+
+                            animation = animations[0];
+
+                        }
                     }
 
-                    var animationInstance = new AnimationInstance(modelInstance, animation);
-                    modelInstance.AnimationInstances.Add(animationInstance);
-                    animationInstance.Play();
+                    if(animation != null)
+                    {
+                        var animationInstance = new AnimationInstance(modelInstance, animation);
+                        modelInstance.AnimationInstances.Add(animationInstance);
+                        animationInstance.Play();
+                    }
                 }
             }
 
