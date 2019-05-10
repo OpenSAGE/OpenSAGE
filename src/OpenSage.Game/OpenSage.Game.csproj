@@ -51,7 +51,7 @@
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath) -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -V %(ShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv&quot;" />
   </Target>
 
   <Target Name="EmbedShaders" AfterTargets="CompileShaders">
