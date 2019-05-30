@@ -13,6 +13,7 @@ namespace OpenSage.Tools.BigEditor.UI
     internal sealed class MainForm : DisposableBase
     {
         private BigArchive _bigArchive;
+        private FileBrowser _fileBrowser;
         private readonly List<BigArchiveEntry> _files;
         private int _currentFile;
         private string _currentFileText;
@@ -23,6 +24,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
         public MainForm()
         {
+            _fileBrowser = new FileBrowser();
             _files = new List<BigArchiveEntry>();
             OpenBigFile(null);
         }
@@ -102,9 +104,19 @@ namespace OpenSage.Tools.BigEditor.UI
             }
 
             bool fileOpenPopupOpen = true;
-            if (ImGui.BeginPopupModal(openFilePopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+            if (ImGui.BeginPopupModal(openFilePopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
             {
-                DrawOpenFileDialog();
+                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
+                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
+
+                string path = _fileBrowser.Draw();
+                if (path.CompareTo("") != 0) {
+                    path = ImGuiUtility.TrimToNullByte(path);
+
+                    Console.WriteLine("path: {0}", path);
+
+                    OpenBigFile(path);
+                }
 
                 ImGui.EndPopup();
             }
@@ -151,36 +163,17 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild();
         }
 
-        private void DrawOpenFileDialog()
-        {
-            ImGuiUtility.InputText("File Path", _filePathBuffer, out var filePath);
-
-            if (ImGui.Button("Open"))
-            {
-                filePath = ImGuiUtility.TrimToNullByte(filePath);
-
-                OpenBigFile(filePath);
-
-                ImGui.CloseCurrentPopup();
-            }
-
-            ImGui.SetItemDefaultFocus();
-
-            ImGui.SameLine();
-
-            if (ImGui.Button("Cancel"))
-            {
-                ImGui.CloseCurrentPopup();
-            }
-        }
-
         private void OpenBigFile(string filePath)
         {
             RemoveAndDispose(ref _bigArchive);
 
             if (File.Exists(filePath))
             {
-                _bigArchive = AddDisposable(new BigArchive(filePath));
+                try {
+                    _bigArchive = AddDisposable(new BigArchive(filePath));
+                } catch (Exception e) {
+                    Console.WriteLine(e.Message);
+                }
             }
 
             _currentFile = -1;
