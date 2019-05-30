@@ -113,8 +113,6 @@ namespace OpenSage.Tools.BigEditor.UI
                 if (path.CompareTo("") != 0) {
                     path = ImGuiUtility.TrimToNullByte(path);
 
-                    Console.WriteLine("path: {0}", path);
-
                     OpenBigFile(path);
                 }
 
