@@ -90,7 +90,8 @@ namespace OpenSage.Tools.BigEditor.UI
             try {
                 current = new DirectoryInfo(_currentPath);
                 files = current.GetFiles("*.big");
-            } catch {
+            }
+            catch {
                 return false;
             }
 
@@ -190,7 +191,8 @@ namespace OpenSage.Tools.BigEditor.UI
             try {
                 current = new DirectoryInfo(path);
                 dirs = current.GetDirectories();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 if (ImGui.TreeNodeEx(label)) {
                     ImGui.Text(e.Message);
                     ImGui.TreePop();

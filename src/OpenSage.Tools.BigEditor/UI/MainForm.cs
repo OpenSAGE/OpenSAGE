@@ -16,6 +16,7 @@ namespace OpenSage.Tools.BigEditor.UI
         private FileBrowser _fileBrowser;
         private readonly List<BigArchiveEntry> _files;
         private int _currentFile;
+        private string _currentFileName;
         private string _currentFileText;
 
         private byte[] _searchTextBuffer;
@@ -26,6 +27,7 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             _fileBrowser = new FileBrowser();
             _files = new List<BigArchiveEntry>();
+            _currentFileName = "";
             OpenBigFile(null);
         }
 
@@ -93,6 +95,9 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.EndMenu();
                 }
+
+                ImGui.Text($"\t\t{_currentFileName}");
+
                 ImGui.EndMenuBar();
             }
 
@@ -175,6 +180,7 @@ namespace OpenSage.Tools.BigEditor.UI
             }
 
             _currentFile = -1;
+            _currentFileName = "";
             _currentFileText = null;
             _searchTextBuffer = new byte[32];
             _filePathBuffer = new byte[1024];
@@ -209,6 +215,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 if (ImGui.Selectable(entry.FullName, i == _currentFile, ImGuiSelectableFlags.SpanAllColumns))
                 {
                     _currentFile = i;
+                    _currentFileName = entry.FullName;
 
                     switch (Path.GetExtension(entry.FullName).ToLowerInvariant())
                     {
@@ -233,6 +240,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 if (ImGui.BeginPopupContextItem("context" + i))
                 {
                     _currentFile = i;
+                    _currentFileName = entry.FullName;
 
                     if (ImGui.Selectable("Export..."))
                     {
