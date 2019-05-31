@@ -46,4 +46,12 @@ namespace OpenSage.Tools.BigEditor.Util
             return s;
         }
     }
+
+    public enum FileBrowserFlags
+    {
+        Open = 0,
+        Save = 1,
+        Export = 2,
+        Import = 4,
+    }
 }

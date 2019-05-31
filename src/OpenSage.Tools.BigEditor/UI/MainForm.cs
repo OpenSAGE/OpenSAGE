@@ -116,7 +116,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
-                string path = _fileBrowser.Draw();
+                string path = _fileBrowser.Draw(FileBrowserFlags.Open);
                 if (path != null && path.CompareTo("") != 0) {
                     path = ImGuiUtility.TrimToNullByte(path);
 

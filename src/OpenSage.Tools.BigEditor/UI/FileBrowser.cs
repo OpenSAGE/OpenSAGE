@@ -13,9 +13,11 @@ namespace OpenSage.Tools.BigEditor.UI
         private static string _currentPath;
         private static string _currentFile;
         private static int _currentSelection;
+        private static FileBrowserFlags _type;
         private static Hashtable _paths;
 
-        public FileBrowser() {
+        public FileBrowser()
+        {
             _paths = new Hashtable();
 
             _paths.Add("CNC_GENERALS_PATH", Environment.GetEnvironmentVariable("CNC_GENERALS_PATH"));
@@ -25,8 +27,9 @@ namespace OpenSage.Tools.BigEditor.UI
             _currentPath = "/";
         }
 
-        public string Draw()
+        public string Draw(FileBrowserFlags type)
         {
+            _type = type;
             string currentDir = Environment.CurrentDirectory;
 
             ImGui.BeginChild("sidebar", new Vector2(350, -30), true);
@@ -64,7 +67,7 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.NewLine();
             ImGui.SameLine(ImGui.GetWindowWidth() - 104);
 
-            if (ImGui.Button("Open"))
+            if (ImGui.Button(GetButtonName(_type)))
             {
                 ImGui.CloseCurrentPopup();
 
@@ -83,7 +86,8 @@ namespace OpenSage.Tools.BigEditor.UI
             return "";
         }
 
-        private static bool FileChooser() {
+        private static bool FileChooser()
+        {
             DirectoryInfo current = null;
             FileInfo[] files = null;
 
@@ -155,7 +159,8 @@ namespace OpenSage.Tools.BigEditor.UI
             return false;
         }
 
-        private static bool DirTree(string currentPath = "/") {
+        private static bool DirTree(string currentPath = "/")
+        {
             DirectoryInfo current = new DirectoryInfo(currentPath);
             DirectoryInfo[] dirs = current.GetDirectories();
 
@@ -174,7 +179,8 @@ namespace OpenSage.Tools.BigEditor.UI
             return false;
         }
 
-        private static bool SubTree(string label, string path) {
+        private static bool SubTree(string label, string path)
+        {
             DirectoryInfo current = null;
             DirectoryInfo[] dirs = null;
 
@@ -222,6 +228,28 @@ namespace OpenSage.Tools.BigEditor.UI
             }
 
             return false;
+        }
+
+        private static string GetButtonName(FileBrowserFlags type)
+        {
+            switch (type) {
+                case FileBrowserFlags.Open: {
+                    return "Open";
+                }
+                case FileBrowserFlags.Save: {
+                    return "Save";
+                }
+                case FileBrowserFlags.Import: {
+                    return "Import";
+                }
+                case FileBrowserFlags.Export: {
+                    return "Export";
+                }
+
+                default: {
+                    return "Open";
+                }
+            }
         }
     }
 }
