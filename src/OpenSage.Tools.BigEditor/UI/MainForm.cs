@@ -22,12 +22,14 @@ namespace OpenSage.Tools.BigEditor.UI
         private byte[] _searchTextBuffer;
         private byte[] _filePathBuffer;
         private string _searchText;
+        static float _scrollY;
 
         public MainForm()
         {
             _fileBrowser = new FileBrowser();
             _files = new List<BigArchiveEntry>();
             _currentFileName = "";
+            _scrollY = 0.0f;
             OpenBigFile(null);
         }
 
@@ -115,7 +117,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
                 string path = _fileBrowser.Draw();
-                if (path.CompareTo("") != 0) {
+                if (path != null && path.CompareTo("") != 0) {
                     path = ImGuiUtility.TrimToNullByte(path);
 
                     OpenBigFile(path);
@@ -208,11 +210,29 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.Text("Size"); ImGui.NextColumn();
             ImGui.Separator();
 
+            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.DownArrow)) && _currentFile != _files.Count-1)
+            {
+                _currentFile++;
+                _scrollY += ImGui.GetIO().DeltaTime * 1000.0f;
+                ImGui.SetScrollY(_scrollY);
+
+            }
+            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.UpArrow)) && _currentFile != 0)
+            {
+                _currentFile--;
+                _scrollY -= ImGui.GetIO().DeltaTime * 1000.0f;
+                ImGui.SetScrollY(_scrollY);
+            }
+            if (ImGui.IsMouseClicked(0))
+            {
+                _scrollY = ImGui.GetScrollY();
+            }
+
             for (var i = 0; i < _files.Count; i++)
             {
                 var entry = _files[i];
 
-                if (ImGui.Selectable(entry.FullName, i == _currentFile, ImGuiSelectableFlags.SpanAllColumns))
+                if (ImGui.Selectable(entry.FullName, i == _currentFile, ImGuiSelectableFlags.SpanAllColumns) || i == _currentFile)
                 {
                     _currentFile = i;
                     _currentFileName = entry.FullName;
