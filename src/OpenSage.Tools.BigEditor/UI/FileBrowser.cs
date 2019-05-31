@@ -141,17 +141,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
                 ImGui.NextColumn();
 
-                string size = file.Length.ToString();
-                if (file.Length / 1024 > 1)
-                {
-                    size = $"{file.Length / 1024}K";
-                }
-                if (file.Length / 1024 > 1024)
-                {
-                    size = $"{file.Length / 1024 / 1024}M";
-                }
-
-                ImGui.Text(size);
+                ImGui.Text(ImGuiUtility.GetFormatedSize(file.Length));
 
                 ImGui.NextColumn();
 

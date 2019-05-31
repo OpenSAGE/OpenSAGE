@@ -272,7 +272,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
                 ImGui.NextColumn();
 
-                ImGui.Text(entry.Length.ToString());
+                ImGui.Text(ImGuiUtility.GetFormatedSize(entry.Length));
                 ImGui.NextColumn();
 
                 var exportId = "Export##ExportDialog" + i;
