@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Collections;
 using System.IO;
 using System.Numerics;
@@ -12,25 +13,34 @@ namespace OpenSage.Tools.BigEditor.UI
     {
         private static string _currentPath;
         private static string _currentFile;
+        private static string _currentExportFileName;
         private static int _currentSelection;
-        private static FileBrowserFlags _type;
+        private static FileBrowserType _type;
         private static Hashtable _paths;
+
 
         public FileBrowser()
         {
             _paths = new Hashtable();
 
-            _paths.Add("CNC_GENERALS_PATH", Environment.GetEnvironmentVariable("CNC_GENERALS_PATH"));
-            _paths.Add("CNC_GENERALS_ZH_PATH", Environment.GetEnvironmentVariable("CNC_GENERALS_ZH_PATH"));
-            _paths.Add("Current Directory", Environment.CurrentDirectory);
+            _paths.Add("CNC_GENERALS_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_PATH")));
+            _paths.Add("CNC_GENERALS_ZH_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_ZH_PATH")));
+            _paths.Add("Current Directory", ImGuiUtility.NormalizePath(Environment.CurrentDirectory));
 
+            _currentExportFileName = "";
             _currentPath = "/";
         }
 
-        public string Draw(FileBrowserFlags type)
+        public string Draw(FileBrowserType type, string exportFileName = "")
         {
             _type = type;
-            string currentDir = Environment.CurrentDirectory;
+            _currentExportFileName = exportFileName;
+
+            if (type == FileBrowserType.Save || type == FileBrowserType.Export) {
+                ImGui.InputText("File name", ref _currentExportFileName, 255);
+            }
+
+            ImGui.BeginChild("body");
 
             ImGui.BeginChild("sidebar", new Vector2(350, -30), true);
 
@@ -40,7 +50,7 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 foreach (DictionaryEntry path in _paths)
                 {
-                    if (ImGui.Selectable(path.Key.ToString()))
+                    if (ImGui.Selectable(path.Key.ToString(), _currentPath == path.Value.ToString().Replace("\\", "")))
                     {
                         _currentPath = path.Value.ToString().Replace("\\", "");
                     }
@@ -59,19 +69,45 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (FileChooser())
             {
+                if (_type == FileBrowserType.Export || _type == FileBrowserType.Save)
+                {
+                    return _currentPath;
+                }
+
                 ImGui.CloseCurrentPopup();
 
                 return _currentFile;
             }
 
             ImGui.NewLine();
-            ImGui.SameLine(ImGui.GetWindowWidth() - 104);
+            ImGui.SameLine(ImGui.GetWindowWidth() - 120);
 
             if (ImGui.Button(GetButtonName(_type)))
             {
-                ImGui.CloseCurrentPopup();
+                if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
+                {
+                    ImGui.CloseCurrentPopup();
 
-                return _currentFile;
+                    return _currentPath;
+                }
+
+                if (Directory.Exists(_currentFile))
+                {
+                    _currentPath = _currentFile;
+                }
+                else
+                {
+                    if (_type == FileBrowserType.Export || _type == FileBrowserType.Save)
+                    {
+                        ImGui.CloseCurrentPopup();
+
+                        return _currentPath;
+                    }
+
+                    ImGui.CloseCurrentPopup();
+
+                    return _currentFile;
+                }
             }
 
             ImGui.SetItemDefaultFocus();
@@ -83,17 +119,24 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.CloseCurrentPopup();
             }
 
+            ImGui.EndChild(); // end body
+
             return "";
         }
 
         private static bool FileChooser()
         {
-            DirectoryInfo current = null;
-            FileInfo[] files = null;
+            Adapter adapter = null;
 
             try {
-                current = new DirectoryInfo(_currentPath);
-                files = current.GetFiles("*.big");
+                if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
+                {
+                    adapter = new Adapter(_currentPath, "", AdapterFlags.OnlyDirectories);
+                }
+                else
+                {
+                    adapter = new Adapter(_currentPath);
+                }
             }
             catch {
                 return false;
@@ -123,29 +166,52 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.SetColumnOffset(1, ImGui.GetWindowWidth() - 320);
             ImGui.SetColumnOffset(2, ImGui.GetWindowWidth() - 120);
 
-            int i = 0;
-            foreach (var file in files)
+            if (adapter.RootDirectory.CompareTo("/") != 0)
             {
-                if (ImGui.Selectable(file.Name, i == _currentSelection, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick))
+                if (ImGui.Selectable("..", false, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick))
                 {
                     if (ImGui.IsMouseDoubleClicked(0))
                     {
-                        ImGui.CloseCurrentPopup();
+                        _currentPath = adapter.RootDirectory;
+                    }
+                }
 
-                        return true;
+                ImGui.NextColumn();
+                ImGui.NextColumn();
+                ImGui.NextColumn();
+            }
+
+            int i = 0;
+            foreach (var entry in adapter.Entries)
+            {
+                if (ImGui.Selectable(entry.Name, i == _currentSelection, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick))
+                {
+                    if (ImGui.IsMouseDoubleClicked(0))
+                    {
+                        if (entry.IsFile)
+                        {
+                            ImGui.CloseCurrentPopup();
+
+                            return true;
+                        }
+                        else
+                        {
+                            i = -1;
+                            _currentPath = entry.FullName;
+                        }
                     }
 
                     _currentSelection = i;
-                    _currentFile = file.FullName;
+                    _currentFile = entry.FullName;
                 }
 
                 ImGui.NextColumn();
 
-                ImGui.Text(file.CreationTime.ToLocalTime().ToString());
+                ImGui.Text(entry.CreationTime.ToLocalTime().ToString());
 
                 ImGui.NextColumn();
 
-                ImGui.Text(ImGuiUtility.GetFormatedSize(file.Length));
+                ImGui.Text(ImGuiUtility.GetFormatedSize(entry.Length));
 
                 ImGui.NextColumn();
 
@@ -168,7 +234,7 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 foreach (var dir in dirs)
                 {
-                    SubTree(dir.Name + "/", "/" + dir.Name + "/");
+                    SubTree(dir.Name + Path.DirectorySeparatorChar, Path.DirectorySeparatorChar + dir.Name + Path.DirectorySeparatorChar);
                 }
 
                 ImGui.TreePop();
@@ -196,8 +262,25 @@ namespace OpenSage.Tools.BigEditor.UI
                 return false;
             }
 
+            var currentSelect = Regex.Match($"{_currentPath}/", $"{path}");
+            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.AllowItemOverlap;
+
+            if (currentSelect.Success)
+            {
+                flags = ImGuiTreeNodeFlags.DefaultOpen;
+
+                if (ImGuiUtility.NormalizePath(_currentPath).CompareTo(path) == 0)
+                {
+                    flags |= ImGuiTreeNodeFlags.Selected;
+                }
+            }
+            else
+            {
+                flags = ImGuiTreeNodeFlags.None;
+            }
+
             if (dirs.Length <= 0) {
-                if (ImGui.TreeNodeEx(label))
+                if (ImGui.TreeNodeEx(label, flags))
                 {
                     if (ImGui.IsItemHovered() && ImGui.IsItemDeactivated() || ImGui.IsItemHovered() && ImGui.IsItemActivated())
                     {
@@ -210,7 +293,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 return true;
             }
 
-            if (ImGui.TreeNodeEx(label))
+            if (ImGui.TreeNodeEx(label, flags))
             {
                 if (ImGui.IsItemHovered() && ImGui.IsItemDeactivated() || ImGui.IsItemHovered() && ImGui.IsItemActivated())
                 {
@@ -219,7 +302,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
                 foreach (var dir in dirs)
                 {
-                    SubTree(dir.Name + "/", path + dir.Name + "/");
+                    SubTree(dir.Name + Path.DirectorySeparatorChar, path + dir.Name + Path.DirectorySeparatorChar);
                 }
 
                 ImGui.TreePop();
@@ -230,19 +313,21 @@ namespace OpenSage.Tools.BigEditor.UI
             return false;
         }
 
-        private static string GetButtonName(FileBrowserFlags type)
+        private static string GetButtonName(FileBrowserType type)
         {
             switch (type) {
-                case FileBrowserFlags.Open: {
-                    return "Open";
+                case FileBrowserType.Open: {
+                    return " Open ";
                 }
-                case FileBrowserFlags.Save: {
-                    return "Save";
+                case FileBrowserType.Save: {
+                    return " Save ";
                 }
-                case FileBrowserFlags.Import: {
+                case FileBrowserType.ImportFromDir:
+                case FileBrowserType.Import: {
                     return "Import";
                 }
-                case FileBrowserFlags.Export: {
+                case FileBrowserType.ExportToDir:
+                case FileBrowserType.Export: {
                     return "Export";
                 }
 

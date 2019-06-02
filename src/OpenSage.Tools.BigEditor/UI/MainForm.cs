@@ -12,6 +12,7 @@ namespace OpenSage.Tools.BigEditor.UI
 {
     internal sealed class MainForm : DisposableBase
     {
+        private Sdl2Window _window;
         private BigArchive _bigArchive;
         private FileBrowser _fileBrowser;
         private readonly List<BigArchiveEntry> _files;
@@ -65,6 +66,8 @@ namespace OpenSage.Tools.BigEditor.UI
 
         public void Draw(Sdl2Window window)
         {
+            _window = window;
+
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(window.Width, window.Height), ImGuiCond.Always);
 
@@ -72,7 +75,9 @@ namespace OpenSage.Tools.BigEditor.UI
             bool open = false;
             ImGui.Begin("OpenSAGE Big Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
 
-            var wasOpenClicked = false;
+            bool wasOpenClicked = false;
+            bool wasExportAllClicked = false;
+            bool wasImportClicked = false;
 
             if (ImGui.BeginMenuBar())
             {
@@ -82,7 +87,6 @@ namespace OpenSage.Tools.BigEditor.UI
                     {
                         wasOpenClicked = true;
                     }
-
                     if (ImGui.MenuItem("Close", null, false, _bigArchive != null))
                     {
                         OpenBigFile(null);
@@ -97,6 +101,22 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.EndMenu();
                 }
+                if (ImGui.BeginMenu("Edit"))
+                {
+                    if (ImGui.MenuItem("Export All", "Ctrl+E", false, _bigArchive != null))
+                    {
+                        wasExportAllClicked = true;
+                    }
+
+                    ImGui.Separator();
+
+                    if (ImGui.MenuItem("Import", "Ctrl+I", false, _bigArchive != null))
+                    {
+                        wasImportClicked = true;
+                    }
+
+                    ImGui.EndMenu();
+                }
 
                 ImGui.Text($"\t\t{_currentFileName}");
 
@@ -104,10 +124,20 @@ namespace OpenSage.Tools.BigEditor.UI
             }
 
             const string openFilePopupId = "Open Big Archive##OpenBigArchive";
+            const string wasExportAllPopupId = "Export All Files##ExportAllFiles";
+            const string wasImportPopupId = "Import Files##ImportFiles";
 
             if (wasOpenClicked)
             {
                 ImGui.OpenPopup(openFilePopupId);
+            }
+            if (wasExportAllClicked)
+            {
+                ImGui.OpenPopup(wasExportAllPopupId);
+            }
+            if (wasImportClicked)
+            {
+                ImGui.OpenPopup(wasImportPopupId);
             }
 
             bool fileOpenPopupOpen = true;
@@ -116,11 +146,43 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
-                string path = _fileBrowser.Draw(FileBrowserFlags.Open);
+                string path = _fileBrowser.Draw(FileBrowserType.Open);
                 if (path != null && path.CompareTo("") != 0) {
                     path = ImGuiUtility.TrimToNullByte(path);
 
                     OpenBigFile(path);
+                }
+
+                ImGui.EndPopup();
+            }
+            fileOpenPopupOpen = true;
+            if (ImGui.BeginPopupModal(wasExportAllPopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
+            {
+                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
+                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
+
+                string path = _fileBrowser.Draw(FileBrowserType.ExportToDir);
+                if (path != null && path.CompareTo("") != 0) {
+                    path = ImGuiUtility.TrimToNullByte(path);
+
+                    Console.WriteLine("path: {0}", path);
+
+                    Export(path);
+                }
+
+                ImGui.EndPopup();
+            }
+            fileOpenPopupOpen = true;
+            if (ImGui.BeginPopupModal(wasImportPopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
+            {
+                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
+                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
+
+                string path = _fileBrowser.Draw(FileBrowserType.Import);
+                if (path != null && path.CompareTo("") != 0) {
+                    path = ImGuiUtility.TrimToNullByte(path);
+                    Console.WriteLine("Import Dialog");
+                    // OpenBigFile(path);
                 }
 
                 ImGui.EndPopup();
@@ -282,32 +344,23 @@ namespace OpenSage.Tools.BigEditor.UI
                 }
 
                 bool contextMenuOpen = true;
-                if (ImGui.BeginPopupModal(exportId, ref contextMenuOpen, ImGuiWindowFlags.AlwaysAutoResize))
+                if (ImGui.BeginPopupModal(exportId, ref contextMenuOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
                 {
-                    ImGuiUtility.InputText("File Path", _filePathBuffer, out var filePath);
+                    ImGui.SetWindowSize(new Vector2(_window.Width - 50, _window.Height - 50), ImGuiCond.Always);
+                    ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
-                    if (ImGui.Button("Save"))
-                    {
-                        filePath = ImGuiUtility.TrimToNullByte(filePath);
+                    string path = _fileBrowser.Draw(FileBrowserType.Save, entry.Name);
+                    if (path != null && path.CompareTo("") != 0) {
+                        path = ImGuiUtility.TrimToNullByte(path);
 
                         using (var entryStream = entry.Open())
                         {
-                            using (var fileStream = File.OpenWrite(filePath))
+                            Console.WriteLine($"{path}{Path.DirectorySeparatorChar}{entry.Name}");
+                            using (var fileStream = File.OpenWrite($"{path}{Path.DirectorySeparatorChar}{entry.Name}"))
                             {
                                 entryStream.CopyTo(fileStream);
                             }
                         }
-
-                        ImGui.CloseCurrentPopup();
-                    }
-
-                    ImGui.SetItemDefaultFocus();
-
-                    ImGui.SameLine();
-
-                    if (ImGui.Button("Cancel"))
-                    {
-                        ImGui.CloseCurrentPopup();
                     }
 
                     ImGui.EndPopup();
@@ -319,6 +372,38 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild();
 
             ImGui.EndChild();
+        }
+
+        private void Export(string path)
+        {
+            foreach (var entry in _files)
+            {
+                string filePath = $"{path}{Path.DirectorySeparatorChar}{Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar))}";
+                try
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+
+                try
+                {
+                    using (var entryStream = entry.Open())
+                    {
+                        using (var fileStream = File.OpenWrite($"{filePath}{Path.DirectorySeparatorChar}{entry.Name}"))
+                        {
+                            entryStream.CopyTo(fileStream);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
         }
     }
 }
