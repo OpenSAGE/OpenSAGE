@@ -84,26 +84,21 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (ImGui.Button(GetButtonName(_type)))
             {
-                if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
+                if (_type == FileBrowserType.Open)
                 {
-                    ImGui.CloseCurrentPopup();
-
-                    return _currentPath;
-                }
-
-                if (Directory.Exists(_currentFile))
-                {
-                    _currentPath = _currentFile;
-                }
-                else
-                {
-                    if (_type == FileBrowserType.Export || _type == FileBrowserType.Save)
+                    if (Directory.Exists(_currentFile))
+                    {
+                        _currentPath = _currentFile;
+                    }
+                    else
                     {
                         ImGui.CloseCurrentPopup();
 
-                        return _currentPath;
+                        return _currentFile;
                     }
-
+                }
+                else
+                {
                     ImGui.CloseCurrentPopup();
 
                     return _currentFile;
