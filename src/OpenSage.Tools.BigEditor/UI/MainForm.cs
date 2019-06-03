@@ -118,8 +118,6 @@ namespace OpenSage.Tools.BigEditor.UI
                     ImGui.EndMenu();
                 }
 
-                ImGui.Text($"\t\t{_currentFileName}");
-
                 ImGui.EndMenuBar();
             }
 
@@ -190,11 +188,17 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (_bigArchive != null)
             {
+                ImGui.BeginChild("body", new Vector2(0, -36), false, 0);
+
                 DrawFilesList();
 
                 ImGui.SameLine();
 
                 DrawFileContent();
+
+                ImGui.EndChild(); // end body
+
+                DrawStatusPanel();
             }
             else
             {
@@ -372,6 +376,22 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild();
 
             ImGui.EndChild();
+        }
+
+        private void DrawStatusPanel()
+        {
+            ImGui.BeginChild("statusbar", new Vector2(0, 30), true, 0);
+
+            ImGui.Text($"{_bigArchive.FilePath} | Version: {_bigArchive.Version} | Size: {ImGuiUtility.GetFormatedSize(_bigArchive.Size)} | Files: {_bigArchive.Entries.Count}");
+
+            ImGui.SameLine();
+
+            if (_currentFileName.CompareTo("") != 0)
+            {
+                ImGui.Text($"| Selected file: {_currentFileName}");
+            }
+
+            ImGui.EndChild(); // end statusbar
         }
 
         private void Export(string path)
