@@ -61,7 +61,7 @@ namespace OpenSage.Tools.BigEditor.Util
         {
             string s = path;
 
-            if (path.Substring(path.Length - 1).CompareTo($"{Path.DirectorySeparatorChar}") != 0)
+            if (Directory.Exists(path) && path.Substring(path.Length - 1).CompareTo($"{Path.DirectorySeparatorChar}") != 0)
             {
                 s = $"{path}{Path.DirectorySeparatorChar}";
             }
