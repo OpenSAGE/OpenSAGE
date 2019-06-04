@@ -12,7 +12,6 @@ namespace OpenSage.Tools.BigEditor.UI
 {
     internal sealed class MainForm : DisposableBase
     {
-        private Sdl2Window _window;
         private BigArchive _bigArchive;
         private FileBrowser _fileBrowser;
         private readonly List<BigArchiveEntry> _files;
@@ -66,8 +65,6 @@ namespace OpenSage.Tools.BigEditor.UI
 
         public void Draw(Sdl2Window window)
         {
-            _window = window;
-
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(window.Width, window.Height), ImGuiCond.Always);
 
@@ -145,7 +142,8 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
                 string path = _fileBrowser.Draw(FileBrowserType.Open);
-                if (path != null && path.CompareTo("") != 0) {
+                if (path != null && path.CompareTo("") != 0)
+                {
                     path = ImGuiUtility.TrimToNullByte(path);
 
                     OpenBigFile(path);
@@ -160,7 +158,8 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
                 string path = _fileBrowser.Draw(FileBrowserType.ExportToDir);
-                if (path != null && path.CompareTo("") != 0) {
+                if (path != null && path.CompareTo("") != 0)
+                {
                     path = ImGuiUtility.TrimToNullByte(path);
 
                     Console.WriteLine("path: {0}", path);
@@ -177,9 +176,11 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
                 string path = _fileBrowser.Draw(FileBrowserType.Import);
-                if (path != null && path.CompareTo("") != 0) {
+                if (path != null && path.CompareTo("") != 0)
+                {
                     path = ImGuiUtility.TrimToNullByte(path);
                     Console.WriteLine("Import Dialog");
+                    // TODO: Implement import file
                     // OpenBigFile(path);
                 }
 
@@ -190,7 +191,7 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 ImGui.BeginChild("body", new Vector2(0, -36), false, 0);
 
-                DrawFilesList();
+                DrawFilesList(new Vector2(window.Width, window.Height));
 
                 ImGui.SameLine();
 
@@ -240,9 +241,12 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (File.Exists(filePath))
             {
-                try {
+                try
+                {
                     _bigArchive = AddDisposable(new BigArchive(filePath));
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Console.WriteLine(e.Message);
                 }
             }
@@ -256,7 +260,7 @@ namespace OpenSage.Tools.BigEditor.UI
             UpdateSearch(null);
         }
 
-        private void DrawFilesList()
+        private void DrawFilesList(Vector2 windowSize)
         {
             ImGui.BeginChild("sidebar", new Vector2(350, 0), true, 0);
 
@@ -276,7 +280,7 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.Text("Size"); ImGui.NextColumn();
             ImGui.Separator();
 
-            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.DownArrow)) && _currentFile != _files.Count-1)
+            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.DownArrow)) && _currentFile != _files.Count - 1)
             {
                 _currentFile++;
                 _scrollY += ImGui.GetIO().DeltaTime * 1000.0f;
@@ -350,11 +354,12 @@ namespace OpenSage.Tools.BigEditor.UI
                 bool contextMenuOpen = true;
                 if (ImGui.BeginPopupModal(exportId, ref contextMenuOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
                 {
-                    ImGui.SetWindowSize(new Vector2(_window.Width - 50, _window.Height - 50), ImGuiCond.Always);
+                    ImGui.SetWindowSize(windowSize - new Vector2(50), ImGuiCond.Always);
                     ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
                     string path = _fileBrowser.Draw(FileBrowserType.Save, entry.Name);
-                    if (path != null && path.CompareTo("") != 0) {
+                    if (path != null && path.CompareTo("") != 0)
+                    {
                         path = ImGuiUtility.TrimToNullByte(path);
 
                         using (var entryStream = entry.Open())

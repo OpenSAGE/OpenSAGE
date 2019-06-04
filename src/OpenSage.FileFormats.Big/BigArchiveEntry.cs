@@ -10,8 +10,13 @@ namespace OpenSage.FileFormats.Big
         public BigArchive Archive { get; }
 
         public string FullName { get; }
-        public string Name {
-            get { return FullName.Split('\\')[FullName.Split('\\').Length - 1]; }
+        public string Name
+        {
+            get
+            {
+                var splitted = FullName.Split('\\');
+                return splitted[splitted.Length - 1];
+            }
         }
         public uint Length { get; }
 

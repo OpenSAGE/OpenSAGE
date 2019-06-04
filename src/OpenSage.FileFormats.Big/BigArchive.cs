@@ -20,7 +20,7 @@ namespace OpenSage.FileFormats.Big
         internal Stream Stream => _stream;
 
         public string FilePath { get; }
-        public long Size { get; }
+        public long Size => _stream.Length;
 
         public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 
@@ -40,8 +40,6 @@ namespace OpenSage.FileFormats.Big
                 FileShare.Read));
 
             Read();
-
-            Size = _stream.Length;
         }
 
         internal void AcquireLock()

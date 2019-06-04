@@ -20,23 +20,26 @@ namespace OpenSage.Tools.BigEditor.Util
 
             switch (flags)
             {
-                case AdapterFlags.OnlyDirectories: {
-                    directories = currentDirectory.GetDirectories();
+                case AdapterFlags.OnlyDirectories:
+                    {
+                        directories = currentDirectory.GetDirectories();
 
-                    break;
-                }
-                case AdapterFlags.OnlyFiles: {
-                    files = currentDirectory.GetFiles(searchPattern);
+                        break;
+                    }
+                case AdapterFlags.OnlyFiles:
+                    {
+                        files = currentDirectory.GetFiles(searchPattern);
 
-                    break;
-                }
+                        break;
+                    }
 
-                default: {
-                    directories = currentDirectory.GetDirectories();
-                    files = currentDirectory.GetFiles(searchPattern);
+                default:
+                    {
+                        directories = currentDirectory.GetDirectories();
+                        files = currentDirectory.GetFiles(searchPattern);
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             RootDirectory = currentDirectory.Parent.FullName;

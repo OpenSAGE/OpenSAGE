@@ -18,7 +18,7 @@ namespace OpenSage.Tools.BigEditor.Util
     {
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
         {
-            var temp = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
+            var temp = ImGui.InputText(label, textBuffer, (uint)textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
 
             result = Encoding.UTF8.GetString(textBuffer).TrimEnd('\0');
 

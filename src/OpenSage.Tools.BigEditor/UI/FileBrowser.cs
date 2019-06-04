@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using System.IO;
 using System.Numerics;
-using System.Text;
 using ImGuiNET;
 using OpenSage.Tools.BigEditor.Util;
 
@@ -36,7 +35,8 @@ namespace OpenSage.Tools.BigEditor.UI
             _type = type;
             _currentExportFileName = exportFileName;
 
-            if (type == FileBrowserType.Save || type == FileBrowserType.Export) {
+            if (type == FileBrowserType.Save || type == FileBrowserType.Export)
+            {
                 ImGui.InputText("File name", ref _currentExportFileName, 255);
             }
 
@@ -123,7 +123,8 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             Adapter adapter = null;
 
-            try {
+            try
+            {
                 if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
                 {
                     adapter = new Adapter(_currentPath, "", AdapterFlags.OnlyDirectories);
@@ -133,7 +134,8 @@ namespace OpenSage.Tools.BigEditor.UI
                     adapter = new Adapter(_currentPath);
                 }
             }
-            catch {
+            catch
+            {
                 return false;
             }
 
@@ -245,19 +247,22 @@ namespace OpenSage.Tools.BigEditor.UI
             DirectoryInfo current = null;
             DirectoryInfo[] dirs = null;
 
-            try {
+            try
+            {
                 current = new DirectoryInfo(path);
                 dirs = current.GetDirectories();
             }
-            catch (Exception e) {
-                if (ImGui.TreeNodeEx(label)) {
+            catch (Exception e)
+            {
+                if (ImGui.TreeNodeEx(label))
+                {
                     ImGui.Text(e.Message);
                     ImGui.TreePop();
                 }
                 return false;
             }
 
-            var currentSelect = Regex.Match($"{_currentPath}/", $"{path}");
+            var currentSelect = Regex.Match($"{_currentPath}{Path.DirectorySeparatorChar}", $"{path}");
             ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.AllowItemOverlap;
 
             if (currentSelect.Success)
@@ -274,7 +279,8 @@ namespace OpenSage.Tools.BigEditor.UI
                 flags = ImGuiTreeNodeFlags.None;
             }
 
-            if (dirs.Length <= 0) {
+            if (dirs.Length <= 0)
+            {
                 if (ImGui.TreeNodeEx(label, flags))
                 {
                     if (ImGui.IsItemHovered() && ImGui.IsItemDeactivated() || ImGui.IsItemHovered() && ImGui.IsItemActivated())
@@ -310,25 +316,31 @@ namespace OpenSage.Tools.BigEditor.UI
 
         private static string GetButtonName(FileBrowserType type)
         {
-            switch (type) {
-                case FileBrowserType.Open: {
-                    return " Open ";
-                }
-                case FileBrowserType.Save: {
-                    return " Save ";
-                }
+            switch (type)
+            {
+                case FileBrowserType.Open:
+                    {
+                        return " Open ";
+                    }
+                case FileBrowserType.Save:
+                    {
+                        return " Save ";
+                    }
                 case FileBrowserType.ImportFromDir:
-                case FileBrowserType.Import: {
-                    return "Import";
-                }
+                case FileBrowserType.Import:
+                    {
+                        return "Import";
+                    }
                 case FileBrowserType.ExportToDir:
-                case FileBrowserType.Export: {
-                    return "Export";
-                }
+                case FileBrowserType.Export:
+                    {
+                        return "Export";
+                    }
 
-                default: {
-                    return "Open";
-                }
+                default:
+                    {
+                        return "Open";
+                    }
             }
         }
     }
