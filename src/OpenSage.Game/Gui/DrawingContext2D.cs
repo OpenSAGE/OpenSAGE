@@ -109,14 +109,7 @@ namespace OpenSage.Gui
             in Rectangle destinationRect,
             in bool flipped = false)
         {
-            var color = ColorRgbaF.White.WithA(_currentOpacity);
-
-            _spriteBatch.DrawImage(
-                texture,
-                sourceRect,
-                RectangleF.Transform(destinationRect.ToRectangleF(), _currentTransform),
-                color,
-                flipped);
+            DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped);
         }
 
         public void DrawImage(

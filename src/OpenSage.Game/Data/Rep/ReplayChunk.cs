@@ -29,7 +29,7 @@ namespace OpenSage.Data.Rep
                 argumentCounts[i] = (reader.ReadByteAsEnum<OrderArgumentType>(), reader.ReadByte());
             }
 
-            var order = new Order((int) result.Header.Number, result.Header.OrderType);
+            var order = new Order((int) result.Header.Number - 1, result.Header.OrderType);
             result.Order = order;
 
             for (var i = 0; i < numUniqueArgumentTypes; i++)
@@ -68,6 +68,21 @@ namespace OpenSage.Data.Rep
                         case OrderArgumentType.ScreenRectangle:
                             order.AddScreenRectangleArgument(reader.ReadRectangle());
                             break;
+
+
+                            
+                        case OrderArgumentType.Unknown4:
+                            //in order to align bytes in a random replay, we needed to read 4. has to do with DrawBoxSelection
+                            order.AddIntegerArgument(reader.ReadInt32());
+                            //skip silently
+                            break;
+
+                            /*
+                        case OrderArgumentType.Unknown10:
+                            //seems to be 2 bytes, has to do with OrderType 1091. TODO: check this!
+                            order.AddIntegerArgument(reader.ReadInt16());
+                            break;
+                            */
 
                         default:
                             throw new InvalidOperationException();

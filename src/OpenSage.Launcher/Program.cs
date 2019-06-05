@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using CommandLine;
 using NLog.Targets;
@@ -42,6 +43,9 @@ namespace OpenSage.Launcher
 
             [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
             public string TraceFile { get; set; }
+
+            [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
+            public string ReplayFile { get; set; }
         }
 
         public static void Main(string[] args)
@@ -108,17 +112,18 @@ namespace OpenSage.Launcher
 
                 game.DeveloperModeEnabled = opts.DeveloperMode;
 
-                if (opts.Map == null)
+                if (opts.ReplayFile != null)
                 {
-                    logger.Debug("Showing main menu");
-                    game.ShowMainMenu();
-                }
-                else
-                {
-                    var pSettings = new[]
+                    using (var fileSystem = new FileSystem(Path.Combine(game.UserDataFolder, "Replays")))
                     {
-                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
-                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
+                        game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
+                    }
+                }else if (opts.Map != null)
+                {
+                    var pSettings = new PlayerSetting?[]
+                   {
+                        new PlayerSetting(null, "America", new ColorRgb(255, 0, 0)),
+                        new PlayerSetting(null, "GLA", new ColorRgb(255, 255, 255)),
                     };
 
                     logger.Debug("Starting multiplayer game");
@@ -126,6 +131,11 @@ namespace OpenSage.Launcher
                          new EchoConnection(),
                          pSettings,
                          0);
+                }
+                else
+                {
+                    logger.Debug("Showing main menu");
+                    game.ShowMainMenu();
                 }
 
                 logger.Debug("Starting game");

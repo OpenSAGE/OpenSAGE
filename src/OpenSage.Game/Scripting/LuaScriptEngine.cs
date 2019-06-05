@@ -10,6 +10,8 @@ namespace OpenSage.Scripting
     {
         public Script MainScript;
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public LuaScriptEngine(Game game) : base(game)
         {
             Script.DefaultOptions.DebugPrint = text =>
@@ -30,25 +32,28 @@ namespace OpenSage.Scripting
                 //load scripts.lua file from folder or big file
                 if (File.Exists(filePath))
                 {
+                    logger.Info($"Executing file {filePath}");
                     MainScript.DoFile(filePath);
                 }
                 else
                 {
                     //load scripts.lua from big file
-                    MainScript.DoString(Game.ContentManager.IniDataContext.GetIniFileContent(Path.Combine("Data", "Scripts", "scripts.lua")));
+                    filePath = Path.Combine("Data", "Scripts", "scripts.lua");
+                    logger.Info($"Executing file {filePath} from .big");
+                    MainScript.DoString(Game.ContentManager.IniDataContext.GetIniFileContent(filePath));
                 }
             }
             catch (NullReferenceException) //standard case for generals and zero hour since no scripts.lua file
             {
-                Debug.Write("no scripts.lua file found");
+                logger.Debug("no scripts.lua file found");
             }
             catch (FileNotFoundException)
             {
-                Debug.Write("no scripts.lua file found");
+                logger.Debug("no scripts.lua file found");
             }
             catch (Exception ex)
             {
-                Debug.Write(ex);
+                logger.Error(ex, "Error while loading script file");
             }
 
             LuaEventHandlerInit();
@@ -58,6 +63,7 @@ namespace OpenSage.Scripting
         {
             try
             {
+                logger.Info($"Executing user code {externalCode}");
                 MainScript.DoString(externalCode);
             }
             catch (SyntaxErrorException exeption)

@@ -177,6 +177,9 @@ namespace OpenSage.Mods.Generals.Gui
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
 
+
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
             protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 for (var i = 1; i <= 12; i++)
@@ -195,17 +198,21 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
                         buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
 
-                        buttonControl.SystemCallback = (control, mesage, context) =>
+                        buttonControl.SystemCallback = (control, message, context) =>
                         {
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
+
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
-                            ObjectDefinition objectDefinition;
+                            var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+
+                            logger.Debug($"Relevant object: {objectDefinition?.Name}");
+
                             Order order = null;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
                                     context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
                                     break;
 

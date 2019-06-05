@@ -12,7 +12,7 @@ namespace OpenSage.Data.Rep
         public int MapCrc { get; private set; }
         public int MapSize { get; private set; }
 
-        // Might be seed.
+        // Might be seed. Seems to influence the color and faction when set to random
         public int SD { get; private set; }
 
         public int C { get; private set; }

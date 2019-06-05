@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
@@ -12,6 +13,7 @@ using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
+    [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
         public ObjectDefinition Definition { get; }
@@ -115,7 +117,7 @@ namespace OpenSage.Logic.Object
             SetModelConditionFlags(flags);
         }
 
-        internal void StartConstruction(in TimeInterval gameTime)
+        internal void StartConstruction(in TimeInterval gameTime, Game _game)
         {
             if (Definition.KindOf == null) return;
 
@@ -127,6 +129,25 @@ namespace OpenSage.Logic.Object
                 flags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 SetModelConditionFlags(flags);
                 ConstructionStart = gameTime.TotalTime;
+                foreach(var behavior in Definition.Behaviors)
+                {
+                    if(behavior is SpawnBehaviorModuleData)
+                    {
+                        var spawnTemplate = ((SpawnBehaviorModuleData) behavior).SpawnTemplateName;
+                        var unitDefinition = Context.Objects.Find(x => x.Name == spawnTemplate);
+                        var spawnedUnit = _game.Scene3D.GameObjects.Add(unitDefinition, Owner);
+                        var translation = Transform.Translation;
+
+                        foreach(var _behavior in Definition.Behaviors)
+                        {
+                            if(_behavior is SupplyCenterProductionExitUpdateModuleData)
+                            {
+                                translation -= ((SupplyCenterProductionExitUpdateModuleData) _behavior).NaturalRallyPoint;
+                            }
+                        }
+                        spawnedUnit.Transform.Translation = translation;
+                    }
+                }
                 //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
             }
         }

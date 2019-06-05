@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
@@ -6,6 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    [DebuggerDisplay("[ObjectDefinition:{Name}]")]
     public class ObjectDefinition : BaseInheritableAsset
     {
         internal static ObjectDefinition Parse(IniParser parser)

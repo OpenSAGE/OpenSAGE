@@ -112,10 +112,10 @@ namespace OpenSage.Diagnostics
                                 _context.Game.StartMultiPlayerGame(
                                     mapCache.Name,
                                     new EchoConnection(),
-                                    new[]
+                                    new PlayerSetting?[]
                                     {
-                                        new PlayerSetting(faction1.Side, new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting(faction2.Side, new ColorRgb(255, 255, 255)),
+                                        new PlayerSetting(null, faction1.Side, new ColorRgb(255, 0, 0)),
+                                        new PlayerSetting(null, faction2.Side, new ColorRgb(255, 255, 255)),
                                     },
                                     0);
                             }
