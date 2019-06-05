@@ -262,10 +262,9 @@ namespace OpenSage.Tools.BigEditor.UI
                 return false;
             }
 
-            var currentSelect = Regex.Match($"{_currentPath}{Path.DirectorySeparatorChar}", $"{path}");
             ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.AllowItemOverlap;
 
-            if (currentSelect.Success)
+            if (_currentPath.StartsWith(path))
             {
                 flags = ImGuiTreeNodeFlags.DefaultOpen;
 
