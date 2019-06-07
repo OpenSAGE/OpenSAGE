@@ -97,7 +97,8 @@ namespace OpenSage.Logic.Orders
                                 .ToArray();
 
                             _game.Selection.SetSelectedObjects(player, objectIds);
-                        }catch(System.Exception e)
+                        }
+                        catch (System.Exception e)
                         {
                             logger.Error(e, "Error while setting selection");
                         }
