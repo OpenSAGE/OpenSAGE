@@ -53,13 +53,5 @@ namespace OpenSage.Logic.Object
             return _items[objectId - 1];
         }
 
-        public void Remove(GameObject gameObject)
-        {
-            // TODO: We should probably be using an ID.
-            var index = _items.IndexOf(gameObject);
-            //_items.Remove(gameObject);
-            //_items[index] = null;
-            RemoveToDispose(gameObject);
-        }
     }
 }

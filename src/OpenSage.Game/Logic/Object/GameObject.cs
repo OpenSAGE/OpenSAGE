@@ -50,6 +50,9 @@ namespace OpenSage.Logic.Object
 
         private TimeSpan ConstructionStart { get; set; }
 
+        public bool Sold { get; set; }
+        public bool Destroyed { get; set; }
+
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
         {
             Definition = objectDefinition;
@@ -230,6 +233,14 @@ namespace OpenSage.Logic.Object
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
         {
+            if (Sold)
+            {
+                return;
+            }
+            if (Destroyed)
+            {
+                return;
+            }
             var castsShadow = false;
             switch (Definition.Shadow)
             {

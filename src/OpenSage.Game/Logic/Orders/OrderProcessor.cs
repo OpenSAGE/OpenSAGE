@@ -78,7 +78,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.Sell:
                         foreach(var unit in player.SelectedUnits)
                         {
-                            _game.Scene3D.GameObjects.Remove(unit);
+                            unit.Sold = true;
                         }
                         _game.Selection.ClearSelectedObjects(player);
                         break;
