@@ -118,7 +118,8 @@ namespace OpenSage.Launcher
                     {
                         game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
                     }
-                }else if (opts.Map != null)
+                }
+                else if (opts.Map != null)
                 {
                     var pSettings = new PlayerSetting?[]
                    {

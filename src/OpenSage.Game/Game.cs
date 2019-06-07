@@ -99,7 +99,22 @@ namespace OpenSage
             // TODO: set the correct factions & colors
             List<PlayerSetting?> pSettings = new List<PlayerSetting?>();
 
-            foreach(var slot in replayFile.Header.Metadata.Slots)
+            var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors.ToArray());
+
+
+            foreach (var slot in replayFile.Header.Metadata.Slots)
+            {
+                try
+                {
+                    availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color]);
+                }
+                catch(ArgumentOutOfRangeException ioore)
+                {
+                    //should happen, e.g. for random (-1)
+                }
+            }
+
+            foreach (var slot in replayFile.Header.Metadata.Slots)
             {
                 if(slot.SlotType != ReplaySlotType.Empty)
                 {
@@ -136,34 +151,18 @@ namespace OpenSage
 
                     Console.WriteLine(ContentManager.IniDataContext.PlayerTemplates);
                     var color = new ColorRgb(0, 0, 0);
-                  
-                    switch (slot.Color)
+
+                    try
                     {
-                        case ReplaySlotColor.Blue:
-                            color = new ColorRgb(0, 0, 255);
-                            break;
-                        case ReplaySlotColor.Cyan:
-                            color = new ColorRgb(0, 255, 255);
-                            break;
-                        case ReplaySlotColor.Gold:
-                            color = new ColorRgb(255, 215, 0);
-                            break;
-                        case ReplaySlotColor.Green:
-                            color = new ColorRgb(0, 255, 0);
-                            break;
-                        case ReplaySlotColor.Orange:
-                            color = new ColorRgb(238, 154, 0);
-                            break;
-                        case ReplaySlotColor.Pink:
-                            color = new ColorRgb(255, 192, 203);
-                            break;
-                        case ReplaySlotColor.Purple:
-                            color = new ColorRgb(128, 0, 128);
-                            break;
-                        case ReplaySlotColor.Red:
-                            color = new ColorRgb(255, 0, 0);
-                            break;
+                        color = ContentManager.IniDataContext.MultiplayerColors[(int)slot.Color].RgbColor;
                     }
+                    catch(ArgumentOutOfRangeException e)
+                    {
+                        var multiplayerColor = availableColors.First();
+                        color = multiplayerColor.RgbColor;
+                        availableColors.Remove(multiplayerColor);
+                    }
+                    
 
                     pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
                 }
