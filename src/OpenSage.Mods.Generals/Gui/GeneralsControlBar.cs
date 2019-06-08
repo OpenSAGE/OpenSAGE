@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -225,8 +226,9 @@ namespace OpenSage.Mods.Generals.Gui
                                     break;
 
                                 case CommandType.UnitBuild:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
-                                    context.Game.OrderGenerator.StartConstructUnit(objectDefinition);
+                                    order = CreateOrder(OrderType.CreateUnit);
+                                    order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.IndexOf(objectDefinition)+1);
+                                    order.AddIntegerArgument(1);
                                     break;
                                 default:
                                     throw new NotImplementedException();
@@ -320,8 +322,39 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
+                var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
+                productionQueueWindow.Visible = unit.IsProducing;
+
+                var queue = unit.ProductionQueue;
+
+                for(int pos = 0; pos < 9; pos++)
+                {
+                    var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
+                    Image img = null;
+                    if (queue.Count > pos)
+                    {
+                        var job = queue[pos];
+                        if (queueButton != null && job != null)
+                        {
+                            //quick and dirty progress indicator. needs to be remade to show the clock-like overlay
+                            queueButton.Opacity = 1.0f - job.Progress;
+
+                            img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.objectDefinition.SelectPortrait);
+                            queueButton.SystemCallback = (Control control, WndWindowMessage message, ControlCallbackContext context) =>
+                            {
+                                unit.CancelProduction(pos);
+                            };
+                        }
+                     
+                    }
+                    queueButton.BackgroundImage = img;
+
+                }
+
                 var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
-                iconControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                var cameoImg = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                iconControl.BackgroundImage = cameoImg;
+                iconControl.Visible = !unit.IsProducing;
 
                 void ApplyUpgradeImage(string upgradeControlName, string upgradeName)
                 {

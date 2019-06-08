@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Orders
 
                             gameObject.Transform.Translation = position;
                             gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
-                            gameObject.StartConstruction(_game.MapTime, _game);
+                            gameObject.StartConstruction(_game.MapTime);
                         }
                         break;
 
@@ -67,11 +67,13 @@ namespace OpenSage.Logic.Orders
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var objectDefinition = _game.ContentManager.IniDataContext.Objects[objectDefinitionId - 1];
-                            var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
-                            
+
                             var placeInQueue = order.Arguments[1].Value.Integer;
-                            
-                            gameObject.Transform.Translation = player.SelectedUnits.ElementAt(0).Transform.Translation;
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                unit.QueueProduction(objectDefinition);
+                            }
                         }
                         break;
 

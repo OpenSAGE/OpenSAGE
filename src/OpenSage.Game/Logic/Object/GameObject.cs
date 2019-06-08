@@ -9,6 +9,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic.Object.Production;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -21,6 +22,30 @@ namespace OpenSage.Logic.Object
         public Transform Transform { get; }
 
         public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
+
+        internal void Spawn(ObjectDefinition objectDefinition)
+        {
+
+
+            var spawnedUnit = Parent.Add(objectDefinition, Owner);
+            var translation = Transform.Translation;
+
+            foreach (var _behavior in Definition.Behaviors)
+            {
+                if (_behavior is SupplyCenterProductionExitUpdateModuleData)
+                {
+                    translation -= ((SupplyCenterProductionExitUpdateModuleData) _behavior).UnitCreatePoint;
+                }
+
+                if(_behavior is DefaultProductionExitUpdateModuleData)
+                {
+                    DefaultProductionExitUpdateModuleData productionExit = (DefaultProductionExitUpdateModuleData) _behavior;
+                    translation -= (productionExit).UnitCreatePoint;
+                }
+            }
+            spawnedUnit.Transform.Translation = translation;
+            spawnedUnit.MoveTo(RallyPoint);
+        }
 
         public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
 
@@ -52,11 +77,14 @@ namespace OpenSage.Logic.Object
 
         public bool Destroyed { get; set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
+        public GameObjectCollection Parent { get; private set; }
+
+        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner, GameObjectCollection parent)
         {
             Definition = objectDefinition;
             Context = contentManager.IniDataContext;
             Owner = owner;
+            Parent = parent;
 
             SetLocomotor();
             Transform = Transform.CreateIdentity();
@@ -84,6 +112,7 @@ namespace OpenSage.Logic.Object
             SetModelConditionFlags(new BitArray<ModelConditionFlag>());
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
+
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -102,6 +131,49 @@ namespace OpenSage.Logic.Object
             // TODO: Update modules.
         }
 
+
+        public bool IsProducing { get
+            {
+                return _productionQueue.Count > 0;
+            }
+        }
+
+        private List<ProductionJob> _productionQueue = new List<ProductionJob>();
+
+        public List<ProductionJob> ProductionQueue { get { return _productionQueue.ToList(); } }
+
+        private void HandleProduction(double delta)
+        { 
+
+            if(IsProducing)
+            {
+                var current = _productionQueue.First();
+                if(current.Produce(this, (float)delta))
+                {
+                    _productionQueue.RemoveAt(0);
+                }
+            }
+        }
+
+        internal void QueueProduction(ObjectDefinition objectDefinition)
+        {
+            var job = new ProductionJob(objectDefinition);
+            _productionQueue.Add(job);
+        }
+
+        public void CancelProduction(int pos)
+        {
+            if(pos < _productionQueue.Count)
+            {
+                _productionQueue.RemoveAt(pos);
+            }
+        }
+
+
+
+
+
+
         internal void MoveTo(Vector3 targetPos)
         {
             if (Definition.KindOf == null) return;
@@ -119,7 +191,7 @@ namespace OpenSage.Logic.Object
             SetModelConditionFlags(flags);
         }
 
-        internal void StartConstruction(in TimeInterval gameTime, Game _game)
+        internal void StartConstruction(in TimeInterval gameTime)
         {
             if (Definition.KindOf == null) return;
 
@@ -137,17 +209,7 @@ namespace OpenSage.Logic.Object
                     {
                         var spawnTemplate = ((SpawnBehaviorModuleData) behavior).SpawnTemplateName;
                         var unitDefinition = Context.Objects.Find(x => x.Name == spawnTemplate);
-                        var spawnedUnit = _game.Scene3D.GameObjects.Add(unitDefinition, Owner);
-                        var translation = Transform.Translation;
-
-                        foreach(var _behavior in Definition.Behaviors)
-                        {
-                            if(_behavior is SupplyCenterProductionExitUpdateModuleData)
-                            {
-                                translation -= ((SupplyCenterProductionExitUpdateModuleData) _behavior).NaturalRallyPoint;
-                            }
-                        }
-                        spawnedUnit.Transform.Translation = translation;
+                        Spawn(unitDefinition);
                     }
                 }
                 //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
@@ -214,6 +276,8 @@ namespace OpenSage.Logic.Object
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
                 }
             }
+
+            HandleProduction(deltaTime);
 
             // Update all draw modules
             foreach (var drawModule in DrawModules)
@@ -307,5 +371,7 @@ namespace OpenSage.Logic.Object
                 }
             }
         }
+
+
     }
 }
