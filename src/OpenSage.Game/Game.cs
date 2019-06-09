@@ -55,7 +55,7 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting { get; }
-		
+
         /// <summary>
         /// Load lua script engine.
         /// </summary>
@@ -106,7 +106,7 @@ namespace OpenSage
                 {
                     availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color]);
                 }
-                catch(ArgumentOutOfRangeException ioore)
+                catch (ArgumentOutOfRangeException ioore)
                 {
                     //should happen, e.g. for random (-1)
                 }
@@ -114,10 +114,10 @@ namespace OpenSage
 
             foreach (var slot in replayFile.Header.Metadata.Slots)
             {
-                if(slot.SlotType != ReplaySlotType.Empty)
+                if (slot.SlotType != ReplaySlotType.Empty)
                 {
                     var owner = PlayerOwner.Player;
-                    if(slot.SlotType == ReplaySlotType.Computer)
+                    if (slot.SlotType == ReplaySlotType.Computer)
                     {
                         switch (slot.ComputerDifficulty)
                         {
@@ -135,7 +135,7 @@ namespace OpenSage
                         }
                     }
                     var factionIndex = slot.Faction;
-                    if(factionIndex == -1) // random
+                    if (factionIndex == -1) // random
                     {
                         var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
                         var minFactionIndex = 2; //0 and 1 are civilian and observer
@@ -152,15 +152,15 @@ namespace OpenSage
 
                     try
                     {
-                        color = ContentManager.IniDataContext.MultiplayerColors[(int)slot.Color].RgbColor;
+                        color = ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color].RgbColor;
                     }
-                    catch(ArgumentOutOfRangeException e)
+                    catch (ArgumentOutOfRangeException e)
                     {
                         var multiplayerColor = availableColors.First();
                         color = multiplayerColor.RgbColor;
                         availableColors.Remove(multiplayerColor);
                     }
-                    
+
                     pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
                 }
                 else
@@ -241,7 +241,7 @@ namespace OpenSage
         public SageGame SageGame => Definition.Game;
 
         public Configuration Configuration { get; private set; }
-        
+
         public string UserDataLeafName
         {
             get
@@ -522,15 +522,16 @@ namespace OpenSage
                 var players = new Player[playerSettings.Length + 1];
 
                 var availablePositions = new List<int>(MapCache.NumPlayers);
-                for (var a = 1; a <= MapCache.NumPlayers; a++) {
+                for (var a = 1; a <= MapCache.NumPlayers; a++)
+                {
                     availablePositions.Add(a);
                 }
 
-                foreach(var playerSetting in playerSettings)
+                foreach (var playerSetting in playerSettings)
                 {
-                    if(playerSetting?.StartPosition != null)
+                    if (playerSetting?.StartPosition != null)
                     {
-                        int pos = (int)playerSetting?.StartPosition;
+                        int pos = (int) playerSetting?.StartPosition;
                         availablePositions.Remove(pos);
                     }
                 }
@@ -539,18 +540,18 @@ namespace OpenSage
 
                 for (var i = 1; i <= playerSettings.Length; i++)
                 {
-                    PlayerSetting? playerSetting = playerSettings[i-1];
-                    if(playerSetting == null)
+                    PlayerSetting? playerSetting = playerSettings[i - 1];
+                    if (playerSetting == null)
                     {
                         continue;
                     }
                     var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSetting?.Side);
                     players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSetting);
                     var startPos = playerSetting?.StartPosition;
-                    if(startPos == null || startPos == -1 || startPos == 0)
+                    if (startPos == null || startPos == -1 || startPos == 0)
                     {
                         startPos = availablePositions.Last();
-                        availablePositions.Remove((int)startPos);
+                        availablePositions.Remove((int) startPos);
                     }
 
                     var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
@@ -567,7 +568,7 @@ namespace OpenSage
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
 
-                        players[i].SelectUnits(new Logic.Object.GameObject[] { startingBuilding }); 
+                        players[i].SelectUnits(new Logic.Object.GameObject[] { startingBuilding });
                     }
                 }
 
@@ -688,7 +689,7 @@ namespace OpenSage
             CheckGlobalHotkeys();
 
             var totalGameTime = MapTime.TotalTime;
-        
+
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
