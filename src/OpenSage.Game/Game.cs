@@ -137,7 +137,7 @@ namespace OpenSage
                 if (factionIndex == -1) // random
                 {
                     var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
-                    var minFactionIndex = 2; //0 and 1 are civilian and observer
+                    var minFactionIndex = 2; // 0 and 1 are civilian and observer
 
                     var diff = maxFactionIndex - minFactionIndex;
                     factionIndex = minFactionIndex + (random.Next() % diff);
