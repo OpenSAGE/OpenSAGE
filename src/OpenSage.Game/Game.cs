@@ -89,7 +89,6 @@ namespace OpenSage
 
         public void LoadReplayFile(FileSystemEntry replayFileEntry)
         {
-
             ReplayFile replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
             // TODO: This probably isn't right.
