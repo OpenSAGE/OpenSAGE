@@ -100,7 +100,6 @@ namespace OpenSage
 
             var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors.ToArray());
 
-
             foreach (var slot in replayFile.Header.Metadata.Slots)
             {
                 try
