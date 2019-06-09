@@ -509,8 +509,8 @@ namespace OpenSage
             }
 
 
-            var MapCache = ContentManager.IniDataContext.MapCaches.Find(x => x.Name == mapFileName.ToLower());
-            if (MapCache == null)
+            var mapCache = ContentManager.IniDataContext.MapCaches.Find(x => x.Name == mapFileName.ToLower());
+            if (mapCache == null)
             {
                 throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
             }
@@ -521,8 +521,8 @@ namespace OpenSage
             {
                 var players = new Player[playerSettings.Length + 1];
 
-                var availablePositions = new List<int>(MapCache.NumPlayers);
-                for (var a = 1; a <= MapCache.NumPlayers; a++)
+                var availablePositions = new List<int>(mapCache.NumPlayers);
+                for (var a = 1; a <= mapCache.NumPlayers; a++)
                 {
                     availablePositions.Add(a);
                 }
