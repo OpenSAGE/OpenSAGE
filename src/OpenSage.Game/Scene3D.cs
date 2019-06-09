@@ -170,7 +170,7 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame)
         {
-            foreach (var gameObject in GameObjects.Items.ToList())
+            foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.LogicTick(frame);
             }
