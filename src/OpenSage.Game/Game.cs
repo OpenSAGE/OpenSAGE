@@ -177,7 +177,6 @@ namespace OpenSage
 
                 }
                 pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
-
             }
 
             return pSettings;
