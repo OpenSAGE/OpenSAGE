@@ -23,28 +23,6 @@ namespace OpenSage.Logic.Object
 
         public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
-        internal void Spawn(ObjectDefinition objectDefinition)
-        {
-            var spawnedUnit = Parent.Add(objectDefinition, Owner);
-            var translation = Transform.Translation;
-
-            foreach (var _behavior in Definition.Behaviors)
-            {
-                if (_behavior is SupplyCenterProductionExitUpdateModuleData)
-                {
-                    translation -= ((SupplyCenterProductionExitUpdateModuleData) _behavior).UnitCreatePoint;
-                }
-
-                if(_behavior is DefaultProductionExitUpdateModuleData)
-                {
-                    DefaultProductionExitUpdateModuleData productionExit = (DefaultProductionExitUpdateModuleData) _behavior;
-                    translation -= (productionExit).UnitCreatePoint;
-                }
-            }
-            spawnedUnit.Transform.Translation = translation;
-            spawnedUnit.MoveTo(RallyPoint);
-        }
-
         public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
 
         public IReadOnlyList<DrawModule> DrawModules { get; }
@@ -169,7 +147,27 @@ namespace OpenSage.Logic.Object
 
 
 
+        internal void Spawn(ObjectDefinition objectDefinition)
+        {
+            var spawnedUnit = Parent.Add(objectDefinition, Owner);
+            var translation = Transform.Translation;
 
+            foreach (var behavior in Definition.Behaviors)
+            {
+                switch (behavior)
+                {
+                    case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
+                        translation -= supplyCenterModuleData.UnitCreatePoint;
+                        break;
+                    case DefaultProductionExitUpdateModuleData defaultModuleData:
+                        translation -= defaultModuleData.UnitCreatePoint;
+                        break;
+                }
+            }
+
+            spawnedUnit.Transform.Translation = translation;
+            spawnedUnit.MoveTo(RallyPoint);
+        }
 
 
         internal void MoveTo(Vector3 targetPos)
