@@ -161,7 +161,6 @@ namespace OpenSage
 
                     var faction = ContentManager.IniDataContext.PlayerTemplates[factionIndex];
 
-                    Console.WriteLine(ContentManager.IniDataContext.PlayerTemplates);
                     var color = new ColorRgb(0, 0, 0);
 
                     try
