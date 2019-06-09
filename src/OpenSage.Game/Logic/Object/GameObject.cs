@@ -330,7 +330,6 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.Set(flag, value);
         }
 
-
         public void SetModelConditionFlags(BitArray<ModelConditionFlag> flags)
         {
             ModelConditionFlags = flags;
