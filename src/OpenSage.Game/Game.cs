@@ -161,7 +161,6 @@ namespace OpenSage
                         availableColors.Remove(multiplayerColor);
                     }
                     
-
                     pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
                 }
                 else
