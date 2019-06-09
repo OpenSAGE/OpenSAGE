@@ -89,7 +89,7 @@ namespace OpenSage
 
         public void LoadReplayFile(FileSystemEntry replayFileEntry)
         {
-            ReplayFile replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+            var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
             // TODO: This probably isn't right.
             var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
