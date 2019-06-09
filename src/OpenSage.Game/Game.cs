@@ -96,7 +96,7 @@ namespace OpenSage
             var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
 
             // TODO: set the correct factions & colors
-            List<PlayerSetting?> pSettings = new List<PlayerSetting?>();
+            var pSettings = new List<PlayerSetting?>();
 
             var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors.ToArray());
 
