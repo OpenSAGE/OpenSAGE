@@ -119,15 +119,16 @@ namespace OpenSage.Logic.Object
         public List<ProductionJob> ProductionQueue { get { return _productionQueue.ToList(); } }
 
         private void HandleProduction(double delta)
-        { 
-
-            if(IsProducing)
+        {
+            if (!IsProducing)
             {
-                var current = _productionQueue.First();
-                if(current.Produce(this, delta) == ProductionJobResult.Finished)
-                {
-                    _productionQueue.RemoveAt(0);
-                }
+                return;
+            }
+
+            var current = _productionQueue.First();
+            if(current.Produce(this, delta) == ProductionJobResult.Finished)
+            {
+                _productionQueue.RemoveAt(0);
             }
         }
 
