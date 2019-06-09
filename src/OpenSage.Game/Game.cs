@@ -95,12 +95,25 @@ namespace OpenSage
             var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
             var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
 
+            var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
+
+            StartMultiPlayerGame(
+                mapFilename,
+                new ReplayConnection(replayFile),
+                pSettings.ToArray(),
+                0);
+
+        }
+
+        private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
+        {
+
             // TODO: set the correct factions & colors
             var pSettings = new List<PlayerSetting?>();
 
             var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
 
-            foreach (var slot in replayFile.Header.Metadata.Slots)
+            foreach (var slot in slots)
             {
                 try
                 {
@@ -112,7 +125,7 @@ namespace OpenSage
                 }
             }
 
-            foreach (var slot in replayFile.Header.Metadata.Slots)
+            foreach (var slot in slots)
             {
                 if (slot.SlotType != ReplaySlotType.Empty)
                 {
@@ -169,12 +182,7 @@ namespace OpenSage
                 }
             }
 
-            StartMultiPlayerGame(
-                mapFilename,
-                new ReplayConnection(replayFile),
-                pSettings.ToArray(),
-                0);
-
+            return pSettings;
         }
 
         /// <summary>
