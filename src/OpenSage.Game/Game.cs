@@ -117,69 +117,70 @@ namespace OpenSage
 
             foreach (var slot in slots)
             {
-                try
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
                 {
-                    availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color]);
-                }
-                catch (ArgumentOutOfRangeException ioore)
-                {
-                    //should happen, e.g. for random (-1)
+                    availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[colorIndex]);
                 }
             }
 
             foreach (var slot in slots)
             {
-                if (slot.SlotType != ReplaySlotType.Empty)
+                var owner = PlayerOwner.Player;
+
+                if (slot.SlotType == ReplaySlotType.Empty)
                 {
-                    var owner = PlayerOwner.Player;
-                    if (slot.SlotType == ReplaySlotType.Computer)
-                    {
-                        switch (slot.ComputerDifficulty)
-                        {
-                            case ReplaySlotDifficulty.Easy:
-                                owner = PlayerOwner.EasyAi;
-                                break;
+                    pSettings.Add(null);
+                    continue;
+                }
 
-                            case ReplaySlotDifficulty.Medium:
-                                owner = PlayerOwner.MediumAi;
-                                break;
+                var factionIndex = slot.Faction;
+                if (factionIndex == -1) // random
+                {
+                    var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
+                    var minFactionIndex = 2; //0 and 1 are civilian and observer
 
-                            case ReplaySlotDifficulty.Hard:
-                                owner = PlayerOwner.HardAi;
-                                break;
-                        }
-                    }
-                    var factionIndex = slot.Faction;
-                    if (factionIndex == -1) // random
-                    {
-                        var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
-                        var minFactionIndex = 2; //0 and 1 are civilian and observer
+                    var diff = maxFactionIndex - minFactionIndex;
+                    factionIndex = minFactionIndex + (random.Next() % diff);
+                }
 
-                        var diff = maxFactionIndex - minFactionIndex;
-                        factionIndex = minFactionIndex + (random.Next() % diff);
-                    }
+                var faction = ContentManager.IniDataContext.PlayerTemplates[factionIndex];
 
-                    var faction = ContentManager.IniDataContext.PlayerTemplates[factionIndex];
+                var color = new ColorRgb(0, 0, 0);
 
-                    var color = new ColorRgb(0, 0, 0);
-
-                    try
-                    {
-                        color = ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color].RgbColor;
-                    }
-                    catch (ArgumentOutOfRangeException e)
-                    {
-                        var multiplayerColor = availableColors.First();
-                        color = multiplayerColor.RgbColor;
-                        availableColors.Remove(multiplayerColor);
-                    }
-
-                    pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
+                {
+                    color = ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color].RgbColor;
                 }
                 else
                 {
-                    pSettings.Add(null);
+                    var multiplayerColor = availableColors.First();
+                    color = multiplayerColor.RgbColor;
+                    availableColors.Remove(multiplayerColor);
                 }
+
+                if (slot.SlotType == ReplaySlotType.Computer)
+                {
+                    switch (slot.ComputerDifficulty)
+                    {
+                        case ReplaySlotDifficulty.Easy:
+                            owner = PlayerOwner.EasyAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Medium:
+                            owner = PlayerOwner.MediumAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Hard:
+                            owner = PlayerOwner.HardAi;
+                            break;
+                    }
+
+                }
+
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
+
             }
 
             return pSettings;
