@@ -98,7 +98,7 @@ namespace OpenSage
             // TODO: set the correct factions & colors
             var pSettings = new List<PlayerSetting?>();
 
-            var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors.ToArray());
+            var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
 
             foreach (var slot in replayFile.Header.Metadata.Slots)
             {
