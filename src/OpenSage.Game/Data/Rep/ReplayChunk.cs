@@ -68,21 +68,20 @@ namespace OpenSage.Data.Rep
                         case OrderArgumentType.ScreenRectangle:
                             order.AddScreenRectangleArgument(reader.ReadRectangle());
                             break;
-
-
-                            
+                                                                                   
                         case OrderArgumentType.Unknown4:
-                            //in order to align bytes in a random replay, we needed to read 4. has to do with DrawBoxSelection
+                            // in order to align bytes in a random replay, we needed to read 4. has to do with DrawBoxSelection
                             order.AddIntegerArgument(reader.ReadInt32());
-                            //skip silently
+                            // skip silently
                             break;
 
-                            /*
+                            // this commented code block is here in case somebody needs to parse a replay file with argumenttype unknown10
+                        /*
                         case OrderArgumentType.Unknown10:
-                            //seems to be 2 bytes, has to do with OrderType 1091. TODO: check this!
+                            // seems to be 2 bytes, has to do with OrderType 1091. TODO: check this!
                             order.AddIntegerArgument(reader.ReadInt16());
                             break;
-                            */
+                        */
 
                         default:
                             throw new InvalidOperationException();
