@@ -106,7 +106,6 @@ namespace OpenSage
 
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
         {
-
             var random = new Random();
 
             // TODO: set the correct factions & colors
