@@ -108,6 +108,8 @@ namespace OpenSage
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
         {
 
+            var random = new Random();
+
             // TODO: set the correct factions & colors
             var pSettings = new List<PlayerSetting?>();
 
@@ -152,7 +154,6 @@ namespace OpenSage
                     {
                         var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
                         var minFactionIndex = 2; //0 and 1 are civilian and observer
-                        var random = new Random();
 
                         var diff = maxFactionIndex - minFactionIndex;
                         factionIndex = minFactionIndex + (random.Next() % diff);
