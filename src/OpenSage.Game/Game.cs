@@ -558,6 +558,7 @@ namespace OpenSage
                     players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSetting);
                     var startPos = playerSetting?.StartPosition;
 
+                    //startPos seems to be -1 for random, and 0 for observer/civilian
                     if (startPos == null || startPos == -1 || startPos == 0)
                     {
                         startPos = availablePositions.Last();
