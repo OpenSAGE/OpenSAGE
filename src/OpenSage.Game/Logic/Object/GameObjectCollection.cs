@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(string typeName)
         {
-            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName));
+            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName, this));
 
             if (gameObject != null)
             {

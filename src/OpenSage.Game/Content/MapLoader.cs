@@ -292,9 +292,9 @@ namespace OpenSage.Content
             return new Waypoint(waypointID, waypointName, mapObject.Position, pathLabels);
         }
 
-        private static GameObject CreateGameObject(MapObject mapObject, Team[] teams, ContentManager contentManager)
+        private static GameObject CreateGameObject(MapObject mapObject, Team[] teams, ContentManager contentManager, GameObjectCollection parent)
         {
-            var gameObject = contentManager.InstantiateObject(mapObject.TypeName);
+            var gameObject = contentManager.InstantiateObject(mapObject.TypeName, parent);
 
             // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
             if (gameObject == null)
@@ -371,7 +371,7 @@ namespace OpenSage.Content
                             default:
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                var gameObject = CreateGameObject(mapObject, teams, contentManager);
+                                var gameObject = CreateGameObject(mapObject, teams, contentManager, gameObjects);
 
                                 if (gameObject != null)
                                 {
@@ -383,7 +383,7 @@ namespace OpenSage.Content
                                     if (gameObject.Definition.IsBridge)
                                     {
                                         // This is a landmark bridge. We need to add towers at the corners.
-                                        CreateTowers(contentManager, gameObjects, gameObject, mapObject);
+                                        CreateTowers(contentManager, gameObjects, gameObject, mapObject, gameObjects);
                                     }
                                 }
 
@@ -410,7 +410,8 @@ namespace OpenSage.Content
                             bridgeTemplate,
                             mapObject.Position,
                             bridgeEnd.Position,
-                            out var bridge))
+                            out var bridge,
+                            gameObjects))
                         {
                             bridgesList.Add(AddDisposable(bridge));
                         }
@@ -514,13 +515,14 @@ namespace OpenSage.Content
             ContentManager contentManager,
             GameObjectCollection gameObjects,
             GameObject gameObject,
-            MapObject mapObject)
+            MapObject mapObject,
+            GameObjectCollection parent)
         {
             var towers = new List<GameObject>();
 
             void CreateTower(string objectName, float x, float y)
             {
-                var tower = AddDisposable(contentManager.InstantiateObject(objectName));
+                var tower = AddDisposable(contentManager.InstantiateObject(objectName, parent));
 
                 var offset = new Vector3(x, y, 0);
                 var transformedOffset = Vector3.Transform(offset, gameObject.Transform.Rotation);

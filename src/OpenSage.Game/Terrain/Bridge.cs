@@ -26,7 +26,8 @@ namespace OpenSage.Terrain
             BridgeTemplate template,
             in Vector3 startPosition,
             in Vector3 endPosition,
-            Model model)
+            Model model,
+            GameObjectCollection parent)
         {
             _model = model;
 
@@ -38,7 +39,7 @@ namespace OpenSage.Terrain
 
             GameObject CreateTower(string objectName)
             {
-                var tower = AddDisposable(contentManager.InstantiateObject(objectName));
+                var tower = AddDisposable(contentManager.InstantiateObject(objectName, parent));
                 _towers.Add(tower);
                 return tower;
             }
@@ -67,7 +68,8 @@ namespace OpenSage.Terrain
             BridgeTemplate template,
             in Vector3 startPosition,
             in Vector3 endPosition,
-            out Bridge bridge)
+            out Bridge bridge,
+            GameObjectCollection parent)
         {
             var modelPath = Path.Combine("Art", "W3D", template.BridgeModelName + ".W3D");
             var model = contentManager.Load<Model>(modelPath);
@@ -84,7 +86,8 @@ namespace OpenSage.Terrain
                 template,
                 startPosition,
                 endPosition,
-                model);
+                model,
+                parent);
             return true;
         }
 
