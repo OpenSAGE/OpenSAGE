@@ -25,8 +25,6 @@ namespace OpenSage.Logic.Object
 
         internal void Spawn(ObjectDefinition objectDefinition)
         {
-
-
             var spawnedUnit = Parent.Add(objectDefinition, Owner);
             var translation = Transform.Translation;
 
