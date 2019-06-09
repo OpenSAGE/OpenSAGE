@@ -110,8 +110,7 @@ namespace OpenSage.Logic.Object
         public bool IsProducing => _productionQueue.Count > 0;
 
         private List<ProductionJob> _productionQueue = new List<ProductionJob>();
-
-        public List<ProductionJob> ProductionQueue { get { return _productionQueue.ToList(); } }
+        public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
         private void HandleProduction()
         {
