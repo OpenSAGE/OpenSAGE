@@ -372,6 +372,5 @@ namespace OpenSage.Logic.Object
             }
         }
 
-
     }
 }
