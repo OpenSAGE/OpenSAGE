@@ -553,9 +553,11 @@ namespace OpenSage
                     {
                         continue;
                     }
+
                     var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSetting?.Side);
                     players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSetting);
                     var startPos = playerSetting?.StartPosition;
+
                     if (startPos == null || startPos == -1 || startPos == 0)
                     {
                         startPos = availablePositions.Last();
