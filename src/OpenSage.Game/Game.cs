@@ -102,7 +102,6 @@ namespace OpenSage
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
                 0);
-
         }
 
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
