@@ -137,7 +137,7 @@ namespace OpenSage
                     var factionIndex = slot.Faction;
                     if(factionIndex == -1) // random
                     {
-                        var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count();
+                        var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
                         var minFactionIndex = 2; //0 and 1 are civilian and observer
                         var random = new Random();
 
