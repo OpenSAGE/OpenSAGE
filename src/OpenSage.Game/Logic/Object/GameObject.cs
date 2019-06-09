@@ -203,7 +203,7 @@ namespace OpenSage.Logic.Object
                 flags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 SetModelConditionFlags(flags);
                 ConstructionStart = gameTime.TotalTime;
-                foreach(var behavior in Definition.Behaviors)
+                foreach (var behavior in Definition.Behaviors)
                 {
                     if(behavior is SpawnBehaviorModuleData)
                     {
