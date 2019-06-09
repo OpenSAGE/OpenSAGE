@@ -104,6 +104,7 @@ namespace OpenSage.Logic.Object
         internal void LogicTick(ulong frame)
         {
             // TODO: Update modules.
+            HandleProduction();
         }
 
         public bool IsProducing => _productionQueue.Count > 0;
@@ -112,7 +113,7 @@ namespace OpenSage.Logic.Object
 
         public List<ProductionJob> ProductionQueue { get { return _productionQueue.ToList(); } }
 
-        private void HandleProduction(double delta)
+        private void HandleProduction()
         {
             if (!IsProducing)
             {
@@ -120,9 +121,16 @@ namespace OpenSage.Logic.Object
             }
 
             var current = _productionQueue.First();
-            if (current.Produce(this, delta) == ProductionJobResult.Finished)
+            //todo: determine correct value for the production
+            if (current.Produce(20) == ProductionJobResult.Finished)
             {
                 _productionQueue.RemoveAt(0);
+                switch (current.Type)
+                {
+                    case ProductionJobType.Unit:
+                        this.Spawn(current.objectDefinition);
+                        break;
+                }
             }
         }
 
@@ -267,9 +275,7 @@ namespace OpenSage.Logic.Object
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
                 }
             }
-
-            HandleProduction(deltaTime);
-
+            
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {

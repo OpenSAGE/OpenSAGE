@@ -6,34 +6,21 @@ namespace OpenSage.Logic.Object.Production
 {
     public class ProductionJob
     {
-        double _cost;
-        double _spent;
+        int _cost;
+        int _spent;
 
         public ProductionJobType Type { get; private set; }
 
-        public double Progress { get { return Math.Max(0, Math.Min(1, _spent / _cost)); } }
+        public float Progress { get { return Math.Max(0, Math.Min(1, (float)_spent / (float) _cost)); } }
 
-        public ProductionJobResult Produce(GameObject source, double Spent)
+        public ProductionJobResult Produce(int spent)
         {
-            _spent += Spent;
+            _spent += spent;
             if (_spent >= _cost)
             {
-                Finish(source);
                 return ProductionJobResult.Finished;
             }
             return ProductionJobResult.Producing;
-        }
-
-        private void Finish(GameObject source)
-        {
-            switch (Type)
-            {
-                case ProductionJobType.Unit:
-                    source.Spawn(objectDefinition);
-                    return;
-
-            }
-            throw new NotImplementedException();
         }
 
         public ObjectDefinition objectDefinition { get; private set; }
@@ -42,7 +29,7 @@ namespace OpenSage.Logic.Object.Production
         {
             objectDefinition = definition;
             Type = ProductionJobType.Unit;
-            _cost = definition.BuildCost / 100.0f;
+            _cost = (int)definition.BuildCost;
             _spent = 0;
         }
         
