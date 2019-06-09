@@ -106,13 +106,8 @@ namespace OpenSage.Logic.Object
         {
             // TODO: Update modules.
         }
-
-
-        public bool IsProducing { get
-            {
-                return _productionQueue.Count > 0;
-            }
-        }
+        
+        public bool IsProducing => _productionQueue.Count > 0;
 
         private List<ProductionJob> _productionQueue = new List<ProductionJob>();
 
