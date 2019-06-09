@@ -148,7 +148,7 @@ namespace OpenSage.Logic.Object
             if(IsProducing)
             {
                 var current = _productionQueue.First();
-                if(current.Produce(this, (float)delta))
+                if(current.Produce(this, delta) == ProductionJobResult.Finished)
                 {
                     _productionQueue.RemoveAt(0);
                 }

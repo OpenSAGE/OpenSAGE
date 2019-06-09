@@ -6,22 +6,22 @@ namespace OpenSage.Logic.Object.Production
 {
     public class ProductionJob
     {
-        float _cost;
-        float _spent;
+        double _cost;
+        double _spent;
 
         public ProductionJobType Type { get; private set; }
 
-        public float Progress { get { return Math.Max(0, Math.Min(1, _spent / _cost)); } }
+        public double Progress { get { return Math.Max(0, Math.Min(1, _spent / _cost)); } }
 
-        public bool Produce(GameObject source, float Spent)
+        public ProductionJobResult Produce(GameObject source, double Spent)
         {
             _spent += Spent;
-            if (_spent > _cost)
+            if (_spent >= _cost)
             {
                 Finish(source);
-                return true;
+                return ProductionJobResult.Finished;
             }
-            return false;
+            return ProductionJobResult.Producing;
         }
 
         private void Finish(GameObject source)
@@ -53,6 +53,12 @@ namespace OpenSage.Logic.Object.Production
         Unit,
         Upgrade,
         Science
+    }
+
+    public enum ProductionJobResult
+    {
+        Producing,
+        Finished
     }
 
 }

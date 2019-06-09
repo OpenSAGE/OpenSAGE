@@ -337,7 +337,7 @@ namespace OpenSage.Mods.Generals.Gui
                         if (queueButton != null && job != null)
                         {
                             //quick and dirty progress indicator. needs to be remade to show the clock-like overlay
-                            queueButton.Opacity = 1.0f - job.Progress;
+                            queueButton.Opacity = (float)(1.0d - job.Progress);
 
                             img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.objectDefinition.SelectPortrait);
                             queueButton.SystemCallback = (Control control, WndWindowMessage message, ControlCallbackContext context) =>
