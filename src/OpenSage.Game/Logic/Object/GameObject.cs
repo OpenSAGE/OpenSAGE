@@ -105,7 +105,7 @@ namespace OpenSage.Logic.Object
         {
             // TODO: Update modules.
         }
-        
+
         public bool IsProducing => _productionQueue.Count > 0;
 
         private List<ProductionJob> _productionQueue = new List<ProductionJob>();
@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
             }
 
             var current = _productionQueue.First();
-            if(current.Produce(this, delta) == ProductionJobResult.Finished)
+            if (current.Produce(this, delta) == ProductionJobResult.Finished)
             {
                 _productionQueue.RemoveAt(0);
             }
@@ -174,7 +174,7 @@ namespace OpenSage.Logic.Object
             {
                 TargetPoint = targetPos;
                 var delta = TargetPoint.Value - Transform.Translation;
-                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);            
+                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);
             }
 
             var flags = new BitArray<ModelConditionFlag>();
@@ -196,7 +196,7 @@ namespace OpenSage.Logic.Object
                 ConstructionStart = gameTime.TotalTime;
                 foreach (var behavior in Definition.Behaviors)
                 {
-                    if(behavior is SpawnBehaviorModuleData)
+                    if (behavior is SpawnBehaviorModuleData)
                     {
                         var spawnTemplate = ((SpawnBehaviorModuleData) behavior).SpawnTemplateName;
                         var unitDefinition = Context.Objects.Find(x => x.Name == spawnTemplate);
