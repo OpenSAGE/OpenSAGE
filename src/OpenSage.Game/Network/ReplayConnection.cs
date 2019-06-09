@@ -21,6 +21,7 @@ namespace OpenSage.Network
         public void Send(uint frame, List<Order> orders) { }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void Receive(uint frame, Action<uint, Order> packetFn)
         {
             logger.Trace($"Replay frame {frame}");

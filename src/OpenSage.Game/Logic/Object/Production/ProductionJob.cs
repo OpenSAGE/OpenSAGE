@@ -6,12 +6,12 @@ namespace OpenSage.Logic.Object.Production
 {
     public class ProductionJob
     {
-        int _cost;
-        int _spent;
+        private readonly int _cost;
+        private int _spent;
 
-        public ProductionJobType Type { get; private set; }
+        public ProductionJobType Type { get; }
 
-        public float Progress { get { return Math.Max(0, Math.Min(1, (float)_spent / (float) _cost)); } }
+        public float Progress => Math.Max(0, Math.Min(1, _spent / (float) _cost));
 
         public ProductionJobResult Produce(int spent)
         {
@@ -29,10 +29,8 @@ namespace OpenSage.Logic.Object.Production
         {
             objectDefinition = definition;
             Type = ProductionJobType.Unit;
-            _cost = (int)definition.BuildCost;
-            _spent = 0;
+            _cost = (int) definition.BuildCost;
         }
-        
     }
 
     public enum ProductionJobType
@@ -47,5 +45,4 @@ namespace OpenSage.Logic.Object.Production
         Producing,
         Finished
     }
-
 }

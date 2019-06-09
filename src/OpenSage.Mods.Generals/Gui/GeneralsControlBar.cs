@@ -178,7 +178,6 @@ namespace OpenSage.Mods.Generals.Gui
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
 
-
             private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
             protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
@@ -327,7 +326,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var queue = unit.ProductionQueue;
 
-                for(int pos = 0; pos < 9; pos++)
+                for (var pos = 0; pos < 9; pos++)
                 {
                     var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
                     Image img = null;
@@ -336,7 +335,7 @@ namespace OpenSage.Mods.Generals.Gui
                         var job = queue[pos];
                         if (queueButton != null && job != null)
                         {
-                            //quick and dirty progress indicator. needs to be remade to show the clock-like overlay
+                            // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
                             queueButton.Opacity = (1.0f - job.Progress);
 
                             img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.objectDefinition.SelectPortrait);
@@ -348,7 +347,6 @@ namespace OpenSage.Mods.Generals.Gui
                      
                     }
                     queueButton.BackgroundImage = img;
-
                 }
 
                 var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");

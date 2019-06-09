@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Orders
 
                 if(order.OrderType == OrderType.SetCameraPosition)
                 {
-                    logger.Trace($"Order for player {player.ToString()}: {order.OrderType.ToString()}");
+                    logger.Trace($"Order for player {player}: {order.OrderType}");
                 }
                 else
                 {
@@ -117,7 +117,7 @@ namespace OpenSage.Logic.Orders
                             if(order.Arguments.Count == 2)
                             {
                                 var objId = order.Arguments[0].Value.ObjectId;
-                                var obj = _game.Scene3D.GameObjects.GetObjectById((int)objId);
+                                var obj = _game.Scene3D.GameObjects.GetObjectById((int) objId);
 
                                 var rallyPoint = order.Arguments[1].Value.Position;
                                 obj.RallyPoint = rallyPoint;

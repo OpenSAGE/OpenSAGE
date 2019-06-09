@@ -119,7 +119,6 @@ namespace OpenSage.Logic.Object
             {
                 return;
             }
-
             var current = _productionQueue.First();
             //todo: determine correct value for the production
             if (current.Produce(20) == ProductionJobResult.Finished)
@@ -171,7 +170,6 @@ namespace OpenSage.Logic.Object
             spawnedUnit.Transform.Translation = translation;
             spawnedUnit.MoveTo(RallyPoint);
         }
-
 
         internal void MoveTo(Vector3 targetPos)
         {
