@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Object
 
         public void CancelProduction(int pos)
         {
-            if(pos < _productionQueue.Count)
+            if (pos < _productionQueue.Count)
             {
                 _productionQueue.RemoveAt(pos);
             }
