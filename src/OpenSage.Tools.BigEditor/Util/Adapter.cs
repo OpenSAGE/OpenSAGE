@@ -9,7 +9,7 @@ namespace OpenSage.Tools.BigEditor.Util
     {
         private readonly List<AdapterEntry> _entries;
 
-        public readonly string RootDirectory;
+        public readonly string RootDirectory = "";
         public IReadOnlyList<AdapterEntry> Entries => _entries;
 
         public Adapter(string path, string searchPattern = "*", AdapterFlags flags = AdapterFlags.None)
@@ -42,7 +42,10 @@ namespace OpenSage.Tools.BigEditor.Util
                     }
             }
 
-            RootDirectory = currentDirectory.Parent.FullName;
+            if (currentDirectory.Parent != null)
+            {
+                RootDirectory = currentDirectory.Parent.FullName;
+            }
 
             _entries = new List<AdapterEntry>(directories.Length + files.Length);
 

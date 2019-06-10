@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 using System.Collections;
 using System.IO;
 using System.Numerics;
@@ -22,12 +23,20 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             _paths = new Hashtable();
 
-            _paths.Add("CNC_GENERALS_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_PATH")));
-            _paths.Add("CNC_GENERALS_ZH_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_ZH_PATH")));
+            _paths.Add("CNC_GENERALS_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_PATH") ?? ""));
+            _paths.Add("CNC_GENERALS_ZH_PATH", ImGuiUtility.NormalizePath(Environment.GetEnvironmentVariable("CNC_GENERALS_ZH_PATH") ?? ""));
             _paths.Add("Current Directory", ImGuiUtility.NormalizePath(Environment.CurrentDirectory));
 
             _currentExportFileName = "";
-            _currentPath = "/";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                _currentPath = "/";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                _currentPath = "C:\\";
+            }
         }
 
         public string Draw(FileBrowserType type, string exportFileName = "")
@@ -50,16 +59,28 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 foreach (DictionaryEntry path in _paths)
                 {
-                    if (ImGui.Selectable(path.Key.ToString(), _currentPath == path.Value.ToString().Replace("\\", "")))
+                    if (ImGui.Selectable(path.Key.ToString(), _currentPath == path.Value.ToString().Replace("\\ ", "")))
                     {
-                        _currentPath = path.Value.ToString().Replace("\\", "");
+                        _currentPath = path.Value.ToString().Replace("\\ ", "");
                     }
                 }
 
                 ImGui.TreePop();
             }
 
-            DirTree("/");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                DirTree("/");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                DriveInfo[] drives = DriveInfo.GetDrives();
+
+                foreach (var drive in drives)
+                {
+                    DirTree(drive.Name);
+                }
+            }
 
             ImGui.EndChild(); // end files list
 
@@ -84,25 +105,29 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (ImGui.Button(GetButtonName(_type)))
             {
+                // Return current path for export,export all and import
+                if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
+                {
+                    ImGui.CloseCurrentPopup();
+
+                    // After choose a big file, _currentPath will be reference on opened the big file
+                    return Path.GetDirectoryName(_currentPath);
+                }
+
+                // For open file
                 if (_type == FileBrowserType.Open)
                 {
+                    // If we choose a directory opens this directory in fileChooser
                     if (Directory.Exists(_currentFile))
                     {
                         _currentPath = _currentFile;
                     }
-                    else
-                    {
-                        ImGui.CloseCurrentPopup();
-
-                        return _currentFile;
-                    }
                 }
-                else
-                {
-                    ImGui.CloseCurrentPopup();
 
-                    return _currentFile;
-                }
+                ImGui.CloseCurrentPopup();
+
+                // In rest cases we return current chosen file
+                return _currentFile;
             }
 
             ImGui.SetItemDefaultFocus();
@@ -127,15 +152,16 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 if (_type == FileBrowserType.ImportFromDir || _type == FileBrowserType.ExportToDir)
                 {
-                    adapter = new Adapter(_currentPath, "", AdapterFlags.OnlyDirectories);
+                    adapter = new Adapter(_currentPath, "*", AdapterFlags.OnlyDirectories);
                 }
                 else
                 {
                     adapter = new Adapter(_currentPath);
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine("Adapter exception: {0}", e);
                 return false;
             }
 
@@ -163,7 +189,7 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.SetColumnOffset(1, ImGui.GetWindowWidth() - 320);
             ImGui.SetColumnOffset(2, ImGui.GetWindowWidth() - 120);
 
-            if (adapter.RootDirectory.CompareTo("/") != 0)
+            if (adapter.RootDirectory.CompareTo("") != 0 && adapter.RootDirectory.CompareTo("/") != 0)
             {
                 if (ImGui.Selectable("..", false, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick))
                 {
@@ -222,16 +248,21 @@ namespace OpenSage.Tools.BigEditor.UI
             return false;
         }
 
-        private static bool DirTree(string currentPath = "/")
+        private static bool DirTree(string currentPath)
         {
             DirectoryInfo current = new DirectoryInfo(currentPath);
             DirectoryInfo[] dirs = current.GetDirectories();
 
             if (ImGui.TreeNodeEx(currentPath, ImGuiTreeNodeFlags.DefaultOpen))
             {
+                if (ImGui.IsItemHovered() && ImGui.IsItemDeactivated() || ImGui.IsItemHovered() && ImGui.IsItemActivated())
+                {
+                    _currentPath = currentPath;
+                }
+
                 foreach (var dir in dirs)
                 {
-                    SubTree(dir.Name + Path.DirectorySeparatorChar, Path.DirectorySeparatorChar + dir.Name + Path.DirectorySeparatorChar);
+                    SubTree(dir.Name + Path.DirectorySeparatorChar, $"{currentPath}{dir.Name}{Path.DirectorySeparatorChar}");
                 }
 
                 ImGui.TreePop();
@@ -264,7 +295,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.AllowItemOverlap;
 
-            if (_currentPath.StartsWith(path))
+            if (ImGuiUtility.NormalizePath(_currentPath).Contains(path))
             {
                 flags = ImGuiTreeNodeFlags.DefaultOpen;
 

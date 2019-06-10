@@ -357,14 +357,15 @@ namespace OpenSage.Tools.BigEditor.UI
                     ImGui.SetWindowSize(windowSize - new Vector2(50), ImGuiCond.Always);
                     ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
 
-                    string path = _fileBrowser.Draw(FileBrowserType.Save, entry.Name);
+                    string path = _fileBrowser.Draw(FileBrowserType.Export, entry.Name);
                     if (path != null && path.CompareTo("") != 0)
                     {
-                        path = ImGuiUtility.TrimToNullByte(path);
+                        // delete selected file name from path
+                        path = Path.GetDirectoryName(ImGuiUtility.TrimToNullByte(path));
 
                         using (var entryStream = entry.Open())
                         {
-                            Console.WriteLine($"{path}{Path.DirectorySeparatorChar}{entry.Name}");
+                            Console.WriteLine($"export path: {path}{Path.DirectorySeparatorChar}{entry.Name}");
                             using (var fileStream = File.OpenWrite($"{path}{Path.DirectorySeparatorChar}{entry.Name}"))
                             {
                                 entryStream.CopyTo(fileStream);
