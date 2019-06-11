@@ -10,7 +10,7 @@ In case you want some more knowledge on how to get started with development of O
 Coding Style Changes
 --------------------
 
-OpenSage tries to strictly match the described in [Coding Style](docs/coding-style.md). We plan to do that with tooling, in a holistic way. In the meantime, please:
+OpenSage tries to strictly match the coding style described in [Coding Style](docs/coding-style.md). We plan to do that with tooling, in a holistic way. In the meantime, please:
 
 * **DO NOT** send PRs for style changes.
 
