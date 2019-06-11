@@ -20,11 +20,11 @@ You can also build like that on Windows, in case you don't want to use Visual St
 
 ## Running OpenSAGE
 
-OpenSage does not provide any game assets itself, so it expects the user to have the C&C game files installed on the system. 
+OpenSage does not provide any game assets itself, so it expects the user to have the game files installed on the system. 
 
 ### Windows
 
-On Windows any local installations of C&C or BFME are found through the registry.
+On Windows any local installations of C&C or BFME/BFME2/BFME2ROTWK are found through the registry or if they are defined by a environment variables. (See Linux & MacOS below)
 
 ### Linux & MacOS
 
