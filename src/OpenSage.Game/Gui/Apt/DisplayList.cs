@@ -4,11 +4,11 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class DisplayList
     {
-        public Dictionary<int, DisplayItem> Items { get; }
+        public SortedDictionary<int, DisplayItem> Items { get; }
 
         public DisplayList()
         {
-            Items = new Dictionary<int, DisplayItem>();
+            Items = new SortedDictionary<int, DisplayItem>();
         }
     }
 }
