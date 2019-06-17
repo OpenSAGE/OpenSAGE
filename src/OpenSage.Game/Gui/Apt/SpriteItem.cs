@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -345,7 +346,7 @@ namespace OpenSage.Gui.Apt
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-            foreach (var item in Content.Items.Values)
+            foreach (var item in Content.Items.Values.Reverse())
             {
                 if(item.HandleInput(mousePos, mouseDown))
                 {
