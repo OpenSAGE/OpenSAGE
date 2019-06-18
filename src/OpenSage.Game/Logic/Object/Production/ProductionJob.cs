@@ -23,11 +23,11 @@ namespace OpenSage.Logic.Object.Production
             return ProductionJobResult.Producing;
         }
 
-        public ObjectDefinition objectDefinition { get; private set; }
+        public ObjectDefinition ObjectDefinition { get; private set; }
 
         public ProductionJob(ObjectDefinition definition)
         {
-            objectDefinition = definition;
+            ObjectDefinition = definition;
             Type = ProductionJobType.Unit;
             _cost = (int) definition.BuildCost;
         }

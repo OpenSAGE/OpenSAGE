@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
                 switch (current.Type)
                 {
                     case ProductionJobType.Unit:
-                        this.Spawn(current.objectDefinition);
+                        this.Spawn(current.ObjectDefinition);
                         break;
                 }
             }
