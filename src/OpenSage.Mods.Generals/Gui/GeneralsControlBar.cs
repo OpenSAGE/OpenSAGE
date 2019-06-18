@@ -344,7 +344,7 @@ namespace OpenSage.Mods.Generals.Gui
                     if (queue.Count > pos)
                     {
                         var job = queue[pos];
-                        if (queueButton != null && job != null)
+                        if (job != null)
                         {
                             // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
                             queueButton.Opacity = (1.0f - job.Progress);
