@@ -208,7 +208,6 @@ namespace OpenSage.Logic.Object
                         Spawn(unitDefinition);
                     }
                 }
-                //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
             }
         }
 
