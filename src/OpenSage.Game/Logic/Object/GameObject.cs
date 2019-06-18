@@ -161,7 +161,7 @@ namespace OpenSage.Logic.Object
                     var pitch = 0.0f;
                     if (Definition.KindOf.Get(ObjectKinds.Vehicle))
                     {
-                        var normal = heightMap.GetNormal(x, y);
+                        var normal = heightMap?.GetNormal(x, y) ?? new Vector3();
                         pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
                     }
                     Transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
