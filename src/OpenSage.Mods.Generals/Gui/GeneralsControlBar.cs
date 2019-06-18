@@ -314,6 +314,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+            const int PRODUCTION_QUEUE_SIZE = 9;
+
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
                 // TODO: Handle multiple selection.
@@ -328,7 +330,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var queue = unit.ProductionQueue;
 
-                for (var pos = 0; pos < 9; pos++)
+                for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                 {
                     var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
 
