@@ -312,6 +312,8 @@ namespace OpenSage.Mods.Generals.Gui
                 
             }
 
+            private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
                 // TODO: Handle multiple selection.
@@ -329,6 +331,13 @@ namespace OpenSage.Mods.Generals.Gui
                 for (var pos = 0; pos < 9; pos++)
                 {
                     var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
+
+                    if(queueButton == null)
+                    {
+                        logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos+1})");
+                        continue;
+                    }
+
                     Image img = null;
                     if (queue.Count > pos)
                     {
