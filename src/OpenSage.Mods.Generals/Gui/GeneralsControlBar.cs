@@ -348,9 +348,12 @@ namespace OpenSage.Mods.Generals.Gui
                             queueButton.Opacity = (1.0f - job.Progress);
 
                             img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.ObjectDefinition.SelectPortrait);
+
+                            var posCopy = pos;
+
                             queueButton.SystemCallback = (Control control, WndWindowMessage message, ControlCallbackContext context) =>
                             {
-                                unit.CancelProduction(pos);
+                                unit.CancelProduction(posCopy);
                             };
                         }
                      
