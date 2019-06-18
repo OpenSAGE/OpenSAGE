@@ -149,15 +149,7 @@ namespace OpenSage.Logic.Orders
                     //    break;
 
                     default:
-                        var args = new StringBuilder();
-                        foreach(var argument in order.Arguments)
-                        {
-                            if (argument != order.Arguments[0])
-                            {
-                                args.Append(",");
-                            }
-                            args.Append(argument.ToString());
-                        }
+                        var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
 
                         logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
                         break;
