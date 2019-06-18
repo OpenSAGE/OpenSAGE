@@ -273,7 +273,6 @@ namespace OpenSage.Logic.Object
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
                 }
             }
-            
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {
