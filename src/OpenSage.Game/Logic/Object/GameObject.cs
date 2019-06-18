@@ -199,6 +199,8 @@ namespace OpenSage.Logic.Object
                 flags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 SetModelConditionFlags(flags);
                 ConstructionStart = gameTime.TotalTime;
+
+                // this is strang in startcontruction, however, we have no better place to put it yet. belongs in finishconstruction
                 foreach (var behavior in Definition.Behaviors)
                 {
                     if (behavior is SpawnBehaviorModuleData)
