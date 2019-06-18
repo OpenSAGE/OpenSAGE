@@ -25,14 +25,9 @@ namespace OpenSage.Logic.Orders
             {
                 var player = _game.Scene3D.Players[(int) order.PlayerIndex];
 
-                if(order.OrderType == OrderType.SetCameraPosition)
-                {
-                    logger.Trace($"Order for player {player}: {order.OrderType}");
-                }
-                else
-                {
-                    logger.Debug($"Order for player {player.ToString()}: {order.OrderType.ToString()}");
-                }
+                var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
+                logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
+
 
                 switch (order.OrderType)
                 {
