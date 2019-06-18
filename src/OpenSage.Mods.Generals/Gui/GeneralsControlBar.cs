@@ -353,7 +353,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                             var posCopy = pos;
 
-                            queueButton.SystemCallback = (Control control, WndWindowMessage message, ControlCallbackContext context) =>
+                            queueButton.SystemCallback = (control, message, context) =>
                             {
                                 unit.CancelProduction(posCopy);
                             };
