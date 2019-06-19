@@ -334,7 +334,7 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
 
-                    if(queueButton == null)
+                    if (queueButton == null)
                     {
                         logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos+1})");
                         continue;
