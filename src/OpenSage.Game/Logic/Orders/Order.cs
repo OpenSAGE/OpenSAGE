@@ -18,6 +18,7 @@ namespace OpenSage.Logic.Orders
         public Order(int playerIndex, OrderType orderType)
         {
             OrderType = orderType;
+            PlayerIndex = playerIndex;
 
             _arguments = new List<OrderArgument>();
         }

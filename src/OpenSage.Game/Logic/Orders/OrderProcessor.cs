@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 
@@ -15,11 +16,18 @@ namespace OpenSage.Logic.Orders
             _game = game;
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void Process(IEnumerable<Order> orders)
         {
+            
             foreach (var order in orders)
             {
                 var player = _game.Scene3D.Players[(int) order.PlayerIndex];
+
+                var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
+                logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
+
 
                 switch (order.OrderType)
                 {
@@ -50,8 +58,25 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
+                    case OrderType.CreateUnit:
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var objectDefinition = _game.ContentManager.IniDataContext.Objects[objectDefinitionId - 1];
+
+                            var placeInQueue = order.Arguments[1].Value.Integer;
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                unit.QueueProduction(objectDefinition);
+                            }
+                        }
+                        break;
+
                     case OrderType.Sell:
-                        _game.Scene3D.GameObjects.Remove(player.SelectedUnits.First());
+                        foreach(var unit in player.SelectedUnits)
+                        {
+                            unit.SetModelConditionFlag(ModelConditionFlag.Sold, true);
+                        }
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
@@ -61,13 +86,20 @@ namespace OpenSage.Logic.Orders
 
                     case OrderType.SetSelection:
                         // TODO: First argument is an unknown boolean.
+                        try
+                        {
+                            var objectIds = order.Arguments.Skip(1)
+                                .Select(x => (int) x.Value.ObjectId)
+                                .Select(_game.Scene3D.GameObjects.GetObjectById)
+                                .ToArray();
 
-                        var objectIds = order.Arguments.Skip(1)
-                            .Select(x => (int) x.Value.ObjectId)
-                            .Select(_game.Scene3D.GameObjects.GetObjectById)
-                            .ToArray();
+                            _game.Selection.SetSelectedObjects(player, objectIds);
+                        }
+                        catch (System.Exception e)
+                        {
+                            logger.Error(e, "Error while setting selection");
+                        }
 
-                        _game.Selection.SetSelectedObjects(player, objectIds);
                         break;
 
                     case OrderType.ClearSelection:
@@ -75,15 +107,51 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     case OrderType.SetRallyPoint:
-                          var objIds = order.Arguments.Skip(1)
-                            .Select(x => (int) x.Value.ObjectId)
-                            .Select(_game.Scene3D.GameObjects.GetObjectById)
-                            .ToArray();
-                        _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
+                        try
+                        {
+                            if(order.Arguments.Count == 2)
+                            {
+                                var objId = order.Arguments[0].Value.ObjectId;
+                                var obj = _game.Scene3D.GameObjects.GetObjectById((int) objId);
+
+                                var rallyPoint = order.Arguments[1].Value.Position;
+                                obj.RallyPoint = rallyPoint;
+                            }
+                            else
+                            {
+                                var objIds = order.Arguments.Skip(1)
+                                    .Select(x => (int) x.Value.ObjectId)
+                                    .Select(_game.Scene3D.GameObjects.GetObjectById)
+                                    .ToArray();
+                                _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
+                            }
+                            
+
+                        }
+                        catch (System.Exception e)
+                        {
+                            logger.Error(e, "Error while setting rallypoint");
+                        }
                         break;
 
                     case OrderType.Unknown27:
                         _game.EndGame();
+                        break;
+
+                    //case OrderType.ChooseGeneralPromotion:
+                        //gla:
+                        //tier 1:
+                        //34, 35, 36
+
+                        //usa:
+                        //tier1:
+                        //12, 13, 14
+                    //    break;
+
+                    default:
+                        var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
+
+                        logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
                         break;
                 }
             }

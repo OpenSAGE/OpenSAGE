@@ -18,14 +18,14 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _contentManager, player));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _contentManager, player, this));
             _items.Add(gameObject);
             return gameObject;
         }
 
         public GameObject Add(string typeName)
         {
-            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName));
+            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName, this));
 
             if (gameObject != null)
             {
@@ -53,11 +53,5 @@ namespace OpenSage.Logic.Object
             return _items[objectId - 1];
         }
 
-        public void Remove(GameObject gameObject)
-        {
-            // TODO: We should probably be using an ID.
-            _items.Remove(gameObject);
-            RemoveToDispose(gameObject);
-        }
     }
 }

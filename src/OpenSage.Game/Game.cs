@@ -18,6 +18,7 @@ using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
+using OpenSage.Data.Rep;
 
 namespace OpenSage
 {
@@ -54,7 +55,7 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting { get; }
-		
+
         /// <summary>
         /// Load lua script engine.
         /// </summary>
@@ -85,6 +86,101 @@ namespace OpenSage
         /// This is only false when the game is shutting down.
         /// </summary>
         public bool IsRunning { get; }
+
+        public void LoadReplayFile(FileSystemEntry replayFileEntry)
+        {
+            var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+
+            // TODO: This probably isn't right.
+            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
+            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
+
+            var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
+
+            StartMultiPlayerGame(
+                mapFilename,
+                new ReplayConnection(replayFile),
+                pSettings.ToArray(),
+                0);
+        }
+
+        private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
+        {
+            var random = new Random();
+
+            // TODO: set the correct factions & colors
+            var pSettings = new List<PlayerSetting?>();
+
+            var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
+
+            foreach (var slot in slots)
+            {
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
+                {
+                    availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[colorIndex]);
+                }
+            }
+
+            foreach (var slot in slots)
+            {
+                var owner = PlayerOwner.Player;
+
+                if (slot.SlotType == ReplaySlotType.Empty)
+                {
+                    pSettings.Add(null);
+                    continue;
+                }
+
+                var factionIndex = slot.Faction;
+                if (factionIndex == -1) // random
+                {
+                    var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
+                    var minFactionIndex = 2; // 0 and 1 are civilian and observer
+
+                    var diff = maxFactionIndex - minFactionIndex;
+                    factionIndex = minFactionIndex + (random.Next() % diff);
+                }
+
+                var faction = ContentManager.IniDataContext.PlayerTemplates[factionIndex];
+
+                var color = new ColorRgb(0, 0, 0);
+
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
+                {
+                    color = ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color].RgbColor;
+                }
+                else
+                {
+                    var multiplayerColor = availableColors.First();
+                    color = multiplayerColor.RgbColor;
+                    availableColors.Remove(multiplayerColor);
+                }
+
+                if (slot.SlotType == ReplaySlotType.Computer)
+                {
+                    switch (slot.ComputerDifficulty)
+                    {
+                        case ReplaySlotDifficulty.Easy:
+                            owner = PlayerOwner.EasyAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Medium:
+                            owner = PlayerOwner.MediumAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Hard:
+                            owner = PlayerOwner.HardAi;
+                            break;
+                    }
+
+                }
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
+            }
+
+            return pSettings;
+        }
 
         /// <summary>
         /// Is the game running logic updates?
@@ -150,7 +246,7 @@ namespace OpenSage
         public SageGame SageGame => Definition.Game;
 
         public Configuration Configuration { get; private set; }
-        
+
         public string UserDataLeafName
         {
             get
@@ -392,7 +488,7 @@ namespace OpenSage
         private void StartGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting[] playerSettings,
+            PlayerSetting?[] playerSettings,
             int localPlayerIndex,
             bool isMultiPlayer)
         {
@@ -417,35 +513,73 @@ namespace OpenSage
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
             }
 
+
+            var mapCache = ContentManager.IniDataContext.MapCaches.Find(x => x.Name == mapFileName.ToLower());
+            if (mapCache == null)
+            {
+                throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
+            }
+
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             if (isMultiPlayer)
             {
                 var players = new Player[playerSettings.Length + 1];
 
-                for (var i = 0; i < playerSettings.Length; i++)
+                var availablePositions = new List<int>(mapCache.NumPlayers);
+                for (var a = 1; a <= mapCache.NumPlayers; a++)
                 {
-                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
-                    players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSettings[i]);
+                    availablePositions.Add(a);
+                }
 
+                foreach (var playerSetting in playerSettings)
+                {
+                    if (playerSetting?.StartPosition != null)
+                    {
+                        int pos = (int) playerSetting?.StartPosition;
+                        availablePositions.Remove(pos);
+                    }
+                }
 
-                    var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
-                    player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
+                players[0] = CivilianPlayer;
+
+                for (var i = 1; i <= playerSettings.Length; i++)
+                {
+                    PlayerSetting? playerSetting = playerSettings[i - 1];
+                    if (playerSetting == null)
+                    {
+                        continue;
+                    }
+
+                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSetting?.Side);
+                    players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSetting);
+                    var startPos = playerSetting?.StartPosition;
+
+                    // startPos seems to be -1 for random, and 0 for observer/civilian
+                    if (startPos == null || startPos == -1 || startPos == 0)
+                    {
+                        startPos = availablePositions.Last();
+                        availablePositions.Remove((int) startPos);
+                    }
+
+                    var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
+                    playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
 
                     if (playerTemplate.StartingBuilding != null)
                     {
                         var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
-                        startingBuilding.Transform.Translation = player1StartPosition;
+                        startingBuilding.Transform.Translation = playerStartPosition;
                         startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
 
                         var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnits[0].Unit), players[i]);
-                        var startingUnit0Position = player1StartPosition;
+                        var startingUnit0Position = playerStartPosition;
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
+
+                        players[i].SelectUnits(new [] { startingBuilding });
                     }
                 }
 
-                players[players.Length - 1] = CivilianPlayer;
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
             }
@@ -482,7 +616,7 @@ namespace OpenSage
         public void StartMultiPlayerGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting[] playerSettings,
+            PlayerSetting?[] playerSettings,
             int localPlayerIndex)
         {
             StartGame(
@@ -563,7 +697,7 @@ namespace OpenSage
             CheckGlobalHotkeys();
 
             var totalGameTime = MapTime.TotalTime;
-        
+
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {

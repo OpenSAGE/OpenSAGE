@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
@@ -8,10 +9,12 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic.Object.Production;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
+    [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
         public ObjectDefinition Definition { get; }
@@ -48,11 +51,16 @@ namespace OpenSage.Logic.Object
 
         private TimeSpan ConstructionStart { get; set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
+        public bool Destroyed { get; set; }
+
+        public GameObjectCollection Parent { get; private set; }
+
+        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner, GameObjectCollection parent)
         {
             Definition = objectDefinition;
             Context = contentManager.IniDataContext;
             Owner = owner;
+            Parent = parent;
 
             SetLocomotor();
             Transform = Transform.CreateIdentity();
@@ -96,6 +104,70 @@ namespace OpenSage.Logic.Object
         internal void LogicTick(ulong frame)
         {
             // TODO: Update modules.
+            HandleProduction();
+        }
+
+        public bool IsProducing => _productionQueue.Count > 0;
+
+        private List<ProductionJob> _productionQueue = new List<ProductionJob>();
+        public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
+
+        private void HandleProduction()
+        {
+            if (!IsProducing)
+            {
+                return;
+            }
+            var current = _productionQueue.First();
+            //todo: determine correct value for the production
+            if (current.Produce(20) == ProductionJobResult.Finished)
+            {
+                _productionQueue.RemoveAt(0);
+                switch (current.Type)
+                {
+                    case ProductionJobType.Unit:
+                        this.Spawn(current.ObjectDefinition);
+                        break;
+                }
+            }
+        }
+
+        internal void QueueProduction(ObjectDefinition objectDefinition)
+        {
+            var job = new ProductionJob(objectDefinition);
+            _productionQueue.Add(job);
+        }
+
+        public void CancelProduction(int pos)
+        {
+            if (pos < _productionQueue.Count)
+            {
+                _productionQueue.RemoveAt(pos);
+            }
+        }
+
+
+
+        internal void Spawn(ObjectDefinition objectDefinition)
+        {
+            var spawnedUnit = Parent.Add(objectDefinition, Owner);
+            var translation = Transform.Translation;
+
+            foreach (var behavior in Definition.Behaviors)
+            {
+                switch (behavior)
+                {
+                    case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
+                        translation -= supplyCenterModuleData.UnitCreatePoint;
+                        break;
+                    case DefaultProductionExitUpdateModuleData defaultModuleData:
+                        translation -= defaultModuleData.UnitCreatePoint;
+                        break;
+                }
+            }
+
+            spawnedUnit.Transform.Translation = translation;
+            spawnedUnit.MoveTo(RallyPoint);
         }
 
         internal void MoveTo(Vector3 targetPos)
@@ -107,7 +179,7 @@ namespace OpenSage.Logic.Object
             {
                 TargetPoint = targetPos;
                 var delta = TargetPoint.Value - Transform.Translation;
-                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);            
+                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);
             }
 
             var flags = new BitArray<ModelConditionFlag>();
@@ -127,7 +199,17 @@ namespace OpenSage.Logic.Object
                 flags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 SetModelConditionFlags(flags);
                 ConstructionStart = gameTime.TotalTime;
-                //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
+
+                // this is strang in startcontruction, however, we have no better place to put it yet. belongs in finishconstruction
+                foreach (var behavior in Definition.Behaviors)
+                {
+                    if (behavior is SpawnBehaviorModuleData)
+                    {
+                        var spawnTemplate = ((SpawnBehaviorModuleData) behavior).SpawnTemplateName;
+                        var unitDefinition = Context.Objects.Find(x => x.Name == spawnTemplate);
+                        Spawn(unitDefinition);
+                    }
+                }
             }
         }
 
@@ -191,7 +273,6 @@ namespace OpenSage.Logic.Object
                     SetModelConditionFlags(new BitArray<ModelConditionFlag>());
                 }
             }
-
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {
@@ -209,6 +290,16 @@ namespace OpenSage.Logic.Object
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
         {
+            if (Destroyed)
+            {
+                return;
+            }
+
+            if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
+            {
+                return;
+            }
+
             var castsShadow = false;
             switch (Definition.Shadow)
             {
@@ -226,6 +317,11 @@ namespace OpenSage.Logic.Object
                     castsShadow,
                     Owner);
             }
+        }
+
+        public void SetModelConditionFlag(ModelConditionFlag flag, bool value)
+        {
+            ModelConditionFlags.Set(flag, value);
         }
 
         public void SetModelConditionFlags(BitArray<ModelConditionFlag> flags)
@@ -268,5 +364,6 @@ namespace OpenSage.Logic.Object
                 }
             }
         }
+
     }
 }

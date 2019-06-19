@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -177,6 +178,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
 
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
             protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 for (var i = 1; i <= 12; i++)
@@ -195,17 +198,21 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
                         buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
 
-                        buttonControl.SystemCallback = (control, mesage, context) =>
+                        buttonControl.SystemCallback = (control, message, context) =>
                         {
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
+
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
-                            ObjectDefinition objectDefinition;
+                            var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+
+                            logger.Debug($"Relevant object: {objectDefinition?.Name}");
+
                             Order order = null;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
                                     context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
                                     break;
 
@@ -218,8 +225,9 @@ namespace OpenSage.Mods.Generals.Gui
                                     break;
 
                                 case CommandType.UnitBuild:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
-                                    context.Game.OrderGenerator.StartConstructUnit(objectDefinition);
+                                    order = CreateOrder(OrderType.CreateUnit);
+                                    order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.IndexOf(objectDefinition)+1);
+                                    order.AddIntegerArgument(1);
                                     break;
                                 default:
                                     throw new NotImplementedException();
@@ -304,6 +312,10 @@ namespace OpenSage.Mods.Generals.Gui
                 
             }
 
+            private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+            const int PRODUCTION_QUEUE_SIZE = 9;
+
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
                 // TODO: Handle multiple selection.
@@ -313,8 +325,48 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
+                var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
+                productionQueueWindow.Visible = unit.IsProducing;
+
+                var queue = unit.ProductionQueue;
+
+                for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
+                {
+                    var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
+
+                    if (queueButton == null)
+                    {
+                        logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos+1})");
+                        continue;
+                    }
+
+                    Image img = null;
+                    if (queue.Count > pos)
+                    {
+                        var job = queue[pos];
+                        if (job != null)
+                        {
+                            // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
+                            queueButton.Opacity = (1.0f - job.Progress);
+
+                            img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.ObjectDefinition.SelectPortrait);
+
+                            var posCopy = pos;
+
+                            queueButton.SystemCallback = (control, message, context) =>
+                            {
+                                unit.CancelProduction(posCopy);
+                            };
+                        }
+                     
+                    }
+                    queueButton.BackgroundImage = img;
+                }
+
                 var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
-                iconControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                var cameoImg = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                iconControl.BackgroundImage = cameoImg;
+                iconControl.Visible = !unit.IsProducing;
 
                 void ApplyUpgradeImage(string upgradeControlName, string upgradeName)
                 {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
@@ -10,6 +11,7 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
+    [DebuggerDisplay("[Player: {Name}]")]
     public class Player
     {
         public string Name { get; private set; }
@@ -141,7 +143,7 @@ namespace OpenSage.Logic
             return new Player
             {
                 Side = template.Side,
-                Name = template.Name,
+                Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
                 Money = (uint) template.StartMoney,
                 Color = setting.HasValue ? setting.Value.Color : template.PreferredColor

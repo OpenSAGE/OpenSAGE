@@ -289,12 +289,12 @@ namespace OpenSage.Content
             return (T) asset;
         }
 
-        public GameObject InstantiateObject(string typeName)
+        public GameObject InstantiateObject(string typeName, GameObjectCollection parent)
         {
             var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
             if (objectDefinition != null)
             {
-                return new GameObject(objectDefinition, this, _game.CivilianPlayer);
+                return new GameObject(objectDefinition, this, _game.CivilianPlayer, parent);
             }
             else
             {

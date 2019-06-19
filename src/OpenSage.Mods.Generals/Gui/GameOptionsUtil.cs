@@ -85,7 +85,7 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     else if (message.Element.Name == _optionsPath + ":ButtonStart")
                     {
-                        ParsePlayerSettings(context.Game, out PlayerSetting[] settings);
+                        ParsePlayerSettings(context.Game, out PlayerSetting?[] settings);
 
                         if (!ValidateSettings(settings, context.WindowManager))
                         {
@@ -111,7 +111,7 @@ namespace OpenSage.Mods.Generals.Gui
             return true;
         }
 
-        private bool ValidateSettings(PlayerSetting[] settings, WndWindowManager manager)
+        private bool ValidateSettings(PlayerSetting?[] settings, WndWindowManager manager)
         {
             if (settings.Length > CurrentMap.NumPlayers)
             {
@@ -205,9 +205,9 @@ namespace OpenSage.Mods.Generals.Gui
             return playerOwnerList.SelectedIndex;
         }
 
-        private void ParsePlayerSettings(Game game, out PlayerSetting[] settings)
+        private void ParsePlayerSettings(Game game, out PlayerSetting?[] settings)
         {
-            var settingsList = new List<PlayerSetting>();
+            var settingsList = new List<PlayerSetting?>();
             var rnd = new Random();
             int selected = 0;
 
