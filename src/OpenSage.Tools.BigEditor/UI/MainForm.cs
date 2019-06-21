@@ -7,13 +7,13 @@ using ImGuiNET;
 using OpenSage.FileFormats.Big;
 using OpenSage.Tools.BigEditor.Util;
 using Veldrid.Sdl2;
+using SharpFileDialog;
 
 namespace OpenSage.Tools.BigEditor.UI
 {
     internal sealed class MainForm : DisposableBase
     {
         private BigArchive _bigArchive;
-        private FileBrowser _fileBrowser;
         private readonly List<BigArchiveEntry> _files;
         private int _currentFile;
         private string _currentFileName;
@@ -26,7 +26,6 @@ namespace OpenSage.Tools.BigEditor.UI
 
         public MainForm()
         {
-            _fileBrowser = new FileBrowser();
             _files = new List<BigArchiveEntry>();
             _currentFileName = "";
             _scrollY = 0.0f;
@@ -74,7 +73,8 @@ namespace OpenSage.Tools.BigEditor.UI
 
             bool wasOpenClicked = false;
             bool wasExportAllClicked = false;
-            bool wasImportClicked = false;
+            bool wasImportFilesClicked = false;
+            bool wasImportFileClicked = false;
 
             if (ImGui.BeginMenuBar())
             {
@@ -107,9 +107,14 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.Separator();
 
-                    if (ImGui.MenuItem("Import", "Ctrl+I", false, _bigArchive != null))
+                    if (ImGui.MenuItem("Import Files", "Ctrl+Shift+I", false, _bigArchive != null))
                     {
-                        wasImportClicked = true;
+                        wasImportFilesClicked = true;
+                    }
+
+                    if (ImGui.MenuItem("Import File...", "Ctrl+I", false, _bigArchive != null))
+                    {
+                        wasImportFileClicked = true;
                     }
 
                     ImGui.EndMenu();
@@ -118,73 +123,25 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.EndMenuBar();
             }
 
-            const string openFilePopupId = "Open Big Archive##OpenBigArchive";
-            const string wasExportAllPopupId = "Export All Files##ExportAllFiles";
-            const string wasImportPopupId = "Import Files##ImportFiles";
-
             if (wasOpenClicked)
             {
-                ImGui.OpenPopup(openFilePopupId);
+                var openDialog = new OpenFileDialog("Open .big file");
+                openDialog.Open(result => OpenBigFile(result.FileName), "Big archive(*.big) | *.big");
             }
             if (wasExportAllClicked)
             {
-                ImGui.OpenPopup(wasExportAllPopupId);
+                var dirDialog = new DirectoryDialog("Select folder for export files");
+                dirDialog.Open(result => Export(result.FileName));
             }
-            if (wasImportClicked)
+            if (wasImportFilesClicked)
             {
-                ImGui.OpenPopup(wasImportPopupId);
+                var dirDialog = new DirectoryDialog("Select folder for import files");
+                dirDialog.Open(result => Import(result.FileName));
             }
-
-            bool fileOpenPopupOpen = true;
-            if (ImGui.BeginPopupModal(openFilePopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
+            if (wasImportFileClicked)
             {
-                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
-                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
-
-                string path = _fileBrowser.Draw(FileBrowserType.Open);
-                if (path != null && path.CompareTo("") != 0)
-                {
-                    path = ImGuiUtility.TrimToNullByte(path);
-
-                    OpenBigFile(path);
-                }
-
-                ImGui.EndPopup();
-            }
-            fileOpenPopupOpen = true;
-            if (ImGui.BeginPopupModal(wasExportAllPopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
-            {
-                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
-                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
-
-                string path = _fileBrowser.Draw(FileBrowserType.ExportToDir);
-                if (path != null && path.CompareTo("") != 0)
-                {
-                    path = ImGuiUtility.TrimToNullByte(path);
-
-                    Console.WriteLine("path: {0}", path);
-
-                    Export(path);
-                }
-
-                ImGui.EndPopup();
-            }
-            fileOpenPopupOpen = true;
-            if (ImGui.BeginPopupModal(wasImportPopupId, ref fileOpenPopupOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
-            {
-                ImGui.SetWindowSize(new Vector2(window.Width - 50, window.Height - 50), ImGuiCond.Always);
-                ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
-
-                string path = _fileBrowser.Draw(FileBrowserType.Import);
-                if (path != null && path.CompareTo("") != 0)
-                {
-                    path = ImGuiUtility.TrimToNullByte(path);
-                    Console.WriteLine("Import Dialog");
-                    // TODO: Implement import file
-                    // OpenBigFile(path);
-                }
-
-                ImGui.EndPopup();
+                var openDialog = new OpenFileDialog("Select file which you want to import");
+                openDialog.Open(result => ImportFile(result.FileName));
             }
 
             if (_bigArchive != null)
@@ -345,35 +302,11 @@ namespace OpenSage.Tools.BigEditor.UI
                 ImGui.Text(ImGuiUtility.GetFormatedSize(entry.Length));
                 ImGui.NextColumn();
 
-                var exportId = "Export##ExportDialog" + i;
                 if (shouldOpenSaveDialog)
                 {
-                    ImGui.OpenPopup(exportId);
-                }
-
-                bool contextMenuOpen = true;
-                if (ImGui.BeginPopupModal(exportId, ref contextMenuOpen, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.HorizontalScrollbar))
-                {
-                    ImGui.SetWindowSize(windowSize - new Vector2(50), ImGuiCond.Always);
-                    ImGui.SetWindowPos(new Vector2(25, 25), ImGuiCond.Always);
-
-                    string path = _fileBrowser.Draw(FileBrowserType.Export, entry.Name);
-                    if (path != null && path.CompareTo("") != 0)
-                    {
-                        // delete selected file name from path
-                        path = Path.GetDirectoryName(ImGuiUtility.TrimToNullByte(path));
-
-                        using (var entryStream = entry.Open())
-                        {
-                            Console.WriteLine($"export path: {path}{Path.DirectorySeparatorChar}{entry.Name}");
-                            using (var fileStream = File.OpenWrite($"{path}{Path.DirectorySeparatorChar}{entry.Name}"))
-                            {
-                                entryStream.CopyTo(fileStream);
-                            }
-                        }
-                    }
-
-                    ImGui.EndPopup();
+                    var saveDialog = new SaveFileDialog("Export file");
+                    saveDialog.DefaultFileName = entry.Name;
+                    saveDialog.Save(result => ExportFile(entry, result.FileName));
                 }
             }
 
@@ -430,6 +363,27 @@ namespace OpenSage.Tools.BigEditor.UI
                     Console.WriteLine(e.Message);
                 }
             }
+        }
+
+        private void ExportFile(BigArchiveEntry entry, string filePath)
+        {
+            using (var entryStream = entry.Open())
+            {
+                using (var fileStream = File.OpenWrite(filePath))
+                {
+                    entryStream.CopyTo(fileStream);
+                }
+            }
+        }
+
+        private void Import(string directory)
+        {
+            Console.WriteLine("Import files from: {0}", directory);
+        }
+
+        private void ImportFile(string filePath)
+        {
+            Console.WriteLine("Import file: {0}", filePath);
         }
     }
 }

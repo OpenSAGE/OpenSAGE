@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using OpenSage.FileFormats.RefPack;
 
 namespace OpenSage.FileFormats.Big
@@ -10,14 +11,7 @@ namespace OpenSage.FileFormats.Big
         public BigArchive Archive { get; }
 
         public string FullName { get; }
-        public string Name
-        {
-            get
-            {
-                var splitted = FullName.Split('\\');
-                return splitted[splitted.Length - 1];
-            }
-        }
+        public string Name => FullName.Split('\\').Last();
         public uint Length { get; }
 
         public BigArchiveEntry(BigArchive archive, string name, uint offset, uint size)
