@@ -50,7 +50,7 @@ namespace OpenSage.Tools.BigEditor
                         commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
                         imGuiRenderer.Update(
-                            (float)gameTimer.CurrentGameTime.DeltaTime.TotalSeconds,
+                            (float) gameTimer.CurrentGameTime.DeltaTime.TotalSeconds,
                             inputSnapshot);
 
                         mainForm.Draw(window);
