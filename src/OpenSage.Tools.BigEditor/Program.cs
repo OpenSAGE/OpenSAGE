@@ -26,7 +26,7 @@ namespace OpenSage.Tools.BigEditor
             {
                 window.Resized += () =>
                 {
-                    graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
+                    graphicsDevice.ResizeMainWindow((uint) window.Width, (uint) window.Height);
                     imGuiRenderer.WindowResized(window.Width, window.Height);
                 };
 
