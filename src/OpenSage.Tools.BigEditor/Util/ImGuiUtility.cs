@@ -1,19 +1,8 @@
 ﻿using System.Text;
-using System.IO;
 using ImGuiNET;
 
 namespace OpenSage.Tools.BigEditor.Util
 {
-    public enum FileBrowserType
-    {
-        Open = 0,
-        Save = 1,
-        Export = 2,
-        Import = 4,
-        ExportToDir = 8,
-        ImportFromDir = 16,
-    }
-
     internal static class ImGuiUtility
     {
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
@@ -52,18 +41,6 @@ namespace OpenSage.Tools.BigEditor.Util
             if (size / 1024 > 1024)
             {
                 s = $"{size / 1024 / 1024}M";
-            }
-
-            return s;
-        }
-
-        public static string NormalizePath(string path)
-        {
-            string s = path;
-
-            if (Directory.Exists(path) && path.Substring(path.Length - 1).CompareTo($"{Path.DirectorySeparatorChar}") != 0)
-            {
-                s = $"{path}{Path.DirectorySeparatorChar}";
             }
 
             return s;

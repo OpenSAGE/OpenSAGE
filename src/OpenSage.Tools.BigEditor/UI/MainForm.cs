@@ -24,6 +24,8 @@ namespace OpenSage.Tools.BigEditor.UI
         private string _searchText;
         static float _scrollY;
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public MainForm()
         {
             _files = new List<BigArchiveEntry>();
@@ -204,7 +206,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    logger.Error(e.Message);
                 }
             }
 
@@ -344,7 +346,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    logger.Error(e.Message);
                     return;
                 }
 
@@ -360,7 +362,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    logger.Error(e.Message);
                 }
             }
         }
@@ -378,12 +380,12 @@ namespace OpenSage.Tools.BigEditor.UI
 
         private void Import(string directory)
         {
-            Console.WriteLine("Import files from: {0}", directory);
+            logger.Info("Import files from: {0}", directory);
         }
 
         private void ImportFile(string filePath)
         {
-            Console.WriteLine("Import file: {0}", filePath);
+            logger.Info("Import file: {0}", filePath);
         }
     }
 }

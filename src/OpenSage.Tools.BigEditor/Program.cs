@@ -14,7 +14,7 @@ namespace OpenSage.Tools.BigEditor
             const int initialHeight = 768;
 
             VeldridStartup.CreateWindowAndGraphicsDevice(
-                new WindowCreateInfo(500, 100, initialWidth, initialHeight, WindowState.Normal, "OpenSAGE Big Editor"),
+                new WindowCreateInfo(100, 100, initialWidth, initialHeight, WindowState.Normal, "OpenSAGE Big Editor"),
                 out var window,
                 out var graphicsDevice);
 
