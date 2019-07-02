@@ -29,7 +29,7 @@ namespace OpenSage.Tools.BigEditor.UI
         public MainForm()
         {
             _files = new List<BigArchiveEntry>();
-            _currentFileName = "";
+            _currentFileName = null;
             _scrollY = 0.0f;
             OpenBigFile(null);
         }
@@ -327,7 +327,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             ImGui.SameLine();
 
-            if (_currentFileName.CompareTo("") != 0)
+            if (_currentFileName != "")
             {
                 ImGui.Text($"| Selected file: {_currentFileName}");
             }
@@ -339,7 +339,7 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             foreach (var entry in _files)
             {
-                string filePath = $"{path}{Path.DirectorySeparatorChar}{Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar))}";
+                string filePath = Path.Combine(path, Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar)));
                 try
                 {
                     Directory.CreateDirectory(filePath);
@@ -354,7 +354,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 {
                     using (var entryStream = entry.Open())
                     {
-                        using (var fileStream = File.OpenWrite($"{filePath}{Path.DirectorySeparatorChar}{entry.Name}"))
+                        using (var fileStream = File.OpenWrite(Path.Combine(filePath, entry.Name)))
                         {
                             entryStream.CopyTo(fileStream);
                         }
@@ -380,11 +380,13 @@ namespace OpenSage.Tools.BigEditor.UI
 
         private void Import(string directory)
         {
+            // TODO: Implement import files from directory
             logger.Info("Import files from: {0}", directory);
         }
 
         private void ImportFile(string filePath)
         {
+            // TODO: Implement import one file
             logger.Info("Import file: {0}", filePath);
         }
     }
