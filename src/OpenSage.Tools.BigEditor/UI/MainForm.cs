@@ -22,7 +22,7 @@ namespace OpenSage.Tools.BigEditor.UI
         private byte[] _searchTextBuffer;
         private byte[] _filePathBuffer;
         private string _searchText;
-        static float _scrollY;
+        private float _scrollY;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -327,7 +327,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             ImGui.SameLine();
 
-            if (_currentFileName != "")
+            if (_currentFileName != null)
             {
                 ImGui.Text($"| Selected file: {_currentFileName}");
             }
