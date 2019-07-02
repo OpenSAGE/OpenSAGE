@@ -73,10 +73,10 @@ namespace OpenSage.Tools.BigEditor.UI
             bool open = false;
             ImGui.Begin("OpenSAGE Big Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
 
-            bool wasOpenClicked = false;
-            bool wasExportAllClicked = false;
-            bool wasImportFilesClicked = false;
-            bool wasImportFileClicked = false;
+            var wasOpenClicked = false;
+            var wasExportAllClicked = false;
+            var wasImportFilesClicked = false;
+            var wasImportFileClicked = false;
 
             if (ImGui.BeginMenuBar())
             {
