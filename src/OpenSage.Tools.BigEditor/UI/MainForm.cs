@@ -75,7 +75,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             var wasOpenClicked = false;
             var wasExportAllClicked = false;
-            bool wasImportFilesClicked = false;
+            var wasImportFilesClicked = false;
             bool wasImportFileClicked = false;
 
             if (ImGui.BeginMenuBar())
