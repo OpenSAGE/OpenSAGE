@@ -29,5 +29,21 @@ namespace OpenSage.Tools.BigEditor.Util
 
             return nullIndex >= 0 ? input.Substring(0, nullIndex) : input;
         }
+
+        public static string GetFormatedSize(long size)
+        {
+            string s = size.ToString();
+
+            if (size / 1024 > 1)
+            {
+                s = $"{size / 1024}K";
+            }
+            if (size / 1024 > 1024)
+            {
+                s = $"{size / 1024 / 1024}M";
+            }
+
+            return s;
+        }
     }
 }
