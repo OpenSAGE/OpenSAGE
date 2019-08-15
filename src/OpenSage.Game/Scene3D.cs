@@ -321,6 +321,9 @@ namespace OpenSage
 
             LocalPlayer = localPlayer;
 
+            var MainUnit = LocalPlayer.SelectedUnits.First();
+            CameraController.GoToObject(MainUnit);
+
             // TODO: What to do with teams?
             // Teams refer to old Players and therefore they will not be collected by GC
             // (+ objects will have invalid owners)

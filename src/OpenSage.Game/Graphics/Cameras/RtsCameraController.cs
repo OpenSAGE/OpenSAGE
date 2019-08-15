@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Content;
 using Veldrid;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Graphics.Cameras
 {
@@ -242,5 +243,10 @@ namespace OpenSage.Graphics.Cameras
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
         }
+
+        public void GoToObject(GameObject gameObject){
+            this.TerrainPosition = gameObject.Transform.Translation;
+        }
+
     }
 }
