@@ -634,6 +634,11 @@ namespace OpenSage
 
                         players[i].SelectUnits(new [] { startingBuilding });
                     }
+
+                    if (players[i].IsHuman)
+                    {
+                        localPlayerIndex = i;
+                    }
                 }
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
