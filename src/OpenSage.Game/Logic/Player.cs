@@ -148,7 +148,8 @@ namespace OpenSage.Logic
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
                 Money = (uint) template.StartMoney,
-                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor
+                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor,
+                IsHuman = setting?.Owner == PlayerOwner.Player
             };
         }
     }
