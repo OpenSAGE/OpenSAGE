@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras
@@ -132,6 +133,11 @@ namespace OpenSage.Graphics.Cameras
                 position + _translation,
                 _target + _translation,
                 Vector3.UnitZ);
+        }
+
+        public void GoToObject(GameObject gameObject)
+        {
+            throw new NotImplementedException();
         }
     }
 }
