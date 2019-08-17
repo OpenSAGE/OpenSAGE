@@ -119,7 +119,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             _moneyDisplay.Text = $"$ {player.Money}";
 
-            if (player.SelectedUnits.Count > 0)
+            if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
                 State = new SelectedControlBarState();
             }
