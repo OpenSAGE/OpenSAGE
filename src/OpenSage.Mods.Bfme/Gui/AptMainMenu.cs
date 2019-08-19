@@ -11,7 +11,7 @@ namespace OpenSage.Mods.Bfme.Gui
         {
             // Set the logo texture
             var imageSprite = window.Root.ScriptObject.Variables["Image"].ToObject().Item as SpriteItem;
-            var shape = imageSprite.Content.GetItems()[1] as RenderItem;
+            var shape = imageSprite.Content.Items[1] as RenderItem;
             shape.Texture = window.ImageLoader.GetMappedImage("LogoWithShadow").Texture;
         }
 
