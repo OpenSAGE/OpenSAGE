@@ -285,7 +285,7 @@ namespace OpenSage.Gui.Apt
 
         private void PlaceItem(PlaceObject po)
         {
-            if (Content.GetItems().ContainsKey(po.Depth))
+            if (Content.Items.ContainsKey(po.Depth))
             {
                 return;
             }
