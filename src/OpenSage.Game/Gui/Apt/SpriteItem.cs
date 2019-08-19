@@ -76,7 +76,7 @@ namespace OpenSage.Gui.Apt
             var cTransform = pTransform * Transform;
 
             //render all subItems
-            foreach (var item in Content.GetItems().Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.Render(renderer, cTransform, dc);
             }
@@ -106,7 +106,7 @@ namespace OpenSage.Gui.Apt
             }
 
             //update all subItems
-            foreach (var item in Content.GetItems().Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.Update(gt);
             }
@@ -253,13 +253,13 @@ namespace OpenSage.Gui.Apt
 
         private void MoveItem(PlaceObject po)
         {
-            if(!Content.GetItems().ContainsKey(po.Depth))
+            if(!Content.Items.ContainsKey(po.Depth))
             {
                 //TODO WARN
                 return;
             }
 
-            var displayItem = Content.GetItems()[po.Depth];
+            var displayItem = Content.Items[po.Depth];
             var cTransform = displayItem.Transform;
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
@@ -338,7 +338,7 @@ namespace OpenSage.Gui.Apt
 
             //execute all subitems actions now
             //update all subitems
-            foreach (var item in Content.GetItems().Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.RunActions(gt);
             }
@@ -346,7 +346,7 @@ namespace OpenSage.Gui.Apt
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-            foreach (var item in Content.GetReverseItems().Values)
+            foreach (var item in Content.ReverseItems.Values)
             {
                 if(item.HandleInput(mousePos, mouseDown))
                 {

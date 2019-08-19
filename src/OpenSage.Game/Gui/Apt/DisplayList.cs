@@ -10,6 +10,9 @@ namespace OpenSage.Gui.Apt
         private SortedDictionary<int, DisplayItem> _items;
         private SortedDictionary<int, DisplayItem> _reverseItems;
 
+        public IReadOnlyDictionary<int, DisplayItem> Items => _items;
+        public IReadOnlyDictionary<int, DisplayItem> ReverseItems => _reverseItems;
+
         class DescendingComparer<T> : IComparer<T> where T : IComparable<T>
         {
             public int Compare(T x, T y)
@@ -34,16 +37,6 @@ namespace OpenSage.Gui.Apt
         {
             _items.Remove(depth);
             _reverseItems.Remove(depth);
-        }
-
-        public SortedDictionary<int, DisplayItem> GetItems()
-        {
-            return _items;
-        }
-
-        public SortedDictionary<int, DisplayItem> GetReverseItems()
-        {
-            return _reverseItems;
         }
     }
 }
