@@ -98,5 +98,12 @@ namespace OpenSage.Mathematics
         {
             return _data.GetHashCode();
         }
+
+        public BitArray<TEnum> Clone()
+        {
+            var result = new BitArray<TEnum>();
+            result.CopyFrom(this);
+            return result;
+        }
     }
 }
