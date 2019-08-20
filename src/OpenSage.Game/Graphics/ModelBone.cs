@@ -1,7 +1,9 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 namespace OpenSage.Graphics
 {
+    [DebuggerDisplay("ModelBone '{Name}'")]
     public sealed class ModelBone
     {
         public int Index { get; }

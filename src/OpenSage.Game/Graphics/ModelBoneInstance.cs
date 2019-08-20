@@ -1,12 +1,15 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 namespace OpenSage.Graphics
 {
+    [DebuggerDisplay("ModelBoneInstance '{Name}'")]
     public sealed class ModelBoneInstance
     {
         private readonly ModelBone _modelBone;
         private bool _isDirty;
         private bool _visible;
+        public string Name { get { return _modelBone.Name; } }
 
         /// <summary>
         /// Animated transform, relative to original bone transform.
