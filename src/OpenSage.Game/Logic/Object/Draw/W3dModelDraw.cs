@@ -277,6 +277,34 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            if (modelInstance != null)
+            {
+                if (conditionState.HideSubObject != null)
+                {
+                    foreach (var hideSubObject in conditionState.HideSubObject)
+                    {
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + hideSubObject.ToUpper()));
+                        if (item != null)
+                        {
+                            modelInstance.BoneVisibilities[item.i] = false;
+                        }
+
+                    }
+                }
+                if (conditionState.ShowSubObject != null)
+                {
+                    foreach (var showSubObject in conditionState.ShowSubObject)
+                    {
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + showSubObject.ToUpper()));
+                        if (item != null)
+                        {
+                            modelInstance.BoneVisibilities[item.i] = true;
+                        }
+
+                    }
+                }
+            }
+
             return modelInstance != null
                ? new W3dModelDrawConditionState(modelInstance, particleSystems)
                : null;
