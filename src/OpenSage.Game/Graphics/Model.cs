@@ -1,13 +1,17 @@
-﻿using System.IO;
+﻿﻿using System.IO;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.StreamFS;
 using OpenSage.Data.W3x;
 using OpenSage.FileFormats;
+using System.Diagnostics;
+using OpenSage.Content;
 
 namespace OpenSage.Graphics
 {
+    [DebuggerDisplay("Model '{Name}'")]
     public sealed class Model : BaseAsset
     {
+
         internal static Model ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
             var hierarchy = imports.GetImportedData<ModelBoneHierarchy>(reader).Value;
@@ -47,6 +51,7 @@ namespace OpenSage.Graphics
             SetNameAndInstanceId(asset);
         }
 
+
         private Model(
             ModelBoneHierarchy boneHierarchy,
             ModelSubObject[] subObjects)
@@ -59,5 +64,22 @@ namespace OpenSage.Graphics
         {
             return new ModelInstance(this, loadContext);
         }
+
+        [DebuggerDisplay("ModelSubOject '{Name}'")]
+        public sealed class ModelSubObject
+        {
+            public readonly string Name;
+            public readonly ModelBone Bone;
+            public readonly ModelMesh RenderObject;
+
+            internal ModelSubObject(string name, ModelBone bone, ModelMesh renderObject)
+            {
+                Name = name;
+                Bone = bone;
+                RenderObject = renderObject;
+            }
+
+        }
+
     }
 }
