@@ -45,7 +45,7 @@ namespace OpenSage.Diagnostics
                 new ArcballCameraController(cameraTarget, cameraDistance),
                 null,
                 null,
-                Array.Empty<Terrain.WaterArea>(),
+                new Terrain.WaterAreaCollection(),
                 Array.Empty<Terrain.Road>(),
                 Array.Empty<Terrain.Bridge>(),
                 null,

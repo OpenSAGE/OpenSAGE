@@ -2,7 +2,7 @@
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
-namespace OpenSage.Content.Util
+namespace OpenSage.Terrain
 {
     internal sealed class TerrainPatchIndexBufferCache : DisposableBase
     {
@@ -14,7 +14,6 @@ namespace OpenSage.Content.Util
 
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<TerrainPatchSize, CacheEntry> _cachedIndexBuffers;
-
         public TerrainPatchIndexBufferCache(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
@@ -46,7 +45,7 @@ namespace OpenSage.Content.Util
             return result.Buffer;
         }
 
-        public uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
+        private uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
 
         private DeviceBuffer CreateIndexBuffer(
             TerrainPatchSize size,

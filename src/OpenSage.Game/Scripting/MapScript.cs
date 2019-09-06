@@ -7,6 +7,18 @@ namespace OpenSage.Scripting
 {
     public sealed class MapScript
     {
+        internal static MapScript[] Create(Script[] scripts)
+        {
+            var result = new MapScript[scripts.Length];
+
+            for (var i = 0; i < scripts.Length; i++)
+            {
+                result[i] = new MapScript(scripts[i]);
+            }
+
+            return result;
+        }
+
         private readonly IReadOnlyList<ScriptOrCondition> _conditions;
         private readonly IReadOnlyList<ScriptAction> _actionsIfTrue;
         private readonly IReadOnlyList<ScriptAction> _actionsIfFalse;
@@ -24,27 +36,19 @@ namespace OpenSage.Scripting
 
         public string Name { get; }
 
-        public MapScript(
-            string name,
-            IReadOnlyList<ScriptOrCondition> conditions,
-            IReadOnlyList<ScriptAction> actionsIfTrue,
-            IReadOnlyList<ScriptAction> actionsIfFalse,
-            bool isInitiallyActive,
-            bool deactivateUponSuccess,
-            bool isSubroutine,
-            uint evaluationInterval)
+        private MapScript(Script script)
         {
-            Name = name;
+            Name = script.Name;
 
-            _conditions = conditions;
-            _actionsIfTrue = actionsIfTrue;
-            _actionsIfFalse = actionsIfFalse;
+            _conditions = script.OrConditions;
+            _actionsIfTrue = script.ActionsIfTrue;
+            _actionsIfFalse = script.ActionsIfFalse;
 
-            IsActive = isInitiallyActive;
-            _isSubroutine = isSubroutine;
-            _deactivateUponSuccess = deactivateUponSuccess;
+            IsActive = script.IsActive;
+            _isSubroutine = script.IsSubroutine;
+            _deactivateUponSuccess = script.DeactivateUponSuccess;
 
-            _evaluationInterval = evaluationInterval * ScriptingSystem.TickRate;
+            _evaluationInterval = script.EvaluationInterval * ScriptingSystem.TickRate;
 
             _framesSinceLastEvaluation = null;
         }
