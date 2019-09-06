@@ -18,7 +18,6 @@ namespace OpenSage.Terrain
         private readonly Model _model;
         private readonly ModelInstance _modelInstance;
         private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
-        private readonly List<GameObject> _towers;
 
         private Bridge(
             ContentManager contentManager,
@@ -35,20 +34,6 @@ namespace OpenSage.Terrain
 
             _modelInstance.Update(TimeInterval.Zero);
 
-            _towers = new List<GameObject>();
-
-            GameObject CreateTower(string objectName)
-            {
-                var tower = AddDisposable(contentManager.InstantiateObject(objectName, parent));
-                _towers.Add(tower);
-                return tower;
-            }
-
-            var towerFromLeft = CreateTower(template.TowerObjectNameFromLeft);
-            var towerFromRight = CreateTower(template.TowerObjectNameFromRight);
-            var towerToLeft = CreateTower(template.TowerObjectNameToLeft);
-            var towerToRight = CreateTower(template.TowerObjectNameToRight);
-
             _meshes = CreateMeshes(
                 heightMap,
                 template,
@@ -56,10 +41,8 @@ namespace OpenSage.Terrain
                 endPosition,
                 _model,
                 _modelInstance,
-                towerFromLeft,
-                towerFromRight,
-                towerToLeft,
-                towerToRight);
+                contentManager,
+                parent);
         }
 
         internal static bool TryCreateBridge(
@@ -91,17 +74,15 @@ namespace OpenSage.Terrain
             return true;
         }
 
-        private static List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
+        private List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
             HeightMap heightMap,
             BridgeTemplate template,
             in Vector3 startPosition,
             in Vector3 endPosition,
             Model model,
             ModelInstance modelInstance,
-            GameObject towerFromLeft,
-            GameObject towerFromRight,
-            GameObject towerToLeft,
-            GameObject towerToRight)
+            ContentManager contentManager,
+            GameObjectCollection gameObjects)
         {
             const float heightBias = 1f;
 
@@ -179,44 +160,18 @@ namespace OpenSage.Terrain
 
             var transformedLeftBounds = BoundingBox.Transform(bridgeLeft.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.Bone.Index]);
 
-            var width = GetWidth(transformedLeftBounds) * template.BridgeScale;
-
-            void SetTowerTransform(GameObject tower, float x, float y)
-            {
-                tower.Transform.Translation = Vector3.Transform(
-                    new Vector3(x, y, 0),
-                    worldMatrix);
-                tower.Transform.Rotation = rotationAroundZ;
-
-                tower.LocalLogicTick(TimeInterval.Zero, 1.0f, heightMap);
-            }
-
-            SetTowerTransform(
-                towerFromLeft,
+            AddDisposable(new BridgeTowers(
+                template,
+                contentManager,
+                gameObjects,
+                worldMatrix,
                 0,
-                transformedLeftBounds.Min.Y);
-
-            SetTowerTransform(
-                towerFromRight,
-                0,
-                transformedLeftBounds.Max.Y);
-
-            SetTowerTransform(
-                towerToLeft,
+                transformedLeftBounds.Min.Y,
                 totalLength / template.BridgeScale,
-                transformedLeftBounds.Min.Y);
-
-            SetTowerTransform(
-                towerToRight,
-                totalLength / template.BridgeScale,
-                transformedLeftBounds.Max.Y);
+                transformedLeftBounds.Max.Y,
+                rotationAroundZ));
 
             return meshes;
-        }
-
-        private static float GetWidth(in BoundingBox box)
-        {
-            return box.Max.Y - box.Min.Y;
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
@@ -235,13 +190,6 @@ namespace OpenSage.Terrain
                     meshMatrix.Item1.Bone,
                     meshMatrix.Item2,
                     true);
-            }
-
-            foreach (var tower in _towers)
-            {
-                tower.BuildRenderList(
-                    renderList,
-                    camera);
             }
         }
     }

@@ -86,15 +86,26 @@ namespace OpenSage.Settings
 
         public IEnumerable<string> PathLabels { get; }
 
-        public Waypoint(uint id, string name, Vector3 position, IEnumerable<string> pathLabels = null)
+        internal Waypoint(MapObject mapObject)
         {
-            ID = id;
-            Name = name;
-            Position = position;
+            ID = (uint) mapObject.Properties["waypointID"].Value;
+            Name = (string) mapObject.Properties["waypointName"].Value;
+            Position = mapObject.Position;
 
-            PathLabels = pathLabels != null
-                ? pathLabels.WhereNot(string.IsNullOrWhiteSpace).ToSet()
-                : Enumerable.Empty<string>();
+            // It seems that if one of the label properties exists, all of them do
+            if (mapObject.Properties.TryGetValue("waypointPathLabel1", out var label1))
+            {
+                PathLabels = new[]
+                {
+                    (string) label1.Value,
+                    (string) mapObject.Properties["waypointPathLabel2"].Value,
+                    (string) mapObject.Properties["waypointPathLabel3"].Value
+                }.WhereNot(string.IsNullOrWhiteSpace).ToSet();
+            }
+            else
+            {
+                PathLabels = Enumerable.Empty<string>();
+            }
         }
     }
 
@@ -112,11 +123,15 @@ namespace OpenSage.Settings
             _waypointPathsByFirstNode = new Dictionary<Waypoint, WaypointPath>();
         }
 
-        public WaypointPathCollection(IEnumerable<WaypointPath> paths)
+        public WaypointPathCollection(WaypointCollection waypoints, Data.Map.WaypointPath[] paths)
             : this()
         {
-            foreach (var path in paths)
+            foreach (var waypointPath in paths)
             {
+                var start = waypoints[waypointPath.StartWaypointID];
+                var end = waypoints[waypointPath.EndWaypointID];
+                var path = new WaypointPath(start, end);
+
                 foreach (var label in path.Start.PathLabels)
                 {
                     _waypointPathsByLabel[label] = path;

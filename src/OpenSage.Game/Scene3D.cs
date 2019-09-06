@@ -41,7 +41,7 @@ namespace OpenSage
         public Terrain.Terrain Terrain { get; }
         public bool ShowTerrain { get; set; } = true;
 
-        public Terrain.WaterArea[] WaterAreas { get; }
+        public Terrain.WaterAreaCollection WaterAreas { get; }
         public bool ShowWater { get; set; } = true;
 
         public Terrain.Road[] Roads { get; }
@@ -91,7 +91,7 @@ namespace OpenSage
             ICameraController cameraController,
             MapFile mapFile,
             Terrain.Terrain terrain,
-            Terrain.WaterArea[] waterAreas,
+            Terrain.WaterAreaCollection waterAreas,
             Terrain.Road[] roads,
             Terrain.Bridge[] bridges,
             MapScriptCollection scripts,
@@ -202,10 +202,7 @@ namespace OpenSage
 
             if (ShowWater)
             {
-                foreach (var waterArea in WaterAreas)
-                {
-                    waterArea.BuildRenderList(renderList);
-                }
+                WaterAreas.BuildRenderList(renderList);
             }
 
             if (ShowRoads)
