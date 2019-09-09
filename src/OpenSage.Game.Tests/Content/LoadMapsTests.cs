@@ -33,8 +33,10 @@ namespace OpenSage.Tests.Content
                 {
                     _testOutputHelper.WriteLine($"Loading {map.FilePath}...");
 
-                    var scene = game.ContentManager.Load<Scene3D>(map.FilePath);
-                    Assert.NotNull(scene);
+                    using (var scene = game.LoadMap(map.FilePath))
+                    {
+                        Assert.NotNull(scene);
+                    }
 
                     game.ContentManager.Unload();
                 }

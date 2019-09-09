@@ -2,12 +2,40 @@
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Map;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Terrain
 {
     public sealed class BridgeTowers : DisposableBase
     {
+        public static BridgeTowers CreateForLandmarkBridge(
+            ContentManager contentManager,
+            GameObjectCollection gameObjects,
+            GameObject gameObject,
+            MapObject mapObject)
+        {
+            var worldMatrix =
+                Matrix4x4.CreateFromQuaternion(gameObject.Transform.Rotation)
+                * Matrix4x4.CreateTranslation(gameObject.Transform.Translation);
+
+            var landmarkBridgeTemplate = contentManager.IniDataContext.FindBridgeTemplate(mapObject.TypeName);
+
+            var halfLength = gameObject.Definition.Geometry.MinorRadius;
+            var halfWidth = gameObject.Definition.Geometry.MajorRadius;
+
+            return new BridgeTowers(
+                landmarkBridgeTemplate,
+                contentManager,
+                gameObjects,
+                worldMatrix,
+                -halfWidth,
+                -halfLength,
+                halfWidth,
+                halfLength,
+                gameObject.Transform.Rotation);
+        }
+
         public BridgeTowers(
             BridgeTemplate template,
             ContentManager contentManager,

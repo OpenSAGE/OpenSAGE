@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -19,15 +20,24 @@ namespace OpenSage.Terrain
         private readonly ModelInstance _modelInstance;
         private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
 
-        private Bridge(
+        internal Bridge(
             ContentManager contentManager,
             HeightMap heightMap,
-            BridgeTemplate template,
+            MapObject mapObject,
             in Vector3 startPosition,
             in Vector3 endPosition,
-            Model model,
             GameObjectCollection parent)
         {
+            var template = contentManager.IniDataContext.FindBridgeTemplate(mapObject.TypeName);
+
+            var modelPath = Path.Combine("Art", "W3D", template.BridgeModelName + ".W3D");
+            var model = contentManager.Load<Model>(modelPath);
+
+            if (model == null)
+            {
+                return;
+            }
+
             _model = model;
 
             _modelInstance = AddDisposable(_model.CreateInstance(contentManager));
@@ -43,35 +53,6 @@ namespace OpenSage.Terrain
                 _modelInstance,
                 contentManager,
                 parent);
-        }
-
-        internal static bool TryCreateBridge(
-            ContentManager contentManager,
-            HeightMap heightMap,
-            BridgeTemplate template,
-            in Vector3 startPosition,
-            in Vector3 endPosition,
-            out Bridge bridge,
-            GameObjectCollection parent)
-        {
-            var modelPath = Path.Combine("Art", "W3D", template.BridgeModelName + ".W3D");
-            var model = contentManager.Load<Model>(modelPath);
-
-            if (model == null)
-            {
-                bridge = null;
-                return false;
-            }
-
-            bridge = new Bridge(
-                contentManager,
-                heightMap,
-                template,
-                startPosition,
-                endPosition,
-                model,
-                parent);
-            return true;
         }
 
         private List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
@@ -176,6 +157,11 @@ namespace OpenSage.Terrain
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
         {
+            if (_model == null)
+            {
+                return;
+            }
+
             foreach (var meshMatrix in _meshes)
             {
                 // TODO: Don't do this.

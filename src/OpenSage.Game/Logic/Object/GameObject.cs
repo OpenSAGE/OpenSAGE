@@ -6,6 +6,7 @@ using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -17,6 +18,61 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
+        public static GameObject FromMapObject(
+            MapObject mapObject,
+            IReadOnlyList<Team> teams,
+            ContentManager contentManager,
+            GameObjectCollection parent,
+            in Vector3 position)
+        {
+            var gameObject = contentManager.InstantiateObject(mapObject.TypeName, parent);
+
+            // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
+            if (gameObject == null)
+            {
+                return null;
+            }
+
+            // TODO: If the object doesn't have a health value, how do we initialise it?
+            if (gameObject.Definition.Body is ActiveBodyModuleData body)
+            {
+                var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
+                    ? (uint) health.Value / 100.0f
+                    : 1.0f;
+
+                // TODO: Should we use InitialHealth or MaximumHealth here?
+                var initialHealth = body.InitialHealth * healthMultiplier;
+                gameObject.Health = (decimal) initialHealth;
+            }
+
+            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
+            {
+                var name = (string) teamName.Value;
+                if (name.Contains('/'))
+                {
+                    name = name.Split('/')[1];
+                }
+                var team = teams.FirstOrDefault(t => t.Name == name);
+                gameObject.Team = team;
+                gameObject.Owner = team?.Owner;
+            }
+
+            if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
+            {
+                gameObject.IsSelectable = (bool) selectable.Value;
+            }
+
+            gameObject.Transform.Translation = position;
+            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
+
+            if (gameObject.Definition.IsBridge)
+            {
+                gameObject.AddDisposable(BridgeTowers.CreateForLandmarkBridge(contentManager, parent, gameObject, mapObject));
+            }
+
+            return gameObject;
+        }
+
         public ObjectDefinition Definition { get; }
 
         public Transform Transform { get; }
@@ -55,7 +111,7 @@ namespace OpenSage.Logic.Object
 
         public GameObjectCollection Parent { get; private set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner, GameObjectCollection parent)
+        internal GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner, GameObjectCollection parent)
         {
             Definition = objectDefinition;
             Context = contentManager.IniDataContext;
@@ -364,6 +420,5 @@ namespace OpenSage.Logic.Object
                 }
             }
         }
-
     }
 }

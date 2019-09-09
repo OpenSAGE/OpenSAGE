@@ -68,6 +68,19 @@ namespace OpenSage.Data.Ini
         public BannerUI BannerUI { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public List<BridgeTemplate> Bridges { get; } = new List<BridgeTemplate>();
+
+        public BridgeTemplate FindBridgeTemplate(string templateName)
+        {
+            var template = Bridges.Find(x => x.Name == templateName);
+
+            if (template == null)
+            {
+                throw new InvalidDataException($"Missing bridge template: {templateName}");
+            }
+
+            return template;
+        }
+
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
         public ChallengeGenerals ChallengeGenerals { get; internal set; }
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
