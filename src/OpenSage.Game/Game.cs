@@ -19,6 +19,7 @@ using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
 using OpenSage.Data.Rep;
+using OpenSage.Data.Map;
 
 namespace OpenSage
 {
@@ -477,12 +478,35 @@ namespace OpenSage
             if (useShellMap)
             {
                 var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
-                var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
+                var mainMenuScene = LoadMap(shellMapName);
                 Scene3D = mainMenuScene;
                 Scripting.Active = true;
             }
 
             Definition.MainMenu.AddToScene(ContentManager, Scene2D, useShellMap);
+        }
+
+        internal Scene3D LoadMap(string mapPath)
+        {
+            switch (SageGame)
+            {
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising:
+                case SageGame.Cnc4:
+                    // TODO
+                    break;
+
+                default:
+                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
+                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Roads.ini");
+                    break;
+            }
+
+            var entry = ContentManager.FileSystem.GetFile(mapPath);
+
+            var mapFile = MapFile.FromFileSystemEntry(entry);
+
+            return new Scene3D(this, mapFile);
         }
 
         private void StartGame(
@@ -503,16 +527,12 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D?.Dispose();
-            Scene3D = null;
-
-            Scene3D = ContentManager.Load<Scene3D>(mapFileName);
+            Scene3D = LoadMap(mapFileName);
 
             if (Scene3D == null)
             {
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
             }
-
 
             var mapCache = ContentManager.IniDataContext.MapCaches.Find(x => x.Name == mapFileName.ToLower());
             if (mapCache == null)

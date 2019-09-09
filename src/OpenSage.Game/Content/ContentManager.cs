@@ -139,7 +139,6 @@ namespace OpenSage.Content
                 _contentLoaders = new Dictionary<Type, ContentLoader>
                 {
                     { typeof(Model), AddDisposable(new ModelLoader()) },
-                    { typeof(Scene3D), AddDisposable(new MapLoader()) },
                     { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                     { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
                     { typeof(AptWindow), AddDisposable(new AptLoader()) },

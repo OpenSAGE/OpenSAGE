@@ -43,18 +43,8 @@ namespace OpenSage.Diagnostics
                 _inputMessageBuffer,
                 () => new Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
                 new ArcballCameraController(cameraTarget, cameraDistance),
-                null,
-                null,
-                new Terrain.WaterAreaCollection(),
-                Array.Empty<Terrain.Road>(),
-                Array.Empty<Terrain.Bridge>(),
-                null,
                 gameObjects,
-                new WaypointCollection(),
-                new WaypointPathCollection(),
                 WorldLighting.CreateDefault(),
-                Array.Empty<Player>(),
-                Array.Empty<Team>(),
                 isDiagnosticScene: true));
 
             RenderPipeline = AddDisposable(new RenderPipeline(context.Game));

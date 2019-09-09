@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using OpenSage.Content;
+using OpenSage.Content.Util;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
@@ -13,6 +16,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
+using OpenSage.Terrain;
 using Veldrid;
 using Player = OpenSage.Logic.Player;
 using Team = OpenSage.Logic.Team;
@@ -21,6 +25,8 @@ namespace OpenSage
 {
     public sealed class Scene3D : DisposableBase
     {
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
@@ -44,7 +50,7 @@ namespace OpenSage
         public Terrain.WaterAreaCollection WaterAreas { get; }
         public bool ShowWater { get; set; } = true;
 
-        public Terrain.Road[] Roads { get; }
+        public Terrain.RoadCollection Roads { get; }
         public bool ShowRoads { get; set; } = true;
 
         public Terrain.Bridge[] Bridges { get; }
@@ -84,44 +90,203 @@ namespace OpenSage
             }
         }
 
-        public Scene3D(
+        internal Scene3D(Game game, MapFile mapFile)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, false)
+        {
+            var contentManager = game.ContentManager;
+
+            _players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToList();
+
+            // TODO: This is completely wrong.
+            LocalPlayer = _players.FirstOrDefault();
+
+            _teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
+                .Select(team => Team.FromMapData(team, _players))
+                .ToList();
+
+            MapFile = mapFile;
+            Terrain = AddDisposable(new Terrain.Terrain(mapFile, contentManager));
+            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, contentManager));
+
+            Lighting = new WorldLighting(
+                mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
+                mapFile.GlobalLighting.Time);
+
+            LoadObjects(
+                contentManager,
+                Terrain.HeightMap,
+                mapFile.ObjectsList.Objects,
+                _teams,
+                out var waypoints,
+                out var gameObjects,
+                out var roads,
+                out var bridges);
+
+            Roads = roads;
+            Bridges = bridges;
+            GameObjects = gameObjects;
+            Waypoints = waypoints;
+            WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
+
+            // TODO: Don't hardcode this.
+            // Perhaps add one ScriptComponent for the neutral player, 
+            // and one for the active player.
+            var scriptList = mapFile.GetPlayerScriptsList().ScriptLists[0];
+            Scripts = new MapScriptCollection(scriptList);
+
+            CameraController = new RtsCameraController(contentManager)
+            {
+                TerrainPosition = Terrain.HeightMap.GetPosition(
+                    Terrain.HeightMap.Width / 2,
+                    Terrain.HeightMap.Height / 2)
+            };
+
+            contentManager.GraphicsDevice.WaitForIdle();
+        }
+
+        private void LoadObjects(
+            ContentManager contentManager,
+            HeightMap heightMap,
+            MapObject[] mapObjects,
+            List<Team> teams,
+            out WaypointCollection waypointCollection,
+            out GameObjectCollection gameObjects,
+            out RoadCollection roads,
+            out Bridge[] bridges)
+        {
+            var waypoints = new List<Waypoint>();
+            gameObjects = AddDisposable(new GameObjectCollection(contentManager));
+            var roadsList = new List<Road>();
+            var bridgesList = new List<Bridge>();
+
+            var roadTopology = new RoadTopology();
+
+            for (var i = 0; i < mapObjects.Length; i++)
+            {
+                var mapObject = mapObjects[i];
+
+                var position = mapObject.Position;
+
+                switch (mapObject.RoadType & RoadType.PrimaryType)
+                {
+                    case RoadType.None:
+                        switch (mapObject.TypeName)
+                        {
+                            case "*Waypoints/Waypoint":
+                                waypoints.Add(new Waypoint(mapObject));
+                                break;
+
+                            default:
+                                position.Z += heightMap.GetHeight(position.X, position.Y);
+
+                                var gameObject = GameObject.FromMapObject(mapObject, teams, contentManager, gameObjects, position);
+                                if (gameObject != null)
+                                {
+                                    gameObjects.Add(gameObject);
+                                }
+
+                                break;
+                        }
+                        break;
+
+                    case RoadType.BridgeStart:
+                    case RoadType.BridgeEnd:
+                        // Multiple invalid bridges can be found in e.g GLA01.
+                        if ((i + 1) >= mapObjects.Length || !mapObjects[i + 1].RoadType.HasFlag(RoadType.BridgeEnd))
+                        {
+                            Logger.Warn($"Invalid bridge: {mapObject.ToString()}, skipping...");
+                            continue;
+                        }
+
+                        var bridgeEnd = mapObjects[++i];
+
+                        bridgesList.Add(AddDisposable(new Bridge(
+                            contentManager,
+                            heightMap,
+                            mapObject,
+                            mapObject.Position,
+                            bridgeEnd.Position,
+                            gameObjects)));
+
+                        break;
+
+                    case RoadType.Start:
+                    case RoadType.End:
+                        var roadEnd = mapObjects[++i];
+
+                        // Some maps have roads with invalid start- or endpoints.
+                        // We'll skip processing them altogether.
+                        if (mapObject.TypeName == "" || roadEnd.TypeName == "")
+                        {
+                            Logger.Warn($"Road {mapObject.ToString()} has invalid start- or endpoint, skipping...");
+                            continue;
+                        }
+
+                        if (!mapObject.RoadType.HasFlag(RoadType.Start) || !roadEnd.RoadType.HasFlag(RoadType.End))
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        // Note that we're searching with the type of either end.
+                        // This is because of weirdly corrupted roads with unmatched ends in USA04, which work fine in WB and SAGE.
+                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x =>
+                            x.Name == mapObject.TypeName || x.Name == roadEnd.TypeName);
+
+                        if (roadTemplate == null)
+                        {
+                            throw new InvalidDataException($"Missing road template: {mapObject.TypeName}");
+                        }
+
+                        roadTopology.AddSegment(roadTemplate, mapObject, roadEnd);
+                        break;
+
+                }
+
+                contentManager.GraphicsDevice.WaitForIdle();
+            }
+
+            roads = AddDisposable(new RoadCollection(roadTopology, contentManager, heightMap));
+            waypointCollection = new WaypointCollection(waypoints);
+            bridges = bridgesList.ToArray();
+        }
+
+        internal Scene3D(
             Game game,
             InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
-            MapFile mapFile,
-            Terrain.Terrain terrain,
-            Terrain.WaterAreaCollection waterAreas,
-            Terrain.Road[] roads,
-            Terrain.Bridge[] bridges,
-            MapScriptCollection scripts,
             GameObjectCollection gameObjects,
-            WaypointCollection waypoints,
-            WaypointPathCollection waypointPaths,
             WorldLighting lighting,
-            Player[] players,
-            Team[] teams,
             bool isDiagnosticScene = false)
+            : this(game, getViewport, inputMessageBuffer, isDiagnosticScene)
+        {
+            _players = new List<Player>();
+            _teams = new List<Team>();
+
+            // TODO: This is completely wrong.
+            LocalPlayer = _players.FirstOrDefault();
+
+            WaterAreas = AddDisposable(new WaterAreaCollection());
+            Lighting = lighting;
+
+            Roads = AddDisposable(new RoadCollection());
+            Bridges = Array.Empty<Bridge>();
+            GameObjects = gameObjects;
+            Waypoints = new WaypointCollection();
+            WaypointPaths = new WaypointPathCollection();
+
+            CameraController = cameraController;
+        }
+
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, bool isDiagnosticScene)
         {
             Camera = new Camera(getViewport);
-            CameraController = cameraController;
-
-            MapFile = mapFile;
-            Terrain = terrain;
-            WaterAreas = waterAreas;
-            Roads = roads;
-            Bridges = bridges;
-            Scripts = scripts;
-            GameObjects = AddDisposable(gameObjects);
-            Waypoints = waypoints;
-            WaypointPaths = waypointPaths;
-            Lighting = lighting;
 
             SelectionGui = new SelectionGui();
 
-            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
-
             DebugOverlay = new DebugOverlay(this, game.ContentManager);
+
+            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
             {
@@ -131,11 +296,6 @@ namespace OpenSage
             }
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
-
-            _players = players.ToList();
-            _teams = teams.ToList();
-            // TODO: This is completely wrong.
-            LocalPlayer = _players.FirstOrDefault();
         }
 
         private void RegisterInputHandler(InputMessageHandler handler, InputMessageBuffer inputMessageBuffer)
@@ -207,10 +367,7 @@ namespace OpenSage
 
             if (ShowRoads)
             {
-                foreach (var road in Roads)
-                {
-                    road.BuildRenderList(renderList);
-                }
+                Roads.BuildRenderList(renderList);
             }
 
             if (ShowBridges)
