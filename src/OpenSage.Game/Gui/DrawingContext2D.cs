@@ -34,7 +34,7 @@ namespace OpenSage.Gui
             _contentManager = contentManager;
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _solidWhiteTexture = contentManager.SolidWhiteTexture;
+            _solidWhiteTexture = contentManager.StandardGraphicsResources.SolidWhiteTexture;
 
             _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
 

@@ -140,7 +140,7 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.Begin(
                     _commandList,
-                    context.ContentManager.LinearClampSampler,
+                    context.ContentManager.StandardGraphicsResources.LinearClampSampler,
                     new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
 
                 context.Scene3D?.Render(_drawingContext);

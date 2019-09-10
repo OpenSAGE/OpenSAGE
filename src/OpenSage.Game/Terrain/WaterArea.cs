@@ -84,7 +84,7 @@ namespace OpenSage.Terrain
 
             foreach (var waterSet in contentManager.IniDataContext.WaterSets)
             {
-                var waterTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", waterSet.WaterTexture));
+                var waterTexture = contentManager.GetTexture(waterSet.WaterTexture);
 
                 // TODO: Cache these resource sets in some sort of scoped data context.
                 var resourceSet = AddDisposable(contentManager.ShaderResources.Water.CreateMaterialResourceSet(waterTexture));

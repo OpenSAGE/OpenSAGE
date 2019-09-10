@@ -129,7 +129,7 @@ namespace OpenSage.Terrain
             _shaderSet = contentManager.ShaderResources.Road.ShaderSet;
             _pipeline = contentManager.ShaderResources.Road.Pipeline;
 
-            var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", template.Texture));
+            var texture = contentManager.GetTexture(template.Texture);
 
             // TODO: Cache these resource sets in some sort of scoped data context.
             _resourceSet = AddDisposable(contentManager.ShaderResources.Road.CreateMaterialResourceSet(texture));

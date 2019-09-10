@@ -65,16 +65,6 @@ namespace OpenSage.Terrain
 
             var terrainPipeline = contentManager.ShaderResources.Terrain.Pipeline;
 
-            Texture LoadTexture(string name)
-            {
-                var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", name), fallbackToPlaceholder: false);
-                if (texture == null)
-                {
-                    texture = contentManager.Load<Texture>(Path.Combine("Art", "CompiledTextures", name.Substring(0, 2), name));
-                }
-                return texture;
-            }
-
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 new TerrainShaderResources.TerrainMaterialConstants
                 {
@@ -84,12 +74,12 @@ namespace OpenSage.Terrain
                 },
                 BufferUsage.UniformBuffer));
 
-            var macroTexture = LoadTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
+            var macroTexture = contentManager.GetTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
             var materialResourceSet = AddDisposable(contentManager.ShaderResources.Terrain.CreateMaterialResourceSet(
                 materialConstantsBuffer,
                 tileDataTexture,
-                cliffDetailsBuffer ?? contentManager.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                cliffDetailsBuffer ?? contentManager.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
                 textureDetailsBuffer,
                 textureArray,
                 macroTexture));
@@ -100,7 +90,7 @@ namespace OpenSage.Terrain
                 indexBufferCache,
                 materialResourceSet);
 
-            var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+            var cloudTexture = contentManager.GetTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
             cloudTexture.Name = "Cloud texture";
 
             var cloudResourceLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
