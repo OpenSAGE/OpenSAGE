@@ -60,7 +60,7 @@ namespace OpenSage.Data
             }
         }
 
-        private static string NormalizeFilePath(string filePath)
+        internal static string NormalizeFilePath(string filePath)
         {
             return filePath
                 .Replace('/', Path.DirectorySeparatorChar)

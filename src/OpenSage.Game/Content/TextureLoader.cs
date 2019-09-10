@@ -4,7 +4,6 @@ using System.IO;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
-using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -13,39 +12,24 @@ using Veldrid.ImageSharp;
 
 namespace OpenSage.Content
 {
-    internal sealed class TextureLoader : ContentLoader<Texture>
+    internal static class TextureLoader
     {
-        public override object PlaceholderValue { get; }
-
-        public TextureLoader(GraphicsDevice graphicsDevice)
-        {
-            var texture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                1, 1, 1,
-                new TextureMipMapData(
-                    new byte[] { 255, 105, 180, 255 },
-                    4, 4, 1, 1),
-                PixelFormat.R8_G8_B8_A8_UNorm));
-            texture.Name = "Placeholder Texture";
-            PlaceholderValue = AddDisposable(texture);
-        }
-
-        public override IEnumerable<string> GetPossibleFilePaths(string filePath)
+        public static IEnumerable<string> GetPossibleFilePaths(string filePath)
         {
             yield return Path.ChangeExtension(filePath, ".dds");
             yield return Path.ChangeExtension(filePath, ".tga");
             yield return Path.ChangeExtension(filePath, ".jpg");
         }
 
-        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
+        public static Texture Load(FileSystemEntry entry, GraphicsDevice graphicsDevice, bool generateMipMaps)
         {
-            var generateMipMaps = (loadOptions as TextureLoadOptions)?.GenerateMipMaps ?? true;
+            var texture = LoadImpl(entry, graphicsDevice, generateMipMaps);
+            texture.Name = entry.FilePath;
+            return texture;
+        }
 
-            Texture applyDebugName(Texture texture)
-            {
-                texture.Name = entry.FilePath;
-                return texture;
-            }
-
+        private static Texture LoadImpl(FileSystemEntry entry, GraphicsDevice graphicsDevice, bool generateMipMaps)
+        {
             switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
             {
                 case ".dds":
@@ -54,24 +38,22 @@ namespace OpenSage.Content
                         goto case ".tga";
                     }
                     var ddsFile = DdsFile.FromFileSystemEntry(entry);
-                    return applyDebugName(CreateTextureFromDds(
-                        contentManager.GraphicsDevice,
-                        ddsFile));
+                    return CreateTextureFromDds(
+                        graphicsDevice,
+                        ddsFile);
 
                 case ".tga":
                     var tgaFile = TgaFile.FromFileSystemEntry(entry);
-                    return applyDebugName(CreateTextureFromTga(
-                        contentManager.GraphicsDevice,
+                    return CreateTextureFromTga(
+                        graphicsDevice,
                         tgaFile,
-                        generateMipMaps));
+                        generateMipMaps);
 
                 case ".jpg":
                     using (var stream = entry.Open())
                     {
                         var jpgFile = new ImageSharpTexture(stream);
-                        return jpgFile.CreateDeviceTexture(
-                            contentManager.GraphicsDevice,
-                            contentManager.GraphicsDevice.ResourceFactory);
+                        return CreateFromImageSharpTexture(graphicsDevice, jpgFile);
                     }
 
                 default:
@@ -83,12 +65,9 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             DdsFile ddsFile)
         {
-            var width = ddsFile.Header.Width;
-            var height = ddsFile.Header.Height;
-
             return graphicsDevice.CreateStaticTexture2D(
-                width,
-                height,
+                ddsFile.Header.Width,
+                ddsFile.Header.Height,
                 1,
                 ddsFile.MipMaps,
                 ddsFile.PixelFormat,
@@ -111,15 +90,17 @@ namespace OpenSage.Content
                     tgaImage,
                     generateMipMaps);
 
-                return imageSharpTexture.CreateDeviceTexture(
-                    graphicsDevice,
-                    graphicsDevice.ResourceFactory);
+                return CreateFromImageSharpTexture(graphicsDevice, imageSharpTexture);
             }
         }
-    }
 
-    public sealed class TextureLoadOptions : LoadOptions
-    {
-        public bool GenerateMipMaps { get; set; }
+        private static Texture CreateFromImageSharpTexture(
+            GraphicsDevice graphicsDevice,
+            ImageSharpTexture imageSharpTexture)
+        {
+            return imageSharpTexture.CreateDeviceTexture(
+                    graphicsDevice,
+                    graphicsDevice.ResourceFactory);
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace OpenSage.Gui.Wnd.Images
         public Image CreateFileImage(string fileImageName)
         {        
             bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
-            var texture = _contentManager.Load<Texture>(fileImageName);
+            var texture = _contentManager.GetGuiTextureFromPath(fileImageName);
 
             return new Image(fileImageName, new Size((int)texture.Width, (int) texture.Height), size =>
             {
@@ -217,11 +217,11 @@ namespace OpenSage.Gui.Wnd.Images
 
             spriteBatch.Begin(
                 commandList,
-                _contentManager.PointClampSampler,
+                _contentManager.StandardGraphicsResources.PointClampSampler,
                 new SizeF(imageTexture.Width, imageTexture.Height));
 
             spriteBatch.DrawImage(
-                _contentManager.SolidWhiteTexture,
+                _contentManager.StandardGraphicsResources.SolidWhiteTexture,
                 null,
                 new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
                 ColorRgbaF.Transparent);

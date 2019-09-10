@@ -294,23 +294,7 @@ namespace OpenSage.Content
                 throw new NotImplementedException();
             }
 
-            return CreateTexture(contentManager, w3dTexture.Name.Value);
-        }
-
-        private static Texture CreateTexture(
-            ContentManager contentManager,
-            string textureName)
-        {
-            var w3dTextureFilePath = Path.Combine("Art", "Textures", textureName);
-
-            var texture = contentManager.Load<Texture>(w3dTextureFilePath, fallbackToPlaceholder: false);
-            if (texture == null)
-            {
-                w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", textureName.Substring(0, 2), textureName);
-                texture = contentManager.Load<Texture>(w3dTextureFilePath);
-            }
-
-            return texture;
+            return contentManager.GetTexture(w3dTexture.Name.Value);
         }
 
         private static MeshShaderResources.MeshVertex.Basic[] CreateVertices(
@@ -415,7 +399,7 @@ namespace OpenSage.Content
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
+                        var texture = contentManager.GetTexture(w3dShaderProperty.StringValue);
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 
@@ -756,8 +740,8 @@ namespace OpenSage.Content
 
             var materialResourceSet = AddDisposable(contentManager.ShaderResources.FixedFunction.CreateMaterialResourceSet(
                 materialConstantsBuffer,
-                CreateTexture(contentManager, w3dMesh, textureIndex0) ?? contentManager.NullTexture,
-                CreateTexture(contentManager, w3dMesh, textureIndex1) ?? contentManager.NullTexture));
+                CreateTexture(contentManager, w3dMesh, textureIndex0) ?? contentManager.StandardGraphicsResources.NullTexture,
+                CreateTexture(contentManager, w3dMesh, textureIndex1) ?? contentManager.StandardGraphicsResources.NullTexture));
 
             return new ModelMeshPart(
                 texCoordsVertexBuffer,

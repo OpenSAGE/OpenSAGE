@@ -59,9 +59,8 @@ namespace OpenSage.Gui.Apt
             //TODO: properly implement rectangle assignment
             var texId = aptFile.ImageMap.Mapping[id].TextureId;
             var movieName = aptFile.MovieName;
-            var texturePath = "art/Textures/apt_" + movieName + "_" + texId.ToString() + ".tga";
-            var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
-            return ContentManager.Load<Texture>(texturePath, loadOptions);
+            var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
+            return ContentManager.GetAptTexture(textureFileName);
         }
 
         public Texture GetTexture(int id, Geometry geom)
@@ -81,9 +80,8 @@ namespace OpenSage.Gui.Apt
             }
 
             var texId = map.Mapping[id].TextureId;
-            var texturePath = "art/Textures/apt_" + movieName + "_" + texId.ToString() + ".tga";
-            var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
-            return ContentManager.Load<Texture>(texturePath, loadOptions);
+            var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
+            return ContentManager.GetAptTexture(textureFileName);
         }
     }
 }

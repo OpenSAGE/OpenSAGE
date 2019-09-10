@@ -88,7 +88,7 @@ namespace OpenSage.Graphics
             }
             else
             {
-                skinningBuffer = contentManager.GetNullStructuredBuffer(64);
+                skinningBuffer = contentManager.StandardGraphicsResources.GetNullStructuredBuffer(64);
             }
 
             SkinningBufferResourceSet = AddDisposable(contentManager.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));

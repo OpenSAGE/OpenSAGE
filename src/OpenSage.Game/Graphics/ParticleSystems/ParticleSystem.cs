@@ -83,8 +83,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
 
-            var texturePath = Path.Combine("Art", "Textures", Template.ParticleName);
-            var texture = contentManager.Load<Texture>(texturePath);
+            var texture = contentManager.GetTexture(Template.ParticleName);
 
             _particleResourceSet = AddDisposable(contentManager.ShaderResources.Particle.CreateParticleResoureSet(
                 _renderItemConstantsBufferVS.Buffer,

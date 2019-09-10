@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Util;
-using Veldrid;
 
 namespace OpenSage.Gui
 {
@@ -23,16 +21,7 @@ namespace OpenSage.Gui
                 return null;
             }
 
-
-            var texture = _contentManager.Load<Texture>(
-                new[]
-                {
-                    Path.Combine("Data", _contentManager.Language, "Art", "Textures", mappedImage.Texture),
-                    Path.Combine("Lang", _contentManager.Language, "Art", "Textures", mappedImage.Texture),
-                    Path.Combine("Art", "Textures", mappedImage.Texture),
-                    Path.Combine("Art", "Compiledtextures",  mappedImage.Texture.Substring(0,2) , mappedImage.Texture)
-                },
-                new TextureLoadOptions { GenerateMipMaps = false });
+            var texture = _contentManager.GetGuiTexture(mappedImage.Texture);
 
             var textureRect = mappedImage.Coords.ToRectangle();
 

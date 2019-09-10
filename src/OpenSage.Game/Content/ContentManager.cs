@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using OpenSage.Content.Translation;
@@ -15,7 +16,6 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic.Object;
 using OpenSage.Utilities;
-using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
 using Veldrid;
 
@@ -24,6 +24,7 @@ namespace OpenSage.Content
     public sealed class ContentManager : DisposableBase
     {
         private readonly Game _game;
+        private readonly Stack<ContentScope> _contentScopes;
 
         public ISubsystemLoader SubsystemLoader { get; }
 
@@ -38,8 +39,6 @@ namespace OpenSage.Content
         private readonly string _fallbackSystemFont = "Arial";
         private readonly string _fallbackEmbeddedFont = "Roboto";
 
-        private readonly Dictionary<uint, DeviceBuffer> _cachedNullStructuredBuffers;
-
         private FontCollection _fallbackFonts;
 
         internal IEnumerable<object> CachedObjects => _cachedObjects.Values;
@@ -48,14 +47,8 @@ namespace OpenSage.Content
 
         public SageGame SageGame { get; }
 
+        internal readonly StandardGraphicsResources StandardGraphicsResources;
         internal readonly ShaderResourceManager ShaderResources;
-
-        public Sampler LinearClampSampler { get; }
-        public Sampler PointClampSampler { get; }
-
-        public Texture NullTexture { get; }
-
-        public Texture SolidWhiteTexture { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -139,7 +132,6 @@ namespace OpenSage.Content
                 _contentLoaders = new Dictionary<Type, ContentLoader>
                 {
                     { typeof(Model), AddDisposable(new ModelLoader()) },
-                    { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                     { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
                     { typeof(AptWindow), AddDisposable(new AptLoader()) },
                 };
@@ -151,32 +143,9 @@ namespace OpenSage.Content
 
                 _cachedFonts = new Dictionary<FontKey, Font>();
 
-                var linearClampSamplerDescription = SamplerDescription.Linear;
-                linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-                linearClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-                linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-                LinearClampSampler = AddDisposable(
-                    graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
+                StandardGraphicsResources = AddDisposable(new StandardGraphicsResources(graphicsDevice));
 
-                var pointClampSamplerDescription = SamplerDescription.Point;
-                pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-                pointClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-                pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-                PointClampSampler = AddDisposable(
-                    graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
-
-                NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
-
-                _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
-
-                SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                    1, 1, 1,
-                    new TextureMipMapData(
-                        new byte[] { 255, 255, 255, 255 },
-                        4, 4, 1, 1),
-                    PixelFormat.R8_G8_B8_A8_UNorm));
-
-                ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, SolidWhiteTexture));
+                ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, StandardGraphicsResources.SolidWhiteTexture));
 
                 WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
 
@@ -186,21 +155,21 @@ namespace OpenSage.Content
                 _fallbackFonts.Install(fontStream);
                 fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
                 _fallbackFonts.Install(fontStream);
+
+                _contentScopes = new Stack<ContentScope>();
+                PushScope();
             }
         }
 
-        internal DeviceBuffer GetNullStructuredBuffer(uint size)
+        public void PushScope()
         {
-            if (!_cachedNullStructuredBuffers.TryGetValue(size, out var result))
-            {
-                _cachedNullStructuredBuffers.Add(size, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateBuffer(
-                    new BufferDescription(
-                        size,
-                        BufferUsage.StructuredBufferReadOnly,
-                        size,
-                        true))));
-            }
-            return result;
+            _contentScopes.Push(AddDisposable(new ContentScope()));
+        }
+
+        public void PopScope()
+        {
+            var contentScope = _contentScopes.Pop();
+            RemoveAndDispose(ref contentScope);
         }
 
         public void Unload()
@@ -215,30 +184,113 @@ namespace OpenSage.Content
             _cachedObjects.Clear();
         }
 
-        public T Load<T>(
-            string[] filePaths,
-            LoadOptions options = null,
-            bool fallbackToPlaceholder = true)
-            where T : class
+        public Texture GetTexture(string fileName)
         {
-            for (var i = 0; i < filePaths.Length; i++)
-            {
-                var actuallyFallbackToPlaceholder = fallbackToPlaceholder && i == filePaths.Length - 1;
+            return GetTexture(
+                fileName,
+                true,
+                normalizedFileName =>
+                {
+                    // TODO: Move this to IGameDefinition.
+                    switch (SageGame)
+                    {
+                        case SageGame.CncGenerals:
+                        case SageGame.CncGeneralsZeroHour:
+                        case SageGame.Bfme:
+                            return new[] { Path.Combine("art", "textures", normalizedFileName) };
 
-                var result = Load<T>(filePaths[i], options, actuallyFallbackToPlaceholder);
-                if (result != null)
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            return new[] { Path.Combine("art", "compiledtextures", normalizedFileName.Substring(0, 2), normalizedFileName) };
+
+                        default:
+                            throw new NotImplementedException();
+                    }
+                });
+        }
+
+        public Texture GetGuiTexture(string fileName)
+        {
+            return GetTexture(
+                fileName,
+                false,
+                // TODO: Figure out which games need which paths and move this to IGameDefinition.
+                normalizedFileName => new[]
+                {
+                    Path.Combine("data", Language.ToLowerInvariant(), "art", "textures", normalizedFileName),
+                    Path.Combine("lang", Language.ToLowerInvariant(), "art", "textures", normalizedFileName),
+                    Path.Combine("art", "textures", normalizedFileName),
+                    Path.Combine("art", "compiledtextures",  normalizedFileName.Substring(0,2), normalizedFileName)
+                });
+        }
+
+        public Texture GetGuiTextureFromPath(string filePath)
+        {
+            return GetTexture(
+                filePath,
+                false,
+                normalizedFilePath => new[] { normalizedFilePath });
+        }
+
+        public Texture GetAptTexture(string fileName)
+        {
+            return GetTexture(
+                fileName,
+                false,
+                normalizedFileName => new[] { Path.Combine("art", "textures", normalizedFileName) });
+        }
+
+        private Texture GetTexture(string fileName, bool generateMipMaps, Func<string, string[]> getPaths)
+        {
+            var normalizedFileName = FileSystem.NormalizeFilePath(fileName);
+
+            // See if it's already cached.
+            foreach (var contentScope in _contentScopes)
+            {
+                if (contentScope.Textures.TryGetResource(normalizedFileName, out var result))
                 {
                     return result;
                 }
             }
 
-            return null;
+            // Find it in the file system.
+            FileSystemEntry entry = null;
+            foreach (var path in getPaths(normalizedFileName))
+            {
+                foreach (var possibleFilePath in TextureLoader.GetPossibleFilePaths(path))
+                {
+                    entry = _fileSystem.GetFile(possibleFilePath);
+                    if (entry != null)
+                    {
+                        break;
+                    }
+                }
+
+                if (entry != null)
+                {
+                    break;
+                }
+            }
+
+            var foundTexture = entry != null;
+
+            // Load texture.
+            var texture = foundTexture
+                ? TextureLoader.Load(entry, GraphicsDevice, generateMipMaps)
+                : StandardGraphicsResources.PlaceholderTexture;
+
+            // Add it to current content scope.
+            _contentScopes.Peek().Textures.AddResource(
+                normalizedFileName,
+                texture,
+                foundTexture);
+
+            return texture;
         }
 
         public T Load<T>(
             string filePath,
-            LoadOptions options = null,
-            bool fallbackToPlaceholder = true)
+            LoadOptions options = null)
             where T : class
         {
             if (_cachedObjects.TryGetValue(filePath, out var asset))
@@ -277,10 +329,6 @@ namespace OpenSage.Content
                 {
                     _cachedObjects.Add(filePath, asset);
                 }
-            }
-            else if (fallbackToPlaceholder)
-            {
-                asset = contentLoader.PlaceholderValue;
             }
 
             GraphicsDevice.WaitForIdle();
