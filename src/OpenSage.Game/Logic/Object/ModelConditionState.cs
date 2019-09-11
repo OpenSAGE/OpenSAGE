@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
 
 namespace OpenSage.Logic.Object
 {
@@ -28,7 +30,17 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
-            { "Model", (parser, x) => x.Model = parser.ParseFileName() },
+            {
+                "Model",
+                (parser, x) =>
+                {
+                    var name = parser.ParseFileName();
+                    if (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        x.Model = new LazyAssetReference<Model>(() => parser.ContentManager.GetModel(name));
+                    }
+                }
+            },
             { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
 
             { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
@@ -91,7 +103,7 @@ namespace OpenSage.Logic.Object
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
-        public string Model { get; private set; }
+        public LazyAssetReference<Model> Model { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string Skeleton { get; private set; }
@@ -226,10 +238,13 @@ namespace OpenSage.Logic.Object
     {
         internal static ObjectConditionAnimation Parse(IniParser parser)
         {
-            var result = new ObjectConditionAnimation
+            var result = new ObjectConditionAnimation();
+
+            var animationName = parser.ParseAnimationName();
+            if (!string.Equals(animationName, "NONE", StringComparison.OrdinalIgnoreCase))
             {
-                Animation = parser.ParseAnimationName()
-            };
+                result.Animation = new LazyAssetReference<Graphics.Animation.Animation>(() => parser.ContentManager.GetAnimation(animationName));
+            }
 
             var unknown1Token = parser.GetNextTokenOptional();
 
@@ -247,7 +262,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        public string Animation { get; private set; }
+        public LazyAssetReference<Graphics.Animation.Animation> Animation { get; private set; }
         public float Unknown1 { get; private set; }
         public int Unknown2 { get; private set; }
     }

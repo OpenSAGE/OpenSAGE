@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
@@ -20,13 +21,11 @@ namespace OpenSage.Gui.Wnd.Images
         }
 
         private readonly ContentManager _contentManager;
-        private readonly MappedImageLoader _mappedImageManager;
         private readonly Dictionary<WndImageKey, Texture> _cache;
 
-        public WndImageLoader(ContentManager contentManager, MappedImageLoader mappedImageManager)
+        public WndImageLoader(ContentManager contentManager)
         {
             _contentManager = contentManager;
-            _mappedImageManager = mappedImageManager;
             _cache = new Dictionary<WndImageKey, Texture>();
         }
 
@@ -70,7 +69,7 @@ namespace OpenSage.Gui.Wnd.Images
             {
                 bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
 
-                return new Image(mappedImageName, mappedImageTexture.SourceRect.Size, size =>
+                return new Image(mappedImageName, mappedImageTexture.Coords.Size, size =>
                 {
                     var cacheKey = new WndImageKey
                     {
@@ -85,8 +84,8 @@ namespace OpenSage.Gui.Wnd.Images
                             spriteBatch =>
                             {
                                 spriteBatch.DrawImage(
-                                    mappedImageTexture.Texture,
-                                    mappedImageTexture.SourceRect,
+                                    mappedImageTexture.Texture.Value,
+                                    mappedImageTexture.Coords,
                                     new Rectangle(Point2D.Zero, size).ToRectangleF(),
                                     ColorRgbaF.White);
                             });
@@ -122,8 +121,8 @@ namespace OpenSage.Gui.Wnd.Images
                 rightMappedImageTexture != null)
             {
                 var naturalSize = new Size(
-                    leftMappedImageTexture.SourceRect.Width + middleMappedImageTexture.SourceRect.Width + rightMappedImageTexture.SourceRect.Width,
-                    leftMappedImageTexture.SourceRect.Height);
+                    leftMappedImageTexture.Coords.Width + middleMappedImageTexture.Coords.Width + rightMappedImageTexture.Coords.Width,
+                    leftMappedImageTexture.Coords.Height);
 
                 bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
 
@@ -143,26 +142,26 @@ namespace OpenSage.Gui.Wnd.Images
                             cacheKey,
                             spriteBatch =>
                             {
-                                var leftWidth = leftMappedImageTexture.SourceRect.Width;
-                                var rightWidth = rightMappedImageTexture.SourceRect.Width;
+                                var leftWidth = leftMappedImageTexture.Coords.Width;
+                                var rightWidth = rightMappedImageTexture.Coords.Width;
                                 var leftRect = new Rectangle(0, 0, leftWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   leftMappedImageTexture.Texture,
-                                   leftMappedImageTexture.SourceRect,
+                                   leftMappedImageTexture.Texture.Value,
+                                   leftMappedImageTexture.Coords,
                                    leftRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
                                 var middleRect = new Rectangle(leftRect.Right, 0, cacheKey.DestinationSize.Width - leftWidth - rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   middleMappedImageTexture.Texture,
-                                   middleMappedImageTexture.SourceRect,
+                                   middleMappedImageTexture.Texture.Value,
+                                   middleMappedImageTexture.Coords,
                                    middleRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
                                 var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   rightMappedImageTexture.Texture,
-                                   rightMappedImageTexture.SourceRect,
+                                   rightMappedImageTexture.Texture.Value,
+                                   rightMappedImageTexture.Coords,
                                    rightRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
@@ -180,14 +179,14 @@ namespace OpenSage.Gui.Wnd.Images
             }
         }
 
-        private MappedImageTexture GetMappedImage(string mappedImageName)
+        private MappedImage GetMappedImage(string mappedImageName)
         {
             if (string.IsNullOrEmpty(mappedImageName) || mappedImageName == "NoImage")
             {
                 return null;
             }
 
-            return _mappedImageManager.GetMappedImage(mappedImageName);
+            return _contentManager.GetMappedImage(mappedImageName);
         }
 
         private Texture CreateTexture(

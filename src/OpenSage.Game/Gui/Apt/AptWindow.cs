@@ -2,6 +2,7 @@
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Ini;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -27,14 +28,13 @@ namespace OpenSage.Gui.Apt
         public string Name => AptFile.MovieName;
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
-        public MappedImageLoader ImageLoader { get; }
         public ContentManager ContentManager { get; }
         public AptInputMessageHandler InputHandler { get; set; }
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
         /// </summary>
-        public MappedImageTexture BackgroundImage { get; set; }
+        public MappedImage BackgroundImage { get; set; }
 
         public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
@@ -60,8 +60,6 @@ namespace OpenSage.Gui.Apt
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
 
             Renderer = new AptRenderer(this, contentManager);
-
-            ImageLoader = new MappedImageLoader(contentManager);
 
             _resolver = new AptCallbackResolver(game);
         }
@@ -94,7 +92,7 @@ namespace OpenSage.Gui.Apt
 
             if (BackgroundImage != null)
             {
-                drawingContext.DrawImage(BackgroundImage.Texture, BackgroundImage.SourceRect, fullSizeRect);
+                drawingContext.DrawImage(BackgroundImage.Texture.Value, BackgroundImage.Coords, fullSizeRect);
             }
 
             //The background color, which is set by the APT. Should be the clear color?

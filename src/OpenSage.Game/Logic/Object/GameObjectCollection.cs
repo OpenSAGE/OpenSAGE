@@ -23,18 +23,6 @@ namespace OpenSage.Logic.Object
             return gameObject;
         }
 
-        public GameObject Add(string typeName)
-        {
-            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName, this));
-
-            if (gameObject != null)
-            {
-                _items.Add(gameObject);
-            }
-
-            return gameObject;
-        }
-
         public GameObject Add(GameObject gameObject)
         {
             AddDisposable(gameObject);

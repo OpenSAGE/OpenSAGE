@@ -14,11 +14,11 @@ namespace OpenSage.Content
 
     public class GeneralsSubsystemLoader : ISubsystemLoader
     {
-        private readonly IniDataContext _iniDataContext;
+        private readonly ContentManager _contentManager;
 
-        public GeneralsSubsystemLoader(IniDataContext iniDataContext)
+        public GeneralsSubsystemLoader(ContentManager contentManager)
         {
-            _iniDataContext = iniDataContext;
+            _contentManager = contentManager;
         }
 
         public void Load(Subsystem subsystem)
@@ -36,7 +36,7 @@ namespace OpenSage.Content
                     LoadFiles(
                         @"Data\INI\Default\Object.ini",
                         @"Data\INI\Locomotor.ini");
-                    _iniDataContext.LoadIniFiles(@"Data\INI\Object");
+                    _contentManager.LoadIniFiles(@"Data\INI\Object");
                     break;
                 case Subsystem.Players:
                     LoadFiles(
@@ -74,33 +74,33 @@ namespace OpenSage.Content
         {
             foreach (var file in files)
             {
-                _iniDataContext.LoadIniFile(file);
+                _contentManager.LoadIniFile(file);
             }
         }
     }
 
     public class ConfiguredSubsystemLoader : ISubsystemLoader
     {
-        private readonly IniDataContext _iniDataContext;
+        private readonly ContentManager _contentManager;
         private readonly IGameDefinition _gameDefinition;
         private readonly FileSystem _fileSystem;
         private readonly Dictionary<string, LoadSubsystem> _subsystems;
 
-        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, IniDataContext iniDataContext)
+        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, ContentManager contentManager)
         {
             _gameDefinition = gameDefinition;
-            _iniDataContext = iniDataContext;
+            _contentManager = contentManager;
             _fileSystem = fileSystem;
 
-            _iniDataContext.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
-            _subsystems = _iniDataContext.Subsystems.ToDictionary(subsystem => subsystem.Name);
+            _contentManager.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
+            _subsystems = _contentManager.IniDataContext.Subsystems.ToDictionary(subsystem => subsystem.Name);
         }
 
         public void Load(Subsystem subsystem)
         {
             foreach (var entry in GetFilesForSubsystem(subsystem))
             {
-                _iniDataContext.LoadIniFile(entry);
+                _contentManager.LoadIniFile(entry);
             }
         }
 
@@ -253,20 +253,20 @@ namespace OpenSage.Content
 
     public static class SubsystemLoader
     {
-        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, IniDataContext iniDataContext)
+        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, ContentManager contentManager)
         {
             switch (gameDefinition.Game)
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    return new GeneralsSubsystemLoader(iniDataContext);
+                    return new GeneralsSubsystemLoader(contentManager);
 
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
                 case SageGame.Cnc3:
                 case SageGame.Cnc3KanesWrath:
-                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, iniDataContext);
+                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, contentManager);
 
                 default:
                     // TODO: Implement subsystem loader for new XML-based format used in RA3 and beyond.

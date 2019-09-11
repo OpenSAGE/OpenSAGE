@@ -1,20 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Diagnostics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
     public sealed class IniDataContext
     {
-        private readonly FileSystem _fileSystem;
-        private readonly SageGame _game;
-
-        // TODO: Remove this once we can load all INI files upfront.
-        private readonly List<string> _alreadyLoaded = new List<string>();
-
         [AddedIn(SageGame.Bfme2)]
         public List<AIBase> AIBases { get; } = new List<AIBase>();
 
@@ -181,7 +173,6 @@ namespace OpenSage.Data.Ini
         public Dictionary<string, Locomotor> Locomotors { get; } = new Dictionary<string, Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
-        public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
 
         [AddedIn(SageGame.Bfme2)]
         public List<MeshNameMatches> MeshNameMatches { get; } = new List<MeshNameMatches>();
@@ -263,65 +254,5 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public ArmySummaryDescription ArmySummaryDescription { get; internal set; }
-
-        public IniDataContext(FileSystem fileSystem, SageGame game)
-        {
-            _fileSystem = fileSystem;
-            _game = game;
-        }
-
-        public void LoadIniFiles(string folder)
-        {
-            foreach (var iniFile in _fileSystem.GetFiles(folder))
-            {
-                LoadIniFile(iniFile);
-            }
-        }
-
-        public void LoadIniFile(string filePath, bool included = false)
-        {
-            LoadIniFile(_fileSystem.GetFile(filePath), included);
-        }
-
-        public void LoadIniFile(FileSystemEntry entry, bool included = false)
-        {
-            using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
-            {
-                if (!included && !entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
-                {
-                    return;
-                }
-
-                if (_alreadyLoaded.Contains(entry.FilePath))
-                {
-                    return;
-                }
-
-                string source;
-
-                using (var stream = entry.Open())
-                using (var reader = new StreamReader(stream, Encoding.ASCII))
-                {
-                    source = reader.ReadToEnd();
-                }
-
-                var parser = new IniParser(source, entry, this, _game);
-                parser.ParseFile();
-
-                _alreadyLoaded.Add(entry.FilePath);
-            }
-        }
-
-        public string GetIniFileContent(string filePath)
-        {
-            var source = _fileSystem.GetFile(filePath);
-            if (source == null)
-            {
-                return "";
-            }
-
-            var streamReader = new StreamReader(source.Open());
-            return streamReader.ReadToEnd();
-        }
     }
 }

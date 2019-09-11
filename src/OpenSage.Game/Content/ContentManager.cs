@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 using OpenSage.Diagnostics;
+using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
@@ -16,7 +17,6 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic.Object;
 using OpenSage.Utilities;
-using SixLabors.Fonts;
 using Veldrid;
 
 namespace OpenSage.Content
@@ -34,12 +34,8 @@ namespace OpenSage.Content
 
         private readonly FileSystem _fileSystem;
 
-        private readonly Dictionary<FontKey, Font> _cachedFonts;
-
-        private readonly string _fallbackSystemFont = "Arial";
-        private readonly string _fallbackEmbeddedFont = "Roboto";
-
-        private FontCollection _fallbackFonts;
+        // TODO: Remove this once we can load all INI files upfront.
+        private readonly List<string> _alreadyLoadedIniFiles = new List<string>();
 
         internal IEnumerable<object> CachedObjects => _cachedObjects.Values;
 
@@ -54,14 +50,11 @@ namespace OpenSage.Content
 
         public IniDataContext IniDataContext { get; }
 
-        /// <summary>
-        /// Eventually all game data will live here, and be scoped to global or map-specific.
-        /// </summary>
-        public DataContext DataContext { get; }
-
         public ITranslationManager TranslationManager { get; }
 
         public WndImageLoader WndImageLoader { get; }
+
+        public FontManager FontManager { get; }
 
         public string Language { get; }
 
@@ -83,11 +76,12 @@ namespace OpenSage.Content
 
                 Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
 
-                IniDataContext = new IniDataContext(fileSystem, sageGame);
+                IniDataContext = new IniDataContext();
 
-                DataContext = new DataContext();
+                _contentScopes = new Stack<ContentScope>();
+                PushScope();
 
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, this);
 
                 switch (sageGame)
                 {
@@ -101,9 +95,9 @@ namespace OpenSage.Content
 
                         // TODO: Move this somewhere else.
                         // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
-                        IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
-                        IniDataContext.LoadIniFile(@"Data\INI\Water.ini");
-                        IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                        LoadIniFile(@"Data\INI\Mouse.ini");
+                        LoadIniFile(@"Data\INI\Water.ini");
+                        LoadIniFile(@"Data\INI\AudioSettings.ini");
 
                         break;
                     default:
@@ -131,7 +125,6 @@ namespace OpenSage.Content
 
                 _contentLoaders = new Dictionary<Type, ContentLoader>
                 {
-                    { typeof(Model), AddDisposable(new ModelLoader()) },
                     { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
                     { typeof(AptWindow), AddDisposable(new AptLoader()) },
                 };
@@ -141,23 +134,13 @@ namespace OpenSage.Content
                 TranslationManager = Translation.TranslationManager.Instance;
                 Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
 
-                _cachedFonts = new Dictionary<FontKey, Font>();
+                FontManager = new FontManager();
 
                 StandardGraphicsResources = AddDisposable(new StandardGraphicsResources(graphicsDevice));
 
                 ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, StandardGraphicsResources.SolidWhiteTexture));
 
-                WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
-
-                _fallbackFonts = new FontCollection();
-                var assembly = Assembly.GetExecutingAssembly();
-                var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Regular.ttf");
-                _fallbackFonts.Install(fontStream);
-                fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
-                _fallbackFonts.Install(fontStream);
-
-                _contentScopes = new Stack<ContentScope>();
-                PushScope();
+                WndImageLoader = AddDisposable(new WndImageLoader(this));
             }
         }
 
@@ -170,6 +153,40 @@ namespace OpenSage.Content
         {
             var contentScope = _contentScopes.Pop();
             RemoveAndDispose(ref contentScope);
+        }
+
+        public void LoadIniFiles(string folder)
+        {
+            foreach (var iniFile in _fileSystem.GetFiles(folder))
+            {
+                LoadIniFile(iniFile);
+            }
+        }
+
+        public void LoadIniFile(string filePath)
+        {
+            LoadIniFile(_fileSystem.GetFile(filePath));
+        }
+
+        public void LoadIniFile(FileSystemEntry entry)
+        {
+            using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
+            {
+                if (!entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
+                {
+                    return;
+                }
+
+                if (_alreadyLoadedIniFiles.Contains(entry.FilePath))
+                {
+                    return;
+                }
+
+                var parser = new IniParser(entry, this);
+                parser.ParseFile();
+
+                _alreadyLoadedIniFiles.Add(entry.FilePath);
+            }
         }
 
         public void Unload()
@@ -288,6 +305,130 @@ namespace OpenSage.Content
             return texture;
         }
 
+        public MappedImage GetMappedImage(string name)
+        {
+            foreach (var contentScope in _contentScopes)
+            {
+                if (contentScope.MappedImages.TryGetValue(name, out var result))
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        internal void AddMappedImage(MappedImage mappedImage)
+        {
+            var currentContentScope = _contentScopes.Peek();
+            currentContentScope.MappedImages.TryAdd(mappedImage.Name, mappedImage);
+        }
+
+        public Model GetModel(string name)
+        {
+            var normalizedName = FileSystem.NormalizeFilePath(name);
+
+            // See if it's already cached.
+            foreach (var contentScope in _contentScopes)
+            {
+                if (contentScope.Models.TryGetResource(normalizedName, out var result))
+                {
+                    return result;
+                }
+            }
+
+            // Find it in the file system.
+            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", name + ".w3d"));
+
+            // Load model.
+            var model = ModelLoader.Load(entry, this);
+
+            // Add it to current content scope.
+            _contentScopes.Peek().Models.AddResource(
+                normalizedName,
+                model);
+
+            return model;
+        }
+
+        public ModelBoneHierarchy GetModelBoneHierarchy(string name)
+        {
+            var normalizedName = FileSystem.NormalizeFilePath(name);
+
+            // See if it's already cached.
+            foreach (var contentScope in _contentScopes)
+            {
+                if (contentScope.ModelBoneHierarchies.TryGetValue(normalizedName, out var result))
+                {
+                    return result;
+                }
+            }
+
+            // Find it in the file system.
+            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", name + ".w3d"));
+
+            // Load hierarchy.
+            W3dFile hierarchyFile;
+            using (var entryStream = entry.Open())
+            {
+                hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
+            }
+            var w3dHierarchy = hierarchyFile.GetHierarchy();
+            var hierarchy = w3dHierarchy != null
+                ? new ModelBoneHierarchy(w3dHierarchy)
+                : ModelBoneHierarchy.CreateDefault();
+
+            // Add it to current content scope.
+            _contentScopes.Peek().ModelBoneHierarchies.Add(
+                normalizedName,
+                hierarchy);
+
+            return hierarchy;
+        }
+
+        public Graphics.Animation.Animation GetAnimation(string name)
+        {
+            var normalizedName = FileSystem.NormalizeFilePath(name);
+
+            // See if it's already cached.
+            foreach (var contentScope in _contentScopes)
+            {
+                if (contentScope.Animations.TryGetValue(normalizedName, out var result))
+                {
+                    return result;
+                }
+            }
+
+            var splitName = normalizedName.Split('.');
+
+            if (splitName.Length <= 1)
+            {
+                return null;
+            }
+
+            // Find it in the file system.
+            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", splitName[1] + ".w3d"));
+
+            // Load animation.
+            W3dFile w3dFile;
+            using (var entryStream = entry.Open())
+            {
+                w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
+            }
+            var animation = Graphics.Animation.Animation.FromW3dFile(w3dFile);
+            if (!string.Equals(animation.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new NotSupportedException();
+            }
+
+            // Add it to current content scope.
+            _contentScopes.Peek().Animations.Add(
+                normalizedName,
+                animation);
+
+            return animation;
+        }
+
         public T Load<T>(
             string filePath,
             LoadOptions options = null)
@@ -348,62 +489,6 @@ namespace OpenSage.Content
                 // TODO
                 return null;
             }
-        }
-
-        public Font GetOrCreateFont(string fontName, float fontSize, FontWeight fontWeight)
-        {
-            var key = new FontKey
-            {
-                FontName = fontName,
-                FontSize = fontSize,
-                FontWeight = fontWeight
-            };
-
-            if (!_cachedFonts.TryGetValue(key, out var font))
-            {
-                var embeddedFallback = false;
-
-                if (!SystemFonts.TryFind(fontName, out var fontFamily))
-                {
-                    //First try to load a fallback system font (Arial)
-                    if (SystemFonts.TryFind(_fallbackSystemFont, out fontFamily))
-                    {
-                        fontName = _fallbackSystemFont;
-                    }
-                    //If this fails use an embedded fallback font (Roboto)
-                    else
-                    {
-                        embeddedFallback = true;
-                    }
-                }
-
-                var fontStyle = fontWeight == FontWeight.Bold
-                    ? FontStyle.Bold
-                    : FontStyle.Regular;
-
-                if (!embeddedFallback)
-                {
-                    font = SystemFonts.CreateFont(fontName,
-                                                fontSize,
-                                                fontStyle);
-                }
-                else
-                {
-                    font = _fallbackFonts.CreateFont(_fallbackEmbeddedFont,
-                                                    fontSize,
-                                                    fontStyle);
-                }
-                _cachedFonts.Add(key, font);
-            }
-
-            return font;
-        }
-
-        private struct FontKey
-        {
-            public string FontName;
-            public float FontSize;
-            public FontWeight FontWeight;
         }
     }
 }

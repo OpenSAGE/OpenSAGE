@@ -1,4 +1,7 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
+using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Data.Ini
 {
@@ -13,39 +16,45 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<MappedImage> FieldParseTable = new IniParseTable<MappedImage>
         {
-            { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
+            { "Texture", (parser, x) => { var fileName = parser.ParseFileName(); x.Texture = new LazyAssetReference<Texture>(() => parser.ContentManager.GetGuiTexture(fileName)); } },
             { "TextureWidth", (parser, x) => x.TextureWidth = parser.ParseInteger() },
             { "TextureHeight", (parser, x) => x.TextureHeight = parser.ParseInteger() },
-            { "Coords", (parser, x) => x.Coords = MappedImageCoords.Parse(parser) },
+            { "Coords", (parser, x) => x.Coords = ParseCoords(parser) },
             { "Status", (parser, x) => x.Status = parser.ParseEnum<MappedImageStatus>() },
         };
 
         public string Name { get; private set; }
 
-        public string Texture { get; private set; }
-        public int TextureWidth { get; private set; }
-        public int TextureHeight { get; private set; }
-        public MappedImageCoords Coords { get; private set; }
-        public MappedImageStatus Status { get; private set; }
-    }
+        public LazyAssetReference<Texture> Texture { get; private set; }
 
-    public struct MappedImageCoords
-    {
-        internal static MappedImageCoords Parse(IniParser parser)
+        public Size TextureDimensions { get; private set; }
+
+        private int TextureWidth
         {
-            return new MappedImageCoords
-            {
-                Left = parser.ParseAttributeInteger("Left"),
-                Top = parser.ParseAttributeInteger("Top"),
-                Right = parser.ParseAttributeInteger("Right"),
-                Bottom = parser.ParseAttributeInteger("Bottom")
-            };
+            set => TextureDimensions = new Size(value, TextureDimensions.Height);
         }
 
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
+        private int TextureHeight
+        {
+            set => TextureDimensions = new Size(TextureDimensions.Width, value);
+        }
+
+        public Rectangle Coords { get; private set; }
+        public MappedImageStatus Status { get; private set; }
+
+        private static Rectangle ParseCoords(IniParser parser)
+        {
+            var left = parser.ParseAttributeInteger("Left");
+            var top = parser.ParseAttributeInteger("Top");
+            var right = parser.ParseAttributeInteger("Right");
+            var bottom = parser.ParseAttributeInteger("Bottom");
+
+            return new Rectangle(
+                left,
+                top,
+                right - left,
+                bottom - top);
+        }
     }
 
     public enum MappedImageStatus
