@@ -29,7 +29,7 @@ namespace OpenSage.Gui.Wnd
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
+                    game.ContentManager.LoadIniFile(@"Data\INI\WindowTransitions.ini");
                     TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
                     break;
 

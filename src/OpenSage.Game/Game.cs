@@ -497,8 +497,8 @@ namespace OpenSage
                     break;
 
                 default:
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Roads.ini");
+                    ContentManager.LoadIniFile(@"Data\INI\Terrain.ini");
+                    ContentManager.LoadIniFile(@"Data\INI\Roads.ini");
                     break;
             }
 

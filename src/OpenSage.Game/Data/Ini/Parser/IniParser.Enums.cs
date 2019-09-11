@@ -217,6 +217,12 @@ namespace OpenSage.Data.Ini.Parser
         public BitArray<T> ParseEnumBitArray<T>(string valuesString)
             where T : struct
         {
+            return ParseEnumBitArray<T>(valuesString, CurrentPosition);
+        }
+
+        public static BitArray<T> ParseEnumBitArray<T>(string valuesString, in IniTokenPosition currentPosition)
+            where T : struct
+        {
             var stringToValueMap = GetEnumMap<T>();
 
             var result = new BitArray<T>();
@@ -225,13 +231,19 @@ namespace OpenSage.Data.Ini.Parser
             for(var i = 0; i < values.Length; i++)
             {
                 var stringValue = values[i];
-                ParseBitValue(stringToValueMap, result, stringValue);
+                ParseBitValue(stringToValueMap, result, stringValue, currentPosition);
             }
 
             return result;
         }
 
         private bool ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue, bool inLine = false)
+            where T : struct
+        {
+            return ParseBitValue<T>(stringToValueMap, result, stringValue, CurrentPosition, inLine);
+        }
+
+        private static bool ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue, in IniTokenPosition currentPosition, bool inLine = false)
             where T : struct
         {
             switch (stringValue)
@@ -260,7 +272,7 @@ namespace OpenSage.Data.Ini.Parser
                         }
                         else
                         {
-                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", CurrentPosition);
+                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", currentPosition);
                         }
                     }
 

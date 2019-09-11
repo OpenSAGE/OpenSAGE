@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt
         public void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
-            var font = _contentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var font = _contentManager.FontManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
             CalculateTransform(ref transform, context);
 
             drawingContext.DrawText(

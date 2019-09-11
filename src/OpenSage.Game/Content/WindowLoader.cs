@@ -22,20 +22,21 @@ namespace OpenSage.Content
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    contentManager.IniDataContext.LoadIniFile($@"Data\{language}\HeaderTemplate.ini");
+                    contentManager.LoadIniFile($@"Data\{language}\HeaderTemplate.ini");
                     break;
 
                 case SageGame.Bfme:
-                    contentManager.IniDataContext.LoadIniFile($@"Lang\{language}\HeaderTemplate.ini");
+                    contentManager.LoadIniFile($@"Lang\{language}\HeaderTemplate.ini");
                     break;
+
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    contentManager.IniDataContext.LoadIniFile(@"HeaderTemplate.ini");
+                    contentManager.LoadIniFile(@"HeaderTemplate.ini");
                     break;
             }
 
-            contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
-            contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
+            contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+            contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
         }
 
         protected override Window LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
@@ -260,11 +261,11 @@ namespace OpenSage.Content
             if (wndWindow.HasHeaderTemplate)
             {
                 var headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
-                result.Font = contentManager.GetOrCreateFont(headerTemplate.Font, headerTemplate.Point, headerTemplate.Bold ? FontWeight.Bold : FontWeight.Normal);
+                result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font, headerTemplate.Point, headerTemplate.Bold ? FontWeight.Bold : FontWeight.Normal);
             }
             else
             {
-                result.Font = contentManager.GetOrCreateFont(wndWindow.Font.Name, wndWindow.Font.Size, wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+                result.Font = contentManager.FontManager.GetOrCreateFont(wndWindow.Font.Name, wndWindow.Font.Size, wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
             }
 
             result.TextColor = wndWindow.TextColor.Enabled.ToColorRgbaF();

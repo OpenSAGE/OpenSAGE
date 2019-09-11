@@ -123,25 +123,13 @@ namespace OpenSage.Logic.Object
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
         {
+            // Load model, fallback to default model.
+            var model = conditionState.Model?.Value ?? _defaultConditionState.Model?.Value;
+
             ModelInstance modelInstance = null;
-            if(conditionState.Model == null)
+            if (model != null)
             {
-                // Load default model
-                var w3dFilePath = Path.Combine("Art", "W3D", _defaultConditionState.Model + ".W3D");
-                var model = _contentManager.Load<Model>(w3dFilePath);
-                if (model != null)
-                {
-                    modelInstance = model.CreateInstance(_contentManager);
-                }
-            }
-            else if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
-            {
-                var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
-                var model = _contentManager.Load<Model>(w3dFilePath);
-                if (model != null)
-                {
-                    modelInstance = model.CreateInstance(_contentManager);
-                }
+                modelInstance = model.CreateInstance(_contentManager);
             }
 
             if (modelInstance != null)
@@ -152,34 +140,11 @@ namespace OpenSage.Logic.Object
                 var firstAnimation = conditionState.ConditionAnimations
                     .Concat(conditionState.IdleAnimations)
                     .LastOrDefault();
-                if (firstAnimation != null && !string.Equals(firstAnimation.Animation, "NONE", StringComparison.OrdinalIgnoreCase))
+                if (firstAnimation != null)
                 {
-                    if (!_contentManager.DataContext.Animations.TryGetValue(firstAnimation.Animation, out var animation))
-                    {
-                        var splitName = firstAnimation.Animation.Split('.');
+                    var animation = firstAnimation.Animation.Value;
 
-                        if(splitName.Length > 1){
-
-                            var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                            var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
-                            W3dFile w3dFile;
-                            using (var entryStream = w3dEntry.Open())
-                            {
-                                w3dFile = W3dFile.FromStream(entryStream, w3dEntry.FilePath);
-                            }
-
-                            var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
-                            if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))
-                            {
-                                throw new NotSupportedException();
-                            }
-
-                            animation = animations[0];
-
-                        }
-                    }
-
-                    if(animation != null)
+                    if (animation != null)
                     {
                         var animationInstance = new AnimationInstance(modelInstance, animation);
                         modelInstance.AnimationInstances.Add(animationInstance);

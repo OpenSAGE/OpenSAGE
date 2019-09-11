@@ -30,9 +30,7 @@ namespace OpenSage.Terrain
         {
             var template = contentManager.IniDataContext.FindBridgeTemplate(mapObject.TypeName);
 
-            var modelPath = Path.Combine("Art", "W3D", template.BridgeModelName + ".W3D");
-            var model = contentManager.Load<Model>(modelPath);
-
+            var model = contentManager.GetModel(template.BridgeModelName);
             if (model == null)
             {
                 return;

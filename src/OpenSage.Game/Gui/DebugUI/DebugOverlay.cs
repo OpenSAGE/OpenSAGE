@@ -26,7 +26,7 @@ namespace OpenSage.Gui.DebugUI
         public DebugOverlay(Scene3D scene3D, ContentManager contentManager)
         {
             _scene3D = scene3D;
-            _debugFont = contentManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);
+            _debugFont = contentManager.FontManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);
             _debugStringBuilder = new StringBuilder();
 
             _debugDrawables = new List<IDebugDrawable>();

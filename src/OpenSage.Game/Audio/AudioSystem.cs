@@ -42,10 +42,10 @@ namespace OpenSage.Audio
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Voice.ini");
+                    game.ContentManager.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                    game.ContentManager.LoadIniFile(@"Data\INI\SoundEffects.ini");
+                    game.ContentManager.LoadIniFile(@"Data\INI\MiscAudio.ini");
+                    game.ContentManager.LoadIniFile(@"Data\INI\Voice.ini");
                     break;
             }
 

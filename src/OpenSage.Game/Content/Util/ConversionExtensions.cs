@@ -354,15 +354,6 @@ namespace OpenSage.Content.Util
                 value.BottomRight.Y - value.UpperLeft.Y);
         }
 
-        public static Rectangle ToRectangle(this MappedImageCoords value)
-        {
-            return new Rectangle(
-                value.Left,
-                value.Top,
-                value.Right - value.Left,
-                value.Bottom - value.Top);
-        }
-
         public static ColorRgbaF ToColorRgbaF(this ColorRgba value)
         {
             return new ColorRgbaF(

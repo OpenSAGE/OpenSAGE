@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content;
+using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
@@ -21,7 +23,7 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed class ModelMesh : DisposableBase
+    public sealed partial class ModelMesh : DisposableBase
     {
         private readonly ShaderSet _shaderSet;
         private readonly ShaderSet _depthShaderSet;
@@ -48,84 +50,6 @@ namespace OpenSage.Graphics
 
         public readonly bool Hidden;
         public readonly bool CameraOriented;
-
-        internal ModelMesh(
-            GraphicsDevice graphicsDevice,
-            ShaderResourceManager shaderResources,
-            string name,
-            ShaderSet shaderSet,
-            Pipeline depthPipeline,
-            ReadOnlySpan<byte> vertexData,
-            ushort[] indices,
-            List<ModelMeshPart> meshParts,
-            bool isSkinned,
-            in BoundingBox boundingBox,
-            bool hidden,
-            bool cameraOriented,
-            bool hasHouseColor)
-        {
-            Name = name;
-
-            _shaderSet = shaderSet;
-            _depthShaderSet = shaderResources.MeshDepth.ShaderSet;
-
-            _depthPipeline = depthPipeline;
-
-            BoundingBox = boundingBox;
-
-            Skinned = isSkinned;
-
-            Hidden = hidden;
-            CameraOriented = cameraOriented;
-
-            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
-
-            _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
-                indices,
-                BufferUsage.IndexBuffer));
-
-            _meshConstantsResourceSet = shaderResources.Mesh.GetCachedMeshResourceSet(
-                isSkinned,
-                hasHouseColor);
-
-            _samplerResourceSet = shaderResources.Mesh.SamplerResourceSet;
-
-            MeshParts = meshParts;
-
-            BeforeRenderDelegates = new BeforeRenderDelegate[meshParts.Count];
-            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[meshParts.Count];
-
-            for (var i = 0; i < BeforeRenderDelegates.Length; i++)
-            {
-                var meshPart = meshParts[i];
-
-                BeforeRenderDelegates[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-
-                BeforeRenderDelegatesDepth[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-            }
-        }
 
         internal void BuildRenderList(
             RenderList renderList,

@@ -31,7 +31,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void CreditsMenuInit(Window window, Game game)
         {
-            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Credits.ini");
+            game.ContentManager.LoadIniFile(@"Data\INI\Credits.ini");
             var credits = game.ContentManager.IniDataContext.Credits;
 
             var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
@@ -85,7 +85,7 @@ namespace OpenSage.Mods.Generals.Gui
                         break;
                 }
 
-                var font = game.ContentManager.GetOrCreateFont("Arial", fontSize, FontWeight.Normal);
+                var font = game.ContentManager.FontManager.GetOrCreateFont("Arial", fontSize, FontWeight.Normal);
                 var height = DrawingContext2D.MeasureText(measureText, font, TextAlignment.Center, control.Width).Height;
 
                 data.Items.Add(new CreditsMenuDataItem

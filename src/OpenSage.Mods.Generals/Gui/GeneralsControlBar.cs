@@ -408,10 +408,10 @@ namespace OpenSage.Mods.Generals.Gui
         public IControlBar Create(string side, ContentManager contentManager)
         {
             // TODO: This is not the best place for this.
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandSet.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandButton.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\Upgrade.ini");
+            contentManager.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
+            contentManager.LoadIniFile(@"Data\INI\CommandSet.ini");
+            contentManager.LoadIniFile(@"Data\INI\CommandButton.ini");
+            contentManager.LoadIniFile(@"Data\INI\Upgrade.ini");
 
             var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 

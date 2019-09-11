@@ -2,6 +2,8 @@
 {
     public readonly struct IniTokenPosition
     {
+        public static readonly IniTokenPosition None = new IniTokenPosition(null, 0, 0);
+
         public readonly string File;
         public readonly int Line;
         public readonly int Character;

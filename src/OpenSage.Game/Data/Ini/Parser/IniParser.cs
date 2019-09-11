@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Content;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -120,7 +121,7 @@ namespace OpenSage.Data.Ini.Parser
             },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
-            { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
+            { "MappedImage", (parser, context) => parser.ContentManager.AddMappedImage(MappedImage.Parse(parser)) },
             { "MeshNameMatches", (parser, context) => context.MeshNameMatches.Add(MeshNameMatches.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "MiscEvaData", (parser, context) => context.MiscEvaData = MiscEvaData.Parse(parser) },
@@ -202,6 +203,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private readonly string _directory;
         private readonly IniDataContext _dataContext;
+        private readonly FileSystem _fileSystem;
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
@@ -210,17 +212,41 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
-        public SageGame SageGame { get; private set; }
+        public SageGame SageGame { get; }
 
-        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext, SageGame game)
+        public ContentManager ContentManager { get; }
+
+        public IniParser(FileSystemEntry entry, ContentManager contentManager)
         {
             _directory = Path.GetDirectoryName(entry.FilePath);
-            _dataContext = dataContext;
-            SageGame = game;
+            _dataContext = contentManager.IniDataContext;
+            _fileSystem = entry.FileSystem;
+            SageGame = contentManager.SageGame;
+            ContentManager = contentManager;
 
-            _tokenReader = new TokenReader(source, Path.Combine(entry.FileSystem.RootDirectory, entry.FilePath));
+            _tokenReader = CreateTokenReader(entry);
 
             _currentBlockOrFieldStack = new Stack<string>();
+        }
+
+        private TokenReader CreateTokenReader(FileSystemEntry entry)
+        {
+            string source;
+
+            if (entry != null)
+            {
+                using (var stream = entry.Open())
+                using (var reader = new StreamReader(stream, Encoding.ASCII))
+                {
+                    source = reader.ReadToEnd();
+                }
+            }
+            else
+            {
+                source = "";
+            }
+
+            return new TokenReader(source, entry.FullFilePath);
         }
 
         public void GoToNextLine() => _tokenReader.GoToNextLine();
@@ -820,12 +846,21 @@ namespace OpenSage.Data.Ini.Parser
             }
 
             var path = Path.Combine(directory, includeFileName);
-            var content = _dataContext.GetIniFileContent(path);
-            var tokenReader = new TokenReader(content, path);
-            var copy = _tokenReader;
-            _tokenReader = tokenReader;
-            var reachedEndOfBlock = ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
-            _tokenReader = copy;
+            var includeEntry = _fileSystem.GetFile(path);
+            var tokenReader = CreateTokenReader(includeEntry);
+
+            var original = _tokenReader;
+            bool reachedEndOfBlock;
+            try
+            {
+                _tokenReader = tokenReader;
+                reachedEndOfBlock = ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
+            }
+            finally
+            {
+                _tokenReader = original;
+            }
+
             return reachedEndOfBlock;
         }
 
@@ -863,7 +898,10 @@ namespace OpenSage.Data.Ini.Parser
                         includeFileName = includeFileName.Remove(0, 1);
                     }
 
-                    _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName), included: true);
+                    var includePath = Path.Combine(_directory, includeFileName);
+                    var includeEntry = _fileSystem.GetFile(includePath);
+                    var includeParser = new IniParser(includeEntry, ContentManager);
+                    includeParser.ParseFile();
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))
                 {
