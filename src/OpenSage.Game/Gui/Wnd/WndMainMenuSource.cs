@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Wnd
             _wndFileName = wndFileName;
         }
 
-        public void AddToScene(ContentManager contentManager, Scene2D scene, bool useShellMap)
+        public void AddToScene(Game game, Scene2D scene, bool useShellMap)
         {
             scene.WndWindowManager.PushWindow(_wndFileName);
         }

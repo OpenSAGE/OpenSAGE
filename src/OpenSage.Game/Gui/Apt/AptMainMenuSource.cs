@@ -13,12 +13,12 @@ namespace OpenSage.Gui.Apt
             _fallbackShell = "ShellMapLowLOD";
         }
 
-        public void AddToScene(ContentManager contentManager, Scene2D scene, bool useShellMap)
+        public void AddToScene(Game game, Scene2D scene, bool useShellMap)
         {
-            var aptWindow = contentManager.Load<AptWindow>(_aptFileName);
+            var aptWindow = game.LoadAptWindow(_aptFileName);
             if (!useShellMap)
             {
-                aptWindow.BackgroundImage = contentManager.GetMappedImage(_fallbackShell);
+                aptWindow.BackgroundImage = game.ContentManager.GetMappedImage(_fallbackShell);
             }
             scene.AptWindowManager.PushWindow(aptWindow);
         }

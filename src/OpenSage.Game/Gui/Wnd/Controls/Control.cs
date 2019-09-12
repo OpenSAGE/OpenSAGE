@@ -1,16 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OpenSage;
-using OpenSage.Gui;
-using OpenSage.Gui.Wnd;
-using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
 namespace OpenSage.Gui.Wnd.Controls
 {
-    public class Control : DisposableBase
+    public partial class Control : DisposableBase
     {
         public ControlCallback SystemCallback { get; set; }
         public ControlCallback InputCallback { get; set; }

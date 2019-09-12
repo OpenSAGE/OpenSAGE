@@ -28,7 +28,7 @@ namespace OpenSage.Mods.Bfme2.Gui
 
         public static void CreateAHero(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.ContentManager.Load<AptWindow>("Skirmish.apt");
+            var aptWindow = game.LoadAptWindow("Skirmish.apt");
 
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }

@@ -405,15 +405,9 @@ namespace OpenSage.Mods.Generals.Gui
 
     public sealed class GeneralsControlBarSource : IControlBarSource
     {
-        public IControlBar Create(string side, ContentManager contentManager)
+        public IControlBar Create(string side, Game game)
         {
-            // TODO: This is not the best place for this.
-            contentManager.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
-            contentManager.LoadIniFile(@"Data\INI\CommandSet.ini");
-            contentManager.LoadIniFile(@"Data\INI\CommandButton.ini");
-            contentManager.LoadIniFile(@"Data\INI\Upgrade.ini");
-
-            var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
+            var scheme = game.ContentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 
             // TODO: Support multiple image parts?
             // Generals always uses exactly one image part.
@@ -426,11 +420,11 @@ namespace OpenSage.Mods.Generals.Gui
                 BackgroundImage = LoadImage(imagePart.ImageName)
             };
 
-            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, contentManager);
-            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd", new LoadOptions { CacheAsset = false });
+            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game.ContentManager);
+            var controlBarWindow = game.LoadWindow("ControlBar.wnd");
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
-            Image LoadImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
+            Image LoadImage(string path) => game.ContentManager.WndImageLoader.CreateNormalImage(path);
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -488,7 +482,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             FindControl("ExpBarForeground").BackgroundImage = LoadImage(scheme.ExpBarForegroundImage);
 
-            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, game.ContentManager);
         }
     }
 }

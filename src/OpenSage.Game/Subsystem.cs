@@ -12,6 +12,11 @@
         Core,
 
         /// <summary>
+        /// Things that need to be loaded in order to play sounds or music.
+        /// </summary>
+        Audio,
+
+        /// <summary>
         /// Things that need to be loaded in order to load and spawn game objects.
         /// </summary>
         ObjectCreation,
@@ -45,5 +50,10 @@
         /// Things that need to be loaded in order to play the single-player campaign.
         /// </summary>
         LinearCampaign,
+
+        /// <summary>
+        /// Things that need to be loaded in order to display the credits.
+        /// </summary>
+        Credits,
     }
 }

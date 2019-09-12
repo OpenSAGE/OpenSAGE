@@ -20,6 +20,10 @@ using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Map;
+using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Data.Wnd;
+using OpenSage.Gui.Apt;
+using OpenSage.Data.Apt;
 
 namespace OpenSage
 {
@@ -366,8 +370,7 @@ namespace OpenSage
                     this,
                     _fileSystem,
                     GraphicsDevice,
-                    SageGame,
-                    _wndCallbackResolver));
+                    SageGame));
 
                 _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
 
@@ -483,30 +486,32 @@ namespace OpenSage
                 Scripting.Active = true;
             }
 
-            Definition.MainMenu.AddToScene(ContentManager, Scene2D, useShellMap);
+            Definition.MainMenu.AddToScene(this, Scene2D, useShellMap);
         }
 
         internal Scene3D LoadMap(string mapPath)
         {
-            switch (SageGame)
-            {
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    // TODO
-                    break;
-
-                default:
-                    ContentManager.LoadIniFile(@"Data\INI\Terrain.ini");
-                    ContentManager.LoadIniFile(@"Data\INI\Roads.ini");
-                    break;
-            }
-
             var entry = ContentManager.FileSystem.GetFile(mapPath);
-
             var mapFile = MapFile.FromFileSystemEntry(entry);
-
             return new Scene3D(this, mapFile);
+        }
+
+        public Window LoadWindow(string wndFileName)
+        {
+            var entry = ContentManager.FileSystem.GetFile(Path.Combine("Window", wndFileName));
+            if (entry == null)
+            {
+                throw new Exception($"Window file {wndFileName} was not found.");
+            }
+            var wndFile = WndFile.FromFileSystemEntry(entry);
+            return new Window(wndFile, this, _wndCallbackResolver);
+        }
+
+        public AptWindow LoadAptWindow(string aptFileName)
+        {
+            var entry = ContentManager.FileSystem.GetFile(aptFileName);
+            var aptFile = AptFile.FromFileSystemEntry(entry);
+            return new AptWindow(this, ContentManager, aptFile);
         }
 
         private void StartGame(
@@ -600,13 +605,12 @@ namespace OpenSage
                     }
                 }
 
-
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
             }
 
             if (Definition.ControlBar != null)
             {
-                Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, ContentManager);
+                Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, this);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
 

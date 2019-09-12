@@ -27,28 +27,6 @@ namespace OpenSage.Audio
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
 
-            switch (game.ContentManager.SageGame)
-            {
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    // TODO: implements AudioSystem settings for games from CNC3 onwards
-                    return;
-
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    game.ContentManager.LoadIniFile(@"Data\INI\AudioSettings.ini");
-                    game.ContentManager.LoadIniFile(@"Data\INI\SoundEffects.ini");
-                    game.ContentManager.LoadIniFile(@"Data\INI\MiscAudio.ini");
-                    game.ContentManager.LoadIniFile(@"Data\INI\Voice.ini");
-                    break;
-            }
-
             _settings = game.ContentManager.IniDataContext.AudioSettings;
 
             _localisedAudioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, Game.ContentManager.Language);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Transitions;
@@ -29,7 +28,6 @@ namespace OpenSage.Gui.Wnd
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    game.ContentManager.LoadIniFile(@"Data\INI\WindowTransitions.ini");
                     TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
                     break;
 
@@ -52,14 +50,7 @@ namespace OpenSage.Gui.Wnd
 
         public Window PushWindow(string wndFileName)
         {
-            var wndFilePath = Path.Combine("Window", wndFileName);
-            var window = _game.ContentManager.Load<Window>(wndFilePath, new Content.LoadOptions { CacheAsset = false });
-
-            if (window == null)
-            {
-                throw new Exception($"Window file {wndFilePath} was not found.");
-            }
-
+            var window = _game.LoadWindow(wndFileName);
             return PushWindow(window);
         }
 
@@ -81,11 +72,6 @@ namespace OpenSage.Gui.Wnd
             {
                 window.Size = newSize;
             }
-        }
-
-        private void CreateSizeDependentResources(Window window, Size newSize)
-        {
-            window.Size = newSize;
         }
 
         public void PopWindow()

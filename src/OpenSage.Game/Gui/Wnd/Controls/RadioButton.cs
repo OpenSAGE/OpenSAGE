@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
@@ -11,6 +12,16 @@ namespace OpenSage.Gui.Wnd.Controls
         public Image HoverOverlayImage { get; set; }
         public Image StateActiveImage { get; set; }
         public bool State { get; set; }
+
+        public RadioButton(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        {
+            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 1, 2);
+            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 1, 2);
+            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 1, 2);
+
+            HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
+            DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();
+        }
 
         public override Size GetPreferredSize(Size proposedSize)
         {

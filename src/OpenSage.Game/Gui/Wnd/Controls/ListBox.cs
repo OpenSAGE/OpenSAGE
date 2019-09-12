@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
@@ -119,6 +120,35 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 base.TextColor = value;
                 _itemsArea.TextColor = value;
+            }
+        }
+
+        public ListBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+            : this(wndWindow.ListBoxData.ColumnWidths, wndWindow.ListBoxData.Columns)
+        {
+            BorderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
+            BorderWidth = 1;
+
+            SelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 1, 3, 2);
+            SelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 2);
+
+            IsScrollBarVisible = wndWindow.ListBoxData.ScrollBar;
+
+            if (wndWindow.ListBoxData.ScrollBar)
+            {
+                UpButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
+                UpButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
+
+                DownButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
+                DownButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
+
+                ThumbImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbEnabledDrawData, 0);
+                ThumbHoverImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbHiliteDrawData, 0);
+            };
+
+            if (wndWindow.ListBoxData.ForceSelect)
+            {
+                SelectedIndex = 0;
             }
         }
 

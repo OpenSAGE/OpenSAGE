@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
@@ -15,6 +16,17 @@ namespace OpenSage.Gui.Wnd.Controls
         public int MaximumValue { get; set; }
 
         public int Value { get; set; }
+
+        public Slider(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        {
+            HighlightedBoxImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 0);
+            UnhighlightedBoxImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 1);
+
+            MinimumValue = wndWindow.SliderData.MinValue;
+            MaximumValue = wndWindow.SliderData.MaxValue;
+
+            Value = wndWindow.SliderData.MinValue + (wndWindow.SliderData.MaxValue - wndWindow.SliderData.MinValue) / 2;
+        }
 
         protected override void LayoutOverride()
         {

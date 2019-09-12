@@ -10,10 +10,6 @@ using OpenSage.Diagnostics;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Gui;
-using OpenSage.Gui.Apt;
-using OpenSage.Gui.Wnd;
-using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic.Object;
 using OpenSage.Utilities;
@@ -28,14 +24,9 @@ namespace OpenSage.Content
 
         public ISubsystemLoader SubsystemLoader { get; }
 
-        private readonly Dictionary<Type, ContentLoader> _contentLoaders;
-
         private readonly Dictionary<string, object> _cachedObjects;
 
         private readonly FileSystem _fileSystem;
-
-        // TODO: Remove this once we can load all INI files upfront.
-        private readonly List<string> _alreadyLoadedIniFiles = new List<string>();
 
         internal IEnumerable<object> CachedObjects => _cachedObjects.Values;
 
@@ -62,8 +53,7 @@ namespace OpenSage.Content
             Game game,
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
-            SageGame sageGame,
-            WndCallbackResolver wndCallbackResolver)
+            SageGame sageGame)
         {
             using (GameTrace.TraceDurationEvent("ContentManager()"))
             {
@@ -93,41 +83,22 @@ namespace OpenSage.Content
                     case SageGame.Bfme2Rotwk:
                         SubsystemLoader.Load(Subsystem.Core);
 
-                        // TODO: Move this somewhere else.
-                        // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
-                        LoadIniFile(@"Data\INI\Mouse.ini");
-                        LoadIniFile(@"Data\INI\Water.ini");
-                        LoadIniFile(@"Data\INI\AudioSettings.ini");
-
-                        break;
-                    default:
-                        break;
-                }
-
-                // TODO: Defer subsystem loading until necessary
-                switch (sageGame)
-                {
-                    // Only load these INI files for a subset of games, because we can't parse them for others yet.
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                    case SageGame.Bfme:
-                    case SageGame.Bfme2:
-                    case SageGame.Bfme2Rotwk:
+                        // TODO: Defer subsystem loading until necessary
+                        SubsystemLoader.Load(Subsystem.Audio);
                         SubsystemLoader.Load(Subsystem.Players);
                         SubsystemLoader.Load(Subsystem.ParticleSystems);
                         SubsystemLoader.Load(Subsystem.ObjectCreation);
                         SubsystemLoader.Load(Subsystem.Multiplayer);
                         SubsystemLoader.Load(Subsystem.LinearCampaign);
+                        SubsystemLoader.Load(Subsystem.Wnd);
+                        SubsystemLoader.Load(Subsystem.Terrain);
+                        SubsystemLoader.Load(Subsystem.Credits);
+
                         break;
+
                     default:
                         break;
                 }
-
-                _contentLoaders = new Dictionary<Type, ContentLoader>
-                {
-                    { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
-                    { typeof(AptWindow), AddDisposable(new AptLoader()) },
-                };
 
                 _cachedObjects = new Dictionary<string, object>();
 
@@ -155,7 +126,7 @@ namespace OpenSage.Content
             RemoveAndDispose(ref contentScope);
         }
 
-        public void LoadIniFiles(string folder)
+        internal void LoadIniFiles(string folder)
         {
             foreach (var iniFile in _fileSystem.GetFiles(folder))
             {
@@ -163,12 +134,12 @@ namespace OpenSage.Content
             }
         }
 
-        public void LoadIniFile(string filePath)
+        internal void LoadIniFile(string filePath)
         {
             LoadIniFile(_fileSystem.GetFile(filePath));
         }
 
-        public void LoadIniFile(FileSystemEntry entry)
+        internal void LoadIniFile(FileSystemEntry entry)
         {
             using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
             {
@@ -177,15 +148,8 @@ namespace OpenSage.Content
                     return;
                 }
 
-                if (_alreadyLoadedIniFiles.Contains(entry.FilePath))
-                {
-                    return;
-                }
-
                 var parser = new IniParser(entry, this);
                 parser.ParseFile();
-
-                _alreadyLoadedIniFiles.Add(entry.FilePath);
             }
         }
 
@@ -338,7 +302,7 @@ namespace OpenSage.Content
             }
 
             // Find it in the file system.
-            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", name + ".w3d"));
+            var entry = _fileSystem.GetFile(GetW3dPath(name));
 
             // Load model.
             var model = ModelLoader.Load(entry, this);
@@ -365,7 +329,7 @@ namespace OpenSage.Content
             }
 
             // Find it in the file system.
-            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", name + ".w3d"));
+            var entry = _fileSystem.GetFile(GetW3dPath(name));
 
             // Load hierarchy.
             W3dFile hierarchyFile;
@@ -407,7 +371,7 @@ namespace OpenSage.Content
             }
 
             // Find it in the file system.
-            var entry = _fileSystem.GetFile(Path.Combine("art", "w3d", splitName[1] + ".w3d"));
+            var entry = _fileSystem.GetFile(GetW3dPath(splitName[1]));
 
             // Load animation.
             W3dFile w3dFile;
@@ -429,52 +393,23 @@ namespace OpenSage.Content
             return animation;
         }
 
-        public T Load<T>(
-            string filePath,
-            LoadOptions options = null)
-            where T : class
+        private string GetW3dPath(string name)
         {
-            if (_cachedObjects.TryGetValue(filePath, out var asset))
+            // TODO: Move this to IGameDefinition.
+            switch (SageGame)
             {
-                return (T) asset;
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.Bfme:
+                    return Path.Combine("art", "w3d", name + ".w3d");
+
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    return Path.Combine("art", "w3d", name.Substring(0, 2), name + ".w3d");
+
+                default:
+                    throw new NotImplementedException();
             }
-
-            var type = typeof(T);
-
-            if (!_contentLoaders.TryGetValue(type, out var contentLoader))
-            {
-                throw new Exception($"Could not finder content loader for type '{type.FullName}'");
-            }
-
-            FileSystemEntry entry = null;
-            foreach (var testFilePath in contentLoader.GetPossibleFilePaths(filePath))
-            {
-                entry = _fileSystem.GetFile(testFilePath);
-                if (entry != null)
-                {
-                    break;
-                }
-            }
-
-            if (entry != null)
-            {
-                asset = contentLoader.Load(entry, this, _game, options);
-
-                if (asset is IDisposable d)
-                {
-                    AddDisposable(d);
-                }
-
-                var shouldCacheAsset = options?.CacheAsset ?? true;
-                if (shouldCacheAsset)
-                {
-                    _cachedObjects.Add(filePath, asset);
-                }
-            }
-
-            GraphicsDevice.WaitForIdle();
-
-            return (T) asset;
         }
 
         public GameObject InstantiateObject(string typeName, GameObjectCollection parent)

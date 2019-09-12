@@ -1,4 +1,6 @@
 ﻿using System;
+using OpenSage.Data.Wnd;
+using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -9,12 +11,25 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public bool IsReadOnly { get; set; }
 
+        public TextBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        {
+            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 2, 1);
+            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 2, 1);
+            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 2, 1);
+
+            HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
+            DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();
+        }
+
+        public TextBox() { }
+
         protected override void DrawOverride(DrawingContext2D drawingContext)
         {
-            Rectangle textArea = new Rectangle(ClientRectangle.X + 10,
-                                               ClientRectangle.Y,
-                                               ClientRectangle.Width,
-                                               ClientRectangle.Height);
+            var textArea = new Rectangle(
+                ClientRectangle.X + 10,
+                ClientRectangle.Y,
+                ClientRectangle.Width,
+                ClientRectangle.Height);
 
             DrawText(drawingContext, TextAlignment.Leading, textArea);
         }

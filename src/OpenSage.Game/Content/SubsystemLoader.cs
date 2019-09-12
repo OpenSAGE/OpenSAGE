@@ -30,18 +30,32 @@ namespace OpenSage.Content
                         @"Data\INI\Default\GameData.ini",
                         @"Data\INI\GameData.ini",
                         @"Data\INI\Mouse.ini",
+                        @"Data\INI\Water.ini",
+                        @"Data\INI\AudioSettings.ini",
+                        $@"Data\{_contentManager.Language}\HeaderTemplate.ini",
                         @"Maps\MapCache.ini");
+                    break;
+                case Subsystem.Audio:
+                    LoadFiles(
+                        @"Data\INI\AudioSettings.ini",
+                        @"Data\INI\SoundEffects.ini",
+                        @"Data\INI\MiscAudio.ini",
+                        @"Data\INI\Voice.ini");
                     break;
                 case Subsystem.ObjectCreation:
                     LoadFiles(
                         @"Data\INI\Default\Object.ini",
-                        @"Data\INI\Locomotor.ini");
+                        @"Data\INI\Locomotor.ini",
+                        @"Data\INI\Upgrade.ini");
                     _contentManager.LoadIniFiles(@"Data\INI\Object");
                     break;
                 case Subsystem.Players:
                     LoadFiles(
                         @"Data\INI\Default\PlayerTemplate.ini",
-                        @"Data\INI\PlayerTemplate.ini");
+                        @"Data\INI\PlayerTemplate.ini",
+                        @"Data\INI\ControlBarScheme.ini",
+                        @"Data\INI\CommandSet.ini",
+                        @"Data\INI\CommandButton.ini");
                     break;
                 case Subsystem.Terrain:
                     LoadFiles(
@@ -56,14 +70,18 @@ namespace OpenSage.Content
                 case Subsystem.Wnd:
                     LoadFiles(
                         @"Data\INI\WindowTransitions.ini",
-                        @"Data\English\HeaderTemplate.ini",
                         @"Data\INI\ControlBarScheme.ini");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
                     break;
                 case Subsystem.Multiplayer:
                     LoadFiles(@"Data\INI\Multiplayer.ini");
                     break;
                 case Subsystem.LinearCampaign:
                     LoadFiles(@"Data\INI\Campaign.ini");
+                    break;
+                case Subsystem.Credits:
+                    LoadFiles(@"Data\INI\Credits.ini");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
@@ -102,6 +120,73 @@ namespace OpenSage.Content
             {
                 _contentManager.LoadIniFile(entry);
             }
+
+            // Load hardcoded files
+            switch (subsystem)
+            {
+                case Subsystem.Core:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\Mouse.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\Water.ini");
+                            _contentManager.LoadIniFile(@"Maps\MapCache.ini");
+                            break;
+                    }
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                            _contentManager.LoadIniFile($@"Lang\{_contentManager.Language}\HeaderTemplate.ini");
+                            break;
+
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile($@"HeaderTemplate.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Players:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\CommandSet.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\CommandButton.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Audio:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\SoundEffects.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\MiscAudio.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\Voice.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Wnd:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
+                            break;
+                    }
+                    break;
+            }
         }
 
         private IEnumerable<string> GetSubsystemEntryName(Subsystem subsystem)
@@ -125,6 +210,8 @@ namespace OpenSage.Content
                             yield break;
                     }
                     break;
+                case Subsystem.Audio:
+                    yield break;
                 case Subsystem.ObjectCreation:
                     switch (_gameDefinition.Game)
                     {
@@ -132,6 +219,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheThingFactory";
+                            yield return "TheUpgradeCenter";
                             yield break;
                         // TODO: Figure out how to load object config for C&C3 and later
                         case SageGame.Cnc3:
@@ -203,6 +291,9 @@ namespace OpenSage.Content
                         // TODO: Figure out how to load campaigns for RA3 and later
                     }
                     break;
+                case Subsystem.Credits:
+                    yield return "Credits";
+                    yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -232,21 +323,6 @@ namespace OpenSage.Content
                             break;
                     }
                 }
-            }
-
-            // Load hardcoded files
-            switch (abstractSubsystem)
-            {
-                case Subsystem.Core:
-                    switch (_gameDefinition.Game)
-                    {
-                        case SageGame.Bfme:
-                        case SageGame.Bfme2:
-                        case SageGame.Bfme2Rotwk:
-                            yield return _fileSystem.GetFile(@"Maps\MapCache.ini");
-                            break;
-                    }
-                    break;
             }
         }
     }
