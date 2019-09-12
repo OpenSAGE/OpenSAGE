@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Util;
+using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -18,6 +20,28 @@ namespace OpenSage.Gui.Wnd.Controls
         public Control Root { get; }
         public Game Game { get; set; }
         public ContentManager ContentManager { get; }
+
+        public Window(WndFile wndFile, Game game, WndCallbackResolver wndCallbackResolver)
+            : this(wndFile.RootWindow.ScreenRect.CreationResolution, CreateRootControl(wndFile, game.ContentManager, wndCallbackResolver), game.ContentManager)
+        {
+            Game = game;
+            Bounds = wndFile.RootWindow.ScreenRect.ToRectangle();
+            LayoutInit = wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutInit);
+            LayoutUpdate = wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutUpdate);
+            LayoutShutdown = wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutShutdown);
+        }
+
+        private static Control CreateRootControl(
+            WndFile wndFile,
+            ContentManager contentManager,
+            WndCallbackResolver wndCallbackResolver)
+        {
+            return CreateRecursive(
+                wndFile.RootWindow,
+                contentManager,
+                wndCallbackResolver,
+                wndFile.RootWindow.ScreenRect.UpperLeft);
+        }
 
         public Window(in Size creationResolution, Control root, ContentManager contentManager)
         {

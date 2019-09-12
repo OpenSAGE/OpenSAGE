@@ -31,7 +31,6 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void CreditsMenuInit(Window window, Game game)
         {
-            game.ContentManager.LoadIniFile(@"Data\INI\Credits.ini");
             var credits = game.ContentManager.IniDataContext.Credits;
 
             var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");

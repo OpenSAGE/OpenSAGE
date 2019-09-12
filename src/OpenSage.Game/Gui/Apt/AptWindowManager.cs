@@ -35,7 +35,8 @@ namespace OpenSage.Gui.Apt
 
         public void PopWindow()
         {
-            WindowStack.Pop();
+            var popped = WindowStack.Pop();
+            popped.Dispose();
         }
 
         internal void OnViewportSizeChanged(in Size newSize)

@@ -11,6 +11,6 @@ namespace OpenSage.Gui
 
     public interface IControlBarSource
     {
-        IControlBar Create(string side, ContentManager contentManager);
+        IControlBar Create(string side, Game game);
     }
 }
