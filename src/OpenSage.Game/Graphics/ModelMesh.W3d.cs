@@ -268,8 +268,6 @@ namespace OpenSage.Graphics
                 }
             }
 
-            var meshParts = new List<ModelMeshPart>();
-
             // TODO: Extract state properties from shader material.
 
             var blendEnabled = false;
@@ -327,7 +325,7 @@ namespace OpenSage.Graphics
             return new ModelMeshPart(
                 texCoordsVertexBuffer,
                 0,
-                w3dMesh.Header.NumTris * 3,
+                (uint)w3dMesh.ShadeIndices.Items.Length,
                 blendEnabled,
                 pipeline,
                 materialResourceSet);
