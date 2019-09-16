@@ -42,14 +42,6 @@ namespace OpenSage.Graphics
                 _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleStripPipeline;
             }
 
-            var vertexMaterials = CreateMaterials(w3dMesh);
-
-            var shadingConfigurations = new FixedFunctionShaderResources.ShadingConfiguration[w3dMesh.Shaders.Items.Count];
-            for (var i = 0; i < shadingConfigurations.Length; i++)
-            {
-                shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders.Items[i]);
-            }
-
             MeshParts = new List<ModelMeshPart>();
             if (w3dShaderMaterial != null)
             {
@@ -62,6 +54,14 @@ namespace OpenSage.Graphics
             }
             else
             {
+                var vertexMaterials = CreateMaterials(w3dMesh);
+
+                var shadingConfigurations = new FixedFunctionShaderResources.ShadingConfiguration[w3dMesh.Shaders.Items.Count];
+                for (var i = 0; i < shadingConfigurations.Length; i++)
+                {
+                    shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders.Items[i]);
+                }
+
                 for (var i = 0; i < w3dMesh.MaterialPasses.Count; i++)
                 {
                     CreateModelMeshPartsFixedFunction(
