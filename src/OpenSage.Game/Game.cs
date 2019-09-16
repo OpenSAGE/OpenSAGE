@@ -24,6 +24,7 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Apt;
 using OpenSage.Data.Apt;
+using OpenSage.Graphics.Shaders;
 
 namespace OpenSage
 {
@@ -42,6 +43,9 @@ namespace OpenSage
         private readonly DeveloperModeView _developerModeView;
 
         private readonly TextureCopier _textureCopier;
+
+        internal GraphicsLoadContext GraphicsLoadContext { get; }
+        internal AssetStore AssetStore { get; }
 
         public ContentManager ContentManager { get; }
 
@@ -140,14 +144,14 @@ namespace OpenSage
                 var factionIndex = slot.Faction;
                 if (factionIndex == -1) // random
                 {
-                    var maxFactionIndex = ContentManager.IniDataContext.PlayerTemplates.Count;
+                    var maxFactionIndex = AssetStore.PlayerTemplates.Count;
                     var minFactionIndex = 2; // 0 and 1 are civilian and observer
 
                     var diff = maxFactionIndex - minFactionIndex;
                     factionIndex = minFactionIndex + (random.Next() % diff);
                 }
 
-                var faction = ContentManager.IniDataContext.PlayerTemplates[factionIndex];
+                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
 
                 var color = new ColorRgb(0, 0, 0);
 
@@ -366,6 +370,21 @@ namespace OpenSage
 
                 _wndCallbackResolver = new WndCallbackResolver();
 
+                var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources.SolidWhiteTexture));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
+
+                AssetStore = new AssetStore(
+                    _fileSystem,
+                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
+                    GraphicsDevice,
+                    GraphicsLoadContext.StandardGraphicsResources,
+                    GraphicsLoadContext.ShaderResources,
+                    Definition.CreateAssetLoadStrategy());
+
+                // TODO
+                AssetStore.PushScope();
+
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
@@ -397,8 +416,8 @@ namespace OpenSage
 
                 SetCursor("Arrow");
 
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
-                CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
+                var playerTemplate = AssetStore.PlayerTemplates.GetBySide("Civilian");
+                CivilianPlayer = Player.FromTemplate(playerTemplate);
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
 
@@ -576,8 +595,8 @@ namespace OpenSage
                         continue;
                     }
 
-                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSetting?.Side);
-                    players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSetting);
+                    var playerTemplate = AssetStore.PlayerTemplates.GetBySide(playerSetting?.Side);
+                    players[i] = Player.FromTemplate(playerTemplate, playerSetting);
                     var startPos = playerSetting?.StartPosition;
 
                     // startPos seems to be -1 for random, and 0 for observer/civilian
@@ -592,11 +611,11 @@ namespace OpenSage
 
                     if (playerTemplate.StartingBuilding != null)
                     {
-                        var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
+                        var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, players[i]);
                         startingBuilding.Transform.Translation = playerStartPosition;
                         startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
 
-                        var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnits[0].Unit), players[i]);
+                        var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
                         var startingUnit0Position = playerStartPosition;
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
@@ -862,5 +881,11 @@ namespace OpenSage
                 new Vector2(1, 1) :
                 new Vector2(1, 0);
         }
+
+        // TODO: Remove this.
+        public IReadOnlyList<Data.Ini.PlayerTemplate> GetPlayableSides() => AssetStore.PlayerTemplates.PlayableSides;
+
+        // TODO: Remove this.
+        public Data.Ini.MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
     }
 }

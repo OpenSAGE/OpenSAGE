@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Apt
             transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
         }
 
-        public AptRenderer(AptWindow window,ContentManager contentManager)
+        public AptRenderer(AptWindow window, ContentManager contentManager)
         {
             _contentManager = contentManager;
             Window = window;

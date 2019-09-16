@@ -1,6 +1,7 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Map;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Data.Ini
 {
@@ -15,8 +16,8 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<WaterSet> FieldParseTable = new IniParseTable<WaterSet>
         {
-            { "SkyTexture", (parser, x) => x.SkyTexture = parser.ParseFileName() },
-            { "WaterTexture", (parser, x) => x.WaterTexture = parser.ParseFileName() },
+            { "SkyTexture", (parser, x) => x.SkyTexture = parser.ParseTextureReference() },
+            { "WaterTexture", (parser, x) => x.WaterTexture = parser.ParseTextureReference() },
             { "Vertex00Color", (parser, x) => x.Vertex00Color = parser.ParseColorRgba() },
             { "Vertex10Color", (parser, x) => x.Vertex10Color = parser.ParseColorRgba() },
             { "Vertex01Color", (parser, x) => x.Vertex01Color = parser.ParseColorRgba() },
@@ -31,8 +32,8 @@ namespace OpenSage.Data.Ini
 
         public TimeOfDay TimeOfDay { get; private set; }
 
-        public string SkyTexture { get; private set; }
-        public string WaterTexture { get; private set; }
+        public LazyAssetReference<Texture> SkyTexture { get; private set; }
+        public LazyAssetReference<Texture> WaterTexture { get; private set; }
         public ColorRgba Vertex00Color { get; private set; }
         public ColorRgba Vertex10Color { get; private set; }
         public ColorRgba Vertex01Color { get; private set; }

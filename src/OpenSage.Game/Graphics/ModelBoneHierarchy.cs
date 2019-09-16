@@ -9,13 +9,15 @@ namespace OpenSage.Graphics
         {
             var bones = new ModelBone[1];
             bones[0] = new ModelBone(0, null, null, Vector3.Zero, Quaternion.Identity);
-            return new ModelBoneHierarchy(bones);
+            return new ModelBoneHierarchy("[Default]", bones);
         }
 
+        public string Name { get; }
         public ModelBone[] Bones { get; }
 
-        internal ModelBoneHierarchy(ModelBone[] bones)
+        internal ModelBoneHierarchy(string name, ModelBone[] bones)
         {
+            Name = name;
             Bones = bones;
         }
 

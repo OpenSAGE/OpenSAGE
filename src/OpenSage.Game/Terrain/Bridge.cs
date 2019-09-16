@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
@@ -21,16 +20,16 @@ namespace OpenSage.Terrain
         private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
 
         internal Bridge(
-            ContentManager contentManager,
+            AssetLoadContext loadContext,
             HeightMap heightMap,
             MapObject mapObject,
             in Vector3 startPosition,
             in Vector3 endPosition,
             GameObjectCollection parent)
         {
-            var template = contentManager.IniDataContext.FindBridgeTemplate(mapObject.TypeName);
+            var template = loadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
 
-            var model = contentManager.GetModel(template.BridgeModelName);
+            var model = template.BridgeModelName.Value;
             if (model == null)
             {
                 return;
@@ -38,7 +37,7 @@ namespace OpenSage.Terrain
 
             _model = model;
 
-            _modelInstance = AddDisposable(_model.CreateInstance(contentManager));
+            _modelInstance = AddDisposable(_model.CreateInstance(loadContext));
 
             _modelInstance.Update(TimeInterval.Zero);
 
@@ -49,7 +48,6 @@ namespace OpenSage.Terrain
                 endPosition,
                 _model,
                 _modelInstance,
-                contentManager,
                 parent);
         }
 
@@ -60,7 +58,6 @@ namespace OpenSage.Terrain
             in Vector3 endPosition,
             Model model,
             ModelInstance modelInstance,
-            ContentManager contentManager,
             GameObjectCollection gameObjects)
         {
             const float heightBias = 1f;
@@ -139,16 +136,15 @@ namespace OpenSage.Terrain
 
             var transformedLeftBounds = BoundingBox.Transform(bridgeLeft.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.Bone.Index]);
 
-            AddDisposable(new BridgeTowers(
+            new BridgeTowers(
                 template,
-                contentManager,
                 gameObjects,
                 worldMatrix,
                 0,
                 transformedLeftBounds.Min.Y,
                 totalLength / template.BridgeScale,
                 transformedLeftBounds.Max.Y,
-                rotationAroundZ));
+                rotationAroundZ);
 
             return meshes;
         }

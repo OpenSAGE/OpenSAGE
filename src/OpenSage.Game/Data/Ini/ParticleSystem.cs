@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class ParticleSystemDefinition
+    public sealed class ParticleSystemDefinition : IHasName
     {
         internal static ParticleSystemDefinition Parse(IniParser parser)
         {
@@ -20,7 +22,7 @@ namespace OpenSage.Data.Ini
             { "IsOneShot", (parser, x) => x.IsOneShot = parser.ParseBoolean() },
             { "Shader", (parser, x) => x.Shader = parser.ParseEnum<ParticleSystemShader>() },
             { "Type", (parser, x) => x.Type = parser.ParseEnum<ParticleSystemType>() },
-            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseFileName() },
+            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseTextureReference() },
             { "AngleX", (parser, x) => x.AngleX = RandomVariable.Parse(parser) },
             { "AngleY", (parser, x) => x.AngleY = RandomVariable.Parse(parser) },
             { "AngleZ", (parser, x) => x.AngleZ = RandomVariable.Parse(parser) },
@@ -99,7 +101,7 @@ namespace OpenSage.Data.Ini
         public bool IsOneShot { get; private set; }
         public ParticleSystemShader Shader { get; private set; }
         public ParticleSystemType Type { get; private set; }
-        public string ParticleName { get; private set; }
+        public LazyAssetReference<Texture> ParticleName { get; private set; }
         public RandomVariable AngleX { get; private set; }
         public RandomVariable AngleY { get; private set; }
         public RandomVariable AngleZ { get; private set; }

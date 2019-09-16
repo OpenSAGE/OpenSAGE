@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 
@@ -14,7 +15,7 @@ namespace OpenSage.Terrain
             _waterAreas = new List<WaterArea>();
         }
 
-        public WaterAreaCollection(PolygonTriggers polygonTriggers, ContentManager contentManager)
+        internal WaterAreaCollection(PolygonTriggers polygonTriggers, AssetLoadContext loadContext)
             : this()
         {
             if (polygonTriggers != null)
@@ -26,7 +27,7 @@ namespace OpenSage.Terrain
                         case PolygonTriggerType.Water:
                         case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
                         case PolygonTriggerType.WaterAndRiver:
-                            if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
+                            if (WaterArea.TryCreate(loadContext, polygonTrigger, out var waterArea))
                             {
                                 _waterAreas.Add(AddDisposable(waterArea));
                             }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
@@ -27,8 +28,8 @@ namespace OpenSage.Terrain
 
         private readonly BeforeRenderDelegate _beforeRender;
 
-        public static bool TryCreate(
-            ContentManager contentManager,
+        internal static bool TryCreate(
+            AssetLoadContext loadContext,
             PolygonTrigger trigger,
             out WaterArea result)
         {
@@ -39,12 +40,12 @@ namespace OpenSage.Terrain
                 return false;
             }
 
-            result = new WaterArea(contentManager, trigger);
+            result = new WaterArea(loadContext, trigger);
             return true;
         }
 
         private WaterArea(
-            ContentManager contentManager,
+            AssetLoadContext loadContext,
             PolygonTrigger trigger)
         {
             var triggerPoints = trigger.Points
@@ -67,27 +68,25 @@ namespace OpenSage.Terrain
 
             _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
-            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 vertices,
                 BufferUsage.VertexBuffer));
 
             _numIndices = (uint) triangleIndices.Length;
 
-            _indexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 triangleIndices,
                 BufferUsage.IndexBuffer));
 
-            _shaderSet = contentManager.ShaderResources.Water.ShaderSet;
-            _pipeline = contentManager.ShaderResources.Water.Pipeline;
+            _shaderSet = loadContext.ShaderResources.Water.ShaderSet;
+            _pipeline = loadContext.ShaderResources.Water.Pipeline;
 
             _resourceSets = new Dictionary<TimeOfDay, ResourceSet>();
 
-            foreach (var waterSet in contentManager.IniDataContext.WaterSets)
+            foreach (var waterSet in loadContext.AssetStore.WaterSets)
             {
-                var waterTexture = contentManager.GetTexture(waterSet.WaterTexture);
-
                 // TODO: Cache these resource sets in some sort of scoped data context.
-                var resourceSet = AddDisposable(contentManager.ShaderResources.Water.CreateMaterialResourceSet(waterTexture));
+                var resourceSet = AddDisposable(loadContext.ShaderResources.Water.CreateMaterialResourceSet(waterSet.WaterTexture.Value));
 
                 _resourceSets.Add(waterSet.TimeOfDay, resourceSet);
             }

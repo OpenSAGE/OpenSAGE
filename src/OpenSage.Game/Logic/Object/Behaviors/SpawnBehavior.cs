@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,7 +12,7 @@ namespace OpenSage.Logic.Object
             {
                 { "SpawnNumber", (parser, x) => x.SpawnNumber = parser.ParseInteger() },
                 { "SpawnReplaceDelay", (parser, x) => x.SpawnReplaceDelay = parser.ParseLong() },
-                { "SpawnTemplateName", (parser, x) => x.SpawnTemplateName = parser.ParseAssetReference() },
+                { "SpawnTemplateName", (parser, x) => x.SpawnTemplate = parser.ParseObjectReference() },
                 { "OneShot", (parser, x) => x.OneShot = parser.ParseBoolean() },
                 { "CanReclaimOrphans", (parser, x) => x.CanReclaimOrphans = parser.ParseBoolean() },
                 { "SpawnedRequireSpawner", (parser, x) => x.SpawnedRequireSpawner = parser.ParseBoolean() },
@@ -28,7 +29,7 @@ namespace OpenSage.Logic.Object
 
         public int SpawnNumber { get; private set; }
         public long SpawnReplaceDelay { get; private set; }
-        public string SpawnTemplateName { get; private set; }
+        public LazyAssetReference<ObjectDefinition> SpawnTemplate { get; private set; }
         public bool OneShot { get; private set; }
         public bool CanReclaimOrphans { get; private set; }
         public bool SpawnedRequireSpawner { get; private set; }

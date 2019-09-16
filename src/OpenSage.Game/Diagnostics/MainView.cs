@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Content.Translation;
@@ -105,9 +106,9 @@ namespace OpenSage.Diagnostics
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
                             {
-                                var iniContext = _context.Game.ContentManager.IniDataContext;
-                                var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);
-                                var faction2 = iniContext.PlayerTemplates.FindLast(x => x.PlayableSide == true);
+                                var playableSides = _context.Game.AssetStore.PlayerTemplates.PlayableSides;
+                                var faction1 = playableSides.First();
+                                var faction2 = playableSides.Last();
 
                                 _context.Game.StartMultiPlayerGame(
                                     mapCache.Name,

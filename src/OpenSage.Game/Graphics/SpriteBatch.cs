@@ -28,26 +28,26 @@ namespace OpenSage.Graphics
 
         private CommandList _commandList;
 
-        public SpriteBatch(
-            ContentManager contentManager,
+        internal SpriteBatch(
+            GraphicsLoadContext loadContext,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
-            _spriteShaderResources = contentManager.ShaderResources.Sprite;
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _spriteShaderResources = loadContext.ShaderResources.Sprite;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
-            _pipeline = contentManager.ShaderResources.Sprite.GetCachedPipeline(
+            _pipeline = loadContext.ShaderResources.Sprite.GetCachedPipeline(
                 blendStateDescription,
                 outputDescription);
 
-            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.MaterialConstantsVS>(contentManager.GraphicsDevice));
+            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.MaterialConstantsVS>(loadContext.GraphicsDevice));
 
-            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.SpriteConstantsPS>(contentManager.GraphicsDevice));
+            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.SpriteConstantsPS>(loadContext.GraphicsDevice));
 
             _spriteConstantsPSBuffer.Value.IgnoreAlpha = false;
             _spriteConstantsPSBuffer.Update(_graphicsDevice);
 
-            _spriteConstantsResourceSet = AddDisposable(contentManager.ShaderResources.Sprite.CreateSpriteConstantsResourceSet(
+            _spriteConstantsResourceSet = AddDisposable(loadContext.ShaderResources.Sprite.CreateSpriteConstantsResourceSet(
                 _materialConstantsVSBuffer.Buffer,
                 _spriteConstantsPSBuffer.Buffer));
 

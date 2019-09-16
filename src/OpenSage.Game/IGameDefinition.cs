@@ -1,4 +1,6 @@
 ﻿﻿using System.Collections.Generic;
+using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -20,5 +22,7 @@ namespace OpenSage
         IControlBarSource ControlBar { get; }
 
         string Identifier { get; }
+
+        OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
     }
 }

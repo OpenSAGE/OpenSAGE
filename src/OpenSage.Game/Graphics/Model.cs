@@ -1,11 +1,11 @@
 ﻿using OpenSage.Content;
+using OpenSage.Content.Loaders;
 
 namespace OpenSage.Graphics
 {
-    public sealed class Model : DisposableBase
+    public sealed class Model : DisposableBase, IHasName
     {
-        // TODO: Remove this.
-        public readonly string Name;
+        public string Name { get; }
         public readonly ModelBoneHierarchy BoneHierarchy;
         public readonly ModelSubObject[] SubObjects;
 
@@ -24,9 +24,9 @@ namespace OpenSage.Graphics
             SubObjects = subObjects;
         }
 
-        public ModelInstance CreateInstance(ContentManager contentManager)
+        internal ModelInstance CreateInstance(AssetLoadContext loadContext)
         {
-            return new ModelInstance(this, contentManager);
+            return new ModelInstance(this, loadContext);
         }
     }
 

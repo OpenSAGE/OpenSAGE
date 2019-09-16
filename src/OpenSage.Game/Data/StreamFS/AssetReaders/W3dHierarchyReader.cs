@@ -28,7 +28,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                     w3xPivot.Rotation);
             }
 
-            return new ModelBoneHierarchy(bones);
+            return new ModelBoneHierarchy(asset.Name, bones);
         }
     }
 }

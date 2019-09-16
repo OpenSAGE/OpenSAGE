@@ -18,8 +18,8 @@ namespace OpenSage.Diagnostics.AssetViews
             var game = context.Game;
 
             var particleSystem = AddDisposable(new ParticleSystem(
-                game.ContentManager,
                 particleSystemTemplate,
+                game.AssetStore.LoadContext,
                 () => ref WorldIdentity));
 
             _renderedView = AddDisposable(new RenderedView(context));

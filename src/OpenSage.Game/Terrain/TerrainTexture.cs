@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Terrain
 {
-    public sealed class TerrainTexture
+    public sealed class TerrainTexture : IHasName
     {
         internal static TerrainTexture Parse(IniParser parser)
         {
@@ -14,7 +15,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<TerrainTexture> FieldParseTable = new IniParseTable<TerrainTexture>
         {
-            { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
+            { "Texture", (parser, x) => x.Texture = parser.ParseAssetReference() },
             { "BlendEdges", (parser, x) => x.BlendEdges = parser.ParseBoolean() },
             { "Class", (parser, x) => x.Class = parser.ParseString() },
             { "RestrictConstruction", (parser, x) => x.RestrictConstruction = parser.ParseBoolean() },

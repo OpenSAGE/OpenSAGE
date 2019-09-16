@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
@@ -95,7 +96,7 @@ namespace OpenSage
         {
             var contentManager = game.ContentManager;
 
-            _players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToList();
+            _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
 
             // TODO: This is completely wrong.
             LocalPlayer = _players.FirstOrDefault();
@@ -105,15 +106,16 @@ namespace OpenSage
                 .ToList();
 
             MapFile = mapFile;
-            Terrain = AddDisposable(new Terrain.Terrain(mapFile, contentManager));
-            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, contentManager));
+            Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
+            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, game.AssetStore.LoadContext));
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
 
             LoadObjects(
-                contentManager,
+                game.AssetStore.LoadContext,
+                game.CivilianPlayer,
                 Terrain.HeightMap,
                 mapFile.ObjectsList.Objects,
                 _teams,
@@ -145,7 +147,8 @@ namespace OpenSage
         }
 
         private void LoadObjects(
-            ContentManager contentManager,
+            AssetLoadContext loadContext,
+            Player civilianPlayer,
             HeightMap heightMap,
             MapObject[] mapObjects,
             List<Team> teams,
@@ -155,7 +158,7 @@ namespace OpenSage
             out Bridge[] bridges)
         {
             var waypoints = new List<Waypoint>();
-            gameObjects = AddDisposable(new GameObjectCollection(contentManager));
+            gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer));
             var roadsList = new List<Road>();
             var bridgesList = new List<Bridge>();
 
@@ -179,7 +182,7 @@ namespace OpenSage
                             default:
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                var gameObject = GameObject.FromMapObject(mapObject, teams, contentManager, gameObjects, position);
+                                var gameObject = GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, gameObjects, position);
                                 if (gameObject != null)
                                 {
                                     gameObjects.Add(gameObject);
@@ -201,7 +204,7 @@ namespace OpenSage
                         var bridgeEnd = mapObjects[++i];
 
                         bridgesList.Add(AddDisposable(new Bridge(
-                            contentManager,
+                            loadContext,
                             heightMap,
                             mapObject,
                             mapObject.Position,
@@ -229,8 +232,9 @@ namespace OpenSage
 
                         // Note that we're searching with the type of either end.
                         // This is because of weirdly corrupted roads with unmatched ends in USA04, which work fine in WB and SAGE.
-                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x =>
-                            x.Name == mapObject.TypeName || x.Name == roadEnd.TypeName);
+                        var roadTemplate =
+                            loadContext.AssetStore.RoadTemplates.GetByName(mapObject.TypeName)
+                            ?? loadContext.AssetStore.RoadTemplates.GetByName(roadEnd.TypeName);
 
                         if (roadTemplate == null)
                         {
@@ -242,10 +246,10 @@ namespace OpenSage
 
                 }
 
-                contentManager.GraphicsDevice.WaitForIdle();
+                loadContext.GraphicsDevice.WaitForIdle();
             }
 
-            roads = AddDisposable(new RoadCollection(roadTopology, contentManager, heightMap));
+            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
             waypointCollection = new WaypointCollection(waypoints);
             bridges = bridgesList.ToArray();
         }

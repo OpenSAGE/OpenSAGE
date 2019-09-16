@@ -26,7 +26,7 @@ namespace OpenSage.Data.Ini
             { "ButtonBorderType", (parser, x) => x.ButtonBorderType = parser.ParseEnum<CommandButtonBorderType>() },
             { "DescriptLabel", (parser, x) => x.DescriptLabel = parser.ParseLocalizedStringKey() },
             { "MaxShotsToFire", (parser, x) => x.MaxShotsToFire = parser.ParseInteger() },
-            { "Object", (parser, x) => x.Object = parser.ParseAssetReference() },
+            { "Object", (parser, x) => x.Object = parser.ParseObjectReference() },
             { "RadiusCursorType", (parser, x) => x.RadiusCursorType = parser.ParseAssetReference() },
             { "Science", (parser, x) => x.Science = parser.ParseAssetReferenceArray() },
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
@@ -96,7 +96,7 @@ namespace OpenSage.Data.Ini
         public string UnitSpecificSound2 { get; private set; }
 
         public int MaxShotsToFire { get; private set; }
-        public string Object { get; private set; }
+        public LazyAssetReference<ObjectDefinition> Object { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool InPalantir { get; private set; }

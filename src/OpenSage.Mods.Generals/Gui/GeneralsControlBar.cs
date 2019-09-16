@@ -205,7 +205,7 @@ namespace OpenSage.Mods.Generals.Gui
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
-                            var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+                            var objectDefinition = commandButton.Object?.Value;
 
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
@@ -226,7 +226,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.UnitBuild:
                                     order = CreateOrder(OrderType.CreateUnit);
-                                    order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.IndexOf(objectDefinition)+1);
+                                    order.AddIntegerArgument(objectDefinition.InternalId);
                                     order.AddIntegerArgument(1);
                                     break;
                                 default:

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Terrain
@@ -13,7 +14,7 @@ namespace OpenSage.Terrain
             _roads = new List<Road>();
         }
 
-        internal RoadCollection(RoadTopology topology, ContentManager contentManager, HeightMap heightMap)
+        internal RoadCollection(RoadTopology topology, AssetLoadContext loadContext, HeightMap heightMap)
             : this()
         {
             // The map stores road segments with no connectivity:
@@ -48,7 +49,7 @@ namespace OpenSage.Terrain
                     endPosition.Z += heightMap.GetHeight(endPosition.X, endPosition.Y);
 
                     _roads.Add(AddDisposable(new Road(
-                        contentManager,
+                        loadContext,
                         heightMap,
                         edge.TopologyEdge.Template,
                         startPosition,

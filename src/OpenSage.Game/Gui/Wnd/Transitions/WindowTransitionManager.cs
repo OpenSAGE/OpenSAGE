@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using OpenSage.Data.Ini;
+using OpenSage.Content;
 using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
     public sealed class WindowTransitionManager
     {
-        private readonly Dictionary<string, WindowTransition> _transitions;
+        private readonly NamedScopedAssetCollection<WindowTransition> _transitions;
 
         private readonly Queue<WindowTransitionRequest> _transitionQueue;
 
@@ -21,9 +20,9 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         private WindowTransitionState _currentTransitionState;
 
-        public WindowTransitionManager(List<WindowTransition> transitions)
+        public WindowTransitionManager(NamedScopedAssetCollection<WindowTransition> transitions)
         {
-            _transitions = transitions.ToDictionary(x => x.Name);
+            _transitions = transitions;
 
             _transitionQueue = new Queue<WindowTransitionRequest>();
         }
@@ -33,10 +32,7 @@ namespace OpenSage.Gui.Wnd.Transitions
             Window to,
             string transitionName)
         {
-            if (!_transitions.TryGetValue(transitionName, out var transition))
-            {
-                throw new ArgumentOutOfRangeException(nameof(transitionName));
-            }
+            var transition = _transitions.GetByName(transitionName);
 
             _transitionQueue.Enqueue(new WindowTransitionRequest
             {

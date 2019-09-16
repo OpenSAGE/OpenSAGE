@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
@@ -18,14 +19,14 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
-        public static GameObject FromMapObject(
+        internal static GameObject FromMapObject(
             MapObject mapObject,
             IReadOnlyList<Team> teams,
-            ContentManager contentManager,
+            AssetStore assetStore,
             GameObjectCollection parent,
             in Vector3 position)
         {
-            var gameObject = contentManager.InstantiateObject(mapObject.TypeName, parent);
+            var gameObject = parent.Add(mapObject.TypeName);
 
             // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
             if (gameObject == null)
@@ -67,7 +68,7 @@ namespace OpenSage.Logic.Object
 
             if (gameObject.Definition.IsBridge)
             {
-                gameObject.AddDisposable(BridgeTowers.CreateForLandmarkBridge(contentManager, parent, gameObject, mapObject));
+                BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
             }
 
             return gameObject;
@@ -111,10 +112,9 @@ namespace OpenSage.Logic.Object
 
         public GameObjectCollection Parent { get; private set; }
 
-        internal GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner, GameObjectCollection parent)
+        internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
         {
             Definition = objectDefinition;
-            Context = contentManager.IniDataContext;
             Owner = owner;
             Parent = parent;
 
@@ -124,7 +124,7 @@ namespace OpenSage.Logic.Object
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(contentManager));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(loadContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -256,14 +256,12 @@ namespace OpenSage.Logic.Object
                 SetModelConditionFlags(flags);
                 ConstructionStart = gameTime.TotalTime;
 
-                // this is strang in startcontruction, however, we have no better place to put it yet. belongs in finishconstruction
+                // TODO: This shouldn't be here. However, we have no better place to put it yet. Belongs in FinishConstruction.
                 foreach (var behavior in Definition.Behaviors)
                 {
-                    if (behavior is SpawnBehaviorModuleData)
+                    if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
                     {
-                        var spawnTemplate = ((SpawnBehaviorModuleData) behavior).SpawnTemplateName;
-                        var unitDefinition = Context.Objects.Find(x => x.Name == spawnTemplate);
-                        Spawn(unitDefinition);
+                        Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
                     }
                 }
             }
@@ -413,10 +411,10 @@ namespace OpenSage.Logic.Object
             var locoDefs = Definition.Locomotors;
             if (locoDefs.Count > 0)
             {
-                var name = locoDefs.First().Value[0];
-                if (Context.Locomotors.ContainsKey(name))
+                var locomotor = Definition.Locomotors.First().Value[0].Value;
+                if (locomotor != null)
                 {
-                    CurrentLocomotor = Context.Locomotors[name];
+                    CurrentLocomotor = locomotor;
                 }
             }
         }

@@ -74,6 +74,7 @@ namespace OpenSage.Diagnostics
                 _shapeRenderer = new ShapeRenderer(
                     geometry,
                     Context.Game.ContentManager,
+                    Context.Game.AssetStore,
                     Context.SelectedAptWindow.AptFile.ImageMap,
                     Context.SelectedAptWindow.AptFile.MovieName);
             }
@@ -104,11 +105,12 @@ namespace OpenSage.Diagnostics
             public ShapeRenderer(
                 Geometry shape,
                 ContentManager contentManager,
+                AssetStore assetStore,
                 ImageMap map,
                 string movieName)
             {
                 _shape = shape;
-                _context = new AptContext(map, movieName, contentManager);
+                _context = new AptContext(map, movieName, assetStore);
                 _renderer = new AptRenderer(null, contentManager);
             }
 

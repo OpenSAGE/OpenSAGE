@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -17,8 +15,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class W3dModelDraw : DrawModule
     {
-        private readonly ContentManager _contentManager;
         private readonly W3dModelDrawModuleData _data;
+        private readonly AssetLoadContext _loadContext;
 
         private readonly List<ModelConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
@@ -47,10 +45,10 @@ namespace OpenSage.Logic.Object
                 : Enumerable.Empty<AttachedParticleSystem>();
         }
 
-        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data)
+        internal W3dModelDraw(W3dModelDrawModuleData data, AssetLoadContext loadContext)
         {
-            _contentManager = contentManager;
             _data = data;
+            _loadContext = loadContext;
 
             _conditionStates = new List<ModelConditionState>();
 
@@ -129,7 +127,7 @@ namespace OpenSage.Logic.Object
             ModelInstance modelInstance = null;
             if (model != null)
             {
-                modelInstance = model.CreateInstance(_contentManager);
+                modelInstance = model.CreateInstance(_loadContext);
             }
 
             if (modelInstance != null)
@@ -158,10 +156,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystems.GetByName(particleSysBone.ParticleSystem);
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
+                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystems.GetByName(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
 
                         if (particleSystemTemplate == null)
                         {
@@ -177,8 +175,8 @@ namespace OpenSage.Logic.Object
                     }
 
                     particleSystems.Add(new ParticleSystem(
-                        _contentManager,
                         particleSystemTemplate,
+                        _loadContext,
                         () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
@@ -357,9 +355,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(ContentManager contentManager)
+        internal override DrawModule CreateDrawModule(AssetLoadContext loadContext)
         {
-            return new W3dModelDraw(contentManager, this);
+            return new W3dModelDraw(this, loadContext);
         }
     }
 

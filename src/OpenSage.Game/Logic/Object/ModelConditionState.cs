@@ -30,17 +30,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
-            {
-                "Model",
-                (parser, x) =>
-                {
-                    var name = parser.ParseFileName();
-                    if (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
-                    {
-                        x.Model = new LazyAssetReference<Model>(() => parser.ContentManager.GetModel(name));
-                    }
-                }
-            },
+            { "Model", (parser, x) => x.Model = parser.ParseModelReference() },
             { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
 
             { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
@@ -240,11 +230,7 @@ namespace OpenSage.Logic.Object
         {
             var result = new ObjectConditionAnimation();
 
-            var animationName = parser.ParseAnimationName();
-            if (!string.Equals(animationName, "NONE", StringComparison.OrdinalIgnoreCase))
-            {
-                result.Animation = new LazyAssetReference<Graphics.Animation.Animation>(() => parser.ContentManager.GetAnimation(animationName));
-            }
+            result.Animation = parser.ParseAnimationReference();
 
             var unknown1Token = parser.GetNextTokenOptional();
 

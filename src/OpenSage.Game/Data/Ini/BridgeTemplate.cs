@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class BridgeTemplate
+    public sealed class BridgeTemplate : IHasName
     {
         internal static BridgeTemplate Parse(IniParser parser)
         {
@@ -19,7 +22,7 @@ namespace OpenSage.Data.Ini
         {
             { "BridgeScale", (parser, x) => x.BridgeScale = parser.ParseFloat() },
             { "RadarColor", (parser, x) => x.RadarColor = parser.ParseColorRgb() },
-            { "BridgeModelName", (parser, x) => x.BridgeModelName = parser.ParseFileName() },
+            { "BridgeModelName", (parser, x) => x.BridgeModelName = parser.ParseModelReference() },
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "BridgeModelNameDamaged", (parser, x) => x.BridgeModelNameDamaged = parser.ParseFileName() },
             { "TextureDamaged", (parser, x) => x.TextureDamaged = parser.ParseFileName() },
@@ -27,10 +30,10 @@ namespace OpenSage.Data.Ini
             { "TextureReallyDamaged", (parser, x) => x.TextureReallyDamaged = parser.ParseFileName() },
             { "BridgeModelNameBroken", (parser, x) => x.BridgeModelNameBroken = parser.ParseFileName() },
             { "TextureBroken", (parser, x) => x.TextureBroken = parser.ParseFileName() },
-            { "TowerObjectNameFromLeft", (parser, x) => x.TowerObjectNameFromLeft = parser.ParseAssetReference() },
-            { "TowerObjectNameFromRight", (parser, x) => x.TowerObjectNameFromRight = parser.ParseAssetReference() },
-            { "TowerObjectNameToLeft", (parser, x) => x.TowerObjectNameToLeft = parser.ParseAssetReference() },
-            { "TowerObjectNameToRight", (parser, x) => x.TowerObjectNameToRight = parser.ParseAssetReference() },
+            { "TowerObjectNameFromLeft", (parser, x) => x.TowerObjectNameFromLeft = parser.ParseObjectReference() },
+            { "TowerObjectNameFromRight", (parser, x) => x.TowerObjectNameFromRight = parser.ParseObjectReference() },
+            { "TowerObjectNameToLeft", (parser, x) => x.TowerObjectNameToLeft = parser.ParseObjectReference() },
+            { "TowerObjectNameToRight", (parser, x) => x.TowerObjectNameToRight = parser.ParseObjectReference() },
             { "ScaffoldObjectName", (parser, x) => x.ScaffoldObjectName = parser.ParseAssetReference() },
             { "ScaffoldSupportObjectName", (parser, x) => x.ScaffoldSupportObjectName = parser.ParseAssetReference() },
 
@@ -47,7 +50,7 @@ namespace OpenSage.Data.Ini
 
         public float BridgeScale { get; private set; }
         public ColorRgb RadarColor { get; private set; }
-        public string BridgeModelName { get; private set; }
+        public LazyAssetReference<Model> BridgeModelName { get; private set; }
         public string Texture { get; private set; }
         public string BridgeModelNameDamaged { get; private set; }
         public string TextureDamaged { get; private set; }
@@ -55,10 +58,10 @@ namespace OpenSage.Data.Ini
         public string TextureReallyDamaged { get; private set; }
         public string BridgeModelNameBroken { get; private set; }
         public string TextureBroken { get; private set; }
-        public string TowerObjectNameFromLeft { get; private set; }
-        public string TowerObjectNameFromRight { get; private set; }
-        public string TowerObjectNameToLeft { get; private set; }
-        public string TowerObjectNameToRight { get; private set; }
+        public LazyAssetReference<ObjectDefinition> TowerObjectNameFromLeft { get; private set; }
+        public LazyAssetReference<ObjectDefinition> TowerObjectNameFromRight { get; private set; }
+        public LazyAssetReference<ObjectDefinition> TowerObjectNameToLeft { get; private set; }
+        public LazyAssetReference<ObjectDefinition> TowerObjectNameToRight { get; private set; }
         public string ScaffoldObjectName { get; private set; }
         public string ScaffoldSupportObjectName { get; private set; }
 

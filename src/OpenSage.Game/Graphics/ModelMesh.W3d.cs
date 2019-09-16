@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Rendering;
@@ -16,7 +16,7 @@ namespace OpenSage.Graphics
 {
     partial class ModelMesh
     {
-        internal ModelMesh(W3dMesh w3dMesh, ContentManager contentManager)
+        internal ModelMesh(W3dMesh w3dMesh, AssetLoadContext loadContext)
         {
             Name = w3dMesh.Header.MeshName;
 
@@ -32,14 +32,14 @@ namespace OpenSage.Graphics
                 w3dShaderMaterial = w3dMesh.ShaderMaterials.Items[(int) shaderMaterialID];
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
-                shaderResources = contentManager.ShaderResources.GetShaderMaterialResources(effectName);
-                _depthPipeline = contentManager.ShaderResources.MeshDepth.TriangleListPipeline;
+                shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName);
+                _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleListPipeline;
             }
             else
             {
                 w3dShaderMaterial = null;
-                shaderResources = contentManager.ShaderResources.FixedFunction;
-                _depthPipeline = contentManager.ShaderResources.MeshDepth.TriangleStripPipeline;
+                shaderResources = loadContext.ShaderResources.FixedFunction;
+                _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleStripPipeline;
             }
 
             var vertexMaterials = CreateMaterials(w3dMesh);
@@ -54,7 +54,7 @@ namespace OpenSage.Graphics
             if (w3dShaderMaterial != null)
             {
                 MeshParts.Add(CreateModelMeshPartShaderMaterial(
-                    contentManager,
+                    loadContext,
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
                     w3dShaderMaterial,
@@ -65,7 +65,7 @@ namespace OpenSage.Graphics
                 for (var i = 0; i < w3dMesh.MaterialPasses.Count; i++)
                 {
                     CreateModelMeshPartsFixedFunction(
-                        contentManager,
+                        loadContext,
                         w3dMesh,
                         w3dMesh.MaterialPasses[i],
                         vertexMaterials,
@@ -79,26 +79,26 @@ namespace OpenSage.Graphics
                 w3dMesh.Header.Max);
 
             _shaderSet = shaderResources.ShaderSet;
-            _depthShaderSet = contentManager.ShaderResources.MeshDepth.ShaderSet;
+            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
 
             Skinned = w3dMesh.IsSkinned;
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
             CameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
-            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 MemoryMarshal.AsBytes(new ReadOnlySpan<MeshShaderResources.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 BufferUsage.VertexBuffer));
 
-            _indexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 CreateIndices(w3dMesh, w3dShaderMaterial != null),
                 BufferUsage.IndexBuffer));
 
             var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
-            _meshConstantsResourceSet = contentManager.ShaderResources.Mesh.GetCachedMeshResourceSet(
+            _meshConstantsResourceSet = loadContext.ShaderResources.Mesh.GetCachedMeshResourceSet(
                 Skinned,
                 hasHouseColor);
 
-            _samplerResourceSet = contentManager.ShaderResources.Mesh.SamplerResourceSet;
+            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
 
             BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
             BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];
@@ -164,7 +164,7 @@ namespace OpenSage.Graphics
         }
 
         private static Texture CreateTexture(
-            ContentManager contentManager,
+            AssetLoadContext context,
             W3dMesh w3dMesh,
             uint? textureIndex)
         {
@@ -180,7 +180,7 @@ namespace OpenSage.Graphics
                 throw new NotImplementedException();
             }
 
-            return contentManager.GetTexture(w3dTexture.Name.Value);
+            return context.AssetStore.Textures.GetByName(w3dTexture.Name.Value);
         }
 
         private static MeshShaderResources.MeshVertex.Basic[] CreateVertices(
@@ -252,7 +252,7 @@ namespace OpenSage.Graphics
         }
 
         private ModelMeshPart CreateModelMeshPartShaderMaterial(
-            ContentManager contentManager,
+            AssetLoadContext context,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
             W3dShaderMaterial w3dShaderMaterial,
@@ -277,7 +277,7 @@ namespace OpenSage.Graphics
             var pipeline = shaderResources.Pipeline;
 
             var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
-                contentManager.GraphicsDevice,
+                context.GraphicsDevice,
                 shaderResources));
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
@@ -285,7 +285,7 @@ namespace OpenSage.Graphics
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = contentManager.GetTexture(w3dShaderProperty.StringValue);
+                        var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue);
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 
@@ -320,7 +320,7 @@ namespace OpenSage.Graphics
 
             var materialResourceSet = materialResourceSetBuilder.CreateResourceSet();
 
-            var texCoordsVertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            var texCoordsVertexBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
                 texCoords,
                 BufferUsage.VertexBuffer));
 
@@ -335,7 +335,7 @@ namespace OpenSage.Graphics
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
         private void CreateModelMeshPartsFixedFunction(
-            ContentManager contentManager,
+            AssetLoadContext context,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
             FixedFunctionShaderResources.VertexMaterial[] vertexMaterials,
@@ -375,7 +375,7 @@ namespace OpenSage.Graphics
                 }
             }
 
-            var texCoordsVertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            var texCoordsVertexBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
                 texCoords,
                 BufferUsage.VertexBuffer));
 
@@ -386,7 +386,7 @@ namespace OpenSage.Graphics
                 && w3dMaterialPass.TextureStages[0].TextureIds.Items.Count == 1)
             {
                 meshParts.Add(CreateModelMeshPart(
-                    contentManager,
+                    context,
                     texCoordsVertexBuffer,
                     0,
                     w3dMesh.Header.NumTris * 3,
@@ -497,7 +497,7 @@ namespace OpenSage.Graphics
                     if (combinedId != newCombinedId)
                     {
                         meshParts.Add(CreateModelMeshPart(
-                            contentManager,
+                            context,
                             texCoordsVertexBuffer,
                             startIndex,
                             indexCount,
@@ -522,7 +522,7 @@ namespace OpenSage.Graphics
                 if (indexCount > 0)
                 {
                     meshParts.Add(CreateModelMeshPart(
-                        contentManager,
+                        context,
                         texCoordsVertexBuffer,
                         startIndex,
                         indexCount,
@@ -579,7 +579,7 @@ namespace OpenSage.Graphics
 
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private ModelMeshPart CreateModelMeshPart(
-            ContentManager contentManager,
+            AssetLoadContext context,
             DeviceBuffer texCoordsVertexBuffer,
             uint startIndex,
             uint indexCount,
@@ -606,7 +606,7 @@ namespace OpenSage.Graphics
             var destinationColorFactor = w3dShader.DestBlend.ToBlend(false);
             var destinationAlphaFactor = w3dShader.DestBlend.ToBlend(true);
 
-            var pipeline = contentManager.ShaderResources.FixedFunction.GetCachedPipeline(
+            var pipeline = context.ShaderResources.FixedFunction.GetCachedPipeline(
                 cullMode,
                 depthWriteEnabled,
                 depthComparison,
@@ -615,7 +615,7 @@ namespace OpenSage.Graphics
                 destinationColorFactor,
                 destinationAlphaFactor);
 
-            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            var materialConstantsBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
                 new FixedFunctionShaderResources.MaterialConstantsType
                 {
                     Material = vertexMaterials[vertexMaterialID],
@@ -624,10 +624,10 @@ namespace OpenSage.Graphics
                 },
                 BufferUsage.UniformBuffer));
 
-            var materialResourceSet = AddDisposable(contentManager.ShaderResources.FixedFunction.CreateMaterialResourceSet(
+            var materialResourceSet = AddDisposable(context.ShaderResources.FixedFunction.CreateMaterialResourceSet(
                 materialConstantsBuffer,
-                CreateTexture(contentManager, w3dMesh, textureIndex0) ?? contentManager.StandardGraphicsResources.NullTexture,
-                CreateTexture(contentManager, w3dMesh, textureIndex1) ?? contentManager.StandardGraphicsResources.NullTexture));
+                CreateTexture(context, w3dMesh, textureIndex0) ?? context.StandardGraphicsResources.NullTexture,
+                CreateTexture(context, w3dMesh, textureIndex1) ?? context.StandardGraphicsResources.NullTexture));
 
             return new ModelMeshPart(
                 texCoordsVertexBuffer,

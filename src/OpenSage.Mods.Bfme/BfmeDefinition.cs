@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -28,6 +29,11 @@ namespace OpenSage.Mods.BFME
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
+
+        public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
+        {
+            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.BfmeTexture);
+        }
 
         public static BfmeDefinition Instance { get; } = new BfmeDefinition();
     }
