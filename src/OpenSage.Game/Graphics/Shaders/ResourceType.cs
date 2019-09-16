@@ -34,7 +34,8 @@ namespace OpenSage.Graphics.Shaders
         {
             if (!_members.TryGetValue(name, out var result))
             {
-                throw new InvalidOperationException($"Unknown member '{name}' in type '{Name}'.");
+                // TODO
+                //throw new InvalidOperationException($"Unknown member '{name}' in type '{Name}'.");
             }
             return result;
         }
