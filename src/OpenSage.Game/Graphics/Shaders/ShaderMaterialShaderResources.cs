@@ -23,7 +23,7 @@ namespace OpenSage.Graphics.Shaders
             : base(
                   graphicsDevice,
                   shaderName,
-                  new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 6u),
+                  new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 7u),
                   MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             var materialResourceBindings = createMaterialResourceBindings().ToArray();

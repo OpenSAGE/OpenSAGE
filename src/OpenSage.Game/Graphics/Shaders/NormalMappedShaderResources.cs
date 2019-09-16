@@ -41,7 +41,7 @@ namespace OpenSage.Graphics.Shaders
                 ResourceType.Texture2D);
 
             yield return new ResourceBinding(
-                1,
+                2,
                 new ResourceLayoutElementDescription("NormalMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 ResourceType.Texture2D);
         }
