@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
@@ -8,7 +9,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[ObjectDefinition:{Name}]")]
-    public class ObjectDefinition : BaseInheritableAsset
+    public class ObjectDefinition : BaseInheritableAsset, IHasName
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
@@ -221,7 +222,7 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseLocomotorReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -366,6 +367,11 @@ namespace OpenSage.Logic.Object
         };
 
         public string Name { get; protected set; }
+
+        /// <summary>
+        /// Not stored in .ini file, but implied by load order.
+        /// </summary>
+        public int InternalId { get; internal set; }
 
         // Art
         public int PlacementViewAngle { get; private set; }
@@ -782,7 +788,7 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSetCondition, string[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, string[]>();
+        public Dictionary<LocomotorSetCondition, LazyAssetReference<Locomotor>[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, LazyAssetReference<Locomotor>[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 

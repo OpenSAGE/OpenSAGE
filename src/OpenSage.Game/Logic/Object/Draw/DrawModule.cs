@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics.Cameras;
@@ -67,6 +68,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(ContentManager contentManager) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(AssetLoadContext loadContext) => null; // TODO: Make this abstract.
     }
 }

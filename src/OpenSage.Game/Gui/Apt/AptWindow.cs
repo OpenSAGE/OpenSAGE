@@ -29,6 +29,7 @@ namespace OpenSage.Gui.Apt
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
         public ContentManager ContentManager { get; }
+        internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
 
         /// <summary>
@@ -36,10 +37,11 @@ namespace OpenSage.Gui.Apt
         /// </summary>
         public MappedImage BackgroundImage { get; set; }
 
-        public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
+        internal AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
             _game = game;
             ContentManager = contentManager;
+            AssetStore = game.AssetStore;
             AptFile = aptFile;
 
             //Create our context

@@ -1,8 +1,9 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class Locomotor
+    public sealed class Locomotor : IHasName
     {
         internal static Locomotor Parse(IniParser parser)
         {

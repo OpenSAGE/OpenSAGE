@@ -2,12 +2,14 @@
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class PlayerTemplate
+    public sealed class PlayerTemplate : IHasName
     {
         private static readonly Regex StartingUnitFieldRegex = new Regex(@"^(StartingUnit[A-z]*)([0-9]+)$", RegexOptions.Compiled);
 
@@ -30,7 +32,7 @@ namespace OpenSage.Data.Ini
                     switch (field)
                     {
                         case "StartingUnit":
-                            startingUnits[index].Unit = iniParser.ParseAssetReference();
+                            startingUnits[index].Unit = iniParser.ParseObjectReference();
                             break;
                         case "StartingUnitOffset":
                             startingUnits[index].Offset = iniParser.ParseVector3();
@@ -68,7 +70,7 @@ namespace OpenSage.Data.Ini
             { "SpecialPowerShortcutWinName", (parser, x) => x.SpecialPowerShortcutWinName = parser.ParseFileName() },
             { "SpecialPowerShortcutButtonCount", (parser, x) => x.SpecialPowerShortcutButtonCount = parser.ParseInteger() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
-            { "StartingBuilding", (parser, x) => x.StartingBuilding = parser.ParseAssetReference() },
+            { "StartingBuilding", (parser, x) => x.StartingBuilding = parser.ParseObjectReference() },
             { "ScoreScreenImage", (parser, x) => x.ScoreScreenImage = parser.ParseAssetReference() },
             { "LoadScreenImage", (parser, x) => x.LoadScreenImage = parser.ParseAssetReference() },
             { "LoadScreenMusic", (parser, x) => x.LoadScreenMusic = parser.ParseAssetReference() },
@@ -128,7 +130,7 @@ namespace OpenSage.Data.Ini
         public string SpecialPowerShortcutWinName { get; private set; }
         public int SpecialPowerShortcutButtonCount { get; private set; }
         public string DisplayName { get; private set; }
-        public string StartingBuilding { get; private set; }
+        public LazyAssetReference<ObjectDefinition> StartingBuilding { get; private set; }
         public StartingUnit[] StartingUnits { get; private set; }
         public string ScoreScreenImage { get; private set; }
         public string LoadScreenImage { get; private set; }
@@ -228,7 +230,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class StartingUnit
     {
-        public string Unit { get; internal set; }
+        public LazyAssetReference<ObjectDefinition> Unit { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
         public Vector3 Offset { get; internal set; }

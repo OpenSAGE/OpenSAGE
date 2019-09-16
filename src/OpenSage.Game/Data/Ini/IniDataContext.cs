@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
@@ -58,21 +57,7 @@ namespace OpenSage.Data.Ini
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
         public BannerUI BannerUI { get; internal set; }
-        public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
-        public List<BridgeTemplate> Bridges { get; } = new List<BridgeTemplate>();
-
-        public BridgeTemplate FindBridgeTemplate(string templateName)
-        {
-            var template = Bridges.Find(x => x.Name == templateName);
-
-            if (template == null)
-            {
-                throw new InvalidDataException($"Missing bridge template: {templateName}");
-            }
-
-            return template;
-        }
-
+        public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();        
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
         public ChallengeGenerals ChallengeGenerals { get; internal set; }
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
@@ -111,7 +96,6 @@ namespace OpenSage.Data.Ini
         public FormationAssistant FormationAssistant { get; internal set; }
 
         public List<FXList> FXLists { get; } = new List<FXList>();
-        public List<FXParticleSystemTemplate> FXParticleSystems { get; } = new List<FXParticleSystemTemplate>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public List<HouseColor> HouseColors { get; } = new List<HouseColor>();
@@ -169,8 +153,6 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldRegionEffects LivingWorldRegionEffects { get; internal set; }
-
-        public Dictionary<string, Locomotor> Locomotors { get; } = new Dictionary<string, Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
 
@@ -191,10 +173,8 @@ namespace OpenSage.Data.Ini
         public List<MultiplayerStartingMoneyChoice> MultiplayerStartingMoneyChoices { get; } = new List<MultiplayerStartingMoneyChoice>();
         public List<Multisound> Multisounds { get; } = new List<Multisound>();
         public List<MusicTrack> MusicTracks { get; } = new List<MusicTrack>();
-        public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
-        public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
 
         [AddedIn(SageGame.Bfme)]
         public Pathfinder Pathfinder { get; set; }
@@ -202,12 +182,10 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme)]
         public List<PlayerAIType> PlayerAITypes { get; } = new List<PlayerAIType>();
 
-        public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
 
         [AddedIn(SageGame.Bfme)]
         public RegionCampain RegionCampaign{ get; set; }
-        public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
 
@@ -232,11 +210,9 @@ namespace OpenSage.Data.Ini
 
         public List<StreamedSound> StreamedSounds { get; } = new List<StreamedSound>();
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
-        public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
         public List<VictorySystemData> VictorySystemDatas { get; } = new List<VictorySystemData>();
         public List<Video> Videos { get; } = new List<Video>();
-        public List<WaterSet> WaterSets { get; } = new List<WaterSet>();
         public List<WaterTextureList> WaterTextureLists { get; } = new List<WaterTextureList>();
         public WaterTransparency WaterTransparency { get; internal set; }
         public List<Weapon> Weapons { get; } = new List<Weapon>();
@@ -246,7 +222,6 @@ namespace OpenSage.Data.Ini
         public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
 
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
-        public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
         [AddedIn(SageGame.Bfme2)]

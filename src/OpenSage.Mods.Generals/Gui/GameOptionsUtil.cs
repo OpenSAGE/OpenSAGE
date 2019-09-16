@@ -50,7 +50,7 @@ namespace OpenSage.Mods.Generals.Gui
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
             });
 
-            var playableSides = _game.ContentManager.IniDataContext.PlayerTemplates.FindAll(i => i.PlayableSide);
+            var playableSides = _game.GetPlayableSides();
             if (playableSides.Count > 0)
             {
                 var sideList = playableSides.Select(i => i.DisplayName).ToList();
@@ -254,7 +254,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 // Get the selected player faction
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerTemplatePrefix + i);
-                var playableSides = game.ContentManager.IniDataContext.PlayerTemplates.FindAll(x => x.PlayableSide);
+                var playableSides = game.GetPlayableSides();
 
                 if (selected > 0)
                 {
@@ -283,7 +283,6 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Set map text
             var textEntryMap = _window.Controls.FindControl(_optionsPath + ":TextEntryMapDisplay");
-            var translation = _game.ContentManager.TranslationManager;
             var mapKey = mapCache.GetNameKey();
 
             textEntryMap.Text = mapKey.Translate();

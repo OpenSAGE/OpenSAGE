@@ -28,11 +28,11 @@ namespace OpenSage.Gui.Wnd
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
+                    TransitionManager = new WindowTransitionManager(game.AssetStore.WindowTransitions);
                     break;
 
                 default: // TODO: Handle other games.
-                    TransitionManager = new WindowTransitionManager(new List<Data.Ini.WindowTransition>());
+                    TransitionManager = new WindowTransitionManager(new Content.NamedScopedAssetCollection<WindowTransition>(game.AssetStore));
                     break;
             }
         }

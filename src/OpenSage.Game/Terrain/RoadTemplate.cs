@@ -1,8 +1,11 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
+using Veldrid;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Terrain
 {
-    public sealed class RoadTemplate
+    public sealed class RoadTemplate : IHasName
     {
         internal static RoadTemplate Parse(IniParser parser)
         {
@@ -13,14 +16,14 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<RoadTemplate> FieldParseTable = new IniParseTable<RoadTemplate>
         {
-            { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
+            { "Texture", (parser, x) => x.Texture = parser.ParseTextureReference() },
             { "RoadWidth", (parser, x) => x.RoadWidth = parser.ParseFloat() },
             { "RoadWidthInTexture", (parser, x) => x.RoadWidthInTexture = parser.ParseFloat() }
         };
 
         public string Name { get; private set; }
 
-        public string Texture { get; private set; }
+        public LazyAssetReference<Texture> Texture { get; private set; }
         public float RoadWidth { get; private set; }
         public float RoadWidthInTexture { get; private set; }
     }

@@ -1,9 +1,10 @@
 ﻿using System;
+using OpenSage.Content;
 using OpenSage.FileFormats.W3d;
 
 namespace OpenSage.Graphics.Animation
 {
-    public sealed partial class Animation
+    public sealed partial class Animation : IHasName
     {
         internal static Animation FromW3dFile(W3dFile w3dFile)
         {

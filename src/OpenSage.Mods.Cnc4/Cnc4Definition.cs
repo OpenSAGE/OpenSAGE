@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -25,6 +26,8 @@ namespace OpenSage.Mods.Cnc4
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
+
+        public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc4Definition Instance { get; } = new Cnc4Definition();
     }

@@ -16,7 +16,7 @@ namespace OpenSage.Graphics
             _commandList = AddDisposable(_graphicsDevice.ResourceFactory.CreateCommandList());
 
             _intermediateSpriteBatch = AddDisposable(new SpriteBatch(
-                game.ContentManager,
+                game.GraphicsLoadContext,
                 BlendStateDescription.SingleDisabled,
                 outputDescription));
         }

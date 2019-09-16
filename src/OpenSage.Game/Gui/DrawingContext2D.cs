@@ -26,19 +26,20 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        public DrawingContext2D(
+        internal DrawingContext2D(
             ContentManager contentManager,
+            GraphicsLoadContext loadContext,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
-            _solidWhiteTexture = contentManager.StandardGraphicsResources.SolidWhiteTexture;
+            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
+            _spriteBatch = AddDisposable(new SpriteBatch(loadContext, blendStateDescription, outputDescription));
 
-            _textCache = AddDisposable(new TextCache(contentManager.GraphicsDevice));
+            _textCache = AddDisposable(new TextCache(loadContext.GraphicsDevice));
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);

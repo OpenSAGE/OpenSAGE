@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
@@ -7,10 +6,10 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Terrain
 {
-    public sealed class BridgeTowers : DisposableBase
+    public sealed class BridgeTowers
     {
-        public static BridgeTowers CreateForLandmarkBridge(
-            ContentManager contentManager,
+        internal static BridgeTowers CreateForLandmarkBridge(
+            AssetStore assetStore,
             GameObjectCollection gameObjects,
             GameObject gameObject,
             MapObject mapObject)
@@ -19,14 +18,13 @@ namespace OpenSage.Terrain
                 Matrix4x4.CreateFromQuaternion(gameObject.Transform.Rotation)
                 * Matrix4x4.CreateTranslation(gameObject.Transform.Translation);
 
-            var landmarkBridgeTemplate = contentManager.IniDataContext.FindBridgeTemplate(mapObject.TypeName);
+            var landmarkBridgeTemplate = assetStore.BridgeTemplates.GetByName(mapObject.TypeName);
 
             var halfLength = gameObject.Definition.Geometry.MinorRadius;
             var halfWidth = gameObject.Definition.Geometry.MajorRadius;
 
             return new BridgeTowers(
                 landmarkBridgeTemplate,
-                contentManager,
                 gameObjects,
                 worldMatrix,
                 -halfWidth,
@@ -38,7 +36,6 @@ namespace OpenSage.Terrain
 
         public BridgeTowers(
             BridgeTemplate template,
-            ContentManager contentManager,
             GameObjectCollection gameObjects,
             Matrix4x4 worldMatrix,
             float startX,
@@ -47,10 +44,9 @@ namespace OpenSage.Terrain
             float endY,
             Quaternion rotation)
         {
-            void CreateTower(string objectName, float x, float y)
+            void CreateTower(ObjectDefinition objectDefinition, float x, float y)
             {
-                var tower = AddDisposable(contentManager.InstantiateObject(objectName, gameObjects));
-                gameObjects.Add(tower);
+                var tower = gameObjects.Add(objectDefinition);
 
                 tower.Transform.Translation = Vector3.Transform(
                     new Vector3(x, y, 0),
@@ -59,12 +55,10 @@ namespace OpenSage.Terrain
                 tower.Transform.Rotation = rotation;
             }
 
-            CreateTower(template.TowerObjectNameFromLeft, startX, startY);
-            CreateTower(template.TowerObjectNameFromRight, endX, startY);
-            CreateTower(template.TowerObjectNameToLeft, startX, endY);
-            CreateTower(template.TowerObjectNameToRight, endX, endY);
+            CreateTower(template.TowerObjectNameFromLeft.Value, startX, startY);
+            CreateTower(template.TowerObjectNameFromRight.Value, endX, startY);
+            CreateTower(template.TowerObjectNameToLeft.Value, startX, endY);
+            CreateTower(template.TowerObjectNameToRight.Value, endX, endY);
         }
-
-        // TODO: Remove game objects when this is disposed.
     }
 }

@@ -33,12 +33,12 @@ namespace OpenSage.Tests.Content
                 {
                     _testOutputHelper.WriteLine($"Loading {map.FilePath}...");
 
+                    game.AssetStore.PushScope();
                     using (var scene = game.LoadMap(map.FilePath))
                     {
                         Assert.NotNull(scene);
                     }
-
-                    game.ContentManager.Unload();
+                    game.AssetStore.PopScope();
                 }
             }
 

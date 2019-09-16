@@ -126,33 +126,35 @@ namespace OpenSage.Diagnostics
                 }
             }
 
-            foreach (var asset in Game.ContentManager.CachedObjects)
-            {
-                var assetName = AssetView.GetAssetName(asset);
-                if (assetName == null)
-                {
-                    continue;
-                }
+            var assetStore = Context.Game.AssetStore;
 
-                AddItem(assetName, () => AssetView.CreateAssetView(Context, asset));
+            foreach (var asset in assetStore.Models)
+            {
+                AddItem($"W3DContainer:{asset.Name}", () => new ModelView(Context, asset));
+            }
+            foreach (var asset in assetStore.FXParticleSystems)
+            {
+                AddItem($"FXParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset));
+            }
+            foreach (var asset in assetStore.ObjectDefinitions)
+            {
+                AddItem($"GameObject:{asset.Name}", () => new GameObjectView(Context, asset));
+            }
+            foreach (var asset in assetStore.ParticleSystems)
+            {
+                AddItem($"ParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset.ToFXParticleSystemTemplate()));
+            }
+            foreach (var asset in assetStore.Textures)
+            {
+                AddItem($"Texture:{asset.Name}", () => new TextureView(Context, asset));
             }
 
-            // TODO: Remove these, once audio assets are handled the same as other assets.
-            foreach (var objectDefinition in Context.Game.ContentManager.IniDataContext.Objects)
-            {
-                AddItem($"GameObject:{objectDefinition.Name}", () => new GameObjectView(Context, objectDefinition));
-            }
+            // TODO: Other asset types.
+
+            // TODO: Remove these, once these assets are handled the same as other assets.
             foreach (var audioFilename in _audioFilenames)
             {
                 AddItem($"Audio:{audioFilename}", () => new SoundView(Context, audioFilename));
-            }
-            foreach (var particleSystemDefinition in Context.Game.ContentManager.IniDataContext.ParticleSystems)
-            {
-                AddItem($"ParticleSystem:{particleSystemDefinition.Name}", () => new ParticleSystemView(Context, particleSystemDefinition.ToFXParticleSystemTemplate()));
-            }
-            foreach (var particleSystemTemplate in Context.Game.ContentManager.IniDataContext.FXParticleSystems)
-            {
-                AddItem($"FXParticleSystem:{particleSystemTemplate.Name}", () => new ParticleSystemView(Context, particleSystemTemplate));
             }
         }
     }

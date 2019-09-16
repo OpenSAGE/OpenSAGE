@@ -204,12 +204,12 @@ namespace OpenSage.Scripting
         public string Spawn(string objectType)  //quick spawn
         {
             if (objectType.Equals("")) { objectType = "AmericaVehicleDozer"; }
-            var spawnUnit = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == objectType), Game.Scene3D.LocalPlayer);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, Game.Scene3D.LocalPlayer);
             var localPlayerStartPosition = Game.Scene3D.Waypoints[$"Player_{1}_Start"].Position;
             localPlayerStartPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(localPlayerStartPosition.X, localPlayerStartPosition.Y);
             var spawnUnitPosition = localPlayerStartPosition;
-            var playerTemplate = Game.ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == Game.Scene3D.LocalPlayer.Side);
-            var startingBuilding = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), Game.Scene3D.LocalPlayer);
+            var playerTemplate = Game.Scene3D.LocalPlayer.Template;
+            var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
             spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
             spawnUnit.Transform.Translation = spawnUnitPosition;
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
@@ -218,7 +218,7 @@ namespace OpenSage.Scripting
         public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
         {
             var player = Game.Scene3D.LocalPlayer;
-            var spawnUnit = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == objectType), player);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, player);
             var spawnPosition = new System.Numerics.Vector3(xPos, yPos, zPos);
             spawnPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(spawnPosition.X, spawnPosition.Y);
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }

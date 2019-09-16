@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Data.Ini
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FXParticleSystemTemplate
+    public sealed class FXParticleSystemTemplate : IHasName
     {
         internal static FXParticleSystemTemplate Parse(IniParser parser)
         {
@@ -38,7 +40,7 @@ namespace OpenSage.Data.Ini
             { "IsOneShot", (parser, x) => x.IsOneShot = parser.ParseBoolean() },
             { "Shader", (parser, x) => x.Shader = parser.ParseEnum<ParticleSystemShader>() },
             { "Type", (parser, x) => x.Type = parser.ParseEnum<ParticleSystemType>() },
-            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseFileName() },
+            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseTextureReference() },
             { "PerParticleAttachedSystem", (parser, x) => x.PerParticleAttachedSystem = parser.ParseAssetReference() },
             { "SlaveSystem", (parser, x) => x.SlaveSystem = parser.ParseAssetReference() },
             { "SlavePosOffset", (parser, x) => x.SlavePosOffset = parser.ParseVector3() },
@@ -137,7 +139,7 @@ namespace OpenSage.Data.Ini
         public bool IsOneShot { get; internal set; }
         public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;
         public ParticleSystemType Type { get; internal set; } = ParticleSystemType.Particle;
-        public string ParticleName { get; internal set; }
+        public LazyAssetReference<Texture> ParticleName { get; internal set; }
         public string PerParticleAttachedSystem { get; internal set; }
         public string SlaveSystem { get; internal set; }
         public Vector3 SlavePosOffset { get; internal set; }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -24,6 +25,8 @@ namespace OpenSage.Mods.Ra3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
+
+        public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Ra3UprisingDefinition Instance { get; } = new Ra3UprisingDefinition();
     }

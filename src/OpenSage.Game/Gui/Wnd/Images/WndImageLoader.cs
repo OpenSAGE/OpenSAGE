@@ -21,11 +21,13 @@ namespace OpenSage.Gui.Wnd.Images
         }
 
         private readonly ContentManager _contentManager;
+        private readonly AssetStore _assetStore;
         private readonly Dictionary<WndImageKey, Texture> _cache;
 
-        public WndImageLoader(ContentManager contentManager)
+        internal WndImageLoader(ContentManager contentManager, AssetStore assetStore)
         {
             _contentManager = contentManager;
+            _assetStore = assetStore;
             _cache = new Dictionary<WndImageKey, Texture>();
         }
 
@@ -37,9 +39,9 @@ namespace OpenSage.Gui.Wnd.Images
         }
 
         public Image CreateFileImage(string fileImageName)
-        {        
-            bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
-            var texture = _contentManager.GetGuiTextureFromPath(fileImageName);
+        {
+            var requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+            var texture = _assetStore.GuiTextures.GetByName(fileImageName);
 
             return new Image(fileImageName, new Size((int)texture.Width, (int) texture.Height), size =>
             {
@@ -186,7 +188,7 @@ namespace OpenSage.Gui.Wnd.Images
                 return null;
             }
 
-            return _contentManager.GetMappedImage(mappedImageName);
+            return _assetStore.MappedImages.GetByName(mappedImageName);
         }
 
         private Texture CreateTexture(
@@ -207,7 +209,10 @@ namespace OpenSage.Gui.Wnd.Images
             imageTexture.Name = "WndImage";
 
             var framebuffer = graphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription(null, imageTexture));
-            var spriteBatch = new SpriteBatch(_contentManager, BlendStateDescription.SingleDisabled, framebuffer.OutputDescription);
+            var spriteBatch = new SpriteBatch(
+                new GraphicsLoadContext(graphicsDevice, _assetStore.LoadContext.StandardGraphicsResources, _assetStore.LoadContext.ShaderResources),
+                BlendStateDescription.SingleDisabled,
+                framebuffer.OutputDescription);
             var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
             commandList.Begin();
@@ -216,11 +221,11 @@ namespace OpenSage.Gui.Wnd.Images
 
             spriteBatch.Begin(
                 commandList,
-                _contentManager.StandardGraphicsResources.PointClampSampler,
+                _assetStore.LoadContext.StandardGraphicsResources.PointClampSampler,
                 new SizeF(imageTexture.Width, imageTexture.Height));
 
             spriteBatch.DrawImage(
-                _contentManager.StandardGraphicsResources.SolidWhiteTexture,
+                _assetStore.LoadContext.StandardGraphicsResources.SolidWhiteTexture,
                 null,
                 new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
                 ColorRgbaF.Transparent);

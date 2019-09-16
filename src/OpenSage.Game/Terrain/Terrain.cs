@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
@@ -40,32 +41,32 @@ namespace OpenSage.Terrain
 
         public ResourceSet CloudResourceSet { get; }
 
-        internal Terrain(MapFile mapFile, ContentManager contentManager)
+        internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
-            var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(contentManager.GraphicsDevice));
+            var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
 
             var tileDataTexture = AddDisposable(CreateTileDataTexture(
-                contentManager.GraphicsDevice,
+                loadContext.GraphicsDevice,
                 mapFile,
                 HeightMap));
 
             var cliffDetailsBuffer = AddDisposable(CreateCliffDetails(
-                contentManager.GraphicsDevice,
+                loadContext.GraphicsDevice,
                 mapFile));
 
             CreateTextures(
-                contentManager,
+                loadContext,
                 mapFile.BlendTileData,
                 out var textureArray,
                 out var textureDetails);
 
-            var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
+            var textureDetailsBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainPipeline = contentManager.ShaderResources.Terrain.Pipeline;
+            var terrainPipeline = loadContext.ShaderResources.Terrain.Pipeline;
 
-            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            var materialConstantsBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 new TerrainShaderResources.TerrainMaterialConstants
                 {
                     MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
@@ -74,36 +75,36 @@ namespace OpenSage.Terrain
                 },
                 BufferUsage.UniformBuffer));
 
-            var macroTexture = contentManager.GetTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
+            var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
-            var materialResourceSet = AddDisposable(contentManager.ShaderResources.Terrain.CreateMaterialResourceSet(
+            var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 materialConstantsBuffer,
                 tileDataTexture,
-                cliffDetailsBuffer ?? contentManager.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
                 textureDetailsBuffer,
                 textureArray,
                 macroTexture));
 
             Patches = CreatePatches(
-                contentManager.GraphicsDevice,
+                loadContext.GraphicsDevice,
                 HeightMap,
                 indexBufferCache,
                 materialResourceSet);
 
-            var cloudTexture = contentManager.GetTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+            var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
             cloudTexture.Name = "Cloud texture";
 
-            var cloudResourceLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
+            var cloudResourceLayout = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
-            CloudResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+            CloudResourceSet = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     cloudResourceLayout,
                     cloudTexture)));
             CloudResourceSet.Name = "Cloud resource set";
 
-            _shaderSet = contentManager.ShaderResources.Terrain.ShaderSet;
+            _shaderSet = loadContext.ShaderResources.Terrain.ShaderSet;
             _pipeline = terrainPipeline;
         }
 
@@ -274,12 +275,12 @@ namespace OpenSage.Terrain
         }
 
         private void CreateTextures(
-            ContentManager contentManager,
+            AssetLoadContext loadContext,
             BlendTileData blendTileData,
             out Texture textureArray,
             out TerrainShaderResources.TextureInfo[] textureDetails)
         {
-            var graphicsDevice = contentManager.GraphicsDevice;
+            var graphicsDevice = loadContext.GraphicsDevice;
 
             var numTextures = (uint) blendTileData.Textures.Length;
 
@@ -292,9 +293,9 @@ namespace OpenSage.Terrain
             {
                 var mapTexture = blendTileData.Textures[i];
 
-                var terrainType = contentManager.IniDataContext.TerrainTextures.First(x => x.Name == mapTexture.Name);
+                var terrainType = loadContext.AssetStore.TerrainTextures.GetByName(mapTexture.Name);
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
-                var entry = contentManager.FileSystem.GetFile(texturePath);
+                var entry = loadContext.FileSystem.GetFile(texturePath);
 
                 var size = (uint) TgaFile.GetSquareTextureSize(entry);
 

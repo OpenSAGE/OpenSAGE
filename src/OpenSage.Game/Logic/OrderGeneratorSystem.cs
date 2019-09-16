@@ -99,7 +99,7 @@ namespace OpenSage.Logic
             // TODO: Check that the builder isn't building something else right now?
 
             var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(buildingDefinition) + 1;
+            var definitionIndex = buildingDefinition.InternalId;
 
             ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
         }
@@ -114,7 +114,7 @@ namespace OpenSage.Logic
             // TODO: Check that the building isn't building something else right now?
 
             var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(unitDefinition) + 1;
+            var definitionIndex = unitDefinition.InternalId;
 
             ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
         }

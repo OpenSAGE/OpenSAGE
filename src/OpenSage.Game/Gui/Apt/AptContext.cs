@@ -8,6 +8,7 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptContext
     {
+        private readonly AssetStore _assetStore;
         private readonly ImageMap _imageMap;
         private readonly string _movieName;
 
@@ -17,21 +18,20 @@ namespace OpenSage.Gui.Apt
         public ConstantData Constants => Window.AptFile.Constants;
         //Time per frame in milliseconds
         public uint MillisecondsPerFrame => Window.AptFile.Movie.MillisecondsPerFrame;
-        public ContentManager ContentManager { get; }
         public SpriteItem Root { get; set; }
 
         public AptContext(AptWindow window)
         {
             Window = window;
-            ContentManager = window.ContentManager;
+            _assetStore = window.AssetStore;
 
             Avm = new VM();
         }
 
         //constructor to be used without an apt file
-        public AptContext(ImageMap imageMap, string movieName, ContentManager contentManager)
+        internal AptContext(ImageMap imageMap, string movieName, AssetStore assetStore)
         {
-            ContentManager = contentManager;
+            _assetStore = assetStore;
             _imageMap = imageMap;
             _movieName = movieName;
             Avm = new VM();
@@ -60,7 +60,7 @@ namespace OpenSage.Gui.Apt
             var texId = aptFile.ImageMap.Mapping[id].TextureId;
             var movieName = aptFile.MovieName;
             var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
-            return ContentManager.GetAptTexture(textureFileName);
+            return _assetStore.GuiTextures.GetByName(textureFileName);
         }
 
         public Texture GetTexture(int id, Geometry geom)
@@ -81,7 +81,7 @@ namespace OpenSage.Gui.Apt
 
             var texId = map.Mapping[id].TextureId;
             var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
-            return ContentManager.GetAptTexture(textureFileName);
+            return _assetStore.GuiTextures.GetByName(textureFileName);
         }
     }
 }

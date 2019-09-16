@@ -6,12 +6,66 @@ using OpenSage.Data;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 
-namespace OpenSage.Content
+namespace OpenSage.Content.Loaders
 {
-    internal static class ModelLoader
+    public sealed class OnDemandModelBoneHierarchyLoader : IOnDemandAssetLoader<string, ModelBoneHierarchy>
     {
-        public static Model Load(FileSystemEntry entry, ContentManager contentManager)
+        private readonly IPathResolver _pathResolver;
+
+        public OnDemandModelBoneHierarchyLoader(IPathResolver pathResolver)
         {
+            _pathResolver = pathResolver;
+        }
+
+        ModelBoneHierarchy IOnDemandAssetLoader<string, ModelBoneHierarchy>.Load(string name, AssetLoadContext context)
+        {
+            // Find it in the file system.
+            FileSystemEntry entry = null;
+            foreach (var path in _pathResolver.GetPaths(name, context.Language))
+            {
+                entry = context.FileSystem.GetFile(path);
+                if (entry != null)
+                {
+                    break;
+                }
+            }
+
+            // Load hierarchy.
+            W3dFile hierarchyFile;
+            using (var entryStream = entry.Open())
+            {
+                hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
+            }
+            var w3dHierarchy = hierarchyFile.GetHierarchy();
+            return w3dHierarchy != null
+                ? new ModelBoneHierarchy(w3dHierarchy)
+                : ModelBoneHierarchy.CreateDefault();
+        }
+    }
+
+    public sealed class OnDemandModelLoader : IOnDemandAssetLoader<string, Model>
+    {
+        private readonly IPathResolver _pathResolver;
+
+        public OnDemandModelLoader(IPathResolver pathResolver)
+        {
+            _pathResolver = pathResolver;
+        }
+
+        Model IOnDemandAssetLoader<string, Model>.Load(string name, AssetLoadContext context)
+        {
+            // Find it in the file system.
+            FileSystemEntry entry = null;
+            foreach (var path in _pathResolver.GetPaths(name, context.Language))
+            {
+                entry = context.FileSystem.GetFile(path);
+                if (entry != null)
+                {
+                    break;
+                }
+            }
+
+            // Load model.
             W3dFile w3dFile;
             using (var entryStream = entry.Open())
             {
@@ -28,7 +82,7 @@ namespace OpenSage.Content
             else if (w3dHLod != null && w3dHierarchy == null)
             {
                 // Load referenced hierarchy.
-                boneHierarchy = contentManager.GetModelBoneHierarchy(w3dHLod.Header.HierarchyName);
+                boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByName(w3dHLod.Header.HierarchyName);
             }
             else
             {
@@ -36,13 +90,13 @@ namespace OpenSage.Content
             }
 
             return CreateModel(
-                contentManager,
+                context,
                 w3dFile,
                 boneHierarchy);
         }
 
         private static Model CreateModel(
-            ContentManager contentManager,
+            AssetLoadContext context,
             W3dFile w3dFile,
             ModelBoneHierarchy boneHierarchy)
         {
@@ -66,7 +120,7 @@ namespace OpenSage.Content
 
                     var bone = boneHierarchy.Bones[(int) w3dSubObject.BoneIndex];
 
-                    var mesh = new ModelMesh(w3dMesh, contentManager);
+                    var mesh = new ModelMesh(w3dMesh, context);
 
                     //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -87,7 +141,7 @@ namespace OpenSage.Content
 
                 var w3dMesh = w3dMeshes[0];
 
-                var mesh = new ModelMesh(w3dMesh, contentManager);
+                var mesh = new ModelMesh(w3dMesh, context);
 
                 subObjects.Add(new ModelSubObject(
                     w3dMesh.Header.MeshName,

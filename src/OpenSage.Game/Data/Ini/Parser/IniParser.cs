@@ -5,8 +5,12 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.Graphics;
+using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
+using Veldrid;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -44,10 +48,10 @@ namespace OpenSage.Data.Ini.Parser
             { "BannerType", (parser, context) => context.BannerTypes.Add(BannerType.Parse(parser)) },
             { "BannerUI", (parser, context) => context.BannerUI = BannerUI.Parse(parser) },
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
-            { "Bridge", (parser, context) => context.Bridges.Add(BridgeTemplate.Parse(parser)) },
+            { "Bridge", (parser, context) => parser.AssetStore.BridgeTemplates.Add(BridgeTemplate.Parse(parser)) },
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "ChallengeGenerals", (parser, context) => context.ChallengeGenerals = ChallengeGenerals.Parse(parser) },
-            { "ChildObject", (parser, context) => context.Objects.Add(ChildObject.Parse(parser)) },
+            { "ChildObject", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ChildObject.Parse(parser)) },
             { "CloudEffect", (parser, context) => context.Environment.CloudEffect = CloudEffect.Parse(parser) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
@@ -85,7 +89,7 @@ namespace OpenSage.Data.Ini.Parser
             { "FontSubstitution", (parser, context) => context.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
             { "FormationAssistant", (parser, context) => context.FormationAssistant = FormationAssistant.Parse(parser) },
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
-            { "FXParticleSystem", (parser, context) => context.FXParticleSystems.Add(FXParticleSystemTemplate.Parse(parser)) },
+            { "FXParticleSystem", (parser, context) => parser.AssetStore.FXParticleSystems.Add(FXParticleSystemTemplate.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "GlowEffect", (parser, context) => context.Environment.GlowEffect = GlowEffect.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
@@ -113,15 +117,10 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldRegionEffects", (parser, x) => x.LivingWorldRegionEffects = LivingWorldRegionEffects.Parse(parser) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
-            { "Locomotor", (parser, context) =>
-                {
-                    var locomotor = Locomotor.Parse(parser);
-                    context.Locomotors[locomotor.Name] = locomotor;
-                }
-            },
+            { "Locomotor", (parser, context) => parser.AssetStore.Locomotors.Add(Locomotor.Parse(parser)) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
-            { "MappedImage", (parser, context) => parser.ContentManager.AddMappedImage(MappedImage.Parse(parser)) },
+            { "MappedImage", (parser, context) => parser.AssetStore.MappedImages.Add(MappedImage.Parse(parser)) },
             { "MeshNameMatches", (parser, context) => context.MeshNameMatches.Add(MeshNameMatches.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "MiscEvaData", (parser, context) => context.MiscEvaData = MiscEvaData.Parse(parser) },
@@ -140,14 +139,14 @@ namespace OpenSage.Data.Ini.Parser
                     context.EvaEvents[evaEvent.Name] = evaEvent;
                 }
             },
-            { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
-            { "ObjectReskin", (parser, context) => context.Objects.Add(ObjectDefinition.ParseReskin(parser)) },
+            { "Object", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ObjectDefinition.Parse(parser)) },
+            { "ObjectReskin", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
-            { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystemDefinition.Parse(parser)) },
+            { "ParticleSystem", (parser, context) => parser.AssetStore.ParticleSystems.Add(ParticleSystemDefinition.Parse(parser)) },
             { "Pathfinder", (parser, context) => context.Pathfinder = Pathfinder.Parse(parser) },
             { "PlayerAIType", (parser, context) => context.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
-            { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
+            { "PlayerTemplate", (parser, context) => parser.AssetStore.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, context) =>
                 {
                     var evaEvent = EvaEvent.Parse(parser);
@@ -157,7 +156,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "RegionCampain", (parser, context) => context.RegionCampaign = RegionCampain.Parse(parser) },
             { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
-            { "Road", (parser, context) => context.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
+            { "Road", (parser, context) => parser.AssetStore.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = parser.ParseInteger() },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
             { "ScoredKillEvaAnnouncer", (parser, context) => context.ScoredKillEvaAnnouncers.Add(ScoredKillEvaAnnouncer.Parse(parser)) },
@@ -170,18 +169,18 @@ namespace OpenSage.Data.Ini.Parser
             { "StreamedSound", (parser, context) => context.StreamedSounds.Add(StreamedSound.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "StrategicHUD", (parser, context) => context.StrategicHud = StrategicHud.Parse(parser) },
-            { "Terrain", (parser, context) => context.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
+            { "Terrain", (parser, context) => parser.AssetStore.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
             { "Upgrade", (parser, context) => context.Upgrades.Add(Upgrade.Parse(parser)) },
             { "VictorySystemData", (parser, context) => context.VictorySystemDatas.Add(VictorySystemData.Parse(parser)) },
             { "Video", (parser, context) => context.Videos.Add(Video.Parse(parser)) },
-            { "WaterSet", (parser, context) => context.WaterSets.Add(WaterSet.Parse(parser)) },
+            { "WaterSet", (parser, context) => parser.AssetStore.WaterSets.Add(WaterSet.Parse(parser)) },
             { "WaterTextureList", (parser, context) => context.WaterTextureLists.Add(WaterTextureList.Parse(parser)) },
             { "WaterTransparency", (parser, context) => context.WaterTransparency = WaterTransparency.Parse(parser) },
             { "Weapon", (parser, context) => context.Weapons.Add(Weapon.Parse(parser)) },
             { "Weather", (parser, context) => context.Weather = Weather.Parse(parser) },
             { "WeatherData", (parser, context) => context.WeatherDatas.Add(WeatherData.Parse(parser)) },
             { "WebpageURL", (parser, context) => context.WebpageUrls.Add(WebpageUrl.Parse(parser)) },
-            { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
+            { "WindowTransition", (parser, context) => parser.AssetStore.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
         private static readonly Dictionary<string, Func<IniParser, IniToken>> MacroFunctions = new Dictionary<string, Func<IniParser, IniToken>>
@@ -212,17 +211,16 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
+        public AssetStore AssetStore { get; }
         public SageGame SageGame { get; }
 
-        public ContentManager ContentManager { get; }
-
-        public IniParser(FileSystemEntry entry, ContentManager contentManager)
+        public IniParser(FileSystemEntry entry, AssetStore assetStore, SageGame sageGame, IniDataContext dataContext)
         {
             _directory = Path.GetDirectoryName(entry.FilePath);
-            _dataContext = contentManager.IniDataContext;
+            _dataContext = dataContext;
             _fileSystem = entry.FileSystem;
-            SageGame = contentManager.SageGame;
-            ContentManager = contentManager;
+            AssetStore = assetStore;
+            SageGame = sageGame;
 
             _tokenReader = CreateTokenReader(entry);
 
@@ -562,6 +560,60 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ParseFileName() => ParseIdentifier();
 
+        public LazyAssetReference<Locomotor> ParseLocomotorReference()
+        {
+            var name = ParseAssetReference();
+            return new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(name));
+        }
+
+        public LazyAssetReference<Locomotor>[] ParseLocomotorReferenceArray()
+        {
+            var result = new List<LazyAssetReference<Locomotor>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                var localToken = token;
+                result.Add(new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(localToken.Value.Text)));
+            }
+
+            return result.ToArray();
+        }
+
+        public LazyAssetReference<ObjectDefinition> ParseObjectReference()
+        {
+            var name = ParseAssetReference();
+            return new LazyAssetReference<ObjectDefinition>(() => AssetStore.ObjectDefinitions.GetByName(name));
+        }
+
+        public LazyAssetReference<Texture> ParseTextureReference()
+        {
+            var fileName = ParseFileName();
+            return new LazyAssetReference<Texture>(() => AssetStore.Textures.GetByName(fileName));
+        }
+
+        public LazyAssetReference<Texture> ParseGuiTextureReference()
+        {
+            var fileName = ParseFileName();
+            return new LazyAssetReference<Texture>(() => AssetStore.GuiTextures.GetByName(fileName));
+        }
+
+        public LazyAssetReference<Model> ParseModelReference()
+        {
+            var fileName = ParseFileName();
+            return (!string.Equals(fileName, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? new LazyAssetReference<Model>(() => AssetStore.Models.GetByName(fileName))
+                : null;
+        }
+
+        public LazyAssetReference<Graphics.Animation.Animation> ParseAnimationReference()
+        {
+            var animationName = ParseAnimationName();
+            return (!string.Equals(animationName, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? new LazyAssetReference<Graphics.Animation.Animation>(() => AssetStore.Animations.GetByName(animationName))
+                : null;
+        }
+
         public string ScanBoneName(in IniToken token) => token.Text;
         public string ParseBoneName() => ScanBoneName(GetNextToken());
 
@@ -900,7 +952,7 @@ namespace OpenSage.Data.Ini.Parser
 
                     var includePath = Path.Combine(_directory, includeFileName);
                     var includeEntry = _fileSystem.GetFile(includePath);
-                    var includeParser = new IniParser(includeEntry, ContentManager);
+                    var includeParser = new IniParser(includeEntry, AssetStore, SageGame, _dataContext);
                     includeParser.ParseFile();
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))

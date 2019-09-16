@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -51,11 +52,11 @@ namespace OpenSage.Graphics
 
         public readonly List<AnimationInstance> AnimationInstances;
 
-        internal ModelInstance(Model model, ContentManager contentManager)
+        internal ModelInstance(Model model, AssetLoadContext loadContext)
         {
             Model = model;
 
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
             ModelBoneInstances = new ModelBoneInstance[model.BoneHierarchy.Bones.Length];
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
@@ -88,10 +89,10 @@ namespace OpenSage.Graphics
             }
             else
             {
-                skinningBuffer = contentManager.StandardGraphicsResources.GetNullStructuredBuffer(64);
+                skinningBuffer = loadContext.StandardGraphicsResources.GetNullStructuredBuffer(64);
             }
 
-            SkinningBufferResourceSet = AddDisposable(contentManager.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));
+            SkinningBufferResourceSet = AddDisposable(loadContext.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));
 
             AnimationInstances = new List<AnimationInstance>();
 

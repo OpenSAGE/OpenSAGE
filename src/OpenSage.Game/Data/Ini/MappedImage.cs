@@ -1,11 +1,12 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class MappedImage
+    public sealed class MappedImage : IHasName
     {
         internal static MappedImage Parse(IniParser parser)
         {
@@ -16,7 +17,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<MappedImage> FieldParseTable = new IniParseTable<MappedImage>
         {
-            { "Texture", (parser, x) => { var fileName = parser.ParseFileName(); x.Texture = new LazyAssetReference<Texture>(() => parser.ContentManager.GetGuiTexture(fileName)); } },
+            { "Texture", (parser, x) => x.Texture = parser.ParseGuiTextureReference() },
             { "TextureWidth", (parser, x) => x.TextureWidth = parser.ParseInteger() },
             { "TextureHeight", (parser, x) => x.TextureHeight = parser.ParseInteger() },
             { "Coords", (parser, x) => x.Coords = ParseCoords(parser) },

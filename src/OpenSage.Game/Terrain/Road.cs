@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
-using OpenSage.Data.Ini;
+using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -28,7 +26,7 @@ namespace OpenSage.Terrain
         private readonly BeforeRenderDelegate _beforeRender;
 
         internal Road(
-            ContentManager contentManager,
+            AssetLoadContext loadContext,
             HeightMap heightMap,
             RoadTemplate template,
             in Vector3 startPosition,
@@ -103,7 +101,7 @@ namespace OpenSage.Terrain
 
             _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
-            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 vertices.ToArray(),
                 BufferUsage.VertexBuffer));
 
@@ -122,17 +120,15 @@ namespace OpenSage.Terrain
 
             _numIndices = (uint) indices.Count;
 
-            _indexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
 
-            _shaderSet = contentManager.ShaderResources.Road.ShaderSet;
-            _pipeline = contentManager.ShaderResources.Road.Pipeline;
-
-            var texture = contentManager.GetTexture(template.Texture);
+            _shaderSet = loadContext.ShaderResources.Road.ShaderSet;
+            _pipeline = loadContext.ShaderResources.Road.Pipeline;
 
             // TODO: Cache these resource sets in some sort of scoped data context.
-            _resourceSet = AddDisposable(contentManager.ShaderResources.Road.CreateMaterialResourceSet(texture));
+            _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(template.Texture.Value));
 
             _beforeRender = (cl, context) =>
             {
