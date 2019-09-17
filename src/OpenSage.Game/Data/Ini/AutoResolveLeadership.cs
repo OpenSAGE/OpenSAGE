@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -41,9 +42,9 @@ namespace OpenSage.Data.Ini
         };
 
         public int MinLevel { get; private set; }
-        public float WeaponMultiplier { get; private set; }
-        public float ArmorMultiplier { get; private set; }
-        public float ExperienceMultiplier { get; private set; }
+        public Percentage WeaponMultiplier { get; private set; }
+        public Percentage ArmorMultiplier { get; private set; }
+        public Percentage ExperienceMultiplier { get; private set; }
         public int MaximumUnitsAffected { get; private set; }
         public int Priority { get; private set; }
     }

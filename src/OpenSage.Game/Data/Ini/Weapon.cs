@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -296,7 +297,7 @@ namespace OpenSage.Data.Ini
         public int MaxWeaponSpeed { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HitPercentage { get; private set; }
+        public Percentage HitPercentage { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int PreAttackRandomAmount { get; private set; }
@@ -332,7 +333,7 @@ namespace OpenSage.Data.Ini
         public bool ProjectileSelf { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float HitPassengerPercentage { get; private set; }
+        public Percentage HitPassengerPercentage { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool CanBeDodged { get; private set; }
@@ -611,7 +612,7 @@ namespace OpenSage.Data.Ini
         public string[] RequiredUpgradeNames { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float FlankingBonus { get; private set; }
+        public Percentage FlankingBonus { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int DamageTaperOff { get; private set; }
@@ -1121,7 +1122,7 @@ namespace OpenSage.Data.Ini
             return result;
         }
 
-        public float Scalar { get; private set; }
+        public Percentage Scalar { get; private set; }
         public ObjectFilter Targets { get; private set; }
     }
 

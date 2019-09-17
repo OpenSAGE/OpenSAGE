@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -29,7 +30,7 @@ namespace OpenSage.Logic.Object
         public string FXHitGround { get; private set; }
         public string OCLHitGround { get; private set; }
         public float ThrowForce { get; private set; }
-        public float PercentDamageToPassengers { get; private set; }
+        public Percentage PercentDamageToPassengers { get; private set; }
         public int EmptyHulkDestructionDelay { get; private set; }
     }
 }

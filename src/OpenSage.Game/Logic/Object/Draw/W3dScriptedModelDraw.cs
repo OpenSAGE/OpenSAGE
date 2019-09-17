@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -50,7 +51,7 @@ namespace OpenSage.Logic.Object
         public string RaisedWallMesh { get; private set; }
         public int AlphaCameraFadeOuterRadius { get; private set; }
         public int AlphaCameraFadeInnerRadius { get; private set; }
-        public float AlphaCameraAtInnerRadius { get; private set; }
+        public Percentage AlphaCameraAtInnerRadius { get; private set; }
         public bool UseDefaultAnimation { get; private set; }
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
         public bool AffectedByStealth { get; private set; }

@@ -39,7 +39,7 @@ namespace OpenSage.Data.Ini
         public int FontSize { get; private set; }
         public bool FontIsBold { get; private set; }
 
-        public float DrawPositionXPercent { get; private set; }
+        public Percentage DrawPositionXPercent { get; private set; }
         public float DrawPositionYPixel { get; private set; }
     }
 }

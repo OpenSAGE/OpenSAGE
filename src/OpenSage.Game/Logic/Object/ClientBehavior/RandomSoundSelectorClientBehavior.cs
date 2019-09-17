@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,7 +16,7 @@ namespace OpenSage.Logic.Object
             { "VoicePriority", (parser, x) => x.VoicePriority = parser.ParseInteger() }
         };
 
-        public float Chance { get; private set; }
+        public Percentage Chance { get; private set; }
         public bool RerollOnEveryFrame { get; private set; }
         public int VoicePriority { get; private set; }
     }

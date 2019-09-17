@@ -127,10 +127,10 @@ namespace OpenSage.Logic.Object
         public int MinimumHordeSize { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionRearOverride { get; private set; }
+        public Percentage VisionRearOverride { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionSideOverride { get; private set; }
+        public Percentage VisionSideOverride { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int BannerCarrierMinLevel { get; private set; }

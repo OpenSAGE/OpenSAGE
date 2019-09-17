@@ -400,8 +400,8 @@ namespace OpenSage.Data.Ini
         public string Texture { get; private set; }
         public string Texture2 { get; private set; }
         public RadiusDecalStyle Style { get; private set; }
-        public float OpacityMin { get; private set; }
-        public float OpacityMax { get; private set; }
+        public Percentage OpacityMin { get; private set; }
+        public Percentage OpacityMax { get; private set; }
         public int OpacityThrobTime { get; private set; }
         public ColorRgba Color { get; private set; }
         public bool OnlyVisibleToOwningPlayer { get; private set; }

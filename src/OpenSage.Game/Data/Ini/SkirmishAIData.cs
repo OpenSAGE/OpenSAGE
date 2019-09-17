@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -135,8 +136,8 @@ namespace OpenSage.Data.Ini
         };
 
         public string Name { get; private set; }
-        public float BuildCostReduction { get; private set; }
-        public float BuildTimeReduction { get; private set;}
+        public Percentage BuildCostReduction { get; private set; }
+        public Percentage BuildTimeReduction { get; private set;}
     }
 
     public class DifficultyTuning

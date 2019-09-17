@@ -1,6 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme)]
     public sealed class AmbientStream : BaseSingleSound
@@ -19,27 +19,5 @@ namespace OpenSage.Data.Ini
             });
 
         public string Filename { get; private set; }
-    }
-
-    [AddedIn(SageGame.Bfme)]
-    public enum AudioVolumeSlider
-    {
-        [IniEnum("MUSIC")]
-        Music,
-
-        [IniEnum("MOVIE")]
-        Movie,
-
-        [IniEnum("SOUNDFX")]
-        SoundFX,
-
-        [IniEnum("VOICE")]
-        Voice,
-
-        [IniEnum("AMBIENT")]
-        Ambient,
-
-        [IniEnum("None"), AddedIn(SageGame.Bfme)]
-        None,
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -25,12 +26,12 @@ namespace OpenSage.Data.Ini
         /// Scales all damage done to this unit.
         /// </summary>
         [AddedIn(SageGame.Bfme)]
-        public float DamageScalar { get; private set; }
+        public Percentage DamageScalar { get; private set; }
 
         public List<ArmorValue> Values { get; } = new List<ArmorValue>();
 
         [AddedIn(SageGame.Bfme2)]
-        public float FlankedPenalty { get; private set; }
+        public Percentage FlankedPenalty { get; private set; }
     }
 
     public sealed class ArmorValue
@@ -45,6 +46,6 @@ namespace OpenSage.Data.Ini
         }
 
         public DamageType DamageType { get; private set; }
-        public float Percent { get; private set; }
+        public Percentage Percent { get; private set; }
     }
 }

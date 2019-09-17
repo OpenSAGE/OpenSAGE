@@ -52,7 +52,7 @@ namespace OpenSage.Content
 
                 IniDataContext = new IniDataContext();
 
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, this);
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, game, this);
 
                 switch (sageGame)
                 {
@@ -75,6 +75,10 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.Terrain);
                         SubsystemLoader.Load(Subsystem.Credits);
 
+                        break;
+
+                    case SageGame.Cnc3:
+                        SubsystemLoader.Load(Subsystem.Core);
                         break;
 
                     default:

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -81,7 +82,7 @@ namespace OpenSage.Logic.Object
             { "AnimationPriority", (parser, x) => x.AnimationPriority = parser.ParseInteger() },
             { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
             { "AnimationBlendTime", (parser, x) => x.AnimationBlendTime = parser.ParseInteger() },
-            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
+            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = parser.ParseFloatRange() },
             { "Distance", (parser, x) => x.Distance = parser.ParseFloat() },
             { "AnimationMustCompleteBlend", (parser, x) => x.AnimationMustCompleteBlend = parser.ParseBoolean() },
             { "FadeBeginFrame", (parser, x) => x.FadeBeginFrame = parser.ParseFloat() },

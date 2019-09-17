@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -28,7 +29,7 @@ namespace OpenSage.Logic.Object
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
         public int ContainMax { get; private set; }
-        public float DamagePercentToUnits { get; private set; }
+        public Percentage DamagePercentToUnits { get; private set; }
         public ObjectFilter PassengerFilter { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }

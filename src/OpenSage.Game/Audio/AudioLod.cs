@@ -1,7 +1,8 @@
 ﻿using System;
+using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme)]
     public sealed class AudioLod
@@ -27,9 +28,15 @@ namespace OpenSage.Data.Ini
         public bool AllowReverb { get; private set; }
     }
 
-    public enum AudioLodType
+    public class ScopedAudioLodCollection : ScopedAssetCollection<AudioLodType, AudioLod>
     {
-        Low,
-        High
+        internal ScopedAudioLodCollection(AssetStore assetStore)
+            : base(assetStore)
+        {
+        }
+
+        public AudioLod GetByType(AudioLodType type) => GetByKey(type);
+
+        protected override AudioLodType GetKey(AudioLod asset) => asset.Level;
     }
 }

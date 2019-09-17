@@ -10,8 +10,6 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
         public override object Parse(Asset asset, BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
         {
-            return null;
-
             var twelve = reader.ReadUInt32();
             if (twelve != 12)
             {
@@ -22,13 +20,19 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
             var ddsFile = DdsFile.FromStream(reader.BaseStream);
 
-            return context.GraphicsDevice.CreateStaticTexture2D(
+            var result = context.GraphicsDevice.CreateStaticTexture2D(
                 ddsFile.Header.Width,
                 ddsFile.Header.Height,
                 ddsFile.ArraySize,
                 ddsFile.MipMaps,
                 ddsFile.PixelFormat,
                 ddsFile.Dimension == DdsTextureDimension.TextureCube);
+
+            result.Name = asset.Name;
+
+            context.AssetStore.Textures.Add(result);
+
+            return result;
         }
     }
 }

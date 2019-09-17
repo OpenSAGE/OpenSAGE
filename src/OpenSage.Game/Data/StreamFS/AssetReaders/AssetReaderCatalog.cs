@@ -5,12 +5,17 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 {
     public static class AssetReaderCatalog
     {
-        private static readonly Dictionary<AssetType, AssetReader> _assetReaders;
+        private static readonly Dictionary<AssetType, AssetReader> AssetReaders;
 
         static AssetReaderCatalog()
         {
             var assetReaders = new AssetReader[]
             {
+                new AmbientStreamReader(),
+                new AudioEventReader(),
+                new AudioFileReader(),
+                new AudioLodReader(),
+                new AudioSettingsReader(),
                 new TextureReader(),
                 new W3dCollisionBoxReader(),
                 new W3dContainerReader(),
@@ -18,12 +23,12 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                 new W3dMeshReader(),
             };
 
-            _assetReaders = assetReaders.ToDictionary(x => x.AssetType);
+            AssetReaders = assetReaders.ToDictionary(x => x.AssetType);
         }
 
         public static bool TryGetAssetReader(uint typeId, out AssetReader assetReader)
         {
-            return _assetReaders.TryGetValue((AssetType) typeId, out assetReader);
+            return AssetReaders.TryGetValue((AssetType) typeId, out assetReader);
         }
     }
 }

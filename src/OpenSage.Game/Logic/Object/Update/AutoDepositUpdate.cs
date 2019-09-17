@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -46,7 +47,7 @@ namespace OpenSage.Logic.Object
         public string Upgrade { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float UpgradeBonusPercent { get; private set; }
+        public Percentage UpgradeBonusPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter UpgradeMustBePresent { get; private set; }

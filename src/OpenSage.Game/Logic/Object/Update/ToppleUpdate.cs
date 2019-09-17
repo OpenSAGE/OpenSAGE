@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -23,8 +24,8 @@ namespace OpenSage.Logic.Object
         public bool KillWhenStartToppling { get; private set; }
         public bool ToppleLeftOrRightOnly { get; private set; }
         public bool ReorientToppledRubble { get; private set; }
-        public float BounceVelocityPercent { get; private set; } = 30;
-        public float InitialAccelPercent { get; private set; } = 1;
+        public Percentage BounceVelocityPercent { get; private set; } = new Percentage(0.3f);
+        public Percentage InitialAccelPercent { get; private set; } = new Percentage(0.01f);
         public string StumpName { get; private set; }
     }
 }

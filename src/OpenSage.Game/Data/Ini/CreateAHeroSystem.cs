@@ -58,10 +58,10 @@ namespace OpenSage.Data.Ini
         public float SpecialAnimPercentChance { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
-        public float HeroRevivalDiscount { get; private set; }
+        public Percentage HeroRevivalDiscount { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
-        public float SpecialPowerDiscountPerLevel { get; private set; }
+        public Percentage SpecialPowerDiscountPerLevel { get; private set; }
 
         public List<CreateAHeroBling> CreateAHeroBlings { get; } = new List<CreateAHeroBling>();
         public List<CreateAHeroBlingBinder> CreateAHeroBlingBinders { get; } = new List<CreateAHeroBlingBinder>();

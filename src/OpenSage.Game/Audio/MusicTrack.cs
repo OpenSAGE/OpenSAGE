@@ -1,6 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Audio
 {
     public sealed class MusicTrack : BaseSingleSound
     {

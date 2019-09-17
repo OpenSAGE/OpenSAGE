@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -40,7 +41,7 @@ namespace OpenSage.Logic.Object
             { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
             { "Animation", (parser, x) => x.ParseAnimation(parser) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
+            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = parser.ParseFloatRange() },
             { "IdleAnimation", (parser, x) => x.IdleAnimations.Add(ObjectConditionAnimation.Parse(parser)) },
             { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<AnimationFlags>() },
 

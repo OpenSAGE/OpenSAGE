@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -125,7 +126,7 @@ namespace OpenSage.Data.Ini
         public FadeType FadeTypeForSelection { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float FadeHoldPercent { get; private set; }
+        public Percentage FadeHoldPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool DisplayAtRallyPoint { get; private set; }

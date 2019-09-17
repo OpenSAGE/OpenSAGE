@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -40,7 +41,7 @@ namespace OpenSage.Logic.Object
         public int Slots { get; private set; }
         public string EnterSound { get; private set; }
         public string ExitSound { get; private set; }
-        public float DamagePercentToUnits { get; private set; }
+        public Percentage DamagePercentToUnits { get; private set; }
         public ObjectFilter PassengerFilter { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }
