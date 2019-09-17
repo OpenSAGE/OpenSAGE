@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.StreamFS;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Content
@@ -100,14 +101,16 @@ namespace OpenSage.Content
     public class ConfiguredSubsystemLoader : ISubsystemLoader
     {
         private readonly ContentManager _contentManager;
+        private readonly Game _game;
         private readonly IGameDefinition _gameDefinition;
         private readonly FileSystem _fileSystem;
         private readonly Dictionary<string, LoadSubsystem> _subsystems;
 
-        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, ContentManager contentManager)
+        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
         {
             _gameDefinition = gameDefinition;
             _contentManager = contentManager;
+            _game = game;
             _fileSystem = fileSystem;
 
             _contentManager.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
@@ -133,6 +136,12 @@ namespace OpenSage.Content
                             _contentManager.LoadIniFile(@"Data\INI\Mouse.ini");
                             _contentManager.LoadIniFile(@"Data\INI\Water.ini");
                             _contentManager.LoadIniFile(@"Maps\MapCache.ini");
+                            break;
+
+                        case SageGame.Cnc3:
+                            // TODO: Use .version file.
+                            var manifestFileEntry = _fileSystem.GetFile(@"Data\global_common.manifest");
+                            var gameStream = new GameStream(manifestFileEntry, _game);
                             break;
                     }
                     switch (_gameDefinition.Game)
@@ -329,7 +338,7 @@ namespace OpenSage.Content
 
     public static class SubsystemLoader
     {
-        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, ContentManager contentManager)
+        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
         {
             switch (gameDefinition.Game)
             {
@@ -342,7 +351,7 @@ namespace OpenSage.Content
                 case SageGame.Bfme2Rotwk:
                 case SageGame.Cnc3:
                 case SageGame.Cnc3KanesWrath:
-                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, contentManager);
+                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, game, contentManager);
 
                 default:
                     // TODO: Implement subsystem loader for new XML-based format used in RA3 and beyond.

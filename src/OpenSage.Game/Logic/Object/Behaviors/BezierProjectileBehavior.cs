@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -47,8 +46,8 @@ namespace OpenSage.Logic.Object
 
         public int FirstHeight { get; private set; }
         public int SecondHeight { get; private set; }
-        public float FirstPercentIndent { get; private set; }
-        public float SecondPercentIndent { get; private set; }
+        public Percentage FirstPercentIndent { get; private set; }
+        public Percentage SecondPercentIndent { get; private set; }
         public bool TumbleRandomly { get; private set; }
 
         public bool CrushStyle { get; private set; }
@@ -57,8 +56,8 @@ namespace OpenSage.Logic.Object
         public int BounceDistance { get; private set; }
         public int BounceFirstHeight { get; private set; }
         public int BounceSecondHeight { get; private set; }
-        public float BounceFirstPercentIndent { get; private set; }
-        public float BounceSecondPercentIndet { get; private set; }
+        public Percentage BounceFirstPercentIndent { get; private set; }
+        public Percentage BounceSecondPercentIndet { get; private set; }
         public string GroundHitFX { get; private set; }
         public string GroundHitWeapon { get; private set; }
         public string GroundBounceFX { get; private set; }
@@ -72,8 +71,8 @@ namespace OpenSage.Logic.Object
         public float PreLandingEmotionRadius { get; private set; }
         public int FadeInTime { get; private set; }
         public bool IgnoreTerrainHeight { get; private set; }
-        public float FirstPercentHeight { get; private set; }
-        public float SecondPercentHeight { get; private set; }
+        public Percentage FirstPercentHeight { get; private set; }
+        public Percentage SecondPercentHeight { get; private set; }
         public int FinalStuckTime { get; private set; }
         public bool OrientToFlightPath { get; private set; }
 

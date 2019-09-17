@@ -671,7 +671,7 @@ namespace OpenSage.Data.Ini
         public bool UseSimpleMergeDecals { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float OpacityOfSimpleMergeDecals { get; private set; }
+        public Percentage OpacityOfSimpleMergeDecals { get; private set; }
 
         public bool UseBehindBuildingMarker { get; private set; }
         public int DefaultOcclusionDelay { get; private set; }
@@ -1047,64 +1047,64 @@ namespace OpenSage.Data.Ini
         public MultiPlayerTuningFactor MultiPlayBuildingSpeedMult { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed5 { get; private set; }
+        public Percentage HandicapBuildSpeed5 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed10 { get; private set; }
+        public Percentage HandicapBuildSpeed10 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed15 { get; private set; }
+        public Percentage HandicapBuildSpeed15 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed20 { get; private set; }
+        public Percentage HandicapBuildSpeed20 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed25 { get; private set; }
+        public Percentage HandicapBuildSpeed25 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed30 { get; private set; }
+        public Percentage HandicapBuildSpeed30 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed35 { get; private set; }
+        public Percentage HandicapBuildSpeed35 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed40 { get; private set; }
+        public Percentage HandicapBuildSpeed40 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed45 { get; private set; }
+        public Percentage HandicapBuildSpeed45 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed50 { get; private set; }
+        public Percentage HandicapBuildSpeed50 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed55 { get; private set; }
+        public Percentage HandicapBuildSpeed55 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed60 { get; private set; }
+        public Percentage HandicapBuildSpeed60 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed65 { get; private set; }
+        public Percentage HandicapBuildSpeed65 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed70 { get; private set; }
+        public Percentage HandicapBuildSpeed70 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed75 { get; private set; }
+        public Percentage HandicapBuildSpeed75 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed80 { get; private set; }
+        public Percentage HandicapBuildSpeed80 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed85 { get; private set; }
+        public Percentage HandicapBuildSpeed85 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed90 { get; private set; }
+        public Percentage HandicapBuildSpeed90 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed95 { get; private set; }
+        public Percentage HandicapBuildSpeed95 { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float HandicapBuildSpeed100 { get; private set; }
+        public Percentage HandicapBuildSpeed100 { get; private set; }
 
         public int ValuePerSupplyBox { get; private set; }
 
@@ -1130,8 +1130,8 @@ namespace OpenSage.Data.Ini
         public float MaxLowEnergyProductionSpeed { get; private set; }
         public float LowEnergyPenaltyModifier { get; private set; }
         public float MultipleFactory { get; private set; }
-        public float RefundPercent { get; private set; }
-        public float StealthFriendlyOpacity { get; private set; }
+        public Percentage RefundPercent { get; private set; }
+        public Percentage StealthFriendlyOpacity { get; private set; }
 
         public float CommandCenterHealRange { get; private set; }
         public float CommandCenterHealAmount { get; private set; }
@@ -1158,16 +1158,16 @@ namespace OpenSage.Data.Ini
 
         public WeaponBonusSet WeaponBonuses { get; } = new WeaponBonusSet();
 
-        public float HealthBonusVeteran { get; private set; }
-        public float HealthBonusElite { get; private set; }
-        public float HealthBonusHeroic { get; private set; }
+        public Percentage HealthBonusVeteran { get; private set; }
+        public Percentage HealthBonusElite { get; private set; }
+        public Percentage HealthBonusHeroic { get; private set; }
 
-        public float HumanSoloPlayerHealthBonusEasy { get; private set; }
-        public float HumanSoloPlayerHealthBonusNormal { get; private set; }
-        public float HumanSoloPlayerHealthBonusHard { get; private set; }
+        public Percentage HumanSoloPlayerHealthBonusEasy { get; private set; }
+        public Percentage HumanSoloPlayerHealthBonusNormal { get; private set; }
+        public Percentage HumanSoloPlayerHealthBonusHard { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float AttributeModifierArmorMaxBonus { get; private set; }
+        public Percentage AttributeModifierArmorMaxBonus { get; private set; }
 
         public int GroupSelectMinSelectSize { get; private set; }
         public float GroupSelectVolumeBase { get; private set; }
@@ -1193,9 +1193,9 @@ namespace OpenSage.Data.Ini
         public float MaxShakeIntensity { get; private set; }
         public float MaxShakeRange { get; private set; }
 
-        public float SellPercentage { get; private set; }
+        public Percentage SellPercentage { get; private set; }
 
-        public float BaseRegenHealthPercentPerSecond { get; private set; }
+        public Percentage BaseRegenHealthPercentPerSecond { get; private set; }
         public int BaseRegenDelay { get; private set; }
 
         public string SpecialPowerViewObject { get; private set; }
@@ -1597,7 +1597,7 @@ namespace OpenSage.Data.Ini
         }
     }
 
-    public sealed class WeaponBonus : Dictionary<WeaponBonusAttributeType, float>
+    public sealed class WeaponBonus : Dictionary<WeaponBonusAttributeType, Percentage>
     {
         
     }

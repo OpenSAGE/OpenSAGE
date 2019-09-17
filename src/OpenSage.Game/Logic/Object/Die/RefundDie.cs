@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -18,6 +19,6 @@ namespace OpenSage.Logic.Object
 
         public string UpgradeRequired { get; private set; }
         public ObjectFilter BuildingRequired { get; private set; }
-        public float RefundPercent { get; private set; }
+        public Percentage RefundPercent { get; private set; }
     }
 }

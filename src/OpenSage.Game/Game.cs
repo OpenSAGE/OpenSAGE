@@ -417,7 +417,12 @@ namespace OpenSage
                 SetCursor("Arrow");
 
                 var playerTemplate = AssetStore.PlayerTemplates.GetBySide("Civilian");
-                CivilianPlayer = Player.FromTemplate(playerTemplate);
+
+                // TODO: This should never be null
+                if (playerTemplate != null)
+                {
+                    CivilianPlayer = Player.FromTemplate(playerTemplate);
+                }
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
 
@@ -505,7 +510,11 @@ namespace OpenSage
                 Scripting.Active = true;
             }
 
-            Definition.MainMenu.AddToScene(this, Scene2D, useShellMap);
+            // TODO: MainMenu should never be null.
+            if (Definition.MainMenu != null)
+            {
+                Definition.MainMenu.AddToScene(this, Scene2D, useShellMap);
+            }
         }
 
         internal Scene3D LoadMap(string mapPath)

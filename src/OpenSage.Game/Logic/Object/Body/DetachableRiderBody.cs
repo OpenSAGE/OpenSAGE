@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,7 +16,7 @@ namespace OpenSage.Logic.Object
                 { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseString() },
             });
 
-        public float HealthPercentageWhenRiderDies { get; private set; }
+        public Percentage HealthPercentageWhenRiderDies { get; private set; }
         public bool StartsActive { get; private set; }
         public string TriggeredBy { get; private set; }
     }

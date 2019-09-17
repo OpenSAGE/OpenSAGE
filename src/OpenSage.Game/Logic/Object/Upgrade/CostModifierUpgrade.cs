@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,7 +22,7 @@ namespace OpenSage.Logic.Object
             });
 
         public ObjectKinds EffectKindOf { get; private set; }
-        public List<float> Percentages { get; private set; } = new List<float>();
+        public List<Percentage> Percentages { get; private set; } = new List<Percentage>();
 
         [AddedIn(SageGame.Bfme)]
         public string LabelForPalantirString { get; private set; }

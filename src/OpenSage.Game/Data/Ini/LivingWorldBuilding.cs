@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -107,7 +108,7 @@ namespace OpenSage.Data.Ini
 
 
         public int ID { get; private set; }
-        public float Armor { get; private set; }
+        public Percentage Armor { get; private set; }
     }
 
     public class ArmyToSpawn

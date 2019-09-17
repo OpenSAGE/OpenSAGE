@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -42,12 +43,12 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Percentage of shot distance along which first control point are placed.
         /// </summary>
-        public float FirstPercentIndent { get; private set; }
+        public Percentage FirstPercentIndent { get; private set; }
 
         /// <summary>
         /// Percentage of shot distance along which second control point are placed.
         /// </summary>
-        public float SecondPercentIndent { get; private set; }
+        public Percentage SecondPercentIndent { get; private set; }
 
         public ObjectKinds GarrisonHitKillRequiredKindOf { get; private set; }
         public ObjectKinds GarrisonHitKillForbiddenKindOf { get; private set; }

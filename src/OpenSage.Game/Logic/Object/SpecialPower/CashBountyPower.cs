@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -12,6 +13,6 @@ namespace OpenSage.Logic.Object
                 { "Bounty", (parser, x) => x.Bounty = parser.ParsePercentage() },
             });
 
-        public float Bounty { get; private set; }
+        public Percentage Bounty { get; private set; }
     }
 }

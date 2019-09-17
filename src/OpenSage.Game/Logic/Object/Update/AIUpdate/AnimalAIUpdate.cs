@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,7 +22,7 @@ namespace OpenSage.Logic.Object
 
         public int FleeRange { get; private set; }
         public int FleeDistance { get; private set; }
-        public float WanderPercentage { get; private set; }
+        public Percentage WanderPercentage { get; private set; }
         public int MaxWanderDistance { get; private set; }
         public int MaxWanderRadius { get; private set; }
         public int UpdateTimer { get; private set; }

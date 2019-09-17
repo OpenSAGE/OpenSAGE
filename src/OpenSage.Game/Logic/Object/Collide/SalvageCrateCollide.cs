@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -29,9 +30,9 @@ namespace OpenSage.Logic.Object
             });
 
         public string PickupScience { get; private set; }
-        public float WeaponChance { get; private set; }
-        public float LevelChance { get; private set; }
-        public float MoneyChance { get; private set; }
+        public Percentage WeaponChance { get; private set; }
+        public Percentage LevelChance { get; private set; }
+        public Percentage MoneyChance { get; private set; }
         public int MinMoney { get; private set; }
         public int MaxMoney { get; private set; }
 
@@ -39,19 +40,19 @@ namespace OpenSage.Logic.Object
         public string ExecuteFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float PorterChance { get; private set; }
+        public Percentage PorterChance { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float BannerChance { get; private set; }
+        public Percentage BannerChance { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float LevelUpChance { get; private set; }
+        public Percentage LevelUpChance { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float LevelUpRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float ResourceChance { get; private set; }
+        public Percentage ResourceChance { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int MinResource { get; private set; }

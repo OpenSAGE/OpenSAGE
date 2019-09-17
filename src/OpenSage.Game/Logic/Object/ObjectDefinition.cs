@@ -867,10 +867,10 @@ namespace OpenSage.Logic.Object
         public string ThingClass { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float MinCrushVelocityPercent { get; private set; }
+        public Percentage MinCrushVelocityPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float CrushDecelerationPercent { get; private set; }
+        public Percentage CrushDecelerationPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int RamPower { get; private set; }
@@ -1059,16 +1059,16 @@ namespace OpenSage.Logic.Object
         public float ShockwaveResistance { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionSide { get; private set; }
+        public Percentage VisionSide { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionRear { get; private set; }
+        public Percentage VisionRear { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionBonusPercentPerFoot { get; private set; }
+        public Percentage VisionBonusPercentPerFoot { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float MaxVisionBonusPercent { get; private set; }
+        public Percentage MaxVisionBonusPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int VisionBonusTestRadius { get; private set; }

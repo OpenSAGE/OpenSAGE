@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -87,10 +88,10 @@ namespace OpenSage.Data.Ini
         public string FadeMethod { get; private set; }
         public bool HideWhenUnselected { get; private set; }
         public FadeType FadeTypeForSelection { get; private set; }
-        public float FadeHoldPercent { get; private set; }
+        public Percentage FadeHoldPercent { get; private set; }
         public FadeType FadeTypeForShowing { get; private set; }
         public FadeType FadeTypeForHiding { get; private set; }
-        public int  FadeInTime { get; private set; }
-        public int  FadeOutTime { get; private set; }
+        public int FadeInTime { get; private set; }
+        public int FadeOutTime { get; private set; }
     }
 }

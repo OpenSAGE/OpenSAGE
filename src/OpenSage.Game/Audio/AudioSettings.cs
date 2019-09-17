@@ -1,7 +1,10 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System;
+using System.IO;
+using OpenSage.Data.Ini.Parser;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Audio
 {
     public sealed class AudioSettings
     {
@@ -24,14 +27,14 @@ namespace OpenSage.Data.Ini
             { "MixaheadLatencyDuringMovies", (parser, x) => x.MixaheadLatencyDuringMovies = parser.ParseInteger() },
             { "3DBufferLengthMS", (parser, x) => x._3DBufferLengthMS = parser.ParseInteger() },
             { "3DBufferCallbackCallsPerBufferLength", (parser, x) => x._3DBufferCallbackCallsPerBufferLength = parser.ParseInteger() },
-            { "ForceResetTimeSeconds", (parser, x) => x.ForceResetTimeSeconds = parser.ParseInteger() },
-            { "EmergencyResetTimeSeconds", (parser, x) => x.EmergencyResetTimeSeconds = parser.ParseInteger() },
+            { "ForceResetTimeSeconds", (parser, x) => x.ForceResetTime = parser.ParseTimeSeconds() },
+            { "EmergencyResetTimeSeconds", (parser, x) => x.EmergencyResetTime = parser.ParseTimeSeconds() },
             { "MusicScriptLibraryName", (parser, x) => x.MusicScriptLibraryName = parser.ParseFileName() },
-            { "AutomaticSubtitleDurationMS", (parser, x) => x.AutomaticSubtitleDurationMS = parser.ParseInteger() },
+            { "AutomaticSubtitleDurationMS", (parser, x) => x.AutomaticSubtitleDuration = parser.ParseTimeMilliseconds() },
             { "AutomaticSubtitleWindowWidth", (parser, x) => x.AutomaticSubtitleWindowWidth = parser.ParseInteger() },
             { "AutomaticSubtitleLines", (parser, x) => x.AutomaticSubtitleLines = parser.ParseInteger() },
-            { "AutomaticSubtitleWindowColor", (parser, x) => x.AutomaticSubtitleWindowColor = parser.ParseColorRgba() },
-            { "AutomaticSubtitleTextColor", (parser, x) => x.AutomaticSubtitleTextColor = parser.ParseColorRgba() },
+            { "AutomaticSubtitleWindowColor", (parser, x) => x.AutomaticSubtitleWindowColor = parser.ParseColorRgba().ToColorRgbaF() },
+            { "AutomaticSubtitleTextColor", (parser, x) => x.AutomaticSubtitleTextColor = parser.ParseColorRgba().ToColorRgbaF() },
             { "PositionDeltaForReverbRecheck", (parser, x) => x.PositionDeltaForReverbRecheck = parser.ParseInteger() },
             { "SampleCount2D", (parser, x) => x.SampleCount2D = parser.ParseInteger() },
             { "SampleCount3D", (parser, x) => x.SampleCount3D = parser.ParseInteger() },
@@ -39,7 +42,7 @@ namespace OpenSage.Data.Ini
             { "GlobalMinRange", (parser, x) => x.GlobalMinRange = parser.ParseFloat() },
             { "GlobalMaxRange", (parser, x) => x.GlobalMaxRange = parser.ParseFloat() },
             { "TimeBetweenDrawableSounds", (parser, x) => x.TimeBetweenDrawableSounds = parser.ParseInteger() },
-            { "TimeToFadeAudio", (parser, x) => x.TimeToFadeAudio = parser.ParseInteger() },
+            { "TimeToFadeAudio", (parser, x) => x.TimeToFadeAudio = parser.ParseTimeMilliseconds() },
             { "AudioFootprintInBytes", (parser, x) => x.AudioFootprintInBytes = parser.ParseInteger() },
             { "MinSampleVolume", (parser, x) => x.MinSampleVolume = parser.ParseInteger() },
             { "AmbientStreamHysteresisVolume", (parser, x) => x.AmbientStreamHysteresisVolume = parser.ParseInteger() },
@@ -115,8 +118,62 @@ namespace OpenSage.Data.Ini
 
             { "VoiceMoveToCampMaxCampnessAtStartPoint", (parser, x) => x.VoiceMoveToCampMaxCampnessAtStartPoint = parser.ParseInteger() },
             { "VoiceMoveToCampMinCampnessAtEndPoint", (parser, x) => x.VoiceMoveToCampMinCampnessAtEndPoint = parser.ParseInteger() },
-            { "MinDelayBetweenEnterStateVoiceMS", (parser, x) => x.MinDelayBetweenEnterStateVoiceMS = parser.ParseInteger() },
+            { "MinDelayBetweenEnterStateVoiceMS", (parser, x) => x.MinDelayBetweenEnterStateVoice = parser.ParseTimeMilliseconds() },
         };
+
+        internal static AudioSettings ParseAsset(BinaryReader reader)
+        {
+            var result = new AudioSettings();
+
+            var streamBufferSizePerChannel = reader.ReadUInt32();
+            var maxRequestsPerStream = reader.ReadUInt32();
+            result.ForceResetTime = reader.ReadTime();
+            result.EmergencyResetTime = reader.ReadTime();
+            result.MinOcclusion = reader.ReadPercentage();
+            var delayPriorToPlayingToReadSoundFile = reader.ReadSingle();
+            var readAheadTime = reader.ReadSingle();
+            var queueAheadTime = reader.ReadSingle();
+            var longTime = reader.ReadSingle();
+            result.AudioFootprintInBytes = reader.ReadInt32();
+
+            result.DefaultSoundVolume = reader.ReadPercentage();
+            result.DefaultVoiceVolume = reader.ReadPercentage();
+            result.DefaultMusicVolume = reader.ReadPercentage();
+            result.DefaultMovieVolume = reader.ReadPercentage();
+            result.DefaultAmbientVolume = reader.ReadPercentage();
+            result.AutomaticSubtitleDuration = reader.ReadTime();
+            result.AutomaticSubtitleLines = reader.ReadInt32();
+            var panRadiusScaleValue = reader.ReadSingle();
+            var panSize = reader.ReadSingle();
+            result.MinSampleVolume = reader.ReadSingle();
+            result.PositionDeltaForReverbRecheck = reader.ReadSingle();
+            result.TimeToFadeAudio = reader.ReadTime();
+            result.AmbientStreamHysteresisVolume = reader.ReadInt32();
+            var volumeMultiplierFor2DSounds = reader.ReadSingle();
+
+            result.VoiceMoveToCampMaxCampnessAtStartPoint = reader.ReadInt32();
+            result.VoiceMoveToCampMinCampnessAtEndPoint = reader.ReadInt32();
+            result.MinDelayBetweenEnterStateVoice = reader.ReadTime();
+            var timeSinceLastAttackForVoiceRetreatToCastle = reader.ReadSingle();
+            var distanceToLookForEnemiesForVoiceRetreatToCastle = reader.ReadSingle();
+            var postPostGameMusicWait = reader.ReadSingle();
+
+            result.AutomaticSubtitleWindowColor = reader.ReadColorRgbaF();
+            result.AutomaticSubtitleTextColor = reader.ReadColorRgbaF();
+
+            result.VolumeSliderMultipliersForMovie = reader.ReadArrayAtOffset(() => VolumeSliderMultiplier.ParseAsset(reader));
+
+            result.TacticalMicSettings = MicrophoneSettings.ParseAsset(reader);
+            result.LivingWorldMicSettings = MicrophoneSettings.ParseAsset(reader);
+            result.ShellMicSettings = MicrophoneSettings.ParseAsset(reader);
+
+            result.VolumeCompressionSettings = VolumeCompressionSettings.ParseAsset(reader);
+
+            result.SuppressOcclusion = reader.ReadBooleanChecked();
+            var playEnemySightedEventsOnlyFromNearbyUnits = reader.ReadBooleanChecked();
+
+            return result;
+        }
 
         public string AudioRoot { get; private set; }
         public string SoundsFolder { get; private set; }
@@ -146,16 +203,16 @@ namespace OpenSage.Data.Ini
         public int _3DBufferCallbackCallsPerBufferLength { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int ForceResetTimeSeconds { get; private set; }
+        public TimeSpan ForceResetTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int EmergencyResetTimeSeconds { get; private set; }
+        public TimeSpan EmergencyResetTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string MusicScriptLibraryName { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int AutomaticSubtitleDurationMS { get; private set; }
+        public TimeSpan AutomaticSubtitleDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int AutomaticSubtitleWindowWidth { get; private set; }
@@ -164,13 +221,13 @@ namespace OpenSage.Data.Ini
         public int AutomaticSubtitleLines { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ColorRgba AutomaticSubtitleWindowColor { get; private set; }
+        public ColorRgbaF AutomaticSubtitleWindowColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ColorRgba AutomaticSubtitleTextColor { get; private set; }
+        public ColorRgbaF AutomaticSubtitleTextColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int PositionDeltaForReverbRecheck { get; private set; }
+        public float PositionDeltaForReverbRecheck { get; private set; }
 
         public int SampleCount2D { get; private set; }
         public int SampleCount3D { get; private set; }
@@ -178,29 +235,29 @@ namespace OpenSage.Data.Ini
         public float GlobalMinRange { get; private set; }
         public float GlobalMaxRange { get; private set; }
         public int TimeBetweenDrawableSounds { get; private set; }
-        public int TimeToFadeAudio { get; private set; }
+        public TimeSpan TimeToFadeAudio { get; private set; }
         public int AudioFootprintInBytes { get; private set; }
-        public int MinSampleVolume { get; private set; }
+        public float MinSampleVolume { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int AmbientStreamHysteresisVolume { get; private set; }
 
-        public float Relative2DVolume { get; private set; }
+        public Percentage Relative2DVolume { get; private set; }
 
-        public float DefaultSoundVolume { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public float DefaultAmbientVolume { get; private set; }
+        public Percentage DefaultSoundVolume { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float DefaultMovieVolume { get; private set; }
+        public Percentage DefaultAmbientVolume { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float DefaultVoiceVolume { get; private set; }
+        public Percentage DefaultMovieVolume { get; private set; }
 
-        public float Default3DSoundVolume { get; private set; }
-        public float DefaultSpeechVolume { get; private set; }
-        public float DefaultMusicVolume { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public Percentage DefaultVoiceVolume { get; private set; }
+
+        public Percentage Default3DSoundVolume { get; private set; }
+        public Percentage DefaultSpeechVolume { get; private set; }
+        public Percentage DefaultMusicVolume { get; private set; }
         public string Default2DSpeakerType { get; private set; }
         public string Default3DSpeakerType { get; private set; }
 
@@ -210,10 +267,10 @@ namespace OpenSage.Data.Ini
 
         public float MicrophoneDesiredHeightAboveTerrain { get; private set; }
 
-        public float MicrophoneMaxPercentageBetweenGroundAndCamera { get; private set; }
+        public Percentage MicrophoneMaxPercentageBetweenGroundAndCamera { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float MicrophonePreferredFractionCameraToGround { get; private set; }
+        public Percentage MicrophonePreferredFractionCameraToGround { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float MicrophoneMinDistanceToCamera { get; private set; }
@@ -222,15 +279,15 @@ namespace OpenSage.Data.Ini
         public float MicrophoneMaxDistanceToCamera { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float MicrophonePullTowardsTerrainLookAtPointPercent { get; private set; }
+        public Percentage MicrophonePullTowardsTerrainLookAtPointPercent { get; private set; }
 
         public float ZoomMinDistance { get; private set; }
         public float ZoomMaxDistance { get; private set; }
 
-        public float ZoomSoundVolumePercentageAmount { get; private set; }
+        public Percentage ZoomSoundVolumePercentageAmount { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float LivingWorldMicrophonePreferredFractionCameraToGround { get; private set; }
+        public Percentage LivingWorldMicrophonePreferredFractionCameraToGround { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float LivingWorldMicrophoneMaxDistanceToCamera { get; private set; }
@@ -260,82 +317,82 @@ namespace OpenSage.Data.Ini
         public int ZoomFadeFullEffectEdgeLength { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float MinOcclusion { get; private set; }
+        public Percentage MinOcclusion { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalPaddedCellReverbMultiplier { get; private set; }
+        public Percentage GlobalPaddedCellReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalRoomReverbMultiplier { get; private set; }
+        public Percentage GlobalRoomReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalBathroomReverbMultiplier { get; private set; }
+        public Percentage GlobalBathroomReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalLivingRoomReverbMultiplier { get; private set; }
+        public Percentage GlobalLivingRoomReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalStoneRoomReverbMultiplier { get; private set; }
+        public Percentage GlobalStoneRoomReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalAuditoriumReverbMultiplier { get; private set; }
+        public Percentage GlobalAuditoriumReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalConcertHallReverbMultiplier { get; private set; }
+        public Percentage GlobalConcertHallReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalCaveReverbMultiplier { get; private set; }
+        public Percentage GlobalCaveReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalArenaReverbMultiplier { get; private set; }
+        public Percentage GlobalArenaReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalHangarReverbMultiplier { get; private set; }
+        public Percentage GlobalHangarReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalCarpetedHallwayReverbMultiplier { get; private set; }
+        public Percentage GlobalCarpetedHallwayReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalHallwayReverbMultiplier { get; private set; }
+        public Percentage GlobalHallwayReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalStoneCorridorReverbMultiplier { get; private set; }
+        public Percentage GlobalStoneCorridorReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalAlleyReverbMultiplier { get; private set; }
+        public Percentage GlobalAlleyReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalForestReverbMultiplier { get; private set; }
+        public Percentage GlobalForestReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalCityReverbMultiplier { get; private set; }
+        public Percentage GlobalCityReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalMountainsReverbMultiplier { get; private set; }
+        public Percentage GlobalMountainsReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalQuarryReverbMultiplier { get; private set; }
+        public Percentage GlobalQuarryReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalPlainReverbMultiplier { get; private set; }
+        public Percentage GlobalPlainReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalParkingLotReverbMultiplier { get; private set; }
+        public Percentage GlobalParkingLotReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalSewerPipeReverbMultiplier { get; private set; }
+        public Percentage GlobalSewerPipeReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalUnderwaterReverbMultiplier { get; private set; }
+        public Percentage GlobalUnderwaterReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalDruggedReverbMultiplier { get; private set; }
+        public Percentage GlobalDruggedReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalDizzyReverbMultiplier { get; private set; }
+        public Percentage GlobalDizzyReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float GlobalPsychoticReverbMultiplier { get; private set; }
+        public Percentage GlobalPsychoticReverbMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int VoiceMoveToCampMaxCampnessAtStartPoint { get; private set; }
@@ -344,6 +401,75 @@ namespace OpenSage.Data.Ini
         public int VoiceMoveToCampMinCampnessAtEndPoint { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public int MinDelayBetweenEnterStateVoiceMS { get; private set; }
+        public TimeSpan MinDelayBetweenEnterStateVoice { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public VolumeSliderMultiplier[] VolumeSliderMultipliersForMovie { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public MicrophoneSettings TacticalMicSettings { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public MicrophoneSettings LivingWorldMicSettings { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public MicrophoneSettings ShellMicSettings { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public VolumeCompressionSettings VolumeCompressionSettings { get; private set; }
+    }
+
+    public sealed class MicrophoneSettings
+    {
+        internal static MicrophoneSettings ParseAsset(BinaryReader reader)
+        {
+            return new MicrophoneSettings
+            {
+                MicrophonePreferredFractionCameraToGround = reader.ReadSingle(),
+                VolumeMicrophonePullTowardsTerrainLookAtPoint = reader.ReadSingle(),
+                PanningMicrophonePullTowardsTerrainLookAtPoint = reader.ReadSingle(),
+                MicrophoneMinDistanceToCamera = reader.ReadSingle(),
+                MicrophoneMaxDistanceToCamera = reader.ReadSingle(),
+                ZoomMinDistance = reader.ReadSingle(),
+                ZoomMaxDistance = reader.ReadSingle(),
+                ZoomSoundVolumePercentageAmount = reader.ReadSingle(),
+                ZoomFadeDistanceForMaxEffect = reader.ReadSingle(),
+                ZoomFadeZeroEffectEdgeLength = reader.ReadSingle(),
+                ZoomFadeFullEffectEdgeLength = reader.ReadSingle()
+            };
+        }
+
+        public float MicrophonePreferredFractionCameraToGround { get; private set; }
+        public float VolumeMicrophonePullTowardsTerrainLookAtPoint { get; private set; }
+        public float PanningMicrophonePullTowardsTerrainLookAtPoint { get; private set; }
+        public float MicrophoneMinDistanceToCamera { get; private set; }
+        public float MicrophoneMaxDistanceToCamera { get; private set; }
+        public float ZoomMinDistance { get; private set; }
+        public float ZoomMaxDistance { get; private set; }
+        public float ZoomSoundVolumePercentageAmount { get; private set; }
+        public float ZoomFadeDistanceForMaxEffect { get; private set; }
+        public float ZoomFadeZeroEffectEdgeLength { get; private set; }
+        public float ZoomFadeFullEffectEdgeLength { get; private set; }
+    }
+
+    public sealed class VolumeCompressionSettings
+    {
+        internal static VolumeCompressionSettings ParseAsset(BinaryReader reader)
+        {
+            return new VolumeCompressionSettings
+            {
+                Threshold = reader.ReadSingle(),
+                Ratio = reader.ReadSingle(),
+                AttackTime = reader.ReadTime(),
+                ReleaseTime = reader.ReadTime(),
+                AppliesEquallyToAllChannels = reader.ReadBooleanChecked()
+            };
+        }
+
+        public float Threshold { get; private set; }
+        public float Ratio { get; private set; }
+        public TimeSpan AttackTime { get; private set; }
+        public TimeSpan ReleaseTime { get; private set; }
+        public bool AppliesEquallyToAllChannels { get; private set; }
     }
 }

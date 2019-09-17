@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -35,12 +36,12 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Amount of damage, as a percentage of max health, to take per second when out of ammo.
         /// </summary>
-        public float OutOfAmmoDamagePerSecond { get; private set; }
+        public Percentage OutOfAmmoDamagePerSecond { get; private set; }
 
-        public float TakeoffSpeedForMaxLift { get; private set; }
+        public Percentage TakeoffSpeedForMaxLift { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public float TakeoffDistForMaxLift { get; private set; }
+        public Percentage TakeoffDistForMaxLift { get; private set; }
 
         public int TakeoffPause { get; private set; }
         public int MinHeight { get; private set; }

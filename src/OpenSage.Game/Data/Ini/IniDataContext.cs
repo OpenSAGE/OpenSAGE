@@ -14,7 +14,6 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public List<AIDozerAssignment> AIDozerAssignments { get; } = new List<AIDozerAssignment>();
 
-        public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
         public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
 
@@ -26,10 +25,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public List<ArmyDefinition> ArmyDefinitions { get; } = new List<ArmyDefinition>();
 
-        public Dictionary<string, AudioEvent> AudioEvents { get; } = new Dictionary<string, AudioEvent>();
-        public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
         public int AudioLowMHz { get; internal set; }
-        public AudioSettings AudioSettings { get; internal set; }
 
         [AddedIn(SageGame.Bfme2)]
         public List<AutoResolveArmor> AutoResolveArmors { get; } = new List<AutoResolveArmor>();
@@ -76,7 +72,6 @@ namespace OpenSage.Data.Ini
         public List<CrowdResponse> CrowdResponses { get; } = new List<CrowdResponse>();
 
         public List<DamageFX> DamageFXs { get; } = new List<DamageFX>();
-        public List<DialogEvent> DialogEvents { get; } = new List<DialogEvent>();
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
         public List<EmotionNugget> EmotionNuggets { get; } = new List<EmotionNugget>();
@@ -172,7 +167,6 @@ namespace OpenSage.Data.Ini
         public MultiplayerSettings MultiplayerSettings { get; internal set; }
         public List<MultiplayerStartingMoneyChoice> MultiplayerStartingMoneyChoices { get; } = new List<MultiplayerStartingMoneyChoice>();
         public List<Multisound> Multisounds { get; } = new List<Multisound>();
-        public List<MusicTrack> MusicTracks { get; } = new List<MusicTrack>();
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
 
@@ -208,7 +202,6 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public StrategicHud StrategicHud { get; internal set; }
 
-        public List<StreamedSound> StreamedSounds { get; } = new List<StreamedSound>();
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
         public List<VictorySystemData> VictorySystemDatas { get; } = new List<VictorySystemData>();

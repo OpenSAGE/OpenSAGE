@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -88,6 +89,6 @@ namespace OpenSage.Data.Ini
 
         public string AudioMap { get; private set; }
         public string Sound { get; private set; }
-        public float Multiplier { get; private set; }
+        public Percentage Multiplier { get; private set; }
     }
 }

@@ -99,7 +99,7 @@ namespace OpenSage.Data.Ini.Parser
             return true;
         }
 
-        public float ParseAttributePercentage(string label)
+        public Percentage ParseAttributePercentage(string label)
         {
             return ParseAttribute(label, ParsePercentage);
         }

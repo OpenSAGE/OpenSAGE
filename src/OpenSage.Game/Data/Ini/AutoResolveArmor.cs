@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -35,7 +36,7 @@ namespace OpenSage.Data.Ini
         }
 
         public AutoResolveDamageType DamageType { get; private set; }
-        public float Percent { get; private set; }
+        public Percentage Percent { get; private set; }
     }
 
     public enum AutoResolveDamageType

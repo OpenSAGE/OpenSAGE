@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -67,10 +68,10 @@ namespace OpenSage.Data.Ini
         public string Name { get; private set; }
 
         public string Side { get; private set; }
-        public float MustUseCommandPointPercentage_Phase1 { get; private set; }
-        public float MustUseCommandPointPercentage_Phase2 { get; private set; }
-        public float MustUseCommandPointPercentage_Phase3 { get; private set; }
-        public float StructureRebuildPriorityModifier { get; private set; }
+        public Percentage MustUseCommandPointPercentage_Phase1 { get; private set; }
+        public Percentage MustUseCommandPointPercentage_Phase2 { get; private set; }
+        public Percentage MustUseCommandPointPercentage_Phase3 { get; private set; }
+        public Percentage StructureRebuildPriorityModifier { get; private set; }
         public float DefaultUnitPriority { get; private set; }
         public float FortressRebuildPriority { get; private set; }
         public float LowUnitPriorityModifier_Rush { get; private set; }
@@ -81,12 +82,12 @@ namespace OpenSage.Data.Ini
         public int EconomyBuilderPerFarmValue { get; private set; }
         public float EconomyBuilderPerSecPriorityIncreaseBase { get; private set; }
         public float EconomyBuilderMinTimeBetweenFarms_Rush { get; private set; }
-        public float PercentToSave_Rush { get; private set; }
-        public float PercentToSave_MidGame { get; private set; }
-        public float PercentToSave_EndGame { get; private set; }
+        public Percentage PercentToSave_Rush { get; private set; }
+        public Percentage PercentToSave_MidGame { get; private set; }
+        public Percentage PercentToSave_EndGame { get; private set; }
         public float PhaseDuration_Rush { get; private set; }
         public float PhaseDuration_MidGame { get; private set; }
-        public float ChanceForUnitsToUpgrade { get; private set; }
+        public Percentage ChanceForUnitsToUpgrade { get; private set; }
         public float UpgradeSciencePriorityNormalLow { get; private set; }
         public float UpgradeSciencePriorityNormalHigh { get; private set; }
         public float UpgradeSciencePriorityImportantLow { get; private set; }
@@ -99,13 +100,13 @@ namespace OpenSage.Data.Ini
         public int CombatChainSearchDepthForTeamRecruits_DefenseTeams { get; private set; }
         public int CombatChainSearchDepthForTeamRecruits_ExploreTeams { get; private set; }
         public float SecondsTillTargetsCanExpire { get; private set; }
-        public float ChanceForTargetToExpire { get; private set; }
+        public Percentage ChanceForTargetToExpire { get; private set; }
 
         public int MaxBuildingsToBeDefensiveTarget_Small { get; private set; }
         public int MaxBuildingsToBeDefensiveTarget_Med { get; private set; }
-        public float ChanceToUseAllUnitsForDefenseTarget_Small { get; private set; }
-        public float ChanceToUseAllUnitsForDefenseTarget_Med { get; private set; }
-        public float ChanceToUseAllUnitsForDefenseTarget_Large { get; private set; }
+        public Percentage ChanceToUseAllUnitsForDefenseTarget_Small { get; private set; }
+        public Percentage ChanceToUseAllUnitsForDefenseTarget_Med { get; private set; }
+        public Percentage ChanceToUseAllUnitsForDefenseTarget_Large { get; private set; }
 
         public string[] TacticalAITargets { get; private set; }
         public int[] MaxTeamsPerTarget { get; private set; }
@@ -176,8 +177,8 @@ namespace OpenSage.Data.Ini
         public string Name { get; private set; }
 
         public string Unit { get; private set; }
-        public float PercentageOfArmyPhase1 { get; private set; }
-        public float PercentageOfArmyPhase2 { get; private set; }
-        public float PercentageOfArmyPhase3 { get; private set; }
+        public Percentage PercentageOfArmyPhase1 { get; private set; }
+        public Percentage PercentageOfArmyPhase2 { get; private set; }
+        public Percentage PercentageOfArmyPhase3 { get; private set; }
     }
 }

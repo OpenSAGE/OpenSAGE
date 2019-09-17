@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -34,7 +35,7 @@ namespace OpenSage.Logic.Object
         public int FearScanDistance { get; private set; }
         public List<Emotion> Emotions { get; } = new List<Emotion>();
         public int HeroScanDistance { get; private set; }
-        public float QuarrelProbability { get; private set; }
+        public Percentage QuarrelProbability { get; private set; }
         public bool IgnoreVeterancy { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

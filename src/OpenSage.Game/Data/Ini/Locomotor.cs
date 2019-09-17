@@ -1,5 +1,6 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -120,7 +121,7 @@ namespace OpenSage.Data.Ini
             { "BurningDeathRadius", (parser, x) => x.BurningDeathRadius = parser.ParseInteger() },
             { "BurningDeathIsCavalry", (parser, x) => x.BurningDeathIsCavalry = parser.ParseBoolean() },
             { "TurnWhileMoving", (parser, x) => x.TurnWhileMoving = parser.ParseBoolean() },
-            { "RiverModifier", (parser, x) => x.ForwardVelocityPitchFactor = parser.ParsePercentage() }
+            { "RiverModifier", (parser, x) => x.RiverModifier = parser.ParsePercentage() }
         };
 
         public string Name { get; private set; }
@@ -128,15 +129,15 @@ namespace OpenSage.Data.Ini
         public BitArray<Surface> Surfaces { get; private set; }
         public float Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
-        public float MinSpeed { get; private set; }
+        public Percentage MinSpeed { get; private set; }
         public float TurnRate { get; private set; }
         public float TurnRateDamaged { get; private set; }
         public float Acceleration { get; private set; }
         public float AccelerationDamaged { get; private set; }
-        public float Lift { get; private set; }
-        public float LiftDamaged { get; private set; }
+        public Percentage Lift { get; private set; }
+        public Percentage LiftDamaged { get; private set; }
         public int Braking { get; private set; }
-        public float MinTurnSpeed { get; private set; }
+        public Percentage MinTurnSpeed { get; private set; }
         public float TurnPivotOffset { get; private set; }
         public bool AllowAirborneMotiveForce { get; private set; }
         public float PreferredHeight { get; private set; }
@@ -248,13 +249,13 @@ namespace OpenSage.Data.Ini
         public FormationPriority FormationPriority { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float BackingUpSpeed { get; private set; }
+        public Percentage BackingUpSpeed { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool ChargeAvailable { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float ChargeSpeed { get; private set; }
+        public Percentage ChargeSpeed { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float TurnThreshold { get; private set; }
@@ -317,7 +318,7 @@ namespace OpenSage.Data.Ini
         public bool TurnWhileMoving { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float RiverModifier { get; private set; }
+        public Percentage RiverModifier { get; private set; }
     }
 
     public enum LocomotorAppearance

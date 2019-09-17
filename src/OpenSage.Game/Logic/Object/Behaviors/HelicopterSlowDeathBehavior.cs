@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -45,7 +46,7 @@ namespace OpenSage.Logic.Object
         public int MaxSelfSpin { get; private set; }
         public int SelfSpinUpdateDelay { get; private set; }
         public int SelfSpinUpdateAmount { get; private set; }
-        public float FallHowFast { get; private set; }
+        public Percentage FallHowFast { get; private set; }
         public int MinBladeFlyOffDelay { get; private set; }
         public int MaxBladeFlyOffDelay { get; private set; }
         public string AttachParticle { get; private set; }

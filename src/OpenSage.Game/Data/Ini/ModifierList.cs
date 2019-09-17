@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using System.Collections.Generic;
 
 namespace OpenSage.Data.Ini
@@ -72,7 +73,7 @@ namespace OpenSage.Data.Ini
         }
 
         public ModifierType ModifierType;
-        public float Amount;
+        public Percentage Amount;
     }
 
     [AddedIn(SageGame.Bfme)]

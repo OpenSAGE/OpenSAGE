@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
@@ -75,18 +76,26 @@ namespace OpenSage.Content
 
         internal AssetLoadContext LoadContext { get; }
 
+        public NamedScopedAssetCollection<AmbientStream> AmbientStreams { get; }
         public ScopedAnimationCollection Animations { get; }
+        public NamedScopedAssetCollection<AudioEvent> AudioEvents { get; }
+        public NamedScopedAssetCollection<AudioFile> AudioFiles { get; }
+        public ScopedAudioLodCollection AudioLods { get; }
+        public AudioSettings AudioSettings { get; internal set; }
         public NamedScopedAssetCollection<BridgeTemplate> BridgeTemplates { get; }
+        public NamedScopedAssetCollection<DialogEvent> DialogEvents { get; }
         public NamedScopedAssetCollection<FXParticleSystemTemplate> FXParticleSystems { get; }
         public ScopedTextureCollection GuiTextures { get; }
         public NamedScopedAssetCollection<Locomotor> Locomotors { get; }
         public NamedScopedAssetCollection<MappedImage> MappedImages { get; }
         public ScopedModelCollection Models { get; }
         public ScopedModelBoneHierarchyCollection ModelBoneHierarchies { get; }
+        public NamedScopedAssetCollection<MusicTrack> MusicTracks { get; }
         public ScopedObjectDefinitionCollection ObjectDefinitions { get; }
         public NamedScopedAssetCollection<ParticleSystemDefinition> ParticleSystems { get; }
         public ScopedPlayerTemplateCollection PlayerTemplates { get; }
         public NamedScopedAssetCollection<RoadTemplate> RoadTemplates { get; }
+        public NamedScopedAssetCollection<StreamedSound> StreamedSounds { get; }
         public NamedScopedAssetCollection<TerrainTexture> TerrainTextures { get; }
         public ScopedTextureCollection Textures { get; }
         public ScopedWaterSetCollection WaterSets { get; }
@@ -110,18 +119,25 @@ namespace OpenSage.Content
 
             _scopedAssetCollections = new List<IScopedAssetCollection>
             {
+                (AmbientStreams = new NamedScopedAssetCollection<AmbientStream>(this)),
                 (Animations = new ScopedAnimationCollection(this, loadStrategy.CreateAnimationLoader())),
+                (AudioEvents = new NamedScopedAssetCollection<AudioEvent>(this)),
+                (AudioFiles = new NamedScopedAssetCollection<AudioFile>(this)),
+                (AudioLods = new ScopedAudioLodCollection(this)),
                 (BridgeTemplates = new NamedScopedAssetCollection<BridgeTemplate>(this)),
+                (DialogEvents = new NamedScopedAssetCollection<DialogEvent>(this)),
                 (FXParticleSystems = new NamedScopedAssetCollection<FXParticleSystemTemplate>(this)),
                 (GuiTextures = new ScopedTextureCollection(this, loadStrategy.CreateGuiTextureLoader())),
                 (Locomotors = new NamedScopedAssetCollection<Locomotor>(this)),
                 (MappedImages = new NamedScopedAssetCollection<MappedImage>(this)),
                 (Models = new ScopedModelCollection(this, loadStrategy.CreateModelLoader())),
                 (ModelBoneHierarchies = new ScopedModelBoneHierarchyCollection(this, loadStrategy.CreateModelBoneHierarchyLoader())),
+                (MusicTracks = new NamedScopedAssetCollection<MusicTrack>(this)),
                 (ObjectDefinitions = new ScopedObjectDefinitionCollection(this)),
                 (ParticleSystems = new NamedScopedAssetCollection<ParticleSystemDefinition>(this)),
                 (PlayerTemplates = new ScopedPlayerTemplateCollection(this)),
                 (RoadTemplates = new NamedScopedAssetCollection<RoadTemplate>(this)),
+                (StreamedSounds = new NamedScopedAssetCollection<StreamedSound>(this)),
                 (TerrainTextures = new NamedScopedAssetCollection<TerrainTexture>(this)),
                 (Textures = new ScopedTextureCollection(this, loadStrategy.CreateTextureLoader())),
                 (WaterSets = new ScopedWaterSetCollection(this)),

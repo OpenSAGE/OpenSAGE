@@ -185,7 +185,7 @@ namespace OpenSage.Data.Ini
 
         public ColorRgb Color { get; private set; }
         public int Radius { get; private set; }
-        public float RadiusAsPercentOfObjectSize { get; private set; }
+        public Percentage RadiusAsPercentOfObjectSize { get; private set; }
         public int IncreaseTime { get; private set; }
         public int DecreaseTime { get; private set; }
     }

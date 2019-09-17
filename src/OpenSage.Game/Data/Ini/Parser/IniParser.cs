@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.FileFormats;
 using OpenSage.Graphics;
@@ -21,22 +22,17 @@ namespace OpenSage.Data.Ini.Parser
             { "AIBase", (parser, context) => context.AIBases.Add(AIBase.Parse(parser)) },
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
             { "AIDozerAssignment", (parser, context) => context.AIDozerAssignments.Add(AIDozerAssignment.Parse(parser)) },
-            { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
+            { "AmbientStream", (parser, context) => parser.AssetStore.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "AptButtonTooltipMap", (parser, context) => context.AptButtonTooltipMap = AptButtonTooltipMap.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "ArmyDefinition", (parser, context) => context.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
             { "ArmySummaryDescription", (parser, x) => x.ArmySummaryDescription = ArmySummaryDescription.Parse(parser) },
-            { "AudioEvent", (parser, context) =>
-                {
-                    var ev = AudioEvent.Parse(parser);
-                    context.AudioEvents[ev.Name] = ev;
-                }
-            },
-            { "AudioLOD", (parser, context) => context.AudioLods.Add(AudioLod.Parse(parser)) },
+            { "AudioEvent", (parser, context) => parser.AssetStore.AudioEvents.Add(AudioEvent.Parse(parser)) },
+            { "AudioLOD", (parser, context) => parser.AssetStore.AudioLods.Add(AudioLod.Parse(parser)) },
             { "AudioLowMHz", (parser, context) => context.AudioLowMHz = parser.ParseInteger() },
-            { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
+            { "AudioSettings", (parser, context) => parser.AssetStore.AudioSettings = AudioSettings.Parse(parser) },
             { "AutoResolveArmor", (parser, context) => context.AutoResolveArmors.Add(AutoResolveArmor.Parse(parser)) },
             { "AutoResolveBody", (parser, context) => context.AutoResolveBodies.Add(AutoResolveBody.Parse(parser)) },
             { "AutoResolveCombatChain", (parser, context) => context.AutoResolveCombatChains.Add(AutoResolveCombatChain.Parse(parser)) },
@@ -63,7 +59,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
             { "CrowdResponse", (parser, context) => context.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
-            { "DialogEvent", (parser, context) => context.DialogEvents.Add(DialogEvent.Parse(parser)) },
+            { "DialogEvent", (parser, context) => parser.AssetStore.DialogEvents.Add(DialogEvent.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
             { "DynamicGameLOD", (parser, context) => context.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
             { "EmotionNugget", (parser, context) => context.EmotionNuggets.Add(EmotionNugget.Parse(parser)) },
@@ -132,7 +128,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MultiplayerSettings", (parser, context) => context.MultiplayerSettings = MultiplayerSettings.Parse(parser) },
             { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
             { "Multisound", (parser, context) => context.Multisounds.Add(Multisound.Parse(parser)) },
-            { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
+            { "MusicTrack", (parser, context) => parser.AssetStore.MusicTracks.Add(MusicTrack.Parse(parser)) },
             { "NewEvaEvent", (parser, context) =>
                 {
                     var evaEvent = EvaEvent.Parse(parser);
@@ -166,7 +162,7 @@ namespace OpenSage.Data.Ini.Parser
             { "SkyboxTextureSet", (parser, context) => context.SkyboxTextureSets.Add(SkyboxTextureSet.Parse(parser)) },
             { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },
             { "StanceTemplate", (parser, context) => context.StanceTemplates.Add(StanceTemplate.Parse(parser)) },
-            { "StreamedSound", (parser, context) => context.StreamedSounds.Add(StreamedSound.Parse(parser)) },
+            { "StreamedSound", (parser, context) => parser.AssetStore.StreamedSounds.Add(StreamedSound.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "StrategicHUD", (parser, context) => context.StrategicHud = StrategicHud.Parse(parser) },
             { "Terrain", (parser, context) => parser.AssetStore.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
@@ -520,7 +516,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private float ScanPercentage(in IniToken token) => ScanFloat(token);
 
-        public float ParsePercentage() => ScanPercentage(GetNextToken(SeparatorsPercent));
+        public Percentage ParsePercentage() => new Percentage(ScanPercentage(GetNextToken(SeparatorsPercent)) / 100.0f);
 
         private bool ScanBoolean(in IniToken token)
         {
@@ -560,6 +556,9 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ParseFileName() => ParseIdentifier();
 
+        public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseInteger());
+        public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
+
         public LazyAssetReference<Locomotor> ParseLocomotorReference()
         {
             var name = ParseAssetReference();
@@ -575,6 +574,23 @@ namespace OpenSage.Data.Ini.Parser
             {
                 var localToken = token;
                 result.Add(new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(localToken.Value.Text)));
+            }
+
+            return result.ToArray();
+        }
+
+        public LazyAssetReference<AudioFileWithWeight>[] ParseAudioFileReferenceArray()
+        {
+            var result = new List<LazyAssetReference<AudioFileWithWeight>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                var localToken = token;
+                result.Add(new LazyAssetReference<AudioFileWithWeight>(() => new AudioFileWithWeight
+                {
+                    AudioFile = AssetStore.AudioFiles.GetByName(localToken.Value.Text)
+                }));
             }
 
             return result.ToArray();
@@ -679,6 +695,16 @@ namespace OpenSage.Data.Ini.Parser
             return new Size(
                 ParseAttributeInteger("X"),
                 ParseAttributeInteger("Y"));
+        }
+
+        public IntRange ParseIntRange()
+        {
+            return new IntRange(ParseInteger(), ParseInteger());
+        }
+
+        public FloatRange ParseFloatRange()
+        {
+            return new FloatRange(ParseFloat(), ParseFloat());
         }
 
         public IniToken GetNextToken(char[] separators = null)

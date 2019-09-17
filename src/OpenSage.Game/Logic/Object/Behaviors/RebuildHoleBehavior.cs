@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -20,6 +21,6 @@ namespace OpenSage.Logic.Object
 
         public int WorkerRespawnDelay { get; private set; }
 
-        public float HoleHealthRegenPercentPerSecond { get; private set; }
+        public Percentage HoleHealthRegenPercentPerSecond { get; private set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -56,8 +57,8 @@ namespace OpenSage.Logic.Object
         public int StealthDelay { get; private set; }
         public BitArray<ModelConditionFlag> StealthForbiddenConditions { get; private set; }
         public BitArray<ModelConditionFlag> HintDetectableConditions { get; private set; }
-        public float FriendlyOpacityMin { get; private set; }
-        public float FriendlyOpacityMax { get; private set; }
+        public Percentage FriendlyOpacityMin { get; private set; }
+        public Percentage FriendlyOpacityMax { get; private set; }
         public int PulseFrequency { get; private set; }
         public int MoveThresholdSpeed { get; private set; }
         public bool InnateStealth { get; private set; }
