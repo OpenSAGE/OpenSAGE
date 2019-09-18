@@ -29,8 +29,8 @@ namespace OpenSage.Audio
 
             _settings = game.AssetStore.AudioSettings;
 
-            // TODO: AudioSettings should never be null.
-            if (_settings != null)
+            // TODO
+            if (_settings.AudioRoot != null)
             {
                 _localisedAudioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, Game.ContentManager.Language);
                 _audioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder);

@@ -5,7 +5,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3x
 {
-    public sealed class W3xMesh : W3xRenderObject
+    public sealed class W3xMesh
     {
         public W3xMeshVertexData VertexData { get; private set; }
         public MeshGeometryType GeometryType { get; private set; }

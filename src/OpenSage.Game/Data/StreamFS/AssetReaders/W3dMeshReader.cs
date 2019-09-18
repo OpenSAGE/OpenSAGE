@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.W3x;
+using OpenSage.Graphics;
 
 namespace OpenSage.Data.StreamFS.AssetReaders
 {
@@ -9,10 +10,9 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
         public override object Parse(Asset asset, BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
         {
-            // TODO: Create ModelMesh object here.
             var w3xMesh = W3xMesh.Parse(reader, imports, asset.Header);
 
-            return null;
+            return new ModelMesh(w3xMesh, asset, context.AssetStore.LoadContext);
         }
     }
 }

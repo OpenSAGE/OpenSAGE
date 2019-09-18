@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Content;
+﻿using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Audio
 {

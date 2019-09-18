@@ -1,29 +1,15 @@
 ﻿using System.IO;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
+using OpenSage.Graphics;
 
 namespace OpenSage.Data.W3x
 {
-    public sealed class W3xContainer
-    {
-        public W3xHierarchy Hierarchy { get; private set; }
-        public W3xSubObject[] SubObjects { get; private set; }
-
-        internal static W3xContainer Parse(BinaryReader reader, AssetImportCollection imports)
-        {
-            return new W3xContainer
-            {
-                Hierarchy = imports.GetImportedData<W3xHierarchy>(reader),
-                SubObjects = reader.ReadArrayAtOffset(() => W3xSubObject.Parse(reader, imports))
-            };
-        }
-    }
-
     public sealed class W3xSubObject
     {
         public uint BoneIndex { get; private set; }
         public string Name { get; private set; }
-        public W3xRenderObject RenderObject { get; private set; }
+        public ModelMesh RenderObject { get; private set; } // TODO: Could also be W3xBox
 
         internal static W3xSubObject Parse(BinaryReader reader, AssetImportCollection imports)
         {
@@ -31,13 +17,8 @@ namespace OpenSage.Data.W3x
             {
                 BoneIndex = reader.ReadUInt32(),
                 Name = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                RenderObject = imports.GetImportedData<W3xRenderObject>(reader)
+                RenderObject = imports.GetImportedData<ModelMesh>(reader)
             };
         }
-    }
-
-    public abstract class W3xRenderObject
-    {
-
     }
 }

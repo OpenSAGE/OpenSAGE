@@ -12,25 +12,27 @@ namespace OpenSage.Audio
         [IniEnum("loop")]
         Loop = 1 << 0,
 
-        [IniEnum("all")]
-        All = 1 << 1,
-
-        [IniEnum("interrupt")]
-        Interrupt = 1 << 2,
-
-        [IniEnum("random")]
-        Random = 1 << 3,
+        [IniEnum("sequential"), AddedIn(SageGame.Bfme2)]
+        Sequential = 1 << 1,
 
         [IniEnum("randomstart")]
-        RandomStart = 1 << 4,
+        RandomStart = 1 << 2,
+
+        [IniEnum("interrupt")]
+        Interrupt = 1 << 3,
 
         [IniEnum("fade_on_kill")]
-        FadeOnKill = 1 << 5,
+        FadeOnKill = 1 << 4,
 
         [IniEnum("fade_on_start")]
-        FadeOnStart = 1 << 6,
+        FadeOnStart = 1 << 5,
 
-        [IniEnum("sequential"), AddedIn(SageGame.Bfme2)]
-        Sequential = 1 << 7,
+        AllowKillMidFile = 1 << 6,
+
+        [IniEnum("all")]
+        All = 1 << 7,
+
+        [IniEnum("random")]
+        Random = 1 << 8,
     }
 }

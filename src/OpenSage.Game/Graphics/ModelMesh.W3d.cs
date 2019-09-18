@@ -79,7 +79,6 @@ namespace OpenSage.Graphics
                 w3dMesh.Header.Max);
 
             _shaderSet = shaderResources.ShaderSet;
-            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
 
             Skinned = w3dMesh.IsSkinned;
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
@@ -98,41 +97,7 @@ namespace OpenSage.Graphics
                 Skinned,
                 hasHouseColor);
 
-            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
-
-            BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
-            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];
-
-            for (var i = 0; i < BeforeRenderDelegates.Length; i++)
-            {
-                var meshPart = MeshParts[i];
-
-                BeforeRenderDelegates[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-
-                BeforeRenderDelegatesDepth[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-            }
+            PostInitialize(loadContext);
         }
 
         private static FixedFunctionShaderResources.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

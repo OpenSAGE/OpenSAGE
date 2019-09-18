@@ -68,9 +68,6 @@ namespace OpenSage.Data.Ini
 
         public Credits Credits { get; internal set; }
 
-        [AddedIn(SageGame.Bfme2)]
-        public List<CrowdResponse> CrowdResponses { get; } = new List<CrowdResponse>();
-
         public List<DamageFX> DamageFXs { get; } = new List<DamageFX>();
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
