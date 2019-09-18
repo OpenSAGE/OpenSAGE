@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Audio
 {
-    public abstract class BaseSingleSound : IHasName
+    public abstract class BaseSingleSound : BaseAudioEventInfo, IHasName
     {
         internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
         {
@@ -47,7 +46,7 @@ namespace OpenSage.Audio
             result.Limit = reader.ReadInt32();
             result.Priority = reader.ReadInt32AsEnum<AudioPriority>();
             result.Type = reader.ReadUInt32AsEnumFlags<AudioTypeFlags>();
-            result.Control = reader.ReadInt32AsEnum<AudioControlFlags>();
+            result.Control = reader.ReadUInt32AsEnumFlags<AudioControlFlags>();
             result.MinRange = reader.ReadSingle();
             result.MaxRange = reader.ReadSingle();
             result.LowPassCutoff = reader.ReadPercentage();

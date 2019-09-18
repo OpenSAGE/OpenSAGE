@@ -83,6 +83,10 @@ namespace OpenSage.Content
         public ScopedAudioLodCollection AudioLods { get; }
         public AudioSettings AudioSettings { get; internal set; }
         public NamedScopedAssetCollection<BridgeTemplate> BridgeTemplates { get; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public NamedScopedAssetCollection<CrowdResponse> CrowdResponses { get; }
+
         public NamedScopedAssetCollection<DialogEvent> DialogEvents { get; }
         public NamedScopedAssetCollection<FXParticleSystemTemplate> FXParticleSystems { get; }
         public ScopedTextureCollection GuiTextures { get; }
@@ -125,6 +129,7 @@ namespace OpenSage.Content
                 (AudioFiles = new NamedScopedAssetCollection<AudioFile>(this)),
                 (AudioLods = new ScopedAudioLodCollection(this)),
                 (BridgeTemplates = new NamedScopedAssetCollection<BridgeTemplate>(this)),
+                (CrowdResponses = new NamedScopedAssetCollection<CrowdResponse>(this)),
                 (DialogEvents = new NamedScopedAssetCollection<DialogEvent>(this)),
                 (FXParticleSystems = new NamedScopedAssetCollection<FXParticleSystemTemplate>(this)),
                 (GuiTextures = new ScopedTextureCollection(this, loadStrategy.CreateGuiTextureLoader())),

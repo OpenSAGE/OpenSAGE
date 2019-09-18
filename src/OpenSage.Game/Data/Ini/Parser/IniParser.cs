@@ -57,7 +57,7 @@ namespace OpenSage.Data.Ini.Parser
             { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
             { "CreateAHeroSystem", (parser, context) => context.CreateAHeroSystem = CreateAHeroSystem.Parse(parser) },
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
-            { "CrowdResponse", (parser, context) => context.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
+            { "CrowdResponse", (parser, context) => parser.AssetStore.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
             { "DialogEvent", (parser, context) => parser.AssetStore.DialogEvents.Add(DialogEvent.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
@@ -577,6 +577,18 @@ namespace OpenSage.Data.Ini.Parser
             }
 
             return result.ToArray();
+        }
+
+        public LazyAssetReference<BaseAudioEventInfo> ParseAudioEventReference()
+        {
+            var name = ParseAssetReference();
+            return new LazyAssetReference<BaseAudioEventInfo>(() => AssetStore.AudioEvents.GetByName(name));
+        }
+
+        public LazyAssetReference<AudioFile> ParseAudioFileReference()
+        {
+            var name = ParseAssetReference();
+            return new LazyAssetReference<AudioFile>(() => AssetStore.AudioFiles.GetByName(name));
         }
 
         public LazyAssetReference<AudioFileWithWeight>[] ParseAudioFileReferenceArray()

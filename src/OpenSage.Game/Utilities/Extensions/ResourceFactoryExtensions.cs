@@ -151,12 +151,15 @@ namespace OpenSage.Utilities.Extensions
 
             for (var arrayLayer = 0u; arrayLayer < arrayLayers; arrayLayer++)
             {
+                var calculatedMipWidth = width;
+                var calculatedMipHeight = height;
+
                 for (var level = 0u; level < mipMapLevels; level++)
                 {
                     var mipMap = mipMapData[(arrayLayer * mipMapLevels) + level];
 
-                    var mipMapWidth = Math.Min(width, mipMap.Width);
-                    var mipMapHeight = Math.Min(height, mipMap.Height);
+                    var mipMapWidth = Math.Min(calculatedMipWidth, mipMap.Width);
+                    var mipMapHeight = Math.Min(calculatedMipHeight, mipMap.Height);
 
                     fixed (void* pin = mipMap.Data)
                     {
@@ -178,6 +181,9 @@ namespace OpenSage.Utilities.Extensions
                             mipMapHeight,
                             1, 1);
                     }
+
+                    calculatedMipWidth = Math.Max(calculatedMipWidth / 2, 1);
+                    calculatedMipHeight = Math.Max(calculatedMipHeight / 2, 1);
                 }
             }
 

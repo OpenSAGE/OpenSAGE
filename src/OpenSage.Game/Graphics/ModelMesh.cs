@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -26,7 +27,7 @@ namespace OpenSage.Graphics
     public sealed partial class ModelMesh : DisposableBase
     {
         private readonly ShaderSet _shaderSet;
-        private readonly ShaderSet _depthShaderSet;
+        private ShaderSet _depthShaderSet;
 
         private readonly Pipeline _depthPipeline;
 
@@ -35,10 +36,10 @@ namespace OpenSage.Graphics
 
         private readonly ResourceSet _meshConstantsResourceSet;
 
-        private readonly ResourceSet _samplerResourceSet;
+        private ResourceSet _samplerResourceSet;
 
-        internal readonly BeforeRenderDelegate[] BeforeRenderDelegates;
-        internal readonly BeforeRenderDelegate[] BeforeRenderDelegatesDepth;
+        internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
+        internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
 
         public readonly string Name;
 
@@ -50,6 +51,46 @@ namespace OpenSage.Graphics
 
         public readonly bool Hidden;
         public readonly bool CameraOriented;
+
+        private void PostInitialize(AssetLoadContext loadContext)
+        {
+            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
+            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
+
+            BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
+            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];
+
+            for (var i = 0; i < BeforeRenderDelegates.Length; i++)
+            {
+                var meshPart = MeshParts[i];
+
+                BeforeRenderDelegates[i] = (cl, context) =>
+                {
+                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
+                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
+                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
+
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+
+                    if (meshPart.TexCoordVertexBuffer != null)
+                    {
+                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                    }
+                };
+
+                BeforeRenderDelegatesDepth[i] = (cl, context) =>
+                {
+                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
+
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+
+                    if (meshPart.TexCoordVertexBuffer != null)
+                    {
+                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                    }
+                };
+            }
+        }
 
         internal void BuildRenderList(
             RenderList renderList,

@@ -770,6 +770,25 @@ namespace OpenSage.FileFormats
             }
 
         }
+
+        public static T ReadOptionalClassTypedValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+            where T : class
+        {
+            var offset = reader.ReadUInt32();
+            if (offset > 0)
+            {
+                var current = reader.BaseStream.Position;
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                var value = readCallback();
+                reader.BaseStream.Seek(current, SeekOrigin.Begin);
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
     }
 
     public enum ColorRgbaPixelOrder

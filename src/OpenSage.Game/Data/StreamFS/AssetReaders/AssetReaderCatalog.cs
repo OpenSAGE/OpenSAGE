@@ -11,11 +11,12 @@ namespace OpenSage.Data.StreamFS.AssetReaders
         {
             var assetReaders = new AssetReader[]
             {
-                new AmbientStreamReader(),
                 new AudioEventReader(),
                 new AudioFileReader(),
-                new AudioLodReader(),
                 new AudioSettingsReader(),
+                new CrowdResponseReader(),
+                new DialogEventReader(),
+                new MusicTrackReader(),
                 new TextureReader(),
                 new W3dCollisionBoxReader(),
                 new W3dContainerReader(),

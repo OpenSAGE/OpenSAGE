@@ -142,6 +142,8 @@ namespace OpenSage.Content
                             // TODO: Use .version file.
                             var manifestFileEntry = _fileSystem.GetFile(@"Data\global_common.manifest");
                             var gameStream = new GameStream(manifestFileEntry, _game);
+                            var manifestFileEntry2 = _fileSystem.GetFile(@"Data\static_common.manifest");
+                            var gameStream2 = new GameStream(manifestFileEntry2, _game);
                             break;
                     }
                     switch (_gameDefinition.Game)

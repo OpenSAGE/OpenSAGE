@@ -6,6 +6,8 @@ namespace OpenSage.Audio
     [Flags]
     public enum AudioTypeFlags
     {
+        None = 0,
+
         [IniEnum("ui")]
         UI = 1,
 
