@@ -15,7 +15,9 @@ namespace OpenSage.Gui.Apt
         private void CalculateTransform(ref ItemTransform transform, AptContext context)
         {
             if (Window == null)
+            {
                 return;
+            }
 
             var scaling = Window.GetScaling();
             transform.GeometryRotation.M11 *= scaling.X;
