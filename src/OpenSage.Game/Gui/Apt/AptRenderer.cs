@@ -14,8 +14,8 @@ namespace OpenSage.Gui.Apt
 
         private void CalculateTransform(ref ItemTransform transform, AptContext context)
         {
-            var movie = (Movie) context.Root.Character;
-            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
+            if (Window == null)
+                return;
 
             var scaling = Window.GetScaling();
             transform.GeometryRotation.M11 *= scaling.X;
