@@ -239,6 +239,7 @@ namespace OpenSage.Logic.Object
 
             var flags = new BitArray<ModelConditionFlag>();
             flags.Set(ModelConditionFlag.Moving, true);
+
             SetModelConditionFlags(flags);
         }
 
