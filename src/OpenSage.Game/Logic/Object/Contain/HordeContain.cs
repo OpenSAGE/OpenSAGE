@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -152,14 +151,14 @@ namespace OpenSage.Logic.Object
         {
             var payload = new Payload
             {
-                UnitType = parser.ParseAssetReference()
+                Name = parser.ParseAssetReference()
             };
 
             payload.Count = parser.GetIntegerOptional();
             return payload;
         }
 
-        public string UnitType { get; private set; }
+        public string Name { get; private set; }
         public int Count { get; private set; }
     }
 

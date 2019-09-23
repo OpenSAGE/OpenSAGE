@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Gui.InGame;
 
 namespace OpenSage.Logic.Object
 {

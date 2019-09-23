@@ -132,7 +132,7 @@ namespace OpenSage.Diagnostics
             {
                 AddItem($"W3DContainer:{asset.Name}", () => new ModelView(Context, asset));
             }
-            foreach (var asset in assetStore.FXParticleSystems)
+            foreach (var asset in assetStore.FXParticleSystemTemplates)
             {
                 AddItem($"FXParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset));
             }
@@ -140,7 +140,7 @@ namespace OpenSage.Diagnostics
             {
                 AddItem($"GameObject:{asset.Name}", () => new GameObjectView(Context, asset));
             }
-            foreach (var asset in assetStore.ParticleSystems)
+            foreach (var asset in assetStore.ParticleSystemTemplates)
             {
                 AddItem($"ParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset.ToFXParticleSystemTemplate()));
             }

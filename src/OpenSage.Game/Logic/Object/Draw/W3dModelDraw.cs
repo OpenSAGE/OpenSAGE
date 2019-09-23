@@ -4,12 +4,12 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -156,10 +156,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystems.GetByName(particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystemTemplates.GetByKey(particleSysBone.ParticleSystem);
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystems.GetByName(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
+                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystemTemplates.GetByKey(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
 
                         if (particleSystemTemplate == null)
                         {

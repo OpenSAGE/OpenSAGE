@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
-    public sealed class WindowTransition : IHasName
+    public sealed class WindowTransition
     {
         internal static WindowTransition Parse(IniParser parser)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd.Parser;
 using OpenSage.Mathematics;
 

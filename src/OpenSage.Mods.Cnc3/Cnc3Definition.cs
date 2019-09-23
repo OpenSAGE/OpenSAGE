@@ -2,6 +2,7 @@
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage.Mods.CnC3
 {

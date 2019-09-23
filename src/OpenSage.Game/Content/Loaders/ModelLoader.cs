@@ -82,7 +82,7 @@ namespace OpenSage.Content.Loaders
             else if (w3dHLod != null && w3dHierarchy == null)
             {
                 // Load referenced hierarchy.
-                boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByName(w3dHLod.Header.HierarchyName);
+                boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByKey(w3dHLod.Header.HierarchyName);
             }
             else
             {

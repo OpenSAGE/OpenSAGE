@@ -145,7 +145,7 @@ namespace OpenSage.Graphics
                 throw new NotImplementedException();
             }
 
-            return context.AssetStore.Textures.GetByName(w3dTexture.Name.Value);
+            return context.AssetStore.Textures.GetByKey(w3dTexture.Name.Value);
         }
 
         private static MeshShaderResources.MeshVertex.Basic[] CreateVertices(
@@ -248,7 +248,7 @@ namespace OpenSage.Graphics
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue);
+                        var texture = context.AssetStore.Textures.GetByKey(w3dShaderProperty.StringValue);
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 

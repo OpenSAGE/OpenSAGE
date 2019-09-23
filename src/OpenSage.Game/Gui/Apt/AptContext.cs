@@ -60,7 +60,7 @@ namespace OpenSage.Gui.Apt
             var texId = aptFile.ImageMap.Mapping[id].TextureId;
             var movieName = aptFile.MovieName;
             var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
-            return _assetStore.GuiTextures.GetByName(textureFileName);
+            return _assetStore.GuiTextures.GetByKey(textureFileName);
         }
 
         public Texture GetTexture(int id, Geometry geom)
@@ -81,7 +81,7 @@ namespace OpenSage.Gui.Apt
 
             var texId = map.Mapping[id].TextureId;
             var textureFileName = "apt_" + movieName + "_" + texId.ToString() + ".tga";
-            return _assetStore.GuiTextures.GetByName(textureFileName);
+            return _assetStore.GuiTextures.GetByKey(textureFileName);
         }
     }
 }

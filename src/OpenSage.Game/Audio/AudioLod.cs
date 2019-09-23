@@ -1,6 +1,5 @@
 ﻿using System;
-using OpenSage.Content;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Audio
 {
@@ -26,17 +25,5 @@ namespace OpenSage.Audio
         public bool AllowDolby { get; private set; }
         public int MaximumAmbientStreams { get; private set; }
         public bool AllowReverb { get; private set; }
-    }
-
-    public class ScopedAudioLodCollection : ScopedAssetCollection<AudioLodType, AudioLod>
-    {
-        internal ScopedAudioLodCollection(AssetStore assetStore)
-            : base(assetStore)
-        {
-        }
-
-        public AudioLod GetByType(AudioLodType type) => GetByKey(type);
-
-        protected override AudioLodType GetKey(AudioLod asset) => asset.Level;
     }
 }

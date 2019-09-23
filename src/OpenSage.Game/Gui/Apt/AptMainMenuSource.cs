@@ -18,7 +18,7 @@ namespace OpenSage.Gui.Apt
             var aptWindow = game.LoadAptWindow(_aptFileName);
             if (!useShellMap)
             {
-                aptWindow.BackgroundImage = game.AssetStore.MappedImages.GetByName(_fallbackShell);
+                aptWindow.BackgroundImage = game.AssetStore.MappedImages.GetByKey(_fallbackShell);
             }
             scene.AptWindowManager.PushWindow(aptWindow);
         }

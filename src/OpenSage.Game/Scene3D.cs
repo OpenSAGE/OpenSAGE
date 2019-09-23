@@ -233,8 +233,8 @@ namespace OpenSage
                         // Note that we're searching with the type of either end.
                         // This is because of weirdly corrupted roads with unmatched ends in USA04, which work fine in WB and SAGE.
                         var roadTemplate =
-                            loadContext.AssetStore.RoadTemplates.GetByName(mapObject.TypeName)
-                            ?? loadContext.AssetStore.RoadTemplates.GetByName(roadEnd.TypeName);
+                            loadContext.AssetStore.RoadTemplates.GetByKey(mapObject.TypeName)
+                            ?? loadContext.AssetStore.RoadTemplates.GetByKey(roadEnd.TypeName);
 
                         if (roadTemplate == null)
                         {

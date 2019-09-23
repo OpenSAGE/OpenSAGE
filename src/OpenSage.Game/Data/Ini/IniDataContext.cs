@@ -1,6 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Audio;
+using OpenSage.Content;
+using OpenSage.Eva;
+using OpenSage.Graphics;
+using OpenSage.Gui;
+using OpenSage.Gui.Apt;
+using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.InGame;
+using OpenSage.Input;
+using OpenSage.LivingWorld;
+using OpenSage.LivingWorld.AutoResolve;
+using OpenSage.Lod;
+using OpenSage.Logic;
+using OpenSage.Logic.AI;
+using OpenSage.Logic.Object;
+using OpenSage.Logic.Object.Damage;
+using OpenSage.Logic.Pathfinding;
+using OpenSage.Terrain;
 
 namespace OpenSage.Data.Ini
 {
@@ -53,12 +69,9 @@ namespace OpenSage.Data.Ini
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
         public BannerUI BannerUI { get; internal set; }
-        public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();        
-        public List<Campaign> Campaigns { get; } = new List<Campaign>();
+        public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public ChallengeGenerals ChallengeGenerals { get; internal set; }
-        public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
-        public List<CommandSet> CommandSets { get; } = new List<CommandSet>();
         public List<ControlBarResizer> ControlBarResizers { get; } = new List<ControlBarResizer>();
         public ControlBarSchemeCollection ControlBarSchemes { get; } = new ControlBarSchemeCollection();
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
@@ -89,7 +102,6 @@ namespace OpenSage.Data.Ini
 
         public List<FXList> FXLists { get; } = new List<FXList>();
         public GameData GameData { get; internal set; }
-        public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public List<HouseColor> HouseColors { get; } = new List<HouseColor>();
 
         [AddedIn(SageGame.Bfme2)]
@@ -200,7 +212,6 @@ namespace OpenSage.Data.Ini
         public StrategicHud StrategicHud { get; internal set; }
 
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
-        public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
         public List<VictorySystemData> VictorySystemDatas { get; } = new List<VictorySystemData>();
         public List<Video> Videos { get; } = new List<Video>();
         public List<WaterTextureList> WaterTextureLists { get; } = new List<WaterTextureList>();

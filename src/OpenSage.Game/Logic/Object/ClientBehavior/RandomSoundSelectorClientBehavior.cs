@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object

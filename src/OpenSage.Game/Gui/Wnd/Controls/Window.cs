@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Wnd.Controls
         public ContentManager ContentManager { get; }
 
         public Window(WndFile wndFile, Game game, WndCallbackResolver wndCallbackResolver)
-            : this(wndFile.RootWindow.ScreenRect.CreationResolution, CreateRootControl(wndFile, game.ContentManager, wndCallbackResolver), game.ContentManager)
+            : this(wndFile.RootWindow.ScreenRect.CreationResolution, CreateRootControl(wndFile, game.ContentManager, game.AssetStore, wndCallbackResolver), game.ContentManager)
         {
             Game = game;
             Bounds = wndFile.RootWindow.ScreenRect.ToRectangle();
@@ -34,11 +34,13 @@ namespace OpenSage.Gui.Wnd.Controls
         private static Control CreateRootControl(
             WndFile wndFile,
             ContentManager contentManager,
+            AssetStore assetStore,
             WndCallbackResolver wndCallbackResolver)
         {
             return CreateRecursive(
                 wndFile.RootWindow,
                 contentManager,
+                assetStore,
                 wndCallbackResolver,
                 wndFile.RootWindow.ScreenRect.UpperLeft);
         }

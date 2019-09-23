@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 

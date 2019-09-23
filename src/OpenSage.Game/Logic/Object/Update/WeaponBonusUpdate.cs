@@ -1,5 +1,4 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {

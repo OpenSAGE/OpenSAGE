@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Wnd;
 using OpenSage.FileFormats.W3d;

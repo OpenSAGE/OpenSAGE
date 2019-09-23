@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
-using OpenSage.Data.Ini;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -21,8 +21,9 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly string _optionsPath;
         private readonly string _mapSelectPath;
-        private Window _window;
-        private Game _game;
+        private readonly List<PlayerTemplate> _playableSides;
+        private readonly Window _window;
+        private readonly Game _game;
 
         public MapCache CurrentMap { get; private set; }
 
@@ -50,10 +51,10 @@ namespace OpenSage.Mods.Generals.Gui
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
             });
 
-            var playableSides = _game.GetPlayableSides();
-            if (playableSides.Count > 0)
+            _playableSides = _game.GetPlayableSides().ToList();
+            if (_playableSides.Count > 0)
             {
-                var sideList = playableSides.Select(i => i.DisplayName).ToList();
+                var sideList = _playableSides.Select(i => i.DisplayName).ToList();
                 sideList.Insert(0, "GUI:RandomSide");
 
                 FillComboBoxOptions(_optionsPath + ComboBoxPlayerTemplatePrefix, sideList.ToArray());
@@ -254,17 +255,16 @@ namespace OpenSage.Mods.Generals.Gui
 
                 // Get the selected player faction
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerTemplatePrefix + i);
-                var playableSides = game.GetPlayableSides();
 
                 if (selected > 0)
                 {
-                    setting.Side = playableSides[selected - 1].Side;
+                    setting.Template = _playableSides[selected - 1];
                 }
                 else
                 {
                     // TODO: make sure the color isn't already used
-                    int r = rnd.Next(playableSides.Count);
-                    setting.Side = playableSides[r].Side;
+                    int r = rnd.Next(_playableSides.Count);
+                    setting.Template = _playableSides[r];
                 }
 
                 settingsList.Add(setting);

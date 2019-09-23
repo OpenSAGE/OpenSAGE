@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Audio

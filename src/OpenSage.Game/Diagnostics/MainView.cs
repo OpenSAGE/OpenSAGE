@@ -106,7 +106,7 @@ namespace OpenSage.Diagnostics
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
                             {
-                                var playableSides = _context.Game.AssetStore.PlayerTemplates.PlayableSides;
+                                var playableSides = _context.Game.GetPlayableSides();
                                 var faction1 = playableSides.First();
                                 var faction2 = playableSides.Last();
 
@@ -115,8 +115,8 @@ namespace OpenSage.Diagnostics
                                     new EchoConnection(),
                                     new PlayerSetting?[]
                                     {
-                                        new PlayerSetting(null, faction1.Side, new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting(null, faction2.Side, new ColorRgb(255, 255, 255)),
+                                        new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
+                                        new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
                                     },
                                     0);
                             }
