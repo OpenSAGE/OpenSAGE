@@ -3,6 +3,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage.Mods.Bfme2
 {

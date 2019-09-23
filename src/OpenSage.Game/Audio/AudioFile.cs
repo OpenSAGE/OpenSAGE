@@ -1,17 +1,18 @@
 ﻿using System.IO;
-using OpenSage.Content;
+using OpenSage.Data;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Audio
 {
-    public sealed class AudioFile : IHasName
+    public sealed class AudioFile
     {
         internal static AudioFile ParseAsset(BinaryReader reader, Asset asset)
         {
             return new AudioFile
             {
                 Name = asset.Name,
+                Entry = null, // TODO
                 Subtitle = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
                 NumberOfSamples = reader.ReadInt32(),
                 SampleRate = reader.ReadInt32(),
@@ -21,7 +22,8 @@ namespace OpenSage.Audio
             };
         }
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
+        public FileSystemEntry Entry { get; internal set; }
         public string Subtitle { get; private set; }
         public byte NumberOfChannels { get; private set; }
         public int NumberOfSamples { get; private set; }

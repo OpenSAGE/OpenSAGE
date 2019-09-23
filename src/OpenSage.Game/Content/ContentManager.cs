@@ -1,7 +1,6 @@
 ﻿using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Diagnostics;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Utilities;

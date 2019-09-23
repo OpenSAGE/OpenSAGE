@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
@@ -13,9 +9,10 @@ namespace OpenSage.Gui.Wnd.Controls
 {
     partial class Control
     {
-        public static Control CreateRecursive(
+        internal static Control CreateRecursive(
             WndWindowDefinition wndWindow,
             ContentManager contentManager,
+            AssetStore assetStore,
             WndCallbackResolver wndCallbackResolver,
             Point2D parentOffset)
         {
@@ -62,8 +59,8 @@ namespace OpenSage.Gui.Wnd.Controls
 
             if (wndWindow.HasHeaderTemplate)
             {
-                var headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
-                result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font, headerTemplate.Point, headerTemplate.Bold ? FontWeight.Bold : FontWeight.Normal);
+                var headerTemplate = assetStore.HeaderTemplates.GetByKey(wndWindow.HeaderTemplate);
+                result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font.Name, headerTemplate.Font.Size, headerTemplate.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
             }
             else
             {
@@ -78,7 +75,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             foreach (var childWindow in wndWindow.ChildWindows)
             {
-                var child = CreateRecursive(childWindow, contentManager, wndCallbackResolver, wndRectangle.Location);
+                var child = CreateRecursive(childWindow, contentManager, assetStore, wndCallbackResolver, wndRectangle.Location);
                 result.Controls.Add(child);
             }
 

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -23,7 +22,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<AnimationState> FieldParseTable = new IniParseTable<AnimationState>
         {
-            { "Animation", (parser, x) => x.Animations.Add(Animation.Parse(parser)) },
+            { "Animation", (parser, x) => x.Animations.Add(AnimationStateAnimation.Parse(parser)) },
             { "ParticleSysBone", (parser, x) => x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)) },
             { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<AnimationFlags>() },
             { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
@@ -39,7 +38,7 @@ namespace OpenSage.Logic.Object
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
 
-        public List<Animation> Animations { get; private set; } = new List<Animation>();
+        public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
         public AnimationFlags Flags { get; private set; }
         public IniScript Script { get; private set; }
@@ -57,9 +56,9 @@ namespace OpenSage.Logic.Object
         public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();
     }
 
-    public sealed class Animation
+    public sealed class AnimationStateAnimation
     {
-        internal static Animation Parse(IniParser parser)
+        internal static AnimationStateAnimation Parse(IniParser parser)
         {
             var token = parser.GetNextTokenOptional();
             var animationType = "";
@@ -75,7 +74,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static readonly IniParseTable<Animation> FieldParseTable = new IniParseTable<Animation>
+        internal static readonly IniParseTable<AnimationStateAnimation> FieldParseTable = new IniParseTable<AnimationStateAnimation>
         {
             { "AnimationName", (parser, x) => x.AnimationNames = parser.ParseAssetReferenceArray() },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },

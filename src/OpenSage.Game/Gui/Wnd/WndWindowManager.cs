@@ -24,17 +24,7 @@ namespace OpenSage.Gui.Wnd
 
             game.InputMessageBuffer.Handlers.Add(new WndInputMessageHandler(this, _game));
 
-            switch (game.SageGame)
-            {
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                    TransitionManager = new WindowTransitionManager(game.AssetStore.WindowTransitions);
-                    break;
-
-                default: // TODO: Handle other games.
-                    TransitionManager = new WindowTransitionManager(new Content.NamedScopedAssetCollection<WindowTransition>(game.AssetStore));
-                    break;
-            }
+            TransitionManager = new WindowTransitionManager(game.AssetStore.WindowTransitions);
         }
 
         public Window PushWindow(Window window)

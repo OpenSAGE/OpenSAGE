@@ -1,6 +1,6 @@
 ﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 
@@ -61,12 +61,12 @@ namespace OpenSage.Audio
         {
             return new AudioFileWithWeight
             {
-                AudioFile = imports.GetImportedData<AudioFile>(reader),
+                AudioFile = new LazyAssetReference<AudioFile>(imports.GetImportedData<AudioFile>(reader)),
                 Weight = reader.ReadUInt32()
             };
         }
 
-        public AudioFile AudioFile { get; internal set; }
+        public LazyAssetReference<AudioFile> AudioFile { get; internal set; }
         public uint Weight { get; private set; } = 1000;
     }
 }

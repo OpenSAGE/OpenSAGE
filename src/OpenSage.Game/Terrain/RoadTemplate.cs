@@ -1,11 +1,10 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using Veldrid;
 
 namespace OpenSage.Terrain
 {
-    public sealed class RoadTemplate : IHasName
+    public sealed class RoadTemplate
     {
         internal static RoadTemplate Parse(IniParser parser)
         {

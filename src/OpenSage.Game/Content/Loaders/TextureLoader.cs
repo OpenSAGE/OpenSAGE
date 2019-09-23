@@ -11,12 +11,6 @@ using Veldrid.ImageSharp;
 
 namespace OpenSage.Content.Loaders
 {
-    internal interface IOnDemandAssetLoader<TKey, TValue>
-        where TValue : class
-    {
-        TValue Load(TKey key, AssetLoadContext context);
-    }
-
     public sealed class OnDemandTextureLoader : IOnDemandAssetLoader<string, Texture>
     {
         private static readonly string[] PossibleFileExtensions = new[]

@@ -122,9 +122,9 @@ namespace OpenSage.Launcher
                 else if (opts.Map != null)
                 {
                     var pSettings = new PlayerSetting?[]
-                   {
-                        new PlayerSetting(null, "America", new ColorRgb(255, 0, 0)),
-                        new PlayerSetting(null, "GLA", new ColorRgb(255, 255, 255)),
+                    {
+                        new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByKey("FactionAmerica"), new ColorRgb(255, 0, 0)),
+                        new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByKey("FactionGLA"), new ColorRgb(255, 255, 255)),
                     };
 
                     logger.Debug("Starting multiplayer game");

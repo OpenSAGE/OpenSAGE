@@ -75,7 +75,7 @@ namespace OpenSage.Terrain
                 },
                 BufferUsage.UniformBuffer));
 
-            var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
+            var macroTexture = loadContext.AssetStore.Textures.GetByKey(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
             var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 materialConstantsBuffer,
@@ -91,7 +91,7 @@ namespace OpenSage.Terrain
                 indexBufferCache,
                 materialResourceSet);
 
-            var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+            var cloudTexture = loadContext.AssetStore.Textures.GetByKey(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
             cloudTexture.Name = "Cloud texture";
 
             var cloudResourceLayout = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -293,7 +293,7 @@ namespace OpenSage.Terrain
             {
                 var mapTexture = blendTileData.Textures[i];
 
-                var terrainType = loadContext.AssetStore.TerrainTextures.GetByName(mapTexture.Name);
+                var terrainType = loadContext.AssetStore.TerrainTextures.GetByKey(mapTexture.Name);
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
                 var entry = loadContext.FileSystem.GetFile(texturePath);
 

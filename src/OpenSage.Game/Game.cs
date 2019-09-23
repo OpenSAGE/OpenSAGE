@@ -25,6 +25,7 @@ using OpenSage.Data.Wnd;
 using OpenSage.Gui.Apt;
 using OpenSage.Data.Apt;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
 
 namespace OpenSage
 {
@@ -45,7 +46,7 @@ namespace OpenSage
         private readonly TextureCopier _textureCopier;
 
         internal GraphicsLoadContext GraphicsLoadContext { get; }
-        internal AssetStore AssetStore { get; }
+        public AssetStore AssetStore { get; }
 
         public ContentManager ContentManager { get; }
 
@@ -120,7 +121,7 @@ namespace OpenSage
             // TODO: set the correct factions & colors
             var pSettings = new List<PlayerSetting?>();
 
-            var availableColors = new HashSet<Data.Ini.MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
+            var availableColors = new HashSet<MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
 
             foreach (var slot in slots)
             {
@@ -151,7 +152,7 @@ namespace OpenSage
                     factionIndex = minFactionIndex + (random.Next() % diff);
                 }
 
-                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
+                var faction = AssetStore.PlayerTemplates.GetByInternalId(factionIndex + 1); // TODO, not ideal relying on internal ID details.
 
                 var color = new ColorRgb(0, 0, 0);
 
@@ -185,7 +186,7 @@ namespace OpenSage
                     }
 
                 }
-                pSettings.Add(new PlayerSetting(slot.StartPosition, faction.Side, color, owner, slot.HumanName));
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, owner, slot.HumanName));
             }
 
             return pSettings;
@@ -416,7 +417,7 @@ namespace OpenSage
 
                 SetCursor("Arrow");
 
-                var playerTemplate = AssetStore.PlayerTemplates.GetBySide("Civilian");
+                var playerTemplate = AssetStore.PlayerTemplates.GetByKey("FactionCivilian");
 
                 // TODO: This should never be null
                 if (playerTemplate != null)
@@ -596,6 +597,8 @@ namespace OpenSage
 
                 players[0] = CivilianPlayer;
 
+                localPlayerIndex++;
+
                 for (var i = 1; i <= playerSettings.Length; i++)
                 {
                     PlayerSetting? playerSetting = playerSettings[i - 1];
@@ -604,7 +607,7 @@ namespace OpenSage
                         continue;
                     }
 
-                    var playerTemplate = AssetStore.PlayerTemplates.GetBySide(playerSetting?.Side);
+                    var playerTemplate = playerSetting?.Template;
                     players[i] = Player.FromTemplate(playerTemplate, playerSetting);
                     var startPos = playerSetting?.StartPosition;
 
@@ -654,7 +657,7 @@ namespace OpenSage
         {
             // TODO: Difficulty
 
-            var campaign = ContentManager.IniDataContext.Campaigns.Single(x => x.Name == side);
+            var campaign = AssetStore.CampaignTemplates.GetByKey(side);
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
             StartGame(
@@ -891,10 +894,10 @@ namespace OpenSage
                 new Vector2(1, 0);
         }
 
-        // TODO: Remove this.
-        public IReadOnlyList<Data.Ini.PlayerTemplate> GetPlayableSides() => AssetStore.PlayerTemplates.PlayableSides;
+        // TODO: Move this to somewhere better.
+        public IEnumerable<PlayerTemplate> GetPlayableSides() => AssetStore.PlayerTemplates.Where(x => x.PlayableSide);
 
         // TODO: Remove this.
-        public Data.Ini.MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
+        public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByKey(name);
     }
 }

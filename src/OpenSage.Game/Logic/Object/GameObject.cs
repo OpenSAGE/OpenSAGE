@@ -12,6 +12,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object.Production;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -137,7 +138,7 @@ namespace OpenSage.Logic.Object
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)
-                .Distinct(new BitArrayEqualityComparer<ModelConditionFlag>())
+                .Distinct()
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
 
@@ -392,17 +393,19 @@ namespace OpenSage.Logic.Object
 
         public void OnLocalSelect(AudioSystem gameAudio)
         {
-            if (Definition.VoiceSelect != null)
+            var audioEvent = Definition.VoiceSelect?.Value;
+            if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(Definition.VoiceSelect);
+                gameAudio.PlayAudioEvent(audioEvent);
             }
         }
 
         public void OnLocalMove(AudioSystem gameAudio)
         {
-            if (Definition.VoiceMove != null)
+            var audioEvent = Definition.VoiceMove?.Value;
+            if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(Definition.VoiceMove);
+                gameAudio.PlayAudioEvent(audioEvent);
             }
         }
 

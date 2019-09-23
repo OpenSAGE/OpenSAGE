@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Ini

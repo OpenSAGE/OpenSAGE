@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Gui;
-using OpenSage.Gui.Wnd;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -186,9 +184,9 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
 
-                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonName))
+                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
                     {
-                        var commandButton = controlBar._contentManager.IniDataContext.CommandButtons.Find(x => x.Name == commandButtonName);
+                        var commandButton = commandButtonReference.Value;
 
                         buttonControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(commandButton.ButtonImage);
 
@@ -226,7 +224,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.UnitBuild:
                                     order = CreateOrder(OrderType.CreateUnit);
-                                    order.AddIntegerArgument(objectDefinition.InternalId);
+                                    order.AddIntegerArgument(context.Game.AssetStore.ObjectDefinitions.GetInternalId(objectDefinition));
                                     order.AddIntegerArgument(1);
                                     break;
                                 default:
@@ -320,7 +318,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
-                var commandSet = controlBar._contentManager.IniDataContext.CommandSets.Find(x => x.Name == unit.Definition.CommandSet);
+                var commandSet = unit.Definition.CommandSet.Value;
                 ApplyCommandSet(controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
@@ -368,11 +366,9 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !unit.IsProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, string upgradeName)
+                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<Upgrade> upgradeReference)
                 {
-                    var upgrade = upgradeName != null
-                        ? controlBar._contentManager.IniDataContext.Upgrades.Find(x => x.Name == upgradeName)
-                        : null;
+                    var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
                     upgradeControl.BackgroundImage = upgrade != null
                         ? controlBar._contentManager.WndImageLoader.CreateNormalImage(upgrade.ButtonImage)

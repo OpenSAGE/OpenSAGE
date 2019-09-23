@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.Scripting.Lua;
 
 namespace OpenSage.Scripting

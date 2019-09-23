@@ -1,6 +1,6 @@
 ﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.StreamFS;
 
 namespace OpenSage.Audio

@@ -1,9 +1,8 @@
-﻿using OpenSage.Content;
-using OpenSage.Content.Loaders;
+﻿using OpenSage.Content.Loaders;
 
 namespace OpenSage.Graphics
 {
-    public sealed class Model : DisposableBase, IHasName
+    public sealed class Model : DisposableBase
     {
         public string Name { get; }
         public readonly ModelBoneHierarchy BoneHierarchy;

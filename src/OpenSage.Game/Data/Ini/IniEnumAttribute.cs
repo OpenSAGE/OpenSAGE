@@ -8,6 +8,11 @@ namespace OpenSage.Data.Ini
     {
         public string[] Names { get; }
 
+        public IniEnumAttribute(string name)
+        {
+            Names = new[] { name };
+        }
+
         public IniEnumAttribute(string name, params string[] otherNames)
         {
             Names = new[] { name }.Union(otherNames).ToArray();

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Content;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Audio
 {
-    public abstract class BaseSingleSound : BaseAudioEventInfo, IHasName
+    public abstract class BaseSingleSound : BaseAudioEventInfo
     {
         internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
         {

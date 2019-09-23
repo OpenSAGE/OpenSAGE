@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[ObjectDefinition:{Name}]")]
-    public class ObjectDefinition : BaseInheritableAsset, IHasName
+    public class ObjectDefinition : BaseInheritableAsset
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
@@ -37,11 +38,11 @@ namespace OpenSage.Logic.Object
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseAssetReference() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
-            { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseAssetReference() },
-            { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseAssetReference() },
-            { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseAssetReference() },
-            { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseAssetReference() },
-            { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseAssetReference() },
+            { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseUpgradeReference() },
 
             { "Buildable", (parser, x) => x.Buildable = parser.ParseEnum<ObjectBuildableType>() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
@@ -66,7 +67,7 @@ namespace OpenSage.Logic.Object
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
             { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
             { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
-            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseOptionalLocalizedStringKey() },
+            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
             { "FenceWidth", (parser, x) => x.FenceWidth = parser.ParseFloat() },
@@ -76,12 +77,12 @@ namespace OpenSage.Logic.Object
             { "MaxSimultaneousOfType", (parser, x) => x.MaxSimultaneousOfType = MaxSimultaneousObjectCount.Parse(parser) },
             { "MaxSimultaneousLinkKey", (parser, x) => x.MaxSimultaneousLinkKey = parser.ParseIdentifier() },
 
-            { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
+            { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAudioEventReference() },
             { "VoiceSelectGroup", (parser, x) => x.VoiceSelectGroup = parser.ParseAssetReference() },
             { "VoiceSelectBattle", (parser, x) => x.VoiceSelectBattle = parser.ParseAssetReference() },
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
             { "VoiceSelectUnderConstruction", (parser, x) => x.VoiceSelectUnderConstruction = parser.ParseAssetReference() },
-            { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
+            { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAudioEventReference() },
             { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
             { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
             { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAssetReference() },
@@ -347,8 +348,8 @@ namespace OpenSage.Logic.Object
             { "AutoResolveUnitType", (parser, x) => x.AutoResolveUnitType = parser.ParseAssetReference() },
             { "AutoResolveCombatChain", (parser, x) => x.AutoResolveCombatChain = parser.ParseAssetReference() },
             { "AutoResolveBody", (parser, x) => x.AutoResolveBody = parser.ParseAssetReference() },
-            { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmor.Parse(parser) },
-            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
+            { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmorReference.Parse(parser) },
+            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeaponReference.Parse(parser) },
             { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
             { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() },
             { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = Decal.Parse(parser) },
@@ -368,20 +369,15 @@ namespace OpenSage.Logic.Object
 
         public string Name { get; protected set; }
 
-        /// <summary>
-        /// Not stored in .ini file, but implied by load order.
-        /// </summary>
-        public int InternalId { get; internal set; }
-
         // Art
         public int PlacementViewAngle { get; private set; }
         public string SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
-        public string UpgradeCameo1 { get; private set; }
-        public string UpgradeCameo2 { get; private set; }
-        public string UpgradeCameo3 { get; private set; }
-        public string UpgradeCameo4 { get; private set; }
-        public string UpgradeCameo5 { get; private set; }
+        public LazyAssetReference<Upgrade> UpgradeCameo1 { get; private set; }
+        public LazyAssetReference<Upgrade> UpgradeCameo2 { get; private set; }
+        public LazyAssetReference<Upgrade> UpgradeCameo3 { get; private set; }
+        public LazyAssetReference<Upgrade> UpgradeCameo4 { get; private set; }
+        public LazyAssetReference<Upgrade> UpgradeCameo5 { get; private set; }
 
         // Design
         public ObjectBuildableType Buildable { get; private set; }
@@ -412,7 +408,7 @@ namespace OpenSage.Logic.Object
         public bool IsPrerequisite { get; private set; }
         public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
         public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
-        public string CommandSet { get; private set; }
+        public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
 
@@ -442,7 +438,7 @@ namespace OpenSage.Logic.Object
         public string MaxSimultaneousLinkKey { get; private set; }
 
         // Audio
-        public string VoiceSelect { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelect { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectGroup { get; private set; }
@@ -456,7 +452,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectUnderConstruction { get; private set; }
 
-        public string VoiceMove { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMove { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceMoveGroup { get; private set; }
@@ -1101,10 +1097,10 @@ namespace OpenSage.Logic.Object
         public string AutoResolveBody { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public AutoResolveArmor AutoResolveArmor { get; private set; }
+        public AutoResolveArmorReference AutoResolveArmor { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public AutoResolveWeapon AutoResolveWeapon { get; private set; }
+        public AutoResolveWeaponReference AutoResolveWeapon { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public string DisplayNameStrategic { get; private set; }
@@ -1374,11 +1370,11 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveArmor
+    public sealed class AutoResolveArmorReference
     {
-        internal static AutoResolveArmor Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoResolveArmorReference Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<AutoResolveArmor> FieldParseTable = new IniParseTable<AutoResolveArmor>
+        internal static readonly IniParseTable<AutoResolveArmorReference> FieldParseTable = new IniParseTable<AutoResolveArmorReference>
         {
             { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
             { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
@@ -1392,11 +1388,11 @@ namespace OpenSage.Logic.Object
 
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveWeapon
+    public sealed class AutoResolveWeaponReference
     {
-        internal static AutoResolveWeapon Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoResolveWeaponReference Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<AutoResolveWeapon> FieldParseTable = new IniParseTable<AutoResolveWeapon>
+        internal static readonly IniParseTable<AutoResolveWeaponReference> FieldParseTable = new IniParseTable<AutoResolveWeaponReference>
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
             { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },

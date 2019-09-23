@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainTexture : IHasName
+    public sealed class TerrainTexture
     {
         internal static TerrainTexture Parse(IniParser parser)
         {

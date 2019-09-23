@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;

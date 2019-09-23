@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Object;

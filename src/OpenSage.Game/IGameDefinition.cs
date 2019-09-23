@@ -1,8 +1,8 @@
 ﻿﻿using System.Collections.Generic;
 using OpenSage.Content;
-using OpenSage.Content.Loaders;
 using OpenSage.Data;
 using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage
 {

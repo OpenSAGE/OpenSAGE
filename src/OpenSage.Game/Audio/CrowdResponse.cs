@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Content;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class CrowdResponse : IHasName
+    public sealed class CrowdResponse
     {
         internal static CrowdResponse Parse(IniParser parser)
         {

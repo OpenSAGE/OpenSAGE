@@ -18,14 +18,14 @@ namespace OpenSage.Logic
     {
         public ColorRgb Color { get; set; }
         public int? StartPosition { get; }
-        public string Side { get; set; }
+        public PlayerTemplate Template { get; set; }
         public PlayerOwner Owner { get; set; }
         public string Name { get; private set; }
 
-        public PlayerSetting(int? startPosition, string side, ColorRgb color, PlayerOwner owner = PlayerOwner.None, string name = "")
+        public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, PlayerOwner owner = PlayerOwner.None, string name = "")
         {
             StartPosition = startPosition;
-            Side = side;
+            Template = template;
             Color = color;
             Owner = owner;
             Name = name;

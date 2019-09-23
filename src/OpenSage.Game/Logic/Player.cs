@@ -77,7 +77,7 @@ namespace OpenSage.Logic
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
             // We need the template for default values
-            var template = assetStore.PlayerTemplates.GetByName(side);
+            var template = assetStore.PlayerTemplates.GetByKey(side);
 
             var name = mapPlayer.Properties["playerName"].Value as string;
             var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;

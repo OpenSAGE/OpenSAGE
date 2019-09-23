@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using OpenSage.Data.Ini;
+using OpenSage.Content;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 

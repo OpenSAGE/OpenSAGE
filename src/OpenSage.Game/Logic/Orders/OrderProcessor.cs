@@ -47,7 +47,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.BuildObject:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var objectDefinition = _game.AssetStore.ObjectDefinitions.GetById(objectDefinitionId);
+                            var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
                             var position = order.Arguments[1].Value.Position;
                             var angle = order.Arguments[2].Value.Float;
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
@@ -61,7 +61,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.CreateUnit:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var objectDefinition = _game.AssetStore.ObjectDefinitions.GetById(objectDefinitionId);
+                            var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
 
                             var placeInQueue = order.Arguments[1].Value.Integer;
 

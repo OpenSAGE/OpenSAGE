@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data;
-using OpenSage.Data.Ini;
 using SharpAudio;
 using SharpAudio.Util;
 using SharpAudio.Util.Wave;
@@ -13,11 +11,7 @@ namespace OpenSage.Audio
     {
         private readonly List<AudioSource> _sources;
         private readonly Dictionary<string, AudioBuffer> _cached;
-        private readonly AudioSettings _settings;
         private readonly AudioEngine _engine;
-
-        private readonly string _localisedAudioRoot;
-        private readonly string _audioRoot;
 
         private readonly Random _random;
 
@@ -26,15 +20,6 @@ namespace OpenSage.Audio
             _engine = AudioEngine.CreateDefault();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
-
-            _settings = game.AssetStore.AudioSettings;
-
-            // TODO
-            if (_settings.AudioRoot != null)
-            {
-                _localisedAudioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, Game.ContentManager.Language);
-                _audioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder);
-            }
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
@@ -81,19 +66,17 @@ namespace OpenSage.Audio
             return source;
         }
 
-        private FileSystemEntry ResolveAudioEventPath(AudioEvent ev)
+        private FileSystemEntry ResolveAudioEventEntry(AudioEvent ev)
         {
-            // TODO: Try to remove these allocations.
-            if(ev.Sounds.Length == 0)
+            if (ev.Sounds.Length == 0)
             {
                 return null;
             }
 
-            // TOOD: Check control flag before choosing at random?
-            var soundFileName = $"{ev.Sounds[_random.Next(ev.Sounds.Length)]}.{_settings.SoundsExtension}";
-            var isLocalised = ev.Type.HasFlag(AudioTypeFlags.Voice);
-            var filePath = Path.Combine(isLocalised ? _localisedAudioRoot : _audioRoot, soundFileName);
-            return Game.ContentManager.FileSystem.GetFile(filePath);
+            // TOOD: Check control flag before choosing at random.
+            var sound = ev.Sounds[_random.Next(ev.Sounds.Length)].Value;
+            var audioFile = sound.AudioFile.Value;
+            return audioFile.Entry;
         }
 
         /// <summary>
@@ -110,14 +93,26 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(string eventName)
         {
-            var audioEvent = Game.AssetStore.AudioEvents.GetByName(eventName);
+            var audioEvent = Game.AssetStore.AudioEvents.GetByKey(eventName);
+
             if (audioEvent == null)
             {
                 logger.Warn($"Missing AudioEvent: {eventName}");
                 return;
             }
 
-            var entry = ResolveAudioEventPath(audioEvent);
+            PlayAudioEvent(audioEvent);
+        }
+
+        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        {
+            if (!(baseAudioEvent is AudioEvent audioEvent))
+            {
+                // TODO
+                return;
+            }
+
+            var entry = ResolveAudioEventEntry(audioEvent);
 
             if (entry == null)
             {
