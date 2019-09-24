@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -90,7 +91,7 @@ namespace OpenSage.Logic.Object
         };
 
         public string AnimationType { get; private set; }
-        public LazyAssetReference<Graphics.Animation.Animation>[] Animations { get; private set; }
+        public LazyAssetReference<Graphics.Animation.W3DAnimation>[] Animations { get; private set; }
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationPriority { get; private set; }
         public bool UseWeaponTiming { get; private set; }
