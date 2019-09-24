@@ -12,6 +12,7 @@ namespace OpenSage.Diagnostics
     internal sealed class AssetListView : DiagnosticView
     {
         private static readonly Dictionary<Type, ConstructorInfo> AssetViewConstructors;
+        private static readonly ConstructorInfo DefaultAssetViewConstructor;
 
         static AssetListView()
         {
@@ -30,6 +31,8 @@ namespace OpenSage.Diagnostics
                     AssetViewConstructors.Add(assetViewAttribute.ForType, type.GetConstructor(constructorParameterTypes));
                 }
             }
+
+            DefaultAssetViewConstructor = typeof(DefaultAssetView).GetConstructors()[0];
         }
 
         private readonly List<string> _audioFilenames;
@@ -140,31 +143,27 @@ namespace OpenSage.Diagnostics
 
             var isEmptySearch = string.IsNullOrWhiteSpace(_searchText);
 
-            void AddItem(string assetName, Func<AssetView> createAssetView)
-            {
-                
-            }
-
             var assetStore = Context.Game.AssetStore;
 
             foreach (var asset in assetStore.GetAllAssets())
             {
                 if (isEmptySearch || asset.FullName.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    if (AssetViewConstructors.TryGetValue(asset.GetType(), out var assetViewConstructor))
+                    if (!AssetViewConstructors.TryGetValue(asset.GetType(), out var assetViewConstructor))
                     {
-                        Func<AssetView> createAssetView = () => (AssetView) assetViewConstructor.Invoke(new object[] { Context, asset });
-                        _items.Add(new AssetListItem(asset.FullName, createAssetView));
+                        assetViewConstructor = DefaultAssetViewConstructor;
                     }
-                    // TODO: Fallback view.
+
+                    AssetView createAssetView() => (AssetView) assetViewConstructor.Invoke(new object[] { Context, asset });
+                    _items.Add(new AssetListItem(asset.FullName, createAssetView));
                 }
             }
 
             // TODO: Remove these, once these assets are handled the same as other assets.
-            foreach (var audioFilename in _audioFilenames)
-            {
-                AddItem($"Audio:{audioFilename}", () => new SoundView(Context, audioFilename));
-            }
+            //foreach (var audioFilename in _audioFilenames)
+            //{
+            //    AddItem($"Audio:{audioFilename}", () => new SoundView(Context, audioFilename));
+            //}
         }
     }
 }
