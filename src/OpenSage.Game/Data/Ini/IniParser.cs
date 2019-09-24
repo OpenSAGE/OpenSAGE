@@ -575,6 +575,20 @@ namespace OpenSage.Data.Ini
             return new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(name));
         }
 
+        public LazyAssetReference<Graphics.Animation.Animation>[] ParseAnimationReferenceArray()
+        {
+            var result = new List<LazyAssetReference<Graphics.Animation.Animation>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                var localToken = token;
+                result.Add(new LazyAssetReference<Graphics.Animation.Animation>(() => AssetStore.Animations.GetByName(localToken.Value.Text)));
+            }
+
+            return result.ToArray();
+        }
+
         public LazyAssetReference<Locomotor>[] ParseLocomotorReferenceArray()
         {
             var result = new List<LazyAssetReference<Locomotor>>();

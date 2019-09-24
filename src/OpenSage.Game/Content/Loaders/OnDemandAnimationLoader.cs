@@ -8,6 +8,7 @@ namespace OpenSage.Content.Loaders
     internal sealed class OnDemandAnimationLoader : IOnDemandAssetLoader<W3DAnimation>
     {
         private readonly IPathResolver _pathResolver;
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public OnDemandAnimationLoader(IPathResolver pathResolver)
         {
@@ -32,6 +33,12 @@ namespace OpenSage.Content.Loaders
                 {
                     break;
                 }
+            }
+
+            if(entry == null)
+            {
+                logger.Warn("Failed to load animation: " + key);
+                return null;
             }
 
             // Load animation.

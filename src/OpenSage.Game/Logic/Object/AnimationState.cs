@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<AnimationStateAnimation> FieldParseTable = new IniParseTable<AnimationStateAnimation>
         {
-            { "AnimationName", (parser, x) => x.AnimationNames = parser.ParseAssetReferenceArray() },
+            { "AnimationName", (parser, x) => x.Animations = parser.ParseAnimationReferenceArray() },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationPriority", (parser, x) => x.AnimationPriority = parser.ParseInteger() },
             { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
@@ -90,8 +90,7 @@ namespace OpenSage.Logic.Object
         };
 
         public string AnimationType { get; private set; }
-
-        public string[] AnimationNames { get; private set; }
+        public LazyAssetReference<Graphics.Animation.Animation>[] Animations { get; private set; }
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationPriority { get; private set; }
         public bool UseWeaponTiming { get; private set; }
