@@ -3,12 +3,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Eva
 {
-    public sealed class EvaEvent
+    public sealed class EvaEvent : BaseAsset
     {
         internal static EvaEvent Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("EvaEvent", name),
                 FieldParseTable);
         }
 
@@ -29,8 +29,6 @@ namespace OpenSage.Eva
             { "MillisecondsToWaitBeforePlaying", (parser, x) => x.MillisecondsToWaitBeforePlaying = parser.ParseInteger() },
             { "OtherEvaEventsToBlock", (parser, x) => x.OtherEvaEventsToBlock = parser.ParseAssetReference() }
         };
-
-        public string Name { get; internal set; }
 
         public int Priority { get; private set; }
         public int TimeBetweenChecksMS { get; private set; }

@@ -3,12 +3,12 @@
 namespace OpenSage.Terrain
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class SkyboxTextureSet
+    public sealed class SkyboxTextureSet : BaseAsset
     {
         internal static SkyboxTextureSet Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("SkyboxTextureSet", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Terrain
             { "SkyboxTextureW", (parser, x) => x.SkyboxTextureW = parser.ParseFileName() },
             { "SkyboxTextureT", (parser, x) => x.SkyboxTextureT = parser.ParseFileName() },
         };
-
-        public string Name { get; private set; }
 
         public string SkyboxTextureN { get; private set; }
         public string SkyboxTextureE { get; private set; }

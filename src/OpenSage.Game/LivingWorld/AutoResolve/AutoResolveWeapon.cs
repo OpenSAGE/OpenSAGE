@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveWeapon
+    public sealed class AutoResolveWeapon : BaseAsset
     {
         internal static AutoResolveWeapon Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AutoResolveWeapon", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.LivingWorld.AutoResolve
             { "DamagePerRound", (parser, x) => x.DamagesPerRound.Add(DamagePerRound.Parse(parser)) },
             { "LevelBonus", (parser, x) => x.LevelBonuses.Add(LevelBonus.Parse(parser)) }
         };
-
-        public string Name { get; private set; }
 
         public int MissPercentChance { get; private set; }
         public bool ReduceAttackWhenHurt { get; private set; }

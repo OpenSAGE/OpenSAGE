@@ -18,7 +18,7 @@ namespace OpenSage.Terrain
                 Matrix4x4.CreateFromQuaternion(gameObject.Transform.Rotation)
                 * Matrix4x4.CreateTranslation(gameObject.Transform.Translation);
 
-            var landmarkBridgeTemplate = assetStore.BridgeTemplates.GetByKey(mapObject.TypeName);
+            var landmarkBridgeTemplate = assetStore.BridgeTemplates.GetByName(mapObject.TypeName);
 
             var halfLength = gameObject.Definition.Geometry.MinorRadius;
             var halfWidth = gameObject.Definition.Geometry.MajorRadius;

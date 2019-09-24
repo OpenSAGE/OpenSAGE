@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using OpenSage.Content.Loaders;
 
 namespace OpenSage.Content
 {
-    public sealed class ScopedAssetCollection<TKey, TValue> : IScopedAssetCollection, IEnumerable<TValue>
-        where TValue : class
+    public sealed class ScopedAssetCollection<TAsset> : IScopedAssetCollection, IEnumerable<TAsset>
+        where TAsset : BaseAsset
     {
         private sealed class AssetScope
         {
-            public readonly Dictionary<TKey, TValue> Assets = new Dictionary<TKey, TValue>();
+            public readonly Dictionary<uint, TAsset> Assets = new Dictionary<uint, TAsset>();
             public readonly int StartId;
 
             public AssetScope(int startId)
@@ -20,67 +19,51 @@ namespace OpenSage.Content
         }
 
         private readonly Stack<AssetScope> _assetScopes = new Stack<AssetScope>();
-
-        private readonly Dictionary<int, TValue> _byId = new Dictionary<int, TValue>();
-        private readonly Dictionary<TValue, int> _byValue = new Dictionary<TValue, int>();
+        private readonly Dictionary<int, TAsset> _byInternalId = new Dictionary<int, TAsset>();
+        private readonly List<TAsset> _list = new List<TAsset>();
 
         private readonly AssetStore _assetStore;
-        private readonly Func<TValue, TKey> _getKey;
-        private readonly Func<TKey, TKey> _normalizeKey;
-        private readonly IOnDemandAssetLoader<TKey, TValue> _loader;
-        private readonly bool _disposeAssets;
+        private readonly IOnDemandAssetLoader<TAsset> _loader;
 
         private int _nextId = 1;
 
-        public int Count => _byId.Count;
+        public int Count => _byInternalId.Count;
 
         internal ScopedAssetCollection(
             AssetStore assetStore,
-            Func<TValue, TKey> getKey,
-            Func<TKey, TKey> normalizeKey = null,
-            IOnDemandAssetLoader<TKey, TValue> loader = null)
+            IOnDemandAssetLoader<TAsset> loader = null)
         {
             _assetStore = assetStore;
-            _getKey = getKey;
-            _normalizeKey = normalizeKey;
             _loader = loader;
-
-            // TODO: Maybe all assets should implement IDisposable?
-            _disposeAssets = typeof(IDisposable).IsAssignableFrom(typeof(TValue));
         }
 
-        void IScopedAssetCollection.PushScope()
+        void IScopedAssetStorage.PushScope()
         {
             _assetScopes.Push(new AssetScope(_nextId));
         }
 
-        void IScopedAssetCollection.PopScope()
+        void IScopedAssetStorage.PopScope()
         {
             var assetScope = _assetScopes.Pop();
             foreach (var asset in assetScope.Assets.Values)
             {
-                if (_disposeAssets)
-                {
-                    ((IDisposable) asset).Dispose();
-                }
-                _byValue.Remove(asset);
+                _list.Remove(asset); // TODO: This is slow.
+                asset.Dispose();
             }
             for (var i = assetScope.StartId; i < _nextId; i++)
             {
-                _byId.Remove(i);
+                _byInternalId.Remove(i);
             }
         }
 
-        public TValue GetByKey(TKey key)
+        public TAsset GetByName(string name)
         {
-            var normalizedKey = (_normalizeKey != null)
-                ? _normalizeKey(key)
-                : key;
+            var instanceId = AssetHash.GetHash(name);
 
             // Find existing cached item.
             foreach (var assetScope in _assetScopes)
             {
-                if (assetScope.Assets.TryGetValue(normalizedKey, out var result))
+                if (assetScope.Assets.TryGetValue(instanceId, out var result))
                 {
                     return result;
                 }
@@ -89,42 +72,61 @@ namespace OpenSage.Content
             // If we can, create new item and cache it.
             if (_loader != null)
             {
-                var newValue = _loader.Load(normalizedKey, _assetStore.LoadContext);
-                _assetScopes.Peek().Assets.Add(normalizedKey, newValue);
+                var newValue = _loader.Load(name, _assetStore.LoadContext);
+                _assetScopes.Peek().Assets.Add(instanceId, newValue);
+
+                newValue.InternalId = _nextId;
+                _byInternalId.Add(_nextId, newValue);
+
+                _nextId++;
+
+                _list.Add(newValue);
+
                 return newValue;
             }
 
             return null;
         }
 
-        public TValue GetByInternalId(int internalId)
+        public TAsset GetByInternalId(int internalId)
         {
-            return _byId[internalId];
+            return _byInternalId[internalId];
         }
 
-        // TODO: Remove this, when we store internalId in each asset.
-        public int GetInternalId(TValue value)
+        public TAsset GetByIndex(int index)
         {
-            return _byValue[value];
+            return _list[index];
         }
 
-        internal void Add(TValue asset)
+        internal void Add(TAsset asset)
         {
             // Existing entries take precedence
             var assetScope = _assetScopes.Peek();
-            var key = _getKey(asset);
+            var key = asset.InstanceId;
             if (!assetScope.Assets.ContainsKey(key))
             {
                 assetScope.Assets.Add(key, asset);
 
-                _byId.Add(_nextId, asset);
-                _byValue.Add(asset, _nextId);
+                asset.InternalId = _nextId;
+                _byInternalId.Add(_nextId, asset);
+
+                _list.Add(asset);
 
                 _nextId++;
             }
         }
 
-        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
+        void IScopedAssetCollection.Add(object asset)
+        {
+            Add((TAsset) asset);
+        }
+
+        public IEnumerable<BaseAsset> GetAssets()
+        {
+            return _byInternalId.Values;
+        }
+
+        IEnumerator<TAsset> IEnumerable<TAsset>.GetEnumerator()
         {
             foreach (var assetScope in _assetScopes)
             {
@@ -135,6 +137,6 @@ namespace OpenSage.Content
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TValue>) this).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TAsset>) this).GetEnumerator();
     }
 }

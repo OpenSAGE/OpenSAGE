@@ -3,12 +3,9 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Audio
 {
-    public sealed class MiscAudio
+    public sealed class MiscAudio : BaseSingletonAsset
     {
-        internal static MiscAudio Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, MiscAudio value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<MiscAudio> FieldParseTable = new IniParseTable<MiscAudio>
         {

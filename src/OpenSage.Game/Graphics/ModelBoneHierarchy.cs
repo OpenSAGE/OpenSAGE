@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
+using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats.W3d;
 
 namespace OpenSage.Graphics
 {
-    public sealed class ModelBoneHierarchy
+    public sealed class ModelBoneHierarchy : BaseAsset
     {
         public static ModelBoneHierarchy CreateDefault()
         {
@@ -12,17 +13,24 @@ namespace OpenSage.Graphics
             return new ModelBoneHierarchy("[Default]", bones);
         }
 
-        public string Name { get; }
         public ModelBone[] Bones { get; }
 
-        internal ModelBoneHierarchy(string name, ModelBone[] bones)
+        private ModelBoneHierarchy(string name, ModelBone[] bones)
         {
-            Name = name;
+            SetNameAndInstanceId("W3DHierarchy", name);
+            Bones = bones;
+        }
+
+        internal ModelBoneHierarchy(Asset asset, ModelBone[] bones)
+        {
+            SetNameAndInstanceId(asset);
             Bones = bones;
         }
 
         internal ModelBoneHierarchy(W3dHierarchyDef w3dHierarchy)
         {
+            SetNameAndInstanceId("W3DHierarchy", w3dHierarchy.Header.Name);
+
             Bones = new ModelBone[w3dHierarchy.Pivots.Items.Count];
 
             for (var i = 0; i < w3dHierarchy.Pivots.Items.Count; i++)

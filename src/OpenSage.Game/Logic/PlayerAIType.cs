@@ -3,12 +3,12 @@
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class PlayerAIType
+    public sealed class PlayerAIType : BaseAsset
     {
         internal static PlayerAIType Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("PlayerAIType", name),
                 FieldParseTable);
         }
 
@@ -16,8 +16,6 @@ namespace OpenSage.Logic
         {
             { "LibraryMap", (parser, x) => x.LibraryMap = parser.ParseQuotedString() },
         };
-
-        public string Name { get; private set; }
 
         public string LibraryMap { get; private set; }
     }

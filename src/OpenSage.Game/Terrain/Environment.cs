@@ -5,7 +5,7 @@ using System.Numerics;
 namespace OpenSage.Terrain
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class Environment
+    public sealed class Environment : BaseSingletonAsset
     {
         public CloudEffect CloudEffect { get; internal set; }
         public RingEffect FireEffect { get; internal set; }

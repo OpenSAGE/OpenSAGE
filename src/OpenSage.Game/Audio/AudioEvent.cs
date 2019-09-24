@@ -10,18 +10,9 @@ namespace OpenSage.Audio
     {
         internal static AudioEvent Parse(IniParser parser)
         {
-            var audioEvent = parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+            return parser.ParseNamedBlock(
+                (x, name) => x.SetNameAndInstanceId("AudioEvent", name),
                 FieldParseTable);
-
-            // HACK for Generals: In order to know which sounds to localise, we need to check if the event was loaded from Voice.ini.
-            // Most localised sounds have the Voice audio type flag, but many don't, so we need to make sure the flag is set.
-            if (parser.CurrentPosition.File.EndsWith("Voice.ini"))
-            {
-                audioEvent.Type |= AudioTypeFlags.Voice;
-            }
-
-            return audioEvent;
         }
 
         private static new readonly IniParseTable<AudioEvent> FieldParseTable = BaseSingleSound.FieldParseTable
@@ -35,10 +26,8 @@ namespace OpenSage.Audio
 
         internal static AudioEvent ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
-            var result = new AudioEvent
-            {
-                Name = asset.Name
-            };
+            var result = new AudioEvent();
+            result.SetNameAndInstanceId(asset);
 
             ParseAsset(reader, result);
 

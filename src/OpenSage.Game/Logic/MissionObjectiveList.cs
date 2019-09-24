@@ -4,9 +4,9 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class MissionObjectiveList
+    public sealed class MissionObjectiveList : BaseSingletonAsset
     {
-        internal static MissionObjectiveList Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, MissionObjectiveList value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<MissionObjectiveList> FieldParseTable = new IniParseTable<MissionObjectiveList>
         {

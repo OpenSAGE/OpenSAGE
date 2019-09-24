@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Audio
 {
-    public sealed class AudioSettings
+    public sealed class AudioSettings : BaseSingletonAsset
     {
-        internal static AudioSettings Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, AudioSettings value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<AudioSettings> FieldParseTable = new IniParseTable<AudioSettings>
         {
@@ -121,9 +122,10 @@ namespace OpenSage.Audio
             { "MinDelayBetweenEnterStateVoiceMS", (parser, x) => x.MinDelayBetweenEnterStateVoice = parser.ParseTimeMilliseconds() },
         };
 
-        internal static AudioSettings ParseAsset(BinaryReader reader)
+        internal static AudioSettings ParseAsset(BinaryReader reader, Asset asset)
         {
             var result = new AudioSettings();
+            result.SetNameAndInstanceId(asset);
 
             var streamBufferSizePerChannel = reader.ReadUInt32();
             var maxRequestsPerStream = reader.ReadUInt32();

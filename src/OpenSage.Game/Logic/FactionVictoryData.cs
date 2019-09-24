@@ -3,12 +3,12 @@
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FactionVictoryData
+    public sealed class FactionVictoryData : BaseAsset
     {
         internal static FactionVictoryData Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("FactionVictoryData", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Logic
             { "MajorUnitValue", (parser, x) => x.MajorUnitValue = parser.ParseFloat() },
             { "MapToCellVictoryRatio", (parser, x) => x.MapToCellVictoryRatio = parser.ParseFloat() },
         };
-
-        public string Name { get; private set; }
 
         public float AllyDeathScaleFactor { get; private set; }
         public float EnemyKillScaleFactor { get; private set; }

@@ -6,12 +6,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldBuildPlotIcon
+    public sealed class LivingWorldBuildPlotIcon : BaseAsset
     {
         internal static LivingWorldBuildPlotIcon Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldBuildPlotIcon", name),
                 FieldParseTable);
         }
 
@@ -21,8 +21,6 @@ namespace OpenSage.LivingWorld
             { "OnBuildingDestroyedSound", (parser, x) => x.OnBuildingDestroyedSound = parser.ParseAssetReference() },
             { "Object", (parser, x) => x.Objects.Add(BuildPlotIconObject.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public string OnSelectedSound { get; private set; }
         public string OnBuildingDestroyedSound { get; private set; }

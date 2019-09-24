@@ -3,12 +3,12 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class VictorySystemData
+    public sealed class VictorySystemData : BaseAsset
     {
         internal static VictorySystemData Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("VictorySystemData", name),
                 FieldParseTable);
         }
 
@@ -19,8 +19,6 @@ namespace OpenSage.Logic.Object
             { "SubtractPerLogicFrame", (parser, x) => x.SubtractPerLogicFrame = parser.ParseFloat() },
             { "CellBonusRadius", (parser, x) => x.CellBonusRadius = parser.ParseFloat() },
         };
-
-        public string Name { get; private set; }
 
         public int CellSize { get; private set; }
         public float ScalePerLogicFrame { get; private set; }

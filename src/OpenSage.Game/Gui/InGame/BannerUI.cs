@@ -5,9 +5,9 @@ using OpenSage.Logic.Object;
 namespace OpenSage.Gui.InGame
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class BannerUI
+    public sealed class BannerUI : BaseSingletonAsset
     {
-        internal static BannerUI Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, BannerUI value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<BannerUI> FieldParseTable = new IniParseTable<BannerUI>
         {

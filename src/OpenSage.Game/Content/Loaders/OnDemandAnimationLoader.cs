@@ -5,7 +5,7 @@ using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Content.Loaders
 {
-    public sealed class OnDemandAnimationLoader : IOnDemandAssetLoader<string, Animation>
+    internal sealed class OnDemandAnimationLoader : IOnDemandAssetLoader<W3DAnimation>
     {
         private readonly IPathResolver _pathResolver;
 
@@ -14,7 +14,7 @@ namespace OpenSage.Content.Loaders
             _pathResolver = pathResolver;
         }
 
-        Animation IOnDemandAssetLoader<string, Animation>.Load(string key, AssetLoadContext context)
+        public W3DAnimation Load(string key, AssetLoadContext context)
         {
             var splitName = key.Split('.');
 
@@ -40,7 +40,7 @@ namespace OpenSage.Content.Loaders
             {
                 w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
             }
-            var animation = Animation.FromW3dFile(w3dFile);
+            var animation = W3DAnimation.FromW3dFile(w3dFile);
             if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
             {
                 throw new NotSupportedException();

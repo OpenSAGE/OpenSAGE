@@ -3,9 +3,14 @@
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveHandicapLevel
+    public sealed class AutoResolveHandicapLevel : BaseAsset
     {
-        internal static AutoResolveHandicapLevel Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoResolveHandicapLevel Parse(IniParser parser)
+        {
+            var result = parser.ParseBlock(FieldParseTable);
+            result.SetNameAndInstanceId("AutoResolveHandicapLevel", result.GUIDisplayedLevel.ToString());
+            return result;
+        }
 
         private static readonly IniParseTable<AutoResolveHandicapLevel> FieldParseTable = new IniParseTable<AutoResolveHandicapLevel>
         {

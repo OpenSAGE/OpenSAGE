@@ -3,12 +3,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Locomotor
+    public sealed class Locomotor : BaseAsset
     {
         internal static Locomotor Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
+                 (x, name) => x.SetNameAndInstanceId("Locomotor", name),
                  FieldParseTable);
         }
 
@@ -122,8 +122,6 @@ namespace OpenSage.Logic.Object
             { "TurnWhileMoving", (parser, x) => x.TurnWhileMoving = parser.ParseBoolean() },
             { "RiverModifier", (parser, x) => x.RiverModifier = parser.ParsePercentage() }
         };
-
-        public string Name { get; private set; }
 
         public BitArray<Surface> Surfaces { get; private set; }
         public float Speed { get; private set; }

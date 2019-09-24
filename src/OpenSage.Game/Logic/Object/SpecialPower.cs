@@ -3,12 +3,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpecialPower
+    public sealed class SpecialPower : BaseAsset
     {
         internal static SpecialPower Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("SpecialPower", name),
                 FieldParseTable);
         }
 
@@ -40,8 +40,6 @@ namespace OpenSage.Logic.Object
             { "UnitCost", (parser, x) => x.UnitCost = parser.ParseInteger() },
             { "UnitCostDeathType", (parser, x) => x.UnitCostDeathType = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public SpecialPowerType Type { get; private set; }
         public long ReloadTime { get; private set; }

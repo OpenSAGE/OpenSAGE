@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class EmotionNugget
+    public sealed class EmotionNugget : BaseAsset
     {
         internal static EmotionNugget Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("EmotionNugget", name),
                 FieldParseTable);
         }
 
@@ -35,8 +35,6 @@ namespace OpenSage.Logic
             { "ModelConditionsClear", (parser, x) => x.ModelConditionsClear = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "PreventPlayerCommands", (parser, x) => x.PreventPlayerCommands = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public EmotionType Type { get; private set; }
         public bool IgnoreIfUnitIdle { get; private set; }

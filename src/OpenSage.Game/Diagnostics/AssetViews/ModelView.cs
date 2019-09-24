@@ -5,6 +5,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(Model))]
     internal sealed class ModelView : AssetView
     {
         private readonly RenderedView _renderedView;

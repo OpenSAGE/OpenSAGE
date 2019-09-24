@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.FileFormats.W3d;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -18,7 +17,7 @@ namespace OpenSage.Graphics
     {
         internal ModelMesh(W3dMesh w3dMesh, AssetLoadContext loadContext)
         {
-            Name = w3dMesh.Header.MeshName;
+            SetNameAndInstanceId("W3DMesh", w3dMesh.Header.MeshName);
 
             W3dShaderMaterial w3dShaderMaterial;
             ShaderResourcesBase shaderResources;
@@ -145,7 +144,7 @@ namespace OpenSage.Graphics
                 throw new NotImplementedException();
             }
 
-            return context.AssetStore.Textures.GetByKey(w3dTexture.Name.Value);
+            return context.AssetStore.Textures.GetByName(w3dTexture.Name.Value);
         }
 
         private static MeshShaderResources.MeshVertex.Basic[] CreateVertices(
@@ -248,7 +247,7 @@ namespace OpenSage.Graphics
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = context.AssetStore.Textures.GetByKey(w3dShaderProperty.StringValue);
+                        var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue);
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 

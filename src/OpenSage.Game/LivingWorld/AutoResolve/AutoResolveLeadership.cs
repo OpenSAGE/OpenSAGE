@@ -4,12 +4,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveLeadership
+    public sealed class AutoResolveLeadership : BaseAsset
     {
         internal static AutoResolveLeadership Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AutoResolveLeadership", name),
                 FieldParseTable);
         }
 
@@ -19,8 +19,6 @@ namespace OpenSage.LivingWorld.AutoResolve
             { "AffectsHigherLevelFirst", (parser, x) => x.AffectsHigherLevelFirst = parser.ParseBoolean() },
             { "BonusForLevel", (parser, x) => x.BonusForLevel = BonusForLevel.Parse(parser) }
         };
-
-        public string Name { get; private set; }
 
         public string[] Affects { get; private set; }
         public bool AffectsHigherLevelFirst { get; private set; }

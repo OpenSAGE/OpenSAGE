@@ -2,7 +2,7 @@
 
 namespace OpenSage.Lod
 {
-    public sealed class BenchProfile
+    public sealed class BenchProfile : BaseAsset
     {
         internal static BenchProfile Parse(IniParser parser)
         {
@@ -15,6 +15,8 @@ namespace OpenSage.Lod
                 Unknown2 = parser.ParseFloat(),
                 Unknown3 = parser.ParseFloat()
             };
+
+            result.SetNameAndInstanceId("BenchProfile", result.CpuType + "-" + result.MHz);
 
             return result;
         }

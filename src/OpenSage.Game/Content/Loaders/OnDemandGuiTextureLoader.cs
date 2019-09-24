@@ -3,6 +3,7 @@ using System.IO;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
+using OpenSage.Gui;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -11,7 +12,8 @@ using Veldrid.ImageSharp;
 
 namespace OpenSage.Content.Loaders
 {
-    public sealed class OnDemandTextureLoader : IOnDemandAssetLoader<string, Texture>
+    // TODO: Dedupe this with OnDemandTextureLoader
+    internal sealed class OnDemandGuiTextureLoader : IOnDemandAssetLoader<GuiTextureAsset>
     {
         private static readonly string[] PossibleFileExtensions = new[]
         {
@@ -23,7 +25,7 @@ namespace OpenSage.Content.Loaders
         private readonly bool _generateMipMaps;
         private readonly IPathResolver _pathResolver;
 
-        public OnDemandTextureLoader(
+        public OnDemandGuiTextureLoader(
             bool generateMipMaps,
             IPathResolver pathResolver)
         {
@@ -31,7 +33,7 @@ namespace OpenSage.Content.Loaders
             _pathResolver = pathResolver;
         }
 
-        Texture IOnDemandAssetLoader<string, Texture>.Load(string name, AssetLoadContext context)
+        public GuiTextureAsset Load(string name, AssetLoadContext context)
         {
             // Find it in the file system.
             FileSystemEntry entry = null;
@@ -60,7 +62,7 @@ namespace OpenSage.Content.Loaders
 
             var texture = LoadImpl(entry, context.GraphicsDevice);
             texture.Name = entry.FilePath;
-            return texture;
+            return new GuiTextureAsset(texture, name);
         }
 
         private Texture LoadImpl(FileSystemEntry entry, GraphicsDevice graphicsDevice)

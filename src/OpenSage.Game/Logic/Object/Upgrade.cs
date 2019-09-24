@@ -3,12 +3,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Upgrade
+    public sealed class Upgrade : BaseAsset
     {
         internal static Upgrade Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Upgrade", name),
                 FieldParseTable);
         }
 
@@ -42,8 +42,6 @@ namespace OpenSage.Logic.Object
             { "GroupName", (parser, x) => x.GroupName = parser.ParseString() },
             { "GroupOrder", (parser, x) => x.GroupOrder = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public UpgradeType Type { get; private set; } = UpgradeType.Player;
         public string DisplayName { get; private set; }

@@ -3,7 +3,7 @@
 namespace OpenSage.Gui
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FontDefaultSetting
+    public sealed class FontDefaultSetting : BaseAsset
     {
         internal static FontDefaultSetting Parse(IniParser parser)
         {
@@ -11,7 +11,7 @@ namespace OpenSage.Gui
 
             var result = parser.ParseTopLevelBlock(FieldParseTable);
 
-            result.Name = fontName;
+            result.SetNameAndInstanceId("FontDefaultSetting", fontName);
 
             return result;
         }
@@ -20,8 +20,6 @@ namespace OpenSage.Gui
         {
             { "Antialiased", (parser, x) => x.Antialiased = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public bool Antialiased { get; private set; }
     }

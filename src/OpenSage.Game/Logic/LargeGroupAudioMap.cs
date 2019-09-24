@@ -6,12 +6,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LargeGroupAudioMap
+    public sealed class LargeGroupAudioMap : BaseAsset
     {
         internal static LargeGroupAudioMap Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LargeGroupAudioMap", name),
                 FieldParseTable);
         }
 
@@ -28,8 +28,6 @@ namespace OpenSage.Logic
             { "HandOffModeDuration", (parser, x) => x.HandOffModeDuration = parser.ParseInteger() },
             { "MaximumAudioSpeed", (parser, x) => x.MaximumAudioSpeed = parser.ParseInteger() },
         };
-
-        public string Name { get; private set; }
 
         public List<LargeGroupAudioMapSound> Sounds { get; } = new List<LargeGroupAudioMapSound>();
         public BitArray<ModelConditionFlag> RequiredModelConditionFlags { get; private set; }
@@ -63,9 +61,9 @@ namespace OpenSage.Logic
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class LargeGroupAudioUnusedKnownKeys
+    public sealed class LargeGroupAudioUnusedKnownKeys : BaseSingletonAsset
     {
-        internal static LargeGroupAudioUnusedKnownKeys Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, LargeGroupAudioUnusedKnownKeys value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<LargeGroupAudioUnusedKnownKeys> FieldParseTable = new IniParseTable<LargeGroupAudioUnusedKnownKeys>
         {

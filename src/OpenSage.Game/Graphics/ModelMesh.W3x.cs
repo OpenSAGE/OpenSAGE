@@ -14,7 +14,7 @@ namespace OpenSage.Graphics
     {
         internal ModelMesh(W3xMesh w3xMesh, Asset asset, AssetLoadContext loadContext)
         {
-            Name = asset.Name;
+            SetNameAndInstanceId(asset);
 
             var effectName = w3xMesh.FXShader.ShaderName.Replace(".fx", string.Empty);
             //var shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName); // TODO: Uncomment this.

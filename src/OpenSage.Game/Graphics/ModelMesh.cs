@@ -24,7 +24,7 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed partial class ModelMesh : DisposableBase
+    public sealed partial class ModelMesh : BaseAsset
     {
         private readonly ShaderSet _shaderSet;
         private ShaderSet _depthShaderSet;
@@ -40,8 +40,6 @@ namespace OpenSage.Graphics
 
         internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
         internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
-
-        public readonly string Name;
 
         public readonly BoundingBox BoundingBox;
 

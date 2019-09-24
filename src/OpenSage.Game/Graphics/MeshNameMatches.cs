@@ -4,12 +4,12 @@ namespace OpenSage.Graphics
 {
     //Setup file for the instancing manager.
     [AddedIn(SageGame.Bfme2)]
-    public sealed class MeshNameMatches
+    public sealed class MeshNameMatches : BaseAsset
     {
         internal static MeshNameMatches Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("MeshNameMatches", name),
                 FieldParseTable);
         }
 
@@ -17,8 +17,6 @@ namespace OpenSage.Graphics
         {
             { "Instances", (parser, x) => x.Instances = parser.ParseInteger() },
         };
-
-        public string Name { get; private set; }
 
         public int Instances { get; private set; }
     }

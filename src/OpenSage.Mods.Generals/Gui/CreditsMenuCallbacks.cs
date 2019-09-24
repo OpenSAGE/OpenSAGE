@@ -31,7 +31,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void CreditsMenuInit(Window window, Game game)
         {
-            var credits = game.ContentManager.IniDataContext.Credits;
+            var credits = game.AssetStore.Credits.Current;
 
             var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
 
@@ -106,7 +106,7 @@ namespace OpenSage.Mods.Generals.Gui
             var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
             var data = (CreditsMenuData) control.Tag;
 
-            var credits = game.ContentManager.IniDataContext.Credits;
+            var credits = game.AssetStore.Credits.Current;
 
             var multiplier = credits.ScrollDown ? 1 : -1;
 

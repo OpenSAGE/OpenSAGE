@@ -6,12 +6,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.AI
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class SkirmishAIData
+    public sealed class SkirmishAIData : BaseAsset
     {
         internal static SkirmishAIData Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("SkirmishAIData", name),
                 FieldParseTable);
         }
 
@@ -46,7 +46,6 @@ namespace OpenSage.Logic.AI
             { "LogicFramesTillAISelfDestructs", (parser, x) => x.LogicFramesTillAISelfDestructs = parser.ParseInteger() },
         };
 
-        public string Name { get; private set; }
         public List<CombatChainDefinition> CombatChainDefinitions { get; } = new List<CombatChainDefinition>();
         public int AnyTypeTemplateDisabledSlots { get; private set; }
         public float DefaultTargetThreatRadius { get; private set; }

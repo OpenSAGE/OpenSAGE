@@ -1,8 +1,8 @@
 ﻿namespace OpenSage.Content.Loaders
 {
-    internal interface IOnDemandAssetLoader<TKey, TValue>
-        where TValue : class
+    internal interface IOnDemandAssetLoader<TAsset>
+        where TAsset : BaseAsset
     {
-        TValue Load(TKey key, AssetLoadContext context);
+        TAsset Load(string key, AssetLoadContext context);
     }
 }

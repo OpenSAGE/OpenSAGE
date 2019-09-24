@@ -98,8 +98,8 @@ namespace OpenSage.Logic
             // TODO: Check that the building has been unlocked.
             // TODO: Check that the builder isn't building something else right now?
 
-            var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.AssetStore.ObjectDefinitions.GetInternalId(buildingDefinition);
+            var gameData = Game.AssetStore.GameData.Current;
+            var definitionIndex = buildingDefinition.InternalId;
 
             ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
         }
@@ -113,8 +113,8 @@ namespace OpenSage.Logic
             // TODO: Check that the unit has been unlocked.
             // TODO: Check that the building isn't building something else right now?
 
-            var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.AssetStore.ObjectDefinitions.GetInternalId(unitDefinition);
+            var gameData = Game.AssetStore.GameData.Current;
+            var definitionIndex = unitDefinition.InternalId;
 
             ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
         }

@@ -3,16 +3,15 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystemTemplate
+    public sealed class ParticleSystemTemplate : BaseAsset
     {
         internal static ParticleSystemTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ParticleSystemTemplate", name),
                 FieldParseTable);
         }
 
@@ -22,7 +21,7 @@ namespace OpenSage.Graphics.ParticleSystems
             { "IsOneShot", (parser, x) => x.IsOneShot = parser.ParseBoolean() },
             { "Shader", (parser, x) => x.Shader = parser.ParseEnum<ParticleSystemShader>() },
             { "Type", (parser, x) => x.Type = parser.ParseEnum<ParticleSystemType>() },
-            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseTextureReference() },
+            { "ParticleName", (parser, x) => x.Particle = parser.ParseTextureReference() },
             { "AngleX", (parser, x) => x.AngleX = parser.ParseRandomVariable() },
             { "AngleY", (parser, x) => x.AngleY = parser.ParseRandomVariable() },
             { "AngleZ", (parser, x) => x.AngleZ = parser.ParseRandomVariable() },
@@ -95,13 +94,11 @@ namespace OpenSage.Graphics.ParticleSystems
             { "WindPingPongEndAngleMax", (parser, x) => x.WindPingPongEndAngleMax = parser.ParseFloat() }
         };
 
-        public string Name { get; private set; }
-
         public ParticleSystemPriority Priority { get; private set; }
         public bool IsOneShot { get; private set; }
         public ParticleSystemShader Shader { get; private set; }
         public ParticleSystemType Type { get; private set; }
-        public LazyAssetReference<Texture> ParticleName { get; private set; }
+        public LazyAssetReference<TextureAsset> Particle { get; private set; }
         public RandomVariable AngleX { get; private set; }
         public RandomVariable AngleY { get; private set; }
         public RandomVariable AngleZ { get; private set; }
@@ -278,12 +275,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
             return new FXParticleSystemTemplate
             {
-                Name = Name,
                 Priority = Priority,
                 IsOneShot = IsOneShot,
                 Shader = Shader,
                 Type = Type,
-                ParticleName = ParticleName,
+                ParticleTexture = Particle,
                 PerParticleAttachedSystem = PerParticleAttachedSystem,
                 SlaveSystem = SlaveSystem,
                 SlavePosOffset = SlavePosOffset,

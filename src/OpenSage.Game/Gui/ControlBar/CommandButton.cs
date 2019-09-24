@@ -6,12 +6,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.ControlBar
 {
-    public sealed class CommandButton
+    public sealed class CommandButton : BaseAsset
     {
         internal static CommandButton Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
+                 (x, name) => x.SetNameAndInstanceId("CommandButton", name),
                  FieldParseTable);
         }
 
@@ -71,8 +71,6 @@ namespace OpenSage.Gui.ControlBar
             { "ToggleButtonName", (parser, x) => x.ToggleButtonName = parser.ParseAssetReference() },
             { "CreateAHeroUICostIfSelected", (parser, x) => x.CreateAHeroUICostIfSelected = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public CommandType Command { get; private set; }
         public string SpecialPower { get; private set; }

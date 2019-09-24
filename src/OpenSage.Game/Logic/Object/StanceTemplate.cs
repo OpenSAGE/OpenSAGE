@@ -4,13 +4,13 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class StanceTemplate
+    public sealed class StanceTemplate : BaseAsset
     {
         internal static StanceTemplate Parse(IniParser parser)
         {
             AttributeModifier.AttributeModifiers.Clear();
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("StanceTemplate", name),
                 FieldParseTable);
         }
 
@@ -19,13 +19,11 @@ namespace OpenSage.Logic.Object
             { "Stance", (parser, x) => x.Stances.Add(Stance.Parse(parser)) },
         };
 
-        public string Name { get; private set; }
         public List<Stance> Stances { get; } = new List<Stance>();
     }
 
     public sealed class Stance
     {
-        
         internal static Stance Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(

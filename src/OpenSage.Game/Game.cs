@@ -121,14 +121,14 @@ namespace OpenSage
             // TODO: set the correct factions & colors
             var pSettings = new List<PlayerSetting?>();
 
-            var availableColors = new HashSet<MultiplayerColor>(ContentManager.IniDataContext.MultiplayerColors);
+            var availableColors = new HashSet<MultiplayerColor>(AssetStore.MultiplayerColors);
 
             foreach (var slot in slots)
             {
                 var colorIndex = (int) slot.Color;
-                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
+                if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
-                    availableColors.Remove(ContentManager.IniDataContext.MultiplayerColors[colorIndex]);
+                    availableColors.Remove(AssetStore.MultiplayerColors.GetByIndex(colorIndex));
                 }
             }
 
@@ -152,14 +152,14 @@ namespace OpenSage
                     factionIndex = minFactionIndex + (random.Next() % diff);
                 }
 
-                var faction = AssetStore.PlayerTemplates.GetByInternalId(factionIndex + 1); // TODO, not ideal relying on internal ID details.
+                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
 
                 var color = new ColorRgb(0, 0, 0);
 
                 var colorIndex = (int) slot.Color;
-                if (colorIndex >= 0 && colorIndex < ContentManager.IniDataContext.MultiplayerColors.Count)
+                if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
-                    color = ContentManager.IniDataContext.MultiplayerColors[(int) slot.Color].RgbColor;
+                    color = AssetStore.MultiplayerColors.GetByIndex((int) slot.Color).RgbColor;
                 }
                 else
                 {
@@ -268,7 +268,7 @@ namespace OpenSage
                         return "Command and Conquer Generals Zero Hour Data";
 
                     default:
-                        return ContentManager.IniDataContext.GameData.UserDataLeafName;
+                        return AssetStore.GameData.Current.UserDataLeafName;
                 }
             }
         }
@@ -417,7 +417,7 @@ namespace OpenSage
 
                 SetCursor("Arrow");
 
-                var playerTemplate = AssetStore.PlayerTemplates.GetByKey("FactionCivilian");
+                var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
 
                 // TODO: This should never be null
                 if (playerTemplate != null)
@@ -466,7 +466,7 @@ namespace OpenSage
         {
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
-                var mouseCursor = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
+                var mouseCursor = AssetStore.MouseCursors.GetByName(cursorName);
                 if (mouseCursor == null)
                 {
                     return;
@@ -505,7 +505,7 @@ namespace OpenSage
             var useShellMap = Configuration.LoadShellMap;
             if (useShellMap)
             {
-                var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
+                var shellMapName = AssetStore.GameData.Current.ShellMapName;
                 var mainMenuScene = LoadMap(shellMapName);
                 Scene3D = mainMenuScene;
                 Scripting.Active = true;
@@ -568,7 +568,7 @@ namespace OpenSage
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
             }
 
-            var mapCache = ContentManager.IniDataContext.MapCaches.Find(x => x.Name == mapFileName.ToLower());
+            var mapCache = AssetStore.MapCaches.GetByName(mapFileName.ToLower());
             if (mapCache == null)
             {
                 throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
@@ -657,7 +657,7 @@ namespace OpenSage
         {
             // TODO: Difficulty
 
-            var campaign = AssetStore.CampaignTemplates.GetByKey(side);
+            var campaign = AssetStore.CampaignTemplates.GetByName(side);
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
             StartGame(
@@ -898,6 +898,6 @@ namespace OpenSage
         public IEnumerable<PlayerTemplate> GetPlayableSides() => AssetStore.PlayerTemplates.Where(x => x.PlayableSide);
 
         // TODO: Remove this.
-        public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByKey(name);
+        public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
     }
 }

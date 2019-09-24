@@ -9,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
-    public sealed class PlayerTemplate
+    public sealed class PlayerTemplate : BaseAsset
     {
         private static readonly Regex StartingUnitFieldRegex = new Regex(@"^(StartingUnit[A-z]*)([0-9]+)$", RegexOptions.Compiled);
 
@@ -46,7 +46,7 @@ namespace OpenSage.Logic
             var compositeParser = new CompositeFieldParserProvider<PlayerTemplate>(FieldParseTable, startingUnitParser);
 
             var playerTemplate = parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("PlayerTemplate", name),
                 compositeParser);
 
             playerTemplate.StartingUnits = startingUnits.Values.ToArray();
@@ -110,8 +110,6 @@ namespace OpenSage.Logic
             { "ResourceModifierValues", (parser, x) => x.ResourceModifierValues = parser.ParseIntegerArray() },
             { "MultiSelectionPortrait", (parser, x) => x.MultiSelectionPortrait = parser.ParseAssetReference() },
         };
-
-        public string Name { get; private set; }
 
         public string Side { get; private set; }
 

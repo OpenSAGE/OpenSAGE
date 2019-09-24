@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Content
 {
-    public sealed class MapCache
+    public sealed class MapCache : BaseAsset
     {
         internal static MapCache Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = IniParser.ToAsciiString(name),
+                (x, name) => x.SetNameAndInstanceId("MapCache", IniParser.ToAsciiString(name)),
                 FieldParseTable);
         }
 
@@ -41,8 +41,6 @@ namespace OpenSage.Content
             { "description", (parser, x) => x.Description = parser.ParseUnicodeString() },
             { "PlayerPosition", (parser, x) => x.PlayerPositions.Add(PlayerPosition.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public int FileSize { get; private set; }
         public long FileCrc { get; private set; }

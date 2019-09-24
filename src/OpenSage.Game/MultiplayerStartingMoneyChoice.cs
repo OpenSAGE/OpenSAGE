@@ -3,9 +3,14 @@
 namespace OpenSage
 {
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class MultiplayerStartingMoneyChoice
+    public sealed class MultiplayerStartingMoneyChoice : BaseAsset
     {
-        internal static MultiplayerStartingMoneyChoice Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static MultiplayerStartingMoneyChoice Parse(IniParser parser)
+        {
+            var result = parser.ParseTopLevelBlock(FieldParseTable);
+            result.SetNameAndInstanceId("MultiplayerStartingMoneyChoice", result.Value.ToString());
+            return result;
+        }
 
         private static readonly IniParseTable<MultiplayerStartingMoneyChoice> FieldParseTable = new IniParseTable<MultiplayerStartingMoneyChoice>
         {

@@ -3,12 +3,12 @@
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class ExperienceScalarTable
+    public sealed class ExperienceScalarTable : BaseAsset
     {
         internal static ExperienceScalarTable Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ExperienceScalarTable", name),
                 FieldParseTable);
         }
 
@@ -16,8 +16,6 @@ namespace OpenSage.Logic
         {
             { "Scalars", (parser, x) => x.Scalars = parser.ParseFloatArray() }
         };
-
-        public string Name { get; private set; }
 
         public float[] Scalars { get; private set; }
     }

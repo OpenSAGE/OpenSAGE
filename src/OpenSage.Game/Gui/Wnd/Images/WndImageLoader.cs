@@ -41,7 +41,7 @@ namespace OpenSage.Gui.Wnd.Images
         public Image CreateFileImage(string fileImageName)
         {
             var requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
-            var texture = _assetStore.GuiTextures.GetByKey(fileImageName);
+            var texture = _assetStore.GuiTextures.GetByName(fileImageName).Texture;
 
             return new Image(fileImageName, new Size((int)texture.Width, (int) texture.Height), size =>
             {
@@ -188,7 +188,7 @@ namespace OpenSage.Gui.Wnd.Images
                 return null;
             }
 
-            return _assetStore.MappedImages.GetByKey(mappedImageName);
+            return _assetStore.MappedImages.GetByName(mappedImageName);
         }
 
         private Texture CreateTexture(

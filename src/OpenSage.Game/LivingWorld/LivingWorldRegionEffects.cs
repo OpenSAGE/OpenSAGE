@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldRegionEffects
+    public sealed class LivingWorldRegionEffects : BaseAsset
     {
         internal static LivingWorldRegionEffects Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldRegionEffects", name),
                 FieldParseTable);
         }
 
@@ -27,8 +27,6 @@ namespace OpenSage.LivingWorld
             { "RegionSelectionEffect", (parser, x) => x.RegionSelectionEffect = RegionEffect.Parse(parser) },
             { "UnifiedEffect", (parser, x) => x.UnifiedEffect = RegionEffect.Parse(parser) }
         };
-
-        public string Name { get; private set; }
 
         public string RegionObject { get; private set; }
         public ColorRgb NeutralRegionColor { get; private set; }

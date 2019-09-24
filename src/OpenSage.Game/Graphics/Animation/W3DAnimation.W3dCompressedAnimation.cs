@@ -5,11 +5,11 @@ using OpenSage.FileFormats.W3d;
 
 namespace OpenSage.Graphics.Animation
 {
-    partial class Animation
+    partial class W3DAnimation
     {
-        internal Animation(W3dCompressedAnimation w3dAnimation)
+        internal W3DAnimation(W3dCompressedAnimation w3dAnimation)
         {
-            Name = w3dAnimation.Header.HierarchyName + "." + w3dAnimation.Header.Name;
+            SetNameAndInstanceId("W3DAnimation", w3dAnimation.Header.HierarchyName + "." + w3dAnimation.Header.Name);
             Duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
 
             var timeCodedChannels = w3dAnimation.TimeCodedChannels

@@ -7,12 +7,12 @@ using OpenSage.Terrain;
 
 namespace OpenSage
 {
-    public sealed class FXList
+    public sealed class FXList : BaseAsset
     {
         internal static FXList Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("FXList", name),
                 FieldParseTable);
         }
 
@@ -46,8 +46,6 @@ namespace OpenSage
                 }
             }
         };
-
-        public string Name { get; private set; }
 
         public List<FXListItem> Items { get; } = new List<FXListItem>();
 

@@ -43,12 +43,12 @@ namespace OpenSage
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class LoadSubsystem
+    public sealed class LoadSubsystem : BaseAsset
     {
         internal static LoadSubsystem Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LoadSubsystem", name),
                 FieldParseTable);
         }
 
@@ -61,8 +61,6 @@ namespace OpenSage
             { "IncludePathCinematics", (parser, x) => x.Entries.Add(new IncludePathCinematics(parser.ParseFileName())) },
             { "ExcludePath", (parser, x) => x.ExcludePath.Add(parser.ParseFileName()) },
         };
-
-        public string Name { get; private set; }
 
         public SubsystemLoader Loader { get; private set; }
         public List<LoadSubsystemEntry> Entries { get; } = new List<LoadSubsystemEntry>();

@@ -35,7 +35,7 @@ namespace OpenSage.Mods.Generals.Gui
             _window = window;
             _game = game;
 
-            var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
+            var mapCaches = _game.AssetStore.MapCaches;
 
             foreach (var cache in mapCaches)
             {
@@ -60,9 +60,9 @@ namespace OpenSage.Mods.Generals.Gui
                 FillComboBoxOptions(_optionsPath + ComboBoxPlayerTemplatePrefix, sideList.ToArray());
             }
 
-            if (game.ContentManager.IniDataContext.MultiplayerColors.Count > 0)
+            if (game.AssetStore.MultiplayerColors.Count > 0)
             {
-                var colors = game.ContentManager.IniDataContext.MultiplayerColors.Select(i => new Tuple<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
+                var colors = game.AssetStore.MultiplayerColors.Select(i => new Tuple<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
                 var randomColor = new Tuple<string, ColorRgbaF>("GUI:???", ColorRgbaF.White);
                 colors.Insert(0, randomColor);
 
@@ -238,19 +238,19 @@ namespace OpenSage.Mods.Generals.Gui
                     continue;
                 }
 
-                var mpColors = game.ContentManager.IniDataContext.MultiplayerColors;
+                var mpColors = game.AssetStore.MultiplayerColors;
 
                 // Get the selected player color
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxColorPrefix + i);
                 if (selected > 0)
                 {
-                    setting.Color = mpColors[selected - 1].RgbColor;
+                    setting.Color = mpColors.GetByIndex(selected - 1).RgbColor;
                 }
                 else
                 {
                     // TODO: make sure the color isn't already used
                     var r = rnd.Next(mpColors.Count);
-                    setting.Color = mpColors[r].RgbColor;
+                    setting.Color = mpColors.GetByIndex(r).RgbColor;
                 }
 
                 // Get the selected player faction

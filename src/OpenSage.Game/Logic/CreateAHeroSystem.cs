@@ -5,9 +5,9 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class CreateAHeroSystem
+    public sealed class CreateAHeroSystem : BaseSingletonAsset
     {
-        internal static CreateAHeroSystem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, CreateAHeroSystem value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<CreateAHeroSystem> FieldParseTable = new IniParseTable<CreateAHeroSystem>
         {

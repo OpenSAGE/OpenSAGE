@@ -3,9 +3,9 @@
 namespace OpenSage.Eva
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class MiscEvaData
+    public sealed class MiscEvaData : BaseSingletonAsset
     {
-        internal static MiscEvaData Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, MiscEvaData value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<MiscEvaData> FieldParseTable = new IniParseTable<MiscEvaData>
         {

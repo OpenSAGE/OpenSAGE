@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldBuilding
+    public sealed class LivingWorldBuilding : BaseAsset
     {
         internal static LivingWorldBuilding Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldBuilding", name),
                 FieldParseTable);
         }
 
@@ -31,8 +31,6 @@ namespace OpenSage.LivingWorld
             { "BuildingNugget", (parser, x) => x.BuildingNuggets.Add(BuildingNugget.Parse(parser)) },
             { "StrategicResourceCost", (parser, x) => x.StrategicResourceCost = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public string AvailableTo { get; private set; }
         public string BattleThingTemplate { get; private set; }

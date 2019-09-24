@@ -8,42 +8,8 @@ using OpenSage.Graphics;
 
 namespace OpenSage.Content.Loaders
 {
-    public sealed class OnDemandModelBoneHierarchyLoader : IOnDemandAssetLoader<string, ModelBoneHierarchy>
-    {
-        private readonly IPathResolver _pathResolver;
 
-        public OnDemandModelBoneHierarchyLoader(IPathResolver pathResolver)
-        {
-            _pathResolver = pathResolver;
-        }
-
-        ModelBoneHierarchy IOnDemandAssetLoader<string, ModelBoneHierarchy>.Load(string name, AssetLoadContext context)
-        {
-            // Find it in the file system.
-            FileSystemEntry entry = null;
-            foreach (var path in _pathResolver.GetPaths(name, context.Language))
-            {
-                entry = context.FileSystem.GetFile(path);
-                if (entry != null)
-                {
-                    break;
-                }
-            }
-
-            // Load hierarchy.
-            W3dFile hierarchyFile;
-            using (var entryStream = entry.Open())
-            {
-                hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
-            }
-            var w3dHierarchy = hierarchyFile.GetHierarchy();
-            return w3dHierarchy != null
-                ? new ModelBoneHierarchy(w3dHierarchy)
-                : ModelBoneHierarchy.CreateDefault();
-        }
-    }
-
-    public sealed class OnDemandModelLoader : IOnDemandAssetLoader<string, Model>
+    internal sealed class OnDemandModelLoader : IOnDemandAssetLoader<Model>
     {
         private readonly IPathResolver _pathResolver;
 
@@ -52,7 +18,7 @@ namespace OpenSage.Content.Loaders
             _pathResolver = pathResolver;
         }
 
-        Model IOnDemandAssetLoader<string, Model>.Load(string name, AssetLoadContext context)
+        public Model Load(string name, AssetLoadContext context)
         {
             // Find it in the file system.
             FileSystemEntry entry = null;
@@ -63,6 +29,11 @@ namespace OpenSage.Content.Loaders
                 {
                     break;
                 }
+            }
+
+            if (entry == null)
+            {
+                return null;
             }
 
             // Load model.
@@ -82,7 +53,7 @@ namespace OpenSage.Content.Loaders
             else if (w3dHLod != null && w3dHierarchy == null)
             {
                 // Load referenced hierarchy.
-                boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByKey(w3dHLod.Header.HierarchyName);
+                boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByName(w3dHLod.Header.HierarchyName);
             }
             else
             {

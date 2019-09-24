@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(TextureAsset))]
     internal sealed class TextureView : AssetView
     {
         private readonly Texture _texture;
@@ -13,10 +15,10 @@ namespace OpenSage.Diagnostics.AssetViews
 
         private uint _mipLevel;
 
-        public TextureView(DiagnosticViewContext context, Texture texture)
+        public TextureView(DiagnosticViewContext context, TextureAsset textureAsset)
             : base(context)
         {
-            _texture = texture;
+            _texture = textureAsset;
             _textureViews = new Dictionary<TextureViewDescription, Veldrid.TextureView>();
         }
 

@@ -4,9 +4,9 @@ using System.Numerics;
 
 namespace OpenSage.Logic.AI
 {
-    public sealed class AIData
+    public sealed class AIData : BaseSingletonAsset
     {
-        internal static AIData Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, AIData value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<AIData> FieldParseTable = new IniParseTable<AIData>
         {

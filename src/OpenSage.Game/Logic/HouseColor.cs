@@ -3,9 +3,14 @@
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class HouseColor
+    public sealed class HouseColor : BaseAsset
     {
-        internal static HouseColor Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static HouseColor Parse(IniParser parser)
+        {
+            var result = parser.ParseTopLevelBlock(FieldParseTable);
+            result.SetNameAndInstanceId("HouseColor", result.BaseTexture);
+            return result;
+        }
 
         private static readonly IniParseTable<HouseColor> FieldParseTable = new IniParseTable<HouseColor>
         {

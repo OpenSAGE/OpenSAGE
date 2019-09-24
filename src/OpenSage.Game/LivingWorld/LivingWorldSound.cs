@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldSound
+    public sealed class LivingWorldSound : BaseAsset
     {
         internal static LivingWorldSound Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldSound", name),
                 FieldParseTable);
         }
 
@@ -21,8 +21,6 @@ namespace OpenSage.LivingWorld
             { "ZoomRegionLow", (parser, x) => x.ZoomRegionLow = parser.ParseVector2() },
             { "ZoomRegionHigh", (parser, x) => x.ZoomRegionHigh = parser.ParseVector2() },
         };
-
-        public string Name { get; private set; }
 
         public Vector3 Position { get; private set; }
         public string Sound { get; private set; }

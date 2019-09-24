@@ -16,7 +16,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                 throw new InvalidDataException();
             }
 
-            var ddsLength = reader.ReadUInt32();
+            reader.ReadUInt32(); // Length
 
             var ddsFile = DdsFile.FromStream(reader.BaseStream);
 
@@ -30,9 +30,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
             result.Name = asset.Name;
 
-            context.AssetStore.Textures.Add(result);
-
-            return result;
+            return new Graphics.TextureAsset(result, asset);
         }
     }
 }

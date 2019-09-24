@@ -4,9 +4,9 @@ using OpenSage.Data.Wnd;
 
 namespace OpenSage
 {
-    public sealed class Language
+    public sealed class Language : BaseSingletonAsset
     {
-        internal static Language Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, Language value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<Language> FieldParseTable = new IniParseTable<Language>
         {

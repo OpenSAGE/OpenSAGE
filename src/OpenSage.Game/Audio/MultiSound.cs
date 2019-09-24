@@ -3,12 +3,12 @@
 namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class Multisound
+    public sealed class Multisound : BaseAsset
     {
         internal static Multisound Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Multisound", name),
                 FieldParseTable);
         }
 
@@ -18,7 +18,6 @@ namespace OpenSage.Audio
             { "Control", (parser, x) => x.Control = parser.ParseEnum<MultisoundControl>() },
         };
 
-        public string Name { get; private set; }
         public string[] Subsounds { get; private set; }
         public MultisoundControl Control { get; private set; }
     }

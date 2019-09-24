@@ -9,12 +9,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
-    public sealed class BridgeTemplate
+    public sealed class BridgeTemplate : BaseAsset
     {
         internal static BridgeTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("BridgeTemplate", name),
                 FieldParseTable);
         }
 
@@ -45,8 +45,6 @@ namespace OpenSage.Terrain
             { "TransitionToOCL", (parser, x) => x.ParseTransition(parser, t => t.ObjectCreationList = parser.ParseAttributeIdentifier("OCL")) },
             { "TransitionToFX", (parser, x) => x.ParseTransition(parser, t => t.FX = parser.ParseAttributeIdentifier("FX")) },
         };
-
-        public string Name { get; private set; }
 
         public float BridgeScale { get; private set; }
         public ColorRgb RadarColor { get; private set; }

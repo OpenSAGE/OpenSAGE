@@ -6,12 +6,12 @@ using System.Numerics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldRegionCampaign
+    public sealed class LivingWorldRegionCampaign : BaseAsset
     {
         internal static LivingWorldRegionCampaign Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldRegionCampaign", name),
                 FieldParseTable);
         }
 
@@ -51,8 +51,6 @@ namespace OpenSage.LivingWorld
             { "ConcurrentRegionBonus", (parser, x) => x.ConcurrentRegionBonuses.Add(ConcurrentRegionBonus.Parse(parser)) },
             { "ArmyRetreatRounds", (parser, x) => x.ArmyRetreatRounds = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public string RegionObject { get; private set; }
 

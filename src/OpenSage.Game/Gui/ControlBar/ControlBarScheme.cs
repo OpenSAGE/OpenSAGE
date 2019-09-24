@@ -1,29 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.ControlBar
 {
-    public sealed class ControlBarSchemeCollection : Collection<ControlBarScheme>
-    {
-        public ControlBarScheme FindBySide(string side)
-        {
-            // Based on a comment in PlayerTemplate.ini about how control bar schemes are chosen.
-            return this.FirstOrDefault(x => x.Side == side)
-                ?? this.FirstOrDefault(x => x.Side == "Observer")
-                ?? throw new InvalidOperationException("No ControlBarScheme could be found for the specified side, and no ControlBarScheme for the Observer side could be found either.");
-        }
-    }
-
-    public sealed class ControlBarScheme
+    public sealed class ControlBarScheme : BaseAsset
     {
         internal static ControlBarScheme Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
+                 (x, name) => x.SetNameAndInstanceId("ControlBarScheme", name),
                  FieldParseTable);
         }
 
@@ -121,8 +107,6 @@ namespace OpenSage.Gui.ControlBar
 
             { "PowerPurchaseImage", (parser, x) => x.PowerPurchaseImage = parser.ParseAssetReference() },
         };
-
-        public string Name { get; private set; }
 
         public Size ScreenCreationRes { get; private set; }
         public string Side { get; private set; }

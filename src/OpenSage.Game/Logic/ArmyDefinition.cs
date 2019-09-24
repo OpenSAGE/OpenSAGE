@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class ArmyDefinition
+    public sealed class ArmyDefinition : BaseAsset
     {
         internal static ArmyDefinition Parse(IniParser parser)
         {
              return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ArmyDefinition", name),
                 FieldParseTable);
         }
 
@@ -64,8 +64,6 @@ namespace OpenSage.Logic
             { "OffensiveBuildings", (parser, x) => x.OffensiveBuildings = parser.ParseAssetReferenceArray() },
             { "ScavangedResourceBuildings", (parser, x) => x.ScavangedResourceBuildings = parser.ParseAssetReferenceArray() }
         };
-
-        public string Name { get; private set; }
 
         public string Side { get; private set; }
         public Percentage MustUseCommandPointPercentage_Phase1 { get; private set; }

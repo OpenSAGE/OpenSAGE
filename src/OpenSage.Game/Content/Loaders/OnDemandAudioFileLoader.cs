@@ -4,11 +4,11 @@ using OpenSage.Data;
 
 namespace OpenSage.Content.Loaders
 {
-    internal sealed class OnDemandAudioFileLoader : IOnDemandAssetLoader<string, AudioFile>
+    internal sealed class OnDemandAudioFileLoader : IOnDemandAssetLoader<AudioFile>
     {
         public AudioFile Load(string key, AssetLoadContext context)
         {
-            var audioSettings = context.AssetStore.AudioSettings;
+            var audioSettings = context.AssetStore.AudioSettings.Current;
 
             var soundFileName = $"{key}.{audioSettings.SoundsExtension}";
 
@@ -31,11 +31,7 @@ namespace OpenSage.Content.Loaders
                 return null;
             }
 
-            return new AudioFile
-            {
-                Name = key,
-                Entry = entry
-            };
+            return AudioFile.FromFileSystemEntry(entry, key);
         }
     }
 }

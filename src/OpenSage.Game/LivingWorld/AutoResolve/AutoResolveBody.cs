@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveBody
+    public sealed class AutoResolveBody : BaseAsset
     {
         internal static AutoResolveBody Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AutoResolveBody", name),
                 FieldParseTable);
         }
 
@@ -19,8 +19,6 @@ namespace OpenSage.LivingWorld.AutoResolve
             { "LeaveInArmySummary", (parser, x) => x.LeaveInArmySummary = parser.ParseBoolean() },
             { "CanBeAttacked", (parser, x) => x.CanBeAttacked = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public List<HitpointsAtLevel> HitpointsAtLevels { get; } = new List<HitpointsAtLevel>();
         public bool LeaveInArmySummary { get; private set; }

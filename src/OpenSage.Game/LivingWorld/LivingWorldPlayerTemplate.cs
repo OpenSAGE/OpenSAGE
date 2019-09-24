@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldPlayerTemplate
+    public sealed class LivingWorldPlayerTemplate : BaseAsset
     {
         internal static LivingWorldPlayerTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldPlayerTemplate", name),
                 FieldParseTable);
         }
 
         private static readonly IniParseTable<LivingWorldPlayerTemplate> FieldParseTable = new IniParseTable<LivingWorldPlayerTemplate>
         {
-            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
             { "Faction", (parser, x) => x.Faction = parser.ParseString() },
             { "StartingWorldCP", (parser, x) => x.StartingWorldCP = parser.ParseInteger() },
             { "MaxWorldCP", (parser, x) => x.MaxWorldCP = parser.ParseInteger() },
@@ -34,8 +32,6 @@ namespace OpenSage.LivingWorld
             { "FactionDozerTemplateName", (parser, x) => x.FactionDozerTemplateName = parser.ParseQuotedString() },
             { "FactionInnUnitTemplateName", (parser, x) => x.FactionInnUnitTemplateName = parser.ParseQuotedString() }
         };
-
-        public string Name { get; private set; }
 
         public string Faction { get; private set; }
         public int StartingWorldCP { get; private set; }

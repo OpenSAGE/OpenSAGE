@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
 using System.Numerics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldCampaign
+    public sealed class LivingWorldCampaign : BaseAsset
     {
         internal static LivingWorldCampaign Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldCampaign", name),
                 FieldParseTable);
         }
 
@@ -29,8 +29,6 @@ namespace OpenSage.LivingWorld
             { "InitialRevivalCostMultiplier", (parser, x) => x.InitialRevivalCostMultiplier = parser.ParseFloat() },
             { "InitialRevivalTimeMultiplier", (parser, x) => x.InitialRevivalTimeMultiplier = parser.ParseFloat() },
         };
-
-        public string Name { get; private set; }
 
         public bool IsEvilCampaign { get; private set; }
 

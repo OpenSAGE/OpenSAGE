@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(FXParticleSystemTemplate))]
     internal sealed class ParticleSystemView : AssetView
     {
         // We need to copy the identity matrix so that we can pass it by reference.

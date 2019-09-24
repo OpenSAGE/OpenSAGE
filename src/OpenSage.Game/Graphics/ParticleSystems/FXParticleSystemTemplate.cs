@@ -4,17 +4,16 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FXParticleSystemTemplate
+    public sealed class FXParticleSystemTemplate : BaseAsset
     {
         internal static FXParticleSystemTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("FXParticleSystemTemplate", name),
                 FieldParseTable);
         }
 
@@ -39,7 +38,7 @@ namespace OpenSage.Graphics.ParticleSystems
             { "IsOneShot", (parser, x) => x.IsOneShot = parser.ParseBoolean() },
             { "Shader", (parser, x) => x.Shader = parser.ParseEnum<ParticleSystemShader>() },
             { "Type", (parser, x) => x.Type = parser.ParseEnum<ParticleSystemType>() },
-            { "ParticleName", (parser, x) => x.ParticleName = parser.ParseTextureReference() },
+            { "ParticleName", (parser, x) => x.ParticleTexture = parser.ParseTextureReference() },
             { "PerParticleAttachedSystem", (parser, x) => x.PerParticleAttachedSystem = parser.ParseAssetReference() },
             { "SlaveSystem", (parser, x) => x.SlaveSystem = parser.ParseAssetReference() },
             { "SlavePosOffset", (parser, x) => x.SlavePosOffset = parser.ParseVector3() },
@@ -132,13 +131,11 @@ namespace OpenSage.Graphics.ParticleSystems
             { "TerrainCollision", FXParticleEventCollision.Parse },
         };
 
-        public string Name { get; internal set; }
-
         public ParticleSystemPriority Priority { get; internal set; }
         public bool IsOneShot { get; internal set; }
         public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;
         public ParticleSystemType Type { get; internal set; } = ParticleSystemType.Particle;
-        public LazyAssetReference<Texture> ParticleName { get; internal set; }
+        public LazyAssetReference<TextureAsset> ParticleTexture { get; internal set; }
         public string PerParticleAttachedSystem { get; internal set; }
         public string SlaveSystem { get; internal set; }
         public Vector3 SlavePosOffset { get; internal set; }

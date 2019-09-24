@@ -4,12 +4,16 @@ using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Lod
 {
-    public sealed class DynamicGameLod
+    public sealed class DynamicGameLod : BaseAsset
     {
         internal static DynamicGameLod Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Level = (LodType) Enum.Parse(typeof(LodType), name),
+                (x, name) =>
+                {
+                    x.Level = (LodType) Enum.Parse(typeof(LodType), name);
+                    x.SetNameAndInstanceId("DynamicGameLod", x.Level.ToString());
+                },
                 FieldParseTable);
         }
 

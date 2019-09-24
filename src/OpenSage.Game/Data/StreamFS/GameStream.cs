@@ -68,6 +68,20 @@ namespace OpenSage.Data.StreamFS
                                         }
 
                                         asset.InstanceData = assetReader.Parse(asset, instanceDataReader, imports, assetParseContext);
+
+                                        var assetCollection = assetParseContext.AssetStore.GetAssetCollection(asset.Header.TypeId);
+                                        if (assetCollection != null) // TODO: Eventually this shouldn't be null.
+                                        {
+                                            assetCollection.Add(asset.InstanceData);
+                                        }
+                                        else
+                                        {
+                                            var singleAssetStorage = assetParseContext.AssetStore.GetSingleAsset(asset.Header.TypeId);
+                                            if (singleAssetStorage != null) // TODO: Eventually this shouldn't be null.
+                                            {
+                                                singleAssetStorage.Current = (BaseAsset) asset.InstanceData;
+                                            }
+                                        }
                                     }
                                 }
                                 else

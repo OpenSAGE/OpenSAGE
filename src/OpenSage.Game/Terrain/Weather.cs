@@ -6,9 +6,9 @@ using OpenSage.Mathematics;
 namespace OpenSage.Terrain
 {
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class Weather
+    public sealed class Weather : BaseSingletonAsset
     {
-        internal static Weather Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, Weather value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<Weather> FieldParseTable = new IniParseTable<Weather>
         {

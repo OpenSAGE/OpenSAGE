@@ -3,12 +3,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.InGame
 {
-    public sealed class DrawGroupInfo
+    public sealed class DrawGroupInfo : BaseSingletonAsset
     {
-        internal static DrawGroupInfo Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, DrawGroupInfo value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<DrawGroupInfo> FieldParseTable = new IniParseTable<DrawGroupInfo>
         {

@@ -64,16 +64,14 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(ContentManager contentManager)
+        public RtsCameraController(GameData gameData)
         {
-            var iniDataContext = contentManager.IniDataContext;
+            _defaultHeight = gameData.DefaultCameraMaxHeight > 0
+                ? gameData.DefaultCameraMaxHeight
+                : gameData.CameraHeight;
+            _pitchAngle = MathUtility.ToRadians(90 - gameData.CameraPitch);
 
-            _defaultHeight = iniDataContext.GameData.DefaultCameraMaxHeight > 0
-                ? iniDataContext.GameData.DefaultCameraMaxHeight
-                : iniDataContext.GameData.CameraHeight;
-            _pitchAngle = MathUtility.ToRadians(90 - iniDataContext.GameData.CameraPitch);
-
-            var yaw = iniDataContext.GameData.CameraYaw;
+            var yaw = gameData.CameraYaw;
             SetLookDirection(new Vector3(
                 MathUtility.Sin(yaw),
                 MathUtility.Cos(yaw),

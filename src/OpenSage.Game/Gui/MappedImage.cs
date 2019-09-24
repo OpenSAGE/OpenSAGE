@@ -1,17 +1,17 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
-using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui
 {
-    public sealed class MappedImage
+    public sealed class MappedImage : BaseAsset
     {
         internal static MappedImage Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("MappedImage", name),
                 FieldParseTable);
         }
 
@@ -24,9 +24,7 @@ namespace OpenSage.Gui
             { "Status", (parser, x) => x.Status = parser.ParseEnum<MappedImageStatus>() },
         };
 
-        public string Name { get; private set; }
-
-        public LazyAssetReference<Texture> Texture { get; private set; }
+        public LazyAssetReference<GuiTextureAsset> Texture { get; private set; }
 
         public Size TextureDimensions { get; private set; }
 

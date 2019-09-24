@@ -4,9 +4,9 @@ using OpenSage.Mathematics;
 namespace OpenSage.Gui.InGame
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class StrategicHud
+    public sealed class StrategicHud : BaseSingletonAsset
     {
-        internal static StrategicHud Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, StrategicHud value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<StrategicHud> FieldParseTable = new IniParseTable<StrategicHud>
         {

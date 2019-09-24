@@ -5,9 +5,9 @@ using OpenSage.Mathematics;
 namespace OpenSage.Terrain
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class FireLogicSystem
+    public sealed class FireLogicSystem : BaseSingletonAsset
     {
-        internal static FireLogicSystem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, FireLogicSystem value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<FireLogicSystem> FieldParseTable = new IniParseTable<FireLogicSystem>
         {

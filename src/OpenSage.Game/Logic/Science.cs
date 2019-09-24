@@ -2,12 +2,12 @@
 
 namespace OpenSage.Logic
 {
-    public sealed class Science
+    public sealed class Science : BaseAsset
     {
         internal static Science Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Science", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Logic
             { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
             { "SciencePurchasePointCostMP", (parser, x) => x.SciencePurchasePointCostMP = parser.ParseInteger() }
         };
-
-        public string Name { get; private set; }
 
         public string[] PrerequisiteSciences { get; private set; }
         public int SciencePurchasePointCost { get; private set; }
