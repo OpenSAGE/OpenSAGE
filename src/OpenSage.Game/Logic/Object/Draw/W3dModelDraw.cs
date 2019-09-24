@@ -21,7 +21,11 @@ namespace OpenSage.Logic.Object
         private readonly List<ModelConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
 
+        private readonly List<AnimationState> _animationStates;
+        private readonly AnimationState _idleAnimationState;
+
         private ModelConditionState _activeConditionState;
+        private AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -34,6 +38,11 @@ namespace OpenSage.Logic.Object
                 foreach (var conditionState in _conditionStates)
                 {
                     yield return conditionState.ConditionFlags;
+                }
+
+                foreach (var animationState in _animationStates)
+                {
+                    yield return animationState.TypeFlags;
                 }
             }
         }
@@ -77,6 +86,18 @@ namespace OpenSage.Logic.Object
             }
 
             SetActiveConditionState(_defaultConditionState);
+
+            _animationStates = new List<AnimationState>();
+
+            if (data.IdleAnimationState != null)
+            {
+                _idleAnimationState = data.IdleAnimationState;
+            }
+
+            foreach (var animationState in data.AnimationStates)
+            {
+                _animationStates.Add(animationState);
+            }
         }
 
         private void SetActiveConditionState(ModelConditionState conditionState)
@@ -93,6 +114,35 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState = AddDisposable(
                 CreateModelDrawConditionStateInstance(
                     conditionState));
+        }
+
+        private void SetActiveAnimationState(AnimationState animationState)
+        {
+            if (_activeAnimationState == animationState
+             || _activeModelDrawConditionState == null)
+            {
+                return;
+            }
+
+            var modelInstance = _activeModelDrawConditionState.Model;
+
+            var firstAnimationBlock = animationState.Animations
+                    .FirstOrDefault();
+            if (firstAnimationBlock != null)
+            {
+                foreach(var animation in firstAnimationBlock.Animations)
+                {
+                    var anim = animation.Value;
+                    //Check if the animation does really exist
+                    if(anim != null)
+                    {
+                        var animationInstance = new AnimationInstance(modelInstance, anim);
+                        modelInstance.AnimationInstances.Add(animationInstance);
+                        animationInstance.Play();
+                        break;
+                    }
+                }
+            }
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
@@ -117,6 +167,27 @@ namespace OpenSage.Logic.Object
             }
 
             SetActiveConditionState(bestConditionState);
+
+            AnimationState bestAnimationState = null;
+            bestMatch = int.MinValue;
+
+            // Find best matching ModelConditionState.
+            foreach (var animationState in _animationStates)
+            {
+                var match = animationState.TypeFlags.And(flags).NumBitsSet;
+                if (match > bestMatch)
+                {
+                    bestAnimationState = animationState;
+                    bestMatch = match;
+                }
+            }
+
+            if (bestAnimationState == null || bestMatch == 0)
+            {
+                bestAnimationState = _idleAnimationState;
+            }
+
+            SetActiveAnimationState(bestAnimationState);
         }
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
@@ -209,6 +280,8 @@ namespace OpenSage.Logic.Object
     internal sealed class W3dModelDrawConditionState : DisposableBase
     {
         private readonly ModelInstance _modelInstance;
+
+        public ModelInstance Model => _modelInstance;
 
         public IReadOnlyList<AttachedParticleSystem> AttachedParticleSystems { get; }
 
