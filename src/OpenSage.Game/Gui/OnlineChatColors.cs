@@ -3,12 +3,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
 {
-    public sealed class OnlineChatColors
+    public sealed class OnlineChatColors : BaseSingletonAsset
     {
-        internal static OnlineChatColors Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, OnlineChatColors value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<OnlineChatColors> FieldParseTable = new IniParseTable<OnlineChatColors>
         {

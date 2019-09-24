@@ -100,7 +100,7 @@ namespace OpenSage.Diagnostics
                 {
                     if (ImGui.BeginMenu("Map"))
                     {
-                        foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
+                        foreach (var mapCache in _context.Game.AssetStore.MapCaches)
                         {
                             var mapName = mapCache.GetNameKey().Translate();
 

@@ -6,9 +6,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.InGame
 {
-    public sealed class InGameUI
+    public sealed class InGameUI : BaseSingletonAsset
     {
-        internal static InGameUI Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, InGameUI value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<InGameUI> FieldParseTable = new IniParseTable<InGameUI>
         {

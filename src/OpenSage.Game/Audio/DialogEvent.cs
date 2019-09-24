@@ -10,7 +10,7 @@ namespace OpenSage.Audio
         internal static DialogEvent Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("DialogEvent", name),
                 FieldParseTable);
         }
 
@@ -22,10 +22,8 @@ namespace OpenSage.Audio
 
         internal static DialogEvent ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
-            var result = new DialogEvent
-            {
-                Name = asset.Name
-            };
+            var result = new DialogEvent();
+            result.SetNameAndInstanceId(asset);
 
             ParseAsset(reader, result);
 

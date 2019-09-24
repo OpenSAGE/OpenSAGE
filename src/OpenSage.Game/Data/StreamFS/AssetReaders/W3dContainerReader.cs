@@ -24,11 +24,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                     subObject.RenderObject);
             }
 
-            var model = new Model(asset.Name, hierarchy, modelSubObjects);
-
-            context.AssetStore.Models.Add(model);
-
-            return model;
+            return new Model(asset, hierarchy, modelSubObjects);
         }
     }
 }

@@ -4,12 +4,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage
 {
-    public sealed class Credits
+    public sealed class Credits : BaseSingletonAsset
     {
-        internal static Credits Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, Credits value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<Credits> FieldParseTable = new IniParseTable<Credits>
         {

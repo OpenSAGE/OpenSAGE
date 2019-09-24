@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Reflection;
 using ImGuiNET;
 using OpenSage.Diagnostics.AssetViews;
 using OpenSage.Diagnostics.Util;
@@ -10,6 +11,27 @@ namespace OpenSage.Diagnostics
 {
     internal sealed class AssetListView : DiagnosticView
     {
+        private static readonly Dictionary<Type, ConstructorInfo> AssetViewConstructors;
+
+        static AssetListView()
+        {
+            AssetViewConstructors = new Dictionary<Type, ConstructorInfo>();
+
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                var assetViewAttribute = type.GetCustomAttribute<AssetViewAttribute>();
+                if (assetViewAttribute != null)
+                {
+                    var constructorParameterTypes = new[]
+                    {
+                        typeof(DiagnosticViewContext),
+                        assetViewAttribute.ForType
+                    };
+                    AssetViewConstructors.Add(assetViewAttribute.ForType, type.GetConstructor(constructorParameterTypes));
+                }
+            }
+        }
+
         private readonly List<string> _audioFilenames;
 
         private readonly List<AssetListItem> _items;
@@ -120,36 +142,23 @@ namespace OpenSage.Diagnostics
 
             void AddItem(string assetName, Func<AssetView> createAssetView)
             {
-                if (isEmptySearch || assetName.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    _items.Add(new AssetListItem(assetName, createAssetView));
-                }
+                
             }
 
             var assetStore = Context.Game.AssetStore;
 
-            foreach (var asset in assetStore.Models)
+            foreach (var asset in assetStore.GetAllAssets())
             {
-                AddItem($"W3DContainer:{asset.Name}", () => new ModelView(Context, asset));
+                if (isEmptySearch || asset.FullName.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    if (AssetViewConstructors.TryGetValue(asset.GetType(), out var assetViewConstructor))
+                    {
+                        Func<AssetView> createAssetView = () => (AssetView) assetViewConstructor.Invoke(new object[] { Context, asset });
+                        _items.Add(new AssetListItem(asset.FullName, createAssetView));
+                    }
+                    // TODO: Fallback view.
+                }
             }
-            foreach (var asset in assetStore.FXParticleSystemTemplates)
-            {
-                AddItem($"FXParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset));
-            }
-            foreach (var asset in assetStore.ObjectDefinitions)
-            {
-                AddItem($"GameObject:{asset.Name}", () => new GameObjectView(Context, asset));
-            }
-            foreach (var asset in assetStore.ParticleSystemTemplates)
-            {
-                AddItem($"ParticleSystem:{asset.Name}", () => new ParticleSystemView(Context, asset.ToFXParticleSystemTemplate()));
-            }
-            foreach (var asset in assetStore.Textures)
-            {
-                AddItem($"Texture:{asset.Name}", () => new TextureView(Context, asset));
-            }
-
-            // TODO: Other asset types.
 
             // TODO: Remove these, once these assets are handled the same as other assets.
             foreach (var audioFilename in _audioFilenames)

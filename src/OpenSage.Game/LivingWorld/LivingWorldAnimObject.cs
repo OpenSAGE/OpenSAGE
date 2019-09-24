@@ -5,12 +5,12 @@ using OpenSage.Logic.Object;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldAnimObject
+    public sealed class LivingWorldAnimObject : BaseAsset
     {
         internal static LivingWorldAnimObject Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldAnimObject", name),
                 FieldParseTable);
         }
 
@@ -24,8 +24,6 @@ namespace OpenSage.LivingWorld
             { "OrientAngle", (parser, x) => x.OrientAngle = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() }
         };
-
-        public string Name { get; private set; }
 
         public string Model { get; private set; }
         public Vector3 Pos { get; private set; }

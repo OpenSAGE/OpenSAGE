@@ -10,7 +10,7 @@ namespace OpenSage.Audio
         internal static MusicTrack Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("MusicTrack", name),
                 FieldParseTable);
         }
 
@@ -22,10 +22,8 @@ namespace OpenSage.Audio
 
         internal static MusicTrack ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
-            var result = new MusicTrack
-            {
-                Name = asset.Name
-            };
+            var result = new MusicTrack();
+            result.SetNameAndInstanceId(asset);
 
             ParseAsset(reader, result);
 

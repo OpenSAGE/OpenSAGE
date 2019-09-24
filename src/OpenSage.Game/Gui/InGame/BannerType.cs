@@ -3,12 +3,12 @@
 namespace OpenSage.Gui.InGame
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class BannerType
+    public sealed class BannerType : BaseAsset
     {
         internal static BannerType Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("BannerType", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Gui.InGame
             { "WipeFrame", (parser, x) => x.WipeFrame = parser.ParseInteger() },
             { "Icon", (parser, x) => x.Icon = parser.ParseAssetReference() },
         };
-
-        public string Name { get; private set; }
 
         public string FlagObj { get; private set; }
         public string GlowObj { get; private set; }

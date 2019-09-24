@@ -3,12 +3,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Animation
+    public sealed class Animation : BaseAsset
     {
         internal static Animation Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Animation", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Logic.Object
             { "NumberImages", (parser, x) => parser.ParseInteger() },
             { "Image", (parser, x) => x.Images.Add(parser.ParseAssetReference()) },
         };
-
-        public string Name { get; private set; }
 
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationDelay { get; private set; }

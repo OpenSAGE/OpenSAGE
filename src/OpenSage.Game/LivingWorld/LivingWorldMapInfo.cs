@@ -6,9 +6,9 @@ using System.Collections.Generic;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldMapInfo
+    public sealed class LivingWorldMapInfo : BaseSingletonAsset
     {
-        internal static LivingWorldMapInfo Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, LivingWorldMapInfo value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<LivingWorldMapInfo> FieldParseTable = new IniParseTable<LivingWorldMapInfo>
         {

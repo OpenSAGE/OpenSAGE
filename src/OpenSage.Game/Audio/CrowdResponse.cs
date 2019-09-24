@@ -7,12 +7,12 @@ using OpenSage.FileFormats;
 namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class CrowdResponse
+    public sealed class CrowdResponse : BaseAsset
     {
         internal static CrowdResponse Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("CrowdResponse", name),
                 FieldParseTable);
         }
 
@@ -24,15 +24,15 @@ namespace OpenSage.Audio
 
         internal static CrowdResponse ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
-            return new CrowdResponse
+            var result = new CrowdResponse
             {
-                Name = asset.Name,
                 Weight = reader.ReadInt32(),
                 Thresholds = reader.ReadListAtOffset(() => Threshold.ParseAsset(reader, imports))
             };
+            result.SetNameAndInstanceId(asset);
+            return result;
         }
 
-        public string Name { get; private set; }
         public int Weight { get; private set; }
         public List<Threshold> Thresholds { get; private set; } = new List<Threshold>();
     }

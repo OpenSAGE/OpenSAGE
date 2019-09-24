@@ -5,9 +5,9 @@ using OpenSage.Mathematics;
 namespace OpenSage.Gui.InGame
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class InGameNotificationBox
+    public sealed class InGameNotificationBox : BaseSingletonAsset
     {
-        internal static InGameNotificationBox Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, InGameNotificationBox value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<InGameNotificationBox> FieldParseTable = new IniParseTable<InGameNotificationBox>
         {

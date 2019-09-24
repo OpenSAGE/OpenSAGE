@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Data.Ini;
 using System.Numerics;
-using OpenSage.Mathematics;
+using OpenSage.Data.Ini;
 using OpenSage.Logic.Object.Damage;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Weapon
+    public sealed class Weapon : BaseAsset
     {
         internal static Weapon Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Weapon", name),
                 FieldParseTable);
         }
 
@@ -193,8 +193,6 @@ namespace OpenSage.Logic.Object
             }
             return parser.ParseAssetReference();
         }
-
-        public string Name { get; private set; }
 
         public float PrimaryDamage { get; private set; }
         public float PrimaryDamageRadius { get; private set; }

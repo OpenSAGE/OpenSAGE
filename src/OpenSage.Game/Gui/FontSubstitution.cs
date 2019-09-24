@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Gui
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FontSubstitution
+    public sealed class FontSubstitution : BaseAsset
     {
         internal static FontSubstitution Parse(IniParser parser)
         {
@@ -12,7 +12,7 @@ namespace OpenSage.Gui
 
             var result = parser.ParseTopLevelBlock(FieldParseTable);
 
-            result.Name = fontName;
+            result.SetNameAndInstanceId("FontSubstitution", fontName);
 
             return result;
         }
@@ -21,8 +21,6 @@ namespace OpenSage.Gui
         {
             { "Size", (parser, x) => x.Substitutions.Add(Substitution.Parse(parser)) }
         };
-
-        public string Name { get; private set; }
 
         public List<Substitution> Substitutions { get; } = new List<Substitution>();
     }

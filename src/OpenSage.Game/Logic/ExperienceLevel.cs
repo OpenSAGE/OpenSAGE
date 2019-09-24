@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class ExperienceLevel
+    public sealed class ExperienceLevel : BaseAsset
     {
         internal static ExperienceLevel Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ExperienceLevel", name),
                 FieldParseTable);
         }
 
@@ -33,8 +33,6 @@ namespace OpenSage.Logic
             { "EmotionType", (parser, x) => x.EmotionType = parser.ParseEnum<EmotionType>() },
             { "SelectionDecal", (parser, x) => x.SelectionDecal = RadiusDecalTemplate.Parse(parser) }
         };
-
-        public string Name { get; private set; }
 
         public string[] TargetNames { get; private set; }
         public int RequiredExperience { get; private set; }

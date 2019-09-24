@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(string typeName, Player player)
         {
-            return Add(_loadContext.AssetStore.ObjectDefinitions.GetByKey(typeName), player);
+            return Add(_loadContext.AssetStore.ObjectDefinitions.GetByName(typeName), player);
         }
 
         public GameObject Add(string typeName)

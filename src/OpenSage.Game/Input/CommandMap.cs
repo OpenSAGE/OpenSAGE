@@ -3,12 +3,12 @@ using Veldrid;
 
 namespace OpenSage.Input
 {
-    public sealed class CommandMap
+    public sealed class CommandMap : BaseAsset
     {
         internal static CommandMap Parse(IniParser parser)
         {
            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("CommandMap", name),
                 FieldParseTable);
         }
 
@@ -22,8 +22,6 @@ namespace OpenSage.Input
             { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() }
         };
-
-        public string Name { get; private set; }
 
         public Key Key { get; private set; }
         public KeyTransition Transition { get; private set; }

@@ -86,7 +86,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _particleResourceSet = AddDisposable(loadContext.ShaderResources.Particle.CreateParticleResoureSet(
                 _renderItemConstantsBufferVS.Buffer,
-                Template.ParticleName.Value));
+                Template.ParticleTexture.Value));
 
             _shaderSet = loadContext.ShaderResources.Particle.ShaderSet;
             _pipeline = loadContext.ShaderResources.Particle.GetCachedPipeline(Template.Shader);

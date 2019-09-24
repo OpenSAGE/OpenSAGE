@@ -3,12 +3,13 @@
 namespace OpenSage.Terrain
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class WeatherData
+    public sealed class WeatherData : BaseAsset
     {
         internal static WeatherData Parse(IniParser parser)
         {
             var type = parser.ParseEnum<WeatherType>();
             var result = parser.ParseTopLevelBlock(FieldParseTable);
+            result.SetNameAndInstanceId("WeatherData", type.ToString());
             result.WeatherType = type;
             return result; 
         }

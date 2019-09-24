@@ -61,8 +61,6 @@ namespace OpenSage.Audio
             result.VolumeSliderMultipliers = reader.ReadListAtOffset(() => VolumeSliderMultiplier.ParseAsset(reader));
         }
 
-        public string Name { get; protected set; }
-
         public Percentage Volume { get; private set; } = new Percentage(1);
         public Percentage VolumeShift { get; private set; }
         public Percentage MinVolume { get; private set; }

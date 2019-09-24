@@ -2,12 +2,9 @@
 
 namespace OpenSage
 {
-    public sealed class MultiplayerSettings
+    public sealed class MultiplayerSettings : BaseSingletonAsset
     {
-        internal static MultiplayerSettings Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, MultiplayerSettings value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<MultiplayerSettings> FieldParseTable = new IniParseTable<MultiplayerSettings>
         {

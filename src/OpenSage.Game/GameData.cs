@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using System.Numerics;
-using OpenSage.Mathematics;
 using OpenSage.Logic.Object;
-using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage
 {
-    public sealed class GameData
+    public sealed class GameData : BaseSingletonAsset
     {
-        internal static GameData Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, GameData value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<GameData> FieldParseTable = new IniParseTable<GameData>
         {

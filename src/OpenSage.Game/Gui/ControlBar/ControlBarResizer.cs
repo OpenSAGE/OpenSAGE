@@ -3,12 +3,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.ControlBar
 {
-    public sealed class ControlBarResizer
+    public sealed class ControlBarResizer : BaseAsset
     {
         internal static ControlBarResizer Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
+                 (x, name) => x.SetNameAndInstanceId("ControlBarResizer", name),
                  FieldParseTable);
         }
 
@@ -17,8 +17,6 @@ namespace OpenSage.Gui.ControlBar
             { "AltPosition", (parser, x) => x.AltPosition = parser.ParsePoint() },
             { "AltSize", (parser, x) => x.AltSize = parser.ParsePoint() }
         };
-
-        public string Name { get; private set; }
 
         public Point2D AltPosition { get; private set; }
         public Point2D AltSize { get; private set; }

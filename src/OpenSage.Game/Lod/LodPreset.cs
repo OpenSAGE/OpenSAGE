@@ -2,7 +2,7 @@
 
 namespace OpenSage.Lod
 {
-    public sealed class LodPreset
+    public sealed class LodPreset : BaseAsset
     {
         internal static LodPreset Parse(IniParser parser)
         {
@@ -14,6 +14,8 @@ namespace OpenSage.Lod
                 GpuType = parser.ParseEnum<GpuType>(),
                 GpuMemory = parser.ParseInteger()
             };
+
+            result.SetNameAndInstanceId("LODPreset", result.Level.ToString());
 
             if (parser.SageGame >= SageGame.Bfme)
             {

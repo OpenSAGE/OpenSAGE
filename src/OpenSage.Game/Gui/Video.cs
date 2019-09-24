@@ -2,12 +2,12 @@
 
 namespace OpenSage.Gui
 {
-    public sealed class Video
+    public sealed class Video : BaseAsset
     {
         internal static Video Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Video", name),
                 FieldParseTable);
         }
 
@@ -18,8 +18,6 @@ namespace OpenSage.Gui
             { "Volume", (parser, x) => x.Volume = parser.ParseInteger() },
             { "IsDefault", (parser, x) => x.IsDefault = parser.ParseBoolean() },
         };
-
-        public string Name { get; private set; }
 
         public string Filename { get; private set; }
         public string Comment { get; private set; }

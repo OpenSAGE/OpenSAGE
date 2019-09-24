@@ -3,9 +3,9 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class AnimationSoundClientBehaviorGlobalSetting
+    public sealed class AnimationSoundClientBehaviorGlobalSetting : BaseSingletonAsset
     {
-        internal static AnimationSoundClientBehaviorGlobalSetting Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, AnimationSoundClientBehaviorGlobalSetting value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<AnimationSoundClientBehaviorGlobalSetting> FieldParseTable = new IniParseTable<AnimationSoundClientBehaviorGlobalSetting>
         {

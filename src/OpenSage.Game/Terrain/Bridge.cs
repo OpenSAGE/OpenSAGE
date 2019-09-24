@@ -27,7 +27,7 @@ namespace OpenSage.Terrain
             in Vector3 endPosition,
             GameObjectCollection parent)
         {
-            var template = loadContext.AssetStore.BridgeTemplates.GetByKey(mapObject.TypeName);
+            var template = loadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
 
             var model = template.BridgeModelName.Value;
             if (model == null)

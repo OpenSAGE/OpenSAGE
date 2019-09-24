@@ -3,12 +3,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Input
 {
-    public sealed class MouseData
+    public sealed class MouseData : BaseSingletonAsset
     {
-        internal static MouseData Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static void Parse(IniParser parser, MouseData value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<MouseData> FieldParseTable = new IniParseTable<MouseData>
         {

@@ -9,12 +9,12 @@ namespace OpenSage.Logic
     /// A set of bonuses that can given together as a package.
     /// </summary>
     [AddedIn(SageGame.Bfme)]
-    public sealed class ModifierList
+    public sealed class ModifierList : BaseAsset
     {
         internal static ModifierList Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ModifierList", name),
                 FieldParseTable);
         }
 
@@ -36,8 +36,6 @@ namespace OpenSage.Logic
             { "ReplaceInCategoryIfLongest", (parser, x) => x.ReplaceInCategoryIfLongest = parser.ParseBoolean() },
             { "IgnoreIfAnticategoryActive", (parser, x) => x.IgnoreIfAnticategoryActive = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public ModifierCategory Category { get; private set; }
         public List<Modifier> Modifiers { get; } = new List<Modifier>();

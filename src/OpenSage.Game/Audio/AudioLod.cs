@@ -4,12 +4,16 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Audio
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class AudioLod
+    public sealed class AudioLod : BaseAsset
     {
         internal static AudioLod Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Level = (AudioLodType) Enum.Parse(typeof(AudioLodType), name),
+                (x, name) =>
+                {
+                    x.SetNameAndInstanceId("AudioLOD", name);
+                    x.Level = (AudioLodType) Enum.Parse(typeof(AudioLodType), name);
+                },
                 FieldParseTable);
         }
 

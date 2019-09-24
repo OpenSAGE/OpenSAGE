@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Gui.ControlBar
 {
-    public sealed class CommandSet
+    public sealed class CommandSet : BaseAsset
     {
         internal static CommandSet Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("CommandSet", name),
                 FieldParseTable,
                 new IniArbitraryFieldParserProvider<CommandSet>(
                     (x, name) => x.Buttons[int.Parse(name)] = parser.ParseCommandButtonReference()));
@@ -19,8 +19,6 @@ namespace OpenSage.Gui.ControlBar
         {
             { "InitialVisible", (parser, x) => x.InitialVisible = parser.ParseInteger() },
         };
-
-        public string Name { get; private set; }
 
         // These are laid out like this:
         // -------------------------------

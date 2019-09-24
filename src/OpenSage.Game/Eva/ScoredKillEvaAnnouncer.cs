@@ -4,12 +4,12 @@ using OpenSage.Logic.Object;
 namespace OpenSage.Eva
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class ScoredKillEvaAnnouncer
+    public sealed class ScoredKillEvaAnnouncer : BaseAsset
     {
         internal static ScoredKillEvaAnnouncer Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ScoredKillEvaAnnouncer", name),
                 FieldParseTable);
         }
 
@@ -22,8 +22,6 @@ namespace OpenSage.Eva
             { "MaximumTimeForAnnouncementMS", (parser, x) => x.MaximumTimeForAnnouncementMS = parser.ParseInteger() },
             { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
         };
-
-        public string Name { get; private set; }
 
         public string EvaEvent { get; private set; }
         public bool CountOnlyKillsByLocalPlayer { get; private set; }

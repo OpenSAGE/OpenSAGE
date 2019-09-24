@@ -4,22 +4,20 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class RegionCampain
+    public sealed class RegionCampaign : BaseAsset
     {
-        internal static RegionCampain Parse(IniParser parser)
+        internal static RegionCampaign Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("RegionCampaign", name),
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<RegionCampain> FieldParseTable = new IniParseTable<RegionCampain>
+        private static readonly IniParseTable<RegionCampaign> FieldParseTable = new IniParseTable<RegionCampaign>
         {
             { "RegionObject", (parser, x) => x.RegionObject = parser.ParseAssetReference() },
             { "Region", (parser, x) => x.Regions.Add(Region.Parse(parser)) }
         };
-
-        public string Name { get; private set; }
 
         public string RegionObject { get; private set; }
         public List<Region> Regions { get; } = new List<Region>();

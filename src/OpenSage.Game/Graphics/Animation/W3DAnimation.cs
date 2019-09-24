@@ -3,14 +3,14 @@ using OpenSage.FileFormats.W3d;
 
 namespace OpenSage.Graphics.Animation
 {
-    public sealed partial class Animation
+    public sealed partial class W3DAnimation : BaseAsset
     {
-        internal static Animation FromW3dFile(W3dFile w3dFile)
+        internal static W3DAnimation FromW3dFile(W3dFile w3dFile)
         {
             var w3dAnimations = w3dFile.GetAnimations();
             var w3dCompressedAnimations = w3dFile.GetCompressedAnimations();
 
-            var animations = new Animation[w3dAnimations.Count + w3dCompressedAnimations.Count];
+            var animations = new W3DAnimation[w3dAnimations.Count + w3dCompressedAnimations.Count];
 
             if (animations.Length != 1)
             {
@@ -19,23 +19,22 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < w3dAnimations.Count; i++)
             {
-                animations[i] = new Animation(w3dAnimations[i]);
+                animations[i] = new W3DAnimation(w3dAnimations[i]);
             }
             for (var i = 0; i < w3dCompressedAnimations.Count; i++)
             {
-                animations[w3dAnimations.Count + i] = new Animation(w3dCompressedAnimations[i]);
+                animations[w3dAnimations.Count + i] = new W3DAnimation(w3dCompressedAnimations[i]);
             }
 
             return animations[0];
         }
 
-        public string Name { get; }
         public TimeSpan Duration { get; }
         public AnimationClip[] Clips { get; }
 
-        internal Animation(string name, TimeSpan duration, AnimationClip[] clips)
+        internal W3DAnimation(string name, TimeSpan duration, AnimationClip[] clips)
         {
-            Name = name;
+            SetNameAndInstanceId("W3DAnimation", name);
             Duration = duration;
             Clips = clips;
         }

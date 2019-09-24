@@ -4,12 +4,12 @@ using OpenSage.Data.Ini;
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveCombatChain
+    public sealed class AutoResolveCombatChain : BaseAsset
     {
         internal static AutoResolveCombatChain Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AutoResolveCombatChain", name),
                 FieldParseTable);
         }
 
@@ -17,8 +17,6 @@ namespace OpenSage.LivingWorld.AutoResolve
         {
             { "Target", (parser, x) => x.TargetPriorities.Add(TargetPriority.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public List<TargetPriority> TargetPriorities { get; } = new List<TargetPriority>();
     }

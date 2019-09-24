@@ -4,12 +4,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
-    public sealed class WindowTransition
+    public sealed class WindowTransition : BaseAsset
     {
         internal static WindowTransition Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.Name = name,
+                 (x, name) => x.SetNameAndInstanceId("WindowTransition", name),
                  FieldParseTable);
         }
 
@@ -18,8 +18,6 @@ namespace OpenSage.Gui.Wnd.Transitions
             { "Window", (parser, x) => x.Windows.Add(WindowTransitionWindow.Parse(parser)) },
             { "FireOnce", (parser, x) => x.FireOnce = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public List<WindowTransitionWindow> Windows { get; } = new List<WindowTransitionWindow>();
         public bool FireOnce { get; private set; }

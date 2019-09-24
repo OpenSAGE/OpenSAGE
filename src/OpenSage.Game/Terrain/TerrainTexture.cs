@@ -3,12 +3,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainTexture
+    public sealed class TerrainTexture : BaseAsset
     {
         internal static TerrainTexture Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("TerrainTexture", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Terrain
             { "RestrictConstruction", (parser, x) => x.RestrictConstruction = parser.ParseBoolean() },
             { "TerrainObject", (parser, x) => x.TerrainObjects.Add(TerrainObject.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public string Texture { get; private set; }
         public bool BlendEdges { get; private set; }

@@ -6,12 +6,12 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic
 {
-    public sealed class CampaignTemplate
+    public sealed class CampaignTemplate : BaseAsset
     {
         internal static CampaignTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("CampaignTemplate", name),
                 FieldParseTable);
         }
 
@@ -29,18 +29,19 @@ namespace OpenSage.Logic
         {
             throw new System.NotImplementedException();
 
-            return new CampaignTemplate
+            var result = new CampaignTemplate
             {
-                Name = asset.Name,
                 DisplayName = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
                 FinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
                 AlternateFinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
                 ConsoleAutosaveFilename = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
                 //TheatersOfWar = reader.ReadArrayAtOffset(() => imports.GetImportedData<TheaterOfWarTemplate>(reader)),
             };
-        }
 
-        public string Name { get; private set; }
+            result.SetNameAndInstanceId(asset);
+
+            return result;
+        }
 
         public string DisplayName { get; private set; }
         public string FirstMission { get; private set; }

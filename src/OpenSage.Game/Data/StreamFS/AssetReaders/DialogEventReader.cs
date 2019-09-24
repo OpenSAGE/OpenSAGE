@@ -9,11 +9,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
         public override object Parse(Asset asset, BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
         {
-            var result = DialogEvent.ParseAsset(reader, asset, imports);
-
-            context.AssetStore.DialogEvents.Add(result);
-
-            return result;
+            return DialogEvent.ParseAsset(reader, asset, imports);
         }
     }
 }

@@ -3,12 +3,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage
 {
-    public sealed class MultiplayerColor
+    public sealed class MultiplayerColor : BaseAsset
     {
         internal static MultiplayerColor Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("MultiplayerColor", name),
                 FieldParseTable);
         }
 
@@ -21,8 +21,6 @@ namespace OpenSage
             { "LivingWorldBannerColor", (parser, x) => x.LivingWorldBannerColor = parser.ParseColorRgb() },
             { "AvailableInWotR", (parser, x) => x.AvailableInWotR = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public ColorRgb RgbColor { get; private set; }
         public ColorRgb RgbNightColor { get; private set; }

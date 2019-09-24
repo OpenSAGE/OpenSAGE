@@ -22,35 +22,35 @@ namespace OpenSage.Content
             _allowOnDemandLoading = allowOnDemandLoading;
         }
 
-        public OnDemandAnimationLoader CreateAnimationLoader()
+        internal OnDemandAnimationLoader CreateAnimationLoader()
         {
             return _allowOnDemandLoading
                 ? new OnDemandAnimationLoader(_w3dPathResolver)
                 : null;
         }
 
-        public OnDemandModelLoader CreateModelLoader()
+        internal OnDemandModelLoader CreateModelLoader()
         {
             return _allowOnDemandLoading
                 ? new OnDemandModelLoader(_w3dPathResolver)
                 : null;
         }
 
-        public OnDemandModelBoneHierarchyLoader CreateModelBoneHierarchyLoader()
+        internal OnDemandModelBoneHierarchyLoader CreateModelBoneHierarchyLoader()
         {
             return _allowOnDemandLoading
                 ? new OnDemandModelBoneHierarchyLoader(_w3dPathResolver)
                 : null;
         }
 
-        public OnDemandTextureLoader CreateGuiTextureLoader()
+        internal OnDemandGuiTextureLoader CreateGuiTextureLoader()
         {
             return _allowOnDemandLoading
-                ? new OnDemandTextureLoader(false, _texturePathResolver)
+                ? new OnDemandGuiTextureLoader(false, _texturePathResolver)
                 : null;
         }
 
-        public OnDemandTextureLoader CreateTextureLoader()
+        internal OnDemandTextureLoader CreateTextureLoader()
         {
             return _allowOnDemandLoading
                 ? new OnDemandTextureLoader(true, _texturePathResolver)

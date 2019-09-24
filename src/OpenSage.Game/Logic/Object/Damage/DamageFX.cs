@@ -5,12 +5,12 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object.Damage
 {
-    public sealed class DamageFX
+    public sealed class DamageFX : BaseAsset
     {
         internal static DamageFX Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("DamageFX", name),
                 FieldParseTable);
         }
 
@@ -23,8 +23,6 @@ namespace OpenSage.Logic.Object.Damage
             { "VeterancyMajorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMajorFX = parser.ParseAssetReference()) },
             { "VeterancyMinorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMinorFX = parser.ParseAssetReference()) },
         };
-
-        public string Name { get; private set; }
 
         public List<DamageFXGroup> Groups { get; } = new List<DamageFXGroup>();
 

@@ -8,13 +8,13 @@ namespace OpenSage.Graphics.Animation
     {
         private readonly int[] _keyframeIndices;
         private readonly ModelBoneInstance[] _boneInstances;
-        private readonly Animation _animation;
+        private readonly W3DAnimation _animation;
 
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
 
-        public AnimationInstance(ModelInstance modelInstance, Animation animation)
+        public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation)
         {
             _animation = animation;
 

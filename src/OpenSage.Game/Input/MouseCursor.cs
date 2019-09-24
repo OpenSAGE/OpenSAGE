@@ -3,12 +3,12 @@ using System.Numerics;
 
 namespace OpenSage.Input
 {
-    public sealed class MouseCursor
+    public sealed class MouseCursor : BaseAsset
     {
         internal static MouseCursor Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("MouseCursor", name),
                 FieldParseTable);
         }
 
@@ -19,8 +19,6 @@ namespace OpenSage.Input
             { "Directions", (parser, x) => x.Directions = parser.ParseInteger() },
             { "HotSpot", (parser, x) => x.HotSpot = parser.ParseVector2() }
         };
-
-        public string Name { get; private set; }
 
         public string Texture { get; private set; }
         public string Image { get; private set; }

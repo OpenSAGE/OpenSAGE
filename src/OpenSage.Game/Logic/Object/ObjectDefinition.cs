@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
         internal static ObjectDefinition Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("GameObject", name),
                 FieldParseTable);
         }
 
@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = name;
+            result.SetNameAndInstanceId("GameObject", name);
             result.InheritFrom = reskinOf;
 
             return result;
@@ -366,8 +366,6 @@ namespace OpenSage.Logic.Object
             { "EvaEventDetectedAlly", (parser, x) => x.EvaEventDetectedAlly = parser.ParseAssetReference() },
             { "EvaEventDetectedOwner", (parser, x) => x.EvaEventDetectedOwner = parser.ParseAssetReference() },
         };
-
-        public string Name { get; protected set; }
 
         // Art
         public int PlacementViewAngle { get; private set; }
@@ -1204,7 +1202,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = name?.Text;
+            result.SetNameAndInstanceId("GameObject", name?.Text);
 
             return result;
         }
@@ -1222,7 +1220,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = childName.Text;
+            result.SetNameAndInstanceId("GameObject", childName.Text);
             result.ChildOf = parentName.Text;
 
             return result;

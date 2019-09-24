@@ -1,17 +1,21 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Terrain
 {
-    public sealed class WaterSet
+    public sealed class WaterSet : BaseAsset
     {
         internal static WaterSet Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.TimeOfDay = IniParser.ScanEnum<TimeOfDay>(new IniToken(name, default(IniTokenPosition))),
+                (x, name) =>
+                {
+                    x.SetNameAndInstanceId("WaterSet", name);
+                    x.TimeOfDay = IniParser.ScanEnum<TimeOfDay>(new IniToken(name, default));
+                },
                 FieldParseTable);
         }
 
@@ -33,8 +37,8 @@ namespace OpenSage.Terrain
 
         public TimeOfDay TimeOfDay { get; private set; }
 
-        public LazyAssetReference<Texture> SkyTexture { get; private set; }
-        public LazyAssetReference<Texture> WaterTexture { get; private set; }
+        public LazyAssetReference<TextureAsset> SkyTexture { get; private set; }
+        public LazyAssetReference<TextureAsset> WaterTexture { get; private set; }
         public ColorRgba Vertex00Color { get; private set; }
         public ColorRgba Vertex10Color { get; private set; }
         public ColorRgba Vertex01Color { get; private set; }

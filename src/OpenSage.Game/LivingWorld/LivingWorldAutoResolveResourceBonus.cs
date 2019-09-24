@@ -4,17 +4,15 @@ using OpenSage.Data.Ini;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldAutoResolveResourceBonus
+    public sealed class LivingWorldAutoResolveResourceBonus : BaseSingletonAsset
     {
-        internal static LivingWorldAutoResolveResourceBonus Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, LivingWorldAutoResolveResourceBonus value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<LivingWorldAutoResolveResourceBonus> FieldParseTable = new IniParseTable<LivingWorldAutoResolveResourceBonus>
         {
             { "Sides", (parser, x) => x.Sides = parser.ParseAssetReferenceArray() },
             { "Bonus", (parser, x) => x.ResourceBonuses.Add(ResourceBonus.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public string[] Sides { get; private set; }
         public List<ResourceBonus> ResourceBonuses { get; } = new List<ResourceBonus>();

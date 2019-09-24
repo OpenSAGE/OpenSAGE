@@ -2,19 +2,17 @@
 
 namespace OpenSage.Gui
 {
-    public sealed class ShellMenuScheme
+    public sealed class ShellMenuScheme : BaseAsset
     {
         internal static ShellMenuScheme Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ShellMenuScheme", name),
                 FieldParseTable);
         }
 
         private static readonly IniParseTable<ShellMenuScheme> FieldParseTable = new IniParseTable<ShellMenuScheme>
         {
         };
-
-        public string Name { get; private set; }
     }
 }

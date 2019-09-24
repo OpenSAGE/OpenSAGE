@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld.AutoResolve
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveArmor
+    public sealed class AutoResolveArmor : BaseAsset
     {
         internal static AutoResolveArmor Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AutoResolveArmor", name),
                 FieldParseTable);
         }
 
@@ -18,8 +18,6 @@ namespace OpenSage.LivingWorld.AutoResolve
         {
             { "Armor", (parser, x) => x.Values.Add(AutoResolveArmorValue.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public List<AutoResolveArmorValue> Values { get; } = new List<AutoResolveArmorValue>();
     }

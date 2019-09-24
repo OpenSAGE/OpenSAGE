@@ -5,9 +5,9 @@ using OpenSage.Logic.Object;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class FormationAssistant
+    public sealed class FormationAssistant : BaseSingletonAsset
     {
-        internal static FormationAssistant Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, FormationAssistant value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<FormationAssistant> FieldParseTable = new IniParseTable<FormationAssistant>
         {

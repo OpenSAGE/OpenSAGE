@@ -2,12 +2,12 @@
 
 namespace OpenSage.Gui
 {
-    public sealed class HeaderTemplate
+    public sealed class HeaderTemplate : BaseAsset
     {
         internal static HeaderTemplate Parse(IniParser parser)
         {
            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("HeaderTemplate", name),
                 FieldParseTable);
         }
 
@@ -17,8 +17,6 @@ namespace OpenSage.Gui
             { "Point", (parser, x) => x.Font.Size = parser.ParseUnsignedInteger() },
             { "Bold", (parser, x) => x.Font.Bold = parser.ParseBoolean() }
         };
-
-        public string Name { get; private set; }
 
         public FontDesc Font { get; } = new FontDesc();
     }

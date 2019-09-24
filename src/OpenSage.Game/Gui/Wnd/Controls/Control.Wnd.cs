@@ -59,7 +59,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             if (wndWindow.HasHeaderTemplate)
             {
-                var headerTemplate = assetStore.HeaderTemplates.GetByKey(wndWindow.HeaderTemplate);
+                var headerTemplate = assetStore.HeaderTemplates.GetByName(wndWindow.HeaderTemplate);
                 result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font.Name, headerTemplate.Font.Size, headerTemplate.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
             }
             else

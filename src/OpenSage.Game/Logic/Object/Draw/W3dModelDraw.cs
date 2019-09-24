@@ -156,10 +156,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystemTemplates.GetByKey(particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(particleSysBone.ParticleSystem);
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystemTemplates.GetByKey(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
+                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystemTemplates.GetByName(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
 
                         if (particleSystemTemplate == null)
                         {

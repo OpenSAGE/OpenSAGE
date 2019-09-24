@@ -3,16 +3,16 @@
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldAiTemplate
+    public sealed class LivingWorldAITemplate : BaseAsset
     {
-        internal static LivingWorldAiTemplate Parse(IniParser parser)
+        internal static LivingWorldAITemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("LivingWorldAITemplate", name),
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<LivingWorldAiTemplate> FieldParseTable = new IniParseTable<LivingWorldAiTemplate>
+        private static readonly IniParseTable<LivingWorldAITemplate> FieldParseTable = new IniParseTable<LivingWorldAITemplate>
         {
             { "DesiredSoldierRatio", (parser, x) => x.DesiredSoldierRatio = parser.ParseInteger() },
             { "DesiredArcherRatio", (parser, x) => x.DesiredArcherRatio = parser.ParseInteger() },
@@ -37,8 +37,6 @@ namespace OpenSage.LivingWorld
             { "BonusPreferenceExperience", (parser, x) => x.BonusPreferenceExperience = parser.ParseInteger() },
             { "BonusPreferenceTreasury", (parser, x) => x.BonusPreferenceTreasury = parser.ParseInteger() },
         };
-
-        public string Name { get; private set; }
 
         public int DesiredSoldierRatio { get; private set; }
         public int DesiredArcherRatio { get; private set; }

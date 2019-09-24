@@ -8,7 +8,7 @@ namespace OpenSage.Audio
         internal static AmbientStream Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("AmbientStream", name),
                 FieldParseTable);
         }
 

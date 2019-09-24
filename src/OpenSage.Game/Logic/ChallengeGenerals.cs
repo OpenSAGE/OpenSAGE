@@ -4,12 +4,10 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class ChallengeGenerals
+    public sealed class ChallengeGenerals : BaseSingletonAsset
     {
-        internal static ChallengeGenerals Parse(IniParser parser)
+        internal static void Parse(IniParser parser, ChallengeGenerals value)
         {
-            var result = new ChallengeGenerals();
-
             while (true)
             {
                 parser.GoToNextLine();
@@ -27,14 +25,10 @@ namespace OpenSage.Logic
                 {
                     var personaName = token.Value.Text;
 
-                    result.Personas[personaName] = GeneralPersona.Parse(parser);
+                    value.Personas[personaName] = GeneralPersona.Parse(parser);
                 }
             }
-
-            return result;
         }
-
-        public string Name { get; private set; }
 
         public Dictionary<string, GeneralPersona> Personas { get; } = new Dictionary<string, GeneralPersona>();
     }

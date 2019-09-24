@@ -5,9 +5,14 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldArmyIcon
+    public sealed class LivingWorldArmyIcon : BaseAsset
     {
-        internal static LivingWorldArmyIcon Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static LivingWorldArmyIcon Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.SetNameAndInstanceId("LivingWorldArmyIcon", name),
+                FieldParseTable);
+        }
 
         private static readonly IniParseTable<LivingWorldArmyIcon> FieldParseTable = new IniParseTable<LivingWorldArmyIcon>
         {

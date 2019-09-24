@@ -4,12 +4,12 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
 {
-    public sealed class CrateData
+    public sealed class CrateData : BaseAsset
     {
         internal static CrateData Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("CrateData", name),
                 FieldParseTable);
         }
 
@@ -22,8 +22,6 @@ namespace OpenSage.Logic
             { "OwnedByMaker", (parser, x) => x.OwnedByMaker = parser.ParseBoolean() },
             { "CrateObject", (parser, x) => x.CrateObjects.Add(CrateObject.Parse(parser)) },
         };
-
-        public string Name { get; private set; }
 
         public float CreationChance { get; private set; }
         public ObjectKinds? KilledByType { get; private set; }

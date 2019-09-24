@@ -6,12 +6,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ObjectCreationList
+    public sealed class ObjectCreationList : BaseAsset
     {
         internal static ObjectCreationList Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("ObjectCreationList", name),
                 FieldParseTable);
         }
 
@@ -24,8 +24,6 @@ namespace OpenSage.Logic.Object
             { "DeliverPayload", (parser, x) => x.Items.Add(DeliverPayloadObjectCreationListItem.Parse(parser)) },
             { "FireWeapon", (parser, x) => x.Items.Add(FireWeaponObjectCreationListItem.Parse(parser)) }
         };
-
-        public string Name { get; private set; }
 
         public List<ObjectCreationListItem> Items { get; } = new List<ObjectCreationListItem>();
     }

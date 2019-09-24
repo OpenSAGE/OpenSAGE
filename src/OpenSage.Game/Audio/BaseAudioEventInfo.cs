@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Audio
 {
-    public abstract class BaseAudioEventInfo
+    public abstract class BaseAudioEventInfo : BaseAsset
     {
 
     }

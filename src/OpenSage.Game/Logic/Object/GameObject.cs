@@ -102,8 +102,6 @@ namespace OpenSage.Logic.Object
 
         private Locomotor CurrentLocomotor { get; set; }
 
-        private IniDataContext Context { get; set; }
-
         private Vector3? TargetPoint { get; set; }
         private float TargetAngle { get; set; }
 

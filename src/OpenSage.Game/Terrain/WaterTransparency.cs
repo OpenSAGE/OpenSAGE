@@ -4,9 +4,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
-    public sealed class WaterTransparency
+    public sealed class WaterTransparency : BaseSingletonAsset
     {
-        internal static WaterTransparency Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+        internal static void Parse(IniParser parser, WaterTransparency value) => parser.ParseBlockContent(value, FieldParseTable);
 
         private static readonly IniParseTable<WaterTransparency> FieldParseTable = new IniParseTable<WaterTransparency>
         {

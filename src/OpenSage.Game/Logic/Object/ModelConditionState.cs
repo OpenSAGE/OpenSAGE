@@ -87,7 +87,7 @@ namespace OpenSage.Logic.Object
             }
             else
             {
-                Animations.Add(Animation.Parse(parser));
+                Animations.Add(AnimationStateAnimation.Parse(parser));
             }
         }
 
@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         // Model animation settings
         public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
-        public List<Animation> Animations { get; private set; } = new List<Animation>();
+        public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public AnimationMode AnimationMode { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
@@ -248,7 +248,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        public LazyAssetReference<Graphics.Animation.Animation> Animation { get; private set; }
+        public LazyAssetReference<Graphics.Animation.W3DAnimation> Animation { get; private set; }
         public float Unknown1 { get; private set; }
         public int Unknown2 { get; private set; }
     }

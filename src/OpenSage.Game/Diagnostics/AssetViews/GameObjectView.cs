@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(ObjectDefinition))]
     internal sealed class GameObjectView : AssetView
     {
         private GameObject _gameObject;

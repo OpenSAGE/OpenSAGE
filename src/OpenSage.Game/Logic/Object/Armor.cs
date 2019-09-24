@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Armor
+    public sealed class Armor : BaseAsset
     {
         internal static Armor Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("Armor", name),
                 FieldParseTable);
         }
 
@@ -20,8 +20,6 @@ namespace OpenSage.Logic.Object
             { "Armor", (parser, x) => x.Values.Add(ArmorValue.Parse(parser)) },
             { "FlankedPenalty", (parser, x) => x.FlankedPenalty = parser.ParsePercentage() }
         };
-
-        public string Name { get; private set; }
 
         /// <summary>
         /// Scales all damage done to this unit.

@@ -104,7 +104,7 @@ namespace OpenSage.Content
         private readonly Game _game;
         private readonly IGameDefinition _gameDefinition;
         private readonly FileSystem _fileSystem;
-        private readonly Dictionary<string, LoadSubsystem> _subsystems;
+        private readonly ScopedAssetCollection<LoadSubsystem> _subsystems;
 
         public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
         {
@@ -114,7 +114,7 @@ namespace OpenSage.Content
             _fileSystem = fileSystem;
 
             _contentManager.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
-            _subsystems = _contentManager.IniDataContext.Subsystems.ToDictionary(subsystem => subsystem.Name);
+            _subsystems = game.AssetStore.Subsystems;
         }
 
         public void Load(Subsystem subsystem)
@@ -312,7 +312,7 @@ namespace OpenSage.Content
 
         private IEnumerable<FileSystemEntry> GetFilesForSubsystem(Subsystem abstractSubsystem)
         {
-            var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems[entryName]).ToList();
+            var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems.GetByName(entryName)).ToList();
 
             foreach (var subsystem in subsystems)
             {

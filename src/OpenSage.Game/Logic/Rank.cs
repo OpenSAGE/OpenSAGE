@@ -2,12 +2,16 @@
 
 namespace OpenSage.Logic
 {
-    public sealed class Rank
+    public sealed class Rank : BaseAsset
     {
         internal static Rank Parse(IniParser parser)
         {
             return parser.ParseIndexedBlock(
-                (x, level) => x.Level = level,
+                (x, level) =>
+                {
+                    x.Level = level;
+                    x.SetNameAndInstanceId("Rank", level.ToString());
+                },
                 FieldParseTable);
         }
 

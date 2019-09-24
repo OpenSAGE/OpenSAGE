@@ -93,7 +93,7 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(string eventName)
         {
-            var audioEvent = Game.AssetStore.AudioEvents.GetByKey(eventName);
+            var audioEvent = Game.AssetStore.AudioEvents.GetByName(eventName);
 
             if (audioEvent == null)
             {

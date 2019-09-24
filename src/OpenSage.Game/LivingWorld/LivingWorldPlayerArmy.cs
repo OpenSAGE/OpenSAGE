@@ -5,13 +5,13 @@ using OpenSage.Mathematics;
 namespace OpenSage.LivingWorld
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class LivingWorldPlayerArmy
+    public sealed class LivingWorldPlayerArmy : BaseAsset
     {
         internal static LivingWorldPlayerArmy Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<LivingWorldPlayerArmy> FieldParseTable = new IniParseTable<LivingWorldPlayerArmy>
         {
-            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
+            { "Name", (parser, x) => x.SetNameAndInstanceId("LivingWorldPlayerArmy", parser.ParseAssetReference()) },
             { "DisplayNameTag", (parser, x) => x.DisplayNameTag = parser.ParseLocalizedStringKey() },
             { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "NightColor", (parser, x) => x.NightColor = parser.ParseColorRgb() },
@@ -21,7 +21,6 @@ namespace OpenSage.LivingWorld
             { "ArmyEntry", (parser, x) => x.ArmyEntries.Add(LivingWorldPlayerArmyEntry.Parse(parser)) },
         };
 
-        public string Name { get; private set; }
         public string DisplayNameTag { get; private set; }
         public ColorRgb Color { get; private set; }
         public ColorRgb NightColor { get; private set; }

@@ -224,7 +224,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.UnitBuild:
                                     order = CreateOrder(OrderType.CreateUnit);
-                                    order.AddIntegerArgument(context.Game.AssetStore.ObjectDefinitions.GetInternalId(objectDefinition));
+                                    order.AddIntegerArgument(objectDefinition.InternalId);
                                     order.AddIntegerArgument(1);
                                     break;
                                 default:
@@ -403,7 +403,7 @@ namespace OpenSage.Mods.Generals.Gui
     {
         public IControlBar Create(string side, Game game)
         {
-            var scheme = game.ContentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
+            var scheme = game.AssetStore.ControlBarSchemes.FindBySide(side);
 
             // TODO: Support multiple image parts?
             // Generals always uses exactly one image part.
