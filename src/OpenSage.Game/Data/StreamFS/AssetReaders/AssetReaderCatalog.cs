@@ -17,6 +17,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                 new CrowdResponseReader(),
                 new DialogEventReader(),
                 new MusicTrackReader(),
+                new PackedTextureImageReader(),
                 new TextureReader(),
                 new W3dCollisionBoxReader(),
                 new W3dContainerReader(),

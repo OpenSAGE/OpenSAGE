@@ -89,7 +89,7 @@ namespace OpenSage.Content
 
                 FontManager = new FontManager();
 
-                WndImageLoader = AddDisposable(new WndImageLoader(this, game.AssetStore));
+                WndImageLoader = AddDisposable(new WndImageLoader(GraphicsDevice, game.AssetStore));
             }
         }
 

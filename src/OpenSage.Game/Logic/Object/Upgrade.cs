@@ -1,5 +1,6 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Gui;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,7 +20,7 @@ namespace OpenSage.Logic.Object
             { "Tooltip", (parser, x) => x.Tooltip = parser.ParseLocalizedStringKey() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
-            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
+            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
             { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAssetReference() },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() },
@@ -51,7 +52,7 @@ namespace OpenSage.Logic.Object
 
         public float BuildTime { get; private set; }
         public float BuildCost { get; private set; }
-        public string ButtonImage { get; private set; }
+        public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
         public string ResearchSound { get; private set; }
         public string UnitSpecificSound { get; private set; }
 

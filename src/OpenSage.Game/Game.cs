@@ -532,7 +532,7 @@ namespace OpenSage
             {
                 throw new Exception($"Window file {wndFileName} was not found.");
             }
-            var wndFile = WndFile.FromFileSystemEntry(entry);
+            var wndFile = WndFile.FromFileSystemEntry(entry, AssetStore);
             return new Window(wndFile, this, _wndCallbackResolver);
         }
 

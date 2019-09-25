@@ -8,9 +8,9 @@ namespace OpenSage.Gui.Wnd.Images
     public sealed class Image
     {
         private readonly Func<Size, Texture> _createTexture;
+        private readonly bool _flipped;
         private Texture _texture;
         private Size _size;
-        private bool _flipped;
 
         public string Name { get; }
 

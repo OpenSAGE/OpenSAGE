@@ -1,5 +1,8 @@
-﻿using OpenSage.Content;
+﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.StreamFS;
+using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -23,6 +26,20 @@ namespace OpenSage.Gui
             { "Coords", (parser, x) => x.Coords = ParseCoords(parser) },
             { "Status", (parser, x) => x.Status = parser.ParseEnum<MappedImageStatus>() },
         };
+
+        internal static MappedImage ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
+        {
+            var texture = imports.GetImportedData<TextureAsset>(reader);
+            var dimensions = reader.ReadPoint2D();
+            var coords = reader.ReadPoint2D();
+            var textureDimensions = reader.ReadPoint2D();
+            var rotated = reader.ReadBooleanChecked();
+
+            var result = new MappedImage();
+            result.SetNameAndInstanceId(asset);
+
+            return result;
+        }
 
         public LazyAssetReference<GuiTextureAsset> Texture { get; private set; }
 
