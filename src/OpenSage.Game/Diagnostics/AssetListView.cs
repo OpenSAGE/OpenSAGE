@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
@@ -35,8 +34,6 @@ namespace OpenSage.Diagnostics
             DefaultAssetViewConstructor = typeof(DefaultAssetView).GetConstructors()[0];
         }
 
-        private readonly List<string> _audioFilenames;
-
         private readonly List<AssetListItem> _items;
 
         private readonly byte[] _searchTextBuffer;
@@ -52,22 +49,6 @@ namespace OpenSage.Diagnostics
         public AssetListView(DiagnosticViewContext context)
             : base(context)
         {
-            // TODO: This actually needs to use assets that have already been loaded.
-            // And update when assets are loaded or unloaded.
-
-            // TODO: Remove this.
-            _audioFilenames = new List<string>();
-            foreach (var entry in context.Game.ContentManager.FileSystem.Files)
-            {
-                switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
-                {
-                    case ".mp3":
-                    case ".wav":
-                        _audioFilenames.Add(entry.FilePath);
-                        break;
-                }
-            }
-
             _items = new List<AssetListItem>();
 
             _searchTextBuffer = new byte[32];
@@ -158,12 +139,6 @@ namespace OpenSage.Diagnostics
                     _items.Add(new AssetListItem(asset.FullName, createAssetView));
                 }
             }
-
-            // TODO: Remove these, once these assets are handled the same as other assets.
-            //foreach (var audioFilename in _audioFilenames)
-            //{
-            //    AddItem($"Audio:{audioFilename}", () => new SoundView(Context, audioFilename));
-            //}
         }
     }
 }
