@@ -82,10 +82,8 @@ namespace OpenSage.Audio
         /// <summary>
         /// Open a a music/audio file that gets streamed.
         /// </summary>
-        public SoundStream GetStream(string streamPath)
+        public SoundStream GetStream(FileSystemEntry entry)
         {
-            var entry = Game.ContentManager.FileSystem.GetFile(streamPath);
-
             return new SoundStream(entry.Open(), _engine);
         }
 

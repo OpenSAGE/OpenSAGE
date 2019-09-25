@@ -33,7 +33,7 @@ namespace OpenSage.Audio
             return result;
         }
 
-        public FileSystemEntry Entry { get; internal set; }
+        public FileSystemEntry Entry { get; private set; }
         public string Subtitle { get; private set; }
         public byte NumberOfChannels { get; private set; }
         public int NumberOfSamples { get; private set; }

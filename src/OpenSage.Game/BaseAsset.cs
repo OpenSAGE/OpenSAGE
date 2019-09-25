@@ -18,7 +18,7 @@ namespace OpenSage
 
         protected void SetNameAndInstanceId(Asset asset)
         {
-            Name = asset.Name.Substring(0, asset.Name.IndexOf(':'));
+            Name = asset.Name.Substring(asset.Name.IndexOf(':') + 1);
             FullName = asset.Name;
             InstanceId = asset.Header.InstanceId;
         }

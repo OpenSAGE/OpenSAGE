@@ -1,4 +1,6 @@
 ﻿using ImGuiNET;
+using OpenSage.Audio;
+using OpenSage.Data;
 using SharpAudio.Util;
 
 namespace OpenSage.Diagnostics.AssetViews
@@ -8,10 +10,10 @@ namespace OpenSage.Diagnostics.AssetViews
         private readonly SoundStream _source;
         private bool _playing;
 
-        public SoundView(DiagnosticViewContext context, string filePath)
+        public SoundView(DiagnosticViewContext context, AudioFile audioFile)
             : base(context)
         {
-            _source = AddDisposable(context.Game.Audio.GetStream(filePath));
+            _source = AddDisposable(context.Game.Audio.GetStream(audioFile.Entry));
         }
 
         public override void Draw()

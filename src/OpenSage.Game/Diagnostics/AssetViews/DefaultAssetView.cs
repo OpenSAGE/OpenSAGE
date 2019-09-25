@@ -4,19 +4,20 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using OpenSage.Audio;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
     internal sealed class DefaultAssetView : AssetView
     {
         private readonly BaseAsset _asset;
-        private readonly PropertyInfo[] _propertyInfos;
+        private SoundView _currentSoundView;
 
         public DefaultAssetView(DiagnosticViewContext context, BaseAsset asset)
             : base(context)
         {
             _asset = asset;
-            _propertyInfos = asset.GetType().GetProperties();
         }
 
         public override void Draw()
@@ -33,7 +34,7 @@ namespace OpenSage.Diagnostics.AssetViews
             ImGui.End();
         }
 
-        private static void DrawObject(object instance)
+        private void DrawObject(object instance)
         {
             if (typeof(IEnumerable).IsAssignableFrom(instance.GetType()))
             {
@@ -75,15 +76,14 @@ namespace OpenSage.Diagnostics.AssetViews
             }
         }
 
-        private static void DrawRow(string name, object propertyValue)
+        private void DrawRow(string name, object propertyValue)
         {
-            var displayValue = propertyValue?.ToString() ?? "[null]";
-
             var hasChildNodes = false;
             if (propertyValue != null)
             {
-                var typeCode = Type.GetTypeCode(propertyValue.GetType());
-                if (typeCode == TypeCode.Object)
+                var propertyType = propertyValue.GetType();
+                var typeCode = Type.GetTypeCode(propertyType);
+                if (typeCode == TypeCode.Object && propertyType != typeof(Percentage))
                 {
                     hasChildNodes = true;
                 }
@@ -98,12 +98,36 @@ namespace OpenSage.Diagnostics.AssetViews
             }
             else
             {
-                ImGui.TreeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.Bullet);
+                ImGui.TreeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
             }
 
             ImGui.NextColumn();
             ImGui.AlignTextToFramePadding();
-            ImGui.Text(displayValue);
+
+            if (propertyValue is AudioFile audioFile && audioFile.Entry != null)
+            {
+                if (ImGui.Button("Play audio"))
+                {
+                    ImGui.OpenPopup("Audio player");
+                    _currentSoundView = AddDisposable(new SoundView(Context, audioFile));
+                }
+                var isAudioPlayerOpen = _currentSoundView != null;
+                if (ImGui.BeginPopupModal("Audio player", ref isAudioPlayerOpen))
+                {
+                    _currentSoundView.Draw();
+                    ImGui.EndPopup();
+                }
+                if (!isAudioPlayerOpen && _currentSoundView != null)
+                {
+                    RemoveAndDispose(ref _currentSoundView);
+                }
+            }
+            else
+            {
+                var displayValue = propertyValue?.ToString() ?? "[null]";
+                ImGui.Text(displayValue);
+            }
+
             ImGui.NextColumn();
 
             if (nodeOpen)
