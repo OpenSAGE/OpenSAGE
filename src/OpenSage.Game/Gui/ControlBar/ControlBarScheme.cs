@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -17,8 +18,8 @@ namespace OpenSage.Gui.ControlBar
         {
             { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = parser.ParseSize() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
-            { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseFileName() },
-            { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAssetReference() },
+            { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseMappedImageReference() },
+            { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseMappedImageReference() },
             { "CommandBarBorderColor", (parser, x) => x.CommandBarBorderColor = parser.ParseColorRgba() },
             { "BuildUpClockColor", (parser, x) => x.BuildUpClockColor = parser.ParseColorRgba() },
             { "ButtonBorderBuildColor", (parser, x) => x.ButtonBorderBuildColor = parser.ParseColorRgba() },
@@ -27,49 +28,49 @@ namespace OpenSage.Gui.ControlBar
             { "ButtonBorderSystemColor", (parser, x) => x.ButtonBorderSystemColor = parser.ParseColorRgba() },
             { "ButtonBorderAlteredColor", (parser, x) => x.ButtonBorderAlteredColor = parser.ParseColorRgba() },
 
-            { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseAssetReference() },
-            { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseAssetReference() },
+            { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseMappedImageReference() },
+            { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseMappedImageReference() },
 
-            { "ToggleButtonUpIn", (parser, x) => x.ToggleButtonUpIn = parser.ParseAssetReference() },
-            { "ToggleButtonUpOn", (parser, x) => x.ToggleButtonUpOn = parser.ParseAssetReference() },
-            { "ToggleButtonUpPushed", (parser, x) => x.ToggleButtonUpPushed = parser.ParseAssetReference() },
+            { "ToggleButtonUpIn", (parser, x) => x.ToggleButtonUpIn = parser.ParseMappedImageReference() },
+            { "ToggleButtonUpOn", (parser, x) => x.ToggleButtonUpOn = parser.ParseMappedImageReference() },
+            { "ToggleButtonUpPushed", (parser, x) => x.ToggleButtonUpPushed = parser.ParseMappedImageReference() },
 
-            { "ToggleButtonDownIn", (parser, x) => x.ToggleButtonDownIn = parser.ParseAssetReference() },
-            { "ToggleButtonDownOn", (parser, x) => x.ToggleButtonDownOn = parser.ParseAssetReference() },
-            { "ToggleButtonDownPushed", (parser, x) => x.ToggleButtonDownPushed = parser.ParseAssetReference() },
+            { "ToggleButtonDownIn", (parser, x) => x.ToggleButtonDownIn = parser.ParseMappedImageReference() },
+            { "ToggleButtonDownOn", (parser, x) => x.ToggleButtonDownOn = parser.ParseMappedImageReference() },
+            { "ToggleButtonDownPushed", (parser, x) => x.ToggleButtonDownPushed = parser.ParseMappedImageReference() },
 
-            { "OptionsButtonEnable", (parser, x) => x.OptionsButtonEnable = parser.ParseAssetReference() },
-            { "OptionsButtonHightlited", (parser, x) => x.OptionsButtonHighlighted = parser.ParseAssetReference() },
-            { "OptionsButtonPushed", (parser, x) => x.OptionsButtonPushed = parser.ParseAssetReference() },
-            { "OptionsButtonDisabled", (parser, x) => x.OptionsButtonDisabled = parser.ParseAssetReference() },
+            { "OptionsButtonEnable", (parser, x) => x.OptionsButtonEnable = parser.ParseMappedImageReference() },
+            { "OptionsButtonHightlited", (parser, x) => x.OptionsButtonHighlighted = parser.ParseMappedImageReference() },
+            { "OptionsButtonPushed", (parser, x) => x.OptionsButtonPushed = parser.ParseMappedImageReference() },
+            { "OptionsButtonDisabled", (parser, x) => x.OptionsButtonDisabled = parser.ParseMappedImageReference() },
 
-            { "IdleWorkerButtonEnable", (parser, x) => x.IdleWorkerButtonEnable = parser.ParseAssetReference() },
-            { "IdleWorkerButtonHightlited", (parser, x) => x.IdleWorkerButtonHighlighted = parser.ParseAssetReference() },
-            { "IdleWorkerButtonPushed", (parser, x) => x.IdleWorkerButtonPushed = parser.ParseAssetReference() },
-            { "IdleWorkerButtonDisabled", (parser, x) => x.IdleWorkerButtonDisabled = parser.ParseAssetReference() },
+            { "IdleWorkerButtonEnable", (parser, x) => x.IdleWorkerButtonEnable = parser.ParseMappedImageReference() },
+            { "IdleWorkerButtonHightlited", (parser, x) => x.IdleWorkerButtonHighlighted = parser.ParseMappedImageReference() },
+            { "IdleWorkerButtonPushed", (parser, x) => x.IdleWorkerButtonPushed = parser.ParseMappedImageReference() },
+            { "IdleWorkerButtonDisabled", (parser, x) => x.IdleWorkerButtonDisabled = parser.ParseMappedImageReference() },
 
-            { "BuddyButtonEnable", (parser, x) => x.BuddyButtonEnable = parser.ParseAssetReference() },
-            { "BuddyButtonHightlited", (parser, x) => x.BuddyButtonHighlighted = parser.ParseAssetReference() },
-            { "BuddyButtonPushed", (parser, x) => x.BuddyButtonPushed = parser.ParseAssetReference() },
-            { "BuddyButtonDisabled", (parser, x) => x.BuddyButtonDisabled = parser.ParseAssetReference() },
+            { "BuddyButtonEnable", (parser, x) => x.BuddyButtonEnable = parser.ParseMappedImageReference() },
+            { "BuddyButtonHightlited", (parser, x) => x.BuddyButtonHighlighted = parser.ParseMappedImageReference() },
+            { "BuddyButtonPushed", (parser, x) => x.BuddyButtonPushed = parser.ParseMappedImageReference() },
+            { "BuddyButtonDisabled", (parser, x) => x.BuddyButtonDisabled = parser.ParseMappedImageReference() },
 
-            { "BeaconButtonEnable", (parser, x) => x.BeaconButtonEnable = parser.ParseAssetReference() },
-            { "BeaconButtonHightlited", (parser, x) => x.BeaconButtonHighlighted = parser.ParseAssetReference() },
-            { "BeaconButtonPushed", (parser, x) => x.BeaconButtonPushed = parser.ParseAssetReference() },
-            { "BeaconButtonDisabled", (parser, x) => x.BeaconButtonDisabled = parser.ParseAssetReference() },
+            { "BeaconButtonEnable", (parser, x) => x.BeaconButtonEnable = parser.ParseMappedImageReference() },
+            { "BeaconButtonHightlited", (parser, x) => x.BeaconButtonHighlighted = parser.ParseMappedImageReference() },
+            { "BeaconButtonPushed", (parser, x) => x.BeaconButtonPushed = parser.ParseMappedImageReference() },
+            { "BeaconButtonDisabled", (parser, x) => x.BeaconButtonDisabled = parser.ParseMappedImageReference() },
 
-            { "GeneralButtonEnable", (parser, x) => x.GeneralButtonEnable = parser.ParseAssetReference() },
-            { "GeneralButtonHightlited", (parser, x) => x.GeneralButtonHighlighted = parser.ParseAssetReference() },
-            { "GeneralButtonPushed", (parser, x) => x.GeneralButtonPushed = parser.ParseAssetReference() },
-            { "GeneralButtonDisabled", (parser, x) => x.GeneralButtonDisabled = parser.ParseAssetReference() },
+            { "GeneralButtonEnable", (parser, x) => x.GeneralButtonEnable = parser.ParseMappedImageReference() },
+            { "GeneralButtonHightlited", (parser, x) => x.GeneralButtonHighlighted = parser.ParseMappedImageReference() },
+            { "GeneralButtonPushed", (parser, x) => x.GeneralButtonPushed = parser.ParseMappedImageReference() },
+            { "GeneralButtonDisabled", (parser, x) => x.GeneralButtonDisabled = parser.ParseMappedImageReference() },
 
-            { "UAttackButtonEnable", (parser, x) => x.UAttackButtonEnable = parser.ParseAssetReference() },
-            { "UAttackButtonHightlited", (parser, x) => x.UAttackButtonHighlighted = parser.ParseAssetReference() },
-            { "UAttackButtonPushed", (parser, x) => x.UAttackButtonPushed = parser.ParseAssetReference() },
+            { "UAttackButtonEnable", (parser, x) => x.UAttackButtonEnable = parser.ParseMappedImageReference() },
+            { "UAttackButtonHightlited", (parser, x) => x.UAttackButtonHighlighted = parser.ParseMappedImageReference() },
+            { "UAttackButtonPushed", (parser, x) => x.UAttackButtonPushed = parser.ParseMappedImageReference() },
 
-            { "MinMaxButtonEnable", (parser, x) => x.MinMaxButtonEnable = parser.ParseAssetReference() },
-            { "MinMaxButtonHightlited", (parser, x) => x.MinMaxButtonHighlighted = parser.ParseAssetReference() },
-            { "MinMaxButtonPushed", (parser, x) => x.MinMaxButtonPushed = parser.ParseAssetReference() },
+            { "MinMaxButtonEnable", (parser, x) => x.MinMaxButtonEnable = parser.ParseMappedImageReference() },
+            { "MinMaxButtonHightlited", (parser, x) => x.MinMaxButtonHighlighted = parser.ParseMappedImageReference() },
+            { "MinMaxButtonPushed", (parser, x) => x.MinMaxButtonPushed = parser.ParseMappedImageReference() },
 
             { "MinMaxUL", (parser, x) => x.MinMaxUL = parser.ParsePoint() },
             { "MinMaxLR", (parser, x) => x.MinMaxLR = parser.ParsePoint() },
@@ -95,23 +96,23 @@ namespace OpenSage.Gui.ControlBar
             { "PowerBarUL", (parser, x) => x.PowerBarUL = parser.ParsePoint() },
             { "PowerBarLR", (parser, x) => x.PowerBarLR = parser.ParsePoint() },
 
-            { "ExpBarForegroundImage", (parser, x) => x.ExpBarForegroundImage = parser.ParseAssetReference() },
+            { "ExpBarForegroundImage", (parser, x) => x.ExpBarForegroundImage = parser.ParseMappedImageReference() },
 
             { "MoneyUL", (parser, x) => x.MoneyUL = parser.ParsePoint() },
             { "MoneyLR", (parser, x) => x.MoneyLR = parser.ParsePoint() },
 
-            { "GenArrow", (parser, x) => x.GenArrow = parser.ParseAssetReference() },
-            { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseAssetReference() },
+            { "GenArrow", (parser, x) => x.GenArrow = parser.ParseMappedImageReference() },
+            { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseMappedImageReference() },
 
             { "ImagePart", (parser, x) => x.ImageParts.Add(ControlBarImagePart.Parse(parser)) },
 
-            { "PowerPurchaseImage", (parser, x) => x.PowerPurchaseImage = parser.ParseAssetReference() },
+            { "PowerPurchaseImage", (parser, x) => x.PowerPurchaseImage = parser.ParseMappedImageReference() },
         };
 
         public Size ScreenCreationRes { get; private set; }
         public string Side { get; private set; }
-        public string QueueButtonImage { get; private set; }
-        public string RightHudImage { get; private set; }
+        public LazyAssetReference<MappedImage> QueueButtonImage { get; private set; }
+        public LazyAssetReference<MappedImage> RightHudImage { get; private set; }
         public ColorRgba CommandBarBorderColor { get; private set; }
         public ColorRgba BuildUpClockColor { get; private set; }
         public ColorRgba ButtonBorderBuildColor { get; private set; }
@@ -122,49 +123,49 @@ namespace OpenSage.Gui.ControlBar
         [AddedIn(SageGame.Bfme)]
         public ColorRgba ButtonBorderAlteredColor { get; private set; }
 
-        public string GenBarButtonIn { get; private set; }
-        public string GenBarButtonOn { get; private set; }
+        public LazyAssetReference<MappedImage> GenBarButtonIn { get; private set; }
+        public LazyAssetReference<MappedImage> GenBarButtonOn { get; private set; }
 
-        public string ToggleButtonUpIn { get; private set; }
-        public string ToggleButtonUpOn { get; private set; }
-        public string ToggleButtonUpPushed { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonUpIn { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonUpOn { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonUpPushed { get; private set; }
 
-        public string ToggleButtonDownIn { get; private set; }
-        public string ToggleButtonDownOn { get; private set; }
-        public string ToggleButtonDownPushed { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonDownIn { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonDownOn { get; private set; }
+        public LazyAssetReference<MappedImage> ToggleButtonDownPushed { get; private set; }
 
-        public string OptionsButtonEnable { get; private set; }
-        public string OptionsButtonHighlighted { get; private set; }
-        public string OptionsButtonPushed { get; private set; }
-        public string OptionsButtonDisabled { get; private set; }
+        public LazyAssetReference<MappedImage> OptionsButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> OptionsButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> OptionsButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> OptionsButtonDisabled { get; private set; }
 
-        public string IdleWorkerButtonEnable { get; private set; }
-        public string IdleWorkerButtonHighlighted { get; private set; }
-        public string IdleWorkerButtonPushed { get; private set; }
-        public string IdleWorkerButtonDisabled { get; private set; }
+        public LazyAssetReference<MappedImage> IdleWorkerButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> IdleWorkerButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> IdleWorkerButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> IdleWorkerButtonDisabled { get; private set; }
 
-        public string BuddyButtonEnable { get; private set; }
-        public string BuddyButtonHighlighted { get; private set; }
-        public string BuddyButtonPushed { get; private set; }
-        public string BuddyButtonDisabled { get; private set; }
+        public LazyAssetReference<MappedImage> BuddyButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> BuddyButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> BuddyButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> BuddyButtonDisabled { get; private set; }
 
-        public string BeaconButtonEnable { get; private set; }
-        public string BeaconButtonHighlighted { get; private set; }
-        public string BeaconButtonPushed { get; private set; }
-        public string BeaconButtonDisabled { get; private set; }
+        public LazyAssetReference<MappedImage> BeaconButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> BeaconButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> BeaconButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> BeaconButtonDisabled { get; private set; }
 
-        public string GeneralButtonEnable { get; private set; }
-        public string GeneralButtonHighlighted { get; private set; }
-        public string GeneralButtonPushed { get; private set; }
-        public string GeneralButtonDisabled { get; private set; }
+        public LazyAssetReference<MappedImage> GeneralButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> GeneralButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> GeneralButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> GeneralButtonDisabled { get; private set; }
 
-        public string UAttackButtonEnable { get; private set; }
-        public string UAttackButtonHighlighted { get; private set; }
-        public string UAttackButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> UAttackButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> UAttackButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> UAttackButtonPushed { get; private set; }
 
-        public string MinMaxButtonEnable { get; private set; }
-        public string MinMaxButtonHighlighted { get; private set; }
-        public string MinMaxButtonPushed { get; private set; }
+        public LazyAssetReference<MappedImage> MinMaxButtonEnable { get; private set; }
+        public LazyAssetReference<MappedImage> MinMaxButtonHighlighted { get; private set; }
+        public LazyAssetReference<MappedImage> MinMaxButtonPushed { get; private set; }
 
         public Point2D MinMaxUL { get; private set; }
         public Point2D MinMaxLR { get; private set; }
@@ -184,17 +185,17 @@ namespace OpenSage.Gui.ControlBar
 
         public Point2D PowerBarUL { get; private set; }
         public Point2D PowerBarLR { get; private set; }
-        public string ExpBarForegroundImage { get; private set; }
+        public LazyAssetReference<MappedImage> ExpBarForegroundImage { get; private set; }
         public Point2D MoneyUL { get; private set; }
         public Point2D MoneyLR { get; private set; }
 
-        public string GenArrow { get; private set; }
-        public string CommandMarkerImage { get; private set; }
+        public LazyAssetReference<MappedImage> GenArrow { get; private set; }
+        public LazyAssetReference<MappedImage> CommandMarkerImage { get; private set; }
 
         public List<ControlBarImagePart> ImageParts { get; } = new List<ControlBarImagePart>();
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public string PowerPurchaseImage { get; private set; }
+        public LazyAssetReference<MappedImage> PowerPurchaseImage { get; private set; }
     }
 
     public sealed class ControlBarImagePart
@@ -208,13 +209,13 @@ namespace OpenSage.Gui.ControlBar
         {
             { "Position", (parser, x) => x.Position = parser.ParsePoint() },
             { "Size", (parser, x) => x.Size = parser.ParseSize() },
-            { "ImageName", (parser, x) => x.ImageName = parser.ParseAssetReference() },
+            { "ImageName", (parser, x) => x.ImageName = parser.ParseMappedImageReference() },
             { "Layer", (parser, x) => x.Layer = parser.ParseInteger() }
         };
 
         public Point2D Position { get; private set; }
         public Size Size { get; private set; }
-        public string ImageName { get; private set; }
+        public LazyAssetReference<MappedImage> ImageName { get; private set; }
         public int Layer { get; private set; }
     }
 }

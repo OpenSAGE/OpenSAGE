@@ -68,7 +68,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private ControlBarSize _size = ControlBarSize.Maximized;
 
-        private Image LoadImage(string name) => _contentManager.WndImageLoader.CreateNormalImage(name);
+        private Image LoadImage(LazyAssetReference<MappedImage> mappedImageReference) => _contentManager.WndImageLoader.CreateNormalImage(mappedImageReference);
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
         public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
@@ -98,8 +98,8 @@ namespace OpenSage.Mods.Generals.Gui
             _resizeUpHover = LoadImage(_scheme.ToggleButtonUpIn);
             _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
 
-            _commandButtonHover = LoadImage("Cameo_hilited");
-            _commandButtonPushed = LoadImage("Cameo_push");
+            _commandButtonHover = _contentManager.WndImageLoader.CreateNormalImage("Cameo_hilited");
+            _commandButtonPushed = _contentManager.WndImageLoader.CreateNormalImage("Cameo_push");
 
             UpdateResizeButtonStyle();
 
@@ -420,7 +420,7 @@ namespace OpenSage.Mods.Generals.Gui
             var controlBarWindow = game.LoadWindow("ControlBar.wnd");
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
-            Image LoadImage(string path) => game.ContentManager.WndImageLoader.CreateNormalImage(path);
+            Image LoadImage(LazyAssetReference<MappedImage> mappedImageReference) => game.ContentManager.WndImageLoader.CreateNormalImage(mappedImageReference);
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -448,7 +448,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 Image LoadImageForState(string state) =>
                     LoadImage(
-                        (string) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
+                        (LazyAssetReference<MappedImage>) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
                 button.BackgroundImage = LoadImageForState("Enable");
                 button.DisabledBackgroundImage = LoadImageForState("Disabled");

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Content;
+using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd.Parser
@@ -8,10 +10,13 @@ namespace OpenSage.Data.Wnd.Parser
     internal sealed class WndParser
     {
         private readonly List<WndToken> _tokens;
+        private readonly AssetStore _assetStore;
         private int _tokenIndex;
 
-        public WndParser(string source)
+        public WndParser(string source, AssetStore assetStore)
         {
+            _assetStore = assetStore;
+
             var lexer = new WndLexer(source);
 
             _tokens = new List<WndToken>();
@@ -702,9 +707,13 @@ namespace OpenSage.Data.Wnd.Parser
 
             var borderColor = ParseAttribute("BORDERCOLOR", ParseColor);
 
+            var imageReference = (!string.IsNullOrEmpty(image) && image != "NoImage")
+                ? new LazyAssetReference<MappedImage>(() => _assetStore.MappedImages.GetByName(image))
+                : null;
+
             return new WndDrawDataItem
             {
-                Image = image,
+                Image = imageReference,
                 Color = color,
                 BorderColor = borderColor
             };

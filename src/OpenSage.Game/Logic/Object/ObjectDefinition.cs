@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
 
@@ -36,7 +37,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
         {
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
-            { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseAssetReference() },
+            { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseMappedImageReference() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
             { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseUpgradeReference() },
             { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseUpgradeReference() },
@@ -369,7 +370,7 @@ namespace OpenSage.Logic.Object
 
         // Art
         public int PlacementViewAngle { get; private set; }
-        public string SelectPortrait { get; private set; }
+        public LazyAssetReference<MappedImage> SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
         public LazyAssetReference<Upgrade> UpgradeCameo1 { get; private set; }
         public LazyAssetReference<Upgrade> UpgradeCameo2 { get; private set; }

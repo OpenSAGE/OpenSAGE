@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
@@ -12,35 +11,36 @@ namespace OpenSage.Gui.Wnd.Images
 {
     public sealed class WndImageLoader : DisposableBase
     {
-        private struct WndImageKey
+        private struct WndImageKey : IEquatable<WndImageKey>
         {
             public Size DestinationSize;
-            public string LeftImage;
-            public string MiddleImage;
-            public string RightImage;
+            public Texture LeftImage;
+            public Texture MiddleImage;
+            public Texture RightImage;
+
+            public bool Equals(WndImageKey other)
+            {
+                return DestinationSize == other.DestinationSize
+                    && LeftImage == other.LeftImage
+                    && MiddleImage == other.MiddleImage
+                    && RightImage == other.RightImage;
+            }
         }
 
-        private readonly ContentManager _contentManager;
+        private readonly GraphicsDevice _graphicsDevice;
         private readonly AssetStore _assetStore;
         private readonly Dictionary<WndImageKey, Texture> _cache;
 
-        internal WndImageLoader(ContentManager contentManager, AssetStore assetStore)
+        internal WndImageLoader(GraphicsDevice graphicsDevice, AssetStore assetStore)
         {
-            _contentManager = contentManager;
+            _graphicsDevice = graphicsDevice;
             _assetStore = assetStore;
             _cache = new Dictionary<WndImageKey, Texture>();
         }
 
-        public Image CreateNormalImage(
-            WndDrawData wndDrawData,
-            int index)
-        {
-            return CreateNormalImage(wndDrawData.Items[index].Image);
-        }
-
         public Image CreateFileImage(string fileImageName)
         {
-            var requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+            var requiresFlip = !_graphicsDevice.IsUvOriginTopLeft;
             var texture = _assetStore.GuiTextures.GetByName(fileImageName).Texture;
 
             return new Image(fileImageName, new Size((int)texture.Width, (int) texture.Height), size =>
@@ -48,7 +48,7 @@ namespace OpenSage.Gui.Wnd.Images
                 var cacheKey = new WndImageKey
                 {
                     DestinationSize = size,
-                    LeftImage = fileImageName,
+                    LeftImage = texture,
                 };
 
                 if (!_cache.TryGetValue(cacheKey, out var result))
@@ -62,21 +62,39 @@ namespace OpenSage.Gui.Wnd.Images
             }, requiresFlip);
         }
 
+        public Image CreateNormalImage(
+            WndDrawData wndDrawData,
+            int index)
+        {
+            return CreateNormalImage(wndDrawData.Items[index].Image);
+        }
+
         public Image CreateNormalImage(string mappedImageName)
         {
-            var leftImage = mappedImageName;
-            var mappedImageTexture = GetMappedImage(leftImage);
-
-            if (mappedImageTexture != null)
+            if (string.IsNullOrEmpty(mappedImageName) || mappedImageName == "NoImage")
             {
-                bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+                return null;
+            }
 
-                return new Image(mappedImageName, mappedImageTexture.Coords.Size, size =>
+            var mappedImage = _assetStore.MappedImages.GetByName(mappedImageName);
+
+            return CreateNormalImage(new LazyAssetReference<MappedImage>(mappedImage));
+        }
+
+        public Image CreateNormalImage(LazyAssetReference<MappedImage> mappedImageReference)
+        {
+            var mappedImage = mappedImageReference?.Value;
+            if (mappedImage != null)
+            {
+                var texture = mappedImage.Texture.Value;
+                var requiresFlip = !_graphicsDevice.IsUvOriginTopLeft;
+
+                return new Image(mappedImage.Name, mappedImage.Coords.Size, size =>
                 {
                     var cacheKey = new WndImageKey
                     {
                         DestinationSize = size,
-                        LeftImage = leftImage
+                        LeftImage = texture
                     };
 
                     if (!_cache.TryGetValue(cacheKey, out var result))
@@ -86,8 +104,8 @@ namespace OpenSage.Gui.Wnd.Images
                             spriteBatch =>
                             {
                                 spriteBatch.DrawImage(
-                                    mappedImageTexture.Texture.Value,
-                                    mappedImageTexture.Coords,
+                                    texture,
+                                    mappedImage.Coords,
                                     new Rectangle(Point2D.Zero, size).ToRectangleF(),
                                     ColorRgbaF.White);
                             });
@@ -110,32 +128,28 @@ namespace OpenSage.Gui.Wnd.Images
             int middleIndex,
             int rightIndex)
         {
-            var leftImage = wndDrawData.Items[leftIndex].Image;
-            var middleImage = wndDrawData.Items[middleIndex].Image;
-            var rightImage = wndDrawData.Items[rightIndex].Image;
+            var leftImage = wndDrawData.Items[leftIndex].Image?.Value;
+            var middleImage = wndDrawData.Items[middleIndex].Image?.Value;
+            var rightImage = wndDrawData.Items[rightIndex].Image?.Value;
 
-            var leftMappedImageTexture = GetMappedImage(leftImage);
-            var middleMappedImageTexture = GetMappedImage(middleImage);
-            var rightMappedImageTexture = GetMappedImage(rightImage);
-
-            if (leftMappedImageTexture != null &&
-                middleMappedImageTexture != null &&
-                rightMappedImageTexture != null)
+            if (leftImage != null &&
+                middleImage != null &&
+                rightImage != null)
             {
                 var naturalSize = new Size(
-                    leftMappedImageTexture.Coords.Width + middleMappedImageTexture.Coords.Width + rightMappedImageTexture.Coords.Width,
-                    leftMappedImageTexture.Coords.Height);
+                    leftImage.Coords.Width + middleImage.Coords.Width + rightImage.Coords.Width,
+                    leftImage.Coords.Height);
 
-                bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+                var requiresFlip = !_graphicsDevice.IsUvOriginTopLeft;
 
                 return new Image("WndImage", naturalSize, size =>
                 {
                     var cacheKey = new WndImageKey
                     {
                         DestinationSize = size,
-                        LeftImage = leftImage,
-                        MiddleImage = middleImage,
-                        RightImage = rightImage
+                        LeftImage = leftImage.Texture.Value,
+                        MiddleImage = middleImage.Texture.Value,
+                        RightImage = rightImage.Texture.Value
                     };
 
                     if (!_cache.TryGetValue(cacheKey, out var result))
@@ -144,26 +158,26 @@ namespace OpenSage.Gui.Wnd.Images
                             cacheKey,
                             spriteBatch =>
                             {
-                                var leftWidth = leftMappedImageTexture.Coords.Width;
-                                var rightWidth = rightMappedImageTexture.Coords.Width;
+                                var leftWidth = leftImage.Coords.Width;
+                                var rightWidth = rightImage.Coords.Width;
                                 var leftRect = new Rectangle(0, 0, leftWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   leftMappedImageTexture.Texture.Value,
-                                   leftMappedImageTexture.Coords,
+                                   leftImage.Texture.Value,
+                                   leftImage.Coords,
                                    leftRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
                                 var middleRect = new Rectangle(leftRect.Right, 0, cacheKey.DestinationSize.Width - leftWidth - rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   middleMappedImageTexture.Texture.Value,
-                                   middleMappedImageTexture.Coords,
+                                   middleImage.Texture.Value,
+                                   middleImage.Coords,
                                    middleRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
                                 var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
-                                   rightMappedImageTexture.Texture.Value,
-                                   rightMappedImageTexture.Coords,
+                                   rightImage.Texture.Value,
+                                   rightImage.Coords,
                                    rightRect.ToRectangleF(),
                                    ColorRgbaF.White,
                                    requiresFlip);
@@ -181,21 +195,11 @@ namespace OpenSage.Gui.Wnd.Images
             }
         }
 
-        private MappedImage GetMappedImage(string mappedImageName)
-        {
-            if (string.IsNullOrEmpty(mappedImageName) || mappedImageName == "NoImage")
-            {
-                return null;
-            }
-
-            return _assetStore.MappedImages.GetByName(mappedImageName);
-        }
-
         private Texture CreateTexture(
             in WndImageKey imageKey,
             Action<SpriteBatch> drawCallback)
         {
-            var graphicsDevice = _contentManager.GraphicsDevice;
+            var graphicsDevice = _graphicsDevice;
 
             var imageTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(

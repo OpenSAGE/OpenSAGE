@@ -569,6 +569,12 @@ namespace OpenSage.Data.Ini
             return new LazyAssetReference<Upgrade>(() => AssetStore.Upgrades.GetByName(name));
         }
 
+        public LazyAssetReference<MappedImage> ParseMappedImageReference()
+        {
+            var name = ParseAssetReference();
+            return new LazyAssetReference<MappedImage>(() => AssetStore.MappedImages.GetByName(name));
+        }
+
         public LazyAssetReference<Locomotor> ParseLocomotorReference()
         {
             var name = ParseAssetReference();

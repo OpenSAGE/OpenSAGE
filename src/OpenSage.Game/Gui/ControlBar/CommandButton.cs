@@ -24,7 +24,7 @@ namespace OpenSage.Gui.ControlBar
             { "SpecialPower", (parser, x) => x.SpecialPower = parser.ParseAssetReference() },
             { "TextLabel", (parser, x) => x.TextLabel = parser.ParseLocalizedStringKey() },
             { "ConflictingLabel", (parser, x) => x.ConflictingLabel = parser.ParseLocalizedStringKey() },
-            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
+            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
             { "ButtonBorderType", (parser, x) => x.ButtonBorderType = parser.ParseEnum<CommandButtonBorderType>() },
             { "DescriptLabel", (parser, x) => x.DescriptLabel = parser.ParseLocalizedStringKey() },
             { "MaxShotsToFire", (parser, x) => x.MaxShotsToFire = parser.ParseInteger() },
@@ -82,7 +82,7 @@ namespace OpenSage.Gui.ControlBar
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string ConflictingLabel { get; private set; }
 
-        public string ButtonImage { get; private set; }
+        public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
         public CommandButtonBorderType ButtonBorderType { get; private set; }
         public string DescriptLabel { get; private set; }
         public string RadiusCursorType { get; private set; }
