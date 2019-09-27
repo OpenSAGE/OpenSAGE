@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Gui;
@@ -14,8 +13,6 @@ namespace OpenSage.Mods.Generals.Gui
     {
         private const string ListBoxMapPrefix = "SkirmishMapSelectMenu.wnd:ListboxMap";
 
-        private static Window _window;
-        private static Game _game;
         private static MapCache _previewMap;
 
         public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -39,13 +36,20 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishMapSelectMenuInit(Window window, Game game)
         {
-            _window = window;
-            _game = game;
+            void SetPreviewMap(MapCache mapCache)
+            {
+                _previewMap = mapCache;
+
+                var mapPreview = window.Controls.FindControl("SkirmishMapSelectMenu.wnd:WinMapPreview");
+
+                MapUtils.SetMapPreview(mapCache, mapPreview, game);
+            }
+
             SetPreviewMap(SkirmishGameOptionsMenuCallbacks.GameOptions.CurrentMap);
 
             // Official maps
-            var mapCaches = _game.AssetStore.MapCaches;
-            var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
+            var mapCaches = game.AssetStore.MapCaches;
+            var listBoxMaps = (ListBox) window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
 
             foreach (var mapCache in mapCaches)
@@ -58,26 +62,14 @@ namespace OpenSage.Mods.Generals.Gui
 
             listBoxMaps.Items = items.ToArray();
 
-            listBoxMaps.SelectedIndexChanged += OnItemChanged;
-        }
+            listBoxMaps.SelectedIndexChanged += (sender, e) =>
+            {
+                var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
 
-        private static void OnItemChanged(object sender, EventArgs e)
-        {
-            var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
-            var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
+                var mapCache = selectedItem.DataItem as MapCache;
 
-            var mapCache = selectedItem.DataItem as MapCache;
-
-            SetPreviewMap(mapCache);
-        }
-
-        private static void SetPreviewMap(MapCache mapCache)
-        {
-            _previewMap = mapCache;
-
-            var mapPreview = _window.Controls.FindControl("SkirmishMapSelectMenu.wnd:WinMapPreview");
-
-            MapUtils.SetMapPreview(mapCache, mapPreview, _game);
+                SetPreviewMap(mapCache);
+            };
         }
 
         public static void W3DDrawMapPreview(Control control, DrawingContext2D drawingContext)
