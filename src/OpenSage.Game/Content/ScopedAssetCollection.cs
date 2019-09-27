@@ -88,6 +88,11 @@ namespace OpenSage.Content
             return null;
         }
 
+        public LazyAssetReference<TAsset> GetLazyAssetReferenceByName(string name)
+        {
+            return new LazyAssetReference<TAsset>(() => GetByName(name));
+        }
+
         public TAsset GetByInternalId(int internalId)
         {
             return _byInternalId[internalId];

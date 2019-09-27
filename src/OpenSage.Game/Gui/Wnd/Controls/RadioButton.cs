@@ -13,11 +13,11 @@ namespace OpenSage.Gui.Wnd.Controls
         public Image StateActiveImage { get; set; }
         public bool State { get; set; }
 
-        public RadioButton(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public RadioButton(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
-            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 1, 2);
-            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 1, 2);
-            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 1, 2);
+            BackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.EnabledDrawData, 0, 1, 2);
+            HoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 0, 1, 2);
+            DisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.DisabledDrawData, 0, 1, 2);
 
             HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
             DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();

@@ -123,27 +123,27 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        public ListBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public ListBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
             : this(wndWindow.ListBoxData.ColumnWidths, wndWindow.ListBoxData.Columns)
         {
             BorderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
             BorderWidth = 1;
 
-            SelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 1, 3, 2);
-            SelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 2);
+            SelectedItemBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.EnabledDrawData, 1, 3, 2);
+            SelectedItemHoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 1, 3, 2);
 
             IsScrollBarVisible = wndWindow.ListBoxData.ScrollBar;
 
             if (wndWindow.ListBoxData.ScrollBar)
             {
-                UpButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
-                UpButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
+                UpButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
+                UpButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
 
-                DownButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
-                DownButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
+                DownButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
+                DownButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
 
-                ThumbImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbEnabledDrawData, 0);
-                ThumbHoverImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbHiliteDrawData, 0);
+                ThumbImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbEnabledDrawData, 0);
+                ThumbHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbHiliteDrawData, 0);
             };
 
             if (wndWindow.ListBoxData.ForceSelect)

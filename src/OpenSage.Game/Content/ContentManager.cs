@@ -26,8 +26,6 @@ namespace OpenSage.Content
 
         public ITranslationManager TranslationManager { get; }
 
-        public WndImageLoader WndImageLoader { get; }
-
         public FontManager FontManager { get; }
 
         public string Language { get; }
@@ -88,8 +86,6 @@ namespace OpenSage.Content
                 Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
 
                 FontManager = new FontManager();
-
-                WndImageLoader = AddDisposable(new WndImageLoader(GraphicsDevice, game.AssetStore));
             }
         }
 
