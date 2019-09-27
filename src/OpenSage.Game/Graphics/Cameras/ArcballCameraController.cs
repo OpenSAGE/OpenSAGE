@@ -135,9 +135,6 @@ namespace OpenSage.Graphics.Cameras
                 Vector3.UnitZ);
         }
 
-        public void GoToObject(GameObject gameObject)
-        {
-            throw new NotImplementedException();
-        }
+        public void GoToObject(GameObject gameObject) { }
     }
 }
