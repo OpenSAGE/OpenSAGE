@@ -243,9 +243,9 @@ namespace OpenSage.Graphics.Cameras
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
         }
 
-        public void GoToObject(OpenSage.Logic.Object.GameObject gameObject){
-            this.TerrainPosition = gameObject.Transform.Translation;
+        public void GoToObject(Logic.Object.GameObject gameObject)
+        {
+            TerrainPosition = gameObject.Transform.Translation;
         }
-
     }
 }
