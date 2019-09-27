@@ -17,10 +17,10 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public int Value { get; set; }
 
-        public Slider(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public Slider(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
-            HighlightedBoxImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 0);
-            UnhighlightedBoxImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 1);
+            HighlightedBoxImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 0);
+            UnhighlightedBoxImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 1);
 
             MinimumValue = wndWindow.SliderData.MinValue;
             MaximumValue = wndWindow.SliderData.MaxValue;

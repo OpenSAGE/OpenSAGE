@@ -13,12 +13,12 @@ namespace OpenSage.Gui.Wnd.Controls
         public Image HoverOverlayImage { get; set; }
         public Image PushedOverlayImage { get; set; }
 
-        public Button(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public Button(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
-            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 5, 6);
-            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 5, 6);
-            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 5, 6);
-            PushedBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 4);
+            BackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.EnabledDrawData, 0, 5, 6);
+            HoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 0, 5, 6);
+            DisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.DisabledDrawData, 0, 5, 6);
+            PushedBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 1, 3, 4);
 
             HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
             DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();

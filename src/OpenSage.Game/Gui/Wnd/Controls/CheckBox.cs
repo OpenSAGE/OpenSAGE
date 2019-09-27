@@ -19,16 +19,16 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public bool Checked { get; set; }
 
-        public CheckBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public CheckBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
-            UncheckedImage = imageLoader.CreateNormalImage(wndWindow.EnabledDrawData, 1);
-            CheckedImage = imageLoader.CreateNormalImage(wndWindow.EnabledDrawData, 2);
+            UncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 1);
+            CheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 2);
 
-            HoverUncheckedImage = imageLoader.CreateNormalImage(wndWindow.HiliteDrawData, 1);
-            HoverCheckedImage = imageLoader.CreateNormalImage(wndWindow.HiliteDrawData, 2);
+            HoverUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 1);
+            HoverCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 2);
 
-            DisabledUncheckedImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 1);
-            DisabledCheckedImage = imageLoader.CreateNormalImage(wndWindow.DisabledDrawData, 2);
+            DisabledUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 1);
+            DisabledCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 2);
         }
 
         protected override void LayoutOverride()

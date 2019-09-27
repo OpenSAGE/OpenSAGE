@@ -158,30 +158,30 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        public ComboBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public ComboBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
             : this()
         {
             IsEditable = wndWindow.ComboBoxData.IsEditable;
             MaxDisplay = wndWindow.ComboBoxData.MaxDisplay;
 
-            TextBoxBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxEnabledDrawData, 0, 2, 1);
-            TextBoxHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1);
-            TextBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxDisabledDrawData, 0, 2, 1);
+            TextBoxBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxEnabledDrawData, 0, 2, 1);
+            TextBoxHoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1);
+            TextBoxDisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxDisabledDrawData, 0, 2, 1);
 
-            DropDownSelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxEnabledDrawData, 1, 3, 2);
-            DropDownSelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxHiliteDrawData, 1, 3, 2);
-            ListBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxDisabledDrawData, 1, 3, 2);
+            DropDownSelectedItemBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxEnabledDrawData, 1, 3, 2);
+            DropDownSelectedItemHoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxHiliteDrawData, 1, 3, 2);
+            ListBoxDisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxDisabledDrawData, 1, 3, 2);
 
-            DropDownButtonImage = imageLoader.CreateNormalImage(wndWindow.ComboBoxDropDownButtonEnabledDrawData, 0);
+            DropDownButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ComboBoxDropDownButtonEnabledDrawData, 0);
 
-            DropDownUpButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
-            DropDownUpButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
+            DropDownUpButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
+            DropDownUpButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
 
-            DropDownDownButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
-            DropDownDownButtonHoverImage = imageLoader.CreateNormalImage(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
+            DropDownDownButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
+            DropDownDownButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
 
-            DropDownThumbImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbEnabledDrawData, 0);
-            DropDownThumbHoverImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbHiliteDrawData, 0);
+            DropDownThumbImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbEnabledDrawData, 0);
+            DropDownThumbHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbHiliteDrawData, 0);
 
             if (wndWindow.ComboBoxListBoxEnabledDrawData.Items != null && wndWindow.ComboBoxListBoxEnabledDrawData.Items.Length > 0)
             {

@@ -11,13 +11,12 @@ namespace OpenSage.Gui.Wnd.Controls
     {
         internal static Control CreateRecursive(
             WndWindowDefinition wndWindow,
+            ImageLoader imageLoader,
             ContentManager contentManager,
             AssetStore assetStore,
             WndCallbackResolver wndCallbackResolver,
             Point2D parentOffset)
         {
-            var imageLoader = contentManager.WndImageLoader;
-
             var result = CreateControl(wndWindow, imageLoader);
 
             result.Name = wndWindow.Name;
@@ -75,14 +74,14 @@ namespace OpenSage.Gui.Wnd.Controls
 
             foreach (var childWindow in wndWindow.ChildWindows)
             {
-                var child = CreateRecursive(childWindow, contentManager, assetStore, wndCallbackResolver, wndRectangle.Location);
+                var child = CreateRecursive(childWindow, imageLoader, contentManager, assetStore, wndCallbackResolver, wndRectangle.Location);
                 result.Controls.Add(child);
             }
 
             return result;
         }
 
-        private static Control CreateControl(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        private static Control CreateControl(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
             switch (wndWindow.WindowType)
             {
@@ -114,7 +113,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     var control = new Control();
                     if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
                     {
-                        control.BackgroundImage = imageLoader.CreateNormalImage(wndWindow.EnabledDrawData, 0);
+                        control.BackgroundImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 0);
                     }
                     else
                     {

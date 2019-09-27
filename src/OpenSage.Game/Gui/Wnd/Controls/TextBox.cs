@@ -11,11 +11,11 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public bool IsReadOnly { get; set; }
 
-        public TextBox(WndWindowDefinition wndWindow, WndImageLoader imageLoader)
+        public TextBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
         {
-            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 2, 1);
-            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 2, 1);
-            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 2, 1);
+            BackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.EnabledDrawData, 0, 2, 1);
+            HoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 0, 2, 1);
+            DisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.DisabledDrawData, 0, 2, 1);
 
             HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
             DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();

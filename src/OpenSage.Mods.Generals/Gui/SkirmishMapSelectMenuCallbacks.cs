@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
+using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 
@@ -69,7 +70,7 @@ namespace OpenSage.Mods.Generals.Gui
             SetPreviewMap(mapCache);
         }
 
-        internal static void SetPreviewMap(MapCache mapCache)
+        private static void SetPreviewMap(MapCache mapCache)
         {
             _previewMap = mapCache;
 
@@ -77,5 +78,10 @@ namespace OpenSage.Mods.Generals.Gui
 
             MapUtils.SetMapPreview(mapCache, mapPreview, _game);
         }
+
+        //public static void W3DDrawMapPreview(Control control, DrawingContext2D drawingContext)
+        //{
+        //    // TODO: Draw map preview.
+        //}
     }
 }

@@ -68,10 +68,9 @@ namespace OpenSage.Mods.Generals.Gui
 
         private ControlBarSize _size = ControlBarSize.Maximized;
 
-        private Image LoadImage(LazyAssetReference<MappedImage> mappedImageReference) => _contentManager.WndImageLoader.CreateNormalImage(mappedImageReference);
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
-        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
+        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
             _window = window;
@@ -90,16 +89,16 @@ namespace OpenSage.Mods.Generals.Gui
 
             _resize = FindControl("ButtonLarge") as Button;
 
-            _resizeDownBackground = LoadImage(_scheme.ToggleButtonDownOn);
-            _resizeDownHover = LoadImage(_scheme.ToggleButtonDownIn);
-            _resizeDownPushed = LoadImage(_scheme.ToggleButtonDownPushed);
+            _resizeDownBackground = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownOn);
+            _resizeDownHover = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownIn);
+            _resizeDownPushed = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownPushed);
 
-            _resizeUpBackground = LoadImage(_scheme.ToggleButtonUpOn);
-            _resizeUpHover = LoadImage(_scheme.ToggleButtonUpIn);
-            _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
+            _resizeUpBackground = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpOn);
+            _resizeUpHover = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpIn);
+            _resizeUpPushed = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpPushed);
 
-            _commandButtonHover = _contentManager.WndImageLoader.CreateNormalImage("Cameo_hilited");
-            _commandButtonPushed = _contentManager.WndImageLoader.CreateNormalImage("Cameo_push");
+            _commandButtonHover = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_hilited"));
+            _commandButtonPushed = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_push"));
 
             UpdateResizeButtonStyle();
 
@@ -188,7 +187,7 @@ namespace OpenSage.Mods.Generals.Gui
                     {
                         var commandButton = commandButtonReference.Value;
 
-                        buttonControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(commandButton.ButtonImage);
+                        buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
 
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
@@ -347,7 +346,7 @@ namespace OpenSage.Mods.Generals.Gui
                             // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
                             queueButton.Opacity = (1.0f - job.Progress);
 
-                            img = controlBar._contentManager.WndImageLoader.CreateNormalImage(job.ObjectDefinition.SelectPortrait);
+                            img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
 
                             var posCopy = pos;
 
@@ -362,7 +361,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
 
                 var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
-                var cameoImg = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                var cameoImg = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.SelectPortrait);
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !unit.IsProducing;
 
@@ -371,7 +370,7 @@ namespace OpenSage.Mods.Generals.Gui
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
                     upgradeControl.BackgroundImage = upgrade != null
-                        ? controlBar._contentManager.WndImageLoader.CreateNormalImage(upgrade.ButtonImage)
+                        ? controlBar._window.ImageLoader.CreateFromMappedImageReference(upgrade.ButtonImage)
                         : null;
                 }
 
@@ -413,14 +412,14 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 Name = "OpenSAGE:ControlBarBackground",
                 Bounds = new Rectangle(imagePart.Position, imagePart.Size),
-                BackgroundImage = LoadImage(imagePart.ImageName)
             };
 
-            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game.ContentManager);
+            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game);
             var controlBarWindow = game.LoadWindow("ControlBar.wnd");
 
+            background.BackgroundImage = backgroundWindow.ImageLoader.CreateFromMappedImageReference(imagePart.ImageName);
+
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
-            Image LoadImage(LazyAssetReference<MappedImage> mappedImageReference) => game.ContentManager.WndImageLoader.CreateNormalImage(mappedImageReference);
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -447,7 +446,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var button = ApplyBounds(name, coordPrefix) as Button;
 
                 Image LoadImageForState(string state) =>
-                    LoadImage(
+                    controlBarWindow.ImageLoader.CreateFromMappedImageReference(
                         (LazyAssetReference<MappedImage>) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
                 button.BackgroundImage = LoadImageForState("Enable");
@@ -474,11 +473,11 @@ namespace OpenSage.Mods.Generals.Gui
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;
             rightHud.BackgroundColor = ColorRgbaF.Transparent;
-            rightHud.BackgroundImage = LoadImage(scheme.RightHudImage);
+            rightHud.BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.RightHudImage);
 
-            FindControl("ExpBarForeground").BackgroundImage = LoadImage(scheme.ExpBarForegroundImage);
+            FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
-            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, game.ContentManager);
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, game.ContentManager, game.AssetStore);
         }
     }
 }
