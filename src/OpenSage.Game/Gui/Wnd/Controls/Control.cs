@@ -182,6 +182,11 @@ namespace OpenSage.Gui.Wnd.Controls
         public bool IsMouseOver { get; private set; }
         public bool IsMouseDown { get; private set; }
 
+        /// <summary>
+        /// Used to pass arbitrary data items between callbacks.
+        /// </summary>
+        public Dictionary<string, object> Data { get; } = new Dictionary<string, object>();
+
         public Control()
         {
             Controls = new ControlCollection(this);

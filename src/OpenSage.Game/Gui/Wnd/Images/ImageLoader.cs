@@ -1,7 +1,5 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Wnd;
-using OpenSage.Gui.Wnd.Controls;
-using Veldrid;
 
 namespace OpenSage.Gui.Wnd.Images
 {
@@ -12,11 +10,6 @@ namespace OpenSage.Gui.Wnd.Images
         internal ImageLoader(ImageTextureCache textureCache)
         {
             _textureCache = textureCache;
-        }
-
-        public Image CreateFromTexture(Texture texture)
-        {
-            return new Image(texture.Name, new TextureSource(texture));
         }
 
         public Image CreateFromMappedImageReference(LazyAssetReference<MappedImage> mappedImageReference)
@@ -50,6 +43,10 @@ namespace OpenSage.Gui.Wnd.Images
                 return new Image(
                     $"{leftImage.Name}:{middleImage.Name}:{rightImage.Name}",
                     new StretchableMappedImageSource(leftImage, middleImage, rightImage, _textureCache));
+            }
+            else if (leftImage != null)
+            {
+                return CreateFromMappedImageReference(wndDrawData.Items[leftIndex].Image);
             }
             else
             {

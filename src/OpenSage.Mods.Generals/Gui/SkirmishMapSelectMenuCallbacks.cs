@@ -5,6 +5,7 @@ using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using Veldrid;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -79,9 +80,17 @@ namespace OpenSage.Mods.Generals.Gui
             MapUtils.SetMapPreview(mapCache, mapPreview, _game);
         }
 
-        //public static void W3DDrawMapPreview(Control control, DrawingContext2D drawingContext)
-        //{
-        //    // TODO: Draw map preview.
-        //}
+        public static void W3DDrawMapPreview(Control control, DrawingContext2D drawingContext)
+        {
+            if (!control.Data.TryGetValue("MapPreview", out var mapPreviewTexture))
+            {
+                return;
+            }
+
+            drawingContext.DrawImage(
+                (Texture) mapPreviewTexture,
+                null,
+                control.ClientRectangle.ToRectangleF());
+        }
     }
 }

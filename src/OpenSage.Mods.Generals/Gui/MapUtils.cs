@@ -54,21 +54,18 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Set thumbnail
             var thumbTexture = game.AssetStore.GuiTextures.GetByName(thumbPath).Texture;
-            mapWindow.BackgroundImage = mapWindow.Window.ImageLoader.CreateFromTexture(thumbTexture);
+            mapWindow.Data["MapPreview"] = thumbTexture;
 
             // Hide all start positions
-            for (int i = 0; i < 8; ++i)
+            for (var i = 0; i < 8; ++i)
             {
                 mapWindow.Controls[i].Hide();
             }
 
             // Set starting positions
-            for (int i = 0; i < mapCache.NumPlayers; ++i)
+            for (var i = 0; i < mapCache.NumPlayers; ++i)
             {
                 var startPosCtrl = mapWindow.Controls[i];
-                startPosCtrl.BackgroundImage = mapWindow.Window.ImageLoader.CreateFromMappedImageReference(game.AssetStore.MappedImages.GetLazyAssetReferenceByName("PlayerStart"));
-                startPosCtrl.HoverBackgroundImage = mapWindow.Window.ImageLoader.CreateFromMappedImageReference(game.AssetStore.MappedImages.GetLazyAssetReferenceByName("PlayerStartHilite"));
-                startPosCtrl.DisabledBackgroundImage = mapWindow.Window.ImageLoader.CreateFromMappedImageReference(game.AssetStore.MappedImages.GetLazyAssetReferenceByName("PlayerStartDisabled"));
                 startPosCtrl.Show();
 
                 var relPos = GetRelativePosition(mapCache, i);
