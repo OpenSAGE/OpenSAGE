@@ -1,7 +1,7 @@
 ﻿using OpenSage.Content;
 using Veldrid;
 
-namespace OpenSage.Data.StreamFS.AssetReaders
+namespace OpenSage.Data.StreamFS
 {
     public sealed class AssetParseContext
     {

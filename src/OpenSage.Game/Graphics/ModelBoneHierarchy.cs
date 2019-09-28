@@ -1,11 +1,37 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.StreamFS;
+using OpenSage.Data.W3x;
 using OpenSage.FileFormats.W3d;
 
 namespace OpenSage.Graphics
 {
     public sealed class ModelBoneHierarchy : BaseAsset
     {
+        internal static ModelBoneHierarchy ParseAsset(BinaryReader reader, Asset asset)
+        {
+            var w3xHierarchy = W3xHierarchy.Parse(reader, asset.Header);
+
+            var bones = new ModelBone[w3xHierarchy.Pivots.Length];
+
+            for (var i = 0; i < w3xHierarchy.Pivots.Length; i++)
+            {
+                var w3xPivot = w3xHierarchy.Pivots[i];
+
+                bones[i] = new ModelBone(
+                    i,
+                    w3xPivot.Name,
+                    w3xPivot.ParentIdx != -1
+                        ? bones[w3xPivot.ParentIdx]
+                        : null,
+                    w3xPivot.Translation,
+                    w3xPivot.Rotation);
+
+            }
+
+            return new ModelBoneHierarchy(asset, bones);
+        }
+
         public static ModelBoneHierarchy CreateDefault()
         {
             var bones = new ModelBone[1];
