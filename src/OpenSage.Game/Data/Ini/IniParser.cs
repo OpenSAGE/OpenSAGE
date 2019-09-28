@@ -5,172 +5,17 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
-using OpenSage.Eva;
 using OpenSage.FileFormats;
 using OpenSage.Graphics;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
-using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.InGame;
-using OpenSage.Gui.Wnd.Transitions;
-using OpenSage.Input;
-using OpenSage.LivingWorld;
-using OpenSage.LivingWorld.AutoResolve;
-using OpenSage.Lod;
-using OpenSage.Logic;
-using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
-using OpenSage.Logic.Object.Damage;
-using OpenSage.Logic.Pathfinding;
 using OpenSage.Mathematics;
-using OpenSage.Terrain;
 
 namespace OpenSage.Data.Ini
 {
     internal sealed partial class IniParser
     {
-        private static readonly Dictionary<string, Action<IniParser, IniDataContext>> BlockParsers = new Dictionary<string, Action<IniParser, IniDataContext>>
-        {
-            { "AIBase", (parser, context) => parser.AssetStore.AIBases.Add(AIBase.Parse(parser)) },
-            { "AIData", (parser, context) => AIData.Parse(parser, parser.AssetStore.AIData.Current) },
-            { "AIDozerAssignment", (parser, context) => parser.AssetStore.AIDozerAssignments.Add(AIDozerAssignment.Parse(parser)) },
-            { "AmbientStream", (parser, context) => parser.AssetStore.AmbientStreams.Add(AmbientStream.Parse(parser)) },
-            { "Animation", (parser, context) => parser.AssetStore.Animations.Add(Animation.Parse(parser)) },
-            { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => AnimationSoundClientBehaviorGlobalSetting.Parse(parser, parser.AssetStore.AnimationSoundClientBehaviorGlobalSetting.Current) },
-            { "AptButtonTooltipMap", (parser, context) => AptButtonTooltipMap.Parse(parser, parser.AssetStore.AptButtonTooltipMap.Current) },
-            { "Armor", (parser, context) => parser.AssetStore.Armors.Add(Armor.Parse(parser)) },
-            { "ArmyDefinition", (parser, context) => parser.AssetStore.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
-            { "ArmySummaryDescription", (parser, context) => ArmySummaryDescription.Parse(parser, parser.AssetStore.ArmySummaryDescription.Current) },
-            { "AudioEvent", (parser, context) => parser.AssetStore.AudioEvents.Add(AudioEvent.Parse(parser)) },
-            { "AudioLOD", (parser, context) => parser.AssetStore.AudioLods.Add(AudioLod.Parse(parser)) },
-            { "AudioLowMHz", (parser, context) => parser.ParseInteger() },
-            { "AudioSettings", (parser, context) => AudioSettings.Parse(parser, parser.AssetStore.AudioSettings.Current) },
-            { "AutoResolveArmor", (parser, context) => parser.AssetStore.AutoResolveArmors.Add(AutoResolveArmor.Parse(parser)) },
-            { "AutoResolveBody", (parser, context) => parser.AssetStore.AutoResolveBodies.Add(AutoResolveBody.Parse(parser)) },
-            { "AutoResolveCombatChain", (parser, context) => parser.AssetStore.AutoResolveCombatChains.Add(AutoResolveCombatChain.Parse(parser)) },
-            { "AutoResolveHandicapLevel", (parser, context) => parser.AssetStore.AutoResolveHandicapLevels.Add(AutoResolveHandicapLevel.Parse(parser)) },
-            { "AutoResolveReinforcementSchedule", (parser, context) => parser.AssetStore.AutoResolveReinforcementSchedules.Add(AutoResolveReinforcementSchedule.Parse(parser)) },
-            { "AutoResolveLeadership", (parser, context) => parser.AssetStore.AutoResolveLeaderships.Add(AutoResolveLeadership.Parse(parser)) },
-            { "AutoResolveWeapon", (parser, context) => parser.AssetStore.AutoResolveWeapons.Add(AutoResolveWeapon.Parse(parser)) },
-            { "AwardSystem", (parser, context) => AwardSystem.Parse(parser, parser.AssetStore.AwardSystem.Current) },
-            { "BannerType", (parser, context) => parser.AssetStore.BannerTypes.Add(BannerType.Parse(parser)) },
-            { "BannerUI", (parser, context) => BannerUI.Parse(parser, parser.AssetStore.BannerUI.Current) },
-            { "BenchProfile", (parser, context) => parser.AssetStore.BenchProfiles.Add(BenchProfile.Parse(parser)) },
-            { "Bridge", (parser, context) => parser.AssetStore.BridgeTemplates.Add(BridgeTemplate.Parse(parser)) },
-            { "Campaign", (parser, context) => parser.AssetStore.CampaignTemplates.Add(CampaignTemplate.Parse(parser)) },
-            { "ChallengeGenerals", (parser, context) => ChallengeGenerals.Parse(parser, parser.AssetStore.ChallengeGenerals.Current) },
-            { "ChildObject", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ChildObject.Parse(parser)) },
-            { "CloudEffect", (parser, context) => parser.AssetStore.Environment.Current.CloudEffect = CloudEffect.Parse(parser) },
-            { "CommandButton", (parser, context) => parser.AssetStore.CommandButtons.Add(CommandButton.Parse(parser)) },
-            { "CommandMap", (parser, context) => parser.AssetStore.CommandMaps.Add(CommandMap.Parse(parser)) },
-            { "CommandSet", (parser, context) => parser.AssetStore.CommandSets.Add(CommandSet.Parse(parser)) },
-            { "ControlBarResizer", (parser, context) => parser.AssetStore.ControlBarResizers.Add(ControlBarResizer.Parse(parser)) },
-            { "ControlBarScheme", (parser, context) => parser.AssetStore.ControlBarSchemes.Add(ControlBarScheme.Parse(parser)) },
-            { "CrateData", (parser, context) => parser.AssetStore.CrateDatas.Add(CrateData.Parse(parser)) },
-            { "CreateAHeroSystem", (parser, context) => CreateAHeroSystem.Parse(parser, parser.AssetStore.CreateAHeroSystem.Current) },
-            { "Credits", (parser, context) => Credits.Parse(parser, parser.AssetStore.Credits.Current) },
-            { "CrowdResponse", (parser, context) => parser.AssetStore.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
-            { "DamageFX", (parser, context) => parser.AssetStore.DamageFXs.Add(DamageFX.Parse(parser)) },
-            { "DialogEvent", (parser, context) => parser.AssetStore.DialogEvents.Add(DialogEvent.Parse(parser)) },
-            { "DrawGroupInfo", (parser, context) => DrawGroupInfo.Parse(parser, parser.AssetStore.DrawGroupInfo.Current) },
-            { "DynamicGameLOD", (parser, context) => parser.AssetStore.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
-            { "EmotionNugget", (parser, context) => parser.AssetStore.EmotionNuggets.Add(EmotionNugget.Parse(parser)) },
-            { "EvaEvent", (parser, context) => parser.AssetStore.EvaEvents.Add(EvaEvent.Parse(parser)) },
-            { "EvaEventForwardReference", (parser, context) => EvaEvent.Parse(parser) },
-            { "ExperienceLevel", (parser, context) => parser.AssetStore.ExperienceLevels.Add(ExperienceLevel.Parse(parser)) },
-            { "ExperienceScalarTable", (parser, context) => parser.AssetStore.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
-            { "FactionVictoryData", (parser, context) => parser.AssetStore.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },
-            { "Fire", (parser, context) => Fire.Parse(parser, parser.AssetStore.Fire.Current) },
-            { "FireLogicSystem", (parser, context) => FireLogicSystem.Parse(parser, parser.AssetStore.FireLogicSystem.Current) },
-            { "FireEffect", (parser, context) => parser.AssetStore.Environment.Current.FireEffect = RingEffect.Parse(parser) },
-            { "FontDefaultSettings", (parser, context) => parser.AssetStore.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
-            { "FontSubstitution", (parser, context) => parser.AssetStore.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
-            { "FormationAssistant", (parser, context) => FormationAssistant.Parse(parser, parser.AssetStore.FormationAssistant.Current) },
-            { "FXList", (parser, context) => parser.AssetStore.FXLists.Add(FXList.Parse(parser)) },
-            { "FXParticleSystem", (parser, context) => parser.AssetStore.FXParticleSystemTemplates.Add(FXParticleSystemTemplate.Parse(parser)) },
-            { "GameData", (parser, context) => GameData.Parse(parser, parser.AssetStore.GameData.Current) },
-            { "GlowEffect", (parser, context) => parser.AssetStore.Environment.Current.GlowEffect = GlowEffect.Parse(parser) },
-            { "HeaderTemplate", (parser, context) => parser.AssetStore.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
-            { "HouseColor", (parser, context) => parser.AssetStore.HouseColors.Add(HouseColor.Parse(parser)) },
-            { "InGameNotificationBox", (parser, context) => InGameNotificationBox.Parse(parser, parser.AssetStore.InGameNotificationBox.Current) },
-            { "InGameUI", (parser, context) => InGameUI.Parse(parser, parser.AssetStore.InGameUI.Current) },
-            { "Language", (parser, context) => Language.Parse(parser, parser.AssetStore.Language.Current) },
-            { "LargeGroupAudioMap", (parser, context) => parser.AssetStore.LargeGroupAudioMaps.Add(LargeGroupAudioMap.Parse(parser)) },
-            { "LinearCampaign", (parser, context) => LinearCampaign.Parse(parser, parser.AssetStore.LinearCampaign.Current) },
-            { "LivingWorldAITemplate", (parser, context) => parser.AssetStore.LivingWorldAITemplates.Add(LivingWorldAITemplate.Parse(parser)) },
-            { "LivingWorldAnimObject", (parser, context) => parser.AssetStore.LivingWorldAnimObjects.Add(LivingWorldAnimObject.Parse(parser)) },
-            { "LivingWorldArmyIcon", (parser, context) => parser.AssetStore.LivingWorldArmyIcons.Add(LivingWorldArmyIcon.Parse(parser)) },
-            { "LivingWorldAutoResolveResourceBonus", (parser, context) => LivingWorldAutoResolveResourceBonus.Parse(parser, parser.AssetStore.LivingWorldAutoResolveResourceBonus.Current) },
-            { "LivingWorldAutoResolveSciencePurchasePointBonus", (parser, context) => LivingWorldAutoResolveSciencePurchasePointBonus.Parse(parser, parser.AssetStore.LivingWorldAutoResolveSciencePurchasePointBonus.Current) },
-            { "LivingWorldBuilding", (parser, context) => parser.AssetStore.LivingWorldBuildings.Add(LivingWorldBuilding.Parse(parser)) },
-            { "LivingWorldBuildPlotIcon", (parser, context) => parser.AssetStore.LivingWorldBuildPlotIcons.Add(LivingWorldBuildPlotIcon.Parse(parser)) },
-            { "LivingWorldBuildingIcon", (parser, context) => parser.AssetStore.LivingWorldBuildingIcons.Add(LivingWorldBuildingIcon.Parse(parser)) },
-            { "LargeGroupAudioUnusedKnownKeys", (parser, context) => LargeGroupAudioUnusedKnownKeys.Parse(parser, parser.AssetStore.LargeGroupAudioUnusedKnownKeys.Current) },
-            { "LivingWorldCampaign", (parser, context) => parser.AssetStore.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
-            { "LivingWorldMapInfo", (parser, context) => LivingWorldMapInfo.Parse(parser, parser.AssetStore.LivingWorldMapInfo.Current) },
-            { "LivingWorldObject", (parser, context) => parser.AssetStore.LivingWorldObjects.Add(LivingWorldObject.Parse(parser)) },
-            { "LivingWorldPlayerArmy", (parser, context) => parser.AssetStore.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
-            { "LivingWorldPlayerTemplate", (parser, context) => parser.AssetStore.LivingWorldPlayerTemplates.Add(LivingWorldPlayerTemplate.Parse(parser)) },
-            { "LivingWorldRegionCampaign", (parser, context) => parser.AssetStore.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
-            { "LivingWorldRegionEffects", (parser, context) => parser.AssetStore.LivingWorldRegionEffects.Add(LivingWorldRegionEffects.Parse(parser)) },
-            { "LivingWorldSound", (parser, context) => parser.AssetStore.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
-            { "LoadSubsystem", (parser, context) => parser.AssetStore.Subsystems.Add(LoadSubsystem.Parse(parser)) },
-            { "Locomotor", (parser, context) => parser.AssetStore.Locomotors.Add(Locomotor.Parse(parser)) },
-            { "LODPreset", (parser, context) => parser.AssetStore.LodPresets.Add(LodPreset.Parse(parser)) },
-            { "MapCache", (parser, context) => parser.AssetStore.MapCaches.Add(MapCache.Parse(parser)) },
-            { "MappedImage", (parser, context) => parser.AssetStore.MappedImages.Add(MappedImage.Parse(parser)) },
-            { "MeshNameMatches", (parser, context) => parser.AssetStore.MeshNameMatches.Add(MeshNameMatches.Parse(parser)) },
-            { "MiscAudio", (parser, context) => MiscAudio.Parse(parser, parser.AssetStore.MiscAudio.Current) },
-            { "MiscEvaData", (parser, context) => MiscEvaData.Parse(parser, parser.AssetStore.MiscEvaData.Current) },
-            { "MissionObjectiveList", (parser, context) => MissionObjectiveList.Parse(parser, parser.AssetStore.MissionObjectiveList.Current) },
-            { "ModifierList", (parser, context) => parser.AssetStore.ModifierLists.Add(ModifierList.Parse(parser)) },
-            { "Mouse", (parser, context) => MouseData.Parse(parser, parser.AssetStore.MouseData.Current) },
-            { "MouseCursor", (parser, context) => parser.AssetStore.MouseCursors.Add(MouseCursor.Parse(parser)) },
-            { "MultiplayerColor", (parser, context) => parser.AssetStore.MultiplayerColors.Add(MultiplayerColor.Parse(parser)) },
-            { "MultiplayerSettings", (parser, context) => MultiplayerSettings.Parse(parser, parser.AssetStore.MultiplayerSettings.Current) },
-            { "MultiplayerStartingMoneyChoice", (parser, context) => parser.AssetStore.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
-            { "Multisound", (parser, context) => parser.AssetStore.Multisounds.Add(Multisound.Parse(parser)) },
-            { "MusicTrack", (parser, context) => parser.AssetStore.MusicTracks.Add(MusicTrack.Parse(parser)) },
-            { "NewEvaEvent", (parser, context) => parser.AssetStore.EvaEvents.Add(EvaEvent.Parse(parser)) },
-            { "Object", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ObjectDefinition.Parse(parser)) },
-            { "ObjectReskin", (parser, context) => parser.AssetStore.ObjectDefinitions.Add(ObjectDefinition.ParseReskin(parser)) },
-            { "ObjectCreationList", (parser, context) => parser.AssetStore.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
-            { "OnlineChatColors", (parser, context) => OnlineChatColors.Parse(parser, parser.AssetStore.OnlineChatColors.Current) },
-            { "ParticleSystem", (parser, context) => parser.AssetStore.ParticleSystemTemplates.Add(ParticleSystemTemplate.Parse(parser)) },
-            { "Pathfinder", (parser, context) => Pathfinder.Parse(parser, parser.AssetStore.Pathfinder.Current) },
-            { "PlayerAIType", (parser, context) => parser.AssetStore.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
-            { "PlayerTemplate", (parser, context) => parser.AssetStore.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
-            { "PredefinedEvaEvent", (parser, context) => parser.AssetStore.EvaEvents.Add(EvaEvent.Parse(parser)) },
-            { "Rank", (parser, context) => parser.AssetStore.Ranks.Add(Rank.Parse(parser)) },
-            { "RegionCampain", (parser, context) => parser.AssetStore.RegionCampaigns.Add(RegionCampaign.Parse(parser)) },
-            { "RingEffect", (parser, context) => parser.AssetStore.Environment.Current.RingEffect = RingEffect.Parse(parser) },
-            { "Road", (parser, context) => parser.AssetStore.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
-            { "ReallyLowMHz", (parser, context) => parser.ParseInteger() },
-            { "Science", (parser, context) => parser.AssetStore.Sciences.Add(Science.Parse(parser)) },
-            { "ScoredKillEvaAnnouncer", (parser, context) => parser.AssetStore.ScoredKillEvaAnnouncers.Add(ScoredKillEvaAnnouncer.Parse(parser)) },
-            { "ShadowMap", (parser, context) => parser.AssetStore.Environment.Current.ShadowMap = ShadowMap.Parse(parser) },
-            { "ShellMenuScheme", (parser, context) => parser.AssetStore.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
-            { "SkirmishAIData", (parser, context) => parser.AssetStore.SkirmishAIDatas.Add(SkirmishAIData.Parse(parser)) },
-            { "SkyboxTextureSet", (parser, context) => parser.AssetStore.SkyboxTextureSets.Add(SkyboxTextureSet.Parse(parser)) },
-            { "SpecialPower", (parser, context) => parser.AssetStore.SpecialPowers.Add(SpecialPower.Parse(parser)) },
-            { "StanceTemplate", (parser, context) => parser.AssetStore.StanceTemplates.Add(StanceTemplate.Parse(parser)) },
-            { "StreamedSound", (parser, context) => parser.AssetStore.StreamedSounds.Add(StreamedSound.Parse(parser)) },
-            { "StaticGameLOD", (parser, context) => parser.AssetStore.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
-            { "StrategicHUD", (parser, context) => StrategicHud.Parse(parser, parser.AssetStore.StrategicHud.Current) },
-            { "Terrain", (parser, context) => parser.AssetStore.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
-            { "Upgrade", (parser, context) => parser.AssetStore.Upgrades.Add(Upgrade.Parse(parser)) },
-            { "VictorySystemData", (parser, context) => parser.AssetStore.VictorySystemDatas.Add(VictorySystemData.Parse(parser)) },
-            { "Video", (parser, context) => parser.AssetStore.Videos.Add(Video.Parse(parser)) },
-            { "WaterSet", (parser, context) => parser.AssetStore.WaterSets.Add(WaterSet.Parse(parser)) },
-            { "WaterTextureList", (parser, context) => parser.AssetStore.WaterTextureLists.Add(WaterTextureList.Parse(parser)) },
-            { "WaterTransparency", (parser, context) => WaterTransparency.Parse(parser, parser.AssetStore.WaterTransparency.Current) },
-            { "Weapon", (parser, context) => parser.AssetStore.Weapons.Add(Weapon.Parse(parser)) },
-            { "Weather", (parser, context) => Weather.Parse(parser, parser.AssetStore.Weather.Current) },
-            { "WeatherData", (parser, context) => parser.AssetStore.WeatherDatas.Add(WeatherData.Parse(parser)) },
-            { "WindowTransition", (parser, context) => parser.AssetStore.WindowTransitions.Add(WindowTransition.Parse(parser)) },
-        };
-
         private static readonly Dictionary<string, Func<IniParser, IniToken>> MacroFunctions = new Dictionary<string, Func<IniParser, IniToken>>
         {
              { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
@@ -194,12 +39,13 @@ namespace OpenSage.Data.Ini
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
+        private readonly AssetStore _assetStore;
+
         // Used for some things that need temporary storage, like AliasConditionState.
         public object Temp { get; set; }
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
-        public AssetStore AssetStore { get; }
         public SageGame SageGame { get; }
 
         public IniParser(FileSystemEntry entry, AssetStore assetStore, SageGame sageGame, IniDataContext dataContext)
@@ -207,7 +53,7 @@ namespace OpenSage.Data.Ini
             _directory = Path.GetDirectoryName(entry.FilePath);
             _dataContext = dataContext;
             _fileSystem = entry.FileSystem;
-            AssetStore = assetStore;
+            _assetStore = assetStore;
             SageGame = sageGame;
 
             _tokenReader = CreateTokenReader(entry);
@@ -554,31 +400,31 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<CommandButton>(() => AssetStore.CommandButtons.GetByName(name));
+            return _assetStore.CommandButtons.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<CommandSet> ParseCommandSetReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<CommandSet>(() => AssetStore.CommandSets.GetByName(name));
+            return _assetStore.CommandSets.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Upgrade> ParseUpgradeReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<Upgrade>(() => AssetStore.Upgrades.GetByName(name));
+            return _assetStore.Upgrades.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<MappedImage> ParseMappedImageReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<MappedImage>(() => AssetStore.MappedImages.GetByName(name));
+            return _assetStore.MappedImages.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Locomotor> ParseLocomotorReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(name));
+            return _assetStore.Locomotors.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
@@ -588,8 +434,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                var localToken = token;
-                result.Add(new LazyAssetReference<Graphics.Animation.W3DAnimation>(() => AssetStore.ModelAnimations.GetByName(localToken.Value.Text)));
+                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Value.Text));
             }
 
             return result.ToArray();
@@ -602,8 +447,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                var localToken = token;
-                result.Add(new LazyAssetReference<Locomotor>(() => AssetStore.Locomotors.GetByName(localToken.Value.Text)));
+                result.Add(_assetStore.Locomotors.GetLazyAssetReferenceByName(token.Value.Text));
             }
 
             return result.ToArray();
@@ -612,13 +456,13 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<BaseAudioEventInfo> ParseAudioEventReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<BaseAudioEventInfo>(() => AssetStore.AudioEvents.GetByName(name));
+            return new LazyAssetReference<BaseAudioEventInfo>(() => _assetStore.AudioEvents.GetByName(name));
         }
 
         public LazyAssetReference<AudioFile> ParseAudioFileReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<AudioFile>(() => AssetStore.AudioFiles.GetByName(name));
+            return _assetStore.AudioFiles.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<AudioFileWithWeight>[] ParseAudioFileReferenceArray()
@@ -631,7 +475,7 @@ namespace OpenSage.Data.Ini
                 var localToken = token;
                 result.Add(new LazyAssetReference<AudioFileWithWeight>(() => new AudioFileWithWeight
                 {
-                    AudioFile = new LazyAssetReference<AudioFile>(() => AssetStore.AudioFiles.GetByName(localToken.Value.Text))
+                    AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(localToken.Value.Text)
                 }));
             }
 
@@ -641,26 +485,26 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<ObjectDefinition> ParseObjectReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<ObjectDefinition>(() => AssetStore.ObjectDefinitions.GetByName(name));
+            return _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<TextureAsset> ParseTextureReference()
         {
             var fileName = ParseFileName();
-            return new LazyAssetReference<TextureAsset>(() => AssetStore.Textures.GetByName(fileName));
+            return _assetStore.Textures.GetLazyAssetReferenceByName(fileName);
         }
 
         public LazyAssetReference<GuiTextureAsset> ParseGuiTextureReference()
         {
             var fileName = ParseFileName();
-            return new LazyAssetReference<GuiTextureAsset>(() => AssetStore.GuiTextures.GetByName(fileName));
+            return _assetStore.GuiTextures.GetLazyAssetReferenceByName(fileName);
         }
 
         public LazyAssetReference<Model> ParseModelReference()
         {
             var fileName = ParseFileName();
             return (!string.Equals(fileName, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? new LazyAssetReference<Model>(() => AssetStore.Models.GetByName(fileName))
+                ? _assetStore.Models.GetLazyAssetReferenceByName(fileName)
                 : null;
         }
 
@@ -668,7 +512,7 @@ namespace OpenSage.Data.Ini
         {
             var animationName = ParseAnimationName();
             return (!string.Equals(animationName, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? new LazyAssetReference<Graphics.Animation.W3DAnimation>(() => AssetStore.ModelAnimations.GetByName(animationName))
+                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(animationName)
                 : null;
         }
 
@@ -1033,13 +877,13 @@ namespace OpenSage.Data.Ini
 
                     var includePath = Path.Combine(_directory, includeFileName);
                     var includeEntry = _fileSystem.GetFile(includePath);
-                    var includeParser = new IniParser(includeEntry, AssetStore, SageGame, _dataContext);
+                    var includeParser = new IniParser(includeEntry, _assetStore, SageGame, _dataContext);
                     includeParser.ParseFile();
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))
                 {
                     _currentBlockOrFieldStack.Push(fieldName);
-                    blockParser(this, _dataContext);
+                    blockParser(this, _assetStore);
                     _currentBlockOrFieldStack.Pop();
                 }
                 else
