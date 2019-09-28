@@ -421,10 +421,10 @@ namespace OpenSage.Data.Ini
             return _assetStore.MappedImages.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<Locomotor> ParseLocomotorReference()
+        public LazyAssetReference<LocomotorTemplate> ParseLocomotorTemplateReference()
         {
             var name = ParseAssetReference();
-            return _assetStore.Locomotors.GetLazyAssetReferenceByName(name);
+            return _assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
@@ -440,14 +440,14 @@ namespace OpenSage.Data.Ini
             return result.ToArray();
         }
 
-        public LazyAssetReference<Locomotor>[] ParseLocomotorReferenceArray()
+        public LazyAssetReference<LocomotorTemplate>[] ParseLocomotorTemplateReferenceArray()
         {
-            var result = new List<LazyAssetReference<Locomotor>>();
+            var result = new List<LazyAssetReference<LocomotorTemplate>>();
 
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.Locomotors.GetLazyAssetReferenceByName(token.Value.Text));
+                result.Add(_assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(token.Value.Text));
             }
 
             return result.ToArray();

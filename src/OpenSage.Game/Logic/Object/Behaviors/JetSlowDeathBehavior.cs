@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     /// <summary>
-    /// Requires <see cref="Locomotor.LocomotorWorksWhenDead"/> = <code>true</code> on the object's
+    /// Requires <see cref="LocomotorTemplate.LocomotorWorksWhenDead"/> = <code>true</code> on the object's
     /// Locomotor to function correctly.
     /// </summary>
     public sealed class JetSlowDeathBehaviorModuleData : SlowDeathBehaviorModuleData

@@ -224,7 +224,7 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseLocomotorReferenceArray() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseLocomotorTemplateReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -783,7 +783,7 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSetCondition, LazyAssetReference<Locomotor>[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, LazyAssetReference<Locomotor>[]>();
+        public Dictionary<LocomotorSetCondition, LazyAssetReference<LocomotorTemplate>[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, LazyAssetReference<LocomotorTemplate>[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 

@@ -106,7 +106,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3 RallyPoint { get; set; }
 
-        private Locomotor CurrentLocomotor { get; set; }
+        private LocomotorTemplate CurrentLocomotorTemplate { get; set; }
 
         private Vector3? TargetPoint { get; set; }
         private float TargetAngle { get; set; }
@@ -280,7 +280,7 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            var deltaTime = gameTime.DeltaTime.Milliseconds / 1000.0f;
+            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
             // Check if the unit is currently moving
             if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoint.HasValue)
@@ -291,13 +291,13 @@ namespace OpenSage.Logic.Object
 
                 // This locomotor speed is distance/second
                 var delta = TargetPoint.Value - Transform.Translation;
-                var distance = CurrentLocomotor.Speed * deltaTime;
+                var distance = CurrentLocomotorTemplate.Speed * deltaTime;
                 if (delta.Length() < distance) distance = delta.Length();
 
                 var currentAngle = -Transform.EulerAngles.Z;
                 var angleDelta = TargetAngle - currentAngle;
 
-                var d = CurrentLocomotor.TurnRate * deltaTime * 0.1f;
+                var d = CurrentLocomotorTemplate.TurnRate * deltaTime * 0.1f;
                 var newAngle = currentAngle + (angleDelta * d);
                 //var newAngle = currentAngle + d;
 
@@ -423,7 +423,7 @@ namespace OpenSage.Logic.Object
                 var locomotor = Definition.Locomotors.First().Value[0].Value;
                 if (locomotor != null)
                 {
-                    CurrentLocomotor = locomotor;
+                    CurrentLocomotorTemplate = locomotor;
                 }
             }
         }

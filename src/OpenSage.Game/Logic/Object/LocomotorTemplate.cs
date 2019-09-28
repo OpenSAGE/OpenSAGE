@@ -3,16 +3,16 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Locomotor : BaseAsset
+    public sealed class LocomotorTemplate : BaseAsset
     {
-        internal static Locomotor Parse(IniParser parser)
+        internal static LocomotorTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                 (x, name) => x.SetNameAndInstanceId("Locomotor", name),
+                 (x, name) => x.SetNameAndInstanceId("LocomotorTemplate", name),
                  FieldParseTable);
         }
 
-        private static readonly IniParseTable<Locomotor> FieldParseTable = new IniParseTable<Locomotor>
+        private static readonly IniParseTable<LocomotorTemplate> FieldParseTable = new IniParseTable<LocomotorTemplate>
         {
             { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumBitArray<Surface>() },
             { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },

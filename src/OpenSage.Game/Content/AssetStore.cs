@@ -128,7 +128,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; }
         public ScopedAssetCollection<LivingWorldRegionEffects> LivingWorldRegionEffects { get; }
         public ScopedAssetCollection<LivingWorldSound> LivingWorldSounds { get; }
-        public ScopedAssetCollection<Locomotor> Locomotors { get; }
+        public ScopedAssetCollection<LocomotorTemplate> LocomotorTemplates { get; }
         public ScopedAssetCollection<LodPreset> LodPresets { get; }
         public ScopedAssetCollection<MapCache> MapCaches { get; }
         public ScopedAssetCollection<MappedImage> MappedImages { get; }
@@ -303,7 +303,7 @@ namespace OpenSage.Content
             AddAssetCollection(LivingWorldRegionCampaigns = new ScopedAssetCollection<LivingWorldRegionCampaign>(this));
             AddAssetCollection(LivingWorldRegionEffects = new ScopedAssetCollection<LivingWorldRegionEffects>(this));
             AddAssetCollection(LivingWorldSounds = new ScopedAssetCollection<LivingWorldSound>(this));
-            AddAssetCollection(Locomotors = new ScopedAssetCollection<Locomotor>(this));
+            AddAssetCollection(LocomotorTemplates = new ScopedAssetCollection<LocomotorTemplate>(this));
             AddAssetCollection(LodPresets = new ScopedAssetCollection<LodPreset>(this));
             AddAssetCollection(MapCaches = new ScopedAssetCollection<MapCache>(this));
             AddAssetCollection(MappedImages = new ScopedAssetCollection<MappedImage>(this));
