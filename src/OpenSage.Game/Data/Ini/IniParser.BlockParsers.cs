@@ -111,7 +111,7 @@ namespace OpenSage.Data.Ini
             { "LivingWorldRegionEffects", (parser, assetStore) => assetStore.LivingWorldRegionEffects.Add(LivingWorldRegionEffects.Parse(parser)) },
             { "LivingWorldSound", (parser, assetStore) => assetStore.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, assetStore) => assetStore.Subsystems.Add(LoadSubsystem.Parse(parser)) },
-            { "Locomotor", (parser, assetStore) => assetStore.Locomotors.Add(Locomotor.Parse(parser)) },
+            { "Locomotor", (parser, assetStore) => assetStore.LocomotorTemplates.Add(LocomotorTemplate.Parse(parser)) },
             { "LODPreset", (parser, assetStore) => assetStore.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, assetStore) => assetStore.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, assetStore) => assetStore.MappedImages.Add(MappedImage.Parse(parser)) },
