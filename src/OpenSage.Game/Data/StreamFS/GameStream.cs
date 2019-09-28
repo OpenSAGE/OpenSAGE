@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using OpenSage.Data.StreamFS.AssetReaders;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -67,7 +66,7 @@ namespace OpenSage.Data.StreamFS
                                             throw new InvalidDataException();
                                         }
 
-                                        asset.InstanceData = assetReader.Parse(asset, instanceDataReader, imports, assetParseContext);
+                                        asset.InstanceData = assetReader(asset, instanceDataReader, imports, assetParseContext);
 
                                         var assetCollection = assetParseContext.AssetStore.GetAssetCollection(asset.Header.TypeId);
                                         if (assetCollection != null) // TODO: Eventually this shouldn't be null.

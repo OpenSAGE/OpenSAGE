@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.StreamFS;
@@ -12,7 +13,14 @@ namespace OpenSage.Graphics
 {
     partial class ModelMesh
     {
-        internal ModelMesh(W3xMesh w3xMesh, Asset asset, AssetLoadContext loadContext)
+        internal static ModelMesh ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports, AssetParseContext context)
+        {
+            var w3xMesh = W3xMesh.Parse(reader, imports, asset.Header);
+
+            return new ModelMesh(w3xMesh, asset, context.AssetStore.LoadContext);
+        }
+
+        private ModelMesh(W3xMesh w3xMesh, Asset asset, AssetLoadContext loadContext)
         {
             SetNameAndInstanceId(asset);
 
