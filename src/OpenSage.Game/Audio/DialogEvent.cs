@@ -27,7 +27,7 @@ namespace OpenSage.Audio
 
             ParseAsset(reader, result);
 
-            result.File = new LazyAssetReference<AudioFile>(imports.GetImportedData<AudioFile>(reader));
+            result.File = imports.GetImportedData<AudioFile>(reader);
 
             return result;
         }

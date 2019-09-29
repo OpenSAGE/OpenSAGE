@@ -18,7 +18,7 @@ namespace OpenSage.Audio
             ParseAsset(reader, result, imports);
 
             result.AudioType = reader.ReadUInt32AsEnum<ThingTemplateObjectSpecificVoiceType>();
-            result.TargetObject = new LazyAssetReference<ObjectDefinition>(imports.GetImportedData<ObjectDefinition>(reader));
+            result.TargetObject = imports.GetImportedData<ObjectDefinition>(reader);
 
             return result;
         }

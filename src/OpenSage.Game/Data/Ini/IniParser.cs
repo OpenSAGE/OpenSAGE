@@ -465,18 +465,17 @@ namespace OpenSage.Data.Ini
             return _assetStore.AudioFiles.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<AudioFileWithWeight>[] ParseAudioFileReferenceArray()
+        public AudioFileWithWeight[] ParseAudioFileWithWeightArray()
         {
-            var result = new List<LazyAssetReference<AudioFileWithWeight>>();
+            var result = new List<AudioFileWithWeight>();
 
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                var localToken = token;
-                result.Add(new LazyAssetReference<AudioFileWithWeight>(() => new AudioFileWithWeight
+                result.Add(new AudioFileWithWeight
                 {
-                    AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(localToken.Value.Text)
-                }));
+                    AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
+                });
             }
 
             return result.ToArray();

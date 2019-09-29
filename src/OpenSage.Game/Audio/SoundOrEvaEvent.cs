@@ -13,7 +13,7 @@ namespace OpenSage.Audio
         private protected static void ParseAsset<T>(BinaryReader reader, T asset, AssetImportCollection imports)
             where T : SoundOrEvaEvent
         {
-            asset.Sound = reader.ReadOptionalClassTypedValueAtOffset(() => new LazyAssetReference<BaseAudioEventInfo>(imports.GetImportedData<BaseAudioEventInfo>(reader)));
+            asset.Sound = reader.ReadOptionalClassTypedValueAtOffset(() => imports.GetImportedData<BaseAudioEventInfo>(reader));
             asset.EvaEvent = reader.ReadOptionalClassTypedValueAtOffset(() => reader.ReadUInt32PrefixedAsciiString());
         }
     }

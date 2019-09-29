@@ -17,7 +17,7 @@ namespace OpenSage.Data.W3x
             {
                 BoneIndex = reader.ReadUInt32(),
                 Name = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                RenderObject = imports.GetImportedData<ModelMesh>(reader)
+                RenderObject = imports.GetImportedData<ModelMesh>(reader).Value
             };
         }
     }

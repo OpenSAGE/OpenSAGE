@@ -10,7 +10,7 @@ namespace OpenSage.Graphics
     {
         internal static Model ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
-            var hierarchy = imports.GetImportedData<ModelBoneHierarchy>(reader);
+            var hierarchy = imports.GetImportedData<ModelBoneHierarchy>(reader).Value;
             var subObjects = reader.ReadArrayAtOffset(() => W3xSubObject.Parse(reader, imports));
 
             var modelSubObjects = new ModelSubObject[subObjects.Length];
