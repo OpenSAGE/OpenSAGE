@@ -113,6 +113,8 @@ namespace OpenSage.Logic.Object
 
         public bool Destroyed { get; set; }
 
+        public float Speed { get; set; }
+
         public GameObjectCollection Parent { get; private set; }
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
@@ -287,6 +289,7 @@ namespace OpenSage.Logic.Object
                 {
                     TargetPoint = null;
                     ClearModelConditionFlags();
+                    Speed = 0;
                 }
             }
 
@@ -305,7 +308,7 @@ namespace OpenSage.Logic.Object
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {
-                drawModule.Update(gameTime);
+                drawModule.Update(gameTime, this);
             }
 
             // TODO: Make sure we've processed everything that might update

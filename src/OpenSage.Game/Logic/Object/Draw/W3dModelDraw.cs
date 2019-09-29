@@ -13,7 +13,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class W3dModelDraw : DrawModule
+    public class W3dModelDraw : DrawModule
     {
         private readonly W3dModelDrawModuleData _data;
         private readonly AssetLoadContext _loadContext;
@@ -28,6 +28,8 @@ namespace OpenSage.Logic.Object
         private AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
+
+        protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
@@ -274,7 +276,7 @@ namespace OpenSage.Logic.Object
                : null;
         }
 
-        internal override void Update(in TimeInterval gameTime)
+        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
         {
             _activeModelDrawConditionState?.Update(gameTime);
         }

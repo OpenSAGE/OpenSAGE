@@ -35,6 +35,9 @@ namespace OpenSage.Logic.Object
                 distance = delta.Length();
             }
 
+            // TODO: Do this properly. Needs to be negative for reverse?
+            _gameObject.Speed = GetLocomotorValue(l => l.Speed);
+
             //var currentAngle = -transform.EulerAngles.Z;
             //var angleDelta = TargetAngle - currentAngle;
 
