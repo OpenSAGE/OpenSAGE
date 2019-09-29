@@ -224,7 +224,9 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseLocomotorTemplateReferenceArray() },
+            { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetCondition>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
+            { "LocomotorSet", (parser, x) => x.LocomotorSets.Add(LocomotorSet.Parse(parser)) },
+
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -271,7 +273,6 @@ namespace OpenSage.Logic.Object
             { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
 
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
-            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
             { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParsePercentage() },
             { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParsePercentage() },
@@ -783,7 +784,10 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSetCondition, LazyAssetReference<LocomotorTemplate>[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, LazyAssetReference<LocomotorTemplate>[]>();
+
+        [AddedIn(SageGame.Bfme)]
+        public List<LocomotorSet> LocomotorSets { get; } = new List<LocomotorSet>();
+
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 
@@ -851,9 +855,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float ThreatLevel { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public LocomotorSet LocomotorSet { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public ClientBehaviorModuleData ClientBehavior { get; private set; }

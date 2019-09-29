@@ -6,7 +6,6 @@ using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
@@ -106,7 +105,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3 RallyPoint { get; set; }
 
-        private LocomotorTemplate CurrentLocomotorTemplate { get; set; }
+        private LocomotorSet CurrentLocomotorSet { get; set; }
 
         private Vector3? TargetPoint { get; set; }
         private float TargetAngle { get; set; }
@@ -278,6 +277,12 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        // TODO: Move this to Locomotor
+        private static float GetLocomotorValue(LocomotorSet locomotorSet, Func<LocomotorTemplate, float> getValue)
+        {
+            return (locomotorSet.Speed / 100.0f) * getValue(locomotorSet.Locomotor.Value);
+        }
+
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -291,13 +296,13 @@ namespace OpenSage.Logic.Object
 
                 // This locomotor speed is distance/second
                 var delta = TargetPoint.Value - Transform.Translation;
-                var distance = CurrentLocomotorTemplate.Speed * deltaTime;
+                var distance = GetLocomotorValue(CurrentLocomotorSet, l => l.Speed) * deltaTime;
                 if (delta.Length() < distance) distance = delta.Length();
 
                 var currentAngle = -Transform.EulerAngles.Z;
                 var angleDelta = TargetAngle - currentAngle;
 
-                var d = CurrentLocomotorTemplate.TurnRate * deltaTime * 0.1f;
+                var d = GetLocomotorValue(CurrentLocomotorSet, l => l.TurnRate) * deltaTime * 0.1f;
                 var newAngle = currentAngle + (angleDelta * d);
                 //var newAngle = currentAngle + d;
 
@@ -417,15 +422,7 @@ namespace OpenSage.Logic.Object
 
         private void SetLocomotor()
         {
-            var locoDefs = Definition.Locomotors;
-            if (locoDefs.Count > 0)
-            {
-                var locomotor = Definition.Locomotors.First().Value[0].Value;
-                if (locomotor != null)
-                {
-                    CurrentLocomotorTemplate = locomotor;
-                }
-            }
+            CurrentLocomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
         }
     }
 }
