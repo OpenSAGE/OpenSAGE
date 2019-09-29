@@ -26,7 +26,7 @@ namespace OpenSage.Launcher
             [Option('g', "game", Default = SageGame.CncGenerals, Required = false, HelpText = "Chooses which game to start.")]
             public SageGame Game { get; set; }
 
-            [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full pathf.")]
+            [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.")]
             public string Map { get; set; }
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
