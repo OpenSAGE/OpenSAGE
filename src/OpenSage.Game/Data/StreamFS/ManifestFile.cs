@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using OpenSage.Content;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.StreamFS
@@ -143,7 +144,7 @@ namespace OpenSage.Data.StreamFS
         {
         }
 
-        public T GetImportedData<T>(BinaryReader reader)
+        public LazyAssetReference<T> GetImportedData<T>(BinaryReader reader)
             where T : class
         {
             var position = (uint) reader.BaseStream.Position;
@@ -153,7 +154,7 @@ namespace OpenSage.Data.StreamFS
 
             if (TryGetValue(position, out var import))
             {
-                return (T) import.ImportedAsset?.InstanceData;
+                return new LazyAssetReference<T>((T) import.ImportedAsset?.InstanceData);
             }
 
             return null;

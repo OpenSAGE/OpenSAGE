@@ -18,9 +18,9 @@ namespace OpenSage.Audio
         private static new readonly IniParseTable<AudioEvent> FieldParseTable = BaseSingleSound.FieldParseTable
             .Concat(new IniParseTable<AudioEvent>
             {
-                { "Sounds", (parser, x) => x.Sounds = parser.ParseAudioFileReferenceArray() },
-                { "Attack", (parser, x) => x.Attack = parser.ParseAudioFileReferenceArray() },
-                { "Decay", (parser, x) => x.Decay = parser.ParseAudioFileReferenceArray() },
+                { "Sounds", (parser, x) => x.Sounds = parser.ParseAudioFileWithWeightArray() },
+                { "Attack", (parser, x) => x.Attack = parser.ParseAudioFileWithWeightArray() },
+                { "Decay", (parser, x) => x.Decay = parser.ParseAudioFileWithWeightArray() },
                 { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
             });
 
@@ -31,16 +31,16 @@ namespace OpenSage.Audio
 
             ParseAsset(reader, result);
 
-            result.Attack = reader.ReadArrayAtOffset(() => new LazyAssetReference<AudioFileWithWeight>(AudioFileWithWeight.ParseAsset(reader, imports)));
-            result.Sounds = reader.ReadArrayAtOffset(() => new LazyAssetReference<AudioFileWithWeight>(AudioFileWithWeight.ParseAsset(reader, imports)));
-            result.Decay = reader.ReadArrayAtOffset(() => new LazyAssetReference<AudioFileWithWeight>(AudioFileWithWeight.ParseAsset(reader, imports)));
+            result.Attack = reader.ReadArrayAtOffset(() => AudioFileWithWeight.ParseAsset(reader, imports));
+            result.Sounds = reader.ReadArrayAtOffset(() => AudioFileWithWeight.ParseAsset(reader, imports));
+            result.Decay = reader.ReadArrayAtOffset(() => AudioFileWithWeight.ParseAsset(reader, imports));
 
             return result;
         }
 
-        public LazyAssetReference<AudioFileWithWeight>[] Sounds { get; private set; }
-        public LazyAssetReference<AudioFileWithWeight>[] Attack { get; private set; }
-        public LazyAssetReference<AudioFileWithWeight>[] Decay { get; private set; }
+        public AudioFileWithWeight[] Sounds { get; private set; }
+        public AudioFileWithWeight[] Attack { get; private set; }
+        public AudioFileWithWeight[] Decay { get; private set; }
         public int LoopCount { get; private set; }
     }
 
@@ -50,7 +50,7 @@ namespace OpenSage.Audio
         {
             return new AudioFileWithWeight
             {
-                AudioFile = new LazyAssetReference<AudioFile>(imports.GetImportedData<AudioFile>(reader)),
+                AudioFile = imports.GetImportedData<AudioFile>(reader),
                 Weight = reader.ReadUInt32()
             };
         }
