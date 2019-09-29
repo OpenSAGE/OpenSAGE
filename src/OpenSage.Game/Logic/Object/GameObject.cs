@@ -105,10 +105,9 @@ namespace OpenSage.Logic.Object
 
         public Vector3 RallyPoint { get; set; }
 
-        private LocomotorSet CurrentLocomotorSet { get; set; }
+        private Locomotor CurrentLocomotor { get; set; }
 
         private Vector3? TargetPoint { get; set; }
-        private float TargetAngle { get; set; }
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -244,8 +243,6 @@ namespace OpenSage.Logic.Object
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
                 TargetPoint = targetPos;
-                var delta = TargetPoint.Value - Transform.Translation;
-                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);
             }
 
             ModelConditionFlags.SetAll(false);
@@ -277,12 +274,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        // TODO: Move this to Locomotor
-        private static float GetLocomotorValue(LocomotorSet locomotorSet, Func<LocomotorTemplate, float> getValue)
-        {
-            return (locomotorSet.Speed / 100.0f) * getValue(locomotorSet.Locomotor.Value);
-        }
-
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -290,37 +281,7 @@ namespace OpenSage.Logic.Object
             // Check if the unit is currently moving
             if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoint.HasValue)
             {
-                var x = Transform.Translation.X;
-                var y = Transform.Translation.Y;
-                var trans = Transform.Translation;
-
-                // This locomotor speed is distance/second
-                var delta = TargetPoint.Value - Transform.Translation;
-                var distance = GetLocomotorValue(CurrentLocomotorSet, l => l.Speed) * deltaTime;
-                if (delta.Length() < distance) distance = delta.Length();
-
-                var currentAngle = -Transform.EulerAngles.Z;
-                var angleDelta = TargetAngle - currentAngle;
-
-                var d = GetLocomotorValue(CurrentLocomotorSet, l => l.TurnRate) * deltaTime * 0.1f;
-                var newAngle = currentAngle + (angleDelta * d);
-                //var newAngle = currentAngle + d;
-
-                if (Math.Abs(angleDelta) > 0.1f)
-                {
-                    var pitch = 0.0f;
-                    if (Definition.KindOf.Get(ObjectKinds.Vehicle))
-                    {
-                        var normal = heightMap?.GetNormal(x, y) ?? new Vector3();
-                        pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
-                    }
-                    Transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
-                }
-
-                var direction = Vector3.Normalize(delta);
-                trans += direction * distance;
-                trans.Z = heightMap.GetHeight(x, y);
-                Transform.Translation = trans;
+                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoint.Value, heightMap);
 
                 if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
                 {
@@ -422,7 +383,10 @@ namespace OpenSage.Logic.Object
 
         private void SetLocomotor()
         {
-            CurrentLocomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
+            var locomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
+            CurrentLocomotor = (locomotorSet != null)
+                ? new Locomotor(this, locomotorSet)
+                : null;
         }
     }
 }
