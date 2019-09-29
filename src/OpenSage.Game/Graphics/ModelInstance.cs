@@ -141,7 +141,11 @@ namespace OpenSage.Graphics
                 }
             }
 
-            if (_relativeBoneTransformsDirty)
+            // TODO: Figure out a way to keep this dirty tracking for performance,
+            // but also keep ad-hoc bone tramsforms like the one in W3DTruckDraw.
+            // Probably need to store the dirty state in ModelBoneInstances.
+
+            //if (_relativeBoneTransformsDirty)
             {
                 // Calculate (animated) bone transforms relative to root bone.
                 for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
