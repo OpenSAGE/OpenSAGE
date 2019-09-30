@@ -27,8 +27,6 @@ namespace OpenSage.Graphics
 
         private Matrix4x4 _worldMatrix;
 
-        private bool _relativeBoneTransformsDirty;
-
         /// <summary>
         /// Calculated bone visibilities. Child bones will be hidden
         /// if their parent bones are hidden.
@@ -96,8 +94,6 @@ namespace OpenSage.Graphics
 
             AnimationInstances = new List<AnimationInstance>();
 
-            _relativeBoneTransformsDirty = true;
-
             BeforeRenderDelegates = new BeforeRenderDelegate[model.SubObjects.Length][];
             BeforeRenderDelegatesDepth = new BeforeRenderDelegate[model.SubObjects.Length][];
 
@@ -135,17 +131,21 @@ namespace OpenSage.Graphics
             // Update animations.
             foreach (var animationInstance in AnimationInstances)
             {
-                if (animationInstance.Update(gameTime))
+                animationInstance.Update(gameTime);
+            }
+
+            // Check if any model bone transform has changed.
+            var isAnyModelBoneInstanceDirty = false;
+            foreach (var modelBoneInstance in ModelBoneInstances)
+            {
+                if (modelBoneInstance.IsDirty)
                 {
-                    _relativeBoneTransformsDirty = true;
+                    isAnyModelBoneInstanceDirty = true;
+                    break;
                 }
             }
 
-            // TODO: Figure out a way to keep this dirty tracking for performance,
-            // but also keep ad-hoc bone tramsforms like the one in W3DTruckDraw.
-            // Probably need to store the dirty state in ModelBoneInstances.
-
-            //if (_relativeBoneTransformsDirty)
+            if (isAnyModelBoneInstanceDirty)
             {
                 // Calculate (animated) bone transforms relative to root bone.
                 for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
@@ -168,7 +168,10 @@ namespace OpenSage.Graphics
                 }
             }
 
-            _relativeBoneTransformsDirty = false;
+            foreach (var modelBoneInstance in ModelBoneInstances)
+            {
+                modelBoneInstance.ResetDirty();
+            }
 
             if (!_hasSkinnedMeshes)
             {
