@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -27,16 +28,36 @@ namespace OpenSage.Logic.Object
             var y = transform.Translation.Y;
             var trans = transform.Translation;
 
-            // This locomotor speed is distance/second
+            var oldSpeed = _gameObject.Speed;
+
+            // When we get to minimum braking distance, start braking.
             var delta = targetPoint - transform.Translation;
-            var distance = GetLocomotorValue(l => l.Speed) * deltaTime;
-            if (delta.Length() < distance)
+            var distanceRemaining = delta.Length();
+
+            var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
+
+            // Are we braking or accelerating?
+            var accelerating = distanceRemaining > minimumBrakingDistance;
+            var currentAcceleration = accelerating
+                ? GetLocomotorValue(x => x.Acceleration)
+                : -GetLocomotorValue(x => x.Braking);
+
+            var deltaSpeed = currentAcceleration * deltaTime;
+
+            var newSpeed = oldSpeed + deltaSpeed;
+            newSpeed = MathUtility.Clamp(newSpeed, 0.0f, GetLocomotorValue(x => x.Speed));
+
+            _gameObject.Speed = newSpeed;
+
+            // This locomotor speed is distance/second
+            var distance = newSpeed * deltaTime;
+            if (distance > distanceRemaining)
             {
-                distance = delta.Length();
+                distance = distanceRemaining;
             }
 
             // TODO: Do this properly. Needs to be negative for reverse?
-            _gameObject.Speed = GetLocomotorValue(l => l.Speed);
+            //_gameObject.Speed = GetLocomotorValue(l => l.Speed);
 
             //var currentAngle = -transform.EulerAngles.Z;
             //var angleDelta = TargetAngle - currentAngle;
