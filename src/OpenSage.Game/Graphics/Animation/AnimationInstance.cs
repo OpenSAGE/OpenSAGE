@@ -61,15 +61,14 @@ namespace OpenSage.Graphics.Animation
             }
         }
 
-        internal bool Update(in TimeInterval gameTime)
+        internal void Update(in TimeInterval gameTime)
         {
             if (!_playing)
             {
-                return false;
+                return;
             }
 
             UpdateBoneTransforms(gameTime);
-            return true;
         }
 
         private void UpdateBoneTransforms(in TimeInterval gameTime)
