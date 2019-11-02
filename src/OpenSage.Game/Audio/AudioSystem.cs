@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Data;
+using OpenSage.Data.IO;
 using SharpAudio;
 using SharpAudio.Util;
 using SharpAudio.Util.Wave;
@@ -30,31 +30,31 @@ namespace OpenSage.Audio
             base.Dispose(disposeManagedResources);
             _sources.Clear();
             _cached.Clear();
-          
+
             _engine.Dispose();
         }
 
         /// <summary>
         /// Opens a cached audio file. Usually used for small audio files (.wav)
         /// </summary>
-        public AudioSource GetSound(FileSystemEntry entry, bool loop = false)
+        public AudioSource GetSound(string url, bool loop = false)
         {
             AudioBuffer buffer;
 
-            if (!_cached.ContainsKey(entry.FilePath))
+            if (!_cached.ContainsKey(url))
             {
-                var decoder = new WaveDecoder(entry.Open());
+                var decoder = new WaveDecoder(FileSystem.OpenStream(url, FileMode.Open));
                 byte[] data = null;
                 decoder.GetSamples(ref data);
 
                 buffer = AddDisposable(_engine.CreateBuffer());
                 buffer.BufferData(data, decoder.Format);
-     
-                _cached[entry.FilePath] = buffer;
+
+                _cached[url] = buffer;
             }
             else
             {
-                buffer = _cached[entry.FilePath];
+                buffer = _cached[url];
             }
 
             var source = AddDisposable(_engine.CreateSource());
@@ -66,7 +66,7 @@ namespace OpenSage.Audio
             return source;
         }
 
-        private FileSystemEntry ResolveAudioEventEntry(AudioEvent ev)
+        private string ResolveAudioEventEntry(AudioEvent ev)
         {
             if (ev.Sounds.Length == 0)
             {
@@ -76,15 +76,15 @@ namespace OpenSage.Audio
             // TOOD: Check control flag before choosing at random.
             var sound = ev.Sounds[_random.Next(ev.Sounds.Length)].Value;
             var audioFile = sound.AudioFile.Value;
-            return audioFile.Entry;
+            return audioFile.Url;
         }
 
         /// <summary>
         /// Open a a music/audio file that gets streamed.
         /// </summary>
-        public SoundStream GetStream(FileSystemEntry entry)
+        public SoundStream GetStream(string url)
         {
-            return new SoundStream(entry.Open(), _engine);
+            return new SoundStream(FileSystem.OpenStream(url, FileMode.Open), _engine);
         }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

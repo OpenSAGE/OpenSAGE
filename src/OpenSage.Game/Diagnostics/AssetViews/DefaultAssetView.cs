@@ -104,7 +104,7 @@ namespace OpenSage.Diagnostics.AssetViews
             ImGui.NextColumn();
             ImGui.AlignTextToFramePadding();
 
-            if (propertyValue is AudioFile audioFile && audioFile.Entry != null)
+            if (propertyValue is AudioFile audioFile && audioFile.Url != null)
             {
                 if (ImGui.Button("Play audio"))
                 {

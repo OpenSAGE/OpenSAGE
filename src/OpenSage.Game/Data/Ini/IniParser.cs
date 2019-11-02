@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Gui;
@@ -35,7 +36,6 @@ namespace OpenSage.Data.Ini
 
         private readonly string _directory;
         private readonly IniDataContext _dataContext;
-        private readonly FileSystem _fileSystem;
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
@@ -48,26 +48,25 @@ namespace OpenSage.Data.Ini
 
         public SageGame SageGame { get; }
 
-        public IniParser(FileSystemEntry entry, AssetStore assetStore, SageGame sageGame, IniDataContext dataContext)
+        public IniParser(string url, AssetStore assetStore, SageGame sageGame, IniDataContext dataContext)
         {
-            _directory = Path.GetDirectoryName(entry.FilePath);
+            _directory = FileSystem.GetParentFolder(url);
             _dataContext = dataContext;
-            _fileSystem = entry.FileSystem;
             _assetStore = assetStore;
             SageGame = sageGame;
 
-            _tokenReader = CreateTokenReader(entry);
+            _tokenReader = CreateTokenReader(url);
 
             _currentBlockOrFieldStack = new Stack<string>();
         }
 
-        private TokenReader CreateTokenReader(FileSystemEntry entry)
+        private TokenReader CreateTokenReader(string url)
         {
             string source;
 
-            if (entry != null)
+            if (FileSystem.FileExists(url))
             {
-                using (var stream = entry.Open())
+                using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
                 using (var reader = new StreamReader(stream, Encoding.ASCII))
                 {
                     source = reader.ReadToEnd();
@@ -78,7 +77,7 @@ namespace OpenSage.Data.Ini
                 source = "";
             }
 
-            return new TokenReader(source, entry.FullFilePath);
+            return new TokenReader(source, url);
         }
 
         public void GoToNextLine() => _tokenReader.GoToNextLine();
@@ -822,9 +821,7 @@ namespace OpenSage.Data.Ini
                 includeFileName = includeFileName.Remove(0, 1);
             }
 
-            var path = Path.Combine(directory, includeFileName);
-            var includeEntry = _fileSystem.GetFile(path);
-            var tokenReader = CreateTokenReader(includeEntry);
+            var tokenReader = CreateTokenReader(FileSystem.Combine(directory, includeFileName));
 
             var original = _tokenReader;
             bool reachedEndOfBlock;
@@ -875,9 +872,7 @@ namespace OpenSage.Data.Ini
                         includeFileName = includeFileName.Remove(0, 1);
                     }
 
-                    var includePath = Path.Combine(_directory, includeFileName);
-                    var includeEntry = _fileSystem.GetFile(includePath);
-                    var includeParser = new IniParser(includeEntry, _assetStore, SageGame, _dataContext);
+                    var includeParser = new IniParser(FileSystem.Combine(_directory, includeFileName), _assetStore, SageGame, _dataContext);
                     includeParser.ParseFile();
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))

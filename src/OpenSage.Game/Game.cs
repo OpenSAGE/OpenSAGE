@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Data.Apt;
+using OpenSage.Data.IO;
+using OpenSage.Data.Map;
+using OpenSage.Data.Rep;
+using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -18,14 +27,6 @@ using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
-using OpenSage.Data.Rep;
-using OpenSage.Data.Map;
-using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Data.Wnd;
-using OpenSage.Gui.Apt;
-using OpenSage.Data.Apt;
-using OpenSage.Graphics.Shaders;
-using OpenSage.Gui;
 
 namespace OpenSage
 {
@@ -35,7 +36,6 @@ namespace OpenSage
         private const double LogicUpdateInterval = 1000.0 / 5.0;
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
-        private readonly FileSystem _fileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
@@ -97,9 +97,9 @@ namespace OpenSage
         /// </summary>
         public bool IsRunning { get; }
 
-        public void LoadReplayFile(FileSystemEntry replayFileEntry)
+        public void LoadReplayFile(string url)
         {
-            var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+            var replayFile = ReplayFile.FromUrl($"/replays/{url}");
 
             // TODO: This probably isn't right.
             var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
@@ -359,7 +359,7 @@ namespace OpenSage
 
                 Definition = installation.Game;
 
-                _fileSystem = AddDisposable(installation.CreateFileSystem());
+                AddDisposable(installation.CreateFileSystem());
 
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
@@ -376,8 +376,7 @@ namespace OpenSage
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
 
                 AssetStore = new AssetStore(
-                    _fileSystem,
-                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
+                    LanguageUtility.ReadCurrentLanguage(Definition, "/game"),
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
@@ -388,7 +387,6 @@ namespace OpenSage
 
                 ContentManager = AddDisposable(new ContentManager(
                     this,
-                    _fileSystem,
                     GraphicsDevice,
                     SageGame));
 
@@ -484,15 +482,15 @@ namespace OpenSage
                     case SageGame.Cnc3:
                     case SageGame.Cnc3KanesWrath:
                         // TODO: Get version number dynamically.
-                        cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
+                        cursorDirectory = FileSystem.Combine("/game", "RetailExe", "1.0", "Data", "Cursors");
                         break;
 
                     default:
-                        cursorDirectory = Path.Combine("Data", "Cursors");
+                        cursorDirectory = FileSystem.Combine("/game", "Data", "Cursors");
                         break;
                 }
 
-                var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
+                var cursorFilePath = FileSystem.Combine("/game", cursorDirectory, cursorFileName);
 
                 _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorFilePath));
             }
@@ -520,26 +518,25 @@ namespace OpenSage
 
         internal Scene3D LoadMap(string mapPath)
         {
-            var entry = ContentManager.FileSystem.GetFile(mapPath);
-            var mapFile = MapFile.FromFileSystemEntry(entry);
+            string url = FileSystem.Combine("/game", mapPath);
+            var mapFile = MapFile.FromUrl(url);
             return new Scene3D(this, mapFile);
         }
 
         public Window LoadWindow(string wndFileName)
         {
-            var entry = ContentManager.FileSystem.GetFile(Path.Combine("Window", wndFileName));
-            if (entry == null)
+            string url = FileSystem.Combine("/game/window", wndFileName);
+            if (!FileSystem.FileExists(url))
             {
                 throw new Exception($"Window file {wndFileName} was not found.");
             }
-            var wndFile = WndFile.FromFileSystemEntry(entry, AssetStore);
+            var wndFile = WndFile.FromUrl(url, AssetStore);
             return new Window(wndFile, this, _wndCallbackResolver);
         }
 
         public AptWindow LoadAptWindow(string aptFileName)
         {
-            var entry = ContentManager.FileSystem.GetFile(aptFileName);
-            var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFile.FromUrl(aptFileName);
             return new AptWindow(this, ContentManager, aptFile);
         }
 
@@ -632,7 +629,7 @@ namespace OpenSage
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
 
-                        players[i].SelectUnits(new [] { startingBuilding });
+                        players[i].SelectUnits(new[] { startingBuilding });
                     }
 
                     if (players[i].IsHuman)
@@ -873,10 +870,9 @@ namespace OpenSage
                     launcherImagePath = ContentManager.Language + launcherImagePath;
                 }
 
-                var launcherImageEntry = _fileSystem.GetFile(launcherImagePath);
-                if (launcherImageEntry != null)
+                if (FileSystem.FileExists(launcherImagePath))
                 {
-                    return AddDisposable(new ImageSharpTexture(launcherImageEntry.Open()).CreateDeviceTexture(
+                    return AddDisposable(new ImageSharpTexture(FileSystem.OpenStream(launcherImagePath, Data.IO.FileMode.Open)).CreateDeviceTexture(
                         GraphicsDevice, GraphicsDevice.ResourceFactory));
                 }
             }

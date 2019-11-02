@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenSage.Data;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Animation;
 
@@ -25,17 +25,17 @@ namespace OpenSage.Content.Loaders
             }
 
             // Find it in the file system.
-            FileSystemEntry entry = null;
+            string url = null;
             foreach (var path in _pathResolver.GetPaths(splitName[1], context.Language))
             {
-                entry = context.FileSystem.GetFile(path);
-                if (entry != null)
+                if (FileSystem.FileExists(path))
                 {
+                    url = path;
                     break;
                 }
             }
 
-            if(entry == null)
+            if (url is null)
             {
                 logger.Warn("Failed to load animation: " + key);
                 return null;
@@ -43,9 +43,9 @@ namespace OpenSage.Content.Loaders
 
             // Load animation.
             W3dFile w3dFile;
-            using (var entryStream = entry.Open())
+            using (var entryStream = FileSystem.OpenStream(url, FileMode.Open))
             {
-                w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
+                w3dFile = W3dFile.FromStream(entryStream, url);
             }
             var animation = W3DAnimation.FromW3dFile(w3dFile);
             if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))

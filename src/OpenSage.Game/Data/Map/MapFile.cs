@@ -2,9 +2,10 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using OpenSage.FileFormats.RefPack;
+using OpenSage.Data.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.FileFormats.RefPack;
 
 namespace OpenSage.Data.Map
 {
@@ -157,9 +158,9 @@ namespace OpenSage.Data.Map
             }
         }
 
-        public static MapFile FromFileSystemEntry(FileSystemEntry entry)
+        public static MapFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             {
                 return FromStream(stream);
             }

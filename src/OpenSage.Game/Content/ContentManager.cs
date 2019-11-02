@@ -1,8 +1,7 @@
 ﻿using OpenSage.Content.Translation;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.IO;
 using OpenSage.Diagnostics;
-using OpenSage.Gui.Wnd.Images;
 using OpenSage.Utilities;
 using Veldrid;
 
@@ -14,13 +13,9 @@ namespace OpenSage.Content
 
         public ISubsystemLoader SubsystemLoader { get; }
 
-        private readonly FileSystem _fileSystem;
-
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
-
-        public FileSystem FileSystem => _fileSystem;
 
         public IniDataContext IniDataContext { get; }
 
@@ -32,24 +27,22 @@ namespace OpenSage.Content
 
         public ContentManager(
             Game game,
-            FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
             SageGame sageGame)
         {
             using (GameTrace.TraceDurationEvent("ContentManager()"))
             {
                 _game = game;
-                _fileSystem = fileSystem;
 
                 GraphicsDevice = graphicsDevice;
 
                 SageGame = sageGame;
 
-                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, "/game/");
 
                 IniDataContext = new IniDataContext();
 
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, game, this);
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, game, this);
 
                 switch (sageGame)
                 {
@@ -83,7 +76,7 @@ namespace OpenSage.Content
                 }
 
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
+                Translation.TranslationManager.LoadGameStrings(Language, sageGame);
 
                 FontManager = new FontManager();
             }
@@ -92,27 +85,22 @@ namespace OpenSage.Content
         // TODO: Move these methods to somewhere else (SubsystemLoader?)
         internal void LoadIniFiles(string folder)
         {
-            foreach (var iniFile in _fileSystem.GetFiles(folder))
+            foreach (var iniFile in FileSystem.ListFiles(folder, "*", SearchOption.AllDirectories))
             {
                 LoadIniFile(iniFile);
             }
         }
 
-        internal void LoadIniFile(string filePath)
+        internal void LoadIniFile(string url)
         {
-            LoadIniFile(_fileSystem.GetFile(filePath));
-        }
-
-        internal void LoadIniFile(FileSystemEntry entry)
-        {
-            using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
+            using (GameTrace.TraceDurationEvent($"LoadIniFile('{url}'"))
             {
-                if (!entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
+                if (!url.ToLowerInvariant().EndsWith(".ini"))
                 {
                     return;
                 }
 
-                var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext);
+                var parser = new IniParser(url, _game.AssetStore, _game.SageGame, IniDataContext);
                 parser.ParseFile();
             }
         }

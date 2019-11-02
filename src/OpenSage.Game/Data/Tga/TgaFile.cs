@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Data.Tga
 {
@@ -9,9 +10,9 @@ namespace OpenSage.Data.Tga
         public TgaHeader Header { get; private set; }
         public byte[] Data { get; private set; }
 
-        public static TgaFile FromFileSystemEntry(FileSystemEntry entry)
+        public static TgaFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var header = TgaHeader.Parse(reader);
@@ -122,9 +123,9 @@ namespace OpenSage.Data.Tga
             RunLengthEncodedPacket = 1
         }
 
-        public static int GetSquareTextureSize(FileSystemEntry entry)
+        public static int GetSquareTextureSize(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var header = TgaHeader.Parse(reader);

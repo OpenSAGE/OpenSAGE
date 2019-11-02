@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt
@@ -16,9 +15,9 @@ namespace OpenSage.Data.Apt
             Entries = new List<ConstantEntry>();
         }
 
-        public static ConstantData FromFileSystemEntry(FileSystemEntry entry)
+        public static ConstantData FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream))
             {
                 var data = new ConstantData();
@@ -45,7 +44,7 @@ namespace OpenSage.Data.Apt
                     };
 
                     //read the number/ string offset
-                   
+
 
                     switch (constEntry.Type)
                     {

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
-using OpenSage.Data;
+using OpenSage.Data.IO;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics.Rendering;
@@ -283,7 +280,7 @@ namespace OpenSage.Terrain
 
             var numTextures = (uint) blendTileData.Textures.Length;
 
-            var textureInfo = new (uint size, FileSystemEntry entry)[numTextures];
+            var textureInfo = new (uint size, string url)[numTextures];
             var largestTextureSize = uint.MinValue;
 
             textureDetails = new TerrainShaderResources.TextureInfo[numTextures];
@@ -293,12 +290,11 @@ namespace OpenSage.Terrain
                 var mapTexture = blendTileData.Textures[i];
 
                 var terrainType = loadContext.AssetStore.TerrainTextures.GetByName(mapTexture.Name);
-                var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
-                var entry = loadContext.FileSystem.GetFile(texturePath);
+                var texturePath = FileSystem.Combine("/game", "Art", "Terrain", terrainType.Texture);
 
-                var size = (uint) TgaFile.GetSquareTextureSize(entry);
+                var size = (uint) TgaFile.GetSquareTextureSize(texturePath);
 
-                textureInfo[i] = (size, entry);
+                textureInfo[i] = (size, texturePath);
 
                 if (size > largestTextureSize)
                 {
@@ -328,7 +324,7 @@ namespace OpenSage.Terrain
 
             for (var i = 0u; i < numTextures; i++)
             {
-                var tgaFile = TgaFile.FromFileSystemEntry(textureInfo[i].entry);
+                var tgaFile = TgaFile.FromUrl(textureInfo[i].url);
                 var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile, true);
 
                 using (var tgaImage = Image.LoadPixelData<Rgba32>(

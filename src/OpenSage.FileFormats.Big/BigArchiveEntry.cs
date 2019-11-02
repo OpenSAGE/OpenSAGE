@@ -41,5 +41,10 @@ namespace OpenSage.FileFormats.Big
 
             return bufferedBigStream;
         }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

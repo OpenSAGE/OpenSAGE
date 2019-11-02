@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Dds;
+using OpenSage.Data.IO;
 using OpenSage.Data.Tga;
 using OpenSage.Gui;
 using OpenSage.Utilities.Extensions;
@@ -36,53 +36,53 @@ namespace OpenSage.Content.Loaders
         public GuiTextureAsset Load(string name, AssetLoadContext context)
         {
             // Find it in the file system.
-            FileSystemEntry entry = null;
+            string url = null;
             foreach (var path in _pathResolver.GetPaths(name, context.Language))
             {
                 foreach (var possibleFileExtension in PossibleFileExtensions)
                 {
                     var possibleFilePath = Path.ChangeExtension(path, possibleFileExtension);
-                    entry = context.FileSystem.GetFile(possibleFilePath);
-                    if (entry != null)
+                    if (FileSystem.FileExists(possibleFilePath))
                     {
+                        url = possibleFilePath;
                         break;
                     }
                 }
 
-                if (entry != null)
+                if (url != null)
                 {
                     break;
                 }
             }
 
-            if (entry == null)
+            if (url is null)
             {
                 return null;
             }
 
-            var texture = LoadImpl(entry, context.GraphicsDevice);
-            texture.Name = entry.FilePath;
+            var texture = LoadImpl(url, context.GraphicsDevice);
+            texture.Name = url;
             return new GuiTextureAsset(texture, name);
         }
 
-        private Texture LoadImpl(FileSystemEntry entry, GraphicsDevice graphicsDevice)
+        private Texture LoadImpl(string url, GraphicsDevice graphicsDevice)
         {
-            switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
+            switch (Path.GetExtension(url).ToLowerInvariant())
             {
                 case ".dds":
-                    if (!DdsFile.IsDdsFile(entry))
+                    if (!DdsFile.IsDdsFile(url))
                     {
                         goto case ".tga";
                     }
-                    var ddsFile = DdsFile.FromFileSystemEntry(entry);
+                    var ddsFile = DdsFile.FromUrl(url);
                     return CreateTextureFromDds(ddsFile, graphicsDevice);
 
                 case ".tga":
-                    var tgaFile = TgaFile.FromFileSystemEntry(entry);
+                    var tgaFile = TgaFile.FromUrl(url);
                     return CreateTextureFromTga(tgaFile, graphicsDevice);
 
                 case ".jpg":
-                    using (var stream = entry.Open())
+                    using (var stream = FileSystem.OpenStream(url, Data.IO.FileMode.Open))
                     {
                         var jpgFile = new ImageSharpTexture(stream);
                         return CreateFromImageSharpTexture(jpgFile, graphicsDevice);

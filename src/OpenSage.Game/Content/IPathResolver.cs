@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Content
 {
@@ -15,7 +15,7 @@ namespace OpenSage.Content
         {
             public IEnumerable<string> GetPaths(string name, string language)
             {
-                yield return Path.Combine("art", "w3d", name + ".w3d");
+                yield return FileSystem.Combine("/game", "art", "w3d", name + ".w3d");
             }
         }
 
@@ -23,7 +23,7 @@ namespace OpenSage.Content
         {
             public IEnumerable<string> GetPaths(string name, string language)
             {
-                yield return Path.Combine("art", "w3d", name.Substring(0, 2), name + ".w3d");
+                yield return FileSystem.Combine("/game", "art", "w3d", name.Substring(0, 2), name + ".w3d");
             }
         }
 
@@ -31,12 +31,12 @@ namespace OpenSage.Content
         {
             public IEnumerable<string> GetPaths(string name, string language)
             {
-                yield return Path.Combine("data", language.ToLowerInvariant(), "art", "textures", name);
+                yield return FileSystem.Combine("/game", "data", language.ToLowerInvariant(), "art", "textures", name);
 
-                yield return Path.Combine("art", "textures", name); // Normal and APT
+                yield return FileSystem.Combine("/game", "art", "textures", name); // Normal and APT
 
                 // TODO: This is only here to load map preview images, see if there's a better way.
-                yield return name;
+                yield return FileSystem.Combine("/game", name);
             }
         }
 
@@ -44,12 +44,12 @@ namespace OpenSage.Content
         {
             public IEnumerable<string> GetPaths(string name, string language)
             {
-                yield return Path.Combine("lang", language.ToLowerInvariant(), "art", "textures", name);
+                yield return FileSystem.Combine("/game", "lang", language.ToLowerInvariant(), "art", "textures", name);
 
-                yield return Path.Combine("art", "textures", name); // Normal and APT
+                yield return FileSystem.Combine("/game", "art", "textures", name); // Normal and APT
 
                 // TODO: This is only here to load map preview images, see if there's a better way.
-                yield return name;
+                yield return FileSystem.Combine("/game", name);
             }
         }
 
@@ -57,8 +57,8 @@ namespace OpenSage.Content
         {
             public IEnumerable<string> GetPaths(string name, string language)
             {
-                yield return Path.Combine("art", "compiledtextures", name.Substring(0, 2), name);
-                yield return Path.Combine("art", "textures", name); // APT only
+                yield return FileSystem.Combine("/game", "art", "compiledtextures", name.Substring(0, 2), name);
+                yield return FileSystem.Combine("/game", "art", "textures", name); // APT only
 
                 // TODO: This is only here to load map preview images, see if there's a better way.
                 yield return name;

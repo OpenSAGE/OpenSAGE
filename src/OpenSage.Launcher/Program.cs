@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
+using OpenSage.Data.IO;
 using OpenSage.Diagnostics;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -114,9 +114,9 @@ namespace OpenSage.Launcher
 
                 if (opts.ReplayFile != null)
                 {
-                    using (var fileSystem = new FileSystem(Path.Combine(game.UserDataFolder, "Replays")))
+                    using (var _ = new FileProvider("/replays", FileSystem.Combine(game.UserDataFolder, "Replays")))
                     {
-                        game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
+                        game.LoadReplayFile(opts.ReplayFile);
                     }
                 }
                 else if (opts.Map != null)

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Numerics;
-using OpenSage.Mathematics;
-using OpenSage.Data.Utilities;
 using System.Text;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt
 {
@@ -35,11 +35,11 @@ namespace OpenSage.Data.Apt
             Entries = new List<IGeometryEntry>();
         }
 
-        public static Geometry FromFileSystemEntry(FileSystemEntry entry)
+        public static Geometry FromUrl(string url)
         {
             var geometry = new Geometry();
 
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new StreamReader(stream))
             {
                 string line;
@@ -257,7 +257,7 @@ namespace OpenSage.Data.Apt
         public ColorRgba Color { get; }
         public List<Triangle2D> Triangles { get; }
         public GeometryStyle Type => GeometryStyle.SolidTri;
-        
+
         public GeometrySolidTriangles(List<Triangle2D> triangles, in ColorRgba color)
         {
             Color = color;

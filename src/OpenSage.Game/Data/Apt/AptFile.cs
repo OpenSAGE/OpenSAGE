@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt
@@ -13,18 +13,23 @@ namespace OpenSage.Data.Apt
         public Movie Movie { get; private set; }
         internal bool IsEmpty = true;
         internal string MovieName;
-        internal FileSystem FileSystem;
+        internal string BaseUrl;
         internal ImageMap ImageMap;
         internal Dictionary<uint, Geometry> GeometryMap;
 
-        private AptFile(ConstantData constants, FileSystem filesystem, string name)
+        private AptFile(ConstantData constants, string baseUrl, string name)
         {
             Constants = constants;
-            FileSystem = filesystem;
+            BaseUrl = baseUrl;
             MovieName = name;
         }
 
-        private void Parse(BinaryReader reader, string parentDirectory)
+        private static bool IsShape(Character x)
+        {
+            return x is Shape;
+        }
+
+        private void Parse(BinaryReader reader)
         {
             //jump to the entry offset
             var entryOffset = Constants.AptDataEntryOffset;
@@ -37,17 +42,14 @@ namespace OpenSage.Data.Apt
             Movie.Characters[0] = Movie;
 
             //load the corresponding image map
-            var datPath = Path.Combine(parentDirectory, MovieName + ".dat");
-            var datEntry = FileSystem.GetFile(datPath);
-            ImageMap = ImageMap.FromFileSystemEntry(datEntry);
+            var datUrl = FileSystem.Combine(BaseUrl, MovieName + ".dat");
+            ImageMap = ImageMap.FromUrl(datUrl);
 
             //resolve geometries
             GeometryMap = new Dictionary<uint, Geometry>();
-            foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
+            foreach (Shape shape in Movie.Characters.FindAll(IsShape))
             {
-                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", + shape.Geometry + ".ru");
-                var shapeEntry = FileSystem.GetFile(ruPath);
-                var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
+                var shapeGeometry = Geometry.FromUrl(FileSystem.Combine(BaseUrl, MovieName + "_geometry", shape.Geometry + ".ru"));
                 shapeGeometry.Container = this;
                 GeometryMap[shape.Geometry] = shapeGeometry;
             }
@@ -66,8 +68,7 @@ namespace OpenSage.Data.Apt
                 }
                 else
                 {
-                    var importEntry = FileSystem.GetFile(Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt")));
-                    importApt = AptFile.FromFileSystemEntry(importEntry);
+                    importApt = FromUrl(FileSystem.Combine(BaseUrl, FileSystem.GetParentFolder(import.Movie), FileSystem.GetFileNameWithoutExtension(import.Movie) + ".apt"));
                     importDict[import.Movie] = importApt;
                 }
 
@@ -79,9 +80,9 @@ namespace OpenSage.Data.Apt
             }
         }
 
-        public static AptFile FromFileSystemEntry(FileSystemEntry entry)
+        public static AptFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
@@ -91,14 +92,14 @@ namespace OpenSage.Data.Apt
                     throw new InvalidDataException();
                 }
 
+                var baseUrl = FileSystem.GetParentFolder(url);
+                var aptName = FileSystem.GetFileNameWithoutExtension(url);
+
                 //load the corresponding const entry
-                var constPath = Path.ChangeExtension(entry.FilePath, ".const");
-                var constFile = ConstantData.FromFileSystemEntry(entry.FileSystem.GetFile(constPath));
+                var constFile = ConstantData.FromUrl(FileSystem.Combine(baseUrl, aptName + ".const"));
 
-                var aptName = Path.GetFileNameWithoutExtension(entry.FilePath);
-
-                var apt = new AptFile(constFile, entry.FileSystem, aptName);
-                apt.Parse(reader, Path.GetDirectoryName(entry.FilePath));
+                var apt = new AptFile(constFile, baseUrl, aptName);
+                apt.Parse(reader);
 
                 return apt;
             }

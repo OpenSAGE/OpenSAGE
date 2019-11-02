@@ -13,7 +13,7 @@ namespace OpenSage.Diagnostics.AssetViews
         public SoundView(DiagnosticViewContext context, AudioFile audioFile)
             : base(context)
         {
-            _source = AddDisposable(context.Game.Audio.GetStream(audioFile.Entry));
+            _source = AddDisposable(context.Game.Audio.GetStream(audioFile.Url));
         }
 
         public override void Draw()

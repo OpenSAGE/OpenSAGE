@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using MoonSharp.Interpreter;
 using OpenSage.Data.Ini;
+using OpenSage.Data.IO;
 using OpenSage.Scripting.Lua;
 
 namespace OpenSage.Scripting
@@ -30,12 +29,11 @@ namespace OpenSage.Scripting
                 LuaCompatibility.Apply(MainScript);
 
                 // Load scripts.lua file from file system or big file
-                var filePath = Path.Combine("Data", "Scripts", "scripts.lua");
-                var fileEntry = Game.ContentManager.FileSystem.GetFile(filePath);
-                if (fileEntry != null)
+                var filePath = "/game/data/scripts/scripts.lua";
+                if (FileSystem.FileExists(filePath))
                 {
                     logger.Info($"Executing file {filePath}");
-                    using (var fileStream = fileEntry.Open())
+                    using (var fileStream = FileSystem.OpenStream(filePath, Data.IO.FileMode.Open))
                     {
                         MainScript.DoStream(fileStream);
                     }

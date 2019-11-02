@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.IO;
 using OpenSage.Data.Wnd.Parser;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
@@ -15,9 +16,9 @@ namespace OpenSage.Data.Wnd
         public WndLayoutBlock LayoutBlock { get; internal set; }
         public WndWindowDefinition RootWindow { get; internal set; }
 
-        public static WndFile FromFileSystemEntry(FileSystemEntry entry, AssetStore assetStore)
+        public static WndFile FromUrl(string url, AssetStore assetStore)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new StreamReader(stream, Encoding.ASCII))
             {
                 var source = reader.ReadToEnd();
@@ -140,24 +141,24 @@ namespace OpenSage.Data.Wnd
     [Flags]
     public enum WndWindowStatusFlags
     {
-        None         = 0,
+        None = 0,
 
-        Draggable    = 0x0001,
-        Enabled      = 0x0002,
-        NoInput      = 0x0004,
-        NoFocus      = 0x0008,
-        RightClick   = 0x0010,
+        Draggable = 0x0001,
+        Enabled = 0x0002,
+        NoInput = 0x0004,
+        NoFocus = 0x0008,
+        RightClick = 0x0010,
         WrapCentered = 0x0020,
-        Hidden       = 0x0040,
-        Border       = 0x0080,
-        Image        = 0x0100,
-        SeeThru      = 0x0200,
-        HotkeyText   = 0x0400,
-        TabStop      = 0x0800,
-        OneLine      = 0x1000,
-        OnMouseDown  = 0x2000,
-        CheckLike    = 0x4000,
-        MouseTrack   = 0x8000
+        Hidden = 0x0040,
+        Border = 0x0080,
+        Image = 0x0100,
+        SeeThru = 0x0200,
+        HotkeyText = 0x0400,
+        TabStop = 0x0800,
+        OneLine = 0x1000,
+        OnMouseDown = 0x2000,
+        CheckLike = 0x4000,
+        MouseTrack = 0x8000
     }
 
     public sealed class WndFont

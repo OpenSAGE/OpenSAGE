@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Data.Rep
 {
@@ -9,9 +10,9 @@ namespace OpenSage.Data.Rep
         public ReplayHeader Header { get; private set; }
         public IReadOnlyList<ReplayChunk> Chunks { get; private set; }
 
-        public static ReplayFile FromFileSystemEntry(FileSystemEntry entry, bool onlyHeader = false)
+        public static ReplayFile FromUrl(string url, bool onlyHeader = false)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
             {
                 var result = new ReplayFile

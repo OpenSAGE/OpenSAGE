@@ -11,16 +11,13 @@ namespace OpenSage.FileFormats.Big
     public class BigArchive : DisposableBase
     {
         private readonly object _lockObject = new object();
-
-        private readonly FileStream _stream;
-
         private readonly List<BigArchiveEntry> _entries;
         private readonly Dictionary<string, BigArchiveEntry> _entriesDictionary;
 
-        internal Stream Stream => _stream;
+        internal Stream Stream { get; }
 
         public string FilePath { get; }
-        public long Size => _stream.Length;
+        public long Size => Stream.Length;
 
         public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 
@@ -31,14 +28,23 @@ namespace OpenSage.FileFormats.Big
             FilePath = filePath;
 
             _entries = new List<BigArchiveEntry>();
-            _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
+            _entriesDictionary = new Dictionary<string, BigArchiveEntry>(StringComparer.OrdinalIgnoreCase);
 
-            _stream = AddDisposable(new FileStream(
+            Stream = AddDisposable(new FileStream(
                 filePath,
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.Read));
 
+            Read();
+        }
+
+        public BigArchive(string filePath, Stream stream)
+        {
+            FilePath = filePath;
+            _entries = new List<BigArchiveEntry>();
+            _entriesDictionary = new Dictionary<string, BigArchiveEntry>(StringComparer.OrdinalIgnoreCase);
+            Stream = AddDisposable(stream);
             Read();
         }
 
@@ -54,7 +60,7 @@ namespace OpenSage.FileFormats.Big
 
         private void Read()
         {
-            using (var reader = new BinaryReader(_stream, Encoding.ASCII, true))
+            using (var reader = new BinaryReader(Stream, Encoding.ASCII, true))
             {
                 //Special case for empty archives/ placeholder archives
                 if (reader.BaseStream.Length < 4)

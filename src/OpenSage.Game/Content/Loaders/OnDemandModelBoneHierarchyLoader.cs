@@ -1,4 +1,4 @@
-﻿using OpenSage.Data;
+﻿using OpenSage.Data.IO;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 
@@ -16,21 +16,21 @@ namespace OpenSage.Content.Loaders
         public ModelBoneHierarchy Load(string name, AssetLoadContext context)
         {
             // Find it in the file system.
-            FileSystemEntry entry = null;
+            string url = null;
             foreach (var path in _pathResolver.GetPaths(name, context.Language))
             {
-                entry = context.FileSystem.GetFile(path);
-                if (entry != null)
+                if (FileSystem.FileExists(path))
                 {
+                    url = path;
                     break;
                 }
             }
 
             // Load hierarchy.
             W3dFile hierarchyFile;
-            using (var entryStream = entry.Open())
+            using (var entryStream = FileSystem.OpenStream(url, FileMode.Open))
             {
-                hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
+                hierarchyFile = W3dFile.FromStream(entryStream, url);
             }
             var w3dHierarchy = hierarchyFile.GetHierarchy();
             return w3dHierarchy != null

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenSage.Data;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Utilities
 {
@@ -70,7 +71,7 @@ namespace OpenSage.Utilities
                 return DefaultLanguage;
             }
 
-            var posibleFiles = Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories).Where(i =>
+            var posibleFiles = FileSystem.ListFiles(rootDirectory, "*.*", Data.IO.SearchOption.AllDirectories).Where(i =>
                 (string.IsNullOrEmpty(filePrefix) || Path.GetFileName(i).Contains(filePrefix)) &&
                 (string.IsNullOrEmpty(fileSuffix) || Path.GetFileName(i).EndsWith(fileSuffix)));
             foreach (var file in posibleFiles)

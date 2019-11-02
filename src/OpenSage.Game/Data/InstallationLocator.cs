@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Win32;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.Data.IO;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 
@@ -46,15 +46,25 @@ namespace OpenSage.Data
             _baseGameInstallation = baseGame;
         }
 
-        public FileSystem CreateFileSystem()
+        public IFileProvider CreateFileSystem()
         {
-            FileSystem nextFileSystem = null;
+            var result = new FileProvider("/game", Path);
+            var bigFiles = result.ListFiles("", "*.big", IO.SearchOption.AllDirectories);
+            foreach (string bigFile in bigFiles)
+            {
+                result.AddSubProvider(new BigProvider(null, new FileFormats.Big.BigArchive(bigFile, result.OpenStream(bigFile, IO.FileMode.Open))));
+            }
             if (_baseGameInstallation != null)
             {
-                nextFileSystem = new FileSystem(_baseGameInstallation.Path);
+                var subResult = new FileProvider(null, _baseGameInstallation.Path);
+                var subBigFiles = subResult.ListFiles("", "*.big", IO.SearchOption.AllDirectories);
+                foreach (string bigFile in subBigFiles)
+                {
+                    subResult.AddSubProvider(new BigProvider(null, new FileFormats.Big.BigArchive(bigFile, subResult.OpenStream(bigFile, IO.FileMode.Open))));
+                }
+                result.AddSubProvider(subResult);
             }
-
-            return new FileSystem(Path, nextFileSystem);
+            return result;
         }
     }
 
@@ -76,10 +86,10 @@ namespace OpenSage.Data
             }
             if (path == null || !Directory.Exists(path))
             {
-                return new GameInstallation[]{};
+                return new GameInstallation[] { };
             }
 
-            var installations = new GameInstallation[]{new GameInstallation(game, path)};
+            var installations = new GameInstallation[] { new GameInstallation(game, path) };
 
             return installations;
         }

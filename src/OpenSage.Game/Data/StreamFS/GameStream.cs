@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -9,13 +10,14 @@ namespace OpenSage.Data.StreamFS
     {
         private readonly Dictionary<AssetReference, Asset> _assetReferenceToAssetLookup;
 
-        public FileSystemEntry ManifestFileEntry { get; }
+        public string BaseManifestPath { get; }
+        public string ManifestPath => BaseManifestPath + ".manifest";
         public ManifestFile ManifestFile { get; }
 
-        public GameStream(FileSystemEntry manifestFileEntry, Game game)
+        public GameStream(string url, Game game)
         {
-            ManifestFileEntry = manifestFileEntry;
-            ManifestFile = ManifestFile.FromFileSystemEntry(manifestFileEntry);
+            BaseManifestPath = url;
+            ManifestFile = ManifestFile.FromUrl(ManifestPath);
 
             _assetReferenceToAssetLookup = new Dictionary<AssetReference, Asset>();
             foreach (var asset in ManifestFile.Assets)
@@ -171,33 +173,30 @@ namespace OpenSage.Data.StreamFS
 
         private void ParseStreamFile(string extension, uint streamTypeChecksum, Action<BinaryReader> callback)
         {
-            var streamFilePath = Path.ChangeExtension(ManifestFileEntry.FilePath, extension);
-            var streamFileEntry = ManifestFileEntry.FileSystem.GetFile(streamFilePath);
-            if (streamFileEntry == null)
+            if (FileSystem.FileExists(BaseManifestPath + extension))
             {
-                return;
-            }
-
-            using (var binaryStream = streamFileEntry.Open())
-            using (var reader = new BinaryReader(binaryStream, Encoding.ASCII, true))
-            {
-                if (ManifestFile.Header.Version == 7)
+                using (var binaryStream = FileSystem.OpenStream(BaseManifestPath + extension, IO.FileMode.Open))
+                using (var reader = new BinaryReader(binaryStream, Encoding.ASCII, true))
                 {
-                    var typeChecksum = reader.ReadUInt32();
-                    if (typeChecksum != streamTypeChecksum)
+                    if (ManifestFile.Header.Version == 7)
+                    {
+                        var typeChecksum = reader.ReadUInt32();
+                        if (typeChecksum != streamTypeChecksum)
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+
+                    var checksum = reader.ReadUInt32();
+                    if (checksum != ManifestFile.Header.StreamChecksum)
                     {
                         throw new InvalidDataException();
                     }
-                }
 
-                var checksum = reader.ReadUInt32();
-                if (checksum != ManifestFile.Header.StreamChecksum)
-                {
-                    throw new InvalidDataException();
+                    callback(reader);
                 }
-
-                callback(reader);
             }
+
         }
 
         public Asset FindAsset(in AssetReference reference)

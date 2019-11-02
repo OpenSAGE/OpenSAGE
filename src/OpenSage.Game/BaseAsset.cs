@@ -30,5 +30,10 @@ namespace OpenSage
             // TODO: Deep-clone asset so that it can be overridden.
             return (BaseAsset) MemberwiseClone();
         }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

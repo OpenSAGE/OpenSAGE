@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Csf
@@ -10,9 +10,9 @@ namespace OpenSage.Data.Csf
         public CsfHeader Header { get; private set; }
         public CsfLabel[] Labels { get; private set; }
 
-        public static CsfFile FromFileSystemEntry(FileSystemEntry entry)
+        public static CsfFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var fourCc = reader.ReadFourCc(bigEndian: true);

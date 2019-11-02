@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Data.Ani
 {
@@ -22,10 +23,10 @@ namespace OpenSage.Data.Ani
 
         public AniCursorImage[] Images { get; private set; }
 
-        public static AniFile FromFileSystemEntry(FileSystemEntry entry)
+        public static AniFile FromUrl(string url)
         {
             RiffChunk rootChunk;
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 rootChunk = RiffChunk.Parse(reader);

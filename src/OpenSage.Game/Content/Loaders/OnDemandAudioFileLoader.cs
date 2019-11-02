@@ -1,6 +1,5 @@
-﻿using System.IO;
-using OpenSage.Audio;
-using OpenSage.Data;
+﻿using OpenSage.Audio;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Content.Loaders
 {
@@ -12,26 +11,26 @@ namespace OpenSage.Content.Loaders
 
             var soundFileName = $"{key}.{audioSettings.SoundsExtension}";
 
-            var localisedAudioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
-            var audioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder);
+            var localisedAudioRoot = FileSystem.Combine("/game", audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
+            var audioRoot = FileSystem.Combine("/game", audioSettings.AudioRoot, audioSettings.SoundsFolder);
 
-            FileSystemEntry entry = null;
+            string url = null;
             foreach (var rootPath in new[] { localisedAudioRoot, audioRoot })
             {
-                var fullPath = Path.Combine(rootPath, soundFileName);
-                entry = context.FileSystem.GetFile(fullPath);
-                if (entry != null)
+                var fullPath = FileSystem.Combine(rootPath, soundFileName);
+                if (FileSystem.FileExists(fullPath))
                 {
+                    url = fullPath;
                     break;
                 }
             }
 
-            if (entry == null)
+            if (url is null)
             {
                 return null;
             }
 
-            return AudioFile.FromFileSystemEntry(entry, key);
+            return AudioFile.FromUrl(url, key);
         }
     }
 }

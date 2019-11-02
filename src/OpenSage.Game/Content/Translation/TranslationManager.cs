@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using OpenSage.Content.Translation.Providers;
-using OpenSage.Data;
-using OpenSage.Logic.Object;
+using OpenSage.Data.IO;
 
 namespace OpenSage.Content.Translation
 {
@@ -202,66 +201,58 @@ namespace OpenSage.Content.Translation
 
         public static ITranslationManager Instance => _lazy.Value;
 
-        public static void LoadGameStrings(FileSystem fileSystem, string language, SageGame game)
+        public static void LoadGameStrings(string language, SageGame game)
         {
             var path = string.Empty;
-            while (!(fileSystem is null))
+            switch (game)
             {
-                switch (game)
-                {
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                        path = $"Data/{language}/generals";
-                        break;
-                    case SageGame.Bfme:
-                        path = $"lang/{language}/lotr";
-                        break;
-                    case SageGame.Bfme2:
-                    case SageGame.Bfme2Rotwk:
-                        if(language=="German")
-                        {
-                            path = "lotr";
-                        }
-                        else
-                        {
-                            path = "data/lotr";
-                        }
-                        break;
-                    case SageGame.Cnc3:
-                    case SageGame.Cnc3KanesWrath:
-                        path = "cnc3";
-                        break;
-                    case SageGame.Ra3:
-                    case SageGame.Ra3Uprising: // there is a data/gamestrings_temp.csf in Uprising
-                    case SageGame.Cnc4:
-                        path = "data/gamestrings";
-                        break;
-                }
-
-                FileSystemEntry file;
-                if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
-                {
-                    using (var stream = file.Open())
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    path = $"/game/Data/{language}/generals";
+                    break;
+                case SageGame.Bfme:
+                    path = $"/game/lang/{language}/lotr";
+                    break;
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    if (language == "German")
                     {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
+                        path = "/game/lotr";
                     }
-
-                    return;
-                }
-
-                if (!((file = fileSystem.GetFile($"{path}.str")) is null))
-                {
-                    using (var stream = file.Open())
+                    else
                     {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new StrTranslationProvider(stream, language));
+                        path = "/game/data/lotr";
                     }
+                    break;
+                case SageGame.Cnc3:
+                case SageGame.Cnc3KanesWrath:
+                    path = "/game/cnc3";
+                    break;
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising: // there is a data/gamestrings_temp.csf in Uprising
+                case SageGame.Cnc4:
+                    path = "/game/data/gamestrings";
+                    break;
+            }
 
-                    return;
+            if (FileSystem.FileExists(path + ".csf"))
+            {
+                using (var stream = FileSystem.OpenStream(path + ".csf", FileMode.Open))
+                {
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
                 }
 
-                fileSystem = fileSystem.NextFileSystem;
+                return;
+            }
+
+            if (FileSystem.FileExists(path + ".str"))
+            {
+                using (var stream = FileSystem.OpenStream(path + ".str", FileMode.Open))
+                {
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new StrTranslationProvider(stream, language));
+                }
             }
         }
     }

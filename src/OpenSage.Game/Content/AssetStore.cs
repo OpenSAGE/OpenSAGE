@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
-using OpenSage.Data;
 using OpenSage.Eva;
 using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
@@ -173,7 +172,6 @@ namespace OpenSage.Content
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
         internal AssetStore(
-            FileSystem fileSystem,
             string language,
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
@@ -181,7 +179,6 @@ namespace OpenSage.Content
             OnDemandAssetLoadStrategy loadStrategy)
         {
             LoadContext = new AssetLoadContext(
-                fileSystem,
                 language,
                 graphicsDevice,
                 standardGraphicsResources,

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenSage.Data.IO;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt
@@ -21,7 +20,7 @@ namespace OpenSage.Data.Apt
 
         public bool HasBounds => false;
         public int TextureId => _textureId;
-       
+
         public DirectAssignment(int texture)
         {
             _textureId = texture;
@@ -35,7 +34,7 @@ namespace OpenSage.Data.Apt
 
         public bool HasBounds => true;
         public int TextureId => _textureId;
-        
+
         public Rectangle TextureRectangle
         {
             get
@@ -44,7 +43,7 @@ namespace OpenSage.Data.Apt
             }
         }
 
-        public RectangleAssignment(int texture,Rectangle textureRect)
+        public RectangleAssignment(int texture, Rectangle textureRect)
         {
             _textureId = texture;
             _textureRect = textureRect;
@@ -60,11 +59,11 @@ namespace OpenSage.Data.Apt
             Mapping = new Dictionary<int, IImageAssignment>();
         }
 
-        public static ImageMap FromFileSystemEntry(FileSystemEntry entry)
+        public static ImageMap FromUrl(string url)
         {
             var map = new ImageMap();
 
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new StreamReader(stream))
             {
                 string line;
@@ -99,7 +98,7 @@ namespace OpenSage.Data.Apt
                     switch (assigment.Length)
                     {
                         case 1:
-                            map.Mapping.Add(image,new DirectAssignment(texture));
+                            map.Mapping.Add(image, new DirectAssignment(texture));
                             break;
                         case 4:
                             Rectangle rect = new Rectangle(
@@ -109,7 +108,7 @@ namespace OpenSage.Data.Apt
                                 Convert.ToInt32(assigment[3])
                                 );
 
-                            map.Mapping.Add(image, new RectangleAssignment(image,rect));
+                            map.Mapping.Add(image, new RectangleAssignment(image, rect));
                             break;
                         default:
                             throw new InvalidDataException();

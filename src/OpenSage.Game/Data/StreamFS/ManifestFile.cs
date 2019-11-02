@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.StreamFS
@@ -15,9 +16,9 @@ namespace OpenSage.Data.StreamFS
         public AssetReference[] AssetReferences { get; private set; }
         public IReadOnlyList<ManifestReference> ManifestReferences { get; private set; }
 
-        public static ManifestFile FromFileSystemEntry(FileSystemEntry entry)
+        public static ManifestFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var result = new ManifestFile

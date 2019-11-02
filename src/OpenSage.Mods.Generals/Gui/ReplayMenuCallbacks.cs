@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data;
+using OpenSage.Data.IO;
 using OpenSage.Data.Rep;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Logic;
 using OpenSage.Mathematics;
-using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
     [WndCallbacks]
     public static class ReplayMenuCallbacks
     {
-        private static FileSystem GetReplaysFileSystem(Game game) => new FileSystem(Path.Combine(game.UserDataFolder, "Replays"));
+        private static IFileProvider GetReplaysFileSystem(Game game) => new FileProvider("/replays", Path.Combine(game.UserDataFolder, "Replays"));
 
         public static void ReplayMenuInit(Window window, Game game)
         {
@@ -23,15 +21,15 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var newItems = new List<ListBoxDataItem>();
 
-                foreach (var file in fileSystem.Files)
+                foreach (var file in FileSystem.ListFiles("/replays/", "*", Data.IO.SearchOption.AllDirectories))
                 {
-                    var replayFile = ReplayFile.FromFileSystemEntry(file, onlyHeader: true);
+                    var replayFile = ReplayFile.FromUrl(file, onlyHeader: true);
 
                     newItems.Add(new ListBoxDataItem(
-                        file.FilePath,
+                        file,
                         new[]
                         {
-                            Path.GetFileNameWithoutExtension(file.FilePath),
+                            FileSystem.GetFileNameWithoutExtension(file),
                             $"{replayFile.Header.Timestamp.Hour.ToString("D2")}:{replayFile.Header.Timestamp.Minute.ToString("D2")}",
                             replayFile.Header.Version,
                             replayFile.Header.Metadata.MapFile.Replace("maps/", string.Empty)
@@ -61,7 +59,7 @@ namespace OpenSage.Mods.Generals.Gui
                             var listBox = (ListBox) control.Window.Controls.FindControl("ReplayMenu.wnd:ListboxReplayFiles");
                             using (var fileSystem = GetReplaysFileSystem(context.Game))
                             {
-                                var replayFileEntry = fileSystem.GetFile((string) listBox.Items[listBox.SelectedIndex].DataItem);
+                                var replayFileEntry = (string) listBox.Items[listBox.SelectedIndex].DataItem;
 
                                 context.Game.Scene2D.WndWindowManager.PopWindow();
 

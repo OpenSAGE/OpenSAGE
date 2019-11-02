@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using OpenSage.Data.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Utilities;
@@ -45,9 +46,9 @@ namespace OpenSage.Data.Dds
             }
         }
 
-        public static bool IsDdsFile(FileSystemEntry entry)
+        public static bool IsDdsFile(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var magic = reader.ReadFourCc();
@@ -55,9 +56,9 @@ namespace OpenSage.Data.Dds
             }
         }
 
-        public static DdsFile FromFileSystemEntry(FileSystemEntry entry)
+        public static DdsFile FromUrl(string url)
         {
-            using (var stream = entry.Open())
+            using (var stream = FileSystem.OpenStream(url, IO.FileMode.Open))
             {
                 return FromStream(stream);
             }

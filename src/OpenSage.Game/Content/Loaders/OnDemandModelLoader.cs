@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Data;
+using OpenSage.Data.IO;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 
@@ -21,26 +21,26 @@ namespace OpenSage.Content.Loaders
         public Model Load(string name, AssetLoadContext context)
         {
             // Find it in the file system.
-            FileSystemEntry entry = null;
+            string url = null;
             foreach (var path in _pathResolver.GetPaths(name, context.Language))
             {
-                entry = context.FileSystem.GetFile(path);
-                if (entry != null)
+                if (FileSystem.FileExists(path))
                 {
+                    url = path;
                     break;
                 }
             }
 
-            if (entry == null)
+            if (url is null)
             {
                 return null;
             }
 
             // Load model.
             W3dFile w3dFile;
-            using (var entryStream = entry.Open())
+            using (var entryStream = FileSystem.OpenStream(url, Data.IO.FileMode.Open))
             {
-                w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
+                w3dFile = W3dFile.FromStream(entryStream, url);
             }
 
             var w3dHLod = w3dFile.GetHLod();
