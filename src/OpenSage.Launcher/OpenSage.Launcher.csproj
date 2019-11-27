@@ -5,9 +5,6 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;ubuntu-x64</RuntimeIdentifiers>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <PublishTrimmed>true</PublishTrimmed>
-    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
   
   <ItemGroup>
