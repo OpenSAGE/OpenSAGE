@@ -36,6 +36,7 @@ namespace OpenSage
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
+        private readonly FileSystem _userDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
@@ -360,6 +361,7 @@ namespace OpenSage
                 Definition = installation.Game;
 
                 _fileSystem = AddDisposable(installation.CreateFileSystem());
+                _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
 
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
@@ -389,6 +391,7 @@ namespace OpenSage
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
+                    _userDataFileSystem,
                     GraphicsDevice,
                     SageGame));
 
@@ -520,8 +523,10 @@ namespace OpenSage
 
         internal Scene3D LoadMap(string mapPath)
         {
-            var entry = ContentManager.FileSystem.GetFile(mapPath);
+            var entry = ContentManager.FileSystem.GetFile(mapPath) ?? _userDataFileSystem.GetFile(mapPath);
+
             var mapFile = MapFile.FromFileSystemEntry(entry);
+
             return new Scene3D(this, mapFile);
         }
 
@@ -571,6 +576,11 @@ namespace OpenSage
             var mapCache = AssetStore.MapCaches.GetByName(mapFileName.ToLower());
             if (mapCache == null)
             {
+                mapCache = AssetStore.MapCaches.GetByName(Path.Combine(UserDataFolder, mapFileName).ToLower());
+            }
+
+            if (mapCache == null)
+            {
                 throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
             }
 
@@ -617,6 +627,7 @@ namespace OpenSage
                         startPos = availablePositions.Last();
                         availablePositions.Remove((int) startPos);
                     }
+
 
                     var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
