@@ -32,7 +32,6 @@ namespace OpenSage.Content
         public ContentManager(
             Game game,
             FileSystem fileSystem,
-            FileSystem userDataFileSystem,
             GraphicsDevice graphicsDevice,
             SageGame sageGame)
         {
@@ -41,7 +40,6 @@ namespace OpenSage.Content
                 _game = game;
 
                 FileSystem = fileSystem;
-                UserDataFileSystem = userDataFileSystem;
 
                 GraphicsDevice = graphicsDevice;
 

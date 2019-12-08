@@ -361,7 +361,6 @@ namespace OpenSage
                 Definition = installation.Game;
 
                 _fileSystem = AddDisposable(installation.CreateFileSystem());
-                _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
 
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
@@ -391,9 +390,22 @@ namespace OpenSage
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
-                    _userDataFileSystem,
                     GraphicsDevice,
                     SageGame));
+
+                // Create file system for user data folder and load user maps.
+                // This has to be done after the ContentManager is initialized and
+                // the GameData.ini file has been parsed because we don't know
+                // the UserDataFolder before then.
+                if (Directory.Exists(UserDataFolder))
+                {
+                    _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
+                    var file = _userDataFileSystem.GetFile(@"Maps\MapCache.ini");
+                    if (file != null)
+                    {
+                        ContentManager.LoadIniFile(file);
+                    }
+                }
 
                 _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
 
