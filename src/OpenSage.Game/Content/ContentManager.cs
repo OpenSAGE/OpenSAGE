@@ -14,13 +14,12 @@ namespace OpenSage.Content
 
         public ISubsystemLoader SubsystemLoader { get; }
 
-        private readonly FileSystem _fileSystem;
-
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
 
-        public FileSystem FileSystem => _fileSystem;
+        public FileSystem FileSystem { get; }
+        public FileSystem UserDataFileSystem { get; }
 
         public IniDataContext IniDataContext { get; }
 
@@ -33,13 +32,16 @@ namespace OpenSage.Content
         public ContentManager(
             Game game,
             FileSystem fileSystem,
+            FileSystem userDataFileSystem,
             GraphicsDevice graphicsDevice,
             SageGame sageGame)
         {
             using (GameTrace.TraceDurationEvent("ContentManager()"))
             {
                 _game = game;
-                _fileSystem = fileSystem;
+
+                FileSystem = fileSystem;
+                UserDataFileSystem = userDataFileSystem;
 
                 GraphicsDevice = graphicsDevice;
 
@@ -49,7 +51,7 @@ namespace OpenSage.Content
 
                 IniDataContext = new IniDataContext();
 
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, game, this);
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, FileSystem, game, this);
 
                 switch (sageGame)
                 {
@@ -92,7 +94,7 @@ namespace OpenSage.Content
         // TODO: Move these methods to somewhere else (SubsystemLoader?)
         internal void LoadIniFiles(string folder)
         {
-            foreach (var iniFile in _fileSystem.GetFiles(folder))
+            foreach (var iniFile in FileSystem.GetFiles(folder))
             {
                 LoadIniFile(iniFile);
             }
@@ -100,7 +102,7 @@ namespace OpenSage.Content
 
         internal void LoadIniFile(string filePath)
         {
-            LoadIniFile(_fileSystem.GetFile(filePath));
+            LoadIniFile(FileSystem.GetFile(filePath));
         }
 
         internal void LoadIniFile(FileSystemEntry entry)
