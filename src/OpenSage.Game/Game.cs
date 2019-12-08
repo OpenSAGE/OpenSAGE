@@ -361,6 +361,7 @@ namespace OpenSage
                 Definition = installation.Game;
 
                 _fileSystem = AddDisposable(installation.CreateFileSystem());
+                _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
 
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
@@ -390,6 +391,7 @@ namespace OpenSage
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
+                    _userDataFileSystem,
                     GraphicsDevice,
                     SageGame));
 
@@ -641,6 +643,7 @@ namespace OpenSage
                         startPos = availablePositions.Last();
                         availablePositions.Remove((int) startPos);
                     }
+
 
                     var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
