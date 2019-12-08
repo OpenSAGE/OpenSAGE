@@ -361,7 +361,6 @@ namespace OpenSage
                 Definition = installation.Game;
 
                 _fileSystem = AddDisposable(installation.CreateFileSystem());
-                _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
 
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
@@ -391,7 +390,6 @@ namespace OpenSage
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
-                    _userDataFileSystem,
                     GraphicsDevice,
                     SageGame));
 
