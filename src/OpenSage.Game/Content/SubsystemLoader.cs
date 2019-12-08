@@ -78,9 +78,7 @@ namespace OpenSage.Content
                     _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
                     break;
                 case Subsystem.Multiplayer:
-                    LoadFiles(
-                        @"Data\INI\Multiplayer.ini");
-                    _contentManager.LoadIniFile(_contentManager.UserDataFileSystem.GetFile(@"Maps\MapCache.ini"));
+                    LoadFiles(@"Data\INI\Multiplayer.ini");
                     break;
                 case Subsystem.LinearCampaign:
                     LoadFiles(@"Data\INI\Campaign.ini");
