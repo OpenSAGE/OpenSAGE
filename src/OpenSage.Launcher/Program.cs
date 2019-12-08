@@ -121,17 +121,33 @@ namespace OpenSage.Launcher
                 }
                 else if (opts.Map != null)
                 {
-                    var pSettings = new PlayerSetting?[]
+                    var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
+                    if (mapCache == null)
                     {
-                        new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0)),
-                        new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(255, 255, 255)),
-                    };
+                        logger.Debug("Could not find MapCache entry for map " + opts.Map);
+                        game.ShowMainMenu();
+                    }
+                    else if (mapCache.IsMultiplayer)
+                    {
+                        var pSettings = new PlayerSetting?[]
+                        {
+                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0)),
+                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(255, 255, 255)),
+                        };
 
-                    logger.Debug("Starting multiplayer game");
-                    game.StartMultiPlayerGame(opts.Map,
-                         new EchoConnection(),
-                         pSettings,
-                         0);
+                        logger.Debug("Starting multiplayer game");
+
+                        game.StartMultiPlayerGame(opts.Map,
+                            new EchoConnection(),
+                            pSettings,
+                            0);
+                    }
+                    else
+                    {
+                        logger.Debug("Starting singleplayer game");
+
+                        game.StartSinglePlayerGame(opts.Map);
+                    }
                 }
                 else
                 {
