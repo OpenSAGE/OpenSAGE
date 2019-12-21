@@ -102,6 +102,10 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.AssetStore.MapCaches)
                         {
+                            //TODO: we should probably cache the validity of entries
+                            if (_context.Game.ContentManager.FileSystem.GetFile(mapCache.Name) == null)
+                                continue;
+
                             var mapName = mapCache.GetNameKey().Translate();
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))

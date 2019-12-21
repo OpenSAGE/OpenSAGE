@@ -15,7 +15,8 @@ namespace OpenSage.Terrain
             _waterAreas = new List<WaterArea>();
         }
 
-        internal WaterAreaCollection(PolygonTriggers polygonTriggers, AssetLoadContext loadContext)
+        internal WaterAreaCollection(PolygonTriggers polygonTriggers, StandingWaterAreas standingWaterAreas,
+                                    StandingWaveAreas standingWaveAreas, AssetLoadContext loadContext)
             : this()
         {
             if (polygonTriggers != null)
@@ -32,6 +33,28 @@ namespace OpenSage.Terrain
                                 _waterAreas.Add(AddDisposable(waterArea));
                             }
                             break;
+                    }
+                }
+            }
+
+            if (standingWaterAreas != null)
+            {
+                foreach (var standingWaterArea in standingWaterAreas.Areas)
+                {
+                    if (WaterArea.TryCreate(loadContext, standingWaterArea, out var waterArea))
+                    {
+                        _waterAreas.Add(AddDisposable(waterArea));
+                    }
+                }
+            }
+
+            if (standingWaveAreas != null)
+            {
+                foreach (var standingWaveArea in standingWaveAreas.Areas)
+                {
+                    if (WaterArea.TryCreate(loadContext, standingWaveArea, out var waterArea))
+                    {
+                        _waterAreas.Add(AddDisposable(waterArea));
                     }
                 }
             }
