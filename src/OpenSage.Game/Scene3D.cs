@@ -107,7 +107,7 @@ namespace OpenSage
 
             MapFile = mapFile;
             Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
-            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, game.AssetStore.LoadContext));
+            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),

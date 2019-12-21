@@ -15,7 +15,8 @@ MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
 MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
 
 layout(set = 4, binding = 0) uniform texture2D WaterTexture;
-layout(set = 4, binding = 1) uniform sampler Sampler;
+layout(set = 4, binding = 1) uniform texture2D BumpTexture;
+layout(set = 4, binding = 2) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec2 in_CloudUV;
@@ -27,7 +28,8 @@ layout(location = 0) out vec4 out_Color;
 
 void main()
 {
-    vec3 worldNormal = vec3(0, 0, 1);
+    vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
+    vec3 worldNormal = texture(sampler2D(BumpTexture, Sampler), waterUV).xyz;
 
     float nDotL = saturate(dot(worldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
     vec3 shadowVisibility = ShadowVisibility(
@@ -57,7 +59,6 @@ void main()
         diffuseColor,
         specularColor);
 
-    vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
 
     vec4 textureColor = texture(sampler2D(WaterTexture, Sampler), waterUV);
 

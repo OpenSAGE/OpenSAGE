@@ -75,6 +75,12 @@ namespace OpenSage.Content
             if (_loader != null)
             {
                 var newValue = _loader.Load(name, _assetStore.LoadContext);
+                //TODO: should this happen?
+                if(newValue == null)
+                {
+                    return null;
+                }
+
                 _assetScopes.Peek().Assets.Add(instanceId, newValue);
 
                 if (newValue == null)
