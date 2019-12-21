@@ -665,12 +665,12 @@ namespace OpenSage
             var campaign = AssetStore.CampaignTemplates.GetByName(side);
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
-            StartGame(
-                firstMission.Map,
-                new EchoConnection(),
-                null,
-                0,
-                false);
+            StartSinglePlayerGame(firstMission.Map);
+        }
+
+        public void StartSinglePlayerGame(string mapFileName)
+        {
+            StartGame(mapFileName, new EchoConnection(), null, 0, false);
         }
 
         public void StartMultiPlayerGame(
