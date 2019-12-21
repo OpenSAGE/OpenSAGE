@@ -29,6 +29,8 @@ namespace OpenSage.Content
 
         public int Count => _byInternalId.Count;
 
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         internal ScopedAssetCollection(
             AssetStore assetStore,
             IOnDemandAssetLoader<TAsset> loader = null)
@@ -74,6 +76,12 @@ namespace OpenSage.Content
             {
                 var newValue = _loader.Load(name, _assetStore.LoadContext);
                 _assetScopes.Peek().Assets.Add(instanceId, newValue);
+
+                if (newValue == null)
+                {
+                    logger.Warn($"Failed to load asset \"{name}\"");
+                    return null;
+                }
 
                 newValue.InternalId = _nextId;
                 _byInternalId.Add(_nextId, newValue);
