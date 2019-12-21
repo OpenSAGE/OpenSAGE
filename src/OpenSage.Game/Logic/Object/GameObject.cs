@@ -113,6 +113,11 @@ namespace OpenSage.Logic.Object
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
         {
+            if (objectDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(objectDefinition));
+            }
+
             Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
