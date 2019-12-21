@@ -68,11 +68,22 @@ namespace OpenSage.Scripting.Actions
 
         public static ActionResult MoveCameraTo(ScriptAction action, ScriptExecutionContext context)
         {
-            var targetWaypoint = context.Scene.Waypoints[action.Arguments[0].StringValue];
+            //Check if a named camera exists
+            Vector3 targetPoint;
+            var name = action.Arguments[0].StringValue;
+            if(context.Scene.Cameras.Exists(name))
+            {
+                targetPoint = context.Scene.Cameras[name].LookAtPoint;
+            }
+            else
+            {
+                targetPoint = context.Scene.Waypoints[name].Position;
+            }
+
             var duration = TimeSpan.FromSeconds(action.Arguments[1].FloatValue.Value);
             var shutter = action.Arguments[2].FloatValue.Value;
 
-            return new MoveCameraToAction(targetWaypoint, duration, shutter).Execute(context);
+            return new MoveCameraToAction(targetPoint, duration, shutter).Execute(context);
         }
 
         public static ActionResult MoveCameraAlongWaypointPath(ScriptAction action, ScriptExecutionContext context)
@@ -88,17 +99,17 @@ namespace OpenSage.Scripting.Actions
 
     public sealed class MoveCameraToAction : ActionResult.ActionContinuation
     {
-        private readonly Waypoint _targetWaypoint;
+        private readonly Vector3 _targetPoint;
         private readonly TimeSpan _duration;
         private readonly float _shutter;
 
         private CameraAnimation _animation;
 
-        public MoveCameraToAction(Waypoint targetWaypoint, TimeSpan duration, float shutter)
+        public MoveCameraToAction(Vector3 targetPoint, TimeSpan duration, float shutter)
         {
             _shutter = shutter;
             _duration = duration;
-            _targetWaypoint = targetWaypoint;
+            _targetPoint = targetPoint;
         }
 
         public override ActionResult Execute(ScriptExecutionContext context)
@@ -106,12 +117,12 @@ namespace OpenSage.Scripting.Actions
             if (_animation == null)
             {
                 _animation = context.Scene.CameraController.StartAnimation(
-                    new[] {context.Scene.CameraController.TerrainPosition, _targetWaypoint.Position},
+                    new[] {context.Scene.CameraController.TerrainPosition, _targetPoint},
                     context.UpdateTime.TotalTime,
                     _duration);
             }
 
-            return _animation.Finished ? ActionResult.Finished : this;
+            return _animation.Finished ? Finished : this;
         }
     }
 
