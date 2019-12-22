@@ -39,7 +39,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
                 if (ImGui.Selectable(modelConditionState.DisplayName, i == _selectedIndex))
                 {
-                    _gameObject.SetModelConditionFlags(modelConditionState);
+                    _gameObject.CopyModelConditionFlags(modelConditionState);
                     _selectedIndex = i;
                 }
             }

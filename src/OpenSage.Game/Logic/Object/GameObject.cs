@@ -75,6 +75,12 @@ namespace OpenSage.Logic.Object
             return gameObject;
         }
 
+        internal void CopyModelConditionFlags(BitArray<ModelConditionFlag> newFlags)
+        {
+            ModelConditionFlags.CopyFrom(newFlags);
+            UpdateDrawModuleConditionStates();
+        }
+
         public ObjectDefinition Definition { get; }
 
         public Transform Transform { get; }
@@ -145,7 +151,8 @@ namespace OpenSage.Logic.Object
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
 
-            SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+            ModelConditionFlags = new BitArray<ModelConditionFlag>();
+            UpdateDrawModuleConditionStates();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
         }
@@ -242,10 +249,9 @@ namespace OpenSage.Logic.Object
                 TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);
             }
 
-            var flags = new BitArray<ModelConditionFlag>();
-            flags.Set(ModelConditionFlag.Moving, true);
-
-            SetModelConditionFlags(flags);
+            ModelConditionFlags.SetAll(false);
+            ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
+            UpdateDrawModuleConditionStates();
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -254,11 +260,11 @@ namespace OpenSage.Logic.Object
 
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
-                var flags = new BitArray<ModelConditionFlag>();
-                flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
-                flags.Set(ModelConditionFlag.AwaitingConstruction, true);
-                flags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                SetModelConditionFlags(flags);
+                ModelConditionFlags.SetAll(false);
+                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+                ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
+                UpdateDrawModuleConditionStates();
                 ConstructionStart = gameTime.TotalTime;
 
                 // TODO: This shouldn't be here. However, we have no better place to put it yet. Belongs in FinishConstruction.
@@ -274,12 +280,10 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            var flags = new BitArray<ModelConditionFlag>();
             var deltaTime = gameTime.DeltaTime.Milliseconds / 1000.0f;
 
             // Check if the unit is currently moving
-            flags.Set(ModelConditionFlag.Moving, true);
-            if (ModelConditionFlags.And(flags).AnyBitSet && TargetPoint.HasValue)
+            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoint.HasValue)
             {
                 var x = Transform.Translation.X;
                 var y = Transform.Translation.Y;
@@ -316,20 +320,20 @@ namespace OpenSage.Logic.Object
                 if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
                 {
                     TargetPoint = null;
-                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+                    ClearModelConditionFlags();
                 }
             }
 
             // Check if the unit is being constructed
-            flags.SetAll(false);
-            flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
-            flags.Set(ModelConditionFlag.AwaitingConstruction, true);
-            flags.Set(ModelConditionFlag.PartiallyConstructed, true);
-            if (ModelConditionFlags.And(flags).AnyBitSet)
+            if (
+                ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
+                ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
+                ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed)
+            )
             {
                 if (gameTime.TotalTime > (ConstructionStart + TimeSpan.FromSeconds(Definition.BuildTime)))
                 {
-                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+                    ClearModelConditionFlags();
                 }
             }
             // Update all draw modules
@@ -378,20 +382,18 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void SetModelConditionFlag(ModelConditionFlag flag, bool value)
+        public void ClearModelConditionFlags()
         {
-            ModelConditionFlags.Set(flag, value);
+            ModelConditionFlags.SetAll(false);
+            UpdateDrawModuleConditionStates();
         }
 
-        public void SetModelConditionFlags(BitArray<ModelConditionFlag> flags)
+        private void UpdateDrawModuleConditionStates()
         {
-            ModelConditionFlags = flags;
-
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
-
             foreach (var drawModule in DrawModules)
             {
-                drawModule.UpdateConditionState(flags);
+                drawModule.UpdateConditionState(ModelConditionFlags);
             }
         }
 
