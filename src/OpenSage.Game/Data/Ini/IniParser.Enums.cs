@@ -104,7 +104,7 @@ namespace OpenSage.Data.Ini
         }
 
         public static Dictionary<string, Enum> GetEnumMap<T>()
-            where T : struct
+            where T : Enum
         {
             var enumType = typeof(T);
             if (!CachedEnumMap.TryGetValue(enumType, out var stringToValueMap))
@@ -142,26 +142,26 @@ namespace OpenSage.Data.Ini
         }
 
         public T ParseEnum<T>()
-            where T : struct
+            where T : Enum
         {
             return ScanEnum<T>(GetNextToken());
         }
 
         public static T ScanEnum<T>(in IniToken token)
-            where T : struct
+            where T : Enum
         {
             var stringToValueMap = GetEnumMap<T>();
 
             if (stringToValueMap.TryGetValue(token.Text.ToUpperInvariant(), out var enumValue))
             {
-                return (T)(object)enumValue;
+                return (T) enumValue;
             }
 
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
         }
 
         public T ParseEnumFlags<T>()
-            where T : struct
+            where T : Enum
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -183,7 +183,7 @@ namespace OpenSage.Data.Ini
         }
 
         public BitArray<T> ParseInLineEnumBitArray<T>()
-            where T : struct
+            where T : Enum
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -205,7 +205,7 @@ namespace OpenSage.Data.Ini
         }
 
         public BitArray<T> ParseEnumBitArray<T>()
-            where T : struct
+            where T : Enum
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -222,13 +222,13 @@ namespace OpenSage.Data.Ini
         }
 
         public BitArray<T> ParseEnumBitArray<T>(string valuesString)
-            where T : struct
+            where T : Enum
         {
             return ParseEnumBitArray<T>(valuesString, CurrentPosition);
         }
 
         public static BitArray<T> ParseEnumBitArray<T>(string valuesString, in IniTokenPosition currentPosition)
-            where T : struct
+            where T : Enum
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -245,13 +245,13 @@ namespace OpenSage.Data.Ini
         }
 
         private bool ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue, bool inLine = false)
-            where T : struct
+            where T : Enum
         {
-            return ParseBitValue<T>(stringToValueMap, result, stringValue, CurrentPosition, inLine);
+            return ParseBitValue(stringToValueMap, result, stringValue, CurrentPosition, inLine);
         }
 
         private static bool ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue, in IniTokenPosition currentPosition, bool inLine = false)
-            where T : struct
+            where T : Enum
         {
             switch (stringValue)
             {
