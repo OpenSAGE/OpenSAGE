@@ -33,7 +33,7 @@ namespace OpenSage.Benchmarks.DataStructures
         [Benchmark]
         public int SetAllExceptOneAndCountBitArray512()
         {
-            var array = new BitArray512<ModelConditionFlag>();
+            var array = new BitArray512(_flagCount);
             array.SetAll(true);
             array.Set(123, false);
             return array.NumBitsSet;

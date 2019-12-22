@@ -1,5 +1,4 @@
-﻿using OpenSage.Logic.Object;
-using OpenSage.Mathematics;
+﻿using OpenSage.Mathematics;
 using Xunit;
 
 namespace OpenSage.Tests.Mathematics
@@ -9,7 +8,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void CanSetAndGet()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(230);
             arr.Set(123, true);
             Assert.True(arr.Get(123));
         }
@@ -17,7 +16,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void CanClearIndividual()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(230);
             arr.SetAll(true);
             arr.Set(123, false);
             Assert.False(arr.Get(123));
@@ -26,7 +25,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void SetOneCount()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(230);
             arr.Set(37, true);
             Assert.Equal(1, arr.NumBitsSet);
         }
@@ -34,7 +33,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void SetBitCountUpdates()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(107);
             arr.Set(100, true);
             Assert.Equal(1, arr.NumBitsSet);
             arr.Set(7, true);
@@ -48,7 +47,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void SetOneInEveryLongCount()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(512);
             arr.Set(0  * 0, true);
             arr.Set(64 * 1, true);
             arr.Set(64 * 2, true);
@@ -63,7 +62,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void CountAfterSetAllReturnsMaxCount()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(510);
             arr.SetAll(true);
             Assert.Equal(arr.Length, arr.NumBitsSet);
         }
@@ -71,7 +70,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void SetAllClearAllZeroCount()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(510);
             arr.SetAll(true);
             arr.SetAll(false);
             Assert.Equal(0, arr.NumBitsSet);
@@ -80,7 +79,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void CanSetAllBitsIndividually()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(117);
 
             for (var i = 0; i < arr.Length; i++)
             {
@@ -93,7 +92,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void CanClearAllBitsIndividually()
         {
-            var arr = new BitArray512<ModelConditionFlag>();
+            var arr = new BitArray512(510);
             arr.SetAll(true);
 
             for (var i = 0; i < arr.Length; i++)
@@ -107,10 +106,10 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void AndSmoke()
         {
-            var arr1 = new BitArray512<ModelConditionFlag>();
+            var arr1 = new BitArray512(100);
             arr1.Set(87, true);
 
-            var arr2 = new BitArray512<ModelConditionFlag>();
+            var arr2 = new BitArray512(100);
             arr2.Set(87, true);
 
             var arr3 = arr1.And(arr2);
@@ -132,12 +131,12 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void AndWithEmptyIsEmpty()
         {
-            var arr1 = new BitArray512<ModelConditionFlag>();
+            var arr1 = new BitArray512(350);
             arr1.Set(1, true);
             arr1.Set(87, true);
             arr1.Set(300, true);
 
-            var arr2 = new BitArray512<ModelConditionFlag>();
+            var arr2 = new BitArray512(350);
 
             var arr3 = arr1.And(arr2);
             Assert.Equal(0, arr3.NumBitsSet);

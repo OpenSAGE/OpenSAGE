@@ -5,12 +5,19 @@ namespace OpenSage.Mathematics
     public sealed class BitArray<TEnum> : IEquatable<BitArray<TEnum>>
         where TEnum : Enum
     {
-        private BitArray512<TEnum> _data;
+        private BitArray512 _data;
         
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 
-        public BitArray() { }
+        public BitArray() {
+            var maxBits = Enum.GetValues(typeof(TEnum)).Length;
+            if (maxBits >= 512)
+            {
+                throw new Exception($"Cannot create a BitArray for enum {typeof(TEnum).Name}, because it has {maxBits} cases (max 512).");
+            }
+            _data = new BitArray512(maxBits);
+        }
 
         public BitArray(System.Collections.BitArray bitArray)
         {
@@ -18,6 +25,8 @@ namespace OpenSage.Mathematics
             {
                 throw new ArgumentException($"Cannot construct BitArray512 from a BitArray of length {bitArray.Length}.");
             }
+
+            _data = new BitArray512(bitArray.Length);
 
             for (var i = 0; i < bitArray.Length; i++)
             {
@@ -32,7 +41,7 @@ namespace OpenSage.Mathematics
 
         public bool Get(TEnum bit)
         {
-            return _data.Get(bit);
+            return _data.Get((int) (object) bit);
         }
 
         public void Set(int bit, bool value)
@@ -42,7 +51,7 @@ namespace OpenSage.Mathematics
 
         public void Set(TEnum bit, bool value)
         {
-            _data.Set(bit, value);
+            _data.Set((int) (object) bit, value);
         }
 
         public void SetAll(bool value)
