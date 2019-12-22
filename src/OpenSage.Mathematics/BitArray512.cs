@@ -84,7 +84,7 @@ namespace OpenSage.Mathematics
                 }
                 else
                 {
-                    *(pointer + offset) &= (byte) ~mask;
+                    *(pointer + offset) &= ~mask;
                 } 
             }
 
