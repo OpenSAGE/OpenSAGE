@@ -60,7 +60,7 @@ namespace OpenSage.Benchmarks.DataStructures
         [Benchmark]
         public int SetHalfRandomlyAndCountBitArray512()
         {
-            var array = new BitArray512<ModelConditionFlag>();
+            var array = new BitArray512(_flagCount);
 
             for (var i = 0; i < _locations.Count; i++)
             {

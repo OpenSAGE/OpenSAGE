@@ -6,8 +6,7 @@ using System.Numerics;
 namespace OpenSage.Mathematics
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct BitArray512<TEnum> : IEquatable<BitArray512<TEnum>>
-        where TEnum : Enum
+    public struct BitArray512
     {
         // We use individual fields instead of an array to avoid an extra allocation.
         // Fixed size buffers are only usable in unsafe structs.
@@ -25,9 +24,7 @@ namespace OpenSage.Mathematics
         /// </summary>
         private int _setBits;
 
-        public static readonly int MaxLength = Enum.GetValues(typeof(TEnum)).Length;
-
-        public readonly int Length => MaxLength;
+        public readonly int Length { get; }
 
         /// <summary>
         /// Is any bit set to 1?
@@ -54,16 +51,23 @@ namespace OpenSage.Mathematics
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(TEnum bit, bool value)
+        public BitArray512(int length) : this()
         {
-            Set((int)(object) bit, value);
+            if (length < 0 || length > 512)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(length),
+                    $"Length must between 0 and 512."
+                );
+            }
+
+            Length = length;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set(int bit, bool value)
         {
-            if (bit >= 512)
+            if (bit < 0 || bit >= Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(bit));
             }
@@ -91,7 +95,7 @@ namespace OpenSage.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Get(int bit)
         {
-            if (bit >= 512)
+            if (bit < 0 || bit >= Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(bit));
             }
@@ -104,12 +108,6 @@ namespace OpenSage.Mathematics
                 var pointer = (ulong*) Unsafe.AsPointer(ref this);
                 return (pointer[offset] & mask) != 0;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Get(TEnum bit)
-        {
-            return Get((int) (object) bit);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,8 +182,13 @@ namespace OpenSage.Mathematics
             _setBits = Length;
         }
 
-        public void CopyFrom(BitArray512<TEnum> other)
+        public void CopyFrom(in BitArray512 other)
         {
+            if (Length != other.Length)
+            {
+                throw new ArgumentException(nameof(other), "Both BitArrays must have the same length.");
+            }
+
             _a0 = other._a0;
             _a1 = other._a1;
             _a2 = other._a2;
@@ -210,9 +213,9 @@ namespace OpenSage.Mathematics
                    BitOperations.PopCount(_a7);
         }
 
-        public BitArray512<TEnum> And(in BitArray512<TEnum> other)
+        public BitArray512 And(in BitArray512 other)
         {
-            return new BitArray512<TEnum> {
+            return new BitArray512(Math.Max(Length, other.Length)) {
                 _a0 = _a0 & other._a0,
                 _a1 = _a1 & other._a1,
                 _a2 = _a2 & other._a2,
@@ -225,9 +228,10 @@ namespace OpenSage.Mathematics
             };
         }
 
-        public bool Equals(BitArray512<TEnum> other)
+        public bool Equals(in BitArray512 other)
         {
             return
+                Length == other.Length &&
                 _a0 == other._a0 &&
                 _a1 == other._a1 &&
                 _a2 == other._a2 &&

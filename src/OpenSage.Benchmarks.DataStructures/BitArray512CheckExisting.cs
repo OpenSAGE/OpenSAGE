@@ -12,13 +12,13 @@ namespace OpenSage.Benchmarks.DataStructures
         private readonly int _flagCount = Enum.GetValues(typeof(ModelConditionFlag)).Length;
 
         private BitArray _bitArray;
-        private BitArray512<ModelConditionFlag> _bitArray512;
+        private BitArray512 _bitArray512;
 
         [GlobalSetup]
         public void GenerateData()
         {
             _bitArray = new BitArray(_flagCount);
-            _bitArray512 = new BitArray512<ModelConditionFlag>();
+            _bitArray512 = new BitArray512(_flagCount);
 
             _bitArray.Set(240, true);
             _bitArray512.Set(240, true);
