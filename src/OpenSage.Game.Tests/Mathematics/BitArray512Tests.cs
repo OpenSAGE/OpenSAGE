@@ -6,11 +6,21 @@ namespace OpenSage.Tests.Mathematics
     public class BitArray512Tests
     {
         [Fact]
-        public void CanSetAndGet()
+        public void CanSetAndUnsetAll()
         {
-            var arr = new BitArray512(230);
-            arr.Set(123, true);
-            Assert.True(arr.Get(123));
+            var arr = new BitArray512(512);
+
+            Assert.Equal(0, arr.NumBitsSet);
+
+            for (var i = 0; i < arr.Length; i++)
+            {
+                arr.Set(i, true);
+                Assert.True(arr.Get(i));
+                arr.Set(i, false);
+                Assert.False(arr.Get(i));
+            }
+
+            Assert.Equal(0, arr.NumBitsSet);
         }
 
         [Fact]
@@ -84,6 +94,7 @@ namespace OpenSage.Tests.Mathematics
             for (var i = 0; i < arr.Length; i++)
             {
                 arr.Set(i, true);
+                Assert.Equal(i + 1, arr.NumBitsSet);
             }
 
             Assert.Equal(arr.Length, arr.NumBitsSet);
@@ -98,6 +109,7 @@ namespace OpenSage.Tests.Mathematics
             for (var i = 0; i < arr.Length; i++)
             {
                 arr.Set(i, false);
+                Assert.Equal(arr.Length - i - 1, arr.NumBitsSet);
             }
 
             Assert.Equal(0, arr.NumBitsSet);
@@ -139,6 +151,9 @@ namespace OpenSage.Tests.Mathematics
             var arr2 = new BitArray512(350);
 
             var arr3 = arr1.And(arr2);
+            Assert.False(arr3.Get(1));
+            Assert.False(arr3.Get(87));
+            Assert.False(arr3.Get(300));
             Assert.Equal(0, arr3.NumBitsSet);
         }
     }
