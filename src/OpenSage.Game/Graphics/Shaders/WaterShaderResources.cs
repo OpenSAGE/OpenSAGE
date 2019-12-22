@@ -47,7 +47,7 @@ namespace OpenSage.Graphics.Shaders
                     RenderPipeline.GameOutputDescription)));
         }
 
-        public ResourceSet CreateMaterialResourceSet(Texture waterTexture, Texture bumpTexture = null)
+        public ResourceSet CreateMaterialResourceSet(Texture waterTexture, Texture bumpTexture)
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
