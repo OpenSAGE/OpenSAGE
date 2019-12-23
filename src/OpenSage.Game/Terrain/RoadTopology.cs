@@ -85,12 +85,14 @@ namespace OpenSage.Terrain
                     {
                         case 1: // end point
                             break;
-                        case 2: // normal road, create segments for tight/broad curves
+                        case 2: // TODO normal road, create segments for tight/broad curves
                             break;
                         case 3:
                             var halfWidth = edgesPerTemplate.Key.RoadWidth / 2;
 
+                            // TODO figure out orientation and endpoints
                             var segment = new TRoadSegment(
+                                node.Position,
                                 new RoadSegmentEndPoint(node.Position + new Vector3(0, halfWidth, 0)),
                                 new RoadSegmentEndPoint(node.Position + new Vector3(halfWidth, 0, 0)),
                                 new RoadSegmentEndPoint(node.Position + new Vector3(0, -halfWidth, 0)));
@@ -111,6 +113,8 @@ namespace OpenSage.Terrain
                                     endPoint.ConnectTo(edgeSegment, edge.End.Position - edge.Start.Position);
                                 }
                             }
+
+                            // TODO consider ordering of edges
 
                             Connect(edgesPerTemplate.ElementAt(0), segment.Top, Vector3.UnitY);
                             Connect(edgesPerTemplate.ElementAt(1), segment.Right, Vector3.UnitX);
