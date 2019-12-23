@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Terrain.Roads;
 
 namespace OpenSage.Terrain
 {
@@ -54,9 +54,7 @@ namespace OpenSage.Terrain
 
                 var network = new RoadNetwork(edge.Template);
                 networks.Add(network);
-
-                network.AddEdge(edge);
-
+                
                 void FollowPath(RoadTopologyNode node)
                 {
                     foreach (var nextEdge in node.Edges)
@@ -67,7 +65,7 @@ namespace OpenSage.Terrain
                             continue;
                         }
 
-                        network.AddEdge(nextEdge);
+                        network.AddSegment(new AngledRoadSegment(nextEdge.Start.Position, nextEdge.End.Position));
                         edgesToProcess.Remove(nextEdge);
 
                         seenEdges.Add(nextEdge);
@@ -120,89 +118,6 @@ namespace OpenSage.Terrain
 
             End = end;
             EndType = endType;
-        }
-    }
-
-    internal enum RoadNodeType
-    {
-        Endpoint,
-        TwoWay,
-        ThreeWay,
-        FourWay
-    }
-
-    internal sealed class RoadNetwork
-    {
-        public RoadTemplate Template { get; }
-
-        public List<RoadNetworkNode> Nodes { get; } = new List<RoadNetworkNode>();
-        public List<RoadNetworkEdge> Edges { get; } = new List<RoadNetworkEdge>();
-
-        public RoadNetwork(RoadTemplate template)
-        {
-            Template = template;
-        }
-
-        public void AddEdge(RoadTopologyEdge topologyEdge)
-        {
-            var startNode = GetOrCreateNode(topologyEdge.Start);
-            var endNode = GetOrCreateNode(topologyEdge.End);
-
-            var edge = new RoadNetworkEdge(
-                topologyEdge,
-                startNode,
-                endNode);
-
-            Edges.Add(edge);
-
-            startNode.Edges.Add(edge);
-            endNode.Edges.Add(edge);
-        }
-
-        private RoadNetworkNode GetOrCreateNode(RoadTopologyNode topologyNode)
-        {
-            var node = Nodes.Find(x => x.TopologyNode == topologyNode);
-            if (node == null)
-            {
-                Nodes.Add(node = new RoadNetworkNode(topologyNode));
-            }
-            return node;
-        }
-    }
-
-    internal sealed class RoadNetworkNode
-    {
-        public RoadTopologyNode TopologyNode { get; }
-        public List<RoadNetworkEdge> Edges { get; } = new List<RoadNetworkEdge>();
-
-        public RoadNodeType NodeType { get; private set; }
-
-        public RoadNetworkNode(RoadTopologyNode topologyNode)
-        {
-            TopologyNode = topologyNode;
-        }
-
-        public void ClassifyType()
-        {
-            // TODO
-        }
-    }
-
-    internal sealed class RoadNetworkEdge
-    {
-        public RoadTopologyEdge TopologyEdge { get; }
-
-        public RoadNetworkNode Start { get; }
-        public RoadNetworkNode End { get; }
-
-        public RoadNetworkEdge(
-            RoadTopologyEdge topologyEdge,
-            RoadNetworkNode start,
-            RoadNetworkNode end)
-        {
-            TopologyEdge = topologyEdge;
-            Start = start;
-            End = end;
         }
     }
 }
