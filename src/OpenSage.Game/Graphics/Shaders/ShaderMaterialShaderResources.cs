@@ -46,7 +46,7 @@ namespace OpenSage.Graphics.Shaders
                     BlendStateDescription.SingleDisabled,
                     DepthStencilStateDescription.DepthOnlyLessEqual,
                     RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
-                    PrimitiveTopology.TriangleStrip,
+                    PrimitiveTopology.TriangleList,
                     ShaderSet.Description,
                     resourceLayouts,
                     RenderPipeline.GameOutputDescription)));
