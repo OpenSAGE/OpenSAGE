@@ -399,7 +399,9 @@ namespace OpenSage
                 // the UserDataFolder before then.
                 if (Directory.Exists(UserDataFolder))
                 {
-                    _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
+                    _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
+                    ContentManager.UserDataFileSystem = _userDataFileSystem;
+
                     var file = _userDataFileSystem.GetFile(@"Maps\MapCache.ini");
                     if (file != null)
                     {
@@ -535,17 +537,7 @@ namespace OpenSage
 
         internal Scene3D LoadMap(string mapPath)
         {
-            FileSystemEntry entry;
-            if (mapPath.StartsWith(_userDataFileSystem.RootDirectory))
-            {
-                mapPath = FileSystem.NormalizeFilePath(mapPath.Substring(_userDataFileSystem.RootDirectory.Length + 1));
-                entry = _userDataFileSystem.GetFile(mapPath);
-            }
-            else
-            {
-                entry = ContentManager.FileSystem.GetFile(mapPath);
-            }
-
+            var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
             return new Scene3D(this, mapFile);

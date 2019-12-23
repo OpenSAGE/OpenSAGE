@@ -19,7 +19,7 @@ namespace OpenSage.Content
         public SageGame SageGame { get; }
 
         public FileSystem FileSystem { get; }
-        public FileSystem UserDataFileSystem { get; }
+        public FileSystem UserDataFileSystem { get; internal set; }
 
         public IniDataContext IniDataContext { get; }
 
@@ -114,6 +114,20 @@ namespace OpenSage.Content
 
                 var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext);
                 parser.ParseFile();
+            }
+        }
+
+        internal FileSystemEntry GetMapEntry(string mapPath)
+        {
+            var normalizedPath = FileSystem.NormalizeFilePath(mapPath);
+            if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))
+            {
+                mapPath = mapPath.Substring(UserDataFileSystem.RootDirectory.Length + 1);
+                return UserDataFileSystem.GetFile(mapPath);
+            }
+            else
+            {
+                return FileSystem.GetFile(mapPath);
             }
         }
     }

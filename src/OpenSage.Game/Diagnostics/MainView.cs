@@ -98,44 +98,7 @@ namespace OpenSage.Diagnostics
 
                 if (ImGui.BeginMenu("Jump"))
                 {
-                    if (ImGui.BeginMenu("Map"))
-                    {
-                        foreach (var mapCache in _context.Game.AssetStore.MapCaches)
-                        {
-                            //TODO: we should probably cache the validity of entries
-                            if (_context.Game.ContentManager.FileSystem.GetFile(mapCache.Name) == null)
-                                continue;
-
-                            var mapName = mapCache.GetNameKey().Translate();
-
-                            if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
-                            {
-                                var playableSides = _context.Game.GetPlayableSides();
-                                var faction1 = playableSides.First();
-                                var faction2 = playableSides.Last();
-
-                                if (mapCache.IsMultiplayer)
-                                {
-                                    _context.Game.StartMultiPlayerGame(
-                                        mapCache.Name,
-                                        new EchoConnection(),
-                                        new PlayerSetting?[]
-                                        {
-                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
-                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
-                                        },
-                                        0
-                                    );
-                                }
-                                else
-                                {
-                                    _context.Game.StartSinglePlayerGame(mapCache.Name);
-                                }
-                            }
-                        }
-
-                        ImGui.EndMenu();
-                    }
+                    DrawMaps();
 
                     ImGui.EndMenu();
                 }
@@ -273,6 +236,48 @@ namespace OpenSage.Diagnostics
 
                 ImGui.End();
                 ImGui.PopStyleVar();
+            }
+        }
+
+        private void DrawMaps()
+        {
+            if (ImGui.BeginMenu("Map"))
+            {
+                foreach (var mapCache in _context.Game.AssetStore.MapCaches)
+                {
+                    //TODO: we should probably cache the validity of entries
+                    if (_context.Game.ContentManager.GetMapEntry(mapCache.Name) == null)
+                        continue;
+
+                    var mapName = mapCache.GetNameKey().Translate();
+
+                    if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
+                    {
+                        var playableSides = _context.Game.GetPlayableSides();
+                        var faction1 = playableSides.First();
+                        var faction2 = playableSides.Last();
+
+                        if (mapCache.IsMultiplayer)
+                        {
+                            _context.Game.StartMultiPlayerGame(
+                                mapCache.Name,
+                                new EchoConnection(),
+                                new PlayerSetting?[]
+                                {
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                },
+                                0
+                            );
+                        }
+                        else
+                        {
+                            _context.Game.StartSinglePlayerGame(mapCache.Name);
+                        }
+                    }
+                }
+
+                ImGui.EndMenu();
             }
         }
     }
