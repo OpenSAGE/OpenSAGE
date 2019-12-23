@@ -192,7 +192,8 @@ namespace OpenSage.Graphics
 
         private static ushort[] CreateIndices(W3dMesh w3dMesh, bool usesShaderMaterial)
         {
-            if (usesShaderMaterial)
+            //TODO: fix this
+            if (false && usesShaderMaterial)
             {
                 // If using shader materials, we can use the actual shade indices from the mesh.
                 return w3dMesh.ShadeIndices.Items.Select(x => (ushort) x).ToArray();
@@ -289,7 +290,7 @@ namespace OpenSage.Graphics
             return new ModelMeshPart(
                 texCoordsVertexBuffer,
                 0,
-                (uint)w3dMesh.ShadeIndices.Items.Length,
+                (uint)w3dMesh.Triangles.Items.Length * 3,
                 blendEnabled,
                 pipeline,
                 materialResourceSet);
