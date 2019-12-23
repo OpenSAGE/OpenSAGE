@@ -117,13 +117,13 @@ namespace OpenSage.Data.Ini
         }
 
         public T ScanAttributeEnum<T>(string label, in IniToken token)
-            where T : struct
+            where T : Enum
         {
             return ParseAttribute<T>(label, ScanEnum<T>);
         }
 
         public T ParseAttributeEnum<T>(string label)
-            where T : struct
+            where T : Enum
         {
             T GetValue(in IniToken token) => ScanEnum<T>(token);
 
@@ -131,7 +131,7 @@ namespace OpenSage.Data.Ini
         }
 
         public BitArray<T> ParseAttributeEnumBitArray<T>(string label)
-            where T : struct
+            where T : Enum
         {
             return ParseAttribute(label, ParseEnumBitArray<T>);
         }

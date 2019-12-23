@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
 
         public IReadOnlyList<GameObject> Items => _items;
 
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         internal GameObjectCollection(AssetLoadContext loadContext, Player civilianPlayer)
         {
             _loadContext = loadContext;
@@ -20,7 +22,15 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(string typeName, Player player)
         {
-            return Add(_loadContext.AssetStore.ObjectDefinitions.GetByName(typeName), player);
+            var definition = _loadContext.AssetStore.ObjectDefinitions.GetByName(typeName);
+
+            if (definition == null)
+            {
+                logger.Warn($"Skipping unknown GameObject \"{typeName}\"");
+                return null;
+            }
+
+            return Add(definition, player);
         }
 
         public GameObject Add(string typeName)

@@ -102,6 +102,10 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.AssetStore.MapCaches)
                         {
+                            //TODO: we should probably cache the validity of entries
+                            if (_context.Game.ContentManager.FileSystem.GetFile(mapCache.Name) == null)
+                                continue;
+
                             var mapName = mapCache.GetNameKey().Translate();
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
@@ -110,15 +114,23 @@ namespace OpenSage.Diagnostics
                                 var faction1 = playableSides.First();
                                 var faction2 = playableSides.Last();
 
-                                _context.Game.StartMultiPlayerGame(
-                                    mapCache.Name,
-                                    new EchoConnection(),
-                                    new PlayerSetting?[]
-                                    {
-                                        new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
-                                    },
-                                    0);
+                                if (mapCache.IsMultiplayer)
+                                {
+                                    _context.Game.StartMultiPlayerGame(
+                                        mapCache.Name,
+                                        new EchoConnection(),
+                                        new PlayerSetting?[]
+                                        {
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                        },
+                                        0
+                                    );
+                                }
+                                else
+                                {
+                                    _context.Game.StartSinglePlayerGame(mapCache.Name);
+                                }
                             }
                         }
 

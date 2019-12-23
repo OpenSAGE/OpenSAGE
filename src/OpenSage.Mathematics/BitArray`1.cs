@@ -1,105 +1,72 @@
 ﻿using System;
-using System.Collections;
 
 namespace OpenSage.Mathematics
 {
-    // TODO: Don't use .NET's BitArray as the internal implementation.
-    public sealed class BitArray<TEnum> : IEquatable<BitArray>
-        where TEnum : struct
+    public sealed class BitArray<TEnum> : IEquatable<BitArray<TEnum>>
+        where TEnum : Enum
     {
-        private static readonly int NumValues = Enum.GetValues(typeof(TEnum)).Length;
+        private BitArray512 _data;
+        
+        public bool AnyBitSet => _data.AnyBitSet;
+        public int NumBitsSet => _data.NumBitsSet;
 
-        private readonly BitArray _inner;
-
-        public bool AnyBitSet
-        {
-            get
+        public BitArray() {
+            var maxBits = Enum.GetValues(typeof(TEnum)).Length;
+            if (maxBits >= 512)
             {
-                for (var i = 0; i < _inner.Count; i++)
-                {
-                    if (_inner[i])
-                    {
-                        return true;
-                    }
-                }
+                throw new Exception($"Cannot create a BitArray for enum {typeof(TEnum).Name}, because it has {maxBits} cases (max 512).");
+            }
+            _data = new BitArray512(maxBits);
+        }
 
-                return false;
+        public BitArray(System.Collections.BitArray bitArray)
+        {
+            if (bitArray.Length >= 512)
+            {
+                throw new ArgumentException($"Cannot construct BitArray512 from a BitArray of length {bitArray.Length}.");
+            }
+
+            _data = new BitArray512(bitArray.Length);
+
+            for (var i = 0; i < bitArray.Length; i++)
+            {
+                _data.Set(i, bitArray[i]);
             }
         }
 
-        public int NumBitsSet
+        public bool Get(int bit)
         {
-            get
-            {
-                var result = 0;
-
-                for (var i = 0; i < _inner.Count; i++)
-                {
-                    if (_inner[i])
-                    {
-                        result += 1;
-                    }
-                }
-
-                return result;
-            }
+            return _data.Get(bit);
         }
 
-        public BitArray()
+        public bool Get(TEnum bit)
         {
-            _inner = new BitArray(NumValues);
+            return _data.Get((int) (object) bit);
         }
 
-        private BitArray(BitArray inner)
+        public void Set(int bit, bool value)
         {
-            _inner = inner;
+            _data.Set(bit, value);
         }
 
-        public bool Get(TEnum index)
+        public void Set(TEnum bit, bool value)
         {
-            return _inner.Get((int) (object) index);
+            _data.Set((int) (object) bit, value);
         }
 
         public void SetAll(bool value)
         {
-            _inner.SetAll(value);
+            _data.SetAll(value);
         }
 
-        public void Set(TEnum index, bool value)
+        public void CopyFrom(BitArray<TEnum> other)
         {
-            _inner.Set((int) (object) index, value);
+            _data.CopyFrom(other._data);
         }
 
-        public BitArray<TEnum> And(BitArray<TEnum> value)
+        public int CountIntersectionBits(BitArray<TEnum> other)
         {
-            // TODO: This is slow.
-            return new BitArray<TEnum>(((BitArray) _inner.Clone()).And(value._inner));
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is BitArray<TEnum> x)
-            {
-                for (var i = 0; i < _inner.Count; i++)
-                {
-                    if (_inner[i] != x._inner[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(_inner.Count);
-        }
-
-        bool IEquatable<BitArray>.Equals(BitArray other)
-        {
-            return Equals(other);
+            return _data.And(other._data).NumBitsSet;
         }
 
         public string DisplayName
@@ -108,9 +75,9 @@ namespace OpenSage.Mathematics
             {
                 var result = string.Empty;
 
-                for (var i = 0; i < _inner.Count; i++)
+                for (var i = 0; i < _data.Length; i++)
                 {
-                    if (_inner[i])
+                    if (_data.Get(i))
                     {
                         result += ((TEnum) (object) i).ToString() + ", ";
                     }
@@ -120,6 +87,16 @@ namespace OpenSage.Mathematics
                     ? "(None)"
                     : result.Trim(' ', ',');
             }
+        }
+
+        public bool Equals(BitArray<TEnum> other)
+        {
+            return _data.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _data.GetHashCode();
         }
     }
 }

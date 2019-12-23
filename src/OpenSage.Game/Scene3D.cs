@@ -61,7 +61,7 @@ namespace OpenSage
 
         public GameObjectCollection GameObjects { get; }
         public bool ShowObjects { get; set; } = true;
-
+        public CameraCollection Cameras { get; set; }
         public WaypointCollection Waypoints { get; set; }
         public WaypointPathCollection WaypointPaths { get; set; }
 
@@ -107,7 +107,7 @@ namespace OpenSage
 
             MapFile = mapFile;
             Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
-            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, game.AssetStore.LoadContext));
+            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -118,17 +118,20 @@ namespace OpenSage
                 game.CivilianPlayer,
                 Terrain.HeightMap,
                 mapFile.ObjectsList.Objects,
+                MapFile.NamedCameras,
                 _teams,
                 out var waypoints,
                 out var gameObjects,
                 out var roads,
-                out var bridges);
+                out var bridges,
+                out var cameras);
 
             Roads = roads;
             Bridges = bridges;
             GameObjects = gameObjects;
             Waypoints = waypoints;
             WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
+            Cameras = cameras;
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
@@ -151,11 +154,13 @@ namespace OpenSage
             Player civilianPlayer,
             HeightMap heightMap,
             MapObject[] mapObjects,
+            NamedCameras namedCameras,
             List<Team> teams,
             out WaypointCollection waypointCollection,
             out GameObjectCollection gameObjects,
             out RoadCollection roads,
-            out Bridge[] bridges)
+            out Bridge[] bridges,
+            out CameraCollection cameras)
         {
             var waypoints = new List<Waypoint>();
             gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer));
@@ -249,6 +254,7 @@ namespace OpenSage
                 loadContext.GraphicsDevice.WaitForIdle();
             }
 
+            cameras = new CameraCollection(namedCameras?.Cameras);
             roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
             waypointCollection = new WaypointCollection(waypoints);
             bridges = bridgesList.ToArray();
@@ -278,6 +284,7 @@ namespace OpenSage
             GameObjects = gameObjects;
             Waypoints = new WaypointCollection();
             WaypointPaths = new WaypointPathCollection();
+            Cameras = new CameraCollection();
 
             CameraController = cameraController;
         }
