@@ -139,6 +139,9 @@ namespace OpenSage.Diagnostics
                         ImGui.EndMenu();
                     }
 
+                    ImGui.EndMenu();
+                }
+
                 if (ImGui.BeginMenu("Windows"))
                 {
                     foreach (var view in _views)
