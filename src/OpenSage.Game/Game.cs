@@ -642,7 +642,6 @@ namespace OpenSage
                         availablePositions.Remove((int) startPos);
                     }
 
-
                     var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
 
