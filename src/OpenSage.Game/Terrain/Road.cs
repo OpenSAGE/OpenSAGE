@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Terrain.Roads;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -28,95 +28,21 @@ namespace OpenSage.Terrain
         internal Road(
             AssetLoadContext loadContext,
             HeightMap heightMap,
-            RoadTemplate template,
-            in Vector3 startPosition,
-            in Vector3 endPosition)
+            RoadNetwork network)
         {
-            const float heightBias = 1f;
-            const float createNewVerticesHeightDeltaThreshold = 0.002f;
-
-            var distance = Vector3.Distance(startPosition, endPosition);
-            var direction = Vector3.Normalize(endPosition - startPosition);
-            var centerToEdgeDirection = Vector3.Cross(Vector3.UnitZ, direction);
-            var up = Vector3.Cross(direction, centerToEdgeDirection);
-
-            var halfWidth = template.RoadWidth / 2;
-
-            var textureAtlasSplit = 1 / 3f;
-
             var vertices = new List<RoadShaderResources.RoadVertex>();
+            var indices = new List<ushort>();
 
-            // Step along road segment in units of 10. If the delta between
-            // (a) the straight line from previous point to finish and
-            // (b) the actual height of the terrain at this point
-            // is > a threshold, create extra vertices.
-            // TODO: I don't know if this is the right algorithm.
-
-            void AddVertexPair(in Vector3 position, float distanceAlongRoad)
+            foreach (var segment in network.Segments)
             {
-                var u = distanceAlongRoad / 50;
-
-                var p0 = position - centerToEdgeDirection * halfWidth;
-                p0.Z += heightBias;
-
-                vertices.Add(new RoadShaderResources.RoadVertex
-                {
-                    Position = p0,
-                    Normal = up,
-                    UV = new Vector2(u, 0)
-                });
-
-                var p1 = position + centerToEdgeDirection * halfWidth;
-                p1.Z += heightBias;
-
-                vertices.Add(new RoadShaderResources.RoadVertex
-                {
-                    Position = p1,
-                    Normal = up,
-                    UV = new Vector2(u, textureAtlasSplit)
-                });
+                segment.GenerateMesh(network.Template, heightMap, vertices, indices);
             }
-
-            AddVertexPair(startPosition, 0);
-
-            var previousPoint = startPosition;
-            var previousPointDistance = 0;
-
-            for (var currentDistance = 10; currentDistance < distance; currentDistance += 10)
-            {
-                var position = startPosition + direction * currentDistance;
-                var actualHeight = heightMap.GetHeight(position.X, position.Y);
-                var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
-
-                if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
-                {
-                    AddVertexPair(position, currentDistance);
-                    previousPoint = position;
-                    previousPointDistance = currentDistance;
-                }
-            }
-
-            // Add last chunk.
-            AddVertexPair(endPosition, distance);
 
             _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
             _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 vertices.ToArray(),
                 BufferUsage.VertexBuffer));
-
-            var indices = new List<ushort>();
-
-            for (var i = 0; i < vertices.Count - 2; i += 2)
-            {
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 2));
-
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 2));
-                indices.Add((ushort) (i + 3));
-            }
 
             _numIndices = (uint) indices.Count;
 
@@ -128,7 +54,7 @@ namespace OpenSage.Terrain
             _pipeline = loadContext.ShaderResources.Road.Pipeline;
 
             // TODO: Cache these resource sets in some sort of scoped data context.
-            _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(template.Texture.Value));
+            _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(network.Template.Texture.Value));
 
             _beforeRender = (cl, context) =>
             {

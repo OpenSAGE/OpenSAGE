@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 
@@ -40,21 +39,10 @@ namespace OpenSage.Terrain
 
             foreach (var network in networks)
             {
-                foreach (var edge in network.Edges)
-                {
-                    var startPosition = edge.Start.TopologyNode.Position;
-                    var endPosition = edge.End.TopologyNode.Position;
-
-                    startPosition.Z += heightMap.GetHeight(startPosition.X, startPosition.Y);
-                    endPosition.Z += heightMap.GetHeight(endPosition.X, endPosition.Y);
-
-                    _roads.Add(AddDisposable(new Road(
+                _roads.Add(AddDisposable(new Road(
                         loadContext,
                         heightMap,
-                        edge.TopologyEdge.Template,
-                        startPosition,
-                        endPosition)));
-                }
+                        network)));
             }
         }
 
