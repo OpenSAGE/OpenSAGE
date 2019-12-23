@@ -27,10 +27,17 @@ namespace OpenSage.Terrain
             x = x / HorizontalScale + _heightMapData.BorderWidth;
             y = y / HorizontalScale + _heightMapData.BorderWidth;
 
-            if (x >= Width || y >= Height || x < 0 || y < 0)
-            {
-                return 0;
-            }
+            if (x < 0)
+                x = 0;
+
+            if (x >= Width)
+                x = Width - 1;
+
+            if (y < 0)
+                y = 0;
+
+            if (y >= Height)
+                y = Height;
 
             // get integer and fractional parts of coordinates
             var nIntX0 = MathUtility.FloorToInt(x);
