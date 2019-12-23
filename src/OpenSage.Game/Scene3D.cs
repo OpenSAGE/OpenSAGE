@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Content;
+using OpenSage.Navigation;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -51,10 +52,10 @@ namespace OpenSage
         public Terrain.WaterAreaCollection WaterAreas { get; }
         public bool ShowWater { get; set; } = true;
 
-        public Terrain.RoadCollection Roads { get; }
+        public RoadCollection Roads { get; }
         public bool ShowRoads { get; set; } = true;
 
-        public Terrain.Bridge[] Bridges { get; }
+        public Bridge[] Bridges { get; }
         public bool ShowBridges { get; set; } = true;
 
         public MapScriptCollection Scripts { get; }
@@ -77,6 +78,7 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
+        private Navigation.Navigation _navigation;
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
@@ -132,6 +134,8 @@ namespace OpenSage
             Waypoints = waypoints;
             WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
             Cameras = cameras;
+
+            _navigation = new Navigation.Navigation(mapFile.BlendTileData);
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
