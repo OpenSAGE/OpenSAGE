@@ -402,6 +402,7 @@ namespace OpenSage
                     _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
                     ContentManager.UserDataFileSystem = _userDataFileSystem;
 
+                    // TODO: Re-generate MapCache.ini for user maps
                     var file = _userDataFileSystem.GetFile(@"Maps\MapCache.ini");
                     if (file != null)
                     {
