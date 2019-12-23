@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -8,13 +9,25 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class AngledRoadSegment : IRoadSegment
     {
+        private IEnumerable<Vector3> _intermediatePositions;
+
         public RoadSegmentEndPoint Start { get; }
         public RoadSegmentEndPoint End { get; }
 
-        public AngledRoadSegment(in Vector3 start, in Vector3 end)
+        public AngledRoadSegment(in Vector3 start, in Vector3 end, IEnumerable<Vector3> intermediatePositions = null)
         {
             Start = new RoadSegmentEndPoint(start);
             End = new RoadSegmentEndPoint(end);
+            _intermediatePositions = intermediatePositions ?? Enumerable.Empty<Vector3>();
+        }
+
+        public IEnumerable<RoadSegmentEndPoint> EndPoints
+        {
+            get
+            {
+                yield return Start;
+                yield return End;
+            }
         }
 
         public void GenerateMesh(
