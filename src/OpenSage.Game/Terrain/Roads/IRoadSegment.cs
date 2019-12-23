@@ -8,7 +8,7 @@ namespace OpenSage.Terrain.Roads
         IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
 
         void GenerateMesh(
-            RoadTemplate roadTemplate,
+            RoadTemplate template,
             HeightMap heightMap,
             List<RoadShaderResources.RoadVertex> vertices,
             List<ushort> indices);

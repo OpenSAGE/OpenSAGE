@@ -54,9 +54,7 @@ namespace OpenSage.Terrain.Roads
             var centerToEdgeDirection = Vector3.Cross(Vector3.UnitZ, direction);
             var up = Vector3.Cross(direction, centerToEdgeDirection);
 
-            var halfWidth = template.RoadWidth / 2;
-
-            var textureAtlasSplit = 1 / 3f;
+            var halfWidth = template.RoadWidth / 2;            
 
             // Step along road segment in units of 10. If the delta between
             // (a) the straight line from previous point to finish and
@@ -68,7 +66,7 @@ namespace OpenSage.Terrain.Roads
 
             void AddVertexPair(in Vector3 position, float distanceAlongRoad)
             {
-                var u = distanceAlongRoad / 50;
+                var u = distanceAlongRoad / 140;
 
                 var p0 = position - centerToEdgeDirection * halfWidth;
                 p0.Z += heightBias;
@@ -77,7 +75,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p0,
                     Normal = up,
-                    UV = new Vector2(u, 0)
+                    UV = new Vector2(u, 0.05f)
                 });
 
                 var p1 = position + centerToEdgeDirection * halfWidth;
@@ -87,7 +85,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2(u, textureAtlasSplit)
+                    UV = new Vector2(u, 0.28f)
                 });
             }
 
