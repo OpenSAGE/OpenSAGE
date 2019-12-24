@@ -14,14 +14,15 @@ namespace OpenSage.Navigation
 
     class Node
     {
-        private readonly int _x, _y;
         private readonly Graph _graph;
         public Passability Passability { get; set; }
+        public int X { get; }
+        public int Y { get; }
 
         internal Node(Graph graph, int x, int y)
         {
-            _x = x;
-            _y = y;
+            X = x;
+            Y = y;
             _graph = graph;
             Passability = Passability.Passable;
         }
@@ -31,9 +32,9 @@ namespace OpenSage.Navigation
             return Passability == Passability.Passable;
         }
 
-        internal int CalculateDistance(int targetX, int targetY)
+        internal int CalculateDistance(Node target)
         {
-            return Math.Abs(targetX - _x) + Math.Abs(targetY - _y);
+            return Math.Abs(target.X - X) + Math.Abs(target.Y - Y);
         }
 
         internal IEnumerable<Node> GetAdjacentPassableNodes()
@@ -43,21 +44,21 @@ namespace OpenSage.Navigation
 
         internal IEnumerable<Node> GetAdjacentNodes()
         {
-            if (_x > 0)
+            if (X > 0)
             {
-                yield return _graph.GetNode(_x - 1, _y);
+                yield return _graph.GetNode(X - 1, Y);
             }
-            if (_y > 0)
+            if (Y > 0)
             {
-                yield return _graph.GetNode(_x, _y - 1);
+                yield return _graph.GetNode(X, Y - 1);
             }
-            if (_x < _graph.Width - 1)
+            if (X < _graph.Width - 1)
             {
-                yield return _graph.GetNode(_x + 1, _y);
+                yield return _graph.GetNode(X + 1, Y);
             }
-            if (_y < _graph.Height - 1)
+            if (Y < _graph.Height - 1)
             {
-                yield return _graph.GetNode(_x, _y + 1);
+                yield return _graph.GetNode(X, Y + 1);
             }
         }
     }

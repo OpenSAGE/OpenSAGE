@@ -28,5 +28,49 @@ namespace OpenSage.Navigation
                 }
             }
         }
+
+        private List<Node> GetPath(Dictionary<Node, Node> paths, Node start, Node end)
+        {
+            var result = new List<Node>();
+            result.Add(end);
+            var iter = paths[end];
+
+            while(iter != start)
+            {
+                result.Add(iter);
+                iter = paths[iter];
+
+            }
+
+            result.Reverse();
+
+            return result;
+        }
+
+        public List<Node> Search(Node start, Node end)
+        {
+            var came_from = new Dictionary<Node,Node>();
+            var frontier = new Queue<Node>();
+            frontier.Enqueue(start);
+
+            while (frontier.Count > 0)
+            {
+                var current = frontier.Dequeue();
+
+                if (current == end)
+                    break;
+
+                foreach (var next in current.GetAdjacentPassableNodes())
+                {
+                    if(!came_from.ContainsKey(next))
+                    {
+                        came_from[next] = current;
+                        frontier.Enqueue(next);
+                    }
+                }
+            }
+
+            return GetPath(came_from,start,end);
+        }
     }
 }

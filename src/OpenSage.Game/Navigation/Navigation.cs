@@ -23,6 +23,8 @@ namespace OpenSage.Navigation
                     _graph.GetNode(x, y).Passability = passable ? Passability.Passable : Passability.Impassable;
                 }
             }
+
+            var route = _graph.Search(_graph.GetNode(5, 5), _graph.GetNode(20, 20));
         }
     }
 }
