@@ -47,11 +47,16 @@ namespace OpenSage.Navigation
             return result;
         }
 
+        // A* pathfinding
         public List<Node> Search(Node start, Node end)
         {
             var came_from = new Dictionary<Node,Node>();
-            var frontier = new Queue<Node>();
-            frontier.Enqueue(start);
+            var cost_so_far = new Dictionary<Node, int>();
+            came_from[start] = start;
+            cost_so_far[start] = 0;
+
+            var frontier = new PriorityQueue<Node>();
+            frontier.Enqueue(start, 0);
 
             while (frontier.Count > 0)
             {
@@ -62,10 +67,12 @@ namespace OpenSage.Navigation
 
                 foreach (var next in current.GetAdjacentPassableNodes())
                 {
-                    if(!came_from.ContainsKey(next))
+                    int newCost = cost_so_far[current] + current.CalculateDistance(next);
+                    if(!cost_so_far.ContainsKey(next) || newCost < cost_so_far[next])
                     {
+                        cost_so_far[next] = newCost;
                         came_from[next] = current;
-                        frontier.Enqueue(next);
+                        frontier.Enqueue(next, newCost);
                     }
                 }
             }
