@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
@@ -31,7 +32,7 @@ namespace OpenSage.Logic.Object
             };
             foreach (var boneName in boneNames)
             {
-                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => x.Name == boneName);
+                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase));
                 ActiveModelInstance.ModelBoneInstances[bone.Index].AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
             }
         }
