@@ -11,7 +11,18 @@ namespace OpenSage.Navigation
 
         public Navigation(BlendTileData tileData)
         {
-            _graph = new Graph();
+            var width = tileData.Impassability.GetLength(0);
+            var height = tileData.Impassability.GetLength(1);
+            _graph = new Graph(width, height);
+
+            for (int x = 0; x < _graph.Width; x++)
+            {
+                for (int y = 0; y < _graph.Height; y++)
+                {
+                    bool passable = tileData.Impassability[x, y];
+                    _graph.GetNode(x, y).Passability = passable ? Passability.Passable : Passability.Impassable;
+                }
+            }
         }
     }
 }
