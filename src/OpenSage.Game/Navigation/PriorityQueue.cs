@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+// Comment Stephan Vedder: Taken from: https://www.redblobgames.com/pathfinding/a-star/implementation.html
 namespace OpenSage.Navigation
 {
     public class PriorityQueue<T>
