@@ -16,7 +16,7 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.ImGui" Version="5.72.0" />
+    <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
     <PackageReference Include="Veldrid.RenderDoc" Version="1.0.0" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
