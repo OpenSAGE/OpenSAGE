@@ -72,7 +72,9 @@ namespace OpenSage.Navigation
                     {
                         cost_so_far[next] = newCost;
                         came_from[next] = current;
-                        frontier.Enqueue(next, newCost);
+                        // Include distance from start & end as a cost.
+                        int priority = newCost + next.CalculateDistance(end);
+                        frontier.Enqueue(next, priority);
                     }
                 }
             }
