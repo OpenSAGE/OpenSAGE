@@ -44,21 +44,45 @@ namespace OpenSage.Navigation
 
         internal IEnumerable<Node> GetAdjacentNodes()
         {
-            if (X > 0)
-            {
-                yield return _graph.GetNode(X - 1, Y);
-            }
+            // Top
             if (Y > 0)
             {
                 yield return _graph.GetNode(X, Y - 1);
             }
+            // Top left
+            if ( X > 0 && Y > 0)
+            {
+                yield return _graph.GetNode(X - 1, Y - 1);
+            }
+            // Left
+            if (X > 0)
+            {
+                yield return _graph.GetNode(X - 1, Y);
+            }
+            // Bottom left
+            if (X > 0 && Y < _graph.Height - 1)
+            {
+                yield return _graph.GetNode(X - 1, Y + 1);
+            }
+            // Bottom
+            if (Y < _graph.Height - 1)
+            {
+                yield return _graph.GetNode(X, Y + 1);
+            }
+            // Bottom Right
+            if (X < _graph.Width - 1 && Y < _graph.Height - 1)
+            {
+                yield return _graph.GetNode(X + 1, Y + 1);
+            }
+            // Right
             if (X < _graph.Width - 1)
             {
                 yield return _graph.GetNode(X + 1, Y);
             }
-            if (Y < _graph.Height - 1)
+            // Top right
+            if (X < _graph.Width - 1 && Y > 0)
             {
-                yield return _graph.GetNode(X, Y + 1);
+                yield return _graph.GetNode(X + 1, Y - 1);
             }
         }
     }

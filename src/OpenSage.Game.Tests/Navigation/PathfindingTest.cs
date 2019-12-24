@@ -13,6 +13,7 @@ namespace OpenSage.Tests.Navigation
             var end = graph.GetNode(90, 90);
 
             var result = graph.Search(start, end);
+            Assert.Equal(80, result.Count);
         }
     }
 }
