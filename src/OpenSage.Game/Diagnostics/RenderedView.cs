@@ -41,7 +41,7 @@ namespace OpenSage.Diagnostics
             _scene3D = AddDisposable(new Scene3D(
                 context.Game,
                 _inputMessageBuffer,
-                () => new Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
+                () => new Viewport(0, 0, ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y, 0, 1),
                 new ArcballCameraController(cameraTarget, cameraDistance),
                 gameObjects,
                 WorldLighting.CreateDefault(),
