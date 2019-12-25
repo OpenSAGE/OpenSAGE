@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OpenSage.Navigation
 {
-    enum Passability
+    public enum Passability
     {
         Passable,
         Impassable,
@@ -12,7 +12,7 @@ namespace OpenSage.Navigation
         ImpassableForAir,
     }
 
-    class Node
+    public class Node
     {
         private readonly Graph _graph;
         public Passability Passability { get; set; }

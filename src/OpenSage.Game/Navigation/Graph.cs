@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Priority_Queue;
 
 namespace OpenSage.Navigation
 {
-    class Graph
+    public class Graph
     {
         Node[,] _nodes;
 
@@ -12,12 +13,12 @@ namespace OpenSage.Navigation
         public int Height => _nodes.GetLength(1);
 
 
-        internal Node GetNode(int x, int y)
+        public Node GetNode(int x, int y)
         {
             return _nodes[x, y];
         }
 
-        internal Graph(int w, int h)
+        public Graph(int w, int h)
         {
             _nodes = new Node[w, h];
             for (int x = 0; x < w; x++)
@@ -54,8 +55,8 @@ namespace OpenSage.Navigation
             var cost_so_far = new Dictionary<Node, int>();
             came_from[start] = start;
             cost_so_far[start] = 0;
-
-            var frontier = new PriorityQueue<Node>();
+            
+            var frontier = new SimplePriorityQueue<Node>();
             frontier.Enqueue(start, 0);
 
             while (frontier.Count > 0)

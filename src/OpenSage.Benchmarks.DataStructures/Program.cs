@@ -13,6 +13,7 @@ namespace OpenSage.Benchmarks.DataStructures
             BenchmarkRunner.Run<QuadtreeInsert>();
             BenchmarkRunner.Run<QuadtreeUpdate>();
             BenchmarkRunner.Run<QuadtreeQuery>();
+            BenchmarkRunner.Run<PathfindingQuery>();
         }
     }
 }
