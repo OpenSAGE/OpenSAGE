@@ -6,7 +6,7 @@ namespace OpenSage.Tests.Navigation
     public class PathfindingTest
     {
         [Fact]
-        void NoObstacles()
+        public void NoObstacles()
         {
             var graph = new Graph(100, 100);
             var start = graph.GetNode(10, 10);
