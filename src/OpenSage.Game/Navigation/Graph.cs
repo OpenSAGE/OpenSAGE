@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using OpenSage.Mathematics.FixedMath;
 using Priority_Queue;
 
 namespace OpenSage.Navigation
 {
     public class Graph
     {
-        Node[,] _nodes;
+        readonly Node[,] _nodes;
 
         public int Width => _nodes.GetLength(0);
         public int Height => _nodes.GetLength(1);
@@ -21,9 +20,9 @@ namespace OpenSage.Navigation
         public Graph(int w, int h)
         {
             _nodes = new Node[w, h];
-            for (int x = 0; x < w; x++)
+            for (var x = 0; x < w; x++)
             {
-                for (int y = 0; y < h; y++)
+                for (var y = 0; y < h; y++)
                 {
                     _nodes[x, y] = new Node(this, x, y);
                 }
@@ -32,8 +31,7 @@ namespace OpenSage.Navigation
 
         private List<Node> GetPath(Dictionary<Node, Node> paths, Node start, Node end)
         {
-            var result = new List<Node>();
-            result.Add(end);
+            var result = new List<Node> { end };
             var iter = paths[end];
 
             while(iter != start)
@@ -51,12 +49,12 @@ namespace OpenSage.Navigation
         // A* pathfinding
         public List<Node> Search(Node start, Node end)
         {
-            var came_from = new Dictionary<Node,Node>();
-            var cost_so_far = new Dictionary<Node, int>();
-            came_from[start] = start;
-            cost_so_far[start] = 0;
+            var cameFrom = new Dictionary<Node, Node>();
+            var shortestKnownDistance = new Dictionary<Node, Fix64>();
+            cameFrom[start] = start;
+            shortestKnownDistance[start] = Fix64.Zero;
             
-            var frontier = new SimplePriorityQueue<Node>();
+            var frontier = new FastPriorityQueue<Node>(10000);
             frontier.Enqueue(start, 0);
 
             while (frontier.Count > 0)
@@ -64,23 +62,28 @@ namespace OpenSage.Navigation
                 var current = frontier.Dequeue();
 
                 if (current == end)
-                    break;
-
-                foreach (var next in current.GetAdjacentPassableNodes())
                 {
-                    int newCost = cost_so_far[current] + current.CalculateDistance(next);
-                    if(!cost_so_far.ContainsKey(next) || newCost < cost_so_far[next])
+                    break;
+                }
+
+                var distanceToCurrent = shortestKnownDistance[current];
+
+                foreach (var (next, cost) in current.GetAdjacentPassableNodes())
+                {
+                    var costToNext = distanceToCurrent + cost;
+
+                    if(!shortestKnownDistance.TryGetValue(next, out var oldCost) || costToNext < oldCost)
                     {
-                        cost_so_far[next] = newCost;
-                        came_from[next] = current;
+                        shortestKnownDistance[next] = costToNext;
+                        cameFrom[next] = current;
                         // Include distance from start & end as a cost.
-                        int priority = newCost + next.CalculateDistance(end);
-                        frontier.Enqueue(next, priority);
+                        var estimatedCostToEnd = costToNext + next.EstimateDistance(end);
+                        frontier.Enqueue(next, (float) estimatedCostToEnd);
                     }
                 }
             }
 
-            return GetPath(came_from,start,end);
+            return GetPath(cameFrom,start,end);
         }
     }
 }
