@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
+    <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
