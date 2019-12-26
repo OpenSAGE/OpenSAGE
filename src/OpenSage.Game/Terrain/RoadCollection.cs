@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Terrain.Roads;
 
 namespace OpenSage.Terrain
 {
@@ -35,7 +36,7 @@ namespace OpenSage.Terrain
             // TODO: If a node stored in the map has > 4 edges, the extra edges
             // are put into a separate network.
 
-            var networks = topology.BuildNetworks();
+            var networks = RoadNetwork.BuildNetworks(topology);
 
             foreach (var network in networks)
             {
