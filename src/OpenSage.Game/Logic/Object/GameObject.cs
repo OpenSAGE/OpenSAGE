@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         private Locomotor CurrentLocomotor { get; set; }
 
-        private List<Vector3> TargetPoints { get; set; }
+        public List<Vector3> TargetPoints { get; set; }
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -116,6 +116,8 @@ namespace OpenSage.Logic.Object
         public float Speed { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
+
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
         {
@@ -214,8 +216,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-
-
         internal void Spawn(ObjectDefinition objectDefinition)
         {
             var spawnedUnit = Parent.Add(objectDefinition, Owner);
@@ -245,6 +245,7 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
+                Logger.Debug("Set target points: " + targetPoints.Count);
                 TargetPoints = targetPoints;
             }
 
@@ -288,9 +289,13 @@ namespace OpenSage.Logic.Object
 
                 if (Vector3.Distance(Transform.Translation, TargetPoints.First()) < 0.5f)
                 {
+                    Logger.Debug("Remove point");
                     TargetPoints.RemoveAt(0);
-                    ClearModelConditionFlags();
-                    Speed = 0;
+                    if (TargetPoints.Count == 0)
+                    {
+                        ClearModelConditionFlags();
+                        Speed = 0;
+                    }
                 }
             }
 

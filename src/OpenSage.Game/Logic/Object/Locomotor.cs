@@ -33,8 +33,8 @@ namespace OpenSage.Logic.Object
             var oldSpeed = _gameObject.Speed;
 
             // When we get to minimum braking distance, start braking.
-            var delta = targetPoints.Last() - transform.Translation;
-            var distanceRemaining = delta.Length();
+            var deltaLast = targetPoints.Last() - transform.Translation;
+            var distanceRemaining = deltaLast.Length();
 
             var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
 
@@ -79,7 +79,8 @@ namespace OpenSage.Logic.Object
             //    transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
             //}
 
-            var direction = Vector3.Normalize(delta);
+            var deltaFirst = targetPoints.First() - transform.Translation;
+            var direction = Vector3.Normalize(deltaFirst);
             trans += direction * distance;
             trans.Z = heightMap.GetHeight(x, y);
             transform.Translation = trans;
