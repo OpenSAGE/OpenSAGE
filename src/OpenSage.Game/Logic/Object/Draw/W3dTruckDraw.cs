@@ -32,6 +32,11 @@ namespace OpenSage.Logic.Object
             };
             foreach (var boneName in boneNames)
             {
+                if (boneName == null)
+                {
+                    continue;
+                }
+
                 var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase));
                 ActiveModelInstance.ModelBoneInstances[bone.Index].AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
             }
