@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Terrain;
@@ -34,6 +35,13 @@ namespace OpenSage.Navigation
                                node.Y * HeightMap.HorizontalScale);
         }
 
+        private Node GetClosestNode(Vector3 pos)
+        {
+            int x = (int) MathF.Round(pos.X / HeightMap.HorizontalScale);
+            int y = (int) MathF.Round(pos.Y / HeightMap.HorizontalScale);
+            return _graph.GetNode(x, y);
+        }
+
         private void RemoveRedundantNodes(List<Node> nodes)
         {
             int prevDirX = 0;
@@ -56,13 +64,8 @@ namespace OpenSage.Navigation
 
         public List<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
-            int startX = (int) (start.X / HeightMap.HorizontalScale);
-            int startY = (int) (start.Y / HeightMap.HorizontalScale);
-            int endX = (int) (end.X / HeightMap.HorizontalScale);
-            int endY = (int) (end.Y / HeightMap.HorizontalScale);
-
-            var startNode = _graph.GetNode(startX, startY);
-            var endNode = _graph.GetNode(endX, endY);
+            var startNode = GetClosestNode(start);
+            var endNode = GetClosestNode(end);
 
             var route = _graph.Search(startNode, endNode);
 
@@ -74,7 +77,7 @@ namespace OpenSage.Navigation
                 foreach (var node in route)
                 {
                     var pos = GetNodePosition(node);
-                    result.Add(new Vector3(pos, _heightMap.GetHeight(node.X, node.Y)));
+                    result.Add(new Vector3(pos, _heightMap.GetHeight(pos.X, pos.Y)));
                 }
             }
 

@@ -114,6 +114,18 @@ namespace OpenSage.Gui.DebugUI
                     {
                         gameObject.Collider?.DebugDraw(context, camera);
                     }
+
+                    if(gameObject.TargetPoints != null)
+                    {
+                        for(int i=1;i<gameObject.TargetPoints.Count;i++)
+                        {
+                            var p1 = gameObject.TargetPoints[i - 1];
+                            var p2 = gameObject.TargetPoints[i];
+                            var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
+                            var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
+                            context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
+                        }
+                    }
                 }
             }
 
