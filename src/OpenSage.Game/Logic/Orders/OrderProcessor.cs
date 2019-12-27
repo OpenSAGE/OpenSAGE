@@ -40,7 +40,10 @@ namespace OpenSage.Logic.Orders
                                 //TODO: only play this for local players
                                 unit.OnLocalMove(_game.Audio);
 
-                                unit.MoveTo(targetPosition);
+                                var start = unit.Transform.Translation;
+                                var end = targetPosition;
+                                var list = _game.Scene3D.Navigation.CalculatePath(start, end);
+                                unit.SetTargetPoints(list);
                             }
                         }
                         break;

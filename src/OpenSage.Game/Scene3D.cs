@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Content;
-using OpenSage.Navigation;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -78,7 +76,7 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
-        private Navigation.Navigation _navigation;
+        public Navigation.Navigation Navigation { get; private set; }
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
@@ -135,7 +133,7 @@ namespace OpenSage
             WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
             Cameras = cameras;
 
-            _navigation = new Navigation.Navigation(mapFile.BlendTileData);
+            Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 

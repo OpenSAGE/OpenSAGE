@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         private Locomotor CurrentLocomotor { get; set; }
 
-        private Vector3? TargetPoint { get; set; }
+        private List<Vector3> TargetPoints { get; set; }
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -155,6 +155,7 @@ namespace OpenSage.Logic.Object
             UpdateDrawModuleConditionStates();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
+            TargetPoints = new List<Vector3>();
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -234,17 +235,17 @@ namespace OpenSage.Logic.Object
             }
 
             spawnedUnit.Transform.Translation = translation;
-            spawnedUnit.MoveTo(RallyPoint);
+            spawnedUnit.TargetPoints.Add(RallyPoint);
         }
 
-        internal void MoveTo(Vector3 targetPos)
+        internal void SetTargetPoints(List<Vector3> targetPoints)
         {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
-                TargetPoint = targetPos;
+                TargetPoints = targetPoints;
             }
 
             ModelConditionFlags.SetAll(false);
@@ -281,13 +282,13 @@ namespace OpenSage.Logic.Object
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
             // Check if the unit is currently moving
-            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoint.HasValue)
+            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
             {
-                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoint.Value, heightMap);
+                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
 
-                if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
+                if (Vector3.Distance(Transform.Translation, TargetPoints.First()) < 0.5f)
                 {
-                    TargetPoint = null;
+                    TargetPoints.RemoveAt(0);
                     ClearModelConditionFlags();
                     Speed = 0;
                 }

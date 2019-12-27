@@ -31,6 +31,9 @@ namespace OpenSage.Navigation
 
         private List<Node> GetPath(Dictionary<Node, Node> paths, Node start, Node end)
         {
+            if (!paths.ContainsKey(end))
+                return null;
+
             var result = new List<Node> { end };
             var iter = paths[end];
 

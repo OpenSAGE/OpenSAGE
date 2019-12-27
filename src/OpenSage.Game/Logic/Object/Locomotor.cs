@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
@@ -18,7 +20,7 @@ namespace OpenSage.Logic.Object
             _locomotorTemplate = locomotorSet.Locomotor.Value;
         }
 
-        public void LocalLogicTick(in TimeInterval gameTime, in Vector3 targetPoint, HeightMap heightMap)
+        public void LocalLogicTick(in TimeInterval gameTime, in List<Vector3> targetPoints, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
@@ -31,7 +33,7 @@ namespace OpenSage.Logic.Object
             var oldSpeed = _gameObject.Speed;
 
             // When we get to minimum braking distance, start braking.
-            var delta = targetPoint - transform.Translation;
+            var delta = targetPoints.Last() - transform.Translation;
             var distanceRemaining = delta.Length();
 
             var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
