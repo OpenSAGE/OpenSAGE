@@ -82,7 +82,7 @@ namespace OpenSage.Logic.Object
             var deltaFirst = targetPoints.First() - transform.Translation;
             var direction = Vector3.Normalize(deltaFirst);
             trans += direction * distance;
-            trans.Z = heightMap.GetHeight(x, y);
+            trans.Z = heightMap.GetHeight(trans.X, trans.Y);
             transform.Translation = trans;
         }
 

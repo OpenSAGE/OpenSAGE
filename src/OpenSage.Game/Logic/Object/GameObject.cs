@@ -117,7 +117,7 @@ namespace OpenSage.Logic.Object
 
         public GameObjectCollection Parent { get; private set; }
 
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
         {
@@ -238,15 +238,16 @@ namespace OpenSage.Logic.Object
             spawnedUnit.TargetPoints.Add(RallyPoint);
         }
 
-        internal void SetTargetPoints(List<Vector3> targetPoints)
+        internal void SetTargetPoints(IEnumerable<Vector3> targetPoints)
         {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
-                Logger.Debug("Set target points: " + targetPoints.Count);
-                TargetPoints = targetPoints;
+                TargetPoints.Clear();
+                TargetPoints.AddRange(targetPoints);
+                Logger.Debug("Set new target points: " + TargetPoints.Count);
             }
 
             ModelConditionFlags.SetAll(false);
@@ -287,9 +288,9 @@ namespace OpenSage.Logic.Object
             {
                 CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
 
-                if (Vector3.Distance(Transform.Translation, TargetPoints.First()) < 0.5f)
+                if (Vector3.Distance(Transform.Translation, TargetPoints[0]) < 0.5f)
                 {
-                    Logger.Debug("Remove point");
+                    Logger.Debug($"Reached point {TargetPoints[0]}");
                     TargetPoints.RemoveAt(0);
                     if (TargetPoints.Count == 0)
                     {
