@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Mathematics;
 
@@ -27,17 +28,8 @@ namespace OpenSage.Terrain
             x = x / HorizontalScale + _heightMapData.BorderWidth;
             y = y / HorizontalScale + _heightMapData.BorderWidth;
 
-            if (x < 0)
-                x = 0;
-
-            if (x >= Width)
-                x = Width - 1;
-
-            if (y < 0)
-                y = 0;
-
-            if (y >= Height)
-                y = Height;
+            x = Math.Clamp(x, 0, Width - 1);
+            y = Math.Clamp(y, 0, Height - 1);
 
             // get integer and fractional parts of coordinates
             var nIntX0 = MathUtility.FloorToInt(x);
