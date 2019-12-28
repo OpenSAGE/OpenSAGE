@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.Orders
@@ -42,8 +40,8 @@ namespace OpenSage.Logic.Orders
 
                                 var start = unit.Transform.Translation;
                                 var end = targetPosition;
-                                var list = _game.Scene3D.Navigation.CalculatePath(start, end);
-                                unit.SetTargetPoints(list);
+                                var path = _game.Scene3D.Navigation.CalculatePath(start, end);
+                                unit.SetTargetPoints(path);
                             }
                         }
                         break;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Terrain;
@@ -8,8 +7,10 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        Graph _graph;
-        HeightMap _heightMap;
+        readonly Graph _graph;
+        readonly HeightMap _heightMap;
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public Navigation(BlendTileData tileData, HeightMap heightMap)
         {
@@ -21,8 +22,8 @@ namespace OpenSage.Navigation
             {
                 for (int y = 0; y < _graph.Height; y++)
                 {
-                    bool passable = tileData.Impassability[x, y];
-                    _graph.GetNode(x, y).Passability = passable ? Passability.Passable : Passability.Impassable;
+                    var impassable = tileData.Impassability[x, y];
+                    _graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
                 }
             }
 
@@ -31,14 +32,20 @@ namespace OpenSage.Navigation
 
         private Vector2 GetNodePosition(Node node)
         {
-            return new Vector2(node.X * HeightMap.HorizontalScale,
-                               node.Y * HeightMap.HorizontalScale);
+            var xyz =_heightMap.GetPosition(node.X, node.Y);
+            return new Vector2(xyz.X, xyz.Y);
         }
 
         private Node GetClosestNode(Vector3 pos)
         {
-            int x = (int) MathF.Round(pos.X / HeightMap.HorizontalScale);
-            int y = (int) MathF.Round(pos.Y / HeightMap.HorizontalScale);
+            var coords = _heightMap.GetTilePosition(pos);
+
+            if (coords == null)
+            {
+                return null;
+            }
+
+            var (x, y) = coords.Value;
             return _graph.GetNode(x, y);
         }
 
@@ -62,26 +69,33 @@ namespace OpenSage.Navigation
             }
         }
 
-        public List<Vector3> CalculatePath(Vector3 start, Vector3 end)
+        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            var route = _graph.Search(startNode, endNode);
-
-            var result = new List<Vector3>();
-
-            if (route != null)
+            if (startNode == null || endNode == null || !startNode.IsPassable || !endNode.IsPassable)
             {
-                RemoveRedundantNodes(route);
-                foreach (var node in route)
-                {
-                    var pos = GetNodePosition(node);
-                    result.Add(new Vector3(pos, _heightMap.GetHeight(pos.X, pos.Y)));
-                }
+                Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
+                yield break;
             }
 
-            return result;
+            var route = _graph.Search(startNode, endNode);
+
+            if (route == null)
+            {
+                Logger.Warn($"Graph search failed to find a path between {start} and {end}.");
+                yield break;
+            }
+
+            // TODO: Fix and re-enable.
+            // RemoveRedundantNodes(route);
+
+            foreach (var node in route)
+            {
+                var pos = GetNodePosition(node);
+                yield return new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y));
+            }
         }
     }
 }

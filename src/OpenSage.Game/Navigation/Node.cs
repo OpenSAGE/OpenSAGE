@@ -29,10 +29,7 @@ namespace OpenSage.Navigation
             Passability = Passability.Passable;
         }
 
-        internal bool Passable()
-        {
-            return Passability == Passability.Passable;
-        }
+        internal bool IsPassable => Passability == Passability.Passable;
 
         internal Fix64 EstimateDistance(Node target)
         {
@@ -44,7 +41,7 @@ namespace OpenSage.Navigation
 
         internal IEnumerable<(Node, Fix64)> GetAdjacentPassableNodes()
         {
-            return GetAdjacentNodes().Where(x => x.Item1.Passable());
+            return GetAdjacentNodes().Where(x => x.Item1.IsPassable);
         }
 
         private static readonly Fix64 SqrtOf2 = Fix64.Sqrt(new Fix64(2));
