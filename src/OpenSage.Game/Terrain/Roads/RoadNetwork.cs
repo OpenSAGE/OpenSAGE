@@ -82,36 +82,36 @@ namespace OpenSage.Terrain.Roads
                         case 3:
                             // TODO figure out orientation and endpoints
                             // TODO support Y segments
-                            var halfWidth = edgesPerTemplate.Key.RoadWidth / 2;
+                            //var halfWidth = edgesPerTemplate.Key.RoadWidth / 2;
 
-                            var segment = new TRoadSegment(
-                                node.Position,
-                                new RoadSegmentEndPoint(node.Position + new Vector3(0, halfWidth, 0)),
-                                new RoadSegmentEndPoint(node.Position + new Vector3(halfWidth, 0, 0)),
-                                new RoadSegmentEndPoint(node.Position + new Vector3(0, -halfWidth, 0)));
+                            //var segment = new TRoadSegment(
+                            //    node.Position,
+                            //    new RoadSegmentEndPoint(node.Position + new Vector3(0, halfWidth, 0)),
+                            //    new RoadSegmentEndPoint(node.Position + new Vector3(halfWidth, 0, 0)),
+                            //    new RoadSegmentEndPoint(node.Position + new Vector3(0, -halfWidth, 0)));
 
-                            // TODO consider ordering of edges
+                            //// TODO consider ordering of edges
 
-                            Connect(edgesPerTemplate.ElementAt(0), segment.Top, Vector3.UnitY);
-                            Connect(edgesPerTemplate.ElementAt(1), segment.Right, Vector3.UnitX);
-                            Connect(edgesPerTemplate.ElementAt(2), segment.Bottom, -Vector3.UnitY);
+                            //Connect(edgesPerTemplate.ElementAt(0), segment.Top, Vector3.UnitY);
+                            //Connect(edgesPerTemplate.ElementAt(1), segment.Right, Vector3.UnitX);
+                            //Connect(edgesPerTemplate.ElementAt(2), segment.Bottom, -Vector3.UnitY);
 
-                            void Connect(RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction)
-                            {
-                                var edgeSegment = edgeSegments[edge];
-                                if (edge.Start.Position == node.Position)
-                                {
-                                    edgeSegment.Start.Position = endPoint.Position;
-                                    edgeSegment.Start.ConnectTo(segment, direction);
-                                    endPoint.ConnectTo(edgeSegment, edge.Start.Position - edge.End.Position);
-                                }
-                                else
-                                {
-                                    edgeSegment.End.Position = endPoint.Position;
-                                    edgeSegment.End.ConnectTo(segment, direction);
-                                    endPoint.ConnectTo(edgeSegment, edge.End.Position - edge.Start.Position);
-                                }
-                            }
+                            //void Connect(RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction)
+                            //{
+                            //    var edgeSegment = edgeSegments[edge];
+                            //    if (edge.Start.Position == node.Position)
+                            //    {
+                            //        edgeSegment.Start.Position = endPoint.Position;
+                            //        edgeSegment.Start.ConnectTo(segment, direction);
+                            //        endPoint.ConnectTo(edgeSegment, edge.Start.Position - edge.End.Position);
+                            //    }
+                            //    else
+                            //    {
+                            //        edgeSegment.End.Position = endPoint.Position;
+                            //        edgeSegment.End.ConnectTo(segment, direction);
+                            //        endPoint.ConnectTo(edgeSegment, edge.End.Position - edge.Start.Position);
+                            //    }
+                            //}
 
                             break;
                     }
