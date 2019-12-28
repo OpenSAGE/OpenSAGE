@@ -24,63 +24,13 @@ namespace OpenSage.Terrain.Roads
             InsertNodeSegments(topology, edgeSegments);
             var networks = BuildNetworks(topology, edgeSegments);
 
-            foreach (var network in networks)
-            {
-                MergeAngledSegments(network);
-            }
-
             return networks;
         }
 
-        private static void MergeAngledSegments(RoadNetwork network)
-        {
-            var segmentsToProcess = new HashSet<AngledRoadSegment>(network.Segments.OfType<AngledRoadSegment>());
-
-            var intermediatePoints = new LinkedList<Vector3>();
-
-            while (segmentsToProcess.Any())
-            {
-                intermediatePoints.Clear();
-
-                var segment = segmentsToProcess.First();
-                segmentsToProcess.Remove(segment);
-
-                var start = FollowPath(segment.Start, true);
-                var end = FollowPath(segment.End, false);
-
-                if (intermediatePoints.Any())
-                {
-                    network._segments.Remove(segment);
-                    network._segments.Add(new AngledRoadSegment(start, end, intermediatePoints.ToList()));
-                }
-            }
-
-            Vector3 FollowPath(RoadSegmentEndPoint endPoint, bool prepend)
-            {
-                while (endPoint.To is AngledRoadSegment nextSegment && segmentsToProcess.Contains(nextSegment))
-                {
-                    if (prepend)
-                        intermediatePoints.AddFirst(endPoint.Position);
-                    else
-                        intermediatePoints.AddLast(endPoint.Position);
-
-                    if (nextSegment.Start.Position == endPoint.Position)
-                        endPoint = nextSegment.End;
-                    else
-                        endPoint = nextSegment.Start;
-
-                    segmentsToProcess.Remove(nextSegment);
-                    network._segments.Remove(nextSegment);
-                }
-
-                return endPoint.Position;
-            }
-        }
-
-        private static IDictionary<RoadTopologyEdge, AngledRoadSegment> BuildEdgeSegments(RoadTopology topology)
+        private static IDictionary<RoadTopologyEdge, StraightRoadSegment> BuildEdgeSegments(RoadTopology topology)
         {
             // create a dictionary from edges to segments
-            var edgeSegments = topology.Edges.ToDictionary(e => e, e => new AngledRoadSegment(e.Start.Position, e.End.Position));
+            var edgeSegments = topology.Edges.ToDictionary(e => e, e => new StraightRoadSegment(e.Start.Position, e.End.Position));
 
             // create end points and connect them to the neighbour edges
             foreach (var edge in topology.Edges)
@@ -116,7 +66,7 @@ namespace OpenSage.Terrain.Roads
             return edgeSegments;
         }
 
-        private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, AngledRoadSegment> edgeSegments)
+        private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
             {
@@ -169,7 +119,7 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static IList<RoadNetwork> BuildNetworks(RoadTopology topology, IDictionary<RoadTopologyEdge, AngledRoadSegment> edgeSegments)
+        private static IList<RoadNetwork> BuildNetworks(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var networks = new List<RoadNetwork>();
 
