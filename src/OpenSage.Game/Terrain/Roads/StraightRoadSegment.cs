@@ -34,7 +34,6 @@ namespace OpenSage.Terrain.Roads
         {
             const float heightBias = 1f;
 
-            // TODO consider elevation
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
             const float textureAtlasRoadCenter = 1f / 6f;
 
@@ -77,15 +76,17 @@ namespace OpenSage.Terrain.Roads
                 var position = startPosition + direction * currentDistance;
                 var positionToBorder = Vector3.Lerp(startToCorner, endToCorner, currentDistance / distance);
 
-                //var actualHeight = heightMap.GetHeight(position.X, position.Y);
-                //var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
+                var actualHeight = heightMap.GetHeight(position.X, position.Y);
+                var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
 
-                //if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
-                //{
+                if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
+                {
+                    // TODO figure out correct algorith
+                    position.Z = actualHeight;
                     AddVertexPair(position, positionToBorder, currentDistance);
                     previousPoint = position;
                     previousPointDistance = currentDistance;
-                //}
+                }
             }
 
             AddVertexPair(endPosition, endToCorner, distance);
