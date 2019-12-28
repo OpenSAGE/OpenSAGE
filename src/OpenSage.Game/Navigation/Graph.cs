@@ -75,12 +75,12 @@ namespace OpenSage.Navigation
         {
             _cameFrom.Clear();
             _shortestKnownDistance.Clear();
+            _unexpandedNodes.Clear();
+            _adjacentNodes.Clear();
+
             _cameFrom[start] = start;
             _shortestKnownDistance[start] = 0;
-
-            _unexpandedNodes.Clear();
             _unexpandedNodes.Enqueue(start, 0);
-            _adjacentNodes.Clear();
 
             while (_unexpandedNodes.Count > 0)
             {
