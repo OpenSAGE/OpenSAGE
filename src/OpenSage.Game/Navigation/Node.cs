@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using OpenSage.Mathematics.FixedMath;
 using Priority_Queue;
 
 namespace OpenSage.Navigation
 {
+    [Flags]
     public enum Passability
     {
         Passable,
@@ -16,6 +15,10 @@ namespace OpenSage.Navigation
 
     public class Node : FastPriorityQueueNode
     {
+        private const int CardinalDirCost = 10;
+        // A very accurate appoximation for sqrt(2) * 10
+        private const int DiagonalDirCost = 14;
+
         private readonly Graph _graph;
         public Passability Passability { get; set; }
         public int X { get; }
@@ -31,63 +34,43 @@ namespace OpenSage.Navigation
 
         internal bool IsPassable => Passability == Passability.Passable;
 
-        internal Fix64 EstimateDistance(Node target)
+        // Diagonal distance heuristic (http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html)
+        // Integer variant inspired by this comment: https://stackoverflow.com/a/32635858
+        internal int EstimateDistance(Node target)
         {
-            var two = new Fix64(2);
-            var xLength = Fix64.Pow(new Fix64(Math.Abs(target.X - X)), two);
-            var yLength = Fix64.Pow(new Fix64(Math.Abs(target.Y - Y)), two);
-            return Fix64.Sqrt(xLength + yLength);
+            var dx = Math.Abs(X - target.X);
+            var dy = Math.Abs(Y - target.Y);
+            return CardinalDirCost * (dx + dy) + (DiagonalDirCost - 2 * CardinalDirCost) * Math.Min(dx, dy);
         }
 
-        internal IEnumerable<(Node, Fix64)> GetAdjacentPassableNodes()
+        internal void GetAdjacentNodes(List<(Node, int)> adjacentNodes, Passability requiredPassability = Passability.Passable)
         {
-            return GetAdjacentNodes().Where(x => x.Item1.IsPassable);
+            foreach (var ((dx, dy), cost) in _neighbours)
+            {
+                if (_graph.TryGetNode(X + dx, Y + dy, out var node) && node.Passability.HasFlag(requiredPassability))
+                {
+                    adjacentNodes.Add((node, cost));
+                }
+            }
         }
 
-        private static readonly Fix64 SqrtOf2 = Fix64.Sqrt(new Fix64(2));
-
-        internal IEnumerable<(Node, Fix64)> GetAdjacentNodes()
-        {
+        private readonly ((int, int), int)[] _neighbours = {
             // Top
-            if (Y > 0)
-            {
-                yield return (_graph.GetNode(X, Y - 1), Fix64.One);
-            }
+            ((0, -1), CardinalDirCost),
             // Top left
-            if ( X > 0 && Y > 0)
-            {
-                yield return (_graph.GetNode(X - 1, Y - 1), SqrtOf2);
-            }
+            ((-1, -1), DiagonalDirCost),
             // Left
-            if (X > 0)
-            {
-                yield return (_graph.GetNode(X - 1, Y), Fix64.One);
-            }
+            ((-1, 0), CardinalDirCost),
             // Bottom left
-            if (X > 0 && Y < _graph.Height - 1)
-            {
-                yield return (_graph.GetNode(X - 1, Y + 1), SqrtOf2);
-            }
+            ((-1, 1), DiagonalDirCost),
             // Bottom
-            if (Y < _graph.Height - 1)
-            {
-                yield return (_graph.GetNode(X, Y + 1), Fix64.One);
-            }
-            // Bottom Right
-            if (X < _graph.Width - 1 && Y < _graph.Height - 1)
-            {
-                yield return (_graph.GetNode(X + 1, Y + 1), SqrtOf2);
-            }
+            ((0, 1), CardinalDirCost),
+            // Bottom right
+            ((1, 1), DiagonalDirCost),
             // Right
-            if (X < _graph.Width - 1)
-            {
-                yield return (_graph.GetNode(X + 1, Y), Fix64.One);
-            }
+            ((1, 0), CardinalDirCost),
             // Top right
-            if (X < _graph.Width - 1 && Y > 0)
-            {
-                yield return (_graph.GetNode(X + 1, Y - 1), SqrtOf2);
-            }
-        }
+            ((1, -1), DiagonalDirCost)
+        };
     }
 }
