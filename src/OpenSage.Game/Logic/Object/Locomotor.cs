@@ -52,38 +52,23 @@ namespace OpenSage.Logic.Object
             _gameObject.Speed = newSpeed;
 
             // This locomotor speed is distance/second
-            var distance = newSpeed * deltaTime;
-            if (distance > distanceRemaining)
-            {
-                distance = distanceRemaining;
-            }
+            var distance = MathF.Min(newSpeed * deltaTime, distanceRemaining);
 
-            // TODO: Do this properly. Needs to be negative for reverse?
-            //_gameObject.Speed = GetLocomotorValue(l => l.Speed);
-
-            //var currentAngle = -transform.EulerAngles.Z;
-            //var angleDelta = TargetAngle - currentAngle;
-
-            //var d = GetLocomotorValue(l => l.TurnRate) * deltaTime * 0.1f;
-            //var newAngle = currentAngle + (angleDelta * d);
-            ////var newAngle = currentAngle + d;
-
-            //if (Math.Abs(angleDelta) > 0.1f)
-            //{
-            //    var pitch = 0.0f;
-            //    if (_locomotorTemplate.Appearance == LocomotorAppearance.FourWheels) // TODO
-            //    {
-            //        var normal = heightMap?.GetNormal(x, y) ?? new Vector3();
-            //        pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
-            //    }
-            //    transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
-            //}
-
+            // Calculate translation
             var deltaFirst = targetPoints.First() - transform.Translation;
             var direction = Vector3.Normalize(deltaFirst);
             trans += direction * distance;
             trans.Z = heightMap.GetHeight(trans.X, trans.Y);
             transform.Translation = trans;
+
+            // Calculate rotation
+            var currentAngle = -transform.EulerAngles.Z;
+            var targetAngle = MathF.Atan2(direction.Y - Vector3.UnitX.Y, direction.X - Vector3.UnitX.X);
+            var angleDelta = targetAngle - currentAngle;
+
+            var d = GetLocomotorValue(l => l.TurnRate) * deltaTime * 0.1f;
+            var newAngle = currentAngle + (angleDelta * d);
+            transform.Rotation = Quaternion.CreateFromYawPitchRoll(0.0f, 0.0f, newAngle);
         }
 
         private float GetLocomotorValue(Func<LocomotorTemplate, float> getValue)
