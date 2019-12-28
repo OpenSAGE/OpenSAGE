@@ -37,8 +37,9 @@ namespace OpenSage.Terrain.Roads
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
             const float textureAtlasRoadCenter = 1f / 6f;
 
-            var halfWidth = template.RoadWidth / 2f;
             var textureAtlasHalfRoadWidth = 0.25f / 2f * template.RoadWidthInTexture;
+            var textureRoadLength = template.RoadWidth * 4;
+            var halfWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
 
             var startPosition = Start.Position.WithZ(heightMap.GetHeight(Start.Position.X, Start.Position.Y));
             var endPosition = End.Position.WithZ(heightMap.GetHeight(End.Position.X, End.Position.Y));
@@ -114,7 +115,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p0,
                     Normal = up,
-                    UV = new Vector2((distanceAlongRoad - uOffset) / 140, textureAtlasRoadCenter - textureAtlasHalfRoadWidth)
+                    UV = new Vector2((distanceAlongRoad - uOffset) / textureRoadLength, textureAtlasRoadCenter - textureAtlasHalfRoadWidth)
                 });
 
                 var p1 = position + toBorder;
@@ -124,7 +125,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2((distanceAlongRoad + uOffset) / 140, textureAtlasRoadCenter + textureAtlasHalfRoadWidth)
+                    UV = new Vector2((distanceAlongRoad + uOffset) / textureRoadLength, textureAtlasRoadCenter + textureAtlasHalfRoadWidth)
                 });
             }
         }
