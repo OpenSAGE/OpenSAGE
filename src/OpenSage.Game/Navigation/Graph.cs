@@ -10,10 +10,9 @@ namespace OpenSage.Navigation
         public int Width => _nodes.GetLength(0);
         public int Height => _nodes.GetLength(1);
 
-        private readonly Dictionary<Node, Node> _cameFrom;
-        private readonly Dictionary<Node, int> _shortestKnownDistance;
         private readonly FastPriorityQueue<Node> _unexpandedNodes;
         private readonly List<(Node, int)> _adjacentNodes;
+        private readonly HashSet<Node> _visited;
 
         public Node GetNode(int x, int y)
         {
@@ -43,26 +42,20 @@ namespace OpenSage.Navigation
                 }
             }
 
-            _cameFrom = new Dictionary<Node, Node>();
-            _shortestKnownDistance = new Dictionary<Node, int>();
             _unexpandedNodes = new FastPriorityQueue<Node>(w * h);
             _adjacentNodes = new List<(Node, int)>(8);
+            _visited = new HashSet<Node>();
         }
 
-        private List<Node> GetPath(Dictionary<Node, Node> paths, Node start, Node end)
+        private List<Node> GetPath(Node start, Node end)
         {
-            if (!paths.ContainsKey(end))
-            {
-                return null;
-            }
-
             var result = new List<Node> { end };
-            var iter = paths[end];
+            var iter = end.CameFrom;
 
-            while(iter != start)
+            while (iter != start)
             {
                 result.Add(iter);
-                iter = paths[iter];
+                iter = iter.CameFrom;
             }
 
             result.Reverse();
@@ -73,43 +66,58 @@ namespace OpenSage.Navigation
         // A* pathfinding
         public List<Node> Search(Node start, Node end)
         {
-            _cameFrom.Clear();
-            _shortestKnownDistance.Clear();
             _unexpandedNodes.Clear();
-            _adjacentNodes.Clear();
+            _visited.Clear();
 
-            _cameFrom[start] = start;
-            _shortestKnownDistance[start] = 0;
+            start.CameFrom = start;
+            start.ShortestKnownDistance = 0;
             _unexpandedNodes.Enqueue(start, 0);
 
             while (_unexpandedNodes.Count > 0)
             {
                 var current = _unexpandedNodes.Dequeue();
+                _visited.Add(current);
+                _unexpandedNodes.ResetNode(current);
 
                 if (current == end)
                 {
-                    break;
+                    return GetPath(start, end);
                 }
 
-                var distanceToCurrent = _shortestKnownDistance[current];
+                var distanceToCurrent = current.ShortestKnownDistance;
+
+                _adjacentNodes.Clear();
                 current.GetAdjacentNodes(_adjacentNodes);
 
                 foreach (var (next, cost) in _adjacentNodes)
                 {
-                    var costToNext = distanceToCurrent + cost;
-
-                    if(!_shortestKnownDistance.TryGetValue(next, out var oldCost) || costToNext < oldCost)
+                    if (_visited.Contains(next))
                     {
-                        _shortestKnownDistance[next] = costToNext;
-                        _cameFrom[next] = current;
-                        // Include distance from start & end as a cost.
-                        var estimatedCostToEnd = costToNext + next.EstimateDistance(end);
-                        _unexpandedNodes.Enqueue(next, estimatedCostToEnd);
+                        continue;
+                    }
+
+                    var distanceToNext = distanceToCurrent + cost;
+                    var estimatedDistanceToEnd = distanceToNext + next.EstimateDistance(end);
+
+                    if (_unexpandedNodes.Contains(next))
+                    {
+                        if (distanceToNext < next.ShortestKnownDistance)
+                        {
+                            next.ShortestKnownDistance = distanceToNext;
+                            _unexpandedNodes.UpdatePriority(next, estimatedDistanceToEnd);
+                            next.CameFrom = current;
+                        }
+                    }
+                    else
+                    {
+                        next.ShortestKnownDistance = distanceToNext;
+                        _unexpandedNodes.Enqueue(next, estimatedDistanceToEnd);
+                        next.CameFrom = current;
                     }
                 }
             }
 
-            return GetPath(_cameFrom, start, end);
+            return null;
         }
     }
 }
