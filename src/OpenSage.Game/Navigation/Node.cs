@@ -7,8 +7,8 @@ namespace OpenSage.Navigation
     [Flags]
     public enum Passability
     {
-        Passable,
         Impassable,
+        Passable,
         ImpassableForTeams,
         ImpassableForAir,
     }
