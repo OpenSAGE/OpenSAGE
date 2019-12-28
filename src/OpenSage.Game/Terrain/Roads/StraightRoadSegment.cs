@@ -33,9 +33,11 @@ namespace OpenSage.Terrain.Roads
             List<ushort> indices)
         {
             const float heightBias = 1f;
-            // TODO consider height while creating vertices
+
+            // TODO consider elevation
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
             const float textureAtlasRoadCenter = 1f / 6f;
+
             var halfWidth = template.RoadWidth / 2f;
             var textureAtlasHalfRoadWidth = 0.25f / 2f * template.RoadWidthInTexture;
 
@@ -49,7 +51,8 @@ namespace OpenSage.Terrain.Roads
             Vector3 ToCorner(in Vector3 normal1, in Vector3 normal2)
             {
                 var toCornerDirection = (normal1 + normal2) / 2;
-                var toCornerLength = halfWidth / Vector3.Dot(directionNormal, toCornerDirection);
+                var cosine = Vector3.Dot(directionNormal, toCornerDirection);
+                var toCornerLength = halfWidth / cosine;
                 return toCornerDirection * toCornerLength;
             }
 
@@ -65,13 +68,24 @@ namespace OpenSage.Terrain.Roads
 
             AddVertexPair(startPosition, startToCorner, 0);
 
+            var previousPoint = startPosition;
+            var previousPointDistance = 0f;
+
             for (int i = 1; i < sections; i++)
             {
-                var distanceSoFar = i * distancePerSection;
-                var position = startPosition + direction * distanceSoFar;
-                var positionToSector = Vector3.Lerp(startToCorner, endToCorner, distanceSoFar / distance);
+                var currentDistance = i * distancePerSection;
+                var position = startPosition + direction * currentDistance;
+                var positionToBorder = Vector3.Lerp(startToCorner, endToCorner, currentDistance / distance);
 
-                AddVertexPair(position, positionToSector, distanceSoFar);
+                //var actualHeight = heightMap.GetHeight(position.X, position.Y);
+                //var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
+
+                //if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
+                //{
+                    AddVertexPair(position, positionToBorder, currentDistance);
+                    previousPoint = position;
+                    previousPointDistance = currentDistance;
+                //}
             }
 
             AddVertexPair(endPosition, endToCorner, distance);
@@ -89,10 +103,8 @@ namespace OpenSage.Terrain.Roads
             
             void AddVertexPair(in Vector3 position, in Vector3 toBorder, float distanceAlongRoad)
             {
-                // TODO calculate up based on elevation
+                var uOffset = Vector3.Dot(toBorder, direction);
                 var up = Vector3.Cross(direction, toBorder);
-
-                var u = distanceAlongRoad / 140;
 
                 var p0 = position - toBorder;
                 p0.Z += heightBias;
@@ -101,7 +113,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p0,
                     Normal = up,
-                    UV = new Vector2(u, textureAtlasRoadCenter - textureAtlasHalfRoadWidth)
+                    UV = new Vector2((distanceAlongRoad - uOffset) / 140, textureAtlasRoadCenter - textureAtlasHalfRoadWidth)
                 });
 
                 var p1 = position + toBorder;
@@ -111,7 +123,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2(u, textureAtlasRoadCenter + textureAtlasHalfRoadWidth)
+                    UV = new Vector2((distanceAlongRoad + uOffset) / 140, textureAtlasRoadCenter + textureAtlasHalfRoadWidth)
                 });
             }
         }
