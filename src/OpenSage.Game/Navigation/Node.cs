@@ -24,6 +24,9 @@ namespace OpenSage.Navigation
         public int X { get; }
         public int Y { get; }
 
+        public int ShortestKnownDistance;
+        public Node CameFrom;
+
         internal Node(Graph graph, int x, int y)
         {
             X = x;
@@ -45,7 +48,7 @@ namespace OpenSage.Navigation
 
         internal void GetAdjacentNodes(List<(Node, int)> adjacentNodes, Passability requiredPassability = Passability.Passable)
         {
-            foreach (var ((dx, dy), cost) in _neighbours)
+            foreach (var ((dx, dy), cost) in Neighbours)
             {
                 if (_graph.TryGetNode(X + dx, Y + dy, out var node) && node.Passability.HasFlag(requiredPassability))
                 {
@@ -54,7 +57,7 @@ namespace OpenSage.Navigation
             }
         }
 
-        private readonly ((int, int), int)[] _neighbours = {
+        private static readonly ((int, int), int)[] Neighbours = {
             // Top
             ((0, -1), CardinalDirCost),
             // Top left
