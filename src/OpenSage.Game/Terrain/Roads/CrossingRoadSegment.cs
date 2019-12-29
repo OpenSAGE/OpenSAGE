@@ -6,57 +6,69 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
-    internal sealed class TRoadSegment : IRoadSegment
+    enum CrossingType
     {
-        public TRoadSegment(Vector3 position, RoadSegmentEndPoint top, RoadSegmentEndPoint right, RoadSegmentEndPoint bottom)
+        T,
+        SymmetricY,
+        AsymmetricY
+    }
+
+    internal sealed class MapTexturePoint
+    {
+        public Vector3 Position { get; set; }
+        public Vector2 TextureCoordinates { get; set; }
+    }
+
+    internal sealed class CrossingRoadSegment : IRoadSegment
+    {
+        public CrossingRoadSegment(IEnumerable<RoadSegmentEndPoint> endPoints, Vector3 start, Vector3 end, CrossingType type)
         {
-            Position = position;
-            Top = top;
-            Right = right;
-            Bottom = bottom;
+            EndPoints = endPoints;
+            Start = start;
+            End = end;
+            Type = type;
         }
 
-        public Vector3 Position { get; }
-        public RoadSegmentEndPoint Top { get; }
-        public RoadSegmentEndPoint Right { get; }
-        public RoadSegmentEndPoint Bottom { get; }
-
-        public IEnumerable<RoadSegmentEndPoint> EndPoints
-        {
-            get
-            {
-                yield return Top;
-                yield return Right;
-                yield return Bottom;
-            }
-        }
+        private Vector3 Start { get; }
+        private Vector3 End { get; }
+        public IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
+        public CrossingType Type { get; }
 
         public void GenerateMesh(RoadTemplate template, HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
             const float heightBias = 1f;
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
 
-            var rightToPosition = Position - Right.Position;
-            var startPosition = Position + rightToPosition;
+            //var rightToPosition = Position - Right.Position;
+            //var startPosition = Position + rightToPosition;
+            var startPosition = Start;
             startPosition.Z = heightMap.GetHeight(startPosition.X, startPosition.Y);
 
-            var endPosition = new Vector3(
-                Right.Position.X,
-                Right.Position.Y,
-                heightMap.GetHeight(Right.Position.X, Right.Position.Y));
+            var endPosition = End;
+            endPosition.Z = heightMap.GetHeight(endPosition.X, endPosition.Y);
 
-            var distance = Vector3.Distance(startPosition, endPosition);
-            var direction = Vector3.Normalize(rightToPosition);
+            //TODO: create a lookup of these values for each of the crossing types. For now: use those for t-crossing
+            var crossingWidthFactor = 1;
+            var uStart = 0.71f;
+            var uEnd = 0.96f;
+            var v = 0.5f;
+
+            var distance = Vector3.Distance(Start, End);
+            var direction = Vector3.Normalize(End - Start);
             var centerToEdgeDirection = Vector3.Cross(Vector3.UnitZ, direction);
             var up = Vector3.Cross(direction, centerToEdgeDirection);
+            
+            var textureAtlasHalfRoadWidth = 0.25f / 2f * template.RoadWidthInTexture * crossingWidthFactor;
+            var halfWidth = template.RoadWidth / 2 * crossingWidthFactor;
 
-            var halfWidth = template.RoadWidth / 2;
+            var sections = Math.Max(1, (int) (distance / 10));
+            var distancePerSection = distance / sections;
 
             var initialVertexCount = vertices.Count;
 
             void AddVertexPair(in Vector3 position, float distanceAlongRoad)
             {
-                var u = MathUtility.Lerp(0.71f, 0.96f, distanceAlongRoad / template.RoadWidth);
+                var u = MathUtility.Lerp(uStart, uEnd, distanceAlongRoad / distance);
 
                 var p0 = position - centerToEdgeDirection * halfWidth;
                 p0.Z += heightBias;
@@ -65,7 +77,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p0,
                     Normal = up,
-                    UV = new Vector2(u, 0.37f)
+                    UV = new Vector2(u, v - textureAtlasHalfRoadWidth)
                 });
 
                 var p1 = position + centerToEdgeDirection * halfWidth;
@@ -75,17 +87,18 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2(u, 0.62f)
+                    UV = new Vector2(u, v + textureAtlasHalfRoadWidth)
                 });
             }
 
             AddVertexPair(startPosition, 0);
 
             var previousPoint = startPosition;
-            var previousPointDistance = 0;
+            var previousPointDistance = 0f;
 
-            for (var currentDistance = 10; currentDistance < distance; currentDistance += 10)
+            for (int i = 1; i < sections; i++)
             {
+                var currentDistance = i * distancePerSection;
                 var position = startPosition + direction * currentDistance;
                 var actualHeight = heightMap.GetHeight(position.X, position.Y);
                 var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
