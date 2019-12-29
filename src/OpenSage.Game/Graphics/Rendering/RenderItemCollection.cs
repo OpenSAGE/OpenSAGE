@@ -104,7 +104,18 @@ namespace OpenSage.Graphics.Rendering
             }
 
             // Step 3: Sort the indices by comparing render item keys.
-            _culledItemIndices.Sort((a, b) => _items[a].Key.CompareTo(_items[b].Key));
+            // If two items have the same key, compare the indices in
+            // order to provider a consistent ordering and prevent flickering.
+            _culledItemIndices.Sort((a, b) =>
+            {
+                var result = _items[a].Key.CompareTo(_items[b].Key);
+                if (result == 0)
+                {
+                    return a.CompareTo(b);
+                }
+
+                return result;
+            });
         }
 
         public void Clear()

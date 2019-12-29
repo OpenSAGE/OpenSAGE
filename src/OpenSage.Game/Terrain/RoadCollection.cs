@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Terrain.Roads;
@@ -38,7 +39,19 @@ namespace OpenSage.Terrain
 
             var networks = RoadNetwork.BuildNetworks(topology);
 
-            foreach (var network in networks)
+            // Roads of different types are rendered in reverse template order:
+            // the first template has the lowest z-index, the last one the highest.
+            // Since we don't know the index here we start with the templates,
+            // join them with the networks and reverse the result.
+            var sortedNetworks = loadContext.AssetStore.RoadTemplates
+                .Join(
+                    networks,
+                    t => t.InstanceId,
+                    n => n.Template.InstanceId,
+                    (t, n) => n)
+                .Reverse();
+
+            foreach (var network in sortedNetworks)
             {
                 _roads.Add(AddDisposable(new Road(
                         loadContext,
