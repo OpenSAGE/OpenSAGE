@@ -117,7 +117,17 @@ namespace OpenSage.Gui.DebugUI
 
                     if(gameObject.TargetPoints != null)
                     {
-                        for(int i=1;i<gameObject.TargetPoints.Count;i++)
+                        //Draw line to the first target point
+                        if (gameObject.TargetPoints.Count > 0)
+                        {
+                            var p1 = gameObject.Transform.Translation;
+                            var p2 = gameObject.TargetPoints[0];
+                            var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
+                            var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
+                            context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
+                        }
+
+                        for (int i=1;i<gameObject.TargetPoints.Count;i++)
                         {
                             var p1 = gameObject.TargetPoints[i - 1];
                             var p2 = gameObject.TargetPoints[i];
