@@ -49,26 +49,6 @@ namespace OpenSage.Navigation
             return _graph.GetNode(x, y);
         }
 
-        private void RemoveRedundantNodes(List<Node> nodes)
-        {
-            int prevDirX = 0;
-            int prevDirY = 0;
-
-            for (int i = 1; i < nodes.Count; i++)
-            {
-                int dirX = nodes[i].X - nodes[i-1].X;
-                int dirY = nodes[i].Y - nodes[i-1].Y;
-
-                if (dirX == prevDirX && dirY == prevDirY)
-                {
-                    nodes.RemoveAt(i);
-                    i--;
-                }
-                prevDirX = dirX;
-                prevDirY = dirY;
-            }
-        }
-
         public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
             var startNode = GetClosestNode(start);
@@ -88,8 +68,7 @@ namespace OpenSage.Navigation
                 yield break;
             }
 
-            // TODO: Fix and re-enable.
-            // RemoveRedundantNodes(route);
+            PathOptimizer.RemoveRedundantNodes(route);
 
             foreach (var node in route)
             {
