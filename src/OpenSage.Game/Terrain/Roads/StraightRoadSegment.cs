@@ -48,19 +48,23 @@ namespace OpenSage.Terrain.Roads
             var direction = (endPosition - startPosition) / distance;
             var directionNormal = Vector3.Cross(Vector3.UnitZ, direction);
 
-            Vector3 ToCorner(in Vector3 normal1, in Vector3 normal2)
+            Vector3 ToCorner(in Vector3 normal, RoadSegmentEndPoint neighbor, bool atEnd)
             {
-                var toCornerDirection = (normal1 + normal2) / 2;
+                var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
+                var neighborNormal = Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(neighborDirection));
+                var toCornerDirection = neighbor.To switch
+                {
+                    null => normal,                          // if I have no neighbor, use my own normal
+                    CrossingRoadSegment _ => neighborNormal, // if my neighbor is an unflexible crossing, use its normal
+                    _ => (normal + neighborNormal) / 2,      // otherwise, meet in the middle
+                };
                 var cosine = Vector3.Dot(directionNormal, toCornerDirection);
                 var toCornerLength = halfWidth / cosine;
                 return toCornerDirection * toCornerLength;
             }
 
-            var startIncomingDirectionNormal = Start.To == null ? directionNormal : Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(Start.IncomingDirection));
-            var startToCorner = ToCorner(directionNormal, startIncomingDirectionNormal);
-
-            var endIncomingDirectionNormal = End.To == null ? directionNormal : Vector3.Cross(Vector3.UnitZ, -Vector3.Normalize(End.IncomingDirection));
-            var endToCorner = ToCorner(directionNormal, endIncomingDirectionNormal);
+            var startToCorner = ToCorner(directionNormal, Start, false);
+            var endToCorner = ToCorner(directionNormal, End, true);
 
             var sections = Math.Max(1, (int)(distance / 10));
             var distancePerSection = distance / sections;
@@ -106,7 +110,7 @@ namespace OpenSage.Terrain.Roads
             void AddVertexPair(in Vector3 position, in Vector3 toBorder, float distanceAlongRoad)
             {
                 var uOffset = Vector3.Dot(toBorder, direction);
-                var up = Vector3.Cross(direction, toBorder);
+                var up = Vector3.UnitZ;
 
                 var p0 = position - toBorder;
                 p0.Z += heightBias;
