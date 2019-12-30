@@ -66,6 +66,32 @@ namespace OpenSage.Terrain.Roads
             return edgeSegments;
         }
 
+        private static IEnumerable<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
+        {
+            var incomingRoads = edges.Select(topologyEdge =>
+            {
+                var incoming = new IncomingRoadData();
+                incoming.TopologyEdge = topologyEdge;
+                incoming.TargetNodePosition = (topologyEdge.Start.Position == node.Position) ? topologyEdge.End.Position : topologyEdge.Start.Position;
+                incoming.Direction = Vector3.Normalize(incoming.TargetNodePosition - node.Position);
+                incoming.AngleToAxis = Math.Atan2(incoming.Direction.Y, incoming.Direction.X);
+                return incoming;
+            }).ToList();
+
+            incomingRoads.Sort((first, second) => first.AngleToAxis.CompareTo(second.AngleToAxis));
+            var n = incomingRoads.Count;
+
+            for (var i = 1; i < n; ++i)
+            {
+                incomingRoads[i].Previous = incomingRoads[i - 1];
+                incomingRoads[i].AngleToPreviousEdge = incomingRoads[i].AngleToAxis - incomingRoads[i - 1].AngleToAxis;
+            }
+            incomingRoads[0].Previous = incomingRoads[n - 1];
+            incomingRoads[0].AngleToPreviousEdge = 2 * Math.PI + incomingRoads[0].AngleToAxis - incomingRoads[n - 1].AngleToAxis;
+            
+            return incomingRoads;
+        }
+
         private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
@@ -80,44 +106,10 @@ namespace OpenSage.Terrain.Roads
                         case 2: // TODO normal road, create segments for tight/broad curves
                             break;
                         case 3:
-                            // TODO figure out orientation and endpoints
-                            // TODO support Y segments (symm. and asymm.)
-
                             var halfWidth = edgesPerTemplate.Key.RoadWidth / 2;
-                            var vectorToRight = new Vector3(halfWidth, 0, 0);
-
-                            var top = new RoadSegmentEndPoint(node.Position + new Vector3(0, halfWidth, 0));
-                            var right = new RoadSegmentEndPoint(node.Position + vectorToRight);
-                            var bottom = new RoadSegmentEndPoint(node.Position + new Vector3(0, -halfWidth, 0));
-
-                            var endPoints = new[] { top, right, bottom };
-
-                            var segment = new CrossingRoadSegment(endPoints,
-                                node.Position - vectorToRight, node.Position + vectorToRight, CrossingType.T);
-
-                            // TODO consider ordering of edges
-
-                            Connect(edgesPerTemplate.ElementAt(0), top, Vector3.UnitY);
-                            Connect(edgesPerTemplate.ElementAt(2), right, Vector3.UnitX);
-                            Connect(edgesPerTemplate.ElementAt(1), bottom, -Vector3.UnitY);
-
-                            void Connect(RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction)
-                            {
-                                var edgeSegment = edgeSegments[edge];
-                                if (edge.Start.Position == node.Position)
-                                {
-                                    edgeSegment.Start.Position = endPoint.Position;
-                                    edgeSegment.Start.ConnectTo(segment, direction);
-                                    endPoint.ConnectTo(edgeSegment, edge.Start.Position - edge.End.Position);
-                                }
-                                else
-                                {
-                                    edgeSegment.End.Position = endPoint.Position;
-                                    edgeSegment.End.ConnectTo(segment, direction);
-                                    endPoint.ConnectTo(edgeSegment, edge.End.Position - edge.Start.Position);
-                                }
-                            }
-
+                            var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
+                            //TODO: choose crossing type
+                            CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, halfWidth, edgeSegments);
                             break;
                     }
                 }
