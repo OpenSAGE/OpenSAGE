@@ -24,9 +24,9 @@ namespace OpenSage.Terrain
 
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
-        private readonly Dictionary<TimeOfDay, ResourceSet> _resourceSets;
 
         private readonly BeforeRenderDelegate _beforeRender;
+        private Matrix4x4 _world;
 
         internal static bool TryCreate(
             AssetLoadContext loadContext,
@@ -104,37 +104,19 @@ namespace OpenSage.Terrain
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 triangleIndices,
                 BufferUsage.IndexBuffer));
+
+            _world = Matrix4x4.Identity;
+            _world.Translation = new Vector3(0, height, 0);
+
         }
 
-        private WaterArea(AssetLoadContext loadContext, string bumpTexName = null)
+        private WaterArea(AssetLoadContext loadContext)
         {
             _shaderSet = loadContext.ShaderResources.Water.ShaderSet;
             _pipeline = loadContext.ShaderResources.Water.Pipeline;
 
-            _resourceSets = new Dictionary<TimeOfDay, ResourceSet>();
-
-            Texture bumpTexture = null;
-
-            if (bumpTexName != null)
-            {
-                bumpTexture = loadContext.AssetStore.Textures.GetByName(bumpTexName);
-            }
-            else
-            {
-                bumpTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
-            }
-
-            foreach (var waterSet in loadContext.AssetStore.WaterSets)
-            {
-                // TODO: Cache these resource sets in some sort of scoped data context.
-                var resourceSet = AddDisposable(loadContext.ShaderResources.Water.CreateMaterialResourceSet(waterSet.WaterTexture.Value, bumpTexture));
-
-                _resourceSets.Add(waterSet.TimeOfDay, resourceSet);
-            }
-
             _beforeRender = (cl, context) =>
             {
-                cl.SetGraphicsResourceSet(4, _resourceSets[context.Scene3D.Lighting.TimeOfDay]);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
@@ -149,7 +131,7 @@ namespace OpenSage.Terrain
 
         private WaterArea(
             AssetLoadContext loadContext,
-            StandingWaterArea area) : this(loadContext, area.BumpMapTexture)
+            StandingWaterArea area) : this(loadContext)
         {
             CreateGeometry(loadContext, area.Points, area.WaterHeight);
             //TODO: use depthcolors
@@ -172,7 +154,7 @@ namespace OpenSage.Terrain
                 _shaderSet,
                 _pipeline,
                 _boundingBox,
-                Matrix4x4.Identity,
+                _world,
                 0,
                 _numIndices,
                 _indexBuffer,

@@ -4,6 +4,12 @@ namespace OpenSage.Mathematics
 {
     public static class Vector3Utility
     {
+        public static float Distance(in Vector3 x, in Vector3 y)
+        {
+            var z = x - y;
+            return z.Length();
+        }
+
         public static Vector3 Lerp(in Vector3 x, in Vector3 y, float s)
         {
             return x + s * (y - x);

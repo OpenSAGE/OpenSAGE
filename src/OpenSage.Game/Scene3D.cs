@@ -10,6 +10,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Input;
@@ -72,6 +73,8 @@ namespace OpenSage
         public readonly WorldLighting Lighting;
 
         public readonly ShadowSettings Shadows = new ShadowSettings();
+
+        public WaterSettings Waters { get; } = new WaterSettings();
 
         private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;

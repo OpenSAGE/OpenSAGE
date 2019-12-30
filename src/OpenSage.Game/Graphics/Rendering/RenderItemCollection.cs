@@ -57,8 +57,12 @@ namespace OpenSage.Graphics.Rendering
         {
             _culled[i] = cameraFrustum.Intersects(_items[i].BoundingBox);
         }
+        private void Cull(int i, in ClippingPlane clippingPlane)
+        {
+            _culled[i] = _culled[i] && clippingPlane.Contains(_items[i].BoundingBox);
+        }
 
-        public void CullAndSort(in BoundingFrustum cameraFrustum, int batchSize)
+        public void CullAndSort(in BoundingFrustum cameraFrustum, in ClippingPlane clippingPlane, int batchSize)
         {
             if (Length == 0)
             {
@@ -74,12 +78,16 @@ namespace OpenSage.Graphics.Rendering
                 for (var i = 0; i < Length; i++)
                 {
                     Cull(i, cameraFrustum);
+                    if (clippingPlane != null)
+                        Cull(i, clippingPlane);
                 }
             }
             else
             {
                 // We need a copy of cameraFrustum, as we can't send in parameters to closures. 
                 var frustum = cameraFrustum;
+                // We need a copy of clippingPlane, as we can't send in parameters to closures. 
+                var clip = clippingPlane;
 
                 // Perform culling using the thread pool, in batches of batchSize.
                 Parallel.ForEach(Partitioner.Create(0, Length, batchSize), range =>
@@ -88,6 +96,8 @@ namespace OpenSage.Graphics.Rendering
                     for (var i = start; i < end; i++)
                     {
                         Cull(i, frustum);
+                        if (clip != null)
+                            Cull(i, clip);
                     }
                 });
             }

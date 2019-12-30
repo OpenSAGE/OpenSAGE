@@ -3,9 +3,11 @@
     public sealed class RenderBucket
     {
         public readonly RenderItemCollection RenderItems;
+        public readonly string RenderItemName;
 
-        public RenderBucket()
+        public RenderBucket(string name)
         {
+            RenderItemName = name;
             RenderItems = new RenderItemCollection();
         }
 
@@ -17,12 +19,12 @@
 
     public sealed class RenderList
     {
-        public readonly RenderBucket Terrain = new RenderBucket();
-        public readonly RenderBucket Road = new RenderBucket();
-        public readonly RenderBucket Water = new RenderBucket();
-        public readonly RenderBucket Opaque = new RenderBucket();
-        public readonly RenderBucket Transparent = new RenderBucket();
-        public readonly RenderBucket Shadow = new RenderBucket();
+        public readonly RenderBucket Opaque = new RenderBucket("Opaque");
+        public readonly RenderBucket Transparent = new RenderBucket("Transparent");
+        public readonly RenderBucket Terrain = new RenderBucket("Terrain");
+        public readonly RenderBucket Road = new RenderBucket("Road");
+        public readonly RenderBucket Shadow = new RenderBucket("Shadow");
+        public readonly RenderBucket Water = new RenderBucket("Water");
 
         public void Clear()
         {

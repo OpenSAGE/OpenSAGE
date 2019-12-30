@@ -70,7 +70,9 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Sequential)]
         public struct GlobalConstantsVS
         {
+            public Matrix4x4 Projection;
             public Matrix4x4 ViewProjection;
+            public Vector4 ClippingPlane;
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
@@ -195,6 +197,27 @@ namespace OpenSage.Graphics.Shaders
                 value3 = (numValues > 2) ? values[2] : default;
                 value4 = (numValues > 3) ? values[3] : default;
             }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WaterConstantsVS
+        {
+            public Matrix4x4 ModelMatrix;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
+        public struct WaterConstantsPS
+        {
+            public const int SizeInBytes = 16 * 2;
+
+            public Vector2 UVFactor;
+            public Vector2 UVOffset;
+
+            public float FarPlaneDistance;
+            public float NearPlaneDistance;
+
+            public uint IsRenderReflection;
+            public uint IsRenderRefraction;
         }
     }
 }
