@@ -92,6 +92,26 @@ namespace OpenSage.Terrain.Roads
             return incomingRoads;
         }
 
+        private static CrossingType ChooseCrossingType(IEnumerable<IncomingRoadData> incomingRoads)
+        {
+            var angles = incomingRoads.Select(road => road.AngleToPreviousEdge).ToList();
+            angles.Sort();
+
+            if (angles.Count() == 3)
+            {
+                if (angles[2] < Math.PI * 0.9)
+                {
+                    return CrossingType.SymmetricY;
+                }
+                if (angles[1] - angles[0] < Math.PI * 0.25)
+                {
+                    return CrossingType.T;
+                }
+                return CrossingType.AsymmetricY;
+            }
+            return CrossingType.X;
+        }
+
         private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
@@ -106,10 +126,19 @@ namespace OpenSage.Terrain.Roads
                         case 2: // TODO normal road, create segments for tight/broad curves
                             break;
                         case 3:
-                            var halfWidth = edgesPerTemplate.Key.RoadWidth / 2;
+                            var template = edgesPerTemplate.Key;
+                            var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
                             var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
-                            //TODO: choose crossing type
-                            CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, halfWidth, edgeSegments);
+                            var crossingType = ChooseCrossingType(edgedata);
+                            switch(crossingType)
+                            {
+                                case CrossingType.T:
+                                    CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, halfRoadWidth, edgeSegments);
+                                    break;
+                                case CrossingType.AsymmetricY:
+                                    CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, halfRoadWidth, edgeSegments);
+                                    break;
+                            }
                             break;
                     }
                 }
