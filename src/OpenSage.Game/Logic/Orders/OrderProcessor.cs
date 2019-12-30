@@ -21,7 +21,16 @@ namespace OpenSage.Logic.Orders
             
             foreach (var order in orders)
             {
-                var player = _game.Scene3D.Players[(int) order.PlayerIndex];
+                Player player = null;
+
+                if(order.PlayerIndex==-1)
+                {
+                    player = _game.Scene3D.LocalPlayer;
+                }
+                else
+                {
+                    player = _game.Scene3D.Players[(int) order.PlayerIndex];
+                }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
                 logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
@@ -37,11 +46,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 //TODO: only play this for local players
                                 unit.OnLocalMove(_game.Audio);
-
-                                var start = unit.Transform.Translation;
-                                var end = targetPosition;
-                                var path = _game.Scene3D.Navigation.CalculatePath(start, end);
-                                unit.SetTargetPoints(path);
+                                unit.SetTargetPoint(targetPosition);
                             }
                         }
                         break;
@@ -110,7 +115,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.SetRallyPoint:
                         try
                         {
-                            if(order.Arguments.Count == 2)
+                            if (order.Arguments.Count == 2)
                             {
                                 var objId = order.Arguments[0].Value.ObjectId;
                                 var obj = _game.Scene3D.GameObjects.GetObjectById((int) objId);
@@ -126,8 +131,6 @@ namespace OpenSage.Logic.Orders
                                     .ToArray();
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
                             }
-                            
-
                         }
                         catch (System.Exception e)
                         {

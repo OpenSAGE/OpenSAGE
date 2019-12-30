@@ -8,16 +8,19 @@ namespace OpenSage.Logic.Object
         private readonly AssetLoadContext _loadContext;
         private readonly List<GameObject> _items;
         private readonly Player _civilianPlayer;
+        private readonly Navigation.Navigation _navigation;
 
         public IReadOnlyList<GameObject> Items => _items;
 
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal GameObjectCollection(AssetLoadContext loadContext, Player civilianPlayer)
+        internal GameObjectCollection(AssetLoadContext loadContext,
+                Player civilianPlayer, Navigation.Navigation navigation)
         {
             _loadContext = loadContext;
             _items = new List<GameObject>();
             _civilianPlayer = civilianPlayer;
+            _navigation = navigation;
         }
 
         public GameObject Add(string typeName, Player player)
@@ -40,7 +43,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this, _navigation));
             _items.Add(gameObject);
             return gameObject;
         }
@@ -61,6 +64,17 @@ namespace OpenSage.Logic.Object
         public int GetObjectId(GameObject gameObject)
         {
             return _items.IndexOf(gameObject) + 1;
+        }
+
+        public List<int> GetObjectIds(IEnumerable<GameObject> gameObjects)
+        {
+            var objIds = new List<int>();
+            foreach (var gameObject in gameObjects)
+            {
+                objIds.Add(GetObjectId(gameObject));
+            }
+
+            return objIds;
         }
 
         public GameObject GetObjectById(int objectId)

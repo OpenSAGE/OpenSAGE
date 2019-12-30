@@ -111,6 +111,8 @@ namespace OpenSage.Logic.Object
 
         private TimeSpan ConstructionStart { get; set; }
 
+        private Navigation.Navigation Navigation { get; set; }
+
         public bool Destroyed { get; set; }
 
         public float Speed { get; set; }
@@ -119,7 +121,8 @@ namespace OpenSage.Logic.Object
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner, GameObjectCollection parent)
+        internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner,
+                            GameObjectCollection parent, Navigation.Navigation navigation)
         {
             if (objectDefinition == null)
             {
@@ -129,6 +132,7 @@ namespace OpenSage.Logic.Object
             Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
+            Navigation = navigation;
 
             SetLocomotor();
             Transform = Transform.CreateIdentity();
@@ -235,18 +239,19 @@ namespace OpenSage.Logic.Object
             }
 
             spawnedUnit.Transform.Translation = translation;
-            spawnedUnit.TargetPoints.Add(RallyPoint);
+            spawnedUnit.SetTargetPoint(RallyPoint);
         }
 
-        internal void SetTargetPoints(IEnumerable<Vector3> targetPoints)
+        internal void SetTargetPoint(Vector3 targetPoint)
         {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
+                var path = Navigation.CalculatePath(Transform.Translation, targetPoint);
                 TargetPoints.Clear();
-                TargetPoints.AddRange(targetPoints);
+                TargetPoints.AddRange(path);
                 Logger.Debug("Set new target points: " + TargetPoints.Count);
             }
 
@@ -356,6 +361,8 @@ namespace OpenSage.Logic.Object
                     castsShadow,
                     Owner);
             }
+
+            //TODO: draw the rally point when this unit has one
         }
 
         public void ClearModelConditionFlags()

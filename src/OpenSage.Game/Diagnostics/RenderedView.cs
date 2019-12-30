@@ -35,7 +35,9 @@ namespace OpenSage.Diagnostics
 
             _inputMessageBuffer = new InputMessageBuffer();
 
-            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.AssetStore.LoadContext, context.Game.CivilianPlayer));
+            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.AssetStore.LoadContext,
+                                                                    context.Game.CivilianPlayer,
+                                                                    context.Game.Scene3D?.Navigation));
             createGameObjects?.Invoke(gameObjects);
 
             _scene3D = AddDisposable(new Scene3D(
