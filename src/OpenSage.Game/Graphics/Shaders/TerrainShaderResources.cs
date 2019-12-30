@@ -28,6 +28,7 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("TextureDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Textures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("MacroTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("CausticsTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
             var resourceLayouts = new[]
@@ -56,7 +57,8 @@ namespace OpenSage.Graphics.Shaders
             DeviceBuffer cliffDetailsBuffer,
             DeviceBuffer textureDetailsBuffer,
             Texture textureArray,
-            Texture macroTexture)
+            Texture macroTexture,
+            Texture casuticsTexture)
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
@@ -67,6 +69,7 @@ namespace OpenSage.Graphics.Shaders
                     textureDetailsBuffer,
                     textureArray,
                     macroTexture,
+                    casuticsTexture,
                     GraphicsDevice.Aniso4xSampler));
         }
 

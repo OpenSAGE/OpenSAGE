@@ -10,7 +10,9 @@ struct GlobalConstantsSharedType
 
 struct GlobalConstantsVSType
 {
+    mat4 Projection;
     mat4 ViewProjection;
+    vec4 ClippingPlane;
 };
 
 struct GlobalConstantsPSType
@@ -61,4 +63,10 @@ vec3 saturate(vec3 v)
     return clamp(v, vec3(0, 0, 0), vec3(1, 1, 1));
 }
 
+float CalculateClippingPlane(vec3 position, vec4 plane)
+{
+    if (plane.x != 0 || plane.y != 0 || plane.z != 0 || plane.w != 0)
+        return dot(vec4(position, 1), plane);
+    return 1;
+}
 #endif

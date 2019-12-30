@@ -16,6 +16,12 @@ namespace OpenSage.Diagnostics
         private readonly List<uint> _shadowMapSizes;
         private readonly string[] _shadowMapSizeNames;
 
+        private readonly List<uint> _reflectionMapSizes;
+        private readonly string[] _reflectionMapSizeNames;
+
+        private readonly List<uint> _refractionMapSizes;
+        private readonly string[] _refractionMapSizeNames;
+
         public override string DisplayName { get; } = "Render Settings";
 
         public RenderSettingsView(DiagnosticViewContext context)
@@ -23,7 +29,11 @@ namespace OpenSage.Diagnostics
         {
             _shadowMapSizes = new List<uint> { 256u, 512u, 1024u, 2048u };
             _shadowMapSizeNames = _shadowMapSizes.Select(x => x.ToString()).ToArray();
-    }
+            _reflectionMapSizes = new List<uint> { 256u, 512u, 1024u, 2048u };
+            _reflectionMapSizeNames = _reflectionMapSizes.Select(x => x.ToString()).ToArray();
+            _refractionMapSizes = new List<uint> { 256u, 512u, 1024u, 2048u };
+            _refractionMapSizeNames = _refractionMapSizes.Select(x => x.ToString()).ToArray();
+        }
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
@@ -49,6 +59,7 @@ namespace OpenSage.Diagnostics
             ImGui.Separator();
 
             var shadowSettings = Game.Scene3D.Shadows;
+            var waterSettings = Game.Scene3D.Waters;
 
             ImGui.Text("Shadows");
             {
@@ -124,6 +135,86 @@ namespace OpenSage.Diagnostics
                             Vector4.One);
                     }
                 }
+            }
+
+            ImGui.Separator();
+
+            var isRenderReflection = waterSettings.IsRenderReflection;
+            if (ImGui.Checkbox("Render water reflection", ref isRenderReflection))
+            {
+                waterSettings.IsRenderReflection = isRenderReflection;
+            }
+
+            var isRenderRefraction = waterSettings.IsRenderRefraction;
+            if (ImGui.Checkbox("Render water refraction", ref isRenderRefraction))
+            {
+                waterSettings.IsRenderRefraction = isRenderRefraction;
+            }
+
+            var isRenderSoftEdge = waterSettings.IsRenderSoftEdge;
+            if (ImGui.Checkbox("Render water soft edge", ref isRenderSoftEdge))
+            {
+                waterSettings.IsRenderSoftEdge = isRenderSoftEdge;
+            }
+
+            var isRenderCaustics = waterSettings.IsRenderCaustics;
+            if (ImGui.Checkbox("Render underwater caustics", ref isRenderCaustics))
+            {
+                waterSettings.IsRenderCaustics = isRenderCaustics;
+            }
+
+            var currentReflectionMapSizeIndex = _reflectionMapSizes.IndexOf(waterSettings.ReflectionMapSize);
+            ImGui.Combo("Water reflection map size", ref currentReflectionMapSizeIndex, _reflectionMapSizeNames, _reflectionMapSizes.Count);
+            waterSettings.ReflectionMapSize = _reflectionMapSizes[currentReflectionMapSizeIndex];
+
+            var currentRefractionMapSizeIndex = _refractionMapSizes.IndexOf(waterSettings.RefractionMapSize);
+            ImGui.Combo("Water refraction map size", ref currentRefractionMapSizeIndex, _refractionMapSizeNames, _refractionMapSizes.Count);
+            waterSettings.RefractionMapSize = _refractionMapSizes[currentRefractionMapSizeIndex];
+
+            var reflectionRenderDistance = waterSettings.ReflectionRenderDistance;
+            if (ImGui.SliderFloat("Water reflection render distance", ref reflectionRenderDistance, 10, 2000))
+            {
+                waterSettings.ReflectionRenderDistance = reflectionRenderDistance;
+            }
+
+            var refractionRenderDistance = waterSettings.RefractionRenderDistance;
+            if (ImGui.SliderFloat("Water refraction render distance", ref refractionRenderDistance, 10, 2000))
+            {
+                waterSettings.RefractionRenderDistance = refractionRenderDistance;
+            }
+
+            if (Game.Graphics.ReflectionMap != null)
+            {
+                var reflectionMapView = AddDisposable(Game.GraphicsDevice.ResourceFactory.CreateTextureView(
+                new TextureViewDescription(Game.Graphics.ReflectionMap, 0, 1, 0, 1)));
+
+                var reflectionMapPointer = ImGuiRenderer.GetOrCreateImGuiBinding(
+                    Game.GraphicsDevice.ResourceFactory,
+                    reflectionMapView);
+
+                ImGui.Image(
+                    reflectionMapPointer,
+                    new Vector2(250, 250),
+                    Game.GetTopLeftUV(),
+                    Game.GetBottomRightUV(),
+                    Vector4.One);
+            }
+
+            if (Game.Graphics.RefractionMap != null)
+            {
+                var refractionMapView = AddDisposable(Game.GraphicsDevice.ResourceFactory.CreateTextureView(
+                new TextureViewDescription(Game.Graphics.RefractionMap, 0, 1, 0, 1)));
+
+                var refractionMapPointer = ImGuiRenderer.GetOrCreateImGuiBinding(
+                    Game.GraphicsDevice.ResourceFactory,
+                    refractionMapView);
+
+                ImGui.Image(
+                    refractionMapPointer,
+                    new Vector2(250, 250),
+                    Game.GetTopLeftUV(),
+                    Game.GetBottomRightUV(),
+                    Vector4.One);
             }
 
             ImGui.Separator();

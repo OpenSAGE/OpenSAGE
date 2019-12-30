@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
@@ -38,6 +39,7 @@ namespace OpenSage.Graphics.Rendering
         private readonly DrawingContext2D _drawingContext;
 
         private readonly ShadowMapRenderer _shadowMapRenderer;
+        private readonly WaterMapRenderer _waterMapRenderer;
 
         private Texture _intermediateDepthBuffer;
         private Texture _intermediateTexture;
@@ -46,6 +48,8 @@ namespace OpenSage.Graphics.Rendering
         private readonly TextureCopier _textureCopier;
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
+        public Texture ReflectionMap => _waterMapRenderer.ReflectionMap;
+        public Texture RefractionMap => _waterMapRenderer.RefractionMap;
 
         public int RenderedObjectsOpaque { get; private set; }
         public int RenderedObjectsTransparent { get; private set; }
@@ -79,6 +83,7 @@ namespace OpenSage.Graphics.Rendering
                 GameOutputDescription));
 
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
+            _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
 
             _textureCopier = AddDisposable(new TextureCopier(
                 game,
@@ -201,7 +206,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
+                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.Projection, shadowViewProjection, new Vector4(0, 0, 0, 0));
 
                     DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -214,7 +219,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.Projection, scene.Camera.ViewProjection, new Vector4(0, 0, 0, 0));
             _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ClearColor);
@@ -247,15 +252,98 @@ namespace OpenSage.Graphics.Rendering
             commandList.PopDebugGroup();
         }
 
+        private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet cloudResourceSet)
+        {
+            _waterMapRenderer.RenderWaterShaders(
+                scene,
+                context.GraphicsDevice,
+                commandList,
+                (reflectionFramebuffer, refractionFramebuffer) =>
+                {
+                    var camera = scene.Camera;
+                    var clippingOffset = scene.Waters.ClippingOffset;
+                    var originalFarPlaneDistance = camera.FarPlaneDistance;
+                    var pivot = renderItem.World.Translation.Y;
+
+                    if (refractionFramebuffer != null)
+                    {
+                        camera.FarPlaneDistance = scene.Waters.RefractionRenderDistance;
+                        var clippingPlane = new ClippingPlane(new Vector4(0, 0, -1, pivot + clippingOffset));
+
+                        // Render normal scene for water refraction shader
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+                        _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
+
+                        commandList.SetFramebuffer(refractionFramebuffer);
+
+                        commandList.ClearColorTarget(0, ClearColor);
+                        commandList.ClearDepthStencil(1);
+
+                        commandList.SetFullViewports();
+
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                    }
+
+                    if (reflectionFramebuffer != null)
+                    {
+                        camera.FarPlaneDistance = scene.Waters.ReflectionRenderDistance;
+                        var clippingPlane = new ClippingPlane(new Vector4(0, 0, 1, -pivot - clippingOffset));
+
+                        // TODO: Improve rendering speed somehow?
+                        // ------------------- Used for creating stencil mask -------------------
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+
+                        commandList.SetFramebuffer(reflectionFramebuffer);
+                        commandList.ClearColorTarget(0, ClearColor);
+                        commandList.ClearDepthStencil(1);
+
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        // -----------------------------------------------------------------------
+
+                        // Render inverted scene for water reflection shader
+                        camera.SetMirrorX(pivot);
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+
+                        //commandList.SetFramebuffer(reflectionFramebuffer);
+                        commandList.ClearColorTarget(0, ClearColor);
+                        //commandList.ClearDepthStencil(1);
+
+                        commandList.SetFullViewports();
+
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+
+                        camera.SetMirrorX(pivot);
+                    }
+
+                    if (reflectionFramebuffer != null || refractionFramebuffer != null)
+                    {
+                        camera.FarPlaneDistance = originalFarPlaneDistance;
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, new Vector4(0, 0, 0, 0));
+                        _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
+
+                        // Reset the render item pipeline
+                        commandList.SetFramebuffer(_intermediateFramebuffer);
+                        commandList.InsertDebugMarker("Setting pipeline");
+                        commandList.SetPipeline(renderItem.Pipeline);
+                    }
+
+                    SetGlobalResources(commandList, renderItem.ShaderSet.GlobalResourceSetIndices, cloudResourceSet);
+                    commandList.SetGraphicsResourceSet(4, _waterMapRenderer.ResourceSetForRendering);
+                });
+        }
+
         private int DoRenderPass(
             RenderContext context,
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
-            ResourceSet cloudResourceSet)
+            ResourceSet cloudResourceSet,
+            ClippingPlane clippingPlane = null)
         {
             // TODO: Make culling batch size configurable at runtime
-            bucket.RenderItems.CullAndSort(cameraFrustum, ParallelCullingBatchSize);
+            bucket.RenderItems.CullAndSort(cameraFrustum, clippingPlane, ParallelCullingBatchSize);
 
             if (bucket.RenderItems.CulledItemIndices.Count == 0)
             {
@@ -293,6 +381,10 @@ namespace OpenSage.Graphics.Rendering
                     }
                 }
 
+                if (bucket.RenderItemName == "Water")
+                {
+                    CalculateWaterShaderMap(context.Scene3D, context, commandList, renderItem, cloudResourceSet);
+                }
                 renderItem.BeforeRenderCallback.Invoke(commandList, context);
 
                 commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);

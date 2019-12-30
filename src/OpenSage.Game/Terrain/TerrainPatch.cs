@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -27,7 +28,8 @@ namespace OpenSage.Terrain
             Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet)
+            ResourceSet materialResourceSet,
+            Func<ResourceSet> causticsRendererCallback)
         {
             Bounds = patchBounds;
 
@@ -51,7 +53,14 @@ namespace OpenSage.Terrain
 
             _beforeRender = (cl, context) =>
             {
-                cl.SetGraphicsResourceSet(4, materialResourceSet);
+                var isRender = context.Scene3D.Waters.IsRenderCaustics;
+                if (isRender)
+                {
+                    var causticsResourceSet = causticsRendererCallback.Invoke();
+                    cl.SetGraphicsResourceSet(4, causticsResourceSet);
+                }
+                else
+                    cl.SetGraphicsResourceSet(4, materialResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
