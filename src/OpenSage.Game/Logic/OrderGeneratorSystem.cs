@@ -27,14 +27,42 @@ namespace OpenSage.Logic
             }
         }
 
-        public void OnMove()
+        private bool StructuresSelected()
+        {
+            bool result = true;
+
+            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
+            {
+                if (!unit.Definition.KindOf.Get(ObjectKinds.Structure))
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public void OnRightClick()
         {
             if (!_worldPosition.HasValue)
             {
                 return;
             }
 
-            var order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+            Order order = null;
+
+            if (StructuresSelected())
+            {
+                var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
+                var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
+                order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
+            }
+            else
+            {
+                order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+            }
+
             Game.NetworkMessageBuffer.AddLocalOrder(order);
         }
 
@@ -50,22 +78,22 @@ namespace OpenSage.Logic
             switch (result)
             {
                 case OrderGeneratorResult.Success success:
-                {
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
-
-                    foreach (var order in success.Orders)
                     {
-                        Game.NetworkMessageBuffer.AddLocalOrder(order);
-                    }
+                        // TODO: Wrong place, wrong behavior.
+                        Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
 
-                    if (success.Exit)
-                    {
-                        ActiveGenerator = null;
-                    }
+                        foreach (var order in success.Orders)
+                        {
+                            Game.NetworkMessageBuffer.AddLocalOrder(order);
+                        }
 
-                    break;
-                }
+                        if (success.Exit)
+                        {
+                            ActiveGenerator = null;
+                        }
+
+                        break;
+                    }
                 case OrderGeneratorResult.FailureResult _:
                     // TODO: Wrong place, wrong behavior.
                     Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");

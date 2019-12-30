@@ -108,6 +108,7 @@ namespace OpenSage
             MapFile = mapFile;
             Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
             WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
+            Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -132,8 +133,6 @@ namespace OpenSage
             Waypoints = waypoints;
             WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
             Cameras = cameras;
-
-            Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
@@ -165,7 +164,7 @@ namespace OpenSage
             out CameraCollection cameras)
         {
             var waypoints = new List<Waypoint>();
-            gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer));
+            gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer, Navigation));
             var roadsList = new List<Road>();
             var bridgesList = new List<Bridge>();
 

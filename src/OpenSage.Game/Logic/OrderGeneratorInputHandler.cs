@@ -73,7 +73,7 @@ namespace OpenSage.Logic
 
                     return InputMessageResult.Handled;
                 case InputMessageType.MouseRightButtonDown:
-                    _orderGeneratorSystem.OnMove();
+                    _orderGeneratorSystem.OnRightClick();
 
                     return InputMessageResult.Handled;
             }

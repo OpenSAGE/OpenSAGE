@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
@@ -69,7 +70,7 @@ namespace OpenSage.Logic.Orders
         {
             _arguments.Add(new OrderArgument(
                 OrderArgumentType.ScreenRectangle,
-                new OrderArgumentValue {ScreenRectangle  = value}));
+                new OrderArgumentValue { ScreenRectangle = value }));
         }
 
         public override string ToString()
@@ -129,6 +130,27 @@ namespace OpenSage.Logic.Orders
             var order = new Order(playerId, OrderType.MoveTo);
 
             order.AddPositionArgument(targetPosition);
+
+            return order;
+        }
+
+        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, Vector3 targetPosition)
+        {
+            var order = new Order(playerId, OrderType.SetRallyPoint);
+
+            if (objectIds.Count > 1)
+            {
+                order.AddPositionArgument(targetPosition);
+                foreach (var objId in objectIds)
+                {
+                    order.AddObjectIdArgument((uint) objId);
+                }
+            }
+            else
+            {
+                order.AddObjectIdArgument((uint) objectIds.ElementAt(0));
+                order.AddPositionArgument(targetPosition);
+            }
 
             return order;
         }
