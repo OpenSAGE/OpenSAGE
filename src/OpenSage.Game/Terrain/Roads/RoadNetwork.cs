@@ -127,16 +127,15 @@ namespace OpenSage.Terrain.Roads
                             break;
                         case 3:
                             var template = edgesPerTemplate.Key;
-                            var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
                             var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
                             var crossingType = ChooseCrossingType(edgedata);
                             switch(crossingType)
                             {
                                 case CrossingType.T:
-                                    CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, halfRoadWidth, edgeSegments);
+                                    CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, template, edgeSegments);
                                     break;
                                 case CrossingType.AsymmetricY:
-                                    CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, halfRoadWidth, edgeSegments);
+                                    CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, template, edgeSegments);
                                     break;
                             }
                             break;

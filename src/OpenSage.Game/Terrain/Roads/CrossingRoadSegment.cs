@@ -45,17 +45,20 @@ namespace OpenSage.Terrain.Roads
 
 
 
-        public static CrossingRoadSegment CreateTCrossing(IEnumerable<IncomingRoadData> roads, Vector3 crossingPosition, float halfRoadWidth, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        public static CrossingRoadSegment CreateTCrossing(IEnumerable<IncomingRoadData> roads, Vector3 crossingPosition, RoadTemplate template, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var maxAngle = roads.OrderBy(road => road.AngleToPreviousEdge).LastOrDefault();
             var upDirection = Vector3.Normalize(maxAngle.Previous.TargetNodePosition - maxAngle.TargetNodePosition);
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
 
-            var lengthToEndpoint = 1.07f * halfRoadWidth;
+            var roadWidth = template.RoadWidth * template.RoadWidthInTexture;
+            var halfRoadWidth = roadWidth / 2f;
 
-            var top = new RoadSegmentEndPoint(crossingPosition + lengthToEndpoint * upDirection);
-            var bottom = new RoadSegmentEndPoint(crossingPosition - lengthToEndpoint * upDirection);
-            var right = new RoadSegmentEndPoint(crossingPosition + lengthToEndpoint * rightDirection);
+            var targetBoundingBox = GetBoundingBox(CrossingType.T, template);
+
+            var top = new RoadSegmentEndPoint(crossingPosition + targetBoundingBox.Height / 2 * upDirection);
+            var bottom = new RoadSegmentEndPoint(crossingPosition - targetBoundingBox.Height / 2 * upDirection);
+            var right = new RoadSegmentEndPoint(crossingPosition + (targetBoundingBox.Width - halfRoadWidth) * rightDirection);
 
             var start = crossingPosition - halfRoadWidth * rightDirection;
             var end = right.Position;
@@ -69,30 +72,32 @@ namespace OpenSage.Terrain.Roads
             return crossingSegment;
         }
 
-        public static CrossingRoadSegment CreateYAsymmCrossing(IEnumerable<IncomingRoadData> roads, Vector3 crossingPosition, float halfRoadWidth, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        public static CrossingRoadSegment CreateYAsymmCrossing(IEnumerable<IncomingRoadData> roads, Vector3 crossingPosition, RoadTemplate template, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var maxAngle = roads.OrderBy(road => road.AngleToPreviousEdge).LastOrDefault();
             var mirror = maxAngle.Previous.AngleToPreviousEdge < maxAngle.Previous.Previous.AngleToPreviousEdge;
+            
             var upDirection = Vector3.Normalize(maxAngle.Previous.TargetNodePosition - maxAngle.TargetNodePosition);
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
             var mirrorFactor = mirror ? -1 : 1;
             upDirection = mirrorFactor * upDirection;
-            var sideDirection = Vector3.Normalize(rightDirection - upDirection); //45 degree angle
+            var sideDirection = Vector3.Normalize(rightDirection - upDirection);
 
-            //measured in one texture approximately, relative to measured half road width
-            var measuredHalfRoadWidth = 57f;
-            var scalingFactor = halfRoadWidth / measuredHalfRoadWidth;
-            var lengthToTop = 32f * scalingFactor;
-            var lengthToBottom = 136f * scalingFactor;
-            var lengthToSidePoint = 140f * scalingFactor;
-            var lengthToRight = 139f * scalingFactor;
+            var targetBoundingBox = GetBoundingBox(CrossingType.AsymmetricY, template);
+
+            var lengthToTop = 0.2f * targetBoundingBox.Height;
+            var lengthToBottom = 0.8f * targetBoundingBox.Height;
+            var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
+            var lengthToLeft = halfRoadWidth;
+            var lengthToRight = targetBoundingBox.Width - lengthToLeft;
+            var lengthToSide = template.RoadWidth;
 
             var topPosition = crossingPosition + lengthToTop * upDirection;
             var bottomPosition = crossingPosition - lengthToBottom * upDirection;
-            var sidePosition = crossingPosition + lengthToSidePoint * sideDirection;
+            var sidePosition = crossingPosition + lengthToSide * sideDirection;
 
             var midHeightOnMainRoad = 0.5f * (topPosition + bottomPosition);
-            var start = midHeightOnMainRoad - halfRoadWidth * rightDirection;
+            var start = midHeightOnMainRoad - lengthToLeft * rightDirection;
             var end = midHeightOnMainRoad + lengthToRight * rightDirection;
 
             var top = new RoadSegmentEndPoint(topPosition);
@@ -113,7 +118,6 @@ namespace OpenSage.Terrain.Roads
             return crossingSegment;
         }
 
-
         private static void Connect(CrossingRoadSegment newSegment, RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var edgeSegment = edgeSegments[edge];
@@ -132,29 +136,45 @@ namespace OpenSage.Terrain.Roads
         }
 
         //will be used for y crossings?
-        private (Vector3 start, Vector3 end) CreateStartAndEndAlongDirection(IEnumerable<Vector3> endpoints, Vector3 normalizedDirection, Vector3 crossingPosition)
+        //private (Vector3 start, Vector3 end) CreateStartAndEndAlongDirection(IEnumerable<Vector3> endpoints, Vector3 normalizedDirection, Vector3 crossingPosition)
+        //{
+        //    var orthDirection = Vector3.Cross(normalizedDirection, Vector3.UnitZ);
+
+        //    var valuesAlongDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, normalizedDirection));
+        //    var valuesOrthToDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, orthDirection));
+
+        //    var minAlongDirection = valuesAlongDirection.Min();
+        //    var maxAlongDirection = valuesAlongDirection.Max();
+        //    var middleOrthToDirection = (valuesOrthToDirection.Min() + valuesOrthToDirection.Max()) / 2;
+
+        //    var startPoint = crossingPosition + minAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
+        //    var endPoint = crossingPosition + maxAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
+
+        //    return (startPoint, endPoint);
+        //}
+
+        static RectangleF GetBoundingBox(CrossingType type, RoadTemplate template)
         {
-            var orthDirection = Vector3.Cross(normalizedDirection, Vector3.UnitZ);
-
-            var valuesAlongDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, normalizedDirection));
-            var valuesOrthToDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, orthDirection));
-
-            var minAlongDirection = valuesAlongDirection.Min();
-            var maxAlongDirection = valuesAlongDirection.Max();
-            var middleOrthToDirection = (valuesOrthToDirection.Min() + valuesOrthToDirection.Max()) / 2;
-
-            var startPoint = crossingPosition + minAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
-            var endPoint = crossingPosition + maxAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
-
-            return (startPoint, endPoint);
+            switch(type)
+            {
+                case CrossingType.AsymmetricY:
+                    return new RectangleF(0, 0, (1.2f + template.RoadWidthInTexture / 2f) * template.RoadWidth, (1.33f + 0.015f) * template.RoadWidth);
+                case CrossingType.T:
+                    return new RectangleF(0, 0, (0.5f + template.RoadWidthInTexture / 2 + 0.015f) * template.RoadWidth, (1 + 2 * 0.015f) * template.RoadWidth);
+            }
+            throw new NotImplementedException();
         }
-
 
 
         public void GenerateMesh(RoadTemplate template, HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
             const float heightBias = 1f;
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
+            
+            var distance = Vector3.Distance(Start, End);
+            var direction = Vector3.Normalize(End - Start);
+            var directionNormal = Vector3.Cross(direction, Vector3.UnitZ);
+            var up = Vector3.UnitZ;
 
             var startPosition = Start;
             startPosition.Z = heightMap.GetHeight(startPosition.X, startPosition.Y);
@@ -162,29 +182,28 @@ namespace OpenSage.Terrain.Roads
             var endPosition = End;
             endPosition.Z = heightMap.GetHeight(endPosition.X, endPosition.Y);
 
-            //TODO: create a lookup of these values for each of the crossing types. For now: use those for t-crossing
-            var crossingWidthFactor = 1.14f;
-            var uStart = 0.719f;
-            var uEnd = 0.957f;
-            var v = 0.5f;
+            var targetBoundingBox = GetBoundingBox(Type, template);
+            var halfHeight = targetBoundingBox.Height / 2;
+
+            //TODO: create a lookup of these values for each of the crossing types.
+            //for T:
+            var uStart = 0.7208f;
+            var uEnd = 0.9615f;
+            var vStart = 0.3719f;
+            var vEnd = 0.6281f;
 
             if (Type == CrossingType.AsymmetricY)
             {
-                crossingWidthFactor = 1.464f;
-                uStart = 0.283f;
-                uEnd = 0.666f;
-                v = 0.812f;
+                uStart = 0.2825f;
+                uEnd = 0.6975f;
+                vStart = 0.6833f;
+                vEnd = 0.9833f;
             }
 
-            var distance = Vector3.Distance(Start, End);
-            var direction = Vector3.Normalize(End - Start);
-            var directionNormal = Vector3.Cross(Vector3.UnitZ, direction);
-            var up = Vector3.UnitZ;
-
-            var textureAtlasHalfWidth = 0.25f / 2f * template.RoadWidthInTexture * crossingWidthFactor;
-            var vOffset = Mirror ? -textureAtlasHalfWidth : textureAtlasHalfWidth;
-            var halfWidth = template.RoadWidth * template.RoadWidthInTexture / 2f * crossingWidthFactor;
-
+            var v = (vEnd + vStart) / 2;
+            var textureAtlasHalfHeight = (vEnd - vStart) / 2;
+            var vOffset = Mirror ? -textureAtlasHalfHeight : textureAtlasHalfHeight;
+            
             var sections = Math.Max(1, (int) (distance / 10));
             var distancePerSection = distance / sections;
 
@@ -194,24 +213,24 @@ namespace OpenSage.Terrain.Roads
             {
                 var u = MathUtility.Lerp(uStart, uEnd, distanceAlongRoad / distance);
 
-                var p0 = position - directionNormal * halfWidth;
+                var p0 = position - directionNormal * halfHeight;
                 p0.Z += heightBias;
 
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p0,
                     Normal = up,
-                    UV = new Vector2(u, v + vOffset)
+                    UV = new Vector2(u, v - vOffset)
                 });
 
-                var p1 = position + directionNormal * halfWidth;
+                var p1 = position + directionNormal * halfHeight;
                 p1.Z += heightBias;
 
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2(u, v - vOffset)
+                    UV = new Vector2(u, v + vOffset)
                 });
             }
 
@@ -235,7 +254,6 @@ namespace OpenSage.Terrain.Roads
                 }
             }
 
-            // Add last chunk.
             AddVertexPair(endPosition, distance);
 
             for (var i = initialVertexCount; i < vertices.Count - 2; i += 2)
