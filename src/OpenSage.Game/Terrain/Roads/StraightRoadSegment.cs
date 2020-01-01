@@ -44,14 +44,14 @@ namespace OpenSage.Terrain.Roads
             var startPosition = Start.Position.WithZ(heightMap.GetHeight(Start.Position.X, Start.Position.Y));
             var endPosition = End.Position.WithZ(heightMap.GetHeight(End.Position.X, End.Position.Y));
 
-            var distance = Vector3.Distance(startPosition, endPosition);
-            var direction = (endPosition - startPosition) / distance;
-            var directionNormal = Vector3.Cross(Vector3.UnitZ, direction);
+            var distance = Vector3.Distance(Start.Position, End.Position);
+            var direction = (End.Position - Start.Position) / distance;
+            var directionNormal = Vector3.Cross(direction, Vector3.UnitZ);
 
             Vector3 ToCorner(in Vector3 normal, RoadSegmentEndPoint neighbor, bool atEnd)
             {
                 var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
-                var neighborNormal = Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(neighborDirection));
+                var neighborNormal = Vector3.Cross(Vector3.Normalize(neighborDirection), Vector3.UnitZ);
                 var toCornerDirection = neighbor.To switch
                 {
                     null => normal,                          // if I have no neighbor, use my own normal
