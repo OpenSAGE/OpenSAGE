@@ -129,7 +129,7 @@ namespace OpenSage.Terrain.Roads
                 {
                     Position = p1,
                     Normal = up,
-                    UV = new Vector2((distanceAlongRoad + uOffset) / textureRoadLength, textureAtlasRoadCenter + textureAtlasHalfRoadWidth)
+                    UV = new Vector2((distanceAlongRoad + uOffset) / textureRoadLength, textureAtlasRoadCenter + textureAtlasHalfRoadWidth - 0.002f)
                 });
             }
         }

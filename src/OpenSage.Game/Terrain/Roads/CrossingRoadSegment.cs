@@ -148,7 +148,7 @@ namespace OpenSage.Terrain.Roads
         static RectangleF GetBoundingBox(RoadTextureType type, RoadTemplate template)
         {
             var stubLength = 0.5f * (1f - template.RoadWidthInTexture);
-            var overlayLength = 0.015f;
+            var overlapLength = 0.015f;
 
             float width, height;
 
@@ -156,11 +156,11 @@ namespace OpenSage.Terrain.Roads
             {
                 case RoadTextureType.AsymmetricYCrossing:
                     width = 1.2f + template.RoadWidthInTexture / 2f;
-                    height = 1.33f + overlayLength;
+                    height = 1.33f + overlapLength;
                     break;
                 case RoadTextureType.TCrossing:
-                    width = template.RoadWidthInTexture + stubLength + overlayLength;
-                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlayLength;
+                    width = template.RoadWidthInTexture + stubLength + overlapLength;
+                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("Unknown RoadTextureType: " + type);
@@ -194,6 +194,11 @@ namespace OpenSage.Terrain.Roads
             var uEnd = textureBounds.BottomRight.X;
             var vStart = textureBounds.TopLeft.Y;
             var vEnd = textureBounds.BottomLeft.Y;
+
+            //uStart = 0.1f;
+            //uEnd = 0.15f;
+            //vStart = 0.1f;
+            //vEnd = 0.15f;
 
             var v = (vEnd + vStart) / 2;
             var textureAtlasHalfHeight = (vEnd - vStart) / 2;
