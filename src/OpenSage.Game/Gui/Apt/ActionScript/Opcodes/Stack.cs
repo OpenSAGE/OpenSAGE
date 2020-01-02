@@ -143,7 +143,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(null));
         }
     }
 
