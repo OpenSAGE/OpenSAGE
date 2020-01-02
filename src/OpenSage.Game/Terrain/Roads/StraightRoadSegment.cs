@@ -32,7 +32,7 @@ namespace OpenSage.Terrain.Roads
             List<RoadShaderResources.RoadVertex> vertices,
             List<ushort> indices)
         {
-            const float heightBias = 1f;
+            const float heightBias = 0.1f;
 
             const float createNewVerticesHeightDeltaThreshold = 0.002f;
             const float textureAtlasRoadCenter = 1f / 6f;
