@@ -147,14 +147,26 @@ namespace OpenSage.Terrain.Roads
 
         static RectangleF GetBoundingBox(RoadTextureType type, RoadTemplate template)
         {
+            var stubLength = 0.5f * (1f - template.RoadWidthInTexture);
+            var overlayLength = 0.015f;
+
+            float width, height;
+
             switch(type)
             {
                 case RoadTextureType.AsymmetricYCrossing:
-                    return new RectangleF(0, 0, (1.2f + template.RoadWidthInTexture / 2f) * template.RoadWidth, (1.33f + 0.015f) * template.RoadWidth);
+                    width = 1.2f + template.RoadWidthInTexture / 2f;
+                    height = 1.33f + overlayLength;
+                    break;
                 case RoadTextureType.TCrossing:
-                    return new RectangleF(0, 0, (0.5f + template.RoadWidthInTexture / 2 + 0.015f) * template.RoadWidth, (1 + 2 * 0.015f) * template.RoadWidth);
+                    width = template.RoadWidthInTexture + stubLength + overlayLength;
+                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlayLength;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unknown RoadTextureType: " + type);
             }
-            throw new NotImplementedException();
+
+            return new RectangleF(0, 0, width * template.RoadWidth, height * template.RoadWidth);
         }
 
 
