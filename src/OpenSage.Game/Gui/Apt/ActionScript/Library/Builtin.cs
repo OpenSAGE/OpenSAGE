@@ -60,7 +60,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             // list of builtin functions
             BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
             {
-                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(ctx, args),
+                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(actx, ctx, args),
                 ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
                 ["stop"] = (actx, ctx, args) => Stop(ctx),
                 ["clearInterval"] = ClearInterval,
@@ -113,11 +113,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return Value.FromObject(parent);
         }
 
-        private static void GotoAndPlay(ObjectContext ctx, Value[] args)
+        private static void GotoAndPlay(ActionContext actx, ObjectContext ctx, Value[] args)
         {
             if (ctx.Item is SpriteItem si)
             {
-                var dest = args.First();
+                var dest = args.First().ResolveRegister(actx);
 
                 if (dest.Type == ValueType.String)
                 {

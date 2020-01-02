@@ -125,7 +125,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                     }
 
                     InstructionBase instruction = null;
-                    List<Value> parameters = new List<Value>();
+                    var parameters = new List<Value>();
 
                     switch (type)
                     {
@@ -182,6 +182,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                             break;
                         case InstructionType.Trace:
                             instruction = new Trace();
+                            break;
+                        case InstructionType.Random:
+                            instruction = new RandomNumber();
                             break;
                         case InstructionType.Delete:
                             instruction = new Delete();

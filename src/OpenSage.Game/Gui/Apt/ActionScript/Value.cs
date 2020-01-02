@@ -42,6 +42,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Register)
                 return this;
 
+            if (context.Registers.Length - 1 < _number)
+                return Value.FromInteger(_number);
+
             return context.Registers[_number];
         }
 
@@ -232,6 +235,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return _decimal.ToString();     
                 case ValueType.Undefined:
                     return "";
+                case ValueType.Object:
+                    return _object.Item.Name; 
                 default:
                     throw new NotImplementedException();
             }
@@ -264,6 +269,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.String:
                     result = (b._string == _string);
+                    break;
+                case ValueType.Boolean:
+                    result = b._boolean == _boolean;
                     break;
                 default:
                     throw new NotImplementedException();

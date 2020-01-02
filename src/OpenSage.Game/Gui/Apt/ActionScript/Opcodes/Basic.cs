@@ -189,4 +189,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Pops an object from stack and enumerates it's slots
+    /// </summary>
+    public sealed class RandomNumber : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Random;
+
+        public override void Execute(ActionContext context)
+        {
+            // TODO: fix this
+            var max = context.Stack.Pop().ToInteger();
+
+            var rnd = new Random();
+            context.Stack.Push(Value.FromInteger(rnd.Next(0, max)));
+        }
+    }
 }
