@@ -52,18 +52,20 @@ namespace OpenSage.Terrain.Roads
         // so we create and cache one instance per width.
         private static readonly IDictionary<float, TextureAtlas> TextureAtlasCache = new Dictionary<float, TextureAtlas>();
 
-        // There are 3x3 tiles in a road texture
-        private const float TileSize = 1 / 3f;
+        // The default road width in texture space.
+        private const float UnscaledRoadWidth = 0.25f;
+        private const float OverlapLength = 0.00015f;
 
-        // The width of the crossings' small road stubs
-        private const float StubLength = 1 / 64f;
+        // There are 3x3 tiles in a road texture.
+        private const float TileSize = 1 / 3f;
 
         private IDictionary<RoadTextureType, TextureCoordinates> _coordinates;
 
         private TextureAtlas(float roadWidthInTexture)
         {
-            var roadWidth = 0.25f * roadWidthInTexture;
+            var roadWidth = UnscaledRoadWidth * roadWidthInTexture;
             var halfRoadWidth = roadWidth / 2;
+            var stubLength = 0.5f * UnscaledRoadWidth * (1f - roadWidthInTexture);
 
             _coordinates = new Dictionary<RoadTextureType, TextureCoordinates>();
 
@@ -78,18 +80,18 @@ namespace OpenSage.Terrain.Roads
             _coordinates.Add(
                 RoadTextureType.TCrossing,
                 TextureCoordinates.Rectangle(
-                    GetTileCenter(2) - halfRoadWidth,
-                    GetTileCenter(1) - halfRoadWidth - StubLength,
-                    roadWidth + StubLength,
-                    roadWidth + 2 * StubLength));
+                    GetTileCenter(2) - halfRoadWidth - 0.002f,
+                    GetTileCenter(1) - halfRoadWidth - stubLength - OverlapLength,
+                    roadWidth + stubLength + OverlapLength + 0.002f,
+                    roadWidth + 2 * stubLength + 2 * OverlapLength));
 
             _coordinates.Add(
                 RoadTextureType.XCrossing,
                 TextureCoordinates.Rectangle(
-                    GetTileCenter(2) - halfRoadWidth - StubLength,
-                    GetTileCenter(2) - halfRoadWidth - StubLength,
-                    roadWidth + 2 * StubLength,
-                    roadWidth + 2 * StubLength));
+                    GetTileCenter(2) - halfRoadWidth - stubLength,
+                    GetTileCenter(2) - halfRoadWidth - stubLength,
+                    roadWidth + 2 * stubLength,
+                    roadWidth + 2 * stubLength));
 
             _coordinates.Add(
                 RoadTextureType.AsymmetricYCrossing,
