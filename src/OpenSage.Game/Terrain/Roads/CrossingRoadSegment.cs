@@ -23,17 +23,17 @@ namespace OpenSage.Terrain.Roads
         {
             Position = position;
             EndPoints = endPoints;
-            Start = start;
-            End = end;
+            StartPosition = start;
+            EndPosition = end;
             Type = type;
         }
 
-        private Vector3 Start { get; }
-        private Vector3 End { get; }
+        public Vector3 StartPosition { get; }
+        public Vector3 EndPosition { get; }
         private Vector3 Position { get; }
         public IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
         public RoadTextureType Type { get; }
-        public bool Mirror { get; set; } = false;
+        public bool MirrorTexture { get; set; } = false;
 
 
 
@@ -46,7 +46,7 @@ namespace OpenSage.Terrain.Roads
             var roadWidth = template.RoadWidth * template.RoadWidthInTexture;
             var halfRoadWidth = roadWidth / 2f;
 
-            var targetBoundingBox = GetBoundingBox(RoadTextureType.TCrossing, template);
+            var targetBoundingBox = GetBoundingBoxSize(RoadTextureType.TCrossing, template);
 
             var top = new RoadSegmentEndPoint(crossingPosition + targetBoundingBox.Height / 2 * upDirection);
             var bottom = new RoadSegmentEndPoint(crossingPosition - targetBoundingBox.Height / 2 * upDirection);
@@ -75,7 +75,7 @@ namespace OpenSage.Terrain.Roads
             upDirection = mirrorFactor * upDirection;
             var sideDirection = Vector3.Normalize(rightDirection - upDirection);
 
-            var targetBoundingBox = GetBoundingBox(RoadTextureType.AsymmetricYCrossing, template);
+            var targetBoundingBox = GetBoundingBoxSize(RoadTextureType.AsymmetricYCrossing, template);
 
             var lengthToTop = 0.2f * targetBoundingBox.Height;
             var lengthToBottom = 0.8f * targetBoundingBox.Height;
@@ -105,7 +105,7 @@ namespace OpenSage.Terrain.Roads
             Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, side, sideDirection, edgeSegments);
             Connect(crossingSegment, bottomEdge, bottom, -upDirection, edgeSegments);
 
-            crossingSegment.Mirror = mirror;
+            crossingSegment.MirrorTexture = mirror;
 
             return crossingSegment;
         }
@@ -127,32 +127,14 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        //will be used for y crossings?
-        //private (Vector3 start, Vector3 end) CreateStartAndEndAlongDirection(IEnumerable<Vector3> endpoints, Vector3 normalizedDirection, Vector3 crossingPosition)
-        //{
-        //    var orthDirection = Vector3.Cross(normalizedDirection, Vector3.UnitZ);
-
-        //    var valuesAlongDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, normalizedDirection));
-        //    var valuesOrthToDirection = endpoints.Select(end => Vector3.Dot(end - crossingPosition, orthDirection));
-
-        //    var minAlongDirection = valuesAlongDirection.Min();
-        //    var maxAlongDirection = valuesAlongDirection.Max();
-        //    var middleOrthToDirection = (valuesOrthToDirection.Min() + valuesOrthToDirection.Max()) / 2;
-
-        //    var startPoint = crossingPosition + minAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
-        //    var endPoint = crossingPosition + maxAlongDirection * normalizedDirection + middleOrthToDirection * orthDirection;
-
-        //    return (startPoint, endPoint);
-        //}
-
-        static RectangleF GetBoundingBox(RoadTextureType type, RoadTemplate template)
+        static RectangleF GetBoundingBoxSize(RoadTextureType type, RoadTemplate template)
         {
             var stubLength = 0.5f * (1f - template.RoadWidthInTexture);
             var overlapLength = 0.015f;
 
             float width, height;
 
-            switch(type)
+            switch (type)
             {
                 case RoadTextureType.AsymmetricYCrossing:
                     width = 1.2f + template.RoadWidthInTexture / 2f;
@@ -169,103 +151,13 @@ namespace OpenSage.Terrain.Roads
             return new RectangleF(0, 0, width * template.RoadWidth, height * template.RoadWidth);
         }
 
-
         public void GenerateMesh(RoadTemplate template, HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
-            const float heightBias = 0.1f;
-            const float createNewVerticesHeightDeltaThreshold = 0.002f;
-            
-            var distance = Vector3.Distance(Start, End);
-            var direction = Vector3.Normalize(End - Start);
-            var directionNormal = Vector3.Cross(direction, Vector3.UnitZ);
-            var up = Vector3.UnitZ;
-
-            var startPosition = Start;
-            startPosition.Z = heightMap.GetHeight(startPosition.X, startPosition.Y);
-
-            var endPosition = End;
-            endPosition.Z = heightMap.GetHeight(endPosition.X, endPosition.Y);
-
-            var targetBoundingBox = GetBoundingBox(Type, template);
+            var targetBoundingBox = GetBoundingBoxSize(Type, template);
             var halfHeight = targetBoundingBox.Height / 2;
 
-            var textureBounds = TextureAtlas.ForRoadWidth(template.RoadWidthInTexture)[Type];
-            var uStart = textureBounds.BottomLeft.X;
-            var uEnd = textureBounds.BottomRight.X;
-            var vStart = textureBounds.TopLeft.Y;
-            var vEnd = textureBounds.BottomLeft.Y;
-
-            //uStart = 0.1f;
-            //uEnd = 0.15f;
-            //vStart = 0.1f;
-            //vEnd = 0.15f;
-
-            var v = (vEnd + vStart) / 2;
-            var textureAtlasHalfHeight = (vEnd - vStart) / 2;
-            var vOffset = Mirror ? -textureAtlasHalfHeight : textureAtlasHalfHeight;
-            
-            var sections = Math.Max(1, (int) (distance / 10));
-            var distancePerSection = distance / sections;
-
-            var initialVertexCount = vertices.Count;
-
-            void AddVertexPair(in Vector3 position, float distanceAlongRoad)
-            {
-                var u = MathUtility.Lerp(uStart, uEnd, distanceAlongRoad / distance);
-
-                var p0 = position - directionNormal * halfHeight;
-                p0.Z += heightBias;
-
-                vertices.Add(new RoadShaderResources.RoadVertex
-                {
-                    Position = p0,
-                    Normal = up,
-                    UV = new Vector2(u, v - vOffset)
-                });
-
-                var p1 = position + directionNormal * halfHeight;
-                p1.Z += heightBias;
-
-                vertices.Add(new RoadShaderResources.RoadVertex
-                {
-                    Position = p1,
-                    Normal = up,
-                    UV = new Vector2(u, v + vOffset)
-                });
-            }
-
-            AddVertexPair(startPosition, 0);
-
-            var previousPoint = startPosition;
-            var previousPointDistance = 0f;
-
-            for (int i = 1; i < sections; i++)
-            {
-                var currentDistance = i * distancePerSection;
-                var position = startPosition + direction * currentDistance;
-                var actualHeight = heightMap.GetHeight(position.X, position.Y);
-                var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endPosition.Z, (currentDistance - previousPointDistance) / distance);
-
-                if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
-                {
-                    AddVertexPair(position, currentDistance);
-                    previousPoint = position;
-                    previousPointDistance = currentDistance;
-                }
-            }
-
-            AddVertexPair(endPosition, distance);
-
-            for (var i = initialVertexCount; i < vertices.Count - 2; i += 2)
-            {
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 2));
-
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 2));
-                indices.Add((ushort) (i + 3));
-            }
+            var mesher = new RoadCrossingMesher(this, halfHeight, template);
+            mesher.GenerateMesh(heightMap, vertices, indices);
         }
     }
 }
