@@ -4,17 +4,6 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
-    internal enum RoadType
-    {
-        Straight,
-        BroadCurve,
-        TightCurve,
-        TCrossing,
-        XCrossing,
-        SymmetricYCrossing,
-        AsymmetricYCrossing
-    }
-
     internal class TextureCoordinates
     {
         public TextureCoordinates(Vector2 topLeft, Vector2 topRight, Vector2 bottomLeft, Vector2 bottomRight)
@@ -69,17 +58,17 @@ namespace OpenSage.Terrain.Roads
         // The width of the crossings' small road stubs
         private const float StubLength = 1 / 64f;
 
-        private IDictionary<RoadType, TextureCoordinates> _coordinates;
+        private IDictionary<RoadTextureType, TextureCoordinates> _coordinates;
 
         private TextureAtlas(float roadWidthInTexture)
         {
             var roadWidth = 0.25f * roadWidthInTexture;
             var halfRoadWidth = roadWidth / 2;
 
-            _coordinates = new Dictionary<RoadType, TextureCoordinates>();
+            _coordinates = new Dictionary<RoadTextureType, TextureCoordinates>();
 
             _coordinates.Add(
-                RoadType.Straight,
+                RoadTextureType.Straight,
                 TextureCoordinates.Rectangle(
                     0f,
                     GetTileCenter(0) - halfRoadWidth,
@@ -87,7 +76,7 @@ namespace OpenSage.Terrain.Roads
                     roadWidth));
 
             _coordinates.Add(
-                RoadType.TCrossing,
+                RoadTextureType.TCrossing,
                 TextureCoordinates.Rectangle(
                     GetTileCenter(2) - halfRoadWidth,
                     GetTileCenter(1) - halfRoadWidth - StubLength,
@@ -95,7 +84,7 @@ namespace OpenSage.Terrain.Roads
                     roadWidth + 2 * StubLength));
 
             _coordinates.Add(
-                RoadType.XCrossing,
+                RoadTextureType.XCrossing,
                 TextureCoordinates.Rectangle(
                     GetTileCenter(2) - halfRoadWidth - StubLength,
                     GetTileCenter(2) - halfRoadWidth - StubLength,
@@ -103,7 +92,7 @@ namespace OpenSage.Terrain.Roads
                     roadWidth + 2 * StubLength));
 
             _coordinates.Add(
-                RoadType.AsymmetricYCrossing,
+                RoadTextureType.AsymmetricYCrossing,
                 TextureCoordinates.Rectangle(
                     0.395f - halfRoadWidth,
                     GetTileCenter(2) - 0.15f,
@@ -111,7 +100,7 @@ namespace OpenSage.Terrain.Roads
                     0.3f));
 
             _coordinates.Add(
-                RoadType.BroadCurve,
+                RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
                     GetTileCenter(1),
                     halfRoadWidth,
@@ -120,7 +109,7 @@ namespace OpenSage.Terrain.Roads
             // TODO: TightCurve, SymmetricY, Join
         }
 
-        public TextureCoordinates this[RoadType roadType] => _coordinates[roadType];
+        public TextureCoordinates this[RoadTextureType roadType] => _coordinates[roadType];
 
         private float GetTileCenter(int tileIndex) => (tileIndex + 0.5f) * TileSize;
 
