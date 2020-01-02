@@ -7,14 +7,6 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
-    internal enum CrossingType
-    {
-        T,
-        SymmetricY,
-        AsymmetricY,
-        X
-    }
-
     internal sealed class IncomingRoadData
     {
         public RoadTopologyEdge TopologyEdge { get; set; }
@@ -27,7 +19,7 @@ namespace OpenSage.Terrain.Roads
 
     internal sealed class CrossingRoadSegment : IRoadSegment
     {
-        private CrossingRoadSegment(Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, Vector3 start, Vector3 end, CrossingType type)
+        private CrossingRoadSegment(Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, Vector3 start, Vector3 end, RoadTextureType type)
         {
             Position = position;
             EndPoints = endPoints;
@@ -40,7 +32,7 @@ namespace OpenSage.Terrain.Roads
         private Vector3 End { get; }
         private Vector3 Position { get; }
         public IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
-        public CrossingType Type { get; }
+        public RoadTextureType Type { get; }
         public bool Mirror { get; set; } = false;
 
 
@@ -54,7 +46,7 @@ namespace OpenSage.Terrain.Roads
             var roadWidth = template.RoadWidth * template.RoadWidthInTexture;
             var halfRoadWidth = roadWidth / 2f;
 
-            var targetBoundingBox = GetBoundingBox(CrossingType.T, template);
+            var targetBoundingBox = GetBoundingBox(RoadTextureType.TCrossing, template);
 
             var top = new RoadSegmentEndPoint(crossingPosition + targetBoundingBox.Height / 2 * upDirection);
             var bottom = new RoadSegmentEndPoint(crossingPosition - targetBoundingBox.Height / 2 * upDirection);
@@ -63,7 +55,7 @@ namespace OpenSage.Terrain.Roads
             var start = crossingPosition - halfRoadWidth * rightDirection;
             var end = right.Position;
 
-            var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, right }, start, end, CrossingType.T);
+            var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, right }, start, end, RoadTextureType.TCrossing);
 
             Connect(crossingSegment, maxAngle.Previous.TopologyEdge, top, upDirection, edgeSegments);
             Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, right, rightDirection, edgeSegments);
@@ -83,7 +75,7 @@ namespace OpenSage.Terrain.Roads
             upDirection = mirrorFactor * upDirection;
             var sideDirection = Vector3.Normalize(rightDirection - upDirection);
 
-            var targetBoundingBox = GetBoundingBox(CrossingType.AsymmetricY, template);
+            var targetBoundingBox = GetBoundingBox(RoadTextureType.AsymmetricYCrossing, template);
 
             var lengthToTop = 0.2f * targetBoundingBox.Height;
             var lengthToBottom = 0.8f * targetBoundingBox.Height;
@@ -104,7 +96,7 @@ namespace OpenSage.Terrain.Roads
             var bottom = new RoadSegmentEndPoint(bottomPosition);
             var side = new RoadSegmentEndPoint(sidePosition);
 
-            var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, side }, start, end, CrossingType.AsymmetricY);
+            var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, side }, start, end, RoadTextureType.AsymmetricYCrossing);
 
             var topEdge = mirror ? maxAngle.TopologyEdge : maxAngle.Previous.TopologyEdge;
             var bottomEdge = mirror ? maxAngle.Previous.TopologyEdge : maxAngle.TopologyEdge;
@@ -153,13 +145,13 @@ namespace OpenSage.Terrain.Roads
         //    return (startPoint, endPoint);
         //}
 
-        static RectangleF GetBoundingBox(CrossingType type, RoadTemplate template)
+        static RectangleF GetBoundingBox(RoadTextureType type, RoadTemplate template)
         {
             switch(type)
             {
-                case CrossingType.AsymmetricY:
+                case RoadTextureType.AsymmetricYCrossing:
                     return new RectangleF(0, 0, (1.2f + template.RoadWidthInTexture / 2f) * template.RoadWidth, (1.33f + 0.015f) * template.RoadWidth);
-                case CrossingType.T:
+                case RoadTextureType.TCrossing:
                     return new RectangleF(0, 0, (0.5f + template.RoadWidthInTexture / 2 + 0.015f) * template.RoadWidth, (1 + 2 * 0.015f) * template.RoadWidth);
             }
             throw new NotImplementedException();
@@ -185,20 +177,11 @@ namespace OpenSage.Terrain.Roads
             var targetBoundingBox = GetBoundingBox(Type, template);
             var halfHeight = targetBoundingBox.Height / 2;
 
-            //TODO: create a lookup of these values for each of the crossing types.
-            //for T:
-            var uStart = 0.7208f;
-            var uEnd = 0.9615f;
-            var vStart = 0.3719f;
-            var vEnd = 0.6281f;
-
-            if (Type == CrossingType.AsymmetricY)
-            {
-                uStart = 0.2825f;
-                uEnd = 0.6975f;
-                vStart = 0.6833f;
-                vEnd = 0.9833f;
-            }
+            var textureBounds = TextureAtlas.ForRoadWidth(template.RoadWidthInTexture)[Type];
+            var uStart = textureBounds.BottomLeft.X;
+            var uEnd = textureBounds.BottomRight.X;
+            var vStart = textureBounds.TopLeft.Y;
+            var vEnd = textureBounds.BottomLeft.Y;
 
             var v = (vEnd + vStart) / 2;
             var textureAtlasHalfHeight = (vEnd - vStart) / 2;

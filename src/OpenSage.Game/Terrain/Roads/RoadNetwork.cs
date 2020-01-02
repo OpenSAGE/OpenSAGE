@@ -92,7 +92,7 @@ namespace OpenSage.Terrain.Roads
             return incomingRoads;
         }
 
-        private static CrossingType ChooseCrossingType(IEnumerable<IncomingRoadData> incomingRoads)
+        private static RoadTextureType ChooseCrossingType(IEnumerable<IncomingRoadData> incomingRoads)
         {
             var angles = incomingRoads.Select(road => road.AngleToPreviousEdge).ToList();
             angles.Sort();
@@ -101,15 +101,15 @@ namespace OpenSage.Terrain.Roads
             {
                 if (angles[2] < Math.PI * 0.9)
                 {
-                    return CrossingType.SymmetricY;
+                    return RoadTextureType.SymmetricYCrossing;
                 }
                 if (angles[1] - angles[0] < Math.PI * 0.25)
                 {
-                    return CrossingType.T;
+                    return RoadTextureType.TCrossing;
                 }
-                return CrossingType.AsymmetricY;
+                return RoadTextureType.AsymmetricYCrossing;
             }
-            return CrossingType.X;
+            return RoadTextureType.XCrossing;
         }
 
         private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
@@ -131,10 +131,10 @@ namespace OpenSage.Terrain.Roads
                             var crossingType = ChooseCrossingType(edgedata);
                             switch(crossingType)
                             {
-                                case CrossingType.T:
+                                case RoadTextureType.TCrossing:
                                     CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, template, edgeSegments);
                                     break;
-                                case CrossingType.AsymmetricY:
+                                case RoadTextureType.AsymmetricYCrossing:
                                     CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, template, edgeSegments);
                                     break;
                             }
