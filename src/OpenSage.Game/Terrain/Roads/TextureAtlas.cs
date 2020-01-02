@@ -75,15 +75,15 @@ namespace OpenSage.Terrain.Roads
                     0f,
                     GetTileCenter(0) - halfRoadWidth,
                     1f,
-                    roadWidth));
+                    roadWidth - 0.001f));
 
             _coordinates.Add(
                 RoadTextureType.TCrossing,
                 TextureCoordinates.Rectangle(
-                    GetTileCenter(2) - halfRoadWidth - 0.002f,
-                    GetTileCenter(1) - halfRoadWidth - stubLength - OverlapLength,
-                    roadWidth + stubLength + OverlapLength + 0.002f,
-                    roadWidth + 2 * stubLength + 2 * OverlapLength));
+                    GetTileCenter(2) - halfRoadWidth - 0.003f,
+                    GetTileCenter(1) - halfRoadWidth - stubLength - OverlapLength - 0.005f,
+                    roadWidth + stubLength + OverlapLength + 0.003f,
+                    roadWidth + 2 * stubLength + 2 * OverlapLength + 0.006f));
 
             _coordinates.Add(
                 RoadTextureType.XCrossing,
