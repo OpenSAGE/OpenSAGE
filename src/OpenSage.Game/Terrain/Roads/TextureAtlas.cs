@@ -113,7 +113,7 @@ namespace OpenSage.Terrain.Roads
 
         private float GetTileCenter(int tileIndex) => (tileIndex + 0.5f) * TileSize;
 
-        public TextureAtlas ForRoadWidth(float roadWidthInTexture)
+        public static TextureAtlas ForRoadWidth(float roadWidthInTexture)
         {
             if (!TextureAtlasCache.TryGetValue(roadWidthInTexture, out var atlas))
             {
