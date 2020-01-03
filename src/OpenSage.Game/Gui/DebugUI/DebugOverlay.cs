@@ -13,6 +13,7 @@ namespace OpenSage.Gui.DebugUI
     {
         public bool Enabled { get; set; }
         public bool ShowColliders { get; set; }
+        public bool ShowRoadMeshes { get; set; }
 
         public Point2D MousePosition { get; internal set; }
         private Vector3? _mouseWorldPosition = null;
@@ -117,6 +118,14 @@ namespace OpenSage.Gui.DebugUI
                 }
             }
 
+            if (_scene3D.ShowRoads && ShowRoadMeshes)
+            {
+                foreach (var road in _scene3D.Roads)
+                {
+                    road.DebugDraw(context, camera);
+                }
+            }
+
             context.DrawText(_debugStringBuilder.ToString(), _debugFont, TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 10, 400, 80));
 
             // This is done here instead of in Update so that drawables with time of 0 will be drawn at least once.
@@ -131,6 +140,11 @@ namespace OpenSage.Gui.DebugUI
         public void ToggleColliders()
         {
             ShowColliders = !ShowColliders;
+        }
+
+        public void ToggleRoadMeshes()
+        {
+            ShowRoadMeshes = !ShowRoadMeshes;
         }
     }
 }

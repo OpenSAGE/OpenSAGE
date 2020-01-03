@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
+using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
 using OpenSage.Terrain.Roads;
 using OpenSage.Utilities.Extensions;
@@ -24,6 +28,10 @@ namespace OpenSage.Terrain
         private readonly ResourceSet _resourceSet;
 
         private readonly BeforeRenderDelegate _beforeRender;
+
+#if DEBUG
+        private readonly List<(Vector3 start, Vector3 end)> _debugLines;
+#endif
 
         internal Road(
             AssetLoadContext loadContext,
@@ -49,7 +57,7 @@ namespace OpenSage.Terrain
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
-
+            
             _shaderSet = loadContext.ShaderResources.Road.ShaderSet;
             _pipeline = loadContext.ShaderResources.Road.Pipeline;
 
@@ -61,6 +69,20 @@ namespace OpenSage.Terrain
                 cl.SetGraphicsResourceSet(4, _resourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
+
+#if DEBUG
+            _debugLines = new List<(Vector3 start, Vector3 end)>();
+            for (int i = 0; i < _numIndices; i += 3)
+            {
+                var a = vertices[indices[i]].Position;
+                var b = vertices[indices[i + 1]].Position;
+                var c = vertices[indices[i + 2]].Position;
+
+                _debugLines.Add((a, b));
+                _debugLines.Add((b, c));
+                _debugLines.Add((c, a));
+            }
+#endif
         }
 
         internal void BuildRenderList(RenderList renderList)
@@ -74,6 +96,18 @@ namespace OpenSage.Terrain
                 _numIndices,
                 _indexBuffer,
                 _beforeRender));
+        }
+
+        internal void DebugDraw(DrawingContext2D context, Camera camera)
+        {            
+#if DEBUG            
+            var strokeColor = new ColorRgbaF(180, 176, 165, 255);
+
+            foreach (var line in _debugLines)
+            {
+                DebugDrawingUtils.DrawLine(context, camera, line.start, line.end, strokeColor);
+            }
+#endif
         }
     }
 }
