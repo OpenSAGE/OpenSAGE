@@ -19,13 +19,22 @@ namespace OpenSage.Terrain.Roads
         public Vector2 BottomLeft { get; }
         public Vector2 BottomRight { get; }
 
-        public static TextureCoordinates Rectangle(float left, float top, float width, float height)
+        public static TextureCoordinates LeftTopWidthHeight(float left, float top, float width, float height)
         {
             return new TextureCoordinates(
                 new Vector2(left, top),
                 new Vector2(left + width, top),
                 new Vector2(left, top + height),
                 new Vector2(left + width, top + height));
+        }
+
+        public static TextureCoordinates LeftTopRightBottom(float left, float top, float right, float bottom)
+        {
+            return new TextureCoordinates(
+                new Vector2(left, top),
+                new Vector2(right, top),
+                new Vector2(left, bottom),
+                new Vector2(right, bottom));
         }
 
         public static TextureCoordinates Curve(float y, float halfRoadWidth, float angle)
@@ -54,10 +63,12 @@ namespace OpenSage.Terrain.Roads
 
         // The default road width in texture space.
         private const float UnscaledRoadWidth = 0.25f;
-        private const float OverlapLength = 0.00015f;
+        private const float StubLength = 0.004f;
 
-        // There are 3x3 tiles in a road texture.
-        private const float TileSize = 1 / 3f;
+        // There are 3x3 tiles in a road texture, so a half tile is 1/6 = 0.1666...,
+        // but the calculations are based on the rounded number.
+        private const float HalfTileSize = 0.166f;
+
 
         private IDictionary<RoadTextureType, TextureCoordinates> _coordinates;
 
@@ -65,37 +76,36 @@ namespace OpenSage.Terrain.Roads
         {
             var roadWidth = UnscaledRoadWidth * roadWidthInTexture;
             var halfRoadWidth = roadWidth / 2;
-            var stubLength = 0.5f * UnscaledRoadWidth * (1f - roadWidthInTexture);
 
             _coordinates = new Dictionary<RoadTextureType, TextureCoordinates>();
 
             _coordinates.Add(
                 RoadTextureType.Straight,
-                TextureCoordinates.Rectangle(
+                TextureCoordinates.LeftTopWidthHeight(
                     0f,
-                    GetTileCenter(0) - halfRoadWidth,
+                    HalfTileSize - halfRoadWidth,
                     1f,
-                    roadWidth - 0.001f));
+                    roadWidth));
 
             _coordinates.Add(
                 RoadTextureType.TCrossing,
-                TextureCoordinates.Rectangle(
-                    GetTileCenter(2) - halfRoadWidth - 0.003f,
-                    GetTileCenter(1) - halfRoadWidth - stubLength - OverlapLength - 0.005f,
-                    roadWidth + stubLength + OverlapLength + 0.003f,
-                    roadWidth + 2 * stubLength + 2 * OverlapLength + 0.006f));
+                TextureCoordinates.LeftTopRightBottom(
+                    5 * HalfTileSize - halfRoadWidth,
+                    3 * HalfTileSize - UnscaledRoadWidth / 2 - StubLength,
+                    5 * HalfTileSize + UnscaledRoadWidth / 2 + StubLength,
+                    3 * HalfTileSize + UnscaledRoadWidth / 2 + StubLength));
 
             _coordinates.Add(
                 RoadTextureType.XCrossing,
-                TextureCoordinates.Rectangle(
-                    GetTileCenter(2) - halfRoadWidth - stubLength,
-                    GetTileCenter(2) - halfRoadWidth - stubLength,
-                    roadWidth + 2 * stubLength,
-                    roadWidth + 2 * stubLength));
+                TextureCoordinates.LeftTopRightBottom(
+                    5 * HalfTileSize - UnscaledRoadWidth / 2 - StubLength,
+                    5 * HalfTileSize - UnscaledRoadWidth / 2 - StubLength,
+                    5 * HalfTileSize + UnscaledRoadWidth / 2 + StubLength,
+                    5 * HalfTileSize + UnscaledRoadWidth / 2 + StubLength));
 
             _coordinates.Add(
                 RoadTextureType.AsymmetricYCrossing,
-                TextureCoordinates.Rectangle(
+                TextureCoordinates.LeftTopWidthHeight(
                     0.395f - halfRoadWidth,
                     0.645f,
                     1.2f * UnscaledRoadWidth + halfRoadWidth,
@@ -104,7 +114,7 @@ namespace OpenSage.Terrain.Roads
             _coordinates.Add(
                 RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
-                    GetTileCenter(1),
+                    HalfTileSize,
                     halfRoadWidth,
                     MathUtility.ToRadians(30)));
 
@@ -112,8 +122,6 @@ namespace OpenSage.Terrain.Roads
         }
 
         public TextureCoordinates this[RoadTextureType roadType] => _coordinates[roadType];
-
-        private float GetTileCenter(int tileIndex) => (tileIndex + 0.5f) * TileSize;
 
         public static TextureAtlas ForRoadWidth(float roadWidthInTexture)
         {
