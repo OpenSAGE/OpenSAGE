@@ -126,6 +126,7 @@ namespace OpenSage.Terrain.Roads
                         case 2: // TODO normal road, create segments for tight/broad curves
                             break;
                         case 3:
+                        case 4:
                             var template = edgesPerTemplate.Key;
                             var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
                             var crossingType = ChooseCrossingType(edgedata);
@@ -136,6 +137,9 @@ namespace OpenSage.Terrain.Roads
                                     break;
                                 case RoadTextureType.AsymmetricYCrossing:
                                     CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, template, edgeSegments);
+                                    break;
+                                case RoadTextureType.XCrossing:
+                                    CrossingRoadSegment.CreateXCrossing(edgedata, node.Position, template, edgeSegments);
                                     break;
                             }
                             break;
