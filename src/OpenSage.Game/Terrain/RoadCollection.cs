@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
@@ -6,7 +7,7 @@ using OpenSage.Terrain.Roads;
 
 namespace OpenSage.Terrain
 {
-    public sealed class RoadCollection : DisposableBase
+    public sealed class RoadCollection : DisposableBase, IReadOnlyList<Road>
     {
         private readonly List<Road> _roads;
 
@@ -60,6 +61,12 @@ namespace OpenSage.Terrain
             }
         }
 
+        public Road this[int index] => _roads[index];
+
+        public int Count => _roads.Count;
+
+        public IEnumerator<Road> GetEnumerator() => _roads.GetEnumerator();
+
         internal void BuildRenderList(RenderList renderList)
         {
             foreach (var road in _roads)
@@ -67,5 +74,7 @@ namespace OpenSage.Terrain
                 road.BuildRenderList(renderList);
             }
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }
