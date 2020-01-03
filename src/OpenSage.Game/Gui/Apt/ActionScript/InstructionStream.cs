@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -49,15 +47,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             var startPosition = _instructions.GetPositionByIndex(_index);
             var endPosition = startPosition + bytes;
 
-            
+
             var subRange = _instructions.GetPositionedInstructions().Skip(_index).TakeWhile((kv) => kv.Key < endPosition);
-            if(subRange.Any() && subRange.First().Key != startPosition) // sanity check
+            if (subRange.Any() && subRange.First().Key != startPosition) // sanity check
             {
                 throw new InvalidOperationException("Didn't not get the right instructions!");
             }
 
             var instructions = new SortedList<int, InstructionBase>();
-            foreach(var (position, instruction) in subRange)
+            foreach (var (position, instruction) in subRange)
             {
                 instructions.Add(position, instruction);
             }

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -232,11 +226,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Integer:
                     return _number.ToString();
                 case ValueType.Float:
-                    return _decimal.ToString();     
+                    return _decimal.ToString();
                 case ValueType.Undefined:
                     return "";
                 case ValueType.Object:
-                    return _object.Item.Name; 
+                    return _object.Item.Name;
                 default:
                     throw new NotImplementedException();
             }

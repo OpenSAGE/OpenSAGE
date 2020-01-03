@@ -83,7 +83,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var nArgs = context.Stack.Pop().ToInteger();
             Value[] args = new Value[nArgs];
 
-            for(int i = 0;i<nArgs;++i)
+            for (int i = 0; i < nArgs; ++i)
             {
                 args[i] = context.Stack.Pop();
             }
