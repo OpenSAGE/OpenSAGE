@@ -91,27 +91,6 @@ namespace OpenSage.Terrain.Roads
             
             return incomingRoads;
         }
-
-        private static RoadTextureType ChooseCrossingType(IEnumerable<IncomingRoadData> incomingRoads)
-        {
-            var angles = incomingRoads.Select(road => road.AngleToPreviousEdge).ToList();
-            angles.Sort();
-
-            if (angles.Count() == 3)
-            {
-                if (angles[2] < Math.PI * 0.9)
-                {
-                    return RoadTextureType.SymmetricYCrossing;
-                }
-                if (angles[1] - angles[0] < Math.PI * 0.25)
-                {
-                    return RoadTextureType.TCrossing;
-                }
-                return RoadTextureType.AsymmetricYCrossing;
-            }
-            return RoadTextureType.XCrossing;
-        }
-
         private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
@@ -129,19 +108,7 @@ namespace OpenSage.Terrain.Roads
                         case 4:
                             var template = edgesPerTemplate.Key;
                             var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
-                            var crossingType = ChooseCrossingType(edgedata);
-                            switch(crossingType)
-                            {
-                                case RoadTextureType.TCrossing:
-                                    CrossingRoadSegment.CreateTCrossing(edgedata, node.Position, template, edgeSegments);
-                                    break;
-                                case RoadTextureType.AsymmetricYCrossing:
-                                    CrossingRoadSegment.CreateYAsymmCrossing(edgedata, node.Position, template, edgeSegments);
-                                    break;
-                                case RoadTextureType.XCrossing:
-                                    CrossingRoadSegment.CreateXCrossing(edgedata, node.Position, template, edgeSegments);
-                                    break;
-                            }
+                            CrossingRoadSegment.CreateCrossing(edgedata, node.Position, template, edgeSegments);
                             break;
                     }
                 }
