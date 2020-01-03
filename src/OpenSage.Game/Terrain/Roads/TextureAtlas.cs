@@ -97,9 +97,9 @@ namespace OpenSage.Terrain.Roads
                 RoadTextureType.AsymmetricYCrossing,
                 TextureCoordinates.Rectangle(
                     0.395f - halfRoadWidth,
-                    GetTileCenter(2) - 0.15f,
-                    0.415f,
-                    0.3f));
+                    0.645f,
+                    1.2f * UnscaledRoadWidth + halfRoadWidth,
+                    0.335f));
 
             _coordinates.Add(
                 RoadTextureType.BroadCurve,
