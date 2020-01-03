@@ -77,7 +77,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             Value obj = null;
 
-            if(Builtin.IsBuiltInVariable(name))
+            if (Builtin.IsBuiltInVariable(name))
             {
                 obj = Builtin.GetBuiltInVariable(name, Scope);
             }
@@ -101,9 +101,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return Value.FromObject(Scope);
 
             //depending on wether or not this is a relative path or not
-            ObjectContext obj = target.First()=='/' ? Apt.Root.ScriptObject : Scope;
+            ObjectContext obj = target.First() == '/' ? Apt.Root.ScriptObject : Scope;
 
-            foreach(var part in target.Split('/'))
+            foreach (var part in target.Split('/'))
             {
                 if (part == "..")
                 {
@@ -123,12 +123,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="constructor"></param>
         /// <returns></returns>
-        public Value ConstructObject(string name,Value[] args)
+        public Value ConstructObject(string name, Value[] args)
         {
             Value result = null;
-            if(Builtin.IsBuiltInClass(name))
+            if (Builtin.IsBuiltInClass(name))
             {
-                result = Builtin.GetBuiltInClass(name,args);
+                result = Builtin.GetBuiltInClass(name, args);
             }
             else
             {

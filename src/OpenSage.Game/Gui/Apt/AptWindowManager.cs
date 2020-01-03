@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Apt
         {
             foreach (var window in WindowStack)
             {
-                if(window.HandleInput(mousePos,mouseDown))
+                if (window.HandleInput(mousePos, mouseDown))
                 {
                     return true;
                 }

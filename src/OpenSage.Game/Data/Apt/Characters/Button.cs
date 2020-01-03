@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript.Library;
@@ -11,7 +10,7 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         /// The item that this context is connected to
         /// </summary>
@@ -56,7 +55,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            if(Builtin.IsBuiltInVariable(name))
+            if (Builtin.IsBuiltInVariable(name))
             {
                 return Builtin.GetBuiltInVariable(name, this);
             }
@@ -164,7 +163,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             ObjectContext result = null;
 
-            if(Item.Parent!=null)
+            if (Item.Parent != null)
             {
                 result = Item.Parent.ScriptObject;
             }

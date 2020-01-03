@@ -92,7 +92,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
-            else if(context.CheckLocal(str))
+            else if (context.CheckLocal(str))
             {
                 result = context.GetLocal(str);
             }

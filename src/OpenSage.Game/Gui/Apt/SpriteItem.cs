@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -127,7 +125,7 @@ namespace OpenSage.Gui.Apt
         public void Goto(string label)
         {
             logger.Info($"Goto: {label}");
-            if(_frameLabels.ContainsKey(label))
+            if (_frameLabels.ContainsKey(label))
             {
                 _currentFrame = _frameLabels[label];
             }
@@ -253,7 +251,7 @@ namespace OpenSage.Gui.Apt
 
         private void MoveItem(PlaceObject po)
         {
-            if(!Content.Items.ContainsKey(po.Depth))
+            if (!Content.Items.ContainsKey(po.Depth))
             {
                 //TODO WARN
                 return;
@@ -348,7 +346,7 @@ namespace OpenSage.Gui.Apt
         {
             foreach (var item in Content.ReverseItems.Values)
             {
-                if(item.HandleInput(mousePos, mouseDown))
+                if (item.HandleInput(mousePos, mouseDown))
                 {
                     return true;
                 }

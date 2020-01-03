@@ -2,7 +2,6 @@
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Ini;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
