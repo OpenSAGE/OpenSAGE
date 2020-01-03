@@ -57,9 +57,10 @@ namespace OpenSage.Terrain.Roads
 
             var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, right }, start, end, RoadTextureType.TCrossing);
 
-            Connect(crossingSegment, maxAngle.Previous.TopologyEdge, top, upDirection, edgeSegments);
-            Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, right, rightDirection, edgeSegments);
-            Connect(crossingSegment, maxAngle.TopologyEdge, bottom, -upDirection, edgeSegments);
+            var overlap = 0.015f * template.RoadWidth;
+            Connect(crossingSegment, maxAngle.Previous.TopologyEdge, top, upDirection, overlap, edgeSegments);
+            Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, right, rightDirection, overlap, edgeSegments);
+            Connect(crossingSegment, maxAngle.TopologyEdge, bottom, -upDirection, overlap, edgeSegments);
 
             return crossingSegment;
         }
@@ -82,7 +83,7 @@ namespace OpenSage.Terrain.Roads
             var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
             var lengthToLeft = halfRoadWidth;
             var lengthToRight = targetBoundingBox.Width - lengthToLeft;
-            var lengthToSide = template.RoadWidth;
+            var lengthToSide = 1.047f * template.RoadWidth;
 
             var topPosition = crossingPosition + lengthToTop * upDirection;
             var bottomPosition = crossingPosition - lengthToBottom * upDirection;
@@ -101,17 +102,18 @@ namespace OpenSage.Terrain.Roads
             var topEdge = mirror ? maxAngle.TopologyEdge : maxAngle.Previous.TopologyEdge;
             var bottomEdge = mirror ? maxAngle.Previous.TopologyEdge : maxAngle.TopologyEdge;
 
-            Connect(crossingSegment, topEdge, top, upDirection, edgeSegments);
-            Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, side, sideDirection, edgeSegments);
-            Connect(crossingSegment, bottomEdge, bottom, -upDirection, edgeSegments);
+            Connect(crossingSegment, topEdge, top, upDirection, 0.04f * template.RoadWidth, edgeSegments);
+            Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, side, sideDirection, 0, edgeSegments);
+            Connect(crossingSegment, bottomEdge, bottom, -upDirection, 0.055f * template.RoadWidth, edgeSegments);
 
             crossingSegment.MirrorTexture = mirror;
 
             return crossingSegment;
         }
 
-        private static void Connect(CrossingRoadSegment newSegment, RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        private static void Connect(CrossingRoadSegment newSegment, RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction, float overlap, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
+            endPoint.Position -= overlap * direction;
             var edgeSegment = edgeSegments[edge];
             if (edge.Start.Position == newSegment.Position)
             {
