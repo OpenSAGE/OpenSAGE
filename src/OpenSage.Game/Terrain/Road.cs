@@ -41,7 +41,7 @@ namespace OpenSage.Terrain
             var vertices = new List<RoadShaderResources.RoadVertex>();
             var indices = new List<ushort>();
 
-            foreach (var segment in network.Segments)
+            foreach (var segment in network.Segments.OrderBy(s => s.Type))
             {
                 segment.GenerateMesh(network.Template, heightMap, vertices, indices);
             }
