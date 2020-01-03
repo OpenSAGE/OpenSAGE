@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Shaders;
@@ -110,6 +111,44 @@ namespace OpenSage.Terrain.Roads
 
             return crossingSegment;
         }
+        public static CrossingRoadSegment CreateXCrossing(IEnumerable<IncomingRoadData> roads, Vector3 crossingPosition, RoadTemplate template, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        {
+            var roadBottom = roads.FirstOrDefault();
+            var roadLeft = roadBottom.Previous;
+            var roadTop = roadLeft.Previous;
+            var roadRight = roadTop.Previous;
+            Debug.Assert(roadBottom == roadRight.Previous);
+
+            //compare normal of the average direction of the horizontal road
+            //with direction of the vertical road
+            //take the average as the up direction for the crossing
+            var upDir1 = Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(roadRight.TargetNodePosition - roadLeft.TargetNodePosition));
+            var upDir2 = Vector3.Normalize(roadTop.TargetNodePosition - roadBottom.TargetNodePosition);
+            var upDirection = 0.5f * (upDir1 + upDir2);
+            var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
+            
+            var roadWidth = template.RoadWidth * template.RoadWidthInTexture;
+
+            var targetBoundingBox = GetBoundingBoxSize(RoadTextureType.XCrossing, template);
+
+            var top = new RoadSegmentEndPoint(crossingPosition + targetBoundingBox.Height / 2 * upDirection);
+            var bottom = new RoadSegmentEndPoint(crossingPosition - targetBoundingBox.Height / 2 * upDirection);
+            var right = new RoadSegmentEndPoint(crossingPosition + targetBoundingBox.Height / 2 * rightDirection);
+            var left = new RoadSegmentEndPoint(crossingPosition - targetBoundingBox.Height / 2 * rightDirection);
+
+            var start = left.Position;
+            var end = right.Position;
+
+            var crossingSegment = new CrossingRoadSegment(crossingPosition, new[] { top, bottom, right, left }, start, end, RoadTextureType.XCrossing);
+
+            var overlap = 0.015f * template.RoadWidth;
+            Connect(crossingSegment, roadTop.TopologyEdge, top, upDirection, overlap, edgeSegments);
+            Connect(crossingSegment, roadRight.TopologyEdge, right, rightDirection, overlap, edgeSegments);
+            Connect(crossingSegment, roadBottom.TopologyEdge, bottom, -upDirection, overlap, edgeSegments);
+            Connect(crossingSegment, roadLeft.TopologyEdge, left, -rightDirection, overlap, edgeSegments);
+
+            return crossingSegment;
+        }
 
         private static void Connect(CrossingRoadSegment newSegment, RoadTopologyEdge edge, RoadSegmentEndPoint endPoint, in Vector3 direction, float overlap, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
@@ -144,6 +183,10 @@ namespace OpenSage.Terrain.Roads
                     break;
                 case RoadTextureType.TCrossing:
                     width = template.RoadWidthInTexture + stubLength + overlapLength;
+                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
+                    break;
+                case RoadTextureType.XCrossing:
+                    width = template.RoadWidthInTexture + 2* stubLength + 2* overlapLength;
                     height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
                     break;
                 default:
