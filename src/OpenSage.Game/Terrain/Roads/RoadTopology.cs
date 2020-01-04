@@ -11,8 +11,15 @@ namespace OpenSage.Terrain.Roads
 
         public void AddSegment(RoadTemplate template, MapObject start, MapObject end)
         {
-            var startNode = GetOrCreateNode(start);
-            var endNode = GetOrCreateNode(end);
+            var startNode = GetOrCreateNode(start.Position);
+            var endNode = GetOrCreateNode(end.Position);
+
+            if (endNode == startNode)
+            {
+                // create a new dummy vertex, otherwise this edge gets counted twice as incoming edge of startVertex
+                // add a small offset to make sure that other map objects use the 'normal' vertex
+                endNode = GetOrCreateNode(end.Position + 0.0001f * Vector3.UnitX);
+            }
 
             var edge = new RoadTopologyEdge(
                 template,
@@ -27,12 +34,12 @@ namespace OpenSage.Terrain.Roads
             endNode.Edges.Add(edge);
         }
 
-        private RoadTopologyNode GetOrCreateNode(MapObject mapObject)
+        private RoadTopologyNode GetOrCreateNode(Vector3 position)
         {
-            var node = Nodes.Find(x => x.Position == mapObject.Position);
+            var node = Nodes.Find(x => x.Position == position);
             if (node == null)
             {
-                Nodes.Add(node = new RoadTopologyNode(mapObject.Position));
+                Nodes.Add(node = new RoadTopologyNode(position));
             }
             return node;
         }

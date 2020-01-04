@@ -95,7 +95,9 @@ namespace OpenSage.Terrain.Roads
             IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
             {
                 var targetNodePosition = incomingEdge.Start.Position == node.Position ? incomingEdge.End.Position : incomingEdge.Start.Position;
-                var direction = Vector3.Normalize(targetNodePosition - node.Position);
+                var roadVector = targetNodePosition - node.Position;
+                var direction = roadVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(roadVector);
+
                 return new IncomingRoadData(
                     incomingEdge,
                     targetNodePosition,
