@@ -22,6 +22,21 @@ namespace OpenSage.Logic.Object
             _locomotorTemplate = locomotorSet.Locomotor.Value;
         }
 
+        //TODO: check if the damaged values exists
+        private float GetAcceleration()
+        {
+            var damaged = _gameObject.Damaged;
+            return damaged ? GetLocomotorValue(x => x.AccelerationDamaged)
+                           : GetLocomotorValue(x => x.Acceleration);
+        }
+
+        private float GetTurnRate()
+        {
+            var damaged = _gameObject.Damaged;
+            return damaged ? GetLocomotorValue(x => x.TurnRateDamaged)
+                           : GetLocomotorValue(x => x.TurnRate);
+        }
+
         public void LocalLogicTick(in TimeInterval gameTime, in List<Vector3> targetPoints, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -37,13 +52,14 @@ namespace OpenSage.Logic.Object
             // When we get to minimum braking distance, start braking.
             var deltaLast = targetPoints.Last() - transform.Translation;
             var distanceRemaining = deltaLast.Length();
+            var damaged = _gameObject.Damaged;
 
             var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
 
             // Are we braking or accelerating?
             var accelerating = distanceRemaining > minimumBrakingDistance;
             var currentAcceleration = accelerating
-                ? GetLocomotorValue(x => x.Acceleration)
+                ? GetAcceleration()
                 : -GetLocomotorValue(x => x.Braking);
 
             var deltaSpeed = currentAcceleration * deltaTime;
@@ -64,15 +80,24 @@ namespace OpenSage.Logic.Object
             transform.Translation = trans;
 
             // Calculate rotation
-            var currentAngle = -transform.EulerAngles.Z;
+            var currentYaw = -transform.EulerAngles.Z;
 
-            var targetAngle = MathUtility.GetZAngleFromDirection(direction);
-            var angleDelta = MathUtility.CalculateAngleDelta(targetAngle, currentAngle);
+            var targetYaw = MathUtility.GetYawFromDirection(direction);
+            var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
-            var d = MathUtility.ToRadians(GetLocomotorValue(l => l.TurnRate)) * deltaTime;
+            var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
-            var newAngle = currentAngle + newDelta;
-            transform.Rotation = Quaternion.CreateFromYawPitchRoll(0.0f, 0.0f, newAngle);
+            var yaw = currentYaw + newDelta;
+            var pitch = 0.0f;
+
+            if (_locomotorTemplate.Appearance == LocomotorAppearance.FourWheels)
+            {
+                //TODO: fix this
+                var normal = heightMap?.GetNormal(x, y) ?? Vector3.UnitZ;
+                pitch = MathUtility.GetPitchFromDirection(normal);
+            }
+
+            transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, yaw);
         }
 
         private float GetLocomotorValue(Func<LocomotorTemplate, float> getValue)

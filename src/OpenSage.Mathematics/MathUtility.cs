@@ -82,9 +82,14 @@ namespace OpenSage.Mathematics
         /// </summary>
         /// <param name="direction">the direction vector</param>
         /// <returns>the z angle of the direction vector (in radians)</returns>
-        public static float GetZAngleFromDirection(Vector3 direction)
+        public static float GetYawFromDirection(Vector3 direction)
         {
             return MathF.Atan2(direction.Y, direction.X) - MathF.Atan2(Vector2.UnitX.Y, Vector2.UnitX.X);
+        }
+
+        public static float GetPitchFromDirection(Vector3 direction)
+        {
+            return MathF.Acos(Vector3.Dot(direction, Vector3.UnitZ) / direction.Length());
         }
 
         /// <summary>
