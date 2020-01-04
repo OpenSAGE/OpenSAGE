@@ -43,7 +43,8 @@ namespace OpenSage.Terrain
 
             foreach (var segment in network.Segments.OrderBy(s => s.Type))
             {
-                segment.GenerateMesh(network.Template, heightMap, vertices, indices);
+                var mesher = segment.CreateMesher(network.Template);
+                mesher.GenerateMesh(heightMap, vertices, indices);
             }
 
             _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));

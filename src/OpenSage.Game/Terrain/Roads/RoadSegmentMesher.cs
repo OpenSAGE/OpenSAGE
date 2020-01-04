@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
-    abstract class RoadSegmentMesher
+    internal abstract class RoadSegmentMesher
     {
         protected RoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
         {
@@ -29,7 +28,6 @@ namespace OpenSage.Terrain.Roads
         protected Vector3 DirectionNoZ { get; }
         protected Vector3 DirectionNormalNoZ { get; }
         protected TextureCoordinates TextureBounds { get; }
-
 
         public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
@@ -144,9 +142,9 @@ namespace OpenSage.Terrain.Roads
         }
     }
 
-    class RoadCrossingMesher : RoadSegmentMesher
+    internal sealed class CrossingRoadMesher : RoadSegmentMesher
     {
-        public RoadCrossingMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+        public CrossingRoadMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
         {
         }
@@ -155,6 +153,7 @@ namespace OpenSage.Terrain.Roads
         {
             return HalfHeight * DirectionNormalNoZ;
         }
+
         protected override float TopUOffset(float relativeProgress)
         {
             return 0;
@@ -167,7 +166,7 @@ namespace OpenSage.Terrain.Roads
         }
     }
 
-    class StraightRoadMesher : RoadSegmentMesher
+    internal sealed class StraightRoadMesher : RoadSegmentMesher
     {
         public StraightRoadMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
@@ -202,6 +201,7 @@ namespace OpenSage.Terrain.Roads
         {
             return Vector3.Lerp(StartToTopCorner, EndToTopCorner, relativeProgress);
         }
+
         protected override float GetU(float _, float distanceAlongRoad)
         {
             // for roads: the road segment we are meshing may be much longer or shorter than the texture road length,

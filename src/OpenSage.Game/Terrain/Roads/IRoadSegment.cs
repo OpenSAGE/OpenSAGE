@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Graphics.Shaders;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -14,10 +13,6 @@ namespace OpenSage.Terrain.Roads
 
         IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
 
-        void GenerateMesh(
-            RoadTemplate template,
-            HeightMap heightMap,
-            List<RoadShaderResources.RoadVertex> vertices,
-            List<ushort> indices);
+        RoadSegmentMesher CreateMesher(RoadTemplate template);
     }
 }

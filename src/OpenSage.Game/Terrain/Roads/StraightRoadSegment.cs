@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Graphics.Shaders;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -10,8 +7,6 @@ namespace OpenSage.Terrain.Roads
     {
         public RoadSegmentEndPoint Start { get; }
         public RoadSegmentEndPoint End { get; }
-
-        //IRoadSegment:
         public Vector3 StartPosition => Start.Position;
         public Vector3 EndPosition => End.Position;
         public bool MirrorTexture => false;
@@ -32,15 +27,10 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        public void GenerateMesh(
-            RoadTemplate template,
-            HeightMap heightMap,
-            List<RoadShaderResources.RoadVertex> vertices,
-            List<ushort> indices)
+        public RoadSegmentMesher CreateMesher(RoadTemplate template)
         {
             var halfWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
-            var mesher = new StraightRoadMesher(this, halfWidth, template);
-            mesher.GenerateMesh(heightMap, vertices, indices);
+            return new StraightRoadMesher(this, halfWidth, template);
         }
     }
 }
