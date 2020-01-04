@@ -13,6 +13,8 @@ namespace OpenSage.Logic.Object
         private readonly LocomotorSet _locomotorSet;
         private readonly LocomotorTemplate _locomotorTemplate;
 
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public Locomotor(GameObject gameObject, LocomotorSet locomotorSet)
         {
             _gameObject = gameObject;
@@ -63,11 +65,13 @@ namespace OpenSage.Logic.Object
 
             // Calculate rotation
             var currentAngle = -transform.EulerAngles.Z;
-            var targetAngle = MathF.Atan2(direction.Y - Vector3.UnitX.Y, direction.X - Vector3.UnitX.X);
-            var angleDelta = targetAngle - currentAngle;
 
-            var d = GetLocomotorValue(l => l.TurnRate) * deltaTime * 0.1f;
-            var newAngle = currentAngle + (angleDelta * d);
+            var targetAngle = MathUtility.GetZAngleFromDirection(direction);
+            var angleDelta = MathUtility.CalculateAngleDelta(targetAngle, currentAngle);
+
+            var d = MathUtility.ToRadians(GetLocomotorValue(l => l.TurnRate)) * deltaTime;
+            var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
+            var newAngle = currentAngle + newDelta;
             transform.Rotation = Quaternion.CreateFromYawPitchRoll(0.0f, 0.0f, newAngle);
         }
 
