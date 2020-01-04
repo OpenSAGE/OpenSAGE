@@ -115,6 +115,8 @@ namespace OpenSage.Logic.Object
 
         public bool Destroyed { get; set; }
 
+        public bool Damaged { get; set; }
+
         public float Speed { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
