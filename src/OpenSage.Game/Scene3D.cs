@@ -17,6 +17,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
+using OpenSage.Terrain.Roads;
 using Veldrid;
 using Player = OpenSage.Logic.Player;
 using Team = OpenSage.Logic.Team;
@@ -47,7 +48,7 @@ namespace OpenSage
         public Terrain.Terrain Terrain { get; }
         public bool ShowTerrain { get; set; } = true;
 
-        public Terrain.WaterAreaCollection WaterAreas { get; }
+        public WaterAreaCollection WaterAreas { get; }
         public bool ShowWater { get; set; } = true;
 
         public RoadCollection Roads { get; }

@@ -20,6 +20,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Logic.Object.Damage;
 using OpenSage.Logic.Pathfinding;
 using OpenSage.Terrain;
+using OpenSage.Terrain.Roads;
 
 namespace OpenSage.Data.Ini
 {

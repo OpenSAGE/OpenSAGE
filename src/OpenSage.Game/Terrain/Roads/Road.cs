@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
@@ -9,11 +8,10 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
-using OpenSage.Terrain.Roads;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain.Roads
 {
     public sealed class Road : DisposableBase
     {
