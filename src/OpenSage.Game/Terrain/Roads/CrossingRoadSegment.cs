@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads

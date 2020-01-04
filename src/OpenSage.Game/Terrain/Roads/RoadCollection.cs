@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Terrain.Roads;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain.Roads
 {
     public sealed class RoadCollection : DisposableBase, IReadOnlyList<Road>
     {

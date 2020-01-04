@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using OpenSage.Terrain.Roads;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain.Roads
 {
     internal sealed class RoadTopology
     {

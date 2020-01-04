@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -18,6 +17,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
+using OpenSage.Terrain.Roads;
 using Veldrid;
 using Player = OpenSage.Logic.Player;
 using Team = OpenSage.Logic.Team;
@@ -48,13 +48,13 @@ namespace OpenSage
         public Terrain.Terrain Terrain { get; }
         public bool ShowTerrain { get; set; } = true;
 
-        public Terrain.WaterAreaCollection WaterAreas { get; }
+        public WaterAreaCollection WaterAreas { get; }
         public bool ShowWater { get; set; } = true;
 
-        public Terrain.RoadCollection Roads { get; }
+        public RoadCollection Roads { get; }
         public bool ShowRoads { get; set; } = true;
 
-        public Terrain.Bridge[] Bridges { get; }
+        public Bridge[] Bridges { get; }
         public bool ShowBridges { get; set; } = true;
 
         public MapScriptCollection Scripts { get; }

@@ -2,7 +2,7 @@
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain.Roads
 {
     public sealed class RoadTemplate : BaseAsset
     {
