@@ -67,6 +67,21 @@ namespace OpenSage.Terrain.Roads
                     0.335f));
 
             _coordinates.Add(
+                RoadTextureType.SymmetricYCrossing,
+                TextureCoordinates.LeftTopRightBottom(
+                    TileCenter(1) - 0.2f,
+                    0.504f - 0.135f,
+                    TileCenter(1) + 0.2f,
+                    0.504f + 0.135f));
+
+            _coordinates.Add(
+                RoadTextureType.BroadCurve,
+                TextureCoordinates.Curve(
+                    TileCenter(0),
+                    halfRoadWidth,
+                    MathUtility.ToRadians(30)));
+
+            _coordinates.Add(
                 RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
                     TileCenter(0),

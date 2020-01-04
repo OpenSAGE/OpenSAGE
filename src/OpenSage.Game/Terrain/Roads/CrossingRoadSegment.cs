@@ -38,23 +38,26 @@ namespace OpenSage.Terrain.Roads
         private static SizeF GetSize(RoadTextureType type, RoadTemplate template)
         {
             var stubLength = 0.5f * (1f - template.RoadWidthInTexture);
-            var overlapLength = 0.015f;
 
             float width, height;
 
             switch (type)
             {
-                case RoadTextureType.AsymmetricYCrossing:
-                    width = 1.2f + template.RoadWidthInTexture / 2f;
-                    height = 1.33f + overlapLength;
-                    break;
                 case RoadTextureType.TCrossing:
-                    width = template.RoadWidthInTexture + stubLength + overlapLength;
-                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
+                    width = template.RoadWidthInTexture + stubLength + OverlapLength;
+                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * OverlapLength;
                     break;
                 case RoadTextureType.XCrossing:
-                    width = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
-                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * overlapLength;
+                    width = template.RoadWidthInTexture + 2 * stubLength + 2 * OverlapLength;
+                    height = width;
+                    break;
+                case RoadTextureType.AsymmetricYCrossing:
+                    width = 1.2f + template.RoadWidthInTexture / 2f;
+                    height = 1.33f + OverlapLength;
+                    break;
+                case RoadTextureType.SymmetricYCrossing:
+                    width = 1.59f;
+                    height = 1.065f + OverlapLength;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("Unknown RoadTextureType: " + type);
