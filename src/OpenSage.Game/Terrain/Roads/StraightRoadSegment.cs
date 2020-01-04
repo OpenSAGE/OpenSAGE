@@ -30,7 +30,7 @@ namespace OpenSage.Terrain.Roads
         public RoadSegmentMesher CreateMesher(RoadTemplate template)
         {
             var halfWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
-            return new StraightRoadMesher(this, halfWidth, template);
+            return new StraightRoadSegmentMesher(this, halfWidth, template);
         }
     }
 }
