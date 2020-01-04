@@ -27,7 +27,7 @@ namespace OpenSage.Terrain.Roads
             return networks;
         }
 
-        private static IDictionary<RoadTopologyEdge, StraightRoadSegment> BuildEdgeSegments(RoadTopology topology)
+        private static IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> BuildEdgeSegments(RoadTopology topology)
         {
             // create a dictionary from edges to segments
             var edgeSegments = topology.Edges.ToDictionary(e => e, e => new StraightRoadSegment(e.Start.Position, e.End.Position));
@@ -66,32 +66,7 @@ namespace OpenSage.Terrain.Roads
             return edgeSegments;
         }
 
-        private static IEnumerable<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
-        {
-            var incomingRoads = edges.Select(topologyEdge =>
-            {
-                var incoming = new IncomingRoadData();
-                incoming.TopologyEdge = topologyEdge;
-                incoming.TargetNodePosition = (topologyEdge.Start.Position == node.Position) ? topologyEdge.End.Position : topologyEdge.Start.Position;
-                incoming.Direction = Vector3.Normalize(incoming.TargetNodePosition - node.Position);
-                incoming.AngleToAxis = Math.Atan2(incoming.Direction.Y, incoming.Direction.X);
-                return incoming;
-            }).ToList();
-
-            incomingRoads.Sort((first, second) => first.AngleToAxis.CompareTo(second.AngleToAxis));
-            var n = incomingRoads.Count;
-
-            for (var i = 1; i < n; ++i)
-            {
-                incomingRoads[i].Previous = incomingRoads[i - 1];
-                incomingRoads[i].AngleToPreviousEdge = incomingRoads[i].AngleToAxis - incomingRoads[i - 1].AngleToAxis;
-            }
-            incomingRoads[0].Previous = incomingRoads[n - 1];
-            incomingRoads[0].AngleToPreviousEdge = 2 * Math.PI + incomingRoads[0].AngleToAxis - incomingRoads[n - 1].AngleToAxis;
-            
-            return incomingRoads;
-        }
-        private static void InsertNodeSegments(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        private static void InsertNodeSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
             {
@@ -107,15 +82,45 @@ namespace OpenSage.Terrain.Roads
                         case 3:
                         case 4:
                             var template = edgesPerTemplate.Key;
-                            var edgedata = ComputeRoadAngles(node, edgesPerTemplate);
-                            CrossingRoadSegment.CreateCrossing(edgedata, node.Position, template, edgeSegments);
+                            var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate);
+                            CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, template, edgeSegments);
                             break;
                     }
                 }
             }
         }
 
-        private static IList<RoadNetwork> BuildNetworks(RoadTopology topology, IDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        private static IEnumerable<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
+        {
+            IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
+            {
+                var targetNodePosition = incomingEdge.Start.Position == node.Position ? incomingEdge.End.Position : incomingEdge.Start.Position;
+                var direction = Vector3.Normalize(targetNodePosition - node.Position);
+                return new IncomingRoadData(
+                    incomingEdge,
+                    targetNodePosition,
+                    direction,
+                    MathF.Atan2(direction.Y, direction.X));
+            }
+
+            var incomingRoads = edges
+                .Select(e => GetIncomingRoadData(node, e))
+                .OrderBy(d => d.AngleToAxis)
+                .ToList();
+
+            for (var i = 1; i < incomingRoads.Count; ++i)
+            {
+                incomingRoads[i].Previous = incomingRoads[i - 1];
+                incomingRoads[i].AngleToPreviousEdge = incomingRoads[i].AngleToAxis - incomingRoads[i - 1].AngleToAxis;
+            }
+
+            incomingRoads[0].Previous = incomingRoads[incomingRoads.Count - 1];
+            incomingRoads[0].AngleToPreviousEdge = 2 * MathF.PI + incomingRoads[0].AngleToAxis - incomingRoads[incomingRoads.Count - 1].AngleToAxis;
+
+            return incomingRoads;
+        }
+
+        private static IList<RoadNetwork> BuildNetworks(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var networks = new List<RoadNetwork>();
 
