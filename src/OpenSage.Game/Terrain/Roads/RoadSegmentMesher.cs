@@ -142,9 +142,9 @@ namespace OpenSage.Terrain.Roads
         }
     }
 
-    internal sealed class CrossingRoadMesher : RoadSegmentMesher
+    internal sealed class CrossingRoadSegmentMesher : RoadSegmentMesher
     {
-        public CrossingRoadMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+        public CrossingRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
         {
         }
@@ -166,12 +166,13 @@ namespace OpenSage.Terrain.Roads
         }
     }
 
-    internal sealed class StraightRoadMesher : RoadSegmentMesher
+    internal sealed class StraightRoadSegmentMesher : RoadSegmentMesher
     {
-        public StraightRoadMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+        public StraightRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
         {
         }
+
         private Vector3 StartToTopCorner { get; set; }
         private Vector3 EndToTopCorner { get; set; }
         private float StartTopUOffset { get; set; }
@@ -183,8 +184,9 @@ namespace OpenSage.Terrain.Roads
             var straightRoad = Segment as StraightRoadSegment;
             if (straightRoad == null)
             {
-                throw new ArgumentException();
+                throw new InvalidOperationException();
             }
+
             StartToTopCorner = ToCorner(straightRoad.Start, false);
             EndToTopCorner = ToCorner(straightRoad.End, true);
             TextureRoadLength = Template.RoadWidth * 4;

@@ -32,7 +32,7 @@ namespace OpenSage.Terrain.Roads
             var targetSize = GetSize(Type, template);
             var halfHeight = targetSize.Height / 2;
 
-            return new CrossingRoadMesher(this, halfHeight, template);
+            return new CrossingRoadSegmentMesher(this, halfHeight, template);
         }
 
         private static SizeF GetSize(RoadTextureType type, RoadTemplate template)
@@ -174,9 +174,9 @@ namespace OpenSage.Terrain.Roads
             //compare normal of the average direction of the horizontal road
             //with direction of the vertical road
             //take the average as the up direction for the crossing
-            var upDir1 = Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(roadRight.TargetNodePosition - roadLeft.TargetNodePosition));
-            var upDir2 = Vector3.Normalize(roadTop.TargetNodePosition - roadBottom.TargetNodePosition);
-            var upDirection = 0.5f * (upDir1 + upDir2);
+            var upDirection1 = Vector3.Cross(Vector3.UnitZ, Vector3.Normalize(roadRight.TargetNodePosition - roadLeft.TargetNodePosition));
+            var upDirection2 = Vector3.Normalize(roadTop.TargetNodePosition - roadBottom.TargetNodePosition);
+            var upDirection = 0.5f * (upDirection1 + upDirection2);
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
 
             var targetSize = GetSize(RoadTextureType.XCrossing, template);
