@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
+    internal class InsertPosition
+    {
+        public Vector3 Position { get; set; }
+        public Vector3 Normal { get; set; }
+        public float relativeProgress { get; set; }
+        public float distanceAlongRoad { get; set; }
+    }
+
+
     internal abstract class RoadSegmentMesher
     {
         protected RoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
@@ -32,17 +42,6 @@ namespace OpenSage.Terrain.Roads
         public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
             const float heightBias = 0.1f;
-            const float createNewVerticesHeightDeltaThreshold = 0.002f;
-
-            // todo: improve
-            var up = Vector3.UnitZ;
-
-            // computations including the z coordinate
-            // -> only for generating the mesh triangles, not for any angle computations / crossings with z axis / ... !
-            var startWithZ = Segment.StartPosition.WithZ(heightMap.GetHeight(Segment.StartPosition.X, Segment.StartPosition.Y));
-            var endWithZ = Segment.EndPosition.WithZ(heightMap.GetHeight(Segment.EndPosition.X, Segment.EndPosition.Y));
-            var directionWithZ = Vector3.Normalize(endWithZ - startWithZ);
-            var distance = Vector3.Distance(startWithZ, endWithZ);
 
             // vertical texture coordinate
             var vStart = TextureBounds.TopLeft.Y;
@@ -54,78 +53,119 @@ namespace OpenSage.Terrain.Roads
             // let the derived classes do some initializations
             Prepare();
 
-            // prepare for sectioning the road segment
-            var sections = Math.Max(1, (int) (distance / 10));
-            var distancePerSection = distance / sections;
-
             // remember which vercies were already there
             var initialVertexCount = vertices.Count;            
 
             // for a given spot along rendering the road, generate the border vertices on both sides of the road
-            void AddVertexPair(in Vector3 position, float distanceAlongRoad)
+            void AddVertexPair(InsertPosition insertPos)
             {
-                var relativeProgress = distanceAlongRoad / distance;
+                var position = insertPos.Position;
 
                 // let the derived classes do some decisions
-                var toBorder = ToTopBorder(relativeProgress);
-                var uOffset = TopUOffset(relativeProgress);
-                var u = GetU(relativeProgress, distanceAlongRoad);
+                var toBorder = ToTopBorder(insertPos.relativeProgress);
+                var uOffset = TopUOffset(insertPos.relativeProgress);
+                var u = GetU(insertPos.relativeProgress, insertPos.distanceAlongRoad);
 
-                // generate the border vertices
+                // generate border positions and determine their z coordinate
                 var p0 = position - toBorder;
-                p0.Z += heightBias;
-
+                var p1 = position + toBorder;
+                
+                var sideZ = Math.Max(heightMap.GetHeight(p0.X, p0.Y), heightMap.GetHeight(p1.X, p1.Y));
+                var z = Math.Max(position.Z, sideZ) + heightBias;
+                p0.Z = z;
+                p1.Z = z;                
+                
+                // add the border vertices                
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p0,
-                    Normal = up,
+                    Normal = insertPos.Normal,
                     UV = new Vector2(u - uOffset, v - vOffset)
                 });
-
-                var p1 = position + toBorder;
-                p1.Z += heightBias;
-
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p1,
-                    Normal = up,
+                    Normal = insertPos.Normal,
                     UV = new Vector2(u + uOffset, v + vOffset)
                 });
             }
 
-            // generate vertices at start and end of segment,
-            // and in-between if the z coordinates vary too much
-
-            AddVertexPair(startWithZ, 0);
-
-            var previousPoint = startWithZ;
-            var previousPointDistance = 0f;
-
-            for (int i = 1; i < sections; i++)
+            var insertPositions = GenerateInsertPositions(heightMap);
+            foreach(var insertPosition in insertPositions)
             {
-                var currentDistance = i * distancePerSection;
-                var position = startWithZ + directionWithZ * currentDistance;
-                var actualHeight = heightMap.GetHeight(position.X, position.Y);
-                var interpolatedHeight = MathUtility.Lerp(previousPoint.Z, endWithZ.Z, (currentDistance - previousPointDistance) / distance);
-
-                if (Math.Abs(actualHeight - interpolatedHeight) > createNewVerticesHeightDeltaThreshold)
-                {
-                    AddVertexPair(position, currentDistance);
-                    previousPoint = position;
-                    previousPointDistance = currentDistance;
-                }
+                AddVertexPair(insertPosition);
             }
-
-            AddVertexPair(endWithZ, distance);
-
+            
             // generate triangles for the inserted vertices
             GenerateTriangles(initialVertexCount, vertices, indices);
         }
+
+
 
         protected virtual void Prepare() { }
         protected abstract Vector3 ToTopBorder(float relativeProgress);
         protected abstract float GetU(float relativeProgress, float distanceAlongRoad);
         protected abstract float TopUOffset(float relativeProgress);
+
+        private IList<InsertPosition> GenerateInsertPositions(HeightMap heightMap)
+        {
+            // computations including the z coordinate
+            // -> only for generating the mesh triangles, not for any angle computations / crossings with z axis / ... !
+            var startWithZ = Segment.StartPosition.WithZ(heightMap.GetHeight(Segment.StartPosition.X, Segment.StartPosition.Y));
+            var endWithZ = Segment.EndPosition.WithZ(heightMap.GetHeight(Segment.EndPosition.X, Segment.EndPosition.Y));
+            var segmentVector = endWithZ - startWithZ;
+            var distanceWithZ = Vector3.Distance(startWithZ, endWithZ);
+
+            var sectionCount = Math.Max(1, (int) (distanceWithZ / 10));
+
+            // generate candidate positions for cutting the road segment
+            var positionCandidates = new List<InsertPosition>();
+            for (int i = 0; i <= sectionCount; ++i)
+            {
+                var relativeProgress = (float) i / (float) sectionCount;
+                var position = startWithZ + relativeProgress * segmentVector;
+                positionCandidates.Add(new InsertPosition()
+                {
+                    Position = position.WithZ(heightMap.GetUpperHeight(position.X, position.Y)),
+                    relativeProgress = relativeProgress
+                });
+            }
+
+            // choose which of those to use (don't need additional triangles where the road segment is unbumpys)
+            const float createNewVerticesHeightDeltaThreshold = 0.002f;
+            var usefulPositions = new List<InsertPosition>();
+            usefulPositions.Add(positionCandidates[0]);
+            for (int i = 1; i < sectionCount; ++i)
+            {
+                var interpolatedHeight = (positionCandidates[i - 1].Position.Z + positionCandidates[i + 1].Position.Z) / 2;
+                if (Math.Abs(interpolatedHeight - positionCandidates[i].Position.Z) > createNewVerticesHeightDeltaThreshold)
+                {
+                    usefulPositions.Add(positionCandidates[i]);
+                }
+            }
+            usefulPositions.Add(positionCandidates[sectionCount]);
+
+            // get vertex normals
+            var count = usefulPositions.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                var prevRoadSection = i > 0 ? Vector3.Normalize(usefulPositions[i].Position - usefulPositions[i - 1].Position) : Vector3.Zero;
+                var nextRoadSection = i < count - 1 ? Vector3.Normalize(usefulPositions[i + 1].Position - usefulPositions[i].Position) : Vector3.Zero;
+
+                var avgRoadDirection = Vector3.Normalize(prevRoadSection + nextRoadSection);
+                usefulPositions[i].Normal = Vector3.Cross(DirectionNormalNoZ, avgRoadDirection);
+            }
+
+            // get distance along road
+            usefulPositions[0].distanceAlongRoad = 0;
+            for (int i = 1; i<count; ++i)
+            {
+                var length = Vector3.Distance(usefulPositions[i].Position, usefulPositions[i - 1].Position);
+                usefulPositions[i].distanceAlongRoad = usefulPositions[i - 1].distanceAlongRoad + length;
+            }
+
+            return usefulPositions.ToList();
+        }
 
         private void GenerateTriangles(int initialVertexCount, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
