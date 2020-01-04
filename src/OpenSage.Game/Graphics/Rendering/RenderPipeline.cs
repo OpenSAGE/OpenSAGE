@@ -224,6 +224,18 @@ namespace OpenSage.Graphics.Rendering
 
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
+            commandList.PushDebugGroup("Terrain");
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Road");
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Water");
+            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
             commandList.PushDebugGroup("Opaque");
             RenderedObjectsOpaque = DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();

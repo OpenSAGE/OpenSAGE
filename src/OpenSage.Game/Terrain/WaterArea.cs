@@ -168,7 +168,7 @@ namespace OpenSage.Terrain
 
         internal void BuildRenderList(RenderList renderList)
         {
-            renderList.Opaque.RenderItems.Add(new RenderItem(
+            renderList.Water.RenderItems.Add(new RenderItem(
                 _shaderSet,
                 _pipeline,
                 _boundingBox,
