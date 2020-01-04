@@ -228,15 +228,14 @@ namespace OpenSage.Terrain.Roads
 
             // When two road segments meet in an angled curve, their meeting edge is tilted and thus longer than the width of the road
             // -> divide by cosine
-            // For roads ending in a T or Y crossing: angle of the edge will approximately match the angle shown in texture
-            // -> divide by cosine as well to avoid unnecessary distortion of the road segment
-            // For straight roads ending in an x crossing:
-            // -> since there's only one 4-road crossing texture, the 90° angles in the crossing texture may not match the actual angles
-            // -> the meeting edge may become quite tilted and noticeably longer than road width
-            // -> the road shown in the texture of the crossing always has the fixed road width, though
+            // For straight roads ending in a crossing:
+            // -> the angles in the crossing texture may not well match the actual angles of the incoming roads
+            //    (especially for x-crossings, since there's only one texture for 4-road crossings which assumes 90° everywhere)
+            // -> the meeting edge may become quite tilted and noticeably longer than road width,
+            //    while the road shown in the texture of the crossing always has the fixed road width
             // -> to avoid visible breaks between the road segment and the crossing texture, distort the edge so its tilted seam is 'roadwidth' long
             var cosine = Vector3.Dot(DirectionNormalNoZ, toCornerDirection);
-            var toCornerLength = neighbor.To?.Type == RoadTextureType.XCrossing ? HalfHeight : HalfHeight / cosine;
+            var toCornerLength = neighbor.To is CrossingRoadSegment ? HalfHeight : HalfHeight / cosine;
             return toCornerDirection * toCornerLength;
         }
     }
