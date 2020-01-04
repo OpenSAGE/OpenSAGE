@@ -81,14 +81,7 @@ namespace OpenSage.Terrain.Roads
                     halfRoadWidth,
                     MathUtility.ToRadians(30)));
 
-            _coordinates.Add(
-                RoadTextureType.BroadCurve,
-                TextureCoordinates.Curve(
-                    TileCenter(0),
-                    halfRoadWidth,
-                    MathUtility.ToRadians(30)));
-
-            // TODO: TightCurve, SymmetricY, Join
+            // TODO: TightCurve, Join
         }
 
         /// <summary>
