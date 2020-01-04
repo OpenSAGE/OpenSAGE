@@ -77,14 +77,14 @@ namespace OpenSage.Terrain.Roads
                 case RoadTextureType.TCrossing:
                     CreateTCrossing(roads, crossingPosition, template, edgeSegments);
                     break;
-                case RoadTextureType.AsymmetricYCrossing:
-                    CreateYAsymmCrossing(roads, crossingPosition, template, edgeSegments);
-                    break;
                 case RoadTextureType.XCrossing:
                     CreateXCrossing(roads, crossingPosition, template, edgeSegments);
                     break;
+                case RoadTextureType.AsymmetricYCrossing:
+                    CreateYAsymmCrossing(roads, crossingPosition, template, edgeSegments);
+                    break;
                 case RoadTextureType.SymmetricYCrossing:
-                    // TODO
+                    CreateYSymmCrossing(roads, crossingPosition, template, edgeSegments);
                     break;
                 default:
                     throw new ArgumentException("Failed to choose crossing type", nameof(roads));
@@ -254,6 +254,60 @@ namespace OpenSage.Terrain.Roads
             Connect(crossingSegment, topEdge, top, upDirection, 0.04f * template.RoadWidth, edgeSegments);
             Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, side, sideDirection, 0, edgeSegments);
             Connect(crossingSegment, bottomEdge, bottom, -upDirection, 0.055f * template.RoadWidth, edgeSegments);
+
+            crossingSegment.MirrorTexture = mirror;
+
+            return crossingSegment;
+        }
+
+        private static CrossingRoadSegment CreateYSymmCrossing(
+           IEnumerable<IncomingRoadData> roads,
+           Vector3 crossingPosition,
+           RoadTemplate template,
+           IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        {
+            var minAngle = roads.OrderBy(road => road.AngleToPreviousEdge).First();
+            var mirror = false;
+
+            var rightEdge = minAngle;
+            var leftEdge = minAngle.Previous;
+            var topEdge = leftEdge.Previous;
+
+            var upDirection = topEdge.Direction;
+            var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
+            var rightSideDirection = Vector3.Normalize(rightDirection - upDirection);
+            var leftSideDirection = Vector3.Normalize(-rightDirection - upDirection);
+
+            var targetSize = GetSize(RoadTextureType.SymmetricYCrossing, template);
+
+            var lengthToTop = 0.269f * targetSize.Height;
+            var lengthToBottom = targetSize.Height - lengthToTop;
+
+            var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
+            var lengthToSide = 0.547f * template.RoadWidth;
+
+            var topPosition = crossingPosition + lengthToTop * upDirection;
+            var rightSidePosition = crossingPosition + lengthToSide * rightSideDirection;
+            var leftSidePosition = crossingPosition + lengthToSide * leftSideDirection;
+
+            var midHeightOnMainRoad = topPosition - targetSize.Height / 2f * upDirection;
+            var start = midHeightOnMainRoad - targetSize.Width / 2f * rightDirection;
+            var end = midHeightOnMainRoad + targetSize.Width / 2f * rightDirection;
+
+            var top = new RoadSegmentEndPoint(topPosition);
+            var leftSide = new RoadSegmentEndPoint(leftSidePosition);
+            var rightSide = new RoadSegmentEndPoint(rightSidePosition);
+
+            var crossingSegment = new CrossingRoadSegment(
+                crossingPosition,
+                new[] { top, leftSide, rightSide },
+                start,
+                end,
+                RoadTextureType.SymmetricYCrossing);
+            
+            Connect(crossingSegment, topEdge.TopologyEdge, top, upDirection, OverlapLength * template.RoadWidth, edgeSegments);
+            Connect(crossingSegment, leftEdge.TopologyEdge, leftSide, leftSideDirection, 0, edgeSegments);
+            Connect(crossingSegment, rightEdge.TopologyEdge, rightSide, rightSideDirection, 0, edgeSegments);
 
             crossingSegment.MirrorTexture = mirror;
 
