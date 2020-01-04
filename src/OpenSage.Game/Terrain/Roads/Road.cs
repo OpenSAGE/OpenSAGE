@@ -86,7 +86,7 @@ namespace OpenSage.Terrain.Roads
 
         internal void BuildRenderList(RenderList renderList)
         {
-            renderList.Opaque.RenderItems.Add(new RenderItem(
+            renderList.Road.RenderItems.Add(new RenderItem(
                 _shaderSet,
                 _pipeline,
                 _boundingBox,

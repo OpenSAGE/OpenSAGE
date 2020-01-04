@@ -145,7 +145,7 @@ namespace OpenSage.Terrain
             ShaderSet shaderSet,
             Pipeline pipeline)
         {
-            renderList.Opaque.RenderItems.Add(new RenderItem(
+            renderList.Terrain.RenderItems.Add(new RenderItem(
                 shaderSet,
                 pipeline,
                 BoundingBox,

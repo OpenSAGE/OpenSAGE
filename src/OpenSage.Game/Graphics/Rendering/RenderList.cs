@@ -17,16 +17,20 @@
 
     public sealed class RenderList
     {
+        public readonly RenderBucket Terrain = new RenderBucket();
+        public readonly RenderBucket Road = new RenderBucket();
+        public readonly RenderBucket Water = new RenderBucket();
         public readonly RenderBucket Opaque = new RenderBucket();
         public readonly RenderBucket Transparent = new RenderBucket();
-
         public readonly RenderBucket Shadow = new RenderBucket();
 
         public void Clear()
         {
+            Terrain.Clear();
+            Road.Clear();
+            Water.Clear();
             Opaque.Clear();
             Transparent.Clear();
-
             Shadow.Clear();
         }
     }
