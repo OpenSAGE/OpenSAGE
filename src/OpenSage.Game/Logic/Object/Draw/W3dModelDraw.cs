@@ -283,7 +283,7 @@ namespace OpenSage.Logic.Object
             {
                 //TODO: change the world matrix?
                 float progress = gameObject.BuildProgress;
-                _sinkFactor = (1.0f - progress) * gameObject.Collider.GetHeight();
+                _sinkFactor = (1.0f - progress) * gameObject.Collider.Height;
             }
 
             _activeModelDrawConditionState?.Update(gameTime);

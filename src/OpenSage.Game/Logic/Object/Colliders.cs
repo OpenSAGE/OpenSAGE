@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             Transform = transform;
         }
 
-        public abstract float GetHeight();
+        public abstract float Height { get; }
 
         public bool Intersects(in Ray ray, out float depth)
         {
@@ -69,6 +69,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly BoundingBox _bounds;
         private readonly float _height;
+
+        public override float Height => _height;
 
         public BoxCollider(ObjectDefinition def, Transform transform)
             : base(transform)
@@ -134,17 +136,14 @@ namespace OpenSage.Logic.Object
             var rectB = TransformedRectangle.FromBoundingBox(other._bounds, other.Transform.Translation, other.Transform.Rotation);
             return rectA.Intersects(rectB);
         }
-
-        public override float GetHeight()
-        {
-            return _height;
-        }
     }
 
     public class SphereCollider : Collider
     {
         private readonly BoundingSphere _bounds;
         private readonly float _height;
+
+        public override float Height => _height;
 
         public SphereCollider(ObjectDefinition def, Transform transform)
             : base(transform)
@@ -176,11 +175,6 @@ namespace OpenSage.Logic.Object
         {
             //TODO implement
         }
-
-        public override float GetHeight()
-        {
-            return _height;
-        }
     }
 
     // TODO: This currently uses a bounding box for collision.
@@ -190,8 +184,10 @@ namespace OpenSage.Logic.Object
         private readonly BoundingBox _bounds;
         private readonly float _height;
 
-       public CylinderCollider(ObjectDefinition def, Transform transform)
-            : base(transform)
+        public override float Height => _height;
+
+        public CylinderCollider(ObjectDefinition def, Transform transform)
+             : base(transform)
         {
             var radius = def.Geometry.MajorRadius;
             _height = def.Geometry.Height;
@@ -252,11 +248,6 @@ namespace OpenSage.Logic.Object
 
                 previousPoint = screenPoint;
             }
-        }
-
-        public override float GetHeight()
-        {
-            return _height;
         }
     }
 }
