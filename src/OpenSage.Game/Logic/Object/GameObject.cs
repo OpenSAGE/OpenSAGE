@@ -308,6 +308,19 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal float BuildProgress(in TimeInterval gameTime)
+        {
+            var passed = gameTime.TotalTime - ConstructionStart;
+            return (float)passed.TotalSeconds / Definition.BuildTime;
+        }
+
+        internal bool IsBeingConstructed()
+        {
+            return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
+                   ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
+                   ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed);
+        }
+
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -330,13 +343,9 @@ namespace OpenSage.Logic.Object
             }
 
             // Check if the unit is being constructed
-            if (
-                ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
-                ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
-                ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed)
-            )
+            if (IsBeingConstructed())
             {
-                if (gameTime.TotalTime > (ConstructionStart + TimeSpan.FromSeconds(Definition.BuildTime)))
+                if (BuildProgress(gameTime) >= 1.0f)
                 {
                     ClearModelConditionFlags();
                 }

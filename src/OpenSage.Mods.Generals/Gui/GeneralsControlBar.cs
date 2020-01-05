@@ -226,6 +226,10 @@ namespace OpenSage.Mods.Generals.Gui
                                     order.AddIntegerArgument(objectDefinition.InternalId);
                                     order.AddIntegerArgument(1);
                                     break;
+
+                                case CommandType.SetRallyPoint:
+                                    context.Game.OrderGenerator.SetRallyPoint();
+                                    break;
                                 default:
                                     throw new NotImplementedException();
                             }

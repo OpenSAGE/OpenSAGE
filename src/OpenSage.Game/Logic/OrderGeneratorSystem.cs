@@ -146,5 +146,10 @@ namespace OpenSage.Logic
 
             ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
         }
+
+        public void SetRallyPoint()
+        {
+            ActiveGenerator = new RallyPointOrderGenerator();
+        }
     }
 }
