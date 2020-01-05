@@ -37,6 +37,13 @@ namespace OpenSage.Logic.Object
                            : GetLocomotorValue(x => x.TurnRate);
         }
 
+        private float GetSpeed()
+        {
+            var damaged = _gameObject.Damaged;
+            return damaged ? GetLocomotorValue(x => x.SpeedDamaged)
+                           : GetLocomotorValue(x => x.Speed);
+        }
+
         public void LocalLogicTick(in TimeInterval gameTime, in List<Vector3> targetPoints, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -65,7 +72,7 @@ namespace OpenSage.Logic.Object
             var deltaSpeed = currentAcceleration * deltaTime;
 
             var newSpeed = oldSpeed + deltaSpeed;
-            newSpeed = MathUtility.Clamp(newSpeed, 0.0f, GetLocomotorValue(x => x.Speed));
+            newSpeed = MathUtility.Clamp(newSpeed, 0.0f, GetSpeed());
 
             _gameObject.Speed = newSpeed;
 
