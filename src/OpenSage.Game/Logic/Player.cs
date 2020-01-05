@@ -139,7 +139,7 @@ namespace OpenSage.Logic
             return players.Values;
         }
 
-        public static Player FromTemplate(PlayerTemplate template, PlayerSetting? setting = null)
+        public static Player FromTemplate(GameData gameData, PlayerTemplate template, PlayerSetting? setting = null)
         {
             // TODO: Use rest of the properties from the template
             return new Player(template)
@@ -147,7 +147,7 @@ namespace OpenSage.Logic
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
-                Money = (uint) template.StartMoney,
+                Money = (uint)(template.StartMoney + gameData.DefaultStartingCash),
                 Color = setting.HasValue ? setting.Value.Color : template.PreferredColor,
                 IsHuman = setting?.Owner == PlayerOwner.Player
             };

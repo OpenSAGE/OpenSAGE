@@ -440,7 +440,8 @@ namespace OpenSage
                 // TODO: This should never be null
                 if (playerTemplate != null)
                 {
-                    CivilianPlayer = Player.FromTemplate(playerTemplate);
+                    var gameData = AssetStore.GameData.Current;
+                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate);
                 }
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
@@ -631,8 +632,9 @@ namespace OpenSage
                         continue;
                     }
 
+                    var gameData = AssetStore.GameData.Current;
                     var playerTemplate = playerSetting?.Template;
-                    players[i] = Player.FromTemplate(playerTemplate, playerSetting);
+                    players[i] = Player.FromTemplate(gameData, playerTemplate, playerSetting);
                     var startPos = playerSetting?.StartPosition;
 
                     // startPos seems to be -1 for random, and 0 for observer/civilian
@@ -656,7 +658,7 @@ namespace OpenSage
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
 
-                        players[i].SelectUnits(new [] { startingBuilding });
+                        players[i].SelectUnits(new[] { startingBuilding });
                     }
 
                     if (players[i].IsHuman)

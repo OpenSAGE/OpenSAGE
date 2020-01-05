@@ -62,15 +62,26 @@ namespace OpenSage.Logic.OrderGenerators
                 }
             }
 
-            var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, _position, _angle);
+            var player = scene.LocalPlayer;
+            if (player.Money < _buildingDefinition.BuildCost)
+            {
+                return OrderGeneratorResult.Failure("Not enough cash");
+            }
+            else
+            {
+                player.Money -= (uint) _buildingDefinition.BuildCost;
+            }
+
+            var playerIdx = scene.GetPlayerIndex(scene.LocalPlayer);
+            var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
+            var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, _position, _angle);
 
             // TODO: Check that the target area has been explored
-            // TODO: Check that we still have enough money
             // TODO: Check that the builder can reach target position
             // TODO: Check that the terrain is even enough at the target position
 
             // TODO: Also send an order to builder to start building.
-            return OrderGeneratorResult.SuccessAndExit(new[] { order });
+            return OrderGeneratorResult.SuccessAndExit(new[] { moveOrder, buildOrder });
         }
 
         public void UpdatePosition(Vector3 position)

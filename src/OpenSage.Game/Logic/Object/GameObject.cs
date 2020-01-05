@@ -111,6 +111,8 @@ namespace OpenSage.Logic.Object
 
         private TimeSpan ConstructionStart { get; set; }
 
+        public float BuildProgress { get; set; }
+
         private Navigation.Navigation Navigation { get; set; }
 
         public bool Destroyed { get; set; }
@@ -296,25 +298,23 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 UpdateDrawModuleConditionStates();
                 ConstructionStart = gameTime.TotalTime;
+            }
+        }
 
-                // TODO: This shouldn't be here. However, we have no better place to put it yet. Belongs in FinishConstruction.
-                foreach (var behavior in Definition.Behaviors)
+        internal void FinishConstruction()
+        {
+            ClearModelConditionFlags();
+
+            foreach (var behavior in Definition.Behaviors)
+            {
+                if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
                 {
-                    if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
-                    {
-                        Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
-                    }
+                    Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
                 }
             }
         }
 
-        internal float BuildProgress(in TimeInterval gameTime)
-        {
-            var passed = gameTime.TotalTime - ConstructionStart;
-            return (float)passed.TotalSeconds / Definition.BuildTime;
-        }
-
-        internal bool IsBeingConstructed()
+        public bool IsBeingConstructed()
         {
             return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
                    ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
@@ -345,9 +345,13 @@ namespace OpenSage.Logic.Object
             // Check if the unit is being constructed
             if (IsBeingConstructed())
             {
-                if (BuildProgress(gameTime) >= 1.0f)
+                var passed = gameTime.TotalTime - ConstructionStart;
+                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+                Logger.Warn("progress: " + BuildProgress);
+
+                if (BuildProgress == 1.0f)
                 {
-                    ClearModelConditionFlags();
+                    FinishConstruction();
                 }
             }
             // Update all draw modules
