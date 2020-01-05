@@ -33,6 +33,12 @@
                         index++;
                         state = 0;
                     }
+                    // Percentage was escaped
+                    if(c == '%')
+                    {
+                        result += c;
+                        state = 0;
+                    }
                 }
             }
 
