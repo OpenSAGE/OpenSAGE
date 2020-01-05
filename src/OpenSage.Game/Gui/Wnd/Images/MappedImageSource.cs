@@ -23,11 +23,14 @@ namespace OpenSage.Gui.Wnd.Images
         {
             return MappedImageUtility.CreateTexture(loadContext, size, spriteBatch =>
             {
+                var requiresFlip = !loadContext.GraphicsDevice.IsUvOriginTopLeft;
+
                 spriteBatch.DrawImage(
                     _mappedImage.Texture.Value,
                     _mappedImage.Coords,
                     new Rectangle(Point2D.Zero, size).ToRectangleF(),
-                    ColorRgbaF.White);
+                    ColorRgbaF.White,
+                    requiresFlip);
             });
         }
     }
