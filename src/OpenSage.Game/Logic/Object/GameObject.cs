@@ -222,37 +222,52 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal Vector3 ToWorldspace(Vector3 localPos)
+        {
+            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), Transform.Matrix);
+            return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
+        }
+
         internal void Spawn(ObjectDefinition objectDefinition)
         {
             var spawnedUnit = Parent.Add(objectDefinition, Owner);
-            var translation = Transform.Translation;
+            // The point where the unit appears
+            var spawnPoint = Transform.Translation;
+            // The point the unit leaves the manufacturing building
+            var naturalRallyPoint = Transform.Translation;
 
             foreach (var behavior in Definition.Behaviors)
             {
                 switch (behavior)
                 {
                     case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
-                        translation -= supplyCenterModuleData.UnitCreatePoint;
+                        spawnPoint = ToWorldspace(supplyCenterModuleData.UnitCreatePoint);
+                        naturalRallyPoint = ToWorldspace(supplyCenterModuleData.NaturalRallyPoint);
                         break;
                     case DefaultProductionExitUpdateModuleData defaultModuleData:
-                        translation -= defaultModuleData.UnitCreatePoint;
+                        spawnPoint = ToWorldspace(defaultModuleData.UnitCreatePoint);
+                        naturalRallyPoint = ToWorldspace(defaultModuleData.NaturalRallyPoint);
                         break;
                 }
             }
 
-            spawnedUnit.Transform.Translation = translation;
-            spawnedUnit.SetTargetPoint(RallyPoint);
+            spawnedUnit.Transform.Rotation = Transform.Rotation;
+            spawnedUnit.Transform.Translation = spawnPoint;
+            // First go to the exit point
+            spawnedUnit.AddTargetPoint(naturalRallyPoint);
+            // Then go to the query point
+            spawnedUnit.AddTargetPoint(RallyPoint);
         }
 
-        internal void SetTargetPoint(Vector3 targetPoint)
+        internal void AddTargetPoint(Vector3 targetPoint)
         {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
-                var path = Navigation.CalculatePath(Transform.Translation, targetPoint);
-                TargetPoints.Clear();
+                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : Transform.Translation;
+                var path = Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
                 Logger.Debug("Set new target points: " + TargetPoints.Count);
             }
@@ -260,6 +275,13 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.SetAll(false);
             ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
             UpdateDrawModuleConditionStates();
+        }
+
+        internal void SetTargetPoint(Vector3 targetPoint)
+        {
+            TargetPoints.Clear();
+
+            AddTargetPoint(targetPoint);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
