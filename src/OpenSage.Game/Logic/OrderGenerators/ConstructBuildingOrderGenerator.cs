@@ -67,10 +67,6 @@ namespace OpenSage.Logic.OrderGenerators
             {
                 return OrderGeneratorResult.Failure("Not enough cash");
             }
-            else
-            {
-                player.Money -= (uint) _buildingDefinition.BuildCost;
-            }
 
             var playerIdx = scene.GetPlayerIndex(scene.LocalPlayer);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);

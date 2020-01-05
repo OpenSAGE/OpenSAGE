@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Core
+﻿using System.Text;
+
+namespace OpenSage.Core
 {
     /// <summary>
     /// Convert a printf formatted string to a C# formatted string
@@ -8,7 +10,7 @@
         //TODO: implement this properly
         public static string FromPrintf(string printf)
         {
-            string result = "";
+            var builder = new StringBuilder();
             int index = 0;
             int state = 0;
 
@@ -22,27 +24,27 @@
                     }
                     else
                     {
-                        result += c;
+                        builder.Append(c);
                     }
                 }
                 else if (state == 1)
                 {
                     if (c == 'f' || c == 'i')
                     {
-                        result += "{" + index + "}";
+                        builder.Append("{" + index + "}");
                         index++;
                         state = 0;
                     }
                     // Percentage was escaped
-                    if(c == '%')
+                    if (c == '%')
                     {
-                        result += c;
+                        builder.Append(c);
                         state = 0;
                     }
                 }
             }
 
-            return result;
+            return builder.ToString();
         }
     }
 }
