@@ -29,6 +29,11 @@ namespace OpenSage.Logic
 
         private bool StructuresSelected()
         {
+            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
+            {
+                return false;
+            }
+
             bool result = true;
 
             foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
