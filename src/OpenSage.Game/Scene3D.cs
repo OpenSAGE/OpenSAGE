@@ -357,8 +357,9 @@ namespace OpenSage
         {
             _orderGeneratorInputHandler?.Update();
 
-            foreach (var gameObject in GameObjects.Items)
+            for (int i = 0; i < GameObjects.Items.Count; i++)
             {
+                var gameObject = GameObjects.Items[i];
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
             }
 

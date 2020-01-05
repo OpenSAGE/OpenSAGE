@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Content;
+using OpenSage.Core;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Controls;
@@ -34,8 +35,11 @@ namespace OpenSage.Mods.Generals.Gui
             get => _state;
             set
             {
-                _state = value;
-                _state.OnEnterState(this);
+                if (_state != value)
+                {
+                    _state = value;
+                    _state.OnEnterState(this);
+                }
             }
         }
 
@@ -118,7 +122,15 @@ namespace OpenSage.Mods.Generals.Gui
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
-                State = new SelectedControlBarState();
+                var unit = player.SelectedUnits.First();
+                if (player.SelectedUnits.Count == 1 && unit.IsBeingConstructed())
+                {
+                    State = ControlBarState.Construction;
+                }
+                else
+                {
+                    State = ControlBarState.Selected;
+                }
             }
             else
             {
@@ -174,8 +186,36 @@ namespace OpenSage.Mods.Generals.Gui
             public abstract void Update(Player player, GeneralsControlBar controlBar);
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
+            public static ControlBarState Selected { get; } = new SelectedControlBarState();
+            public static ControlBarState Construction { get; } = new UnderConstructionControlBarState();
+
+
 
             private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+            protected void ClearControls(GeneralsControlBar controlBar)
+            {
+                foreach (var control in controlBar._center.Controls)
+                {
+                    if (control.Name == "ControlBar.wnd:CommandWindow")
+                    {
+                        foreach (var child in control.Controls)
+                        {
+                            child.Hide();
+                        }
+                        control.Show();
+                    }
+                    else
+                    {
+                        control.Hide();
+                    }
+                }
+
+                foreach (var control in controlBar._right.Controls)
+                {
+                    control.Hide();
+                }
+            }
 
             protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
             {
@@ -264,7 +304,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                     case CommandButtonBorderType.Upgrade:
                         return scheme.ButtonBorderUpgradeColor;
-                        
+
                     case CommandButtonBorderType.System:
                         return scheme.ButtonBorderSystemColor;
 
@@ -278,26 +318,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                foreach (var control in controlBar._center.Controls)
-                {
-                    if (control.Name == "ControlBar.wnd:CommandWindow")
-                    {
-                        foreach (var child in control.Controls)
-                        {
-                            child.Hide();
-                        }
-                        control.Show();
-                    }
-                    else
-                    {
-                        control.Hide();
-                    }
-                }
-
-                foreach (var control in controlBar._right.Controls)
-                {
-                    control.Hide();
-                }
+                ClearControls(controlBar);
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
@@ -310,7 +331,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                
+                ClearControls(controlBar);
             }
 
             private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -333,11 +354,11 @@ namespace OpenSage.Mods.Generals.Gui
 
                 for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                 {
-                    var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos+1}");
+                    var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
 
                     if (queueButton == null)
                     {
-                        logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos+1})");
+                        logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
                         continue;
                     }
 
@@ -359,7 +380,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 unit.CancelProduction(posCopy);
                             };
                         }
-                     
+
                     }
                     queueButton.BackgroundImage = img;
                 }
@@ -390,14 +411,31 @@ namespace OpenSage.Mods.Generals.Gui
 
         private sealed class UnderConstructionControlBarState : ControlBarState
         {
+            Control _window;
+            Control _progressText;
+            string _baseText;
+
+
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                ClearControls(controlBar);
+
+                _window = controlBar._center.Controls.FindControl("ControlBar.wnd:UnderConstructionWindow");
+                _window.Show();
+                _progressText = _window.Controls.FindControl("ControlBar.wnd:UnderConstructionDesc");
+
+                if (string.IsNullOrEmpty(_baseText))
+                {
+                    _baseText = StringConverter.FromPrintf(_progressText.Text);
+                }
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                var unit = player.SelectedUnits.First();
+                var percent = unit.BuildProgress * 100.0f;
+                var text = string.Format(_baseText, percent.ToString("0.00"));
+                _progressText.Text = text;
             }
         }
     }

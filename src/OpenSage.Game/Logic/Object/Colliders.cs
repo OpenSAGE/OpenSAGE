@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
             Transform = transform;
         }
 
+        public abstract float GetHeight();
+
         public bool Intersects(in Ray ray, out float depth)
         {
             var transformedRay = Ray.Transform(ray, Transform.MatrixInverse);
@@ -66,6 +68,7 @@ namespace OpenSage.Logic.Object
     public class BoxCollider : Collider
     {
         private readonly BoundingBox _bounds;
+        private readonly float _height;
 
         public BoxCollider(ObjectDefinition def, Transform transform)
             : base(transform)
@@ -73,6 +76,7 @@ namespace OpenSage.Logic.Object
             var min = new Vector3(-def.Geometry.MajorRadius, -def.Geometry.MinorRadius, 0);
             var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
             _bounds = new BoundingBox(min, max);
+            _height = def.Geometry.Height;
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -130,16 +134,23 @@ namespace OpenSage.Logic.Object
             var rectB = TransformedRectangle.FromBoundingBox(other._bounds, other.Transform.Translation, other.Transform.Rotation);
             return rectA.Intersects(rectB);
         }
+
+        public override float GetHeight()
+        {
+            return _height;
+        }
     }
 
     public class SphereCollider : Collider
     {
         private readonly BoundingSphere _bounds;
+        private readonly float _height;
 
         public SphereCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
             _bounds = new BoundingSphere(Vector3.Zero, def.Geometry.MajorRadius);
+            _height = def.Geometry.Height;
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -165,6 +176,11 @@ namespace OpenSage.Logic.Object
         {
             //TODO implement
         }
+
+        public override float GetHeight()
+        {
+            return _height;
+        }
     }
 
     // TODO: This currently uses a bounding box for collision.
@@ -172,16 +188,17 @@ namespace OpenSage.Logic.Object
     public class CylinderCollider : Collider
     {
         private readonly BoundingBox _bounds;
+        private readonly float _height;
 
-        public CylinderCollider(ObjectDefinition def, Transform transform)
+       public CylinderCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
             var radius = def.Geometry.MajorRadius;
-            var height = def.Geometry.Height;
+            _height = def.Geometry.Height;
 
             _bounds = new BoundingBox(
                 new Vector3(-radius, -radius, 0),
-                new Vector3(radius, radius, height));
+                new Vector3(radius, radius, _height));
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -235,6 +252,11 @@ namespace OpenSage.Logic.Object
 
                 previousPoint = screenPoint;
             }
+        }
+
+        public override float GetHeight()
+        {
+            return _height;
         }
     }
 }
