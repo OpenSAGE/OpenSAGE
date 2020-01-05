@@ -189,8 +189,6 @@ namespace OpenSage.Mods.Generals.Gui
             public static ControlBarState Selected { get; } = new SelectedControlBarState();
             public static ControlBarState Construction { get; } = new UnderConstructionControlBarState();
 
-
-
             private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
             protected void ClearControls(GeneralsControlBar controlBar)
@@ -428,12 +426,15 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     _baseText = StringConverter.FromPrintf(_progressText.Text);
                 }
+
+                //TODO: connect cancel button to some order.
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
                 var unit = player.SelectedUnits.First();
                 var percent = unit.BuildProgress * 100.0f;
+                //TODO: the formatting should be taken from the printf string
                 var text = string.Format(_baseText, percent.ToString("0.00"));
                 _progressText.Text = text;
             }
