@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
@@ -65,10 +64,10 @@ namespace OpenSage.Logic.OrderGenerators
             var player = scene.LocalPlayer;
             if (player.Money < _buildingDefinition.BuildCost)
             {
-                return OrderGeneratorResult.Failure("Not enough cash");
+                return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
 
-            var playerIdx = scene.GetPlayerIndex(scene.LocalPlayer);
+            var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
             var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, _position, _angle);
 

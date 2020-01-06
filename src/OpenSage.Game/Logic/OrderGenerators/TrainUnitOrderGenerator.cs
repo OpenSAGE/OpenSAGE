@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using OpenSage.Data.Ini;
+﻿using System.Numerics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
@@ -23,9 +21,9 @@ namespace OpenSage.Logic.OrderGenerators
 
         public bool CanDrag { get; } = true;
 
-        public TrainUnitOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameData config)
+        public TrainUnitOrderGenerator(ObjectDefinition unitDefinition, int definitionIndex, GameData config)
         {
-            _unitDefinition = buildingDefinition;
+            _unitDefinition = unitDefinition;
             _definitionIndex = definitionIndex;
             _config = config;
 
@@ -42,9 +40,13 @@ namespace OpenSage.Logic.OrderGenerators
         {
             var transform = new Transform(_position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
 
-            var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, _position, _angle);
+            var player = scene.LocalPlayer;
+            if (player.Money < _unitDefinition.BuildCost)
+            {
+                return OrderGeneratorResult.Failure("Not enough cash for unit production");
+            }
 
-            // TODO: Check that we still have enough money
+            var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, _position, _angle);
 
             return OrderGeneratorResult.SuccessAndExit(new[] { order });
         }
