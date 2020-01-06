@@ -53,11 +53,11 @@ namespace OpenSage.Terrain.Roads
 
                         if (connectedEdge.Start.Position == node.Position)
                         {
-                            connectedEdgeSegment.Start.ConnectTo(edgeSegment, direction);
+                            connectedEdgeSegment.Start.ConnectTo(edgeSegment, Vector3.Normalize(direction));
                         }
                         else
                         {
-                            connectedEdgeSegment.End.ConnectTo(edgeSegment, direction);
+                            connectedEdgeSegment.End.ConnectTo(edgeSegment, Vector3.Normalize(direction));
                         }
                     }
                 }
@@ -72,17 +72,20 @@ namespace OpenSage.Terrain.Roads
             {
                 foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template))
                 {
+                    var template = edgesPerTemplate.Key;
+                    // possible optimization: only compute angles if necessary?
+                    var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate);
+
                     switch (edgesPerTemplate.Count())
                     {
                         // TODO support end caps
                         case 1: // end point
                             break;
-                        case 2: // TODO normal road, create segments for tight/broad curves
+                        case 2:
+                            CurvedRoadSegment.CreateCurve(incomingRoadData, node.Position, template, edgeSegments);
                             break;
                         case 3:
                         case 4:
-                            var template = edgesPerTemplate.Key;
-                            var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate);
                             CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, template, edgeSegments);
                             break;
                     }
@@ -90,11 +93,17 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static IEnumerable<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
+        private static IReadOnlyList<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
         {
+            if (edges.Count() < 2)
+            {
+                return Array.Empty<IncomingRoadData>();
+            }
+
             IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
             {
-                var targetNodePosition = incomingEdge.Start.Position == node.Position ? incomingEdge.End.Position : incomingEdge.Start.Position;
+                var isStart = incomingEdge.Start.Position == node.Position;
+                var targetNodePosition = isStart ? incomingEdge.End.Position : incomingEdge.Start.Position;
                 var roadVector = targetNodePosition - node.Position;
                 var direction = roadVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(roadVector);
 

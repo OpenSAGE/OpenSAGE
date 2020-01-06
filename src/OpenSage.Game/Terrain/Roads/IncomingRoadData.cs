@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -7,18 +8,18 @@ namespace OpenSage.Terrain.Roads
         public IncomingRoadData(
             RoadTopologyEdge topologyEdge,
             in Vector3 targetNodePosition,
-            in Vector3 direction,
+            in Vector3 outDirection,
             float angleToAxis)
         {
             TopologyEdge = topologyEdge;
             TargetNodePosition = targetNodePosition;
-            Direction = direction;
+            OutDirection = outDirection;
             AngleToAxis = angleToAxis;
         }
 
         public RoadTopologyEdge TopologyEdge { get; }
         public Vector3 TargetNodePosition { get;}
-        public Vector3 Direction { get; }
+        public Vector3 OutDirection { get; }
         public float AngleToAxis { get; }
         public IncomingRoadData Previous { get; internal set; }
         public float AngleToPreviousEdge { get; internal set; } = float.NaN;
