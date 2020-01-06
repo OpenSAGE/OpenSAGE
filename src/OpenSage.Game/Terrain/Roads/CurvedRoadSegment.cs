@@ -15,8 +15,8 @@ namespace OpenSage.Terrain.Roads
         public Vector3 StartPosition => 0.5f * (TopLeft + BottomLeft);
         public Vector3 EndPosition => 0.5f * (TopRight + BottomRight);
         public Vector3 TopLeft { get; }
-        public Vector3  TopRight { get; }
-        public Vector3  BottomLeft { get; }
+        public Vector3 TopRight { get; }
+        public Vector3 BottomLeft { get; }
         public Vector3 BottomRight { get; }
         public float RelativeSize { get; }
 
@@ -52,7 +52,7 @@ namespace OpenSage.Terrain.Roads
 
         public RoadSegmentMesher CreateMesher(RoadTemplate template)
         {
-            return new CurvedRoadSegmentMesher(this, Vector3.Distance(TopLeft, BottomLeft) / 2f, template);
+            return new CurvedRoadSegmentMesher(this, template);
         }
 
         public static void CreateCurve(
@@ -156,7 +156,7 @@ namespace OpenSage.Terrain.Roads
 
             while (remainingAngle > 0f)
             {
-                currentSegment = CreateSegment(previousEndPoint.Position);
+                currentSegment = CreateSegment(previousEndPoint.Position, MathF.Min(remainingAngle, segmentAngle));
                 currentSegment.Start.ConnectTo(previousSegment, previousDirection);
                 previousEndPoint.ConnectTo(currentSegment, -previousDirection);
 

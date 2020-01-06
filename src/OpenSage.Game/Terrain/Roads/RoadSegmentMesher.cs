@@ -20,10 +20,9 @@ namespace OpenSage.Terrain.Roads
 
     internal abstract class RoadSegmentMesher
     {
-        protected RoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+        protected RoadSegmentMesher(IRoadSegment segment, RoadTemplate template)
         {
             Segment = segment;
-            HalfHeight = halfHeight;
             Template = template;
 
             var startNoZ = Segment.StartPosition.WithZ(0);
@@ -35,7 +34,6 @@ namespace OpenSage.Terrain.Roads
         }
 
         protected IRoadSegment Segment { get; }
-        protected float HalfHeight { get; }
         protected RoadTemplate Template { get; }
         protected Vector3 DirectionNoZ { get; }
         protected Vector3 DirectionNormalNoZ { get; }
@@ -217,9 +215,12 @@ namespace OpenSage.Terrain.Roads
     internal sealed class CrossingRoadSegmentMesher : RoadSegmentMesher
     {
         public CrossingRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
-            : base(segment, halfHeight, template)
+            : base(segment, template)
         {
+            HalfHeight = halfHeight;
         }
+
+        private float HalfHeight { get; }
 
         protected override Vector3 ToTopBorder(float relativeProgress)
         {
@@ -241,8 +242,8 @@ namespace OpenSage.Terrain.Roads
 
     internal abstract class SimpleRoadSegmentMesher : RoadSegmentMesher
     {
-        public SimpleRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
-            : base(segment, halfHeight, template)
+        public SimpleRoadSegmentMesher(IRoadSegment segment, RoadTemplate template)
+            : base(segment, template)
         {
         }
 
@@ -274,10 +275,12 @@ namespace OpenSage.Terrain.Roads
     internal sealed class StraightRoadSegmentMesher : SimpleRoadSegmentMesher
     {
         public StraightRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
-            : base(segment, halfHeight, template)
+            : base(segment, template)
         {
+            HalfHeight = halfHeight;
         }
 
+        private float HalfHeight { get; }
         private float TextureRoadLength { get; set; }
         private float StartTopUOffset { get; set; }
         private float EndTopUOffset { get; set; }
@@ -332,20 +335,39 @@ namespace OpenSage.Terrain.Roads
 
     internal sealed class CurvedRoadSegmentMesher : SimpleRoadSegmentMesher
     {
-        public CurvedRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
-            : base(segment, halfHeight, template)
+        public CurvedRoadSegmentMesher(IRoadSegment segment, RoadTemplate template)
+            : base(segment, template)
         {
+        }
+
+        private Vector2 TopUVEnd { get; set; }
+        private Vector2 BottomUVEnd { get; set; }
+
+        protected override void Prepare()
+        {
+            base.Prepare();
+            var curve = Segment as CurvedRoadSegment ?? throw new InvalidOperationException();
+            TopUVEnd = (1 - curve.RelativeSize) * TextureBounds.TopLeft + curve.RelativeSize * TextureBounds.TopRight;
+            BottomUVEnd = (1 - curve.RelativeSize) * TextureBounds.BottomLeft + curve.RelativeSize * TextureBounds.BottomRight;
         }
 
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
-            return HalfHeight * GetNeighborNormal(neighbor, atEnd);
+            var curve = Segment as CurvedRoadSegment;
+            if (atEnd)
+            {
+                return 0.5f * (curve.TopRight - curve.BottomRight);
+            }
+            else
+            {
+                return 0.5f * (curve.TopLeft - curve.BottomLeft);
+            }
         }
 
         protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
         {
-            var top = Vector2.Lerp(TextureBounds.TopLeft, TextureBounds.TopRight, relativeProgress);
-            var bottom = Vector2.Lerp(TextureBounds.BottomLeft, TextureBounds.BottomRight, relativeProgress);
+            var top = Vector2.Lerp(TextureBounds.TopLeft, TopUVEnd, relativeProgress);
+            var bottom = Vector2.Lerp(TextureBounds.BottomLeft, BottomUVEnd, relativeProgress);
             return (top, bottom);
         }
     }
