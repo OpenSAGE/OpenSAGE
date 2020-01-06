@@ -40,6 +40,8 @@ namespace OpenSage.Terrain.Roads
         protected Vector3 DirectionNoZ { get; }
         protected Vector3 DirectionNormalNoZ { get; }
         protected TextureCoordinates TextureBounds { get; }
+
+        // helper method used by crossings and straight roads
         protected (float midV, float vOffset) GetVFromAxisAlignedBoundingBox()
         {
             var vStart = TextureBounds.TopLeft.Y;
@@ -48,6 +50,13 @@ namespace OpenSage.Terrain.Roads
             var textureAtlasHalfHeight = (vEnd - vStart) / 2;
             var vOffset = Segment.MirrorTexture ? -textureAtlasHalfHeight : textureAtlasHalfHeight;
             return (v, vOffset);
+        }
+
+        //helper method used by crossings and curves
+        protected Vector3 GetNeighborNormal(RoadSegmentEndPoint neighbor, bool atEnd)
+        {
+            var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
+            return Vector3.Cross(Vector3.Normalize(neighborDirection.WithZ(0)), Vector3.UnitZ);            
         }
 
         public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
@@ -227,6 +236,7 @@ namespace OpenSage.Terrain.Roads
             var uvBottom = new Vector2(u, v - vOffset);
             return (uvTop, uvBottom);
         }
+
     }
 
     internal abstract class SimpleRoadSegmentMesher : RoadSegmentMesher
@@ -287,8 +297,7 @@ namespace OpenSage.Terrain.Roads
 
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
-            var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
-            var neighborNormal = Vector3.Cross(Vector3.Normalize(neighborDirection.WithZ(0)), Vector3.UnitZ);
+            var neighborNormal = GetNeighborNormal(neighbor, atEnd);
             var toCornerDirection = neighbor.To switch
             {
                 null => DirectionNormalNoZ,                          // if I have no neighbor, use my own normal
@@ -324,5 +333,31 @@ namespace OpenSage.Terrain.Roads
             return (uvTop, uvBottom);
         }
 
+    }
+
+
+    internal sealed class CurvedRoadSegmentMesher : SimpleRoadSegmentMesher
+    {
+        public CurvedRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+            : base(segment, halfHeight, template)
+        {
+        }
+        
+        protected override void Prepare()
+        {
+            base.Prepare();
+        }
+
+        protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
+        {
+            return HalfHeight * GetNeighborNormal(neighbor, atEnd);
+        }
+
+        protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
+        {
+            var top = Vector2.Lerp(TextureBounds.TopLeft, TextureBounds.TopRight, relativeProgress);
+            var bottom = Vector2.Lerp(TextureBounds.BottomLeft, TextureBounds.BottomRight, relativeProgress);
+            return (top, bottom);
+        }
     }
 }
