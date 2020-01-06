@@ -39,6 +39,7 @@ namespace OpenSage.Logic.Object
 
         private float GetSpeed()
         {
+            //TODO: this is probably not correct for BFME
             var damaged = _gameObject.Damaged;
             if (_locomotorTemplate.Speed.HasValue)
             {

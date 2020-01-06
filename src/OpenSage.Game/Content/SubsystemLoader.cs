@@ -47,10 +47,13 @@ namespace OpenSage.Content
                 case Subsystem.ObjectCreation:
                     LoadFiles(
                         @"Data\INI\Default\Object.ini",
-                        @"Data\INI\Locomotor.ini",
                         @"Data\INI\Upgrade.ini",
                         @"Data\INI\Crate.ini");
                     _contentManager.LoadIniFiles(@"Data\INI\Object");
+                    break;
+                case Subsystem.Locomotors:
+                    LoadFiles(
+                        @"Data\INI\Locomotor.ini");
                     break;
                 case Subsystem.Players:
                     LoadFiles(
