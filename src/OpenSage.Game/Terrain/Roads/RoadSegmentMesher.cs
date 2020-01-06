@@ -340,17 +340,6 @@ namespace OpenSage.Terrain.Roads
         {
         }
 
-        private Vector2 TopUVEnd { get; set; }
-        private Vector2 BottomUVEnd { get; set; }
-
-        protected override void Prepare()
-        {
-            base.Prepare();
-            var curve = Segment as CurvedRoadSegment ?? throw new InvalidOperationException();
-            TopUVEnd = (1 - curve.RelativeSize) * TextureBounds.TopLeft + curve.RelativeSize * TextureBounds.TopRight;
-            BottomUVEnd = (1 - curve.RelativeSize) * TextureBounds.BottomLeft + curve.RelativeSize * TextureBounds.BottomRight;
-        }
-
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
             var curve = Segment as CurvedRoadSegment;
@@ -366,8 +355,8 @@ namespace OpenSage.Terrain.Roads
 
         protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
         {
-            var top = Vector2.Lerp(TextureBounds.TopLeft, TopUVEnd, relativeProgress);
-            var bottom = Vector2.Lerp(TextureBounds.BottomLeft, BottomUVEnd, relativeProgress);
+            var top = Vector2.Lerp(TextureBounds.TopLeft, TextureBounds.TopRight, relativeProgress);
+            var bottom = Vector2.Lerp(TextureBounds.BottomLeft, TextureBounds.BottomRight, relativeProgress);
             return (top, bottom);
         }
     }
