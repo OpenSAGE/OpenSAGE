@@ -139,7 +139,7 @@ namespace OpenSage.Terrain.Roads
         public static TextureCoordinates Curve(float v, float halfRoadWidth, float angle)
         {
             var radius = 3.5f * halfRoadWidth;
-            var cosine = MathF.Cos(angle);
+            var cosine = MathF.Cos(angle / 2f);
             var additionalRadius = radius * (1f - cosine) / cosine;
             var center = new Vector2(0, v - radius);
 
