@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
         private readonly LocomotorSet _locomotorSet;
         private readonly LocomotorTemplate _locomotorTemplate;
 
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public Locomotor(GameObject gameObject, LocomotorSet locomotorSet)
         {
@@ -40,8 +40,15 @@ namespace OpenSage.Logic.Object
         private float GetSpeed()
         {
             var damaged = _gameObject.Damaged;
-            return damaged ? GetLocomotorValue(x => x.SpeedDamaged)
-                           : GetLocomotorValue(x => x.Speed);
+            if (_locomotorTemplate.Speed.HasValue)
+            {
+                return damaged ? GetLocomotorValue(x => x.SpeedDamaged)
+               : GetLocomotorValue(x => x.Speed.Value);
+            }
+            else
+            {
+                return _locomotorSet.Speed;
+            }
         }
 
         private float GetLift()
@@ -94,7 +101,7 @@ namespace OpenSage.Logic.Object
             var direction = Vector2.Normalize(deltaFirst.Vector2XY());
             trans += new Vector3(direction * distance, 0.0f);
 
-            var height = heightMap.GetHeight(trans.X, trans.Y);
+            var height = heightMap.GetHeight(x, y);
             if (!_locomotorTemplate.StickToGround)
             {
                 var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;

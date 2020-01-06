@@ -22,6 +22,11 @@
         ObjectCreation,
 
         /// <summary>
+        /// Things that need to be loaded in order to move objects.
+        /// </summary>
+        Locomotors,
+
+        /// <summary>
         /// Things that need be loaded in order to spawn players or list them in menus.
         /// </summary>
         Players,
