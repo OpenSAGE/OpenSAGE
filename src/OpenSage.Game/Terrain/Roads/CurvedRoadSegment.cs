@@ -18,8 +18,7 @@ namespace OpenSage.Terrain.Roads
         public Vector3 TopRight { get; }
         public Vector3 BottomLeft { get; }
         public Vector3 BottomRight { get; }
-        public float RelativeSize { get; }
-
+        
         public bool MirrorTexture => false;
         public RoadTextureType Type => RoadTextureType.BroadCurve;
         
@@ -29,8 +28,7 @@ namespace OpenSage.Terrain.Roads
             in Vector3 bottomLeft,
             in Vector3 bottomRight,
             RoadSegmentEndPoint start,
-            RoadSegmentEndPoint end,
-            float relativeSize)
+            RoadSegmentEndPoint end)
         {
             TopLeft = topLeft;
             TopRight = topRight;
@@ -38,7 +36,6 @@ namespace OpenSage.Terrain.Roads
             BottomRight = bottomRight;
             Start = start;
             End = end;
-            RelativeSize = relativeSize;
         }
 
         public IEnumerable<RoadSegmentEndPoint> EndPoints
@@ -121,6 +118,7 @@ namespace OpenSage.Terrain.Roads
             var toCenterDirection = Vector3.Normalize(startEdge.OutDirection + endEdge.OutDirection);
             var toCenter = toCenterDirection * toCenterLength;
             var center = position + toCenter;
+            var center2 = center.Vector2XY();
 
             var startSegmentEndDistance = Vector3.Dot(toCenter, startEdge.OutDirection);
             var endSegmentStartDistance = Vector3.Dot(toCenter, endEdge.OutDirection);
@@ -156,7 +154,13 @@ namespace OpenSage.Terrain.Roads
 
             while (remainingAngle > 0f)
             {
-                currentSegment = CreateSegment(previousEndPoint.Position, MathF.Min(remainingAngle, segmentAngle));
+                var centerLeft = previousEndPoint.Position;
+                if (remainingAngle < segmentAngle)
+                {
+                    centerLeft = new Vector3(Vector2Utility.RotateAroundPoint(center2, centerLeft.Vector2XY(), -(segmentAngle - remainingAngle)), 0f);
+                }
+
+                currentSegment = CreateSegment(centerLeft);
                 currentSegment.Start.ConnectTo(previousSegment, previousDirection);
                 previousEndPoint.ConnectTo(currentSegment, -previousDirection);
 
@@ -170,9 +174,8 @@ namespace OpenSage.Terrain.Roads
             currentSegment.End.ConnectTo(endSegment, -endEdge.OutDirection);
             endSegmentStartPoint.ConnectTo(currentSegment, endEdge.OutDirection);
 
-            CurvedRoadSegment CreateSegment(Vector3 centerLeft, float angle)
+            CurvedRoadSegment CreateSegment(Vector3 centerLeft)
             {
-                var center2 = center.Vector2XY();
                 var upDirection = Vector3.Normalize(center - centerLeft);
 
                 var cosine = MathF.Cos(segmentAngle / 2);
@@ -180,15 +183,15 @@ namespace OpenSage.Terrain.Roads
 
                 var topLeft = centerLeft + upDirection * halfRoadWidth;
                 var bottomLeft = centerLeft - upDirection * (halfRoadWidth + additionalRadius);
-                var topRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, topLeft.Vector2XY(), angle), 0f);
-                var bottomRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, bottomLeft.Vector2XY(), angle), 0f);
+                var topRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, topLeft.Vector2XY(), segmentAngle), 0f);
+                var bottomRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, bottomLeft.Vector2XY(), segmentAngle), 0f);
 
                 var topRightToBottomRight = bottomRight - topRight;
 
                 var startPoint = new RoadSegmentEndPoint(centerLeft);
                 var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth); 
 
-                return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint, angle / segmentAngle);
+                return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint);
             }
         }
     }
