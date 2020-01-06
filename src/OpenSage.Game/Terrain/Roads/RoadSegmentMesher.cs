@@ -229,18 +229,15 @@ namespace OpenSage.Terrain.Roads
         }
     }
 
-    internal sealed class StraightRoadSegmentMesher : RoadSegmentMesher
+    internal abstract class SimpleRoadSegmentMesher : RoadSegmentMesher
     {
-        public StraightRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+        public SimpleRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
         {
         }
 
-        private Vector3 StartToTopCorner { get; set; }
-        private Vector3 EndToTopCorner { get; set; }
-        private float StartTopUOffset { get; set; }
-        private float EndTopUOffset { get; set; }
-        private float TextureRoadLength { get; set; }
+        protected Vector3 StartToTopCorner { get; set; }
+        protected Vector3 EndToTopCorner { get; set; }
 
         protected override void Prepare()
         {
@@ -252,9 +249,6 @@ namespace OpenSage.Terrain.Roads
 
             StartToTopCorner = ToCorner(straightRoad.Start, false);
             EndToTopCorner = ToCorner(straightRoad.End, true);
-            TextureRoadLength = Template.RoadWidth * 4;
-            StartTopUOffset = Vector3.Dot(StartToTopCorner, DirectionNoZ) / TextureRoadLength;
-            EndTopUOffset = Vector3.Dot(EndToTopCorner, DirectionNoZ) / TextureRoadLength;
         }
 
         protected override Vector3 ToTopBorder(float relativeProgress)
@@ -269,7 +263,29 @@ namespace OpenSage.Terrain.Roads
         /// <param name="neighbor"></param>
         /// <param name="atEnd"></param>
         /// <returns></returns>
-        private Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
+        protected abstract Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd);
+    }
+
+    internal sealed class StraightRoadSegmentMesher : SimpleRoadSegmentMesher
+    {
+        public StraightRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+            : base(segment, halfHeight, template)
+        {
+        }
+
+        private float TextureRoadLength { get; set; }
+        private float StartTopUOffset { get; set; }
+        private float EndTopUOffset { get; set; }
+
+        protected override void Prepare()
+        {
+            base.Prepare();
+            TextureRoadLength = Template.RoadWidth * 4;
+            StartTopUOffset = Vector3.Dot(StartToTopCorner, DirectionNoZ) / TextureRoadLength;
+            EndTopUOffset = Vector3.Dot(EndToTopCorner, DirectionNoZ) / TextureRoadLength;
+        }
+
+        protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
             var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
             var neighborNormal = Vector3.Cross(Vector3.Normalize(neighborDirection.WithZ(0)), Vector3.UnitZ);
@@ -300,12 +316,13 @@ namespace OpenSage.Terrain.Roads
             // for roads: the road segment we are meshing may be much longer or shorter than the texture road length,
             // so stretching the texture on each segment would look odd -> repeat it instead
             var u = distanceAlongRoad / TextureRoadLength;
-            
+
             var topUOffset = MathUtility.Lerp(StartTopUOffset, EndTopUOffset, relativeProgress);
 
             var uvTop = new Vector2(u + topUOffset, v + vOffset);
             var uvBottom = new Vector2(u - topUOffset, v - vOffset);
             return (uvTop, uvBottom);
         }
+
     }
 }
