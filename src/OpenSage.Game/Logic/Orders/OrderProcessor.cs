@@ -69,7 +69,7 @@ namespace OpenSage.Logic.Orders
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
-
+                            player.Money -= (uint) objectDefinition.BuildCost;
                             var placeInQueue = order.Arguments[1].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
@@ -83,6 +83,7 @@ namespace OpenSage.Logic.Orders
                         foreach(var unit in player.SelectedUnits)
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
+                            player.Money += (uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
                         }
                         _game.Selection.ClearSelectedObjects(player);
                         break;
