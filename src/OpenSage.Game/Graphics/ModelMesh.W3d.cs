@@ -88,7 +88,7 @@ namespace OpenSage.Graphics
                 BufferUsage.VertexBuffer));
 
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
-                CreateIndices(w3dMesh, w3dShaderMaterial != null),
+                CreateIndices(w3dMesh),
                 BufferUsage.IndexBuffer));
 
             var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
@@ -190,18 +190,8 @@ namespace OpenSage.Graphics
             return vertices;
         }
 
-        private static ushort[] CreateIndices(W3dMesh w3dMesh, bool usesShaderMaterial)
+        private static ushort[] CreateIndices(W3dMesh w3dMesh)
         {
-            //TODO: fix this
-            if (false && usesShaderMaterial)
-            {
-                // If using shader materials, we can use the actual shade indices from the mesh.
-                return w3dMesh.ShadeIndices.Items.Select(x => (ushort) x).ToArray();
-            }
-
-            // Otherwise, we're doing some trickery to reduce the number of draw calls,
-            // and this means we can't use mesh shade indices.
-
             var triangles = w3dMesh.Triangles.Items.AsSpan();
             var indices = new ushort[(uint) triangles.Length * 3];
 
