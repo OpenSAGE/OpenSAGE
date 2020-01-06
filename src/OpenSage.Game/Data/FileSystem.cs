@@ -41,10 +41,10 @@ namespace OpenSage.Data
                         _fileTable.Add(relativePath, new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
                     }
                 }
-            }
 
-            // Then load .big files
-            SkudefReader.Read(rootDirectory, path => AddBigArchive(path));
+                // Then load .big files
+                SkudefReader.Read(rootDirectory, path => AddBigArchive(path));
+            }
         }
 
         private void AddBigArchive(string path)
