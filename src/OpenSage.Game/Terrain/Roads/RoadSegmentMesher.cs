@@ -40,16 +40,18 @@ namespace OpenSage.Terrain.Roads
         protected Vector3 DirectionNoZ { get; }
         protected Vector3 DirectionNormalNoZ { get; }
         protected TextureCoordinates TextureBounds { get; }
-
-        public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
+        protected (float midV, float vOffset) GetVFromAxisAlignedBoundingBox()
         {
-            // vertical texture coordinate
             var vStart = TextureBounds.TopLeft.Y;
             var vEnd = TextureBounds.BottomLeft.Y;
             var v = (vEnd + vStart) / 2;
             var textureAtlasHalfHeight = (vEnd - vStart) / 2;
             var vOffset = Segment.MirrorTexture ? -textureAtlasHalfHeight : textureAtlasHalfHeight;
+            return (v, vOffset);
+        }
 
+        public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
+        {
             // let the derived classes do some initializations
             Prepare();
 
@@ -62,21 +64,20 @@ namespace OpenSage.Terrain.Roads
                 var position = insertPos.Position;
 
                 // let the derived classes do some decisions
-                var uOffset = TopUOffset(insertPos.RelativeProgress);
-                var u = GetU(insertPos.RelativeProgress, insertPos.DistanceAlongRoad);
-                                
+                var (uvTop, uvBottom) = GetTopBottomTextureCoordinates(insertPos.RelativeProgress, insertPos.DistanceAlongRoad);
+                
                 // add the border vertices                
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = insertPos.BottomPosition,
                     Normal = insertPos.Normal,
-                    UV = new Vector2(u - uOffset, v - vOffset)
+                    UV = uvBottom
                 });
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = insertPos.TopPosition,
                     Normal = insertPos.Normal,
-                    UV = new Vector2(u + uOffset, v + vOffset)
+                    UV = uvTop
                 });
             }
 
@@ -94,8 +95,7 @@ namespace OpenSage.Terrain.Roads
 
         protected virtual void Prepare() { }
         protected abstract Vector3 ToTopBorder(float relativeProgress);
-        protected abstract float GetU(float relativeProgress, float distanceAlongRoad);
-        protected abstract float TopUOffset(float relativeProgress);
+        protected abstract (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad);
 
         private IList<InsertPosition> GenerateInsertPositions(HeightMap heightMap)
         {
@@ -217,15 +217,15 @@ namespace OpenSage.Terrain.Roads
             return HalfHeight * DirectionNormalNoZ;
         }
 
-        protected override float TopUOffset(float relativeProgress)
+        protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
         {
-            return 0;
-        }
+            var (v, vOffset) = GetVFromAxisAlignedBoundingBox();
 
-        protected override float GetU(float relativeProgress, float _)
-        {
             //for crossing: texture should stretch to the base mesh -> interpolate the boundary values
-            return MathUtility.Lerp(TextureBounds.BottomLeft.X, TextureBounds.BottomRight.X, relativeProgress);
+            var u = MathUtility.Lerp(TextureBounds.BottomLeft.X, TextureBounds.BottomRight.X, relativeProgress);
+            var uvTop = new Vector2(u, v + vOffset);
+            var uvBottom = new Vector2(u, v - vOffset);
+            return (uvTop, uvBottom);
         }
     }
 
@@ -257,22 +257,11 @@ namespace OpenSage.Terrain.Roads
             EndTopUOffset = Vector3.Dot(EndToTopCorner, DirectionNoZ) / TextureRoadLength;
         }
 
-        protected override float TopUOffset(float relativeProgress)
-        {
-            return MathUtility.Lerp(StartTopUOffset, EndTopUOffset, relativeProgress);
-        }
-
         protected override Vector3 ToTopBorder(float relativeProgress)
         {
             return Vector3.Lerp(StartToTopCorner, EndToTopCorner, relativeProgress);
         }
 
-        protected override float GetU(float _, float distanceAlongRoad)
-        {
-            // for roads: the road segment we are meshing may be much longer or shorter than the texture road length,
-            // so stretching the texture on each segment would look odd -> repeat it instead
-            return distanceAlongRoad / TextureRoadLength;
-        }
 
         /// <summary>
         /// Generate vector from the start/end position of an edge to the corner of the mesh's base geometry
@@ -302,6 +291,21 @@ namespace OpenSage.Terrain.Roads
             var cosine = Vector3.Dot(DirectionNormalNoZ, toCornerDirection);
             var toCornerLength = neighbor.To is CrossingRoadSegment ? HalfHeight : HalfHeight / cosine;
             return toCornerDirection * toCornerLength;
+        }
+
+        protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
+        {
+            var (v, vOffset) = GetVFromAxisAlignedBoundingBox();
+
+            // for roads: the road segment we are meshing may be much longer or shorter than the texture road length,
+            // so stretching the texture on each segment would look odd -> repeat it instead
+            var u = distanceAlongRoad / TextureRoadLength;
+            
+            var topUOffset = MathUtility.Lerp(StartTopUOffset, EndTopUOffset, relativeProgress);
+
+            var uvTop = new Vector2(u + topUOffset, v + vOffset);
+            var uvBottom = new Vector2(u - topUOffset, v - vOffset);
+            return (uvTop, uvBottom);
         }
     }
 }
