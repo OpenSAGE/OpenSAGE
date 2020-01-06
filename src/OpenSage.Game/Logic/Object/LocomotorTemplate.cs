@@ -22,8 +22,8 @@ namespace OpenSage.Logic.Object
             { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseFloat() },
             { "Acceleration", (parser, x) => x.Acceleration = parser.ParseFloat() },
             { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseFloat() },
-            { "Lift", (parser, x) => x.Lift = parser.ParsePercentage() },
-            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParsePercentage() },
+            { "Lift", (parser, x) => x.Lift = parser.ParseFloat() },
+            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseFloat() },
             { "Braking", (parser, x) => x.Braking = parser.ParseInteger() },
             { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParsePercentage() },
             { "TurnPivotOffset", (parser, x) => x.TurnPivotOffset = parser.ParseFloat() },
@@ -131,8 +131,8 @@ namespace OpenSage.Logic.Object
         public float TurnRateDamaged { get; private set; }
         public float Acceleration { get; private set; }
         public float AccelerationDamaged { get; private set; }
-        public Percentage Lift { get; private set; }
-        public Percentage LiftDamaged { get; private set; }
+        public float Lift { get; private set; }
+        public float LiftDamaged { get; private set; }
         public int Braking { get; private set; }
         public Percentage MinTurnSpeed { get; private set; }
         public float TurnPivotOffset { get; private set; }
