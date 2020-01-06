@@ -67,7 +67,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         public static void CreateCrossing(
-            IEnumerable<IncomingRoadData> roads,
+            IReadOnlyList<IncomingRoadData> roads,
             Vector3 crossingPosition, RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
@@ -91,7 +91,7 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static RoadTextureType ChooseCrossingType(IEnumerable<IncomingRoadData> incomingRoads)
+        private static RoadTextureType ChooseCrossingType(IReadOnlyList<IncomingRoadData> incomingRoads)
         {
             var angles = incomingRoads
                 .Select(r => r.AngleToPreviousEdge)
@@ -123,7 +123,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         private static CrossingRoadSegment CreateTCrossing(
-            IEnumerable<IncomingRoadData> roads,
+            IReadOnlyList<IncomingRoadData> roads,
             in Vector3 crossingPosition,
             RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
@@ -160,7 +160,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         private static CrossingRoadSegment CreateXCrossing(
-            IEnumerable<IncomingRoadData> roads,
+            IReadOnlyList<IncomingRoadData> roads,
             Vector3 crossingPosition,
             RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
@@ -206,7 +206,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         private static CrossingRoadSegment CreateYAsymmCrossing(
-            IEnumerable<IncomingRoadData> roads,
+            IReadOnlyList<IncomingRoadData> roads,
             Vector3 crossingPosition,
             RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
@@ -261,7 +261,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         private static CrossingRoadSegment CreateYSymmCrossing(
-           IEnumerable<IncomingRoadData> roads,
+           IReadOnlyList<IncomingRoadData> roads,
            Vector3 crossingPosition,
            RoadTemplate template,
            IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
@@ -273,7 +273,7 @@ namespace OpenSage.Terrain.Roads
             var leftEdge = minAngle.Previous;
             var topEdge = leftEdge.Previous;
 
-            var upDirection = topEdge.Direction;
+            var upDirection = topEdge.OutDirection;
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
             var rightSideDirection = Vector3.Normalize(rightDirection - upDirection);
             var leftSideDirection = Vector3.Normalize(-rightDirection - upDirection);
