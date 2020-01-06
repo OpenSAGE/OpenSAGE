@@ -11,7 +11,7 @@ namespace OpenSage.Terrain.Roads
     {
         private const float OverlapLength = 0.015f;
 
-        private CrossingRoadSegment(Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, Vector3 start, Vector3 end, RoadTextureType type)
+        private CrossingRoadSegment(in Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, in Vector3 start, in Vector3 end, RoadTextureType type)
         {
             Position = position;
             EndPoints = endPoints;
