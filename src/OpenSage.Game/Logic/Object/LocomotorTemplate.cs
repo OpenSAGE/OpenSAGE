@@ -82,9 +82,9 @@ namespace OpenSage.Logic.Object
             { "RudderCorrectionRate", (parser, x) => x.RudderCorrectionRate = parser.ParseFloat() },
             { "ElevatorCorrectionDegree", (parser, x) => x.ElevatorCorrectionDegree = parser.ParseFloat() },
             { "ElevatorCorrectionRate", (parser, x) => x.ElevatorCorrectionRate = parser.ParseFloat() },
-
-            { "TurnTime", (parser, x) => x.TurnTime = parser.ParseInteger() },
-            { "TurnTimeDamaged", (parser, x) => x.TurnTimeDamaged = parser.ParseInteger() },
+            //TODO: check if this conversion formula is correct
+            { "TurnTime", (parser, x) => x.TurnRate = 360.0f / (parser.ParseInteger() / 1000.0f) },
+            { "TurnTimeDamaged", (parser, x) => x.TurnRateDamaged = 360.0f / ( parser.ParseInteger() / 1000.0f) },
             { "SlowTurnRadius", (parser, x) => x.SlowTurnRadius = parser.ParseFloat() },
             { "FastTurnRadius", (parser, x) => x.FastTurnRadius = parser.ParseFloat() },
             { "NonDirtyTransform", (parser, x) => x.NonDirtyTransform = parser.ParseBoolean() },
@@ -124,7 +124,7 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<Surface> Surfaces { get; private set; }
-        public float Speed { get; private set; }
+        public float? Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
         public Percentage MinSpeed { get; private set; }
         public float TurnRate { get; private set; }

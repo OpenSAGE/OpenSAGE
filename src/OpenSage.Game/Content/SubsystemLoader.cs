@@ -252,6 +252,18 @@ namespace OpenSage.Content
                             yield break;
                     }
                     break;
+                case Subsystem.Locomotors:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                        case SageGame.Cnc3:
+                        case SageGame.Cnc3KanesWrath:
+                            yield return "TheLocomotorStore";
+                            yield break;
+                    }
+                    break;
                 case Subsystem.Terrain:
                     switch (_gameDefinition.Game)
                     {
@@ -301,7 +313,7 @@ namespace OpenSage.Content
                         case SageGame.Cnc3KanesWrath:
                             yield return "TheLinearCampaignManager";
                             yield break;
-                        // TODO: Figure out how to load campaigns for RA3 and later
+                            // TODO: Figure out how to load campaigns for RA3 and later
                     }
                     break;
                 case Subsystem.Credits:
