@@ -78,9 +78,9 @@ namespace OpenSage.Terrain.Roads
             _coordinates.Add(
                 RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
-                    TileCenter(1),
+                    0.5f,
                     halfRoadWidth,
-                    MathUtility.ToRadians(30)));
+                    MathUtility.ToRadians(30f)));
 
             // TODO: TightCurve, Join
         }
@@ -141,10 +141,11 @@ namespace OpenSage.Terrain.Roads
             var radius = 3.5f * halfRoadWidth;
             var cosine = MathF.Cos(angle / 2f);
             var additionalRadius = radius * (1f - cosine) / cosine;
-            var center = new Vector2(0, v - radius);
 
-            var topLeft = new Vector2(0, v - halfRoadWidth);
-            var bottomLeft = new Vector2(0, v + halfRoadWidth + additionalRadius);
+            var center = new Vector2(0f, v - radius);
+
+            var topLeft = new Vector2(0f, v - halfRoadWidth);
+            var bottomLeft = new Vector2(0f, v + halfRoadWidth + additionalRadius);
 
             var topRight = Vector2Utility.RotateAroundPoint(center, topLeft, -angle);
             var bottomRight = Vector2Utility.RotateAroundPoint(center, bottomLeft, -angle);
