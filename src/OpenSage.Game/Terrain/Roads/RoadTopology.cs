@@ -18,7 +18,7 @@ namespace OpenSage.Terrain.Roads
             {
                 // create a new dummy vertex, otherwise this edge gets counted twice as incoming edge of startVertex
                 // add a small offset to make sure that other map objects use the 'normal' vertex
-                endNode = GetOrCreateNode(end.Position + 0.0001f * Vector3.UnitX);
+                endNode = GetOrCreateNode(end.Position + 0.001f * Vector3.UnitX);
             }
 
             var edge = new RoadTopologyEdge(
