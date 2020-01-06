@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Mathematics;
 
@@ -77,7 +78,7 @@ namespace OpenSage.Terrain.Roads
             _coordinates.Add(
                 RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
-                    TileCenter(0),
+                    TileCenter(1),
                     halfRoadWidth,
                     MathUtility.ToRadians(30)));
 
@@ -135,15 +136,18 @@ namespace OpenSage.Terrain.Roads
                 new Vector2(right, bottom));
         }
 
-        public static TextureCoordinates Curve(float y, float halfRoadWidth, float angle)
+        public static TextureCoordinates Curve(float v, float halfRoadWidth, float angle)
         {
-            var topLeft = new Vector2(0, y - halfRoadWidth);
-            var bottomLeft = new Vector2(0, y + halfRoadWidth);
+            var radius = 3.5f * halfRoadWidth;
+            var cosine = MathF.Cos(angle);
+            var additionalRadius = radius * (1f - cosine) / cosine;
+            var center = new Vector2(0, v - radius);
 
-            var radius = 10f / 3f * halfRoadWidth;
-            var center = new Vector2(0, y - radius);
-            var topRight = Vector2Utility.RotateAroundPoint(center, topLeft, angle);
-            var bottomRight = Vector2Utility.RotateAroundPoint(center, bottomLeft, angle);
+            var topLeft = new Vector2(0, v - halfRoadWidth);
+            var bottomLeft = new Vector2(0, v + halfRoadWidth + additionalRadius);
+
+            var topRight = Vector2Utility.RotateAroundPoint(center, topLeft, -angle);
+            var bottomRight = Vector2Utility.RotateAroundPoint(center, bottomLeft, -angle);
 
             return new TextureCoordinates(
                 topLeft,
