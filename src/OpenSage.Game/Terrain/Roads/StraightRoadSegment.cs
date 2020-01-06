@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace OpenSage.Terrain.Roads
 {
-    internal sealed class StraightRoadSegment : IRoadSegment
+    internal sealed class StraightRoadSegment : ISimpleRoadSegment
     {
         public RoadSegmentEndPoint Start { get; }
         public RoadSegmentEndPoint End { get; }

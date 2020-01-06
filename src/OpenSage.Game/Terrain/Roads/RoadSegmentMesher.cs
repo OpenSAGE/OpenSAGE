@@ -251,21 +251,16 @@ namespace OpenSage.Terrain.Roads
 
         protected override void Prepare()
         {
-            var straightRoad = Segment as StraightRoadSegment;
-            if (straightRoad == null)
-            {
-                throw new InvalidOperationException();
-            }
+            var simpleRoad = Segment as ISimpleRoadSegment ?? throw new InvalidOperationException();
 
-            StartToTopCorner = ToCorner(straightRoad.Start, false);
-            EndToTopCorner = ToCorner(straightRoad.End, true);
+            StartToTopCorner = ToCorner(simpleRoad.Start, false);
+            EndToTopCorner = ToCorner(simpleRoad.End, true);
         }
 
         protected override Vector3 ToTopBorder(float relativeProgress)
         {
             return Vector3.Lerp(StartToTopCorner, EndToTopCorner, relativeProgress);
         }
-
 
         /// <summary>
         /// Generate vector from the start/end position of an edge to the corner of the mesh's base geometry
@@ -332,7 +327,6 @@ namespace OpenSage.Terrain.Roads
             var uvBottom = new Vector2(u - topUOffset, v - vOffset);
             return (uvTop, uvBottom);
         }
-
     }
 
 
@@ -341,11 +335,6 @@ namespace OpenSage.Terrain.Roads
         public CurvedRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
             : base(segment, halfHeight, template)
         {
-        }
-        
-        protected override void Prepare()
-        {
-            base.Prepare();
         }
 
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
