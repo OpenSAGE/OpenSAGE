@@ -9,8 +9,6 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class CrossingRoadSegment : IRoadSegment
     {
-        private const float OverlapLength = 0.015f;
-
         private CrossingRoadSegment(in Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, in Vector3 start, in Vector3 end, RoadTextureType type)
         {
             Position = position;
@@ -44,20 +42,20 @@ namespace OpenSage.Terrain.Roads
             switch (type)
             {
                 case RoadTextureType.TCrossing:
-                    width = template.RoadWidthInTexture + stubLength + OverlapLength;
-                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * OverlapLength;
+                    width = template.RoadWidthInTexture + stubLength + RoadConstants.OverlapLength;
+                    height = template.RoadWidthInTexture + 2 * stubLength + 2 * RoadConstants.OverlapLength;
                     break;
                 case RoadTextureType.XCrossing:
-                    width = template.RoadWidthInTexture + 2 * stubLength + 2 * OverlapLength;
+                    width = template.RoadWidthInTexture + 2 * stubLength + 2 * RoadConstants.OverlapLength;
                     height = width;
                     break;
                 case RoadTextureType.AsymmetricYCrossing:
                     width = 1.2f + template.RoadWidthInTexture / 2f;
-                    height = 1.33f + OverlapLength;
+                    height = 1.33f + RoadConstants.OverlapLength;
                     break;
                 case RoadTextureType.SymmetricYCrossing:
                     width = 1.59f;
-                    height = 1.065f + OverlapLength;
+                    height = 1.065f + RoadConstants.OverlapLength;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("Unknown RoadTextureType: " + type);
@@ -151,7 +149,7 @@ namespace OpenSage.Terrain.Roads
                 end,
                 RoadTextureType.TCrossing);
 
-            var overlap = OverlapLength * template.RoadWidth;
+            var overlap = RoadConstants.OverlapLength * template.RoadWidth;
             Connect(crossingSegment, maxAngle.Previous.TopologyEdge, top, upDirection, overlap, edgeSegments);
             Connect(crossingSegment, maxAngle.Previous.Previous.TopologyEdge, right, rightDirection, overlap, edgeSegments);
             Connect(crossingSegment, maxAngle.TopologyEdge, bottom, -upDirection, overlap, edgeSegments);
@@ -196,7 +194,7 @@ namespace OpenSage.Terrain.Roads
                 end,
                 RoadTextureType.XCrossing);
 
-            var overlap = OverlapLength * template.RoadWidth;
+            var overlap = RoadConstants.OverlapLength * template.RoadWidth;
             Connect(crossingSegment, roadTop.TopologyEdge, top, upDirection, overlap, edgeSegments);
             Connect(crossingSegment, roadRight.TopologyEdge, right, rightDirection, overlap, edgeSegments);
             Connect(crossingSegment, roadBottom.TopologyEdge, bottom, -upDirection, overlap, edgeSegments);
@@ -305,7 +303,7 @@ namespace OpenSage.Terrain.Roads
                 end,
                 RoadTextureType.SymmetricYCrossing);
             
-            Connect(crossingSegment, topEdge.TopologyEdge, top, upDirection, OverlapLength * template.RoadWidth, edgeSegments);
+            Connect(crossingSegment, topEdge.TopologyEdge, top, upDirection, RoadConstants.OverlapLength * template.RoadWidth, edgeSegments);
             Connect(crossingSegment, leftEdge.TopologyEdge, leftSide, leftSideDirection, 0, edgeSegments);
             Connect(crossingSegment, rightEdge.TopologyEdge, rightSide, rightSideDirection, 0, edgeSegments);
 

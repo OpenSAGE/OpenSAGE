@@ -80,9 +80,16 @@ namespace OpenSage.Terrain.Roads
                 TextureCoordinates.Curve(
                     0.5f,
                     halfRoadWidth,
-                    MathUtility.ToRadians(30f)));
+                    RoadConstants.BroadCurveRadius));
 
-            // TODO: TightCurve, Join
+            _coordinates.Add(
+                RoadTextureType.TightCurve,
+                TextureCoordinates.Curve(
+                    TileCenter(2),
+                    halfRoadWidth,
+                    RoadConstants.TightCurveRadius));
+
+            // TODO: End cap/join
         }
 
         /// <summary>
@@ -136,16 +143,18 @@ namespace OpenSage.Terrain.Roads
                 new Vector2(right, bottom));
         }
 
-        public static TextureCoordinates Curve(float v, float halfRoadWidth, float angle)
+        public static TextureCoordinates Curve(float v, float halfRoadWidth, float radiusInHalfRoadWidths)
         {
-            var radius = 3.5f * halfRoadWidth;
+            var angle = MathF.PI / 6f;
+            var radius = radiusInHalfRoadWidths * halfRoadWidth;
             var cosine = MathF.Cos(angle / 2f);
             var additionalRadius = radius * (1f - cosine) / cosine;
+            var uStart = 0f;
 
-            var center = new Vector2(0f, v - radius);
+            var center = new Vector2(uStart, v - radius);
 
-            var topLeft = new Vector2(0f, v - halfRoadWidth);
-            var bottomLeft = new Vector2(0f, v + halfRoadWidth + additionalRadius);
+            var topLeft = new Vector2(uStart, v - halfRoadWidth);
+            var bottomLeft = new Vector2(uStart, v + halfRoadWidth + additionalRadius);
 
             var topRight = Vector2Utility.RotateAroundPoint(center, topLeft, -angle);
             var bottomRight = Vector2Utility.RotateAroundPoint(center, bottomLeft, -angle);
