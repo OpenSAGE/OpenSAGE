@@ -10,8 +10,6 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class CurvedRoadSegment : ISimpleRoadSegment
     {
-        private const float OverlapLength = 0.015f;
-
         public RoadSegmentEndPoint Start { get; }
         public RoadSegmentEndPoint End { get; }
         public Vector3 StartPosition => 0.5f * (TopLeft + BottomLeft);
@@ -22,7 +20,7 @@ namespace OpenSage.Terrain.Roads
         public Vector3 BottomRight { get; }
         
         public bool MirrorTexture => false;
-        public RoadTextureType Type => RoadTextureType.BroadCurve;
+        public RoadTextureType Type { get; }
         
         public CurvedRoadSegment(
             in Vector3 topLeft,
@@ -30,7 +28,8 @@ namespace OpenSage.Terrain.Roads
             in Vector3 bottomLeft,
             in Vector3 bottomRight,
             RoadSegmentEndPoint start,
-            RoadSegmentEndPoint end)
+            RoadSegmentEndPoint end,
+            RoadTextureType type)
         {
             TopLeft = topLeft;
             TopRight = topRight;
@@ -38,6 +37,7 @@ namespace OpenSage.Terrain.Roads
             BottomRight = bottomRight;
             Start = start;
             End = end;
+            Type = type;
         }
 
         public IEnumerable<RoadSegmentEndPoint> EndPoints
@@ -106,8 +106,7 @@ namespace OpenSage.Terrain.Roads
         {
             var curveAngle = MathF.PI - startEdge.AngleToPreviousEdge;
 
-            // TODO figure out exact threshold
-            if (curveAngle < 0.47f)
+            if (curveAngle < RoadConstants.MinCurveAngle)
             {
                 // render as angled connection
                 return;
@@ -115,7 +114,7 @@ namespace OpenSage.Terrain.Roads
             
             var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
 
-            var radius = 3.5f * halfRoadWidth;
+            var radius = (type == RoadTextureType.TightCurve ? RoadConstants.TightCurveRadius : RoadConstants.BroadCurveRadius) * halfRoadWidth;
             var toCenterLength = radius / MathF.Cos(curveAngle / 2);
             var toCenterDirection = Vector3.Normalize(startEdge.OutDirection + endEdge.OutDirection);
             var toCenter = toCenterDirection * toCenterLength;
@@ -145,7 +144,9 @@ namespace OpenSage.Terrain.Roads
             endSegmentStartPoint.Position = position + endEdge.OutDirection * endSegmentStartDistance;
 
             const float segmentAngle = MathF.PI / 6f;
-            var overlapAngle = MathUtility.ToRadians(2f);
+            var cosine = MathF.Cos(segmentAngle / 2);
+            var additionalRadius = radius * (1f - cosine) / cosine;
+            var overlapAngle = MathUtility.ToRadians(type == RoadTextureType.TightCurve ? 6f : 2f);
 
             var remainingAngle = curveAngle;
             var overlapRotationAngle = 0f;
@@ -174,15 +175,13 @@ namespace OpenSage.Terrain.Roads
             currentSegment.End.ConnectTo(endSegment, -endEdge.OutDirection);
             endSegmentStartPoint.ConnectTo(currentSegment, endEdge.OutDirection);
 
-            startSegmentEndPoint.Position -= startEdge.OutDirection * 2f * OverlapLength * template.RoadWidth;
-            endSegmentStartPoint.Position -= endEdge.OutDirection * 2f * OverlapLength * template.RoadWidth;
+            startSegmentEndPoint.Position -= startEdge.OutDirection * 2f * RoadConstants.OverlapLength * template.RoadWidth;
+            endSegmentStartPoint.Position -= endEdge.OutDirection * 2f * RoadConstants.OverlapLength * template.RoadWidth;
 
             CurvedRoadSegment CreateSegment(Vector3 centerLeft)
             {
                 var upDirection = Vector3.Normalize(center - centerLeft);
 
-                var cosine = MathF.Cos(segmentAngle / 2);
-                var additionalRadius = radius * (1f - cosine) / cosine;
 
                 var topLeft = centerLeft + upDirection * halfRoadWidth;
                 var bottomLeft = centerLeft - upDirection * (halfRoadWidth + additionalRadius);
@@ -194,7 +193,7 @@ namespace OpenSage.Terrain.Roads
                 var startPoint = new RoadSegmentEndPoint(centerLeft);
                 var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth); 
 
-                return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint);
+                return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint, type);
             }
         }
     }
