@@ -49,6 +49,8 @@ namespace OpenSage.Graphics.Cameras
             set { _terrainPosition = new Vector3(value.X, value.Y, 0); }
         }
 
+        private float _toCameraIntersectionDistance;
+
         public CameraAnimation StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
         {
             EndAnimation();
@@ -183,8 +185,9 @@ namespace OpenSage.Graphics.Cameras
                 new Vector3(0, 0, cameraHeight),
                 new Vector3(0, 1, cameraHeight),
                 new Vector3(1, 0, cameraHeight));
-            var toCameraIntersectionDistance = toCameraRay.Intersects(plane).Value;
-            var newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
+            // If this does not intersect with the ground, use the previous value.
+            _toCameraIntersectionDistance = toCameraRay.Intersects(plane) ?? _toCameraIntersectionDistance;
+            var newPosition = _terrainPosition - cameraToTerrainDirection * _toCameraIntersectionDistance;
 
             // Pitch - 0 means top-down view.
             // Pitch between 0 and CameraPitch = Move camera position to match pitch.
