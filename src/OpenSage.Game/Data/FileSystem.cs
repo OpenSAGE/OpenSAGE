@@ -25,18 +25,21 @@ namespace OpenSage.Data
             _bigArchives = new List<BigArchive>();
 
             // First create entries for all non-.big files
-            foreach (var file in Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories))
+            if (Directory.Exists(rootDirectory))
             {
-                var ext = Path.GetExtension(file).ToLowerInvariant();
-                if (ext != ".big")
+                foreach (var file in Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories))
                 {
-                    var relativePath = file.Substring(rootDirectory.Length);
-                    if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                    var ext = Path.GetExtension(file).ToLowerInvariant();
+                    if (ext != ".big")
                     {
-                        relativePath = relativePath.Substring(1);
+                        var relativePath = file.Substring(rootDirectory.Length);
+                        if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                        {
+                            relativePath = relativePath.Substring(1);
+                        }
+                        relativePath = NormalizeFilePath(relativePath);
+                        _fileTable.Add(relativePath, new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
                     }
-                    relativePath = NormalizeFilePath(relativePath);
-                    _fileTable.Add(relativePath, new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
                 }
             }
 
