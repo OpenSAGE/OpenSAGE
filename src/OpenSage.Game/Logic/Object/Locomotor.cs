@@ -44,6 +44,13 @@ namespace OpenSage.Logic.Object
                            : GetLocomotorValue(x => x.Speed);
         }
 
+        private float GetLift()
+        {
+            var damaged = _gameObject.Damaged;
+            return damaged ? GetLocomotorValue(x => x.LiftDamaged)
+                           : GetLocomotorValue(x => x.Lift);
+        }
+
         public void LocalLogicTick(in TimeInterval gameTime, in List<Vector3> targetPoints, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -52,13 +59,15 @@ namespace OpenSage.Logic.Object
 
             var x = transform.Translation.X;
             var y = transform.Translation.Y;
+            var z = transform.Translation.Z;
             var trans = transform.Translation;
 
             var oldSpeed = _gameObject.Speed;
 
             // When we get to minimum braking distance, start braking.
             var deltaLast = targetPoints.Last() - transform.Translation;
-            var distanceRemaining = deltaLast.Length();
+            // Distance is 2D
+            var distanceRemaining = deltaLast.Vector2XY().Length();
             var damaged = _gameObject.Damaged;
 
             var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
@@ -81,9 +90,25 @@ namespace OpenSage.Logic.Object
 
             // Calculate translation
             var deltaFirst = targetPoints.First() - transform.Translation;
-            var direction = Vector3.Normalize(deltaFirst);
-            trans += direction * distance;
-            trans.Z = heightMap.GetHeight(trans.X, trans.Y);
+            // The distance we're moving
+            var direction = Vector2.Normalize(deltaFirst.Vector2XY());
+            trans += new Vector3(direction * distance, 0.0f);
+
+            var height = heightMap.GetHeight(trans.X, trans.Y);
+            if (!_locomotorTemplate.StickToGround)
+            {
+                var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
+                var oldLift = _gameObject.Lift;
+                var lift = GetLift();
+                var newLift = oldLift + lift;
+                newLift = MathUtility.Clamp(newLift, 0.0f, lift);
+                _gameObject.Lift = newLift;
+                trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+            }
+            else
+            {
+                trans.Z = height;
+            }
             transform.Translation = trans;
 
             // Calculate rotation

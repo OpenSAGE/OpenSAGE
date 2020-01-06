@@ -120,6 +120,7 @@ namespace OpenSage.Logic.Object
         public bool Damaged { get; set; }
 
         public float Speed { get; set; }
+        public float Lift { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
 
@@ -329,8 +330,8 @@ namespace OpenSage.Logic.Object
             if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
             {
                 CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
-
-                if (Vector3.Distance(Transform.Translation, TargetPoints[0]) < 0.5f)
+                var distance = Vector2.Distance(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
+                if (distance < 0.5f)
                 {
                     Logger.Debug($"Reached point {TargetPoints[0]}");
                     TargetPoints.RemoveAt(0);
@@ -347,7 +348,6 @@ namespace OpenSage.Logic.Object
             {
                 var passed = gameTime.TotalTime - ConstructionStart;
                 BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
-                Logger.Warn("progress: " + BuildProgress);
 
                 if (BuildProgress == 1.0f)
                 {

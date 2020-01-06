@@ -19,13 +19,13 @@ namespace OpenSage.Tests.Mathematics
         }
 
         [Theory]
-        [InlineData(0.0f, 1.0f, 0.0f, 90.0f)]
-        [InlineData(1.0f, 0.0f, 0.0f, 0.0f)]
-        [InlineData(0.0f, -1.0f, 0.0f, -90.0f)]
-        [InlineData(-1.0f, 0.0f, 0.0f, 180.0f)]
-        public void GetYawFromDirectionTest(float x, float y, float z, float angle)
+        [InlineData(0.0f, 1.0f, 90.0f)]
+        [InlineData(1.0f, 0.0f, 0.0f)]
+        [InlineData(0.0f, -1.0f, -90.0f)]
+        [InlineData(-1.0f, 0.0f, 180.0f)]
+        public void GetYawFromDirectionTest(float x, float y, float angle)
         {
-            Assert.Equal(angle, MathUtility.ToDegrees(MathUtility.GetYawFromDirection(new Vector3(x, y, z))));
+            Assert.Equal(angle, MathUtility.ToDegrees(MathUtility.GetYawFromDirection(new Vector2(x, y))));
         }
 
         [Theory]
