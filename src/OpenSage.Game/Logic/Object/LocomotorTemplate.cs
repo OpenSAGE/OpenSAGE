@@ -83,6 +83,7 @@ namespace OpenSage.Logic.Object
             { "ElevatorCorrectionDegree", (parser, x) => x.ElevatorCorrectionDegree = parser.ParseFloat() },
             { "ElevatorCorrectionRate", (parser, x) => x.ElevatorCorrectionRate = parser.ParseFloat() },
             //TODO: check if this conversion formula is correct
+            //Converts from time for a 360 turn into degrees per second
             { "TurnTime", (parser, x) => x.TurnRate = 360.0f / (parser.ParseInteger() / 1000.0f) },
             { "TurnTimeDamaged", (parser, x) => x.TurnRateDamaged = 360.0f / ( parser.ParseInteger() / 1000.0f) },
             { "SlowTurnRadius", (parser, x) => x.SlowTurnRadius = parser.ParseFloat() },
@@ -127,7 +128,13 @@ namespace OpenSage.Logic.Object
         public float? Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
         public Percentage MinSpeed { get; private set; }
+        /// <summary>
+        /// TurnRate in Degrees/second
+        /// </summary>
         public float TurnRate { get; private set; }
+        /// <summary>
+        /// TurnRate when damaged in Degrees/second
+        /// </summary>
         public float TurnRateDamaged { get; private set; }
         public float Acceleration { get; private set; }
         public float AccelerationDamaged { get; private set; }
@@ -202,12 +209,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float ElevatorCorrectionRate { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public int TurnTime { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public int TurnTimeDamaged { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public float SlowTurnRadius { get; private set; }
