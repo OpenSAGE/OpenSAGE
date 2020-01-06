@@ -10,6 +10,8 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class CurvedRoadSegment : ISimpleRoadSegment
     {
+        private const float OverlapLength = 0.015f;
+
         public RoadSegmentEndPoint Start { get; }
         public RoadSegmentEndPoint End { get; }
         public Vector3 StartPosition => 0.5f * (TopLeft + BottomLeft);
@@ -138,15 +140,15 @@ namespace OpenSage.Terrain.Roads
 
             var startSegmentEndPoint = startSegment.StartPosition == position ? startSegment.Start : startSegment.End;
             startSegmentEndPoint.Position = position + startEdge.OutDirection * startSegmentEndDistance;
-            //startSegmentEndPoint.ConnectTo(endSegment, startEdge.OutDirection);
 
             var endSegmentStartPoint = endSegment.StartPosition == position ? endSegment.Start : endSegment.End;
             endSegmentStartPoint.Position = position + endEdge.OutDirection * endSegmentStartDistance;
-            //endSegmentStartPoint.ConnectTo(startSegment, endEdge.OutDirection);
 
             const float segmentAngle = MathF.PI / 6f;
+            var overlapAngle = MathUtility.ToRadians(2f);
 
             var remainingAngle = curveAngle;
+            var overlapRotationAngle = 0f;
             var previousEndPoint = startSegmentEndPoint;
             var previousDirection = -startEdge.OutDirection;
             IRoadSegment previousSegment = startSegment;
@@ -155,10 +157,7 @@ namespace OpenSage.Terrain.Roads
             while (remainingAngle > 0f)
             {
                 var centerLeft = previousEndPoint.Position;
-                if (remainingAngle < segmentAngle)
-                {
-                    centerLeft = new Vector3(Vector2Utility.RotateAroundPoint(center2, centerLeft.Vector2XY(), -(segmentAngle - remainingAngle)), 0f);
-                }
+                centerLeft = new Vector3(Vector2Utility.RotateAroundPoint(center2, centerLeft.Vector2XY(), overlapRotationAngle), 0f);
 
                 currentSegment = CreateSegment(centerLeft);
                 currentSegment.Start.ConnectTo(previousSegment, previousDirection);
@@ -168,11 +167,15 @@ namespace OpenSage.Terrain.Roads
                 previousEndPoint = currentSegment.End;
                 previousDirection = Vector3.Cross(currentSegment.TopRight - currentSegment.BottomRight, Vector3.UnitZ);
 
-                remainingAngle -= segmentAngle;
+                remainingAngle -= segmentAngle + overlapRotationAngle;
+                overlapRotationAngle = -MathF.Max(overlapAngle, segmentAngle - remainingAngle);
             }
 
             currentSegment.End.ConnectTo(endSegment, -endEdge.OutDirection);
             endSegmentStartPoint.ConnectTo(currentSegment, endEdge.OutDirection);
+
+            startSegmentEndPoint.Position -= startEdge.OutDirection * 2f * OverlapLength * template.RoadWidth;
+            endSegmentStartPoint.Position -= endEdge.OutDirection * 2f * OverlapLength * template.RoadWidth;
 
             CurvedRoadSegment CreateSegment(Vector3 centerLeft)
             {
