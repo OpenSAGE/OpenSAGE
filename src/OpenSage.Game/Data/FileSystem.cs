@@ -9,7 +9,7 @@ namespace OpenSage.Data
     {
         private readonly Dictionary<string, FileSystemEntry> _fileTable;
         private readonly List<BigArchive> _bigArchives;
-
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public string RootDirectory { get; }
 
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
@@ -44,6 +44,10 @@ namespace OpenSage.Data
 
                 // Then load .big files
                 SkudefReader.Read(rootDirectory, path => AddBigArchive(path));
+            }
+            else
+            {
+                logger.Warn("Failed to create filesystem for non existing root directory: " + rootDirectory);
             }
         }
 
