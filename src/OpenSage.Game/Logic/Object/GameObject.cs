@@ -191,8 +191,24 @@ namespace OpenSage.Logic.Object
         private List<ProductionJob> _productionQueue = new List<ProductionJob>();
         public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
+        private void HandleConstruction(in TimeInterval gameTime)
+        {
+            // Check if the unit is being constructed
+            if (IsBeingConstructed())
+            {
+                var passed = gameTime.TotalTime - ConstructionStart;
+                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+
+                if (BuildProgress == 1.0f)
+                {
+                    FinishConstruction();
+                }
+            }
+        }
+
         private void HandleProduction()
         {
+            //TODO: implement ProductionUpdate behaviour
             if (!IsProducing)
             {
                 return;
@@ -343,17 +359,8 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            // Check if the unit is being constructed
-            if (IsBeingConstructed())
-            {
-                var passed = gameTime.TotalTime - ConstructionStart;
-                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+            HandleConstruction(gameTime);
 
-                if (BuildProgress == 1.0f)
-                {
-                    FinishConstruction();
-                }
-            }
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {

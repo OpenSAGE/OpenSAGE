@@ -140,7 +140,9 @@ namespace OpenSage.Logic.Object
                     //Check if the animation does really exist
                     if(anim != null)
                     {
-                        var animationInstance = new AnimationInstance(modelInstance, anim);
+                        var flags = animationState.Flags;
+                        var mode = firstAnimationBlock.AnimationMode;
+                        var animationInstance = new AnimationInstance(modelInstance, anim, mode, flags);
                         modelInstance.AnimationInstances.Add(animationInstance);
                         animationInstance.Play();
                         break;
@@ -235,7 +237,9 @@ namespace OpenSage.Logic.Object
 
                     if (animation != null)
                     {
-                        var animationInstance = new AnimationInstance(modelInstance, animation);
+                        var mode = conditionState.AnimationMode;
+                        var flags = conditionState.Flags;
+                        var animationInstance = new AnimationInstance(modelInstance, animation, mode, flags);
                         modelInstance.AnimationInstances.Add(animationInstance);
                         animationInstance.Play();
                     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Animation
@@ -13,15 +14,37 @@ namespace OpenSage.Graphics.Animation
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
+        private AnimationMode _mode;
+        private AnimationFlags _flags;
 
-        public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation)
+        private bool Looping => _mode.HasFlag(AnimationMode.Loop) || _mode.HasFlag(AnimationMode.LoopBackwards);
+        private bool Reverse => _mode.HasFlag(AnimationMode.OnceBackwards) || _mode.HasFlag(AnimationMode.LoopBackwards);
+        private bool Manual => _mode.HasFlag(AnimationMode.Manual);
+
+        public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation,
+            AnimationMode mode, AnimationFlags flags)
         {
             _animation = animation;
-
+            _mode = mode;
+            _flags = flags;
             _boneInstances = modelInstance.ModelBoneInstances;
 
             _keyframeIndices = new int[animation.Clips.Length];
-            _currentTimeValue = TimeSpan.Zero;
+
+            if (_flags.HasFlag(AnimationFlags.StartFrameFirst) ||
+                _flags == AnimationFlags.None)
+            {
+                _currentTimeValue = TimeSpan.Zero;
+            }
+            else if (_flags.HasFlag(AnimationFlags.StartFrameLast))
+            {
+                _currentTimeValue = _animation.Duration;
+            }
+            else
+            {
+                //TODO: implement other flags
+                //throw new NotImplementedException();
+            }
         }
 
         public void Play()
@@ -73,18 +96,34 @@ namespace OpenSage.Graphics.Animation
 
         private void UpdateBoneTransforms(in TimeInterval gameTime)
         {
-            var time = _currentTimeValue + gameTime.DeltaTime;
+            //TODO: implement reverse and ping pong
+            var time = _currentTimeValue;
 
-            // If we reached the end, loop back to the start.
-            while (time >= _animation.Duration)
+            if (!Manual)
             {
-                time -= _animation.Duration;
+                time += gameTime.DeltaTime;
             }
 
-            // If we've just moved backwards, reset the keyframe indices.
-            if (time < _currentTimeValue)
+            if (time >= _animation.Duration)
             {
-                ResetBoneTransforms();
+                // If we reached the end, loop back to the start or stay at the last frame
+                if (Looping)
+                {
+                    while (time >= _animation.Duration)
+                    {
+                        time -= _animation.Duration;
+                    }
+
+                    // If we've just moved backwards, reset the keyframe indices.
+                    if (time < _currentTimeValue)
+                    {
+                        ResetBoneTransforms();
+                    }
+                }
+                else
+                {
+                    time = _animation.Duration;
+                }
             }
 
             _currentTimeValue = time;
@@ -168,7 +207,7 @@ namespace OpenSage.Graphics.Animation
                     break;
 
                 case AnimationClipType.Quaternion:
-                    _boneInstances[clip.Bone].AnimatedOffset.Rotation = Quaternion.Lerp(
+                    _boneInstances[clip.Bone].AnimatedOffset.Rotation = Quaternion.Slerp(
                         previous.Value.Quaternion,
                         next.Value.Quaternion,
                         amount);
