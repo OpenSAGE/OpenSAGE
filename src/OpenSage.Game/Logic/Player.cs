@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
-using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -27,7 +25,7 @@ namespace OpenSage.Logic
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public uint Energy { get; set; }
 
-        public ColorRgb Color { get; set; }
+        public ColorRgb Color { get; }
 
         private HashSet<Player> _allies;
         public IReadOnlyCollection<Player> Allies => _allies;
@@ -39,9 +37,10 @@ namespace OpenSage.Logic
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
-        public Player(PlayerTemplate template)
+        public Player(PlayerTemplate template, in ColorRgb color)
         {
             Template = template;
+            Color = color;
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
@@ -102,12 +101,11 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            return new Player(template)
+            return new Player(template, color)
             {
                 Side = side,
                 Name = name,
                 DisplayName = translatedDisplayName,
-                Color = color,
                 IsHuman = isHuman
             };
         }
@@ -141,14 +139,15 @@ namespace OpenSage.Logic
 
         public static Player FromTemplate(GameData gameData, PlayerTemplate template, PlayerSetting? setting = null)
         {
+            var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
+
             // TODO: Use rest of the properties from the template
-            return new Player(template)
+            return new Player(template, color)
             {
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
                 Money = (uint)(template.StartMoney + gameData.DefaultStartingCash),
-                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor,
                 IsHuman = setting?.Owner == PlayerOwner.Player
             };
         }

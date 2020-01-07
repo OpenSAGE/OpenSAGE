@@ -6,13 +6,13 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
 {
-    public readonly struct RenderItem : IComparable<RenderItem>
+    internal readonly struct RenderItem : IComparable<RenderItem>
     {
         public readonly ShaderSet ShaderSet;
         public readonly Pipeline Pipeline;
         public readonly BoundingBox BoundingBox;
         public readonly Matrix4x4 World;
-        public readonly ColorRgb? HouseColor;
+        public readonly MeshShaderResources.RenderItemConstantsPS? RenderItemConstantsPS;
         public readonly BeforeRenderDelegate BeforeRenderCallback;
         public readonly uint StartIndex;
         public readonly uint IndexCount;
@@ -29,7 +29,7 @@ namespace OpenSage.Graphics.Rendering
             uint indexCount,
             DeviceBuffer indexBuffer,
             BeforeRenderDelegate beforeRenderCallback,
-            in ColorRgb? houseColor = null)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
             ShaderSet = shaderSet;
             Pipeline = pipeline;
@@ -39,7 +39,7 @@ namespace OpenSage.Graphics.Rendering
             IndexCount = indexCount;
             IndexBuffer = indexBuffer;
             BeforeRenderCallback = beforeRenderCallback;
-            HouseColor = houseColor;
+            RenderItemConstantsPS = renderItemConstantsPS;
 
             // Key.
             Key = 0;

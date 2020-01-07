@@ -9,6 +9,7 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -306,9 +307,13 @@ namespace OpenSage.Logic.Object
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
-            _activeModelDrawConditionState?.BuildRenderList(renderList, camera, castsShadow, owner);
+            _activeModelDrawConditionState?.BuildRenderList(
+                renderList,
+                camera,
+                castsShadow,
+                renderItemConstantsPS);
         }
     }
 
@@ -355,9 +360,13 @@ namespace OpenSage.Logic.Object
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
-            _modelInstance.BuildRenderList(renderList, camera, castsShadow, owner);
+            _modelInstance.BuildRenderList(
+                renderList,
+                camera,
+                castsShadow,
+                renderItemConstantsPS);
         }
     }
 

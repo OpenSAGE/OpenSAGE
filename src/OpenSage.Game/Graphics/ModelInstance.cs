@@ -6,6 +6,7 @@ using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using Veldrid;
 
@@ -208,7 +209,7 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
@@ -223,7 +224,7 @@ namespace OpenSage.Graphics
                     subObject.Bone,
                     _worldMatrix,
                     castsShadow,
-                    owner);
+                    renderItemConstantsPS);
             }
         }
     }

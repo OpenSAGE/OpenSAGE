@@ -155,7 +155,7 @@ namespace OpenSage.Graphics.Shaders
         {
             public Vector3 HouseColor;
 #pragma warning disable CS0169
-            private readonly float _padding;
+            public float Opacity;
 #pragma warning restore CS0169
         }
 

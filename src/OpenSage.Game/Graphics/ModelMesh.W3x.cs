@@ -95,6 +95,7 @@ namespace OpenSage.Graphics
                 (uint)(w3xMesh.Triangles.Length * 3),
                 false, // TODO
                 pipeline,
+                pipeline, // TODO
                 materialResourceSet));
 
             BoundingBox = w3xMesh.BoundingBox;

@@ -6,6 +6,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -28,7 +29,7 @@ namespace OpenSage.Logic.Object
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
-        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, Player owner);
+        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
     }
 
     public abstract class DrawModuleData : ModuleData

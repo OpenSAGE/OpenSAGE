@@ -33,7 +33,7 @@ struct RenderItemConstantsVSType
 struct RenderItemConstantsPSType
 {
     vec3 HouseColor;
-    float _Padding;
+    float Opacity;
 };
 
 #define MAKE_MESH_CONSTANTS_RESOURCES(resourceSet) \

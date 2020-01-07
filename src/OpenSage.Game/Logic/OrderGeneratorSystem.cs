@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.Data.Ini;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
@@ -9,7 +10,20 @@ namespace OpenSage.Logic
 {
     public class OrderGeneratorSystem : GameSystem
     {
-        public IOrderGenerator ActiveGenerator;
+        private IOrderGenerator _activeGenerator;
+
+        public IOrderGenerator ActiveGenerator
+        {
+            get => _activeGenerator;
+            set
+            {
+                if (_activeGenerator is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                _activeGenerator = value;
+            }
+        }
 
         public bool HasActiveOrderGenerator => ActiveGenerator != null;
 
@@ -107,6 +121,11 @@ namespace OpenSage.Logic
             }
         }
 
+        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+        {
+            ActiveGenerator?.BuildRenderList(renderList, camera, gameTime);
+        }
+
         private Vector3? GetTerrainPosition(Vector2 mousePosition)
         {
             var ray = Game.Scene3D.Camera.ScreenPointToRay(mousePosition);
@@ -134,7 +153,7 @@ namespace OpenSage.Logic
             var gameData = Game.AssetStore.GameData.Current;
             var definitionIndex = buildingDefinition.InternalId;
 
-            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.AssetStore.LoadContext);
         }
 
         public void StartConstructUnit(ObjectDefinition unitDefinition)
