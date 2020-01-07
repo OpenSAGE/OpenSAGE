@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Orders;
 
@@ -17,7 +18,7 @@ namespace OpenSage.Logic.OrderGenerators
         {
         }
 
-        public void BuildRenderList(RenderList renderList)
+        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
         }
 

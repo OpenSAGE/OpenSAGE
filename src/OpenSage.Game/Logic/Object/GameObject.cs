@@ -10,6 +10,7 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
@@ -121,6 +122,8 @@ namespace OpenSage.Logic.Object
 
         public float Speed { get; set; }
         public float Lift { get; set; }
+
+        public bool IsPlacementPreview { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
 
@@ -397,13 +400,19 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
+            var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
+            {
+                HouseColor = Owner.Color.ToVector3(),
+                Opacity = IsPlacementPreview ? 0.5f : 1.0f
+            };
+
             foreach (var drawModule in DrawModules)
             {
                 drawModule.BuildRenderList(
                     renderList,
                     camera,
                     castsShadow,
-                    Owner);
+                    renderItemConstantsPS);
             }
 
             //TODO: draw the rally point when this unit has one

@@ -39,6 +39,8 @@ namespace OpenSage
 
         private readonly ParticleSystemManager _particleSystemManager;
 
+        private readonly OrderGeneratorSystem _orderGeneratorSystem;
+
         public Camera Camera { get; }
 
         public ICameraController CameraController { get; set; }
@@ -305,6 +307,8 @@ namespace OpenSage
             }
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
+
+            _orderGeneratorSystem = game.OrderGenerator;
         }
 
         private void RegisterInputHandler(InputMessageHandler handler, InputMessageBuffer inputMessageBuffer)
@@ -403,6 +407,8 @@ namespace OpenSage
             }
 
             _particleSystemManager.BuildRenderList(renderList, gameTime);
+
+            _orderGeneratorSystem.BuildRenderList(renderList, camera, gameTime);
         }
 
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.

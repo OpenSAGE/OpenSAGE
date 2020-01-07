@@ -286,14 +286,10 @@ namespace OpenSage.Graphics.Rendering
                         lastWorld = renderItem.World;
                     }
 
-                    if (renderItem.HouseColor != null)
+                    if (renderItem.RenderItemConstantsPS != null)
                     {
-                        var houseColor = renderItem.HouseColor.Value.ToVector3();
-                        if (houseColor != _renderItemConstantsBufferPS.Value.HouseColor)
-                        {
-                            _renderItemConstantsBufferPS.Value.HouseColor = houseColor;
-                            _renderItemConstantsBufferPS.Update(commandList);
-                        }
+                        _renderItemConstantsBufferPS.Value = renderItem.RenderItemConstantsPS.Value;
+                        _renderItemConstantsBufferPS.Update(commandList);
                     }
                 }
 

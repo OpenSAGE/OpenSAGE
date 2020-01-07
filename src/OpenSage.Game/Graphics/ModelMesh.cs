@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
-using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
-using OpenSage.Utilities.Extensions;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -99,7 +95,7 @@ namespace OpenSage.Graphics
             ModelBone parentBone,
             in Matrix4x4 modelTransform,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
@@ -114,7 +110,7 @@ namespace OpenSage.Graphics
                 parentBone,
                 meshWorldMatrix,
                 castsShadow,
-                owner);
+                renderItemConstantsPS);
         }
 
         internal void BuildRenderListWithWorldMatrix(
@@ -126,7 +122,7 @@ namespace OpenSage.Graphics
             ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow,
-            Player owner = null)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
             if (Hidden)
             {
@@ -172,7 +168,8 @@ namespace OpenSage.Graphics
             {
                 var meshPart = MeshParts[i];
 
-                var blendEnabled = meshPart.BlendEnabled;
+                var forceBlendEnabled = renderItemConstantsPS != null && renderItemConstantsPS.Value.Opacity < 1.0f;
+                var blendEnabled = meshPart.BlendEnabled || forceBlendEnabled;
 
                 // Depth pass
 
@@ -198,14 +195,14 @@ namespace OpenSage.Graphics
 
                 renderQueue.RenderItems.Add(new RenderItem(
                     _shaderSet,
-                    meshPart.Pipeline,
+                    forceBlendEnabled ? meshPart.PipelineBlend : meshPart.Pipeline,
                     meshBoundingBox,
                     world,
                     meshPart.StartIndex,
                     meshPart.IndexCount,
                     _indexBuffer,
                     beforeRender[i],
-                    owner?.Color));
+                    renderItemConstantsPS));
             }
         }
     }

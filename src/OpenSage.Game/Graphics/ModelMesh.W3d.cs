@@ -283,6 +283,7 @@ namespace OpenSage.Graphics
                 (uint)w3dMesh.Triangles.Items.Length * 3,
                 blendEnabled,
                 pipeline,
+                pipeline, // TODO
                 materialResourceSet);
         }
 
@@ -568,6 +569,15 @@ namespace OpenSage.Graphics
                 destinationColorFactor,
                 destinationAlphaFactor);
 
+            var pipelineBlend = context.ShaderResources.FixedFunction.GetCachedPipeline(
+                cullMode,
+                depthWriteEnabled,
+                depthComparison,
+                true,
+                BlendFactor.SourceAlpha,
+                BlendFactor.InverseSourceAlpha,
+                BlendFactor.InverseSourceAlpha);
+
             var materialConstantsBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
                 new FixedFunctionShaderResources.MaterialConstantsType
                 {
@@ -588,6 +598,7 @@ namespace OpenSage.Graphics
                 indexCount,
                 blendEnabled,
                 pipeline,
+                pipelineBlend,
                 materialResourceSet);
         }
     }

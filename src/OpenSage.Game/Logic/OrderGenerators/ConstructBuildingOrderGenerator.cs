@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Content.Loaders;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
@@ -10,19 +12,24 @@ namespace OpenSage.Logic.OrderGenerators
     // TODO: Cancel this when:
     // 1. Builder dies
     // 2. We lose access to the building
-    public sealed class ConstructBuildingOrderGenerator : IOrderGenerator
+    // 3. Player right-clicks
+    public sealed class ConstructBuildingOrderGenerator : IOrderGenerator, IDisposable
     {
         private readonly ObjectDefinition _buildingDefinition;
         private readonly int _definitionIndex;
         private readonly GameData _config;
         private readonly float _baseAngle;
 
+        private readonly GameObject _previewObject;
+
+        private readonly BoxCollider _collider;
+
         private float _angle;
         private Vector3 _position;
 
         public bool CanDrag { get; } = true;
 
-        public ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameData config)
+        internal ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameData config, Player player, AssetLoadContext loadContext)
         {
             _buildingDefinition = buildingDefinition;
             _definitionIndex = definitionIndex;
@@ -31,20 +38,26 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Should this be relative to the current camera angle?
             _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
             _angle = _baseAngle;
+
+            _previewObject = new GameObject(buildingDefinition, loadContext, player, null, null);
+            _previewObject.IsPlacementPreview = true;
+
+            UpdatePreviewObjectPosition();
+            UpdatePreviewObjectAngle();
+
+            // TODO: This should work for all collider types.
+            _collider = Collider.Create(_buildingDefinition, _previewObject.Transform) as BoxCollider;
         }
 
-        public void BuildRenderList(RenderList renderList)
+        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
-            // TODO draw building ghost
+            _previewObject.LocalLogicTick(gameTime, 0, null);
+            _previewObject.BuildRenderList(renderList, camera);
         }
 
         public OrderGeneratorResult TryActivate(Scene3D scene)
         {
-            var transform = new Transform(_position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
-
-            // TODO: The collider should be created earlier and updated in UpdatePosition/UpdateDrag
-            // TODO: This should work for all collider types.
-            if (Collider.Create(_buildingDefinition, transform) is BoxCollider collider)
+            if (_collider != null)
             {
                 // TODO: Optimise using a quadtree
                 foreach (var obj in scene.GameObjects.Items)
@@ -54,7 +67,7 @@ namespace OpenSage.Logic.OrderGenerators
                         continue;
                     }
 
-                    if (collider.Intersects(otherCollider))
+                    if (_collider.Intersects(otherCollider))
                     {
                         return OrderGeneratorResult.Failure("Intersects an another building.");
                     }
@@ -82,6 +95,13 @@ namespace OpenSage.Logic.OrderGenerators
         public void UpdatePosition(Vector3 position)
         {
             _position = position;
+
+            UpdatePreviewObjectPosition();
+        }
+
+        private void UpdatePreviewObjectPosition()
+        {
+            _previewObject.Transform.Translation = _position;
         }
 
         public void UpdateDrag(Vector2 mouseDelta)
@@ -89,6 +109,18 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Make this configurable and figure out the real values from SAGE.
             const int pixelsPerRotation = 250;
             _angle = _baseAngle + mouseDelta.X / pixelsPerRotation * (float) (2 * Math.PI);
+
+            UpdatePreviewObjectAngle();
+        }
+
+        private void UpdatePreviewObjectAngle()
+        {
+            _previewObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle);
+        }
+
+        public void Dispose()
+        {
+            _previewObject.Dispose();
         }
     }
 }
