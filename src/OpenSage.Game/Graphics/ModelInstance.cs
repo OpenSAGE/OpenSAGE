@@ -191,11 +191,6 @@ namespace OpenSage.Graphics
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (worldMatrix == _worldMatrix)
-            {
-                return;
-            }
-
             _worldMatrix = worldMatrix;
 
             for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
