@@ -1,6 +1,12 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
+    tags:
+    - v*
+  pull_request:
 
 jobs:
   build:
@@ -27,7 +33,7 @@ jobs:
         dotnet-version: 3.0.100
 
     - name: Test
-      run: dotnet test src --configuration Release
+      run: dotnet test src --configuration Release --filter Category!=Interactive
 
     - name: Publish
       run: dotnet publish src/OpenSage.Launcher --configuration Release --runtime ${{ matrix.runtime }} --output build/artifacts/${{ matrix.runtime }}
