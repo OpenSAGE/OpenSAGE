@@ -60,6 +60,8 @@ namespace OpenSage.Logic.OrderGenerators
 
         public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
+            // TODO: Draw arrow (locater02.w3d) to visualise rotation angle.
+
             _previewObject.LocalLogicTick(gameTime, 0, null);
             _previewObject.BuildRenderList(renderList, camera);
         }
