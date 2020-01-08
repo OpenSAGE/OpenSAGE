@@ -125,6 +125,8 @@ namespace OpenSage.Logic.Object
 
         public bool IsPlacementPreview { get; set; }
 
+        public bool IsPlacementInvalid { get; set; }
+
         public GameObjectCollection Parent { get; private set; }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -403,7 +405,8 @@ namespace OpenSage.Logic.Object
             var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
             {
                 HouseColor = Owner.Color.ToVector3(),
-                Opacity = IsPlacementPreview ? 0.5f : 1.0f
+                Opacity = IsPlacementPreview ? 0.7f : 1.0f,
+                TintColor = IsPlacementInvalid ? new Vector3(1, 0.3f, 0.3f) : Vector3.One,
             };
 
             foreach (var drawModule in DrawModules)

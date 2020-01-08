@@ -153,7 +153,7 @@ namespace OpenSage.Logic
             var gameData = Game.AssetStore.GameData.Current;
             var definitionIndex = buildingDefinition.InternalId;
 
-            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.AssetStore.LoadContext);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.AssetStore.LoadContext, Game.Scene3D);
         }
 
         public void StartConstructUnit(ObjectDefinition unitDefinition)

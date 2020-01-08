@@ -134,7 +134,7 @@ namespace OpenSage.Graphics.ParticleSystems
             var numVertices = maxParticles * 4;
             _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) (ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
+                    (uint) (ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
                     BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
             _vertices = new ParticleShaderResources.ParticleVertex[numVertices];

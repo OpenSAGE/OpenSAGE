@@ -376,6 +376,6 @@ void main()
         in_CloudUV);
 
     out_Color = vec4(
-        objectColor * cloudColor,
+        objectColor * cloudColor * _RenderItemConstantsPS.TintColor,
         _MaterialConstants.Material.Opacity * diffuseTextureColor.w * _RenderItemConstantsPS.Opacity);
 }
