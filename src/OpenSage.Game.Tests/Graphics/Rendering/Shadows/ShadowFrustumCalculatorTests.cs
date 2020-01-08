@@ -9,7 +9,7 @@ namespace OpenSage.Tests.Graphics.Rendering.Shadows
 {
     public class DirectionalLightFrustumCalculatorTests
     {
-        [Fact]
+        [Fact, Trait("Category", "Interactive")]
         public void CanCalculateFrustum()
         {
             // Arrange.
