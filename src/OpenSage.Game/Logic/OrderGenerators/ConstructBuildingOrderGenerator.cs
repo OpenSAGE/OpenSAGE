@@ -127,11 +127,11 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject.Transform.Translation = _position;
         }
 
-        public void UpdateDrag(Vector2 mouseDelta)
+        public void UpdateDrag(Vector3 position)
         {
-            // TODO: Make this configurable and figure out the real values from SAGE.
-            const int pixelsPerRotation = 250;
-            _angle = _baseAngle + mouseDelta.X / pixelsPerRotation * (float) (2 * Math.PI);
+            // Calculate angle from building position to current unprojected mouse position.
+            var direction = position.Vector2XY() - _position.Vector2XY();
+            _angle = MathUtility.GetYawFromDirection(direction);
 
             UpdatePreviewObjectAngle();
             UpdateValidity();

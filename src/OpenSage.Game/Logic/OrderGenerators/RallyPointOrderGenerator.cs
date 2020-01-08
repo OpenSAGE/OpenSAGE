@@ -37,7 +37,7 @@ namespace OpenSage.Logic.OrderGenerators
             _position = position;
         }
 
-        public void UpdateDrag(Vector2 mouseDelta)
+        public void UpdateDrag(Vector3 position)
         {
         }
     }
