@@ -32,8 +32,7 @@ namespace OpenSage.Logic
                     if (_isDragging)
                     {
                         _dragEndPosition = message.Value.MousePosition;
-                        var mouseDelta = (_dragEndPosition - _mousePosition).ToVector2();
-                        _orderGeneratorSystem.ActiveGenerator.UpdateDrag(mouseDelta);
+                        _orderGeneratorSystem.UpdateDrag(_dragEndPosition.ToVector2());
                     }
                     else
                     {

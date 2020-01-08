@@ -68,7 +68,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         void UpdatePosition(Vector3 position);
 
-        void UpdateDrag(Vector2 mouseDelta);
+        void UpdateDrag(Vector3 position);
 
         // TODO: Add cursor handling
     }

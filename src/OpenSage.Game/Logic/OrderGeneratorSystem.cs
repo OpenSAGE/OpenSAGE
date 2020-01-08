@@ -41,6 +41,16 @@ namespace OpenSage.Logic
             }
         }
 
+        public void UpdateDrag(Vector2 mousePosition)
+        {
+            var worldPosition = GetTerrainPosition(mousePosition);
+
+            if (worldPosition.HasValue && ActiveGenerator != null)
+            {
+                ActiveGenerator.UpdateDrag(worldPosition.Value);
+            }
+        }
+
         private bool StructuresSelected()
         {
             if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
