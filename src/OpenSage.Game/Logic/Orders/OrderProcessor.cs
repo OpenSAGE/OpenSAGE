@@ -44,8 +44,6 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach(var unit in player.SelectedUnits)
                             {
-                                //TODO: only play this for local players
-                                unit.OnLocalMove(_game.Audio);
                                 unit.SetTargetPoint(targetPosition);
                             }
                         }

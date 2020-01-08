@@ -92,45 +92,4 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string VoiceFullyCreated { get; private set; }
     }
-
-    public class UnitSpecificSounds
-    {
-        internal static UnitSpecificSounds Parse (IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        internal static readonly IniParseTable<UnitSpecificSounds> FieldParseTable = new IniParseTable<UnitSpecificSounds>
-        {
-            { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAssetReference() },
-
-            { "VoiceEnterUnitElvenTransportShip", (parser, x) => x.VoiceEnterUnitElvenTransportShip = parser.ParseAssetReference() },
-            { "VoiceEnterUnitMordorMumakil", (parser, x) => x.VoiceEnterUnitMordorMumakil = parser.ParseAssetReference() },
-            { "VoiceEnterUnitSlaughterHouse", (parser, x) => x.VoiceEnterUnitSlaughterHouse = parser.ParseAssetReference() },
-            { "VoiceEnterUnitTransportShip", (parser, x) => x.VoiceEnterUnitTransportShip = parser.ParseAssetReference() },
-            { "VoiceInitiateCaptureBuilding", (parser, x) => x.VoiceInitiateCaptureBuilding = parser.ParseAssetReference() },
-            { "VoiceAttackFireball", (parser, x) => x.VoiceAttackFireball = parser.ParseAssetReference() },
-            { "VoiceMoveToTrees", (parser, x) => x.VoiceMoveToTrees = parser.ParseAssetReference() },
-        };
-
-        public string VoiceGarrison { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterUnitElvenTransportShip { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterUnitMordorMumakil { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterUnitSlaughterHouse { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterUnitTransportShip { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceInitiateCaptureBuilding { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceAttackFireball { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceMoveToTrees { get; private set; }
-    }
 }

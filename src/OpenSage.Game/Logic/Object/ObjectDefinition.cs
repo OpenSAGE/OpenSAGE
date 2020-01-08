@@ -205,7 +205,7 @@ namespace OpenSage.Logic.Object
             { "SoundImpactCyclonic", (parser, x) => x.SoundImpactCyclonic = parser.ParseAssetReference() },
             { "SoundCrushing", (parser, x) => x.SoundCrushing = parser.ParseAssetReference() },
 
-            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
+            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
             { "UnitSpecificFX", (parser, x) => x.UnitSpecificFX = UnitSpecificAssets.Parse(parser) },
 
             { "VoicePriority", (parser, x) => x.VoicePriority = parser.ParseInteger() },
@@ -755,7 +755,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundCrushing { get; private set; }
 
-        public UnitSpecificAssets UnitSpecificSounds { get; private set; }
+        public UnitSpecificSounds UnitSpecificSounds { get; private set; }
         public UnitSpecificAssets UnitSpecificFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]

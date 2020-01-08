@@ -34,6 +34,7 @@ namespace OpenSage.Logic
         public IReadOnlyCollection<Player> Enemies => _enemies;
 
         // TODO: Does the order matter? Is it ever visible in UI?
+        // TODO: Yes the order does matter. For example, the sound played when moving mixed groups of units is the one for the most-recently-selected unit.
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 

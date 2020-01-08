@@ -104,6 +104,11 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
+            if (baseAudioEvent == null)
+            {
+                return;
+            }
+
             if (!(baseAudioEvent is AudioEvent audioEvent))
             {
                 // TODO

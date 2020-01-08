@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -81,6 +82,8 @@ namespace OpenSage
         public Player LocalPlayer { get; private set; }
         public Navigation.Navigation Navigation { get; private set; }
 
+        public AudioSystem Audio { get; }
+
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -136,6 +139,7 @@ namespace OpenSage
             Waypoints = waypoints;
             WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
             Cameras = cameras;
+            Audio = game.Audio;
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
