@@ -14,8 +14,8 @@ namespace OpenSage.Graphics.Animation
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
-        private AnimationMode _mode;
-        private AnimationFlags _flags;
+        private readonly AnimationMode _mode;
+        private readonly AnimationFlags _flags;
 
         private bool Looping => _mode.HasFlag(AnimationMode.Loop) || _mode.HasFlag(AnimationMode.LoopBackwards);
         private bool Reverse => _mode.HasFlag(AnimationMode.OnceBackwards) || _mode.HasFlag(AnimationMode.LoopBackwards);
