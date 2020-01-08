@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
@@ -68,8 +69,21 @@ namespace OpenSage.Logic.OrderGenerators
 
         public OrderGeneratorResult TryActivate(Scene3D scene)
         {
+            // TODO: Probably not right way to get dozer object.
+            var dozer = scene.LocalPlayer.SelectedUnits.First();
+
             if (!IsValidPosition())
             {
+                scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceNoBuild"]?.Value);
+
+                // TODO: Display correct message:
+                // - GUI:CantBuildRestrictedTerrain
+                // - GUI:CantBuildNotFlatEnough
+                // - GUI:CantBuildObjectsInTheWay
+                // - GUI:CantBuildNoClearPath
+                // - GUI:CantBuildShroud
+                // - GUI:CantBuildThere
+
                 return OrderGeneratorResult.Failure("Invalid position.");
             }
 
@@ -78,6 +92,8 @@ namespace OpenSage.Logic.OrderGenerators
             {
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
+
+            scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceCreate"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);

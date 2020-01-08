@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -87,12 +88,21 @@ namespace OpenSage.Logic
                 var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
                 order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
             }
-            else
+            else if (Game.Scene3D.LocalPlayer.SelectedUnits.Count > 0)
             {
+                // TODO: Check whether at least one of the selected units can actually be moved.
+
+                // We choose the sound based on the most-recently-selected unit.
+                var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+                unit.OnLocalMove(Game.Audio);
+
                 order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
             }
 
-            Game.NetworkMessageBuffer.AddLocalOrder(order);
+            if (order != null)
+            {
+                Game.NetworkMessageBuffer.AddLocalOrder(order);
+            }
         }
 
         public void OnActivate()
@@ -108,9 +118,6 @@ namespace OpenSage.Logic
             {
                 case OrderGeneratorResult.Success success:
                     {
-                        // TODO: Wrong place, wrong behavior.
-                        Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
-
                         foreach (var order in success.Orders)
                         {
                             Game.NetworkMessageBuffer.AddLocalOrder(order);
@@ -124,8 +131,6 @@ namespace OpenSage.Logic
                         break;
                     }
                 case OrderGeneratorResult.FailureResult _:
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
                     // TODO: Show error message in HUD
                     break;
             }
