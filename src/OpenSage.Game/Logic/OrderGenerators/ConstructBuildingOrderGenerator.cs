@@ -18,6 +18,7 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly ObjectDefinition _buildingDefinition;
         private readonly int _definitionIndex;
         private readonly GameData _config;
+        private readonly Scene3D _scene;
         private readonly float _baseAngle;
 
         private readonly GameObject _previewObject;
@@ -29,11 +30,18 @@ namespace OpenSage.Logic.OrderGenerators
 
         public bool CanDrag { get; } = true;
 
-        internal ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameData config, Player player, AssetLoadContext loadContext)
+        internal ConstructBuildingOrderGenerator(
+            ObjectDefinition buildingDefinition,
+            int definitionIndex,
+            GameData config,
+            Player player,
+            AssetLoadContext loadContext,
+            Scene3D scene)
         {
             _buildingDefinition = buildingDefinition;
             _definitionIndex = definitionIndex;
             _config = config;
+            _scene = scene;
 
             // TODO: Should this be relative to the current camera angle?
             _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
@@ -44,6 +52,7 @@ namespace OpenSage.Logic.OrderGenerators
 
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();
+            UpdateValidity();
 
             // TODO: This should work for all collider types.
             _collider = Collider.Create(_buildingDefinition, _previewObject.Transform) as BoxCollider;
@@ -57,21 +66,9 @@ namespace OpenSage.Logic.OrderGenerators
 
         public OrderGeneratorResult TryActivate(Scene3D scene)
         {
-            if (_collider != null)
+            if (!IsValidPosition())
             {
-                // TODO: Optimise using a quadtree
-                foreach (var obj in scene.GameObjects.Items)
-                {
-                    if (!(obj.Collider is BoxCollider otherCollider))
-                    {
-                        continue;
-                    }
-
-                    if (_collider.Intersects(otherCollider))
-                    {
-                        return OrderGeneratorResult.Failure("Intersects an another building.");
-                    }
-                }
+                return OrderGeneratorResult.Failure("Invalid position.");
             }
 
             var player = scene.LocalPlayer;
@@ -84,12 +81,35 @@ namespace OpenSage.Logic.OrderGenerators
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
             var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, _position, _angle);
 
+            // TODO: Also send an order to builder to start building.
+            return OrderGeneratorResult.SuccessAndExit(new[] { moveOrder, buildOrder });
+        }
+
+        private bool IsValidPosition()
+        {
             // TODO: Check that the target area has been explored
             // TODO: Check that the builder can reach target position
             // TODO: Check that the terrain is even enough at the target position
 
-            // TODO: Also send an order to builder to start building.
-            return OrderGeneratorResult.SuccessAndExit(new[] { moveOrder, buildOrder });
+            if (_collider != null)
+            {
+                // TODO: Optimise using a quadtree
+                foreach (var obj in _scene.GameObjects.Items)
+                {
+                    if (!(obj.Collider is BoxCollider otherCollider))
+                    {
+                        continue;
+                    }
+
+                    // TODO: Should use FactoryExitWidth
+                    if (_collider.Intersects(otherCollider))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public void UpdatePosition(Vector3 position)
@@ -97,6 +117,7 @@ namespace OpenSage.Logic.OrderGenerators
             _position = position;
 
             UpdatePreviewObjectPosition();
+            UpdateValidity();
         }
 
         private void UpdatePreviewObjectPosition()
@@ -111,11 +132,17 @@ namespace OpenSage.Logic.OrderGenerators
             _angle = _baseAngle + mouseDelta.X / pixelsPerRotation * (float) (2 * Math.PI);
 
             UpdatePreviewObjectAngle();
+            UpdateValidity();
         }
 
         private void UpdatePreviewObjectAngle()
         {
             _previewObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle);
+        }
+
+        private void UpdateValidity()
+        {
+            _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
 
         public void Dispose()

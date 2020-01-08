@@ -17,7 +17,7 @@ namespace OpenSage.Graphics.Rendering
         private RenderItem[] _items;
 
         // TODO: Bounds check?
-        public ref RenderItem this[int i] => ref _items[i];
+        internal ref RenderItem this[int i] => ref _items[i];
 
         // An array of flags indicating if a render item should be included in the culling set.
         // Must have the same capacity and length as _items.
@@ -39,7 +39,7 @@ namespace OpenSage.Graphics.Rendering
             Length = 0;
         }
 
-        public void Add(RenderItem item)
+        internal void Add(RenderItem item)
         {
             if (Length == _items.Length)
             {
