@@ -103,8 +103,10 @@ namespace OpenSage.Logic.Object
         public bool IsSelectable { get; set; }
 
         public bool IsSelected { get; set; }
-
-        public Vector3 RallyPoint { get; set; }
+        public Vector3? RallyPoint { get; set; }
+        private Vector3 SpawnPoint { get; set; }
+        private Vector3 NaturalRallyPoint { get; set; }
+        private GameObject RallyPointMarker { get; set; }
 
         private Locomotor CurrentLocomotor { get; set; }
 
@@ -172,6 +174,37 @@ namespace OpenSage.Logic.Object
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
             TargetPoints = new List<Vector3>();
+
+            if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
+            {
+                var rpMarkerDef = loadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
+                RallyPointMarker = new GameObject(rpMarkerDef, loadContext, owner, parent, navigation);
+            }
+            //TODO: when exactly do units have a spawn point
+            GetRallyPoints();
+        }
+
+        private void GetRallyPoints()
+        {
+            // The point where the unit appears
+            SpawnPoint = Vector3.Zero;
+            // The point the unit leaves the manufacturing building
+            NaturalRallyPoint = Vector3.Zero;
+
+            foreach (var behavior in Definition.Behaviors)
+            {
+                switch (behavior)
+                {
+                    case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
+                        SpawnPoint = supplyCenterModuleData.UnitCreatePoint;
+                        NaturalRallyPoint = supplyCenterModuleData.NaturalRallyPoint;
+                        break;
+                    case DefaultProductionExitUpdateModuleData defaultModuleData:
+                        SpawnPoint = defaultModuleData.UnitCreatePoint;
+                        NaturalRallyPoint = defaultModuleData.NaturalRallyPoint;
+                        break;
+                }
+            }
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -226,7 +259,7 @@ namespace OpenSage.Logic.Object
                 switch (current.Type)
                 {
                     case ProductionJobType.Unit:
-                        this.Spawn(current.ObjectDefinition);
+                        Spawn(current.ObjectDefinition);
                         break;
                 }
             }
@@ -255,32 +288,15 @@ namespace OpenSage.Logic.Object
         internal void Spawn(ObjectDefinition objectDefinition)
         {
             var spawnedUnit = Parent.Add(objectDefinition, Owner);
-            // The point where the unit appears
-            var spawnPoint = Transform.Translation;
-            // The point the unit leaves the manufacturing building
-            var naturalRallyPoint = Transform.Translation;
-
-            foreach (var behavior in Definition.Behaviors)
-            {
-                switch (behavior)
-                {
-                    case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
-                        spawnPoint = ToWorldspace(supplyCenterModuleData.UnitCreatePoint);
-                        naturalRallyPoint = ToWorldspace(supplyCenterModuleData.NaturalRallyPoint);
-                        break;
-                    case DefaultProductionExitUpdateModuleData defaultModuleData:
-                        spawnPoint = ToWorldspace(defaultModuleData.UnitCreatePoint);
-                        naturalRallyPoint = ToWorldspace(defaultModuleData.NaturalRallyPoint);
-                        break;
-                }
-            }
-
             spawnedUnit.Transform.Rotation = Transform.Rotation;
-            spawnedUnit.Transform.Translation = spawnPoint;
-            // First go to the exit point
-            spawnedUnit.AddTargetPoint(naturalRallyPoint);
-            // Then go to the query point
-            spawnedUnit.AddTargetPoint(RallyPoint);
+            spawnedUnit.Transform.Translation = ToWorldspace(SpawnPoint);
+            // First go to the natural rally point
+            spawnedUnit.AddTargetPoint(ToWorldspace(NaturalRallyPoint));
+            // Then go to the rally point if it exists
+            if (RallyPoint.HasValue)
+            {
+                spawnedUnit.AddTargetPoint(RallyPoint.Value);
+            }
         }
 
         internal void AddTargetPoint(Vector3 targetPoint)
@@ -379,6 +395,8 @@ namespace OpenSage.Logic.Object
             {
                 drawModule.SetWorldMatrix(worldMatrix);
             }
+
+            RallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
@@ -418,7 +436,20 @@ namespace OpenSage.Logic.Object
                     renderItemConstantsPS);
             }
 
-            //TODO: draw the rally point when this unit has one
+            if ((IsSelected || IsPlacementPreview) && RallyPointMarker != null)
+            {
+                if (RallyPoint.HasValue)
+                {
+                    RallyPointMarker.Transform.Translation = RallyPoint.Value;
+                }
+                else
+                {
+                    RallyPointMarker.Transform.Translation = ToWorldspace(NaturalRallyPoint);
+                }
+                //TODO: check if this should be drawn with transparency?
+                RallyPointMarker.BuildRenderList(renderList, camera);
+            }
+
         }
 
         public void ClearModelConditionFlags()
