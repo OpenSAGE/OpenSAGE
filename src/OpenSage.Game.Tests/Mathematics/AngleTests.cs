@@ -6,7 +6,7 @@ namespace OpenSage.Tests.Mathematics
 {
     public class AngleTests
     {
-        private const int Precision = 6;
+        private const int Precision = 4;
 
         [Fact]
         public void DegreesToRadiansTest()
