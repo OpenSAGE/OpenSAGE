@@ -11,7 +11,6 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -81,6 +80,8 @@ namespace OpenSage.Logic.Object
             UpdateDrawModuleConditionStates();
         }
 
+        private readonly GameObject _rallyPointMarker;
+
         public ObjectDefinition Definition { get; }
 
         public Transform Transform { get; }
@@ -90,6 +91,8 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
 
         public IReadOnlyList<DrawModule> DrawModules { get; }
+
+        public IReadOnlyList<BehaviorModule> BehaviorModules { get; }
 
         public Collider Collider { get; }
 
@@ -104,9 +107,6 @@ namespace OpenSage.Logic.Object
 
         public bool IsSelected { get; set; }
         public Vector3? RallyPoint { get; set; }
-        private Vector3 SpawnPoint { get; set; }
-        private Vector3 NaturalRallyPoint { get; set; }
-        private GameObject RallyPointMarker { get; set; }
 
         private Locomotor CurrentLocomotor { get; set; }
 
@@ -130,6 +130,8 @@ namespace OpenSage.Logic.Object
         public bool IsPlacementInvalid { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
+
+        public ProductionUpdate ProductionUpdate { get; }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -161,6 +163,20 @@ namespace OpenSage.Logic.Object
             }
             DrawModules = drawModules;
 
+            var behaviors = new List<BehaviorModule>();
+            foreach (var behaviorData in objectDefinition.Behaviors)
+            {
+                var module = AddDisposable(behaviorData.CreateModule(this));
+                if (module != null)
+                {
+                    // TODO: This will never be null once we've implemented all the draw modules.
+                    behaviors.Add(module);
+                }
+            }
+            BehaviorModules = behaviors;
+
+            ProductionUpdate = FindBehavior<ProductionUpdate>();
+
             Collider = Collider.Create(objectDefinition, Transform);
 
             ModelConditionStates = drawModules
@@ -178,32 +194,7 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
             {
                 var rpMarkerDef = loadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                RallyPointMarker = new GameObject(rpMarkerDef, loadContext, owner, parent, navigation);
-            }
-            //TODO: when exactly do units have a spawn point
-            GetRallyPoints();
-        }
-
-        private void GetRallyPoints()
-        {
-            // The point where the unit appears
-            SpawnPoint = Vector3.Zero;
-            // The point the unit leaves the manufacturing building
-            NaturalRallyPoint = Vector3.Zero;
-
-            foreach (var behavior in Definition.Behaviors)
-            {
-                switch (behavior)
-                {
-                    case SupplyCenterProductionExitUpdateModuleData supplyCenterModuleData:
-                        SpawnPoint = supplyCenterModuleData.UnitCreatePoint;
-                        NaturalRallyPoint = supplyCenterModuleData.NaturalRallyPoint;
-                        break;
-                    case DefaultProductionExitUpdateModuleData defaultModuleData:
-                        SpawnPoint = defaultModuleData.UnitCreatePoint;
-                        NaturalRallyPoint = defaultModuleData.NaturalRallyPoint;
-                        break;
-                }
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation));
             }
         }
 
@@ -218,16 +209,13 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void LogicTick(ulong frame)
+        internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            // TODO: Update modules.
-            HandleProduction();
+            foreach (var behavior in BehaviorModules)
+            {
+                behavior.Update(time);
+            }
         }
-
-        public bool IsProducing => _productionQueue.Count > 0;
-
-        private List<ProductionJob> _productionQueue = new List<ProductionJob>();
-        public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
         private void HandleConstruction(in TimeInterval gameTime)
         {
@@ -244,54 +232,39 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void HandleProduction()
-        {
-            //TODO: implement ProductionUpdate behaviour
-            if (!IsProducing)
-            {
-                return;
-            }
-            var current = _productionQueue.First();
-            //todo: determine correct value for the production
-            if (current.Produce(20) == ProductionJobResult.Finished)
-            {
-                _productionQueue.RemoveAt(0);
-                switch (current.Type)
-                {
-                    case ProductionJobType.Unit:
-                        Spawn(current.ObjectDefinition);
-                        break;
-                }
-            }
-        }
-
-        internal void QueueProduction(ObjectDefinition objectDefinition)
-        {
-            var job = new ProductionJob(objectDefinition);
-            _productionQueue.Add(job);
-        }
-
-        public void CancelProduction(int pos)
-        {
-            if (pos < _productionQueue.Count)
-            {
-                _productionQueue.RemoveAt(pos);
-            }
-        }
-
-        internal Vector3 ToWorldspace(Vector3 localPos)
+        internal Vector3 ToWorldspace(in Vector3 localPos)
         {
             var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), Transform.Matrix);
             return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
         }
 
+        internal T FindBehavior<T>()
+        {
+            // TODO: Cache this?
+            return BehaviorModules.OfType<T>().FirstOrDefault();
+        }
+
         internal void Spawn(ObjectDefinition objectDefinition)
         {
+            var productionExit = FindBehavior<IProductionExit>();
+
+            if (productionExit == null)
+            {
+                // If there's no IProductionExit behavior on this object, don't spawn anything.
+                return;
+            }
+
             var spawnedUnit = Parent.Add(objectDefinition, Owner);
             spawnedUnit.Transform.Rotation = Transform.Rotation;
-            spawnedUnit.Transform.Translation = ToWorldspace(SpawnPoint);
+            spawnedUnit.Transform.Translation = ToWorldspace(productionExit.GetUnitCreatePoint());
+
             // First go to the natural rally point
-            spawnedUnit.AddTargetPoint(ToWorldspace(NaturalRallyPoint));
+            var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
+            if (naturalRallyPoint != null)
+            {
+                spawnedUnit.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
+            }
+
             // Then go to the rally point if it exists
             if (RallyPoint.HasValue)
             {
@@ -396,7 +369,7 @@ namespace OpenSage.Logic.Object
                 drawModule.SetWorldMatrix(worldMatrix);
             }
 
-            RallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
+            _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
@@ -436,18 +409,12 @@ namespace OpenSage.Logic.Object
                     renderItemConstantsPS);
             }
 
-            if ((IsSelected || IsPlacementPreview) && RallyPointMarker != null)
+            if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
             {
-                if (RallyPoint.HasValue)
-                {
-                    RallyPointMarker.Transform.Translation = RallyPoint.Value;
-                }
-                else
-                {
-                    RallyPointMarker.Transform.Translation = ToWorldspace(NaturalRallyPoint);
-                }
-                //TODO: check if this should be drawn with transparency?
-                RallyPointMarker.BuildRenderList(renderList, camera);
+                _rallyPointMarker.Transform.Translation = RallyPoint.Value;
+
+                // TODO: check if this should be drawn with transparency?
+                _rallyPointMarker.BuildRenderList(renderList, camera);
             }
 
         }

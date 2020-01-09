@@ -282,6 +282,11 @@ namespace OpenSage.Logic.Object
                : null;
         }
 
+        internal override (ModelInstance, ModelBone) FindBone(string boneName)
+        {
+            return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
+        }
+
         internal override void Update(in TimeInterval gameTime, GameObject gameObject)
         {
             if(_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))

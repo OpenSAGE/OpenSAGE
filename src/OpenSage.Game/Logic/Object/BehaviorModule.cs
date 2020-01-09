@@ -4,6 +4,11 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class BehaviorModule : DisposableBase
+    {
+        internal virtual void Update(in TimeInterval time) { }
+    }
+
     public abstract class BehaviorModuleData : ModuleData
     {
         internal static BehaviorModuleData ParseBehavior(IniParser parser) => ParseModule(parser, BehaviorParseTable);
@@ -370,5 +375,7 @@ namespace OpenSage.Logic.Object
             { "WeaponBonusUpgrade", WeaponBonusUpgradeModuleData.Parse },
             { "WeaponSetUpgrade", WeaponSetUpgradeModuleData.Parse },
         };
+
+        internal virtual BehaviorModule CreateModule(GameObject gameObject) => null; // TODO: Make this abstract.
     }
 }
