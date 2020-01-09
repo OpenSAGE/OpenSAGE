@@ -20,6 +20,7 @@ namespace OpenSage.Terrain.Roads
 
         public static IList<RoadNetwork> BuildNetworks(RoadTopology topology)
         {
+            topology.AlignOrientation();
             var edgeSegments = BuildEdgeSegments(topology);
             InsertNodeSegments(topology, edgeSegments);
             var networks = BuildNetworks(topology, edgeSegments);
