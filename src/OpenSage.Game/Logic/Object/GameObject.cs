@@ -425,7 +425,7 @@ namespace OpenSage.Logic.Object
             UpdateDrawModuleConditionStates();
         }
 
-        private void UpdateDrawModuleConditionStates()
+        internal void UpdateDrawModuleConditionStates()
         {
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
             foreach (var drawModule in DrawModules)

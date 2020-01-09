@@ -8,12 +8,16 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ProductionUpdate : UpdateModule
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly GameObject _gameObject;
         private readonly ProductionUpdateModuleData _moduleData;
         private readonly List<ProductionJob> _productionQueue = new List<ProductionJob>();
 
         private DoorState _currentDoorState;
         private TimeSpan _currentStepEnd;
+
+        private GameObject _producedUnit;
 
         private enum DoorState
         {
@@ -42,12 +46,13 @@ namespace OpenSage.Logic.Object
             {
                 if (time.TotalTime >= _currentStepEnd)
                 {
+                    Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
                     _currentDoorState = DoorState.Open;
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, true);
-                    ProduceObject(_productionQueue[0]);
-                    _productionQueue.RemoveAt(0);
+                    _gameObject.UpdateDrawModuleConditionStates();
+                    MoveProducedObjectOut();
                 }
 
                 return;
@@ -57,13 +62,19 @@ namespace OpenSage.Logic.Object
             {
                 if (_moduleData.NumDoorAnimations > 0)
                 {
+                    Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
                     _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
                     _currentDoorState = DoorState.Opening;
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
+                    _gameObject.UpdateDrawModuleConditionStates();
+
+                    ProduceObject(_productionQueue[0]);
+                    _productionQueue.RemoveAt(0);
                 }
                 else
                 {
                     ProduceObject(_productionQueue[0]);
+                    MoveProducedObjectOut();
                     _productionQueue.RemoveAt(0);
                 }
             }
@@ -73,10 +84,12 @@ namespace OpenSage.Logic.Object
                 case DoorState.Open:
                     if (time.TotalTime >= _currentStepEnd)
                     {
+                        Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
                         _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
                         _currentDoorState = DoorState.Closing;
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, false);
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
+                        _gameObject.UpdateDrawModuleConditionStates();
                         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
                     }
                     break;
@@ -84,8 +97,10 @@ namespace OpenSage.Logic.Object
                 case DoorState.Closing:
                     if (time.TotalTime >= _currentStepEnd)
                     {
+                        Logger.Info($"Door closed");
                         _currentDoorState = DoorState.Closed;
-                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);                        
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
+                        _gameObject.UpdateDrawModuleConditionStates();
                     }
                     break;
             }
@@ -111,22 +126,34 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
-            producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
-            producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
+            _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
+            _producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
+        }
+
+        private void MoveProducedObjectOut()
+        {
+            if (_producedUnit == null)
+            {
+                return;
+            }
+
+            var productionExit = _gameObject.FindBehavior<IProductionExit>();
 
             // First go to the natural rally point
             var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
             if (naturalRallyPoint != null)
             {
-                producedUnit.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
+                _producedUnit.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
             if (_gameObject.RallyPoint.HasValue)
             {
-                producedUnit.AddTargetPoint(_gameObject.RallyPoint.Value);
+                _producedUnit.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
+
+            _producedUnit = null;
         }
 
         internal void QueueProduction(ObjectDefinition objectDefinition)

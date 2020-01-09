@@ -75,6 +75,14 @@ namespace OpenSage.Graphics.Animation
         {
             Array.Clear(_keyframeIndices, 0, _keyframeIndices.Length);
 
+            if (Reverse)
+            {
+                for (var i = 0; i < _keyframeIndices.Length; i++)
+                {
+                    _keyframeIndices[i] = _animation.Clips[i].Keyframes.Length - 1;
+                }
+            }
+
             for (var i = 0; i < _boneInstances.Length; i++)
             {
                 _boneInstances[i].AnimatedOffset.Translation = Vector3.Zero;
@@ -96,33 +104,67 @@ namespace OpenSage.Graphics.Animation
 
         private void UpdateBoneTransforms(in TimeInterval gameTime)
         {
-            //TODO: implement reverse and ping pong
+            //TODO: implement ping pong
             var time = _currentTimeValue;
 
             if (!Manual)
             {
-                time += gameTime.DeltaTime;
+                if (Reverse)
+                {
+                    time -= gameTime.DeltaTime;
+                }
+                else
+                {
+                    time += gameTime.DeltaTime;
+                }
             }
 
-            if (time >= _animation.Duration)
+            var reachedEnd = Reverse
+                ? time < TimeSpan.Zero
+                : time >= _animation.Duration;
+
+            if (reachedEnd)
             {
                 // If we reached the end, loop back to the start or stay at the last frame
                 if (Looping)
                 {
-                    while (time >= _animation.Duration)
+                    if (Reverse)
                     {
-                        time -= _animation.Duration;
-                    }
+                        while (time < TimeSpan.Zero)
+                        {
+                            time += _animation.Duration;
+                        }
 
-                    // If we've just moved backwards, reset the keyframe indices.
-                    if (time < _currentTimeValue)
+                        // If we've just moved forwards, reset the keyframe indices.
+                        if (time > _currentTimeValue)
+                        {
+                            ResetBoneTransforms();
+                        }
+                    }
+                    else
                     {
-                        ResetBoneTransforms();
+                        while (time >= _animation.Duration)
+                        {
+                            time -= _animation.Duration;
+                        }
+
+                        // If we've just moved backwards, reset the keyframe indices.
+                        if (time < _currentTimeValue)
+                        {
+                            ResetBoneTransforms();
+                        }
                     }
                 }
                 else
                 {
-                    time = _animation.Duration;
+                    if (Reverse)
+                    {
+                        time = TimeSpan.Zero;
+                    }
+                    else
+                    {
+                        time = _animation.Duration;
+                    }
                 }
             }
 
@@ -143,18 +185,37 @@ namespace OpenSage.Graphics.Animation
                     continue;
                 }
 
-                for (var j = _keyframeIndices[i]; j < clip.Keyframes.Length; j++)
+                if (Reverse)
                 {
-                    var keyframe = clip.Keyframes[j];
-
-                    if (keyframe.Time > _currentTimeValue)
+                    for (var j = _keyframeIndices[i]; j >= 0; j--)
                     {
-                        next = keyframe;
-                        break;
-                    }
+                        var keyframe = clip.Keyframes[j];
 
-                    previous = keyframe;
-                    _keyframeIndices[i] = j;
+                        if (keyframe.Time < _currentTimeValue)
+                        {
+                            next = keyframe;
+                            break;
+                        }
+
+                        previous = keyframe;
+                        _keyframeIndices[i] = j;
+                    }
+                }
+                else
+                {
+                    for (var j = _keyframeIndices[i]; j < clip.Keyframes.Length; j++)
+                    {
+                        var keyframe = clip.Keyframes[j];
+
+                        if (keyframe.Time > _currentTimeValue)
+                        {
+                            next = keyframe;
+                            break;
+                        }
+
+                        previous = keyframe;
+                        _keyframeIndices[i] = j;
+                    }
                 }
 
                 if (previous != null)
