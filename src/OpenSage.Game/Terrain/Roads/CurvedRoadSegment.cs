@@ -77,7 +77,10 @@ namespace OpenSage.Terrain.Roads
 
         private static RoadTextureType ChooseCurveType(RoadTopologyEdge startEdge, RoadTopologyEdge endEdge, in Vector3 position)
         {
-            // TODO: consider edge directions
+            // This algorithm seems weird and I'm pretty sure this is not how it's done in the original games.
+            // While it does seem to produce the same results, there's probably a less arbitrary and more concise
+            // way to implement this. It might be connected to the alignment of the orientation (see RoadTopology.cs).
+
             var startType = startEdge.Start.Position == position ? startEdge.StartType : startEdge.EndType;
             var endType = endEdge.Start.Position == position ? endEdge.StartType : endEdge.EndType;
 
@@ -86,13 +89,21 @@ namespace OpenSage.Terrain.Roads
             {
                 return RoadTextureType.TightCurve;
             }
-            else if (!type.HasFlag(RoadType.Angled))
+            else if (type.HasFlag(RoadType.Angled))
             {
-                return RoadTextureType.BroadCurve;
+                return RoadTextureType.Straight;
             }
             else
             {
-                return RoadTextureType.Straight;
+                var firstType = startEdge.Index < endEdge.Index ? startType : endType;
+                if (firstType.HasFlag(RoadType.Angled))
+                {
+                    return RoadTextureType.Straight;
+                }
+                else
+                {
+                    return RoadTextureType.BroadCurve;
+                }
             }
         }
 
