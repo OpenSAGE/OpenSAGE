@@ -345,48 +345,53 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
+                var isProducing = unit.ProductionUpdate?.IsProducing ?? false;
+
                 var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
-                productionQueueWindow.Visible = unit.IsProducing;
+                productionQueueWindow.Visible = isProducing;
 
-                var queue = unit.ProductionQueue;
-
-                for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
+                if (isProducing)
                 {
-                    var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
+                    var queue = unit.ProductionUpdate.ProductionQueue;
 
-                    if (queueButton == null)
+                    for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                     {
-                        logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
-                        continue;
-                    }
+                        var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
 
-                    Image img = null;
-                    if (queue.Count > pos)
-                    {
-                        var job = queue[pos];
-                        if (job != null)
+                        if (queueButton == null)
                         {
-                            // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
-                            queueButton.Opacity = (1.0f - job.Progress);
-
-                            img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
-
-                            var posCopy = pos;
-
-                            queueButton.SystemCallback = (control, message, context) =>
-                            {
-                                unit.CancelProduction(posCopy);
-                            };
+                            logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
+                            continue;
                         }
 
+                        Image img = null;
+                        if (queue.Count > pos)
+                        {
+                            var job = queue[pos];
+                            if (job != null)
+                            {
+                                // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
+                                queueButton.Opacity = (1.0f - job.Progress);
+
+                                img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+
+                                var posCopy = pos;
+
+                                queueButton.SystemCallback = (control, message, context) =>
+                                {
+                                    unit.ProductionUpdate.CancelProduction(posCopy);
+                                };
+                            }
+
+                        }
+                        queueButton.BackgroundImage = img;
                     }
-                    queueButton.BackgroundImage = img;
                 }
 
                 var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
                 var cameoImg = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.SelectPortrait);
                 iconControl.BackgroundImage = cameoImg;
-                iconControl.Visible = !unit.IsProducing;
+                iconControl.Visible = !isProducing;
 
                 void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<Upgrade> upgradeReference)
                 {

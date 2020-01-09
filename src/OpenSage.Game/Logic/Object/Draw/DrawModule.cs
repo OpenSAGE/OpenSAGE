@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -30,6 +31,8 @@ namespace OpenSage.Logic.Object
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
         internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
+
+        internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
     }
 
     public abstract class DrawModuleData : ModuleData

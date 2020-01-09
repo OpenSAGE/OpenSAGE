@@ -3,6 +3,20 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IProductionExit
+    {
+        private readonly SupplyCenterProductionExitUpdateModuleData _moduleData;
+
+        internal SupplyCenterProductionExitUpdate(SupplyCenterProductionExitUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
+
+        Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+    }
+
     /// <summary>
     /// Requires the <see cref="ObjectKinds.SupplySource"/> KindOf defined in order to work properly.
     /// </summary>
@@ -26,5 +40,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int GrantTemporaryStealth { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new SupplyCenterProductionExitUpdate(this);
+        }
     }
 }

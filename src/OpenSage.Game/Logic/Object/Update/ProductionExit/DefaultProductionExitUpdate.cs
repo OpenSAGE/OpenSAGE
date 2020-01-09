@@ -3,6 +3,20 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class DefaultProductionExitUpdate : UpdateModule, IProductionExit
+    {
+        private readonly DefaultProductionExitUpdateModuleData _moduleData;
+
+        internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
+
+        Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+    }
+
     public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData
     {
         internal static DefaultProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -23,5 +37,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool UseSpawnRallyPoint { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new DefaultProductionExitUpdate(this);
+        }
     }
 }

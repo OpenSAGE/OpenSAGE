@@ -865,7 +865,7 @@ namespace OpenSage
             }
 
             // TODO: What is the order?
-            Scene3D?.LogicTick(frame);
+            Scene3D?.LogicTick(frame, MapTime);
 
             CurrentFrame += 1;
         }

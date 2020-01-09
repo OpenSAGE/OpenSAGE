@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenSage.Logic.Object.Production
 {
-    public class ProductionJob
+    public sealed class ProductionJob
     {
         private readonly int _cost;
         private int _spent;
@@ -23,7 +21,7 @@ namespace OpenSage.Logic.Object.Production
             return ProductionJobResult.Producing;
         }
 
-        public ObjectDefinition ObjectDefinition { get; private set; }
+        public ObjectDefinition ObjectDefinition { get; }
 
         public ProductionJob(ObjectDefinition definition)
         {

@@ -1,9 +1,149 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class ProductionUpdate : UpdateModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly ProductionUpdateModuleData _moduleData;
+        private readonly List<ProductionJob> _productionQueue = new List<ProductionJob>();
+
+        private DoorState _currentDoorState;
+        private TimeSpan _currentStepEnd;
+
+        private enum DoorState
+        {
+            Closed,
+            WaitingToOpen,
+            Opening,
+            Open,
+            Closing,
+        }
+
+        public bool IsProducing => _productionQueue.Count > 0;
+
+        public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
+
+        internal ProductionUpdate(GameObject gameObject, ProductionUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+            _currentDoorState = DoorState.Closed;
+        }
+
+        internal override void Update(in TimeInterval time)
+        {
+            // If door is opening, halt production until it's finished opening.
+            if (_currentDoorState == DoorState.Opening)
+            {
+                if (time.TotalTime >= _currentStepEnd)
+                {
+                    _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
+                    _currentDoorState = DoorState.Open;
+                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
+                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, true);
+                    ProduceObject(_productionQueue[0]);
+                    _productionQueue.RemoveAt(0);
+                }
+
+                return;
+            }
+
+            if (_productionQueue.Count > 0 && _productionQueue[0].Produce(20) == ProductionJobResult.Finished)
+            {
+                if (_moduleData.NumDoorAnimations > 0)
+                {
+                    _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
+                    _currentDoorState = DoorState.Opening;
+                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
+                }
+                else
+                {
+                    ProduceObject(_productionQueue[0]);
+                    _productionQueue.RemoveAt(0);
+                }
+            }
+
+            switch (_currentDoorState)
+            {
+                case DoorState.Open:
+                    if (time.TotalTime >= _currentStepEnd)
+                    {
+                        _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
+                        _currentDoorState = DoorState.Closing;
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, false);
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
+                        // TODO: What is ModelConditionFlag.Door1WaitingToClose?
+                    }
+                    break;
+
+                case DoorState.Closing:
+                    if (time.TotalTime >= _currentStepEnd)
+                    {
+                        _currentDoorState = DoorState.Closed;
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);                        
+                    }
+                    break;
+            }
+        }
+
+        private void ProduceObject(ProductionJob job)
+        {
+            switch (job.Type)
+            {
+                case ProductionJobType.Unit:
+                    ProduceObject(job.ObjectDefinition);
+                    break;
+            }
+        }
+
+        private void ProduceObject(ObjectDefinition objectDefinition)
+        {
+            var productionExit = _gameObject.FindBehavior<IProductionExit>();
+
+            if (productionExit == null)
+            {
+                // If there's no IProductionExit behavior on this object, don't emit anything.
+                return;
+            }
+
+            var producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
+            producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
+
+            // First go to the natural rally point
+            var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
+            if (naturalRallyPoint != null)
+            {
+                producedUnit.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
+            }
+
+            // Then go to the rally point if it exists
+            if (_gameObject.RallyPoint.HasValue)
+            {
+                producedUnit.AddTargetPoint(_gameObject.RallyPoint.Value);
+            }
+        }
+
+        internal void QueueProduction(ObjectDefinition objectDefinition)
+        {
+            var job = new ProductionJob(objectDefinition);
+            _productionQueue.Add(job);
+        }
+
+        public void CancelProduction(int index)
+        {
+            if (index < _productionQueue.Count)
+            {
+                _productionQueue.RemoveAt(index);
+            }
+        }
+    }
+
     /// <summary>
     /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for 
     /// units/structures with object upgrades.
@@ -15,10 +155,10 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<ProductionUpdateModuleData> FieldParseTable = new IniParseTable<ProductionUpdateModuleData>
         {
             { "NumDoorAnimations", (parser, x) => x.NumDoorAnimations = parser.ParseInteger() },
-            { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseInteger() },
-            { "DoorWaitOpenTime", (parser, x) => x.DoorWaitOpenTime = parser.ParseInteger() },
-            { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseInteger() },
-            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseInteger() },
+            { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseTimeMilliseconds() },
+            { "DoorWaitOpenTime", (parser, x) => x.DoorWaitOpenTime = parser.ParseTimeMilliseconds() },
+            { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseTimeMilliseconds() },
+            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseTimeMilliseconds() },
             { "MaxQueueEntries", (parser, x) => x.MaxQueueEntries = parser.ParseInteger() },
             { "QuantityModifier", (parser, x) => x.QuantityModifier = Object.QuantityModifier.Parse(parser) },
 
@@ -35,13 +175,30 @@ namespace OpenSage.Logic.Object
 
         /// <summary>
         /// Specifies how many doors to use when unit training is complete.
+        /// Valid values are between 0 and 4 inclusive.
         /// </summary>
         public int NumDoorAnimations { get; private set; }
 
-        public int DoorOpeningTime { get; private set; }
-        public int DoorWaitOpenTime { get; private set; }
-        public int DoorCloseTime { get; private set; }
-        public int ConstructionCompleteDuration { get; private set; }
+        /// <summary>
+        /// How long doors should be opening for.
+        /// </summary>
+        public TimeSpan DoorOpeningTime { get; private set; }
+
+        /// <summary>
+        /// Time the door stays open so units can exit.
+        /// </summary>
+        public TimeSpan DoorWaitOpenTime { get; private set; }
+
+        /// <summary>
+        /// How long doors should be closing for.
+        /// </summary>
+        public TimeSpan DoorCloseTime { get; private set; }
+
+        /// <summary>
+        /// Wait time between units.
+        /// </summary>
+        public TimeSpan ConstructionCompleteDuration { get; private set; }
+
         public int MaxQueueEntries { get; private set; }
 
         /// <summary>
@@ -74,6 +231,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new ProductionUpdate(gameObject, this);
+        }
     }
 
     public struct QuantityModifier

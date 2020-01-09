@@ -351,13 +351,13 @@ namespace OpenSage
             return _players.IndexOf(player);
         }
 
-        internal void LogicTick(ulong frame)
+        internal void LogicTick(ulong frame, in TimeInterval time)
         {
             var currentCount = GameObjects.Items.Count;
             for (var index = 0; index < currentCount; index++)
             {
                 var gameObject = GameObjects.Items[index];
-                gameObject.LogicTick(frame);
+                gameObject.LogicTick(frame, time);
             }
         }
 

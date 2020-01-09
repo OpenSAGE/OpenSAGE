@@ -72,7 +72,7 @@ namespace OpenSage.Logic.Orders
 
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.QueueProduction(objectDefinition);
+                                unit.ProductionUpdate.QueueProduction(objectDefinition);
                             }
                         }
                         break;

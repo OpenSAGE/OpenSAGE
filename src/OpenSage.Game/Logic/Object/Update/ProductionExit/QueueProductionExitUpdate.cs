@@ -3,6 +3,20 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class QueueProductionExitUpdate : UpdateModule, IProductionExit
+    {
+        private readonly QueueProductionExitUpdateModuleData _moduleData;
+
+        internal QueueProductionExitUpdate(QueueProductionExitUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
+
+        Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+    }
+
     public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData
     {
         internal static QueueProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -44,5 +58,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool UseReturnToFormation { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new QueueProductionExitUpdate(this);
+        }
     }
 }
