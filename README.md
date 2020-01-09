@@ -1,7 +1,7 @@
 ![OpenSAGE](/art/opensage-logo.png)
 ============================================================
 
-[![Build Status](https://img.shields.io/appveyor/ci/tgjones/opensage.svg?logo=appveyor)](https://ci.appveyor.com/project/tgjones/opensage)
+[![Build Status](https://github.com/OpenSage/OpenSage/workflows/CI/badge.svg)
 [![Discord Chat](https://img.shields.io/discord/398393968234332161.svg?logo=discord)](https://discord.gg/G2FhZUT)
 [![codecov](https://codecov.io/gh/OpenSAGE/OpenSAGE/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenSAGE/OpenSAGE)
 
