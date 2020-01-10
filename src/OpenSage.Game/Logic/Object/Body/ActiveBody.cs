@@ -4,6 +4,25 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class ActiveBody : BodyModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly ActiveBodyModuleData _moduleData;
+
+        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+
+            Health = (decimal) moduleData.InitialHealth;
+        }
+
+        public override void SetInitialHealth(float multiplier)
+        {
+            Health = (decimal) (_moduleData.InitialHealth * multiplier);
+        }
+    }
+
     public class ActiveBodyModuleData : BodyModuleData
     {
         internal static ActiveBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -97,6 +116,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string ReallyDamagedAttributeModifier { get; private set; }
+
+        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        {
+            return new ActiveBody(gameObject, this);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
