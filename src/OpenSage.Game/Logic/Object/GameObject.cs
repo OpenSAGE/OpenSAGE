@@ -34,16 +34,13 @@ namespace OpenSage.Logic.Object
                 return null;
             }
 
-            // TODO: If the object doesn't have a health value, how do we initialise it?
-            if (gameObject.Definition.Body is ActiveBodyModuleData body)
+            if (gameObject.Body != null)
             {
                 var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
                     ? (uint) health.Value / 100.0f
                     : 1.0f;
 
-                // TODO: Should we use InitialHealth or MaximumHealth here?
-                var initialHealth = body.InitialHealth * healthMultiplier;
-                gameObject.Health = (decimal) initialHealth;
+                gameObject.Body.SetInitialHealth(healthMultiplier);
             }
 
             if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
@@ -94,10 +91,9 @@ namespace OpenSage.Logic.Object
 
         public IReadOnlyList<BehaviorModule> BehaviorModules { get; }
 
-        public Collider Collider { get; }
+        public BodyModule Body { get; }
 
-        // TODO: This could use a smaller fixed point type.
-        public decimal Health { get; set; }
+        public Collider Collider { get; }
 
         public Player Owner { get; set; }
 
@@ -176,6 +172,8 @@ namespace OpenSage.Logic.Object
             BehaviorModules = behaviors;
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
+
+            Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this));
 
             Collider = Collider.Create(objectDefinition, Transform);
 
