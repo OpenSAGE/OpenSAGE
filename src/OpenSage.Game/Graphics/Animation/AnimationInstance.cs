@@ -17,9 +17,9 @@ namespace OpenSage.Graphics.Animation
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
 
-        private bool Looping => _mode.HasFlag(AnimationMode.Loop) || _mode.HasFlag(AnimationMode.LoopBackwards);
-        private bool Reverse => _mode.HasFlag(AnimationMode.OnceBackwards) || _mode.HasFlag(AnimationMode.LoopBackwards);
-        private bool Manual => _mode.HasFlag(AnimationMode.Manual);
+        private bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
+        private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
+        private bool Manual => _mode == AnimationMode.Manual;
 
         public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation,
             AnimationMode mode, AnimationFlags flags)
@@ -175,7 +175,6 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < _animation.Clips.Length; i++)
             {
-                previous = null;
                 next = null;
 
                 var clip = _animation.Clips[i];
@@ -184,6 +183,10 @@ namespace OpenSage.Graphics.Animation
                 {
                     continue;
                 }
+
+                // In case we're beyond the animation bounds,
+                // default to the end.
+                previous = clip.Keyframes[_keyframeIndices[i]];
 
                 if (Reverse)
                 {
