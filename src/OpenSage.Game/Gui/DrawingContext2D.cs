@@ -247,10 +247,15 @@ namespace OpenSage.Gui
 
         public void FillRectangle(in Rectangle rect, in ColorRgbaF fillColor)
         {
+            FillRectangle(rect.ToRectangleF(), fillColor);
+        }
+
+        public void FillRectangle(in RectangleF rect, in ColorRgbaF fillColor)
+        {
             _spriteBatch.DrawImage(
                 _solidWhiteTexture,
                 new Rectangle(0, 0, 1, 1),
-                RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
+                RectangleF.Transform(rect, _currentTransform),
                 GetModifiedColorWithCurrentOpacity(fillColor));
         }
 

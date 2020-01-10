@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -45,6 +44,11 @@ namespace OpenSage.Logic
 
         public SelectionSystem(Game game) : base(game) { }
 
+        public void OnHoverSelection(Point2D point)
+        {
+            Game.Scene3D.LocalPlayer.HoveredUnit = FindClosestObject(point);
+        }
+
         public void OnStartDragSelection(Point2D startPoint)
         {
             Status = SelectionStatus.SingleSelecting;
@@ -68,6 +72,8 @@ namespace OpenSage.Logic
             }
 
             SelectionGui.SelectionRectangle = rect;
+
+            Game.Scene3D.LocalPlayer.HoveredUnit = null;
         }
 
         public void OnEndDragSelection()
@@ -92,11 +98,6 @@ namespace OpenSage.Logic
             if (player == Game.Scene3D.LocalPlayer)
             {
                 objects[0].OnLocalSelect(Game.Audio);
-
-                foreach (var obj in objects)
-                {
-                    SelectionGui.SelectedObjects.Add(obj.Collider);
-                }
             }
         }
 
@@ -111,16 +112,11 @@ namespace OpenSage.Logic
         public void ClearSelectedObjects(Player player)
         {
             player.DeselectUnits();
-
-            if (player == Game.Scene3D.LocalPlayer)
-            {
-                SelectionGui.SelectedObjects.Clear();
-            }
         }
 
-        private void SingleSelect()
+        private GameObject FindClosestObject(Point2D point)
         {
-            var ray = Game.Scene3D.Camera.ScreenPointToRay(new Vector2(_startPoint.X, _startPoint.Y));
+            var ray = Game.Scene3D.Camera.ScreenPointToRay(point.ToVector2());
 
             var closestDepth = float.MaxValue;
             GameObject closestObject = null;
@@ -138,6 +134,13 @@ namespace OpenSage.Logic
                     closestObject = gameObject;
                 }
             }
+
+            return closestObject;
+        }
+
+        private void SingleSelect()
+        {
+            var closestObject = FindClosestObject(_startPoint);
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));

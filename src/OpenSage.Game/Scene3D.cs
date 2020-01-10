@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
@@ -15,6 +16,7 @@ using OpenSage.Gui.DebugUI;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
@@ -418,8 +420,42 @@ namespace OpenSage
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
         internal void Render(DrawingContext2D drawingContext)
         {
-            SelectionGui?.Draw(drawingContext, Camera);
+            DrawHealthBoxes(drawingContext);
+
+            SelectionGui?.Draw(drawingContext);
             DebugOverlay?.Draw(drawingContext, Camera);
+        }
+
+        private void DrawHealthBoxes(DrawingContext2D drawingContext)
+        {
+            void DrawHealthBox(GameObject gameObject)
+            {
+                var boundingSphere = new BoundingSphere(gameObject.Transform.Translation, gameObject.Definition.Geometry.MajorRadius);
+                var healthBoxSize = Camera.GetScreenSize(boundingSphere);
+
+                var healthBoxWorldSpacePos = gameObject.Transform.Translation.WithZ(gameObject.Transform.Translation.Z + gameObject.Definition.Geometry.Height);
+                var rect = Camera.WorldToScreenRectangle(
+                    healthBoxWorldSpacePos,
+                    new SizeF(healthBoxSize, 3));
+
+                if (rect == null)
+                {
+                    return;
+                }
+                
+                drawingContext.FillRectangle(rect.Value, new ColorRgbaF(0, 1, 0, 1));
+                drawingContext.DrawRectangle(rect.Value, new ColorRgbaF(0, 0.5f, 0, 1), 1);
+            }
+
+            foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+            {
+                DrawHealthBox(selectedUnit);
+            }
+
+            if (LocalPlayer.HoveredUnit != null)
+            {
+                DrawHealthBox(LocalPlayer.HoveredUnit);
+            }
         }
     }
 }
