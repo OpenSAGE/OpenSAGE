@@ -813,7 +813,7 @@ namespace OpenSage
             }
         }
 
-        internal void LocalLogicTick(IEnumerable<InputMessage> messages)
+        private void LocalLogicTick(IEnumerable<InputMessage> messages)
         {
             _mapTimer.Update();
             MapTime = _mapTimer.CurrentGameTime;
