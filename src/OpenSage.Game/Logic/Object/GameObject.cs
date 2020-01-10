@@ -77,7 +77,6 @@ namespace OpenSage.Logic.Object
         internal void CopyModelConditionFlags(BitArray<ModelConditionFlag> newFlags)
         {
             ModelConditionFlags.CopyFrom(newFlags);
-            UpdateDrawModuleConditionStates();
         }
 
         private readonly GameObject _rallyPointMarker;
@@ -186,7 +185,6 @@ namespace OpenSage.Logic.Object
                 .ToList();
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
-            UpdateDrawModuleConditionStates();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
             TargetPoints = new List<Vector3>();
@@ -287,7 +285,6 @@ namespace OpenSage.Logic.Object
 
             ModelConditionFlags.SetAll(false);
             ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
-            UpdateDrawModuleConditionStates();
         }
 
         internal void SetTargetPoint(Vector3 targetPoint)
@@ -307,7 +304,6 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                UpdateDrawModuleConditionStates();
                 ConstructionStart = gameTime.TotalTime;
             }
         }
@@ -355,24 +351,10 @@ namespace OpenSage.Logic.Object
 
             HandleConstruction(gameTime);
 
-            // Update all draw modules
-            foreach (var drawModule in DrawModules)
-            {
-                drawModule.Update(gameTime, this);
-            }
-
-            // TODO: Make sure we've processed everything that might update
-            // this object's transform before updating draw modules' position.
-            var worldMatrix = Transform.Matrix;
-            foreach (var drawModule in DrawModules)
-            {
-                drawModule.SetWorldMatrix(worldMatrix);
-            }
-
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
-        internal void BuildRenderList(RenderList renderList, Camera camera)
+        internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
             if (Destroyed)
             {
@@ -382,6 +364,20 @@ namespace OpenSage.Logic.Object
             if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
             {
                 return;
+            }
+
+            // Update all draw modules
+            UpdateDrawModuleConditionStates();
+            foreach (var drawModule in DrawModules)
+            {
+                drawModule.Update(gameTime, this);
+            }
+
+            // This must be done after processing anything that might update this object's transform.
+            var worldMatrix = Transform.Matrix;
+            foreach (var drawModule in DrawModules)
+            {
+                drawModule.SetWorldMatrix(worldMatrix);
             }
 
             var castsShadow = false;
@@ -414,18 +410,16 @@ namespace OpenSage.Logic.Object
                 _rallyPointMarker.Transform.Translation = RallyPoint.Value;
 
                 // TODO: check if this should be drawn with transparency?
-                _rallyPointMarker.BuildRenderList(renderList, camera);
+                _rallyPointMarker.BuildRenderList(renderList, camera, gameTime);
             }
-
         }
 
         public void ClearModelConditionFlags()
         {
             ModelConditionFlags.SetAll(false);
-            UpdateDrawModuleConditionStates();
         }
 
-        internal void UpdateDrawModuleConditionStates()
+        private void UpdateDrawModuleConditionStates()
         {
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
             foreach (var drawModule in DrawModules)

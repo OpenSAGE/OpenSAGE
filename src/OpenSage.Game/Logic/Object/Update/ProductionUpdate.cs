@@ -52,7 +52,6 @@ namespace OpenSage.Logic.Object
                     _currentDoorState = DoorState.Open;
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, true);
-                    _gameObject.UpdateDrawModuleConditionStates();
                     MoveProducedObjectOut();
                 }
 
@@ -67,7 +66,6 @@ namespace OpenSage.Logic.Object
                     _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
                     _currentDoorState = DoorState.Opening;
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
-                    _gameObject.UpdateDrawModuleConditionStates();
 
                     ProduceObject(_productionQueue[0]);
                 }
@@ -89,7 +87,6 @@ namespace OpenSage.Logic.Object
                         _currentDoorState = DoorState.Closing;
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, false);
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
-                        _gameObject.UpdateDrawModuleConditionStates();
                         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
                     }
                     break;
@@ -100,7 +97,6 @@ namespace OpenSage.Logic.Object
                         Logger.Info($"Door closed");
                         _currentDoorState = DoorState.Closed;
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
-                        _gameObject.UpdateDrawModuleConditionStates();
                     }
                     break;
             }

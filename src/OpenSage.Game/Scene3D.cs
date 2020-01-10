@@ -406,7 +406,7 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    gameObject.BuildRenderList(renderList, camera);
+                    gameObject.BuildRenderList(renderList, camera, gameTime);
                 }
             }
 
