@@ -46,6 +46,7 @@ namespace OpenSage.Logic.Object
             {
                 if (time.TotalTime >= _currentStepEnd)
                 {
+                    _productionQueue.RemoveAt(0);
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
                     _currentDoorState = DoorState.Open;
@@ -69,7 +70,6 @@ namespace OpenSage.Logic.Object
                     _gameObject.UpdateDrawModuleConditionStates();
 
                     ProduceObject(_productionQueue[0]);
-                    _productionQueue.RemoveAt(0);
                 }
                 else
                 {
