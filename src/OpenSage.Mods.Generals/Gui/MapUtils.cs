@@ -4,6 +4,7 @@ using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
+using OpenSage.Data;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -48,8 +49,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SetMapPreview(MapCache mapCache, Control mapWindow, Game game)
         {
-            var mapPath = mapCache.Name;
-            var basePath = Path.GetDirectoryName(mapPath) + "\\" + Path.GetFileNameWithoutExtension(mapPath);
+            var mapPath = FileSystem.NormalizeFilePath(mapCache.Name);
+            var basePath = Path.GetDirectoryName(mapPath) + "/" + Path.GetFileNameWithoutExtension(mapPath);
             var thumbPath = basePath + ".tga";
 
             // Set thumbnail
