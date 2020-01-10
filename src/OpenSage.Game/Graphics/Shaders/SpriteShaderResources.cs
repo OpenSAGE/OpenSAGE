@@ -150,8 +150,12 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Sequential)]
         public struct SpriteConstantsPS
         {
-            private readonly Vector3 _padding;
+            public Vector2 OutputOffset;
+            public Vector2 OutputSize;
             public Bool32 IgnoreAlpha;
+            public SpriteFillMethod FillMethod;
+            public float FillAmount;
+            private readonly float _padding;
         }
 
         [StructLayout(LayoutKind.Sequential)]

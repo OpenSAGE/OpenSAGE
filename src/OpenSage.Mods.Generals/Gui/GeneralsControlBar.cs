@@ -348,6 +348,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var isProducing = unit.ProductionUpdate?.IsProducing ?? false;
 
                 var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
+
+                unitSelectedControl.Visible = !isProducing;
                 productionQueueWindow.Visible = isProducing;
 
                 if (isProducing)
@@ -370,8 +372,16 @@ namespace OpenSage.Mods.Generals.Gui
                             var job = queue[pos];
                             if (job != null)
                             {
-                                // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
-                                queueButton.Opacity = (1.0f - job.Progress);
+                                queueButton.DrawCallback = (control, drawingContext) =>
+                                {
+                                    queueButton.DefaultDraw(control, drawingContext);
+
+                                    // Draw radial progress indicator.
+                                    drawingContext.FillRectangleRadial360(
+                                        control.ClientRectangle,
+                                        controlBar._scheme.BuildUpClockColor.ToColorRgbaF(),
+                                        job.Progress);
+                                };
 
                                 img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
 
@@ -382,9 +392,14 @@ namespace OpenSage.Mods.Generals.Gui
                                     unit.ProductionUpdate.CancelProduction(posCopy);
                                 };
                             }
-
                         }
                         queueButton.BackgroundImage = img;
+
+                        if (img == null)
+                        {
+                            queueButton.DrawCallback = queueButton.DefaultDraw;
+                            queueButton.SystemCallback = null;
+                        }
                     }
                 }
 
@@ -407,8 +422,6 @@ namespace OpenSage.Mods.Generals.Gui
                 ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
                 ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
                 ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
-
-                unitSelectedControl.Show();
             }
         }
 

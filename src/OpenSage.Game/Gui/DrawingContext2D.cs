@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 using Veldrid;
@@ -251,6 +252,17 @@ namespace OpenSage.Gui
                 new Rectangle(0, 0, 1, 1),
                 RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
                 GetModifiedColorWithCurrentOpacity(fillColor));
+        }
+
+        public void FillRectangleRadial360(in Rectangle rect, in ColorRgbaF fillColor, float progress)
+        {
+            _spriteBatch.DrawImage(
+                _solidWhiteTexture,
+                new Rectangle(0, 0, 1, 1),
+                RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
+                GetModifiedColorWithCurrentOpacity(fillColor),
+                fillMethod: SpriteFillMethod.Radial360,
+                fillAmount: progress * MathUtility.TwoPi);
         }
 
         public void End()
