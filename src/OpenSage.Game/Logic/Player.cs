@@ -38,6 +38,8 @@ namespace OpenSage.Logic
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
+        public GameObject HoveredUnit { get; set; }
+
         public Player(PlayerTemplate template, in ColorRgb color)
         {
             Template = template;
