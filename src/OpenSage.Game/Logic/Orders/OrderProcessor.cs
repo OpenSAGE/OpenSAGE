@@ -112,6 +112,16 @@ namespace OpenSage.Logic.Orders
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
+                    case OrderType.AttackGround:
+                        {
+                            var targetPosition = order.Arguments[0].Value.Position;
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                //Attack the targetPosition
+                            }
+                        }
+                        break;
+
                     case OrderType.SetRallyPoint:
                         try
                         {
