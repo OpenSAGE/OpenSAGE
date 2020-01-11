@@ -104,7 +104,7 @@ namespace OpenSage
 
             var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", _userDataFileSystem?.RootDirectory);
             mapFilename = FileSystem.NormalizeFilePath(mapFilename);
-            var mapName = mapFilename.Substring(mapFilename.LastIndexOf('\\'));
+            var mapName = mapFilename.Substring(mapFilename.LastIndexOf(Path.DirectorySeparatorChar));
 
             var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
 
@@ -682,6 +682,7 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
+            Scripting.Active = true;
         }
 
         public void StartCampaign(string side)
