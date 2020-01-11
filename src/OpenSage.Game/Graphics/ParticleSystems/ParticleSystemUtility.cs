@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.ParticleSystems
@@ -11,12 +10,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public static float GetRandomFloat(float min, float max)
         {
-            return GetRandomFloat(new RandomVariable
-            {
-                Low = min,
-                High = max,
-                DistributionType = DistributionType.Uniform
-            });
+            return GetRandomFloat(new RandomVariable(min, max, DistributionType.Uniform));
         }
 
         public static float GetRandomFloat(this RandomVariable variable)

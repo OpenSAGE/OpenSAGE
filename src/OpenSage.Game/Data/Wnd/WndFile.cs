@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd.Parser;
+using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd
@@ -13,13 +15,13 @@ namespace OpenSage.Data.Wnd
         public WndLayoutBlock LayoutBlock { get; internal set; }
         public WndWindowDefinition RootWindow { get; internal set; }
 
-        public static WndFile FromFileSystemEntry(FileSystemEntry entry)
+        public static WndFile FromFileSystemEntry(FileSystemEntry entry, AssetStore assetStore)
         {
             using (var stream = entry.Open())
             using (var reader = new StreamReader(stream, Encoding.ASCII))
             {
                 var source = reader.ReadToEnd();
-                var parser = new WndParser(source);
+                var parser = new WndParser(source, assetStore);
                 return parser.ParseFile();
             }
         }
@@ -192,7 +194,7 @@ namespace OpenSage.Data.Wnd
 
     public sealed class WndDrawDataItem
     {
-        public string Image { get; internal set; }
+        public LazyAssetReference<MappedImage> Image { get; internal set; }
         public ColorRgba Color { get; internal set; }
         public ColorRgba BorderColor { get; internal set; }
     }

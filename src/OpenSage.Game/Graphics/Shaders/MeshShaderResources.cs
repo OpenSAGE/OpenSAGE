@@ -154,6 +154,8 @@ namespace OpenSage.Graphics.Shaders
         public struct RenderItemConstantsPS
         {
             public Vector3 HouseColor;
+            public float Opacity;
+            public Vector3 TintColor;
 #pragma warning disable CS0169
             private readonly float _padding;
 #pragma warning restore CS0169

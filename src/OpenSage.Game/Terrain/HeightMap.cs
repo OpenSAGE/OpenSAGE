@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Mathematics;
 
@@ -15,7 +17,22 @@ namespace OpenSage.Terrain
         public int Width { get; }
         public int Height { get; }
 
+
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
+
+        public float GetUpperHeight(float x, float y)
+        {
+            var (nIntX0, nIntX1, _) = ConvertWorldCoordinates(x, Width);
+            var (nIntY0, nIntY1, _) = ConvertWorldCoordinates(y, Height);
+
+            var heights = new float[] {
+                GetHeight(nIntX0, nIntY0),
+                GetHeight(nIntX1, nIntY0),
+                GetHeight(nIntX0, nIntY1),
+                GetHeight(nIntX1, nIntY1),
+            };
+            return heights.Max();
+        }
 
         /// <summary>
         /// Gets height at the given world space coordinate.
@@ -23,24 +40,8 @@ namespace OpenSage.Terrain
         /// </summary>
         public float GetHeight(float x, float y)
         {
-            // convert coordinates to heightmap scale
-            x = x / HorizontalScale + _heightMapData.BorderWidth;
-            y = y / HorizontalScale + _heightMapData.BorderWidth;
-
-            if (x >= Width || y >= Height || x < 0 || y < 0)
-            {
-                return 0;
-            }
-
-            // get integer and fractional parts of coordinates
-            var nIntX0 = MathUtility.FloorToInt(x);
-            var nIntY0 = MathUtility.FloorToInt(y);
-            var fFractionalX = x - nIntX0;
-            var fFractionalY = y - nIntY0;
-
-            // get coordinates for "other" side of quad
-            var nIntX1 = MathUtility.Clamp(nIntX0 + 1, 0, Width - 1);
-            var nIntY1 = MathUtility.Clamp(nIntY0 + 1, 0, Height - 1);
+            var (nIntX0, nIntX1, fFractionalX) = ConvertWorldCoordinates(x, Width);
+            var (nIntY0, nIntY1, fFractionalY) = ConvertWorldCoordinates(y, Height);
 
             // read 4 map values
             var f0 = GetHeight(nIntX0, nIntY0);
@@ -53,6 +54,22 @@ namespace OpenSage.Terrain
             var fAverageHi = (f3 * fFractionalX) + (f2 * (1.0f - fFractionalX));
 
             return (fAverageHi * fFractionalY) + (fAverageLo * (1.0f - fFractionalY));
+        }
+
+        private (int p0, int p1, float fractional) ConvertWorldCoordinates(float p, int maxHeightmapScale)
+        {
+            // convert coordinates to heightmap scale
+            p = p / HorizontalScale + _heightMapData.BorderWidth;
+            p = Math.Clamp(p, 0, maxHeightmapScale - 1);
+
+            // get integer and fractional parts of coordinate
+            var nIntP0 = MathUtility.FloorToInt(p);
+            var fFractionalP = p - nIntP0;
+
+            // get coordinates for "other" side of quad
+            var nIntP1 = MathUtility.Clamp(nIntP0 + 1, 0, maxHeightmapScale - 1);
+
+            return (nIntP0, nIntP1, fFractionalP);
         }
 
         public Vector3 GetNormal(float x, float y)

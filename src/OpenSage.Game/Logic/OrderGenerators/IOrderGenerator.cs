@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Orders;
 
@@ -61,13 +62,13 @@ namespace OpenSage.Logic.OrderGenerators
         bool CanDrag { get; }
 
         // TODO: Should we use some other way of rendering, via Scene3D?
-        void BuildRenderList(RenderList renderList);
+        void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime);
 
         OrderGeneratorResult TryActivate(Scene3D scene);
 
         void UpdatePosition(Vector3 position);
 
-        void UpdateDrag(Vector2 mouseDelta);
+        void UpdateDrag(Vector3 position);
 
         // TODO: Add cursor handling
     }

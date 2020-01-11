@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -76,7 +75,7 @@ namespace OpenSage.Logic.Object
         public int CheerRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float DodgePercent { get; private set; }
+        public Percentage DodgePercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool UseDefaultDamageSettings { get; private set; }

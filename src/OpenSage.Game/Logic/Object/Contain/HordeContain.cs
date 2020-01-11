@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -127,10 +126,10 @@ namespace OpenSage.Logic.Object
         public int MinimumHordeSize { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionRearOverride { get; private set; }
+        public Percentage VisionRearOverride { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionSideOverride { get; private set; }
+        public Percentage VisionSideOverride { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int BannerCarrierMinLevel { get; private set; }
@@ -152,14 +151,14 @@ namespace OpenSage.Logic.Object
         {
             var payload = new Payload
             {
-                UnitType = parser.ParseAssetReference()
+                Name = parser.ParseAssetReference()
             };
 
             payload.Count = parser.GetIntegerOptional();
             return payload;
         }
 
-        public string UnitType { get; private set; }
+        public string Name { get; private set; }
         public int Count { get; private set; }
     }
 

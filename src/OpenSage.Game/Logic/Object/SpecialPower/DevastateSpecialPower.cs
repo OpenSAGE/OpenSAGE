@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -18,7 +19,7 @@ namespace OpenSage.Logic.Object
             });
 
         public int Radius { get; private set; }
-        public float TreeValueMultiplier { get; private set; }
+        public Percentage TreeValueMultiplier { get; private set; }
         public int TreeValueTotalCap { get; private set; }
         public string FX { get; private set; }
 

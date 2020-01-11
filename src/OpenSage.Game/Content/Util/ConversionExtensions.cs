@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Wnd;
 using OpenSage.FileFormats.W3d;
@@ -352,15 +351,6 @@ namespace OpenSage.Content.Util
                 value.UpperLeft.Y,
                 value.BottomRight.X - value.UpperLeft.X,
                 value.BottomRight.Y - value.UpperLeft.Y);
-        }
-
-        public static Rectangle ToRectangle(this MappedImageCoords value)
-        {
-            return new Rectangle(
-                value.Left,
-                value.Top,
-                value.Right - value.Left,
-                value.Bottom - value.Top);
         }
 
         public static ColorRgbaF ToColorRgbaF(this ColorRgba value)

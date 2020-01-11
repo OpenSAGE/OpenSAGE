@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
-using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
+    [DebuggerDisplay("[Player: {Name}]")]
     public class Player
     {
+        public PlayerTemplate Template { get; }
         public string Name { get; private set; }
         public string DisplayName { get; private set; }
 
@@ -24,7 +25,7 @@ namespace OpenSage.Logic
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public uint Energy { get; set; }
 
-        public ColorRgb Color { get; set; }
+        public ColorRgb Color { get; }
 
         private HashSet<Player> _allies;
         public IReadOnlyCollection<Player> Allies => _allies;
@@ -33,11 +34,14 @@ namespace OpenSage.Logic
         public IReadOnlyCollection<Player> Enemies => _enemies;
 
         // TODO: Does the order matter? Is it ever visible in UI?
+        // TODO: Yes the order does matter. For example, the sound played when moving mixed groups of units is the one for the most-recently-selected unit.
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
-        public Player()
+        public Player(PlayerTemplate template, in ColorRgb color)
         {
+            Template = template;
+            Color = color;
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
@@ -68,12 +72,12 @@ namespace OpenSage.Logic
             _selectedUnits.Clear();
         }
 
-        private static Player FromMapData(Data.Map.Player mapPlayer, ContentManager content)
+        private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
             // We need the template for default values
-            var template = content.IniDataContext.PlayerTemplates.Find(t => t.Name == side);
+            var template = assetStore.PlayerTemplates.GetByName(side);
 
             var name = mapPlayer.Properties["playerName"].Value as string;
             var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;
@@ -98,19 +102,18 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            return new Player
+            return new Player(template, color)
             {
                 Side = side,
                 Name = name,
                 DisplayName = translatedDisplayName,
-                Color = color,
                 IsHuman = isHuman
             };
         }
 
         // This needs to operate on the entire player list, because players have references to each other
         // (allies and enemies).
-        public static IEnumerable<Player> FromMapData(Data.Map.Player[] mapPlayers, ContentManager content)
+        internal static IEnumerable<Player> FromMapData(Data.Map.Player[] mapPlayers, AssetStore assetStore)
         {
             var players = new Dictionary<string, Player>();
             var allies = new Dictionary<string, string[]>();
@@ -118,7 +121,7 @@ namespace OpenSage.Logic
 
             foreach (var mapPlayer in mapPlayers)
             {
-                var player = FromMapData(mapPlayer, content);
+                var player = FromMapData(mapPlayer, assetStore);
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
@@ -135,16 +138,18 @@ namespace OpenSage.Logic
             return players.Values;
         }
 
-        public static Player FromTemplate(PlayerTemplate template, ContentManager content, PlayerSetting? setting = null)
+        public static Player FromTemplate(GameData gameData, PlayerTemplate template, PlayerSetting? setting = null)
         {
+            var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
+
             // TODO: Use rest of the properties from the template
-            return new Player
+            return new Player(template, color)
             {
                 Side = template.Side,
-                Name = template.Name,
+                Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
-                Money = (uint) template.StartMoney,
-                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor
+                Money = (uint)(template.StartMoney + gameData.DefaultStartingCash),
+                IsHuman = setting?.Owner == PlayerOwner.Player
             };
         }
     }

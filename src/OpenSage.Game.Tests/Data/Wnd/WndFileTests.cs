@@ -18,7 +18,7 @@ namespace OpenSage.Tests.Data.Wnd
         {
             InstalledFilesTestData.ReadFiles(".wnd", _output, entry =>
             {
-                var wndFile = WndFile.FromFileSystemEntry(entry);
+                var wndFile = WndFile.FromFileSystemEntry(entry, null); // TODO
 
                 Assert.NotNull(wndFile);
             });

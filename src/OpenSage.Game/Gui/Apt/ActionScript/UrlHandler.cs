@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace OpenSage.Gui.Apt.ActionScript
+﻿namespace OpenSage.Gui.Apt.ActionScript
 {
     /// <summary>
     /// Url handler

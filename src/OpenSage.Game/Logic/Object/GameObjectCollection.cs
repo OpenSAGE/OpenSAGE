@@ -1,38 +1,56 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
+using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class GameObjectCollection : DisposableBase
     {
-        private readonly ContentManager _contentManager;
+        private readonly AssetLoadContext _loadContext;
         private readonly List<GameObject> _items;
+        private readonly Player _civilianPlayer;
+        private readonly Navigation.Navigation _navigation;
 
         public IReadOnlyList<GameObject> Items => _items;
 
-        public GameObjectCollection(ContentManager contentManager)
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        internal GameObjectCollection(AssetLoadContext loadContext,
+                Player civilianPlayer, Navigation.Navigation navigation)
         {
-            _contentManager = contentManager;
+            _loadContext = loadContext;
             _items = new List<GameObject>();
+            _civilianPlayer = civilianPlayer;
+            _navigation = navigation;
         }
 
-        public GameObject Add(ObjectDefinition objectDefinition, Player player)
+        public GameObject Add(string typeName, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _contentManager, player));
-            _items.Add(gameObject);
-            return gameObject;
+            var definition = _loadContext.AssetStore.ObjectDefinitions.GetByName(typeName);
+
+            if (definition == null)
+            {
+                logger.Warn($"Skipping unknown GameObject \"{typeName}\"");
+                return null;
+            }
+
+            return Add(definition, player);
         }
 
         public GameObject Add(string typeName)
         {
-            var gameObject = AddDisposable(_contentManager.InstantiateObject(typeName));
+            return Add(typeName, _civilianPlayer);
+        }
 
-            if (gameObject != null)
-            {
-                _items.Add(gameObject);
-            }
-
+        public GameObject Add(ObjectDefinition objectDefinition, Player player)
+        {
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this, _navigation));
+            _items.Add(gameObject);
             return gameObject;
+        }
+
+        public GameObject Add(ObjectDefinition objectDefinition)
+        {
+            return Add(objectDefinition, _civilianPlayer);
         }
 
         public GameObject Add(GameObject gameObject)
@@ -48,16 +66,21 @@ namespace OpenSage.Logic.Object
             return _items.IndexOf(gameObject) + 1;
         }
 
+        public List<int> GetObjectIds(IEnumerable<GameObject> gameObjects)
+        {
+            var objIds = new List<int>();
+            foreach (var gameObject in gameObjects)
+            {
+                objIds.Add(GetObjectId(gameObject));
+            }
+
+            return objIds;
+        }
+
         public GameObject GetObjectById(int objectId)
         {
             return _items[objectId - 1];
         }
 
-        public void Remove(GameObject gameObject)
-        {
-            // TODO: We should probably be using an ID.
-            _items.Remove(gameObject);
-            RemoveToDispose(gameObject);
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
@@ -42,7 +43,7 @@ namespace OpenSage.Mods.Generals.Gui
             SetPreviewMap(LanGameOptionsMenuCallbacks.GameOptions.CurrentMap);
 
             // Official maps
-            var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
+            var mapCaches = _game.AssetStore.MapCaches;
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
 

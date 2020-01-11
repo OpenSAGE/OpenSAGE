@@ -1,8 +1,48 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using System;
+using System.Linq;
+using System.Numerics;
+using OpenSage.Content.Loaders;
+using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class W3dTruckDraw : W3dModelDraw
+    {
+        private readonly W3dTruckDrawModuleData _data;
+
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, AssetLoadContext loadContext)
+            : base(data, loadContext)
+        {
+            _data = data;
+        }
+
+        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        {
+            base.Update(gameTime, gameObject);
+
+            // TODO: Only do this if Locomotor has HasSuspension = true.
+            var roll = _data.TireRotationMultiplier * gameObject.Speed;
+            var boneNames = new string[]
+            {
+                _data.LeftFrontTireBone,
+                _data.RightFrontTireBone,
+                _data.LeftRearTireBone,
+                _data.RightRearTireBone,
+            };
+            foreach (var boneName in boneNames)
+            {
+                if (boneName == null)
+                {
+                    continue;
+                }
+
+                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase));
+                ActiveModelInstance.ModelBoneInstances[bone.Index].AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
+            }
+        }
+    }
+
     /// <summary>
     /// Hardcoded to call for the TreadDebrisRight and TreadDebrisLeft (unless overriden) particle 
     /// system definitions and allows use of TruckPowerslideSound and TruckLandingSound within the 
@@ -95,5 +135,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
+
+        internal override DrawModule CreateDrawModule(AssetLoadContext loadContext)
+        {
+            return new W3dTruckDraw(this, loadContext);
+        }
     }
 }

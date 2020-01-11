@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Ini;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
@@ -9,7 +11,20 @@ namespace OpenSage.Logic
 {
     public class OrderGeneratorSystem : GameSystem
     {
-        public IOrderGenerator ActiveGenerator;
+        private IOrderGenerator _activeGenerator;
+
+        public IOrderGenerator ActiveGenerator
+        {
+            get => _activeGenerator;
+            set
+            {
+                if (_activeGenerator is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                _activeGenerator = value;
+            }
+        }
 
         public bool HasActiveOrderGenerator => ActiveGenerator != null;
 
@@ -27,15 +42,67 @@ namespace OpenSage.Logic
             }
         }
 
-        public void OnMove()
+        public void UpdateDrag(Vector2 mousePosition)
+        {
+            var worldPosition = GetTerrainPosition(mousePosition);
+
+            if (worldPosition.HasValue && ActiveGenerator != null)
+            {
+                ActiveGenerator.UpdateDrag(worldPosition.Value);
+            }
+        }
+
+        private bool StructuresSelected()
+        {
+            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
+            {
+                return false;
+            }
+
+            bool result = true;
+
+            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
+            {
+                if (!unit.Definition.KindOf.Get(ObjectKinds.Structure))
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public void OnRightClick()
         {
             if (!_worldPosition.HasValue)
             {
                 return;
             }
 
-            var order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
-            Game.NetworkMessageBuffer.AddLocalOrder(order);
+            Order order = null;
+
+            if (StructuresSelected())
+            {
+                var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
+                var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
+                order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
+            }
+            else if (Game.Scene3D.LocalPlayer.SelectedUnits.Count > 0)
+            {
+                // TODO: Check whether at least one of the selected units can actually be moved.
+
+                // We choose the sound based on the most-recently-selected unit.
+                var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+                unit.OnLocalMove(Game.Audio);
+
+                order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+            }
+
+            if (order != null)
+            {
+                Game.NetworkMessageBuffer.AddLocalOrder(order);
+            }
         }
 
         public void OnActivate()
@@ -50,28 +117,28 @@ namespace OpenSage.Logic
             switch (result)
             {
                 case OrderGeneratorResult.Success success:
-                {
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
-
-                    foreach (var order in success.Orders)
                     {
-                        Game.NetworkMessageBuffer.AddLocalOrder(order);
-                    }
+                        foreach (var order in success.Orders)
+                        {
+                            Game.NetworkMessageBuffer.AddLocalOrder(order);
+                        }
 
-                    if (success.Exit)
-                    {
-                        ActiveGenerator = null;
-                    }
+                        if (success.Exit)
+                        {
+                            ActiveGenerator = null;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 case OrderGeneratorResult.FailureResult _:
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
                     // TODO: Show error message in HUD
                     break;
             }
+        }
+
+        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+        {
+            ActiveGenerator?.BuildRenderList(renderList, camera, gameTime);
         }
 
         private Vector3? GetTerrainPosition(Vector2 mousePosition)
@@ -98,10 +165,10 @@ namespace OpenSage.Logic
             // TODO: Check that the building has been unlocked.
             // TODO: Check that the builder isn't building something else right now?
 
-            var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(buildingDefinition) + 1;
+            var gameData = Game.AssetStore.GameData.Current;
+            var definitionIndex = buildingDefinition.InternalId;
 
-            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.AssetStore.LoadContext, Game.Scene3D);
         }
 
         public void StartConstructUnit(ObjectDefinition unitDefinition)
@@ -113,10 +180,15 @@ namespace OpenSage.Logic
             // TODO: Check that the unit has been unlocked.
             // TODO: Check that the building isn't building something else right now?
 
-            var gameData = Game.ContentManager.IniDataContext.GameData;
-            var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(unitDefinition) + 1;
+            var gameData = Game.AssetStore.GameData.Current;
+            var definitionIndex = unitDefinition.InternalId;
 
             ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
+        }
+
+        public void SetRallyPoint()
+        {
+            ActiveGenerator = new RallyPointOrderGenerator();
         }
     }
 }

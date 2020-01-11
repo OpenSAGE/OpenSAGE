@@ -26,19 +26,20 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        public DrawingContext2D(
+        internal DrawingContext2D(
             ContentManager contentManager,
+            GraphicsLoadContext loadContext,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
-            _solidWhiteTexture = contentManager.SolidWhiteTexture;
+            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
+            _spriteBatch = AddDisposable(new SpriteBatch(loadContext, blendStateDescription, outputDescription));
 
-            _textCache = AddDisposable(new TextCache(contentManager.GraphicsDevice));
+            _textCache = AddDisposable(new TextCache(loadContext.GraphicsDevice));
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);
@@ -109,14 +110,7 @@ namespace OpenSage.Gui
             in Rectangle destinationRect,
             in bool flipped = false)
         {
-            var color = ColorRgbaF.White.WithA(_currentOpacity);
-
-            _spriteBatch.DrawImage(
-                texture,
-                sourceRect,
-                RectangleF.Transform(destinationRect.ToRectangleF(), _currentTransform),
-                color,
-                flipped);
+            DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped);
         }
 
         public void DrawImage(
@@ -168,7 +162,7 @@ namespace OpenSage.Gui
                 return;
             }
 
-            var actualFont = _contentManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
             var actualColor = GetModifiedColorWithCurrentOpacity(color);

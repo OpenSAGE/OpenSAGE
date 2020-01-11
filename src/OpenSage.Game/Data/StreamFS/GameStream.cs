@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using OpenSage.Data.StreamFS.AssetReaders;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -54,29 +53,53 @@ namespace OpenSage.Data.StreamFS
                                 continue;
                             }
 
-                            if (AssetReaderCatalog.TryGetAssetReader(asset.Header.TypeId, out var assetReader))
+                            if (Enum.IsDefined(typeof(AssetType), asset.Header.TypeId)) // TODO: Remove this.
                             {
-                                using (var instanceDataStream = new MemoryStream(instanceData, false))
-                                using (var instanceDataReader = new BinaryReader(instanceDataStream, Encoding.ASCII, true))
+                                if (AssetReaderCatalog.TryGetAssetReader(asset.Header.TypeId, out var assetReader))
                                 {
-                                    var zero = instanceDataReader.ReadUInt32();
-                                    if (zero != 0)
+                                    using (var instanceDataStream = new MemoryStream(instanceData, false))
+                                    using (var instanceDataReader = new BinaryReader(instanceDataStream, Encoding.ASCII, true))
                                     {
-                                        throw new InvalidDataException();
-                                    }
+                                        var zero = instanceDataReader.ReadUInt32();
+                                        if (zero != 0)
+                                        {
+                                            throw new InvalidDataException();
+                                        }
 
-                                    asset.InstanceData = assetReader.Parse(asset, instanceDataReader, imports, assetParseContext);
+                                        asset.InstanceData = assetReader(asset, instanceDataReader, imports, assetParseContext);
+
+                                        var assetCollection = assetParseContext.AssetStore.GetAssetCollection(asset.Header.TypeId);
+                                        if (assetCollection != null) // TODO: Eventually this shouldn't be null.
+                                        {
+                                            assetCollection.Add(asset.InstanceData);
+                                        }
+                                        else
+                                        {
+                                            var singleAssetStorage = assetParseContext.AssetStore.GetSingleAsset(asset.Header.TypeId);
+                                            if (singleAssetStorage != null) // TODO: Eventually this shouldn't be null.
+                                            {
+                                                singleAssetStorage.Current = (BaseAsset) asset.InstanceData;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // TODO
                                 }
                             }
                             else
                             {
                                 // TODO
+                                Logger.Info($"Missing AssetType: {asset.Name.Split(':')[0]} = 0x{asset.Header.TypeId.ToString("X")},");
                             }
                         }
                     });
                 });
             });
         }
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private void ReadBinReloImpData(
             BinaryReader binReader,

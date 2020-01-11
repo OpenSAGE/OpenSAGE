@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
         public int NumVirtualMines { get; private set; }
         public bool Regenerates { get; private set; }
         public bool StopsRegenAfterCreatorDies { get; private set; }
-        public float DegenPercentPerSecondAfterCreatorDies { get; private set; }
+        public Percentage DegenPercentPerSecondAfterCreatorDies { get; private set; }
     }
 
     public enum ObjectFilterRelationship

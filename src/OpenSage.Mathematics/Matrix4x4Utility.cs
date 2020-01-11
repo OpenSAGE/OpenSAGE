@@ -19,27 +19,11 @@ namespace OpenSage.Mathematics
         }
 
         /// <summary>
-        /// The forward vector formed from the third row -M31, -M32, -M33 elements.
-        /// </summary>
-        public static Vector3 Forward(in this Matrix4x4 value)
-        {
-            return new Vector3(-value.M31, -value.M32, -value.M33);
-        }
-
-        /// <summary>
         /// The backward vector formed from the third row M31, M32, M33 elements.
         /// </summary>
         public static Vector3 Backward(in this Matrix4x4 value)
         {
             return new Vector3(value.M31, value.M32, value.M33);
-        }
-
-        /// <summary>
-        /// The left vector formed from the first row -M11, -M12, -M13 elements.
-        /// </summary>
-        public static Vector3 Left(in this Matrix4x4 value)
-        {
-            return new Vector3(-value.M11, -value.M12, -value.M13);
         }
 
         /// <summary>

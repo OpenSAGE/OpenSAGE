@@ -731,6 +731,64 @@ namespace OpenSage.FileFormats
                 reader.ReadVector2(),
                 reader.ReadVector2());
         }
+
+        public static TimeSpan ReadTime(this BinaryReader reader)
+        {
+            return TimeSpan.FromSeconds(reader.ReadSingle());
+        }
+
+        public static Percentage ReadPercentage(this BinaryReader reader)
+        {
+            return new Percentage(reader.ReadSingle());
+        }
+
+        public static FloatRange ReadFloatRange(this BinaryReader reader)
+        {
+            return new FloatRange(reader.ReadSingle(), reader.ReadSingle());
+        }
+
+        public static IntRange ReadIntRange(this BinaryReader reader)
+        {
+            return new IntRange(reader.ReadInt32(), reader.ReadInt32());
+        }
+
+        public static T? ReadOptionalValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+            where T : struct
+        {
+            var offset = reader.ReadUInt32();
+            if (offset > 0)
+            {
+                var current = reader.BaseStream.Position;
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                var value = readCallback();
+                reader.BaseStream.Seek(current, SeekOrigin.Begin);
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public static T ReadOptionalClassTypedValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+            where T : class
+        {
+            var offset = reader.ReadUInt32();
+            if (offset > 0)
+            {
+                var current = reader.BaseStream.Position;
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                var value = readCallback();
+                reader.BaseStream.Seek(current, SeekOrigin.Begin);
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
     }
 
     public enum ColorRgbaPixelOrder

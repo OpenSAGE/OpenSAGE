@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -69,6 +70,41 @@ namespace OpenSage.Mathematics
         public static float ToRadians(float degrees)
         {
             return (degrees * Pi / 180);
+        }
+
+        public static float ToDegrees(float radians)
+        {
+            return (radians * 180 / Pi);
+        }
+
+        /// <summary>
+        /// Calculates the angle z vector starting from UnitX
+        /// </summary>
+        /// <param name="direction">the direction vector</param>
+        /// <returns>the z angle of the direction vector (in radians)</returns>
+        public static float GetYawFromDirection(Vector2 direction)
+        {
+            return MathF.Atan2(direction.Y, direction.X) - MathF.Atan2(Vector2.UnitX.Y, Vector2.UnitX.X);
+        }
+
+        public static float GetPitchFromDirection(Vector3 direction)
+        {
+            return MathF.Acos(Vector3.Dot(direction, Vector3.UnitZ) / direction.Length());
+        }
+
+        /// <summary>
+        /// Calculates delta between the 2 angles (which must be between -180 and 180)
+        /// </summary>
+        /// <param name="alpha">the first angle</param>
+        /// <param name="beta">the second angle</param>
+        /// <returns>the absolute delta between the two angles in radians.
+        /// The value is between -180 and 180 degrees by definition.
+        /// </returns>
+        public static float CalculateAngleDelta(float alpha, float beta)
+        {
+            var delta = beta - alpha;
+            delta += (delta > Pi) ? -TwoPi : (delta < -Pi) ? TwoPi : 0;
+            return delta;
         }
 
         public static uint NextPowerOfTwo(uint value)

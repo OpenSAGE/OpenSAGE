@@ -1,6 +1,6 @@
-﻿using OpenSage.Tools.BigEditor.UI;
-using Veldrid;
+﻿using Veldrid;
 using Veldrid.StartupUtilities;
+using OpenSage.Tools.BigEditor.UI;
 
 namespace OpenSage.Tools.BigEditor
 {

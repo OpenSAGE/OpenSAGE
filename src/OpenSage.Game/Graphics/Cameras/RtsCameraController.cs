@@ -49,6 +49,8 @@ namespace OpenSage.Graphics.Cameras
             set { _terrainPosition = new Vector3(value.X, value.Y, 0); }
         }
 
+        private float _toCameraIntersectionDistance;
+
         public CameraAnimation StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
         {
             EndAnimation();
@@ -64,16 +66,14 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(ContentManager contentManager)
+        public RtsCameraController(GameData gameData)
         {
-            var iniDataContext = contentManager.IniDataContext;
+            _defaultHeight = gameData.DefaultCameraMaxHeight > 0
+                ? gameData.DefaultCameraMaxHeight
+                : gameData.CameraHeight;
+            _pitchAngle = MathUtility.ToRadians(90 - gameData.CameraPitch);
 
-            _defaultHeight = iniDataContext.GameData.DefaultCameraMaxHeight > 0
-                ? iniDataContext.GameData.DefaultCameraMaxHeight
-                : iniDataContext.GameData.CameraHeight;
-            _pitchAngle = MathUtility.ToRadians(90 - iniDataContext.GameData.CameraPitch);
-
-            var yaw = iniDataContext.GameData.CameraYaw;
+            var yaw = gameData.CameraYaw;
             SetLookDirection(new Vector3(
                 MathUtility.Sin(yaw),
                 MathUtility.Cos(yaw),
@@ -185,8 +185,9 @@ namespace OpenSage.Graphics.Cameras
                 new Vector3(0, 0, cameraHeight),
                 new Vector3(0, 1, cameraHeight),
                 new Vector3(1, 0, cameraHeight));
-            var toCameraIntersectionDistance = toCameraRay.Intersects(plane).Value;
-            var newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
+            // If this does not intersect with the ground, use the previous value.
+            _toCameraIntersectionDistance = toCameraRay.Intersects(plane) ?? _toCameraIntersectionDistance;
+            var newPosition = _terrainPosition - cameraToTerrainDirection * _toCameraIntersectionDistance;
 
             // Pitch - 0 means top-down view.
             // Pitch between 0 and CameraPitch = Move camera position to match pitch.
@@ -243,6 +244,11 @@ namespace OpenSage.Graphics.Cameras
             var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
+        }
+
+        public void GoToObject(Logic.Object.GameObject gameObject)
+        {
+            TerrainPosition = gameObject.Transform.Translation;
         }
     }
 }

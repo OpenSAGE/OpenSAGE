@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -126,7 +125,7 @@ namespace OpenSage.Gui.Apt
         public void Goto(string label)
         {
             logger.Info($"Goto: {label}");
-            if(_frameLabels.ContainsKey(label))
+            if (_frameLabels.ContainsKey(label))
             {
                 _currentFrame = _frameLabels[label];
             }
@@ -200,7 +199,7 @@ namespace OpenSage.Gui.Apt
                     }
                     break;
                 case RemoveObject ro:
-                    Content.Items.Remove(ro.Depth);
+                    Content.RemoveItem(ro.Depth);
                     break;
                 case Action action:
                     _actionList.Add(action);
@@ -252,7 +251,7 @@ namespace OpenSage.Gui.Apt
 
         private void MoveItem(PlaceObject po)
         {
-            if(!Content.Items.ContainsKey(po.Depth))
+            if (!Content.Items.ContainsKey(po.Depth))
             {
                 //TODO WARN
                 return;
@@ -323,7 +322,7 @@ namespace OpenSage.Gui.Apt
                 }
             }
 
-            Content.Items[po.Depth] = displayItem;
+            Content.AddItem(po.Depth, displayItem);
         }
 
         public override void RunActions(TimeInterval gt)
@@ -345,9 +344,9 @@ namespace OpenSage.Gui.Apt
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-            foreach (var item in Content.Items.Values)
+            foreach (var item in Content.ReverseItems.Values)
             {
-                if(item.HandleInput(mousePos, mouseDown))
+                if (item.HandleInput(mousePos, mouseDown))
                 {
                     return true;
                 }

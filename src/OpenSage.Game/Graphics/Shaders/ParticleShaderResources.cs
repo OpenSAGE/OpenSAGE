@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 

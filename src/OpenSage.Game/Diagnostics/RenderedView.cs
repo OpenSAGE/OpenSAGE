@@ -35,26 +35,18 @@ namespace OpenSage.Diagnostics
 
             _inputMessageBuffer = new InputMessageBuffer();
 
-            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.ContentManager));
+            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.AssetStore.LoadContext,
+                                                                    context.Game.CivilianPlayer,
+                                                                    context.Game.Scene3D?.Navigation));
             createGameObjects?.Invoke(gameObjects);
 
             _scene3D = AddDisposable(new Scene3D(
                 context.Game,
                 _inputMessageBuffer,
-                () => new Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
+                () => new Viewport(0, 0, ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y, 0, 1),
                 new ArcballCameraController(cameraTarget, cameraDistance),
-                null,
-                null,
-                Array.Empty<Terrain.WaterArea>(),
-                Array.Empty<Terrain.Road>(),
-                Array.Empty<Terrain.Bridge>(),
-                null,
                 gameObjects,
-                new WaypointCollection(),
-                new WaypointPathCollection(),
                 WorldLighting.CreateDefault(),
-                Array.Empty<Player>(),
-                Array.Empty<Team>(),
                 isDiagnosticScene: true));
 
             RenderPipeline = AddDisposable(new RenderPipeline(context.Game));

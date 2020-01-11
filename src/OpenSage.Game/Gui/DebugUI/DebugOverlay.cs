@@ -13,6 +13,7 @@ namespace OpenSage.Gui.DebugUI
     {
         public bool Enabled { get; set; }
         public bool ShowColliders { get; set; }
+        public bool ShowRoadMeshes { get; set; }
 
         public Point2D MousePosition { get; internal set; }
         private Vector3? _mouseWorldPosition = null;
@@ -26,7 +27,7 @@ namespace OpenSage.Gui.DebugUI
         public DebugOverlay(Scene3D scene3D, ContentManager contentManager)
         {
             _scene3D = scene3D;
-            _debugFont = contentManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);
+            _debugFont = contentManager.FontManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);
             _debugStringBuilder = new StringBuilder();
 
             _debugDrawables = new List<IDebugDrawable>();
@@ -114,6 +115,36 @@ namespace OpenSage.Gui.DebugUI
                     {
                         gameObject.Collider?.DebugDraw(context, camera);
                     }
+
+                    if(gameObject.TargetPoints != null)
+                    {
+                        //Draw line to the first target point
+                        if (gameObject.TargetPoints.Count > 0)
+                        {
+                            var p1 = gameObject.Transform.Translation;
+                            var p2 = gameObject.TargetPoints[0];
+                            var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
+                            var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
+                            context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
+                        }
+
+                        for (int i=1;i<gameObject.TargetPoints.Count;i++)
+                        {
+                            var p1 = gameObject.TargetPoints[i - 1];
+                            var p2 = gameObject.TargetPoints[i];
+                            var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
+                            var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
+                            context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
+                        }
+                    }
+                }
+            }
+
+            if (_scene3D.ShowRoads && ShowRoadMeshes)
+            {
+                foreach (var road in _scene3D.Roads)
+                {
+                    road.DebugDraw(context, camera);
                 }
             }
 
@@ -131,6 +162,11 @@ namespace OpenSage.Gui.DebugUI
         public void ToggleColliders()
         {
             ShowColliders = !ShowColliders;
+        }
+
+        public void ToggleRoadMeshes()
+        {
+            ShowRoadMeshes = !ShowRoadMeshes;
         }
     }
 }

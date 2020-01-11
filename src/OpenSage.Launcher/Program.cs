@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using CommandLine;
 using NLog.Targets;
@@ -25,7 +26,7 @@ namespace OpenSage.Launcher
             [Option('g', "game", Default = SageGame.CncGenerals, Required = false, HelpText = "Chooses which game to start.")]
             public SageGame Game { get; set; }
 
-            [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full pathf.")]
+            [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.")]
             public string Map { get; set; }
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
@@ -42,6 +43,9 @@ namespace OpenSage.Launcher
 
             [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
             public string TraceFile { get; set; }
+
+            [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
+            public string ReplayFile { get; set; }
         }
 
         public static void Main(string[] args)
@@ -108,24 +112,47 @@ namespace OpenSage.Launcher
 
                 game.DeveloperModeEnabled = opts.DeveloperMode;
 
-                if (opts.Map == null)
+                if (opts.ReplayFile != null)
                 {
-                    logger.Debug("Showing main menu");
-                    game.ShowMainMenu();
+                    using (var fileSystem = new FileSystem(Path.Combine(game.UserDataFolder, "Replays")))
+                    {
+                        game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
+                    }
+                }
+                else if (opts.Map != null)
+                {
+                    var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
+                    if (mapCache == null)
+                    {
+                        logger.Debug("Could not find MapCache entry for map " + opts.Map);
+                        game.ShowMainMenu();
+                    }
+                    else if (mapCache.IsMultiplayer)
+                    {
+                        var pSettings = new PlayerSetting?[]
+                        {
+                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0)),
+                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(255, 255, 255)),
+                        };
+
+                        logger.Debug("Starting multiplayer game");
+
+                        game.StartMultiPlayerGame(opts.Map,
+                            new EchoConnection(),
+                            pSettings,
+                            0);
+                    }
+                    else
+                    {
+                        logger.Debug("Starting singleplayer game");
+
+                        game.StartSinglePlayerGame(opts.Map);
+                    }
                 }
                 else
                 {
-                    var pSettings = new[]
-                    {
-                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
-                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
-                    };
-
-                    logger.Debug("Starting multiplayer game");
-                    game.StartMultiPlayerGame(opts.Map,
-                         new EchoConnection(),
-                         pSettings,
-                         0);
+                    logger.Debug("Showing main menu");
+                    game.ShowMainMenu();
                 }
 
                 logger.Debug("Starting game");

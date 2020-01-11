@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object.Damage;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,7 +17,7 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<DamageType> DamageTypesToReflect { get; private set; }
-        public float ReflectDamagePercentage { get; private set; }
+        public Percentage ReflectDamagePercentage { get; private set; }
         public float MinimumDamageToReflect { get; private set; }
     }
 }

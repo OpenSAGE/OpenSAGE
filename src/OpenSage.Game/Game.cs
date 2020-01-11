@@ -18,6 +18,14 @@ using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
+using OpenSage.Data.Rep;
+using OpenSage.Data.Map;
+using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Data.Wnd;
+using OpenSage.Gui.Apt;
+using OpenSage.Data.Apt;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
 
 namespace OpenSage
 {
@@ -28,6 +36,7 @@ namespace OpenSage
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
+        private readonly FileSystem _userDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
@@ -36,6 +45,9 @@ namespace OpenSage
         private readonly DeveloperModeView _developerModeView;
 
         private readonly TextureCopier _textureCopier;
+
+        internal GraphicsLoadContext GraphicsLoadContext { get; }
+        public AssetStore AssetStore { get; }
 
         public ContentManager ContentManager { get; }
 
@@ -54,7 +66,7 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting { get; }
-		
+
         /// <summary>
         /// Load lua script engine.
         /// </summary>
@@ -85,6 +97,101 @@ namespace OpenSage
         /// This is only false when the game is shutting down.
         /// </summary>
         public bool IsRunning { get; }
+
+        public void LoadReplayFile(FileSystemEntry replayFileEntry)
+        {
+            var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+
+            // TODO: This probably isn't right.
+            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
+            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
+
+            var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
+
+            StartMultiPlayerGame(
+                mapFilename,
+                new ReplayConnection(replayFile),
+                pSettings.ToArray(),
+                0);
+        }
+
+        private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
+        {
+            var random = new Random();
+
+            // TODO: set the correct factions & colors
+            var pSettings = new List<PlayerSetting?>();
+
+            var availableColors = new HashSet<MultiplayerColor>(AssetStore.MultiplayerColors);
+
+            foreach (var slot in slots)
+            {
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
+                {
+                    availableColors.Remove(AssetStore.MultiplayerColors.GetByIndex(colorIndex));
+                }
+            }
+
+            foreach (var slot in slots)
+            {
+                var owner = PlayerOwner.Player;
+
+                if (slot.SlotType == ReplaySlotType.Empty)
+                {
+                    pSettings.Add(null);
+                    continue;
+                }
+
+                var factionIndex = slot.Faction;
+                if (factionIndex == -1) // random
+                {
+                    var maxFactionIndex = AssetStore.PlayerTemplates.Count;
+                    var minFactionIndex = 2; // 0 and 1 are civilian and observer
+
+                    var diff = maxFactionIndex - minFactionIndex;
+                    factionIndex = minFactionIndex + (random.Next() % diff);
+                }
+
+                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
+
+                var color = new ColorRgb(0, 0, 0);
+
+                var colorIndex = (int) slot.Color;
+                if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
+                {
+                    color = AssetStore.MultiplayerColors.GetByIndex((int) slot.Color).RgbColor;
+                }
+                else
+                {
+                    var multiplayerColor = availableColors.First();
+                    color = multiplayerColor.RgbColor;
+                    availableColors.Remove(multiplayerColor);
+                }
+
+                if (slot.SlotType == ReplaySlotType.Computer)
+                {
+                    switch (slot.ComputerDifficulty)
+                    {
+                        case ReplaySlotDifficulty.Easy:
+                            owner = PlayerOwner.EasyAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Medium:
+                            owner = PlayerOwner.MediumAi;
+                            break;
+
+                        case ReplaySlotDifficulty.Hard:
+                            owner = PlayerOwner.HardAi;
+                            break;
+                    }
+
+                }
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, owner, slot.HumanName));
+            }
+
+            return pSettings;
+        }
 
         /// <summary>
         /// Is the game running logic updates?
@@ -150,7 +257,7 @@ namespace OpenSage
         public SageGame SageGame => Definition.Game;
 
         public Configuration Configuration { get; private set; }
-        
+
         public string UserDataLeafName
         {
             get
@@ -162,7 +269,7 @@ namespace OpenSage
                         return "Command and Conquer Generals Zero Hour Data";
 
                     default:
-                        return ContentManager.IniDataContext.GameData.UserDataLeafName;
+                        return AssetStore.GameData.Current.UserDataLeafName;
                 }
             }
         }
@@ -265,12 +372,43 @@ namespace OpenSage
 
                 _wndCallbackResolver = new WndCallbackResolver();
 
+                var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources.SolidWhiteTexture));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
+
+                AssetStore = new AssetStore(
+                    _fileSystem,
+                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
+                    GraphicsDevice,
+                    GraphicsLoadContext.StandardGraphicsResources,
+                    GraphicsLoadContext.ShaderResources,
+                    Definition.CreateAssetLoadStrategy());
+
+                // TODO
+                AssetStore.PushScope();
+
                 ContentManager = AddDisposable(new ContentManager(
                     this,
                     _fileSystem,
                     GraphicsDevice,
-                    SageGame,
-                    _wndCallbackResolver));
+                    SageGame));
+
+                // Create file system for user data folder and load user maps.
+                // This has to be done after the ContentManager is initialized and
+                // the GameData.ini file has been parsed because we don't know
+                // the UserDataFolder before then.
+                if (Directory.Exists(UserDataFolder))
+                {
+                    _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
+                    ContentManager.UserDataFileSystem = _userDataFileSystem;
+
+                    // TODO: Re-generate MapCache.ini for user maps
+                    var file = _userDataFileSystem.GetFile(@"Maps\MapCache.ini");
+                    if (file != null)
+                    {
+                        ContentManager.LoadIniFile(file);
+                    }
+                }
 
                 _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
 
@@ -297,8 +435,14 @@ namespace OpenSage
 
                 SetCursor("Arrow");
 
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
-                CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
+                var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
+
+                // TODO: This should never be null
+                if (playerTemplate != null)
+                {
+                    var gameData = AssetStore.GameData.Current;
+                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate);
+                }
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
 
@@ -341,7 +485,7 @@ namespace OpenSage
         {
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
-                var mouseCursor = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
+                var mouseCursor = AssetStore.MouseCursors.GetByName(cursorName);
                 if (mouseCursor == null)
                 {
                     return;
@@ -380,19 +524,49 @@ namespace OpenSage
             var useShellMap = Configuration.LoadShellMap;
             if (useShellMap)
             {
-                var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
-                var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
+                var shellMapName = AssetStore.GameData.Current.ShellMapName;
+                var mainMenuScene = LoadMap(shellMapName);
                 Scene3D = mainMenuScene;
                 Scripting.Active = true;
             }
 
-            Definition.MainMenu.AddToScene(ContentManager, Scene2D, useShellMap);
+            // TODO: MainMenu should never be null.
+            if (Definition.MainMenu != null)
+            {
+                Definition.MainMenu.AddToScene(this, Scene2D, useShellMap);
+            }
+        }
+
+        internal Scene3D LoadMap(string mapPath)
+        {
+            var entry = ContentManager.GetMapEntry(mapPath);
+            var mapFile = MapFile.FromFileSystemEntry(entry);
+
+            return new Scene3D(this, mapFile);
+        }
+
+        public Window LoadWindow(string wndFileName)
+        {
+            var entry = ContentManager.FileSystem.GetFile(Path.Combine("Window", wndFileName));
+            if (entry == null)
+            {
+                throw new Exception($"Window file {wndFileName} was not found.");
+            }
+            var wndFile = WndFile.FromFileSystemEntry(entry, AssetStore);
+            return new Window(wndFile, this, _wndCallbackResolver);
+        }
+
+        public AptWindow LoadAptWindow(string aptFileName)
+        {
+            var entry = ContentManager.FileSystem.GetFile(aptFileName);
+            var aptFile = AptFile.FromFileSystemEntry(entry);
+            return new AptWindow(this, ContentManager, aptFile);
         }
 
         private void StartGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting[] playerSettings,
+            PlayerSetting?[] playerSettings,
             int localPlayerIndex,
             bool isMultiPlayer)
         {
@@ -407,14 +581,22 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D?.Dispose();
-            Scene3D = null;
-
-            Scene3D = ContentManager.Load<Scene3D>(mapFileName);
+            Scene3D = LoadMap(mapFileName);
 
             if (Scene3D == null)
             {
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
+            }
+
+            var mapCache = AssetStore.MapCaches.GetByName(mapFileName.ToLower());
+            if (mapCache == null)
+            {
+                mapCache = AssetStore.MapCaches.GetByName(Path.Combine(UserDataFolder, mapFileName).ToLower());
+            }
+
+            if (mapCache == null)
+            {
+                throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
             }
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
@@ -423,36 +605,74 @@ namespace OpenSage
             {
                 var players = new Player[playerSettings.Length + 1];
 
-                for (var i = 0; i < playerSettings.Length; i++)
+                var availablePositions = new List<int>(mapCache.NumPlayers);
+                for (var a = 1; a <= mapCache.NumPlayers; a++)
                 {
-                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
-                    players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSettings[i]);
+                    availablePositions.Add(a);
+                }
 
-
-                    var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
-                    player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
-
-                    if (playerTemplate.StartingBuilding != null)
+                foreach (var playerSetting in playerSettings)
+                {
+                    if (playerSetting?.StartPosition != null)
                     {
-                        var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
-                        startingBuilding.Transform.Translation = player1StartPosition;
-                        startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
-
-                        var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnits[0].Unit), players[i]);
-                        var startingUnit0Position = player1StartPosition;
-                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-                        startingUnit0.Transform.Translation = startingUnit0Position;
+                        int pos = (int) playerSetting?.StartPosition;
+                        availablePositions.Remove(pos);
                     }
                 }
 
-                players[players.Length - 1] = CivilianPlayer;
+                players[0] = CivilianPlayer;
+
+                localPlayerIndex++;
+
+                for (var i = 1; i <= playerSettings.Length; i++)
+                {
+                    PlayerSetting? playerSetting = playerSettings[i - 1];
+                    if (playerSetting == null)
+                    {
+                        continue;
+                    }
+
+                    var gameData = AssetStore.GameData.Current;
+                    var playerTemplate = playerSetting?.Template;
+                    players[i] = Player.FromTemplate(gameData, playerTemplate, playerSetting);
+                    var startPos = playerSetting?.StartPosition;
+
+                    // startPos seems to be -1 for random, and 0 for observer/civilian
+                    if (startPos == null || startPos == -1 || startPos == 0)
+                    {
+                        startPos = availablePositions.Last();
+                        availablePositions.Remove((int) startPos);
+                    }
+
+                    var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
+                    playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
+
+                    if (playerTemplate.StartingBuilding != null)
+                    {
+                        var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, players[i]);
+                        startingBuilding.Transform.Translation = playerStartPosition;
+                        startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+
+                        var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
+                        var startingUnit0Position = playerStartPosition;
+                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+                        startingUnit0.Transform.Translation = startingUnit0Position;
+
+                        players[i].SelectUnits(new[] { startingBuilding });
+                    }
+
+                    if (players[i].IsHuman)
+                    {
+                        localPlayerIndex = i;
+                    }
+                }
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
             }
 
             if (Definition.ControlBar != null)
             {
-                Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, ContentManager);
+                Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, this);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
 
@@ -468,21 +688,16 @@ namespace OpenSage
         {
             // TODO: Difficulty
 
-            var campaign = ContentManager.IniDataContext.Campaigns.Single(x => x.Name == side);
+            var campaign = AssetStore.CampaignTemplates.GetByName(side);
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
-            StartGame(
-                firstMission.Map,
-                new EchoConnection(),
-                null,
-                0,
-                false);
+            StartSinglePlayerGame(firstMission.Map);
         }
 
         public void StartMultiPlayerGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting[] playerSettings,
+            PlayerSetting?[] playerSettings,
             int localPlayerIndex)
         {
             StartGame(
@@ -490,7 +705,18 @@ namespace OpenSage
                 connection,
                 playerSettings,
                 localPlayerIndex,
-                true);
+                isMultiPlayer: true);
+        }
+
+        public void StartSinglePlayerGame(
+            string mapFileName)
+        {
+            StartGame(
+                mapFileName,
+                new EchoConnection(),
+                null,
+                0,
+                isMultiPlayer: false);
         }
 
         public void EndGame()
@@ -563,7 +789,7 @@ namespace OpenSage
             CheckGlobalHotkeys();
 
             var totalGameTime = MapTime.TotalTime;
-        
+
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
@@ -639,7 +865,7 @@ namespace OpenSage
             }
 
             // TODO: What is the order?
-            Scene3D?.LogicTick(frame);
+            Scene3D?.LogicTick(frame, MapTime);
 
             CurrentFrame += 1;
         }
@@ -704,5 +930,11 @@ namespace OpenSage
                 new Vector2(1, 1) :
                 new Vector2(1, 0);
         }
+
+        // TODO: Move this to somewhere better.
+        public IEnumerable<PlayerTemplate> GetPlayableSides() => AssetStore.PlayerTemplates.Where(x => x.PlayableSide);
+
+        // TODO: Remove this.
+        public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
     }
 }

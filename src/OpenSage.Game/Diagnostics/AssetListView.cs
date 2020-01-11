@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
+using System.Reflection;
 using ImGuiNET;
 using OpenSage.Diagnostics.AssetViews;
 using OpenSage.Diagnostics.Util;
@@ -10,7 +10,29 @@ namespace OpenSage.Diagnostics
 {
     internal sealed class AssetListView : DiagnosticView
     {
-        private readonly List<string> _audioFilenames;
+        private static readonly Dictionary<Type, ConstructorInfo> AssetViewConstructors;
+        private static readonly ConstructorInfo DefaultAssetViewConstructor;
+
+        static AssetListView()
+        {
+            AssetViewConstructors = new Dictionary<Type, ConstructorInfo>();
+
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                var assetViewAttribute = type.GetCustomAttribute<AssetViewAttribute>();
+                if (assetViewAttribute != null)
+                {
+                    var constructorParameterTypes = new[]
+                    {
+                        typeof(DiagnosticViewContext),
+                        assetViewAttribute.ForType
+                    };
+                    AssetViewConstructors.Add(assetViewAttribute.ForType, type.GetConstructor(constructorParameterTypes));
+                }
+            }
+
+            DefaultAssetViewConstructor = typeof(DefaultAssetView).GetConstructors()[0];
+        }
 
         private readonly List<AssetListItem> _items;
 
@@ -27,22 +49,6 @@ namespace OpenSage.Diagnostics
         public AssetListView(DiagnosticViewContext context)
             : base(context)
         {
-            // TODO: This actually needs to use assets that have already been loaded.
-            // And update when assets are loaded or unloaded.
-
-            // TODO: Remove this.
-            _audioFilenames = new List<string>();
-            foreach (var entry in context.Game.ContentManager.FileSystem.Files)
-            {
-                switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
-                {
-                    case ".mp3":
-                    case ".wav":
-                        _audioFilenames.Add(entry.FilePath);
-                        break;
-                }
-            }
-
             _items = new List<AssetListItem>();
 
             _searchTextBuffer = new byte[32];
@@ -118,41 +124,20 @@ namespace OpenSage.Diagnostics
 
             var isEmptySearch = string.IsNullOrWhiteSpace(_searchText);
 
-            void AddItem(string assetName, Func<AssetView> createAssetView)
+            var assetStore = Context.Game.AssetStore;
+
+            foreach (var asset in assetStore.GetAllAssets())
             {
-                if (isEmptySearch || assetName.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (isEmptySearch || asset.FullName.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    _items.Add(new AssetListItem(assetName, createAssetView));
+                    if (!AssetViewConstructors.TryGetValue(asset.GetType(), out var assetViewConstructor))
+                    {
+                        assetViewConstructor = DefaultAssetViewConstructor;
+                    }
+
+                    AssetView createAssetView() => (AssetView) assetViewConstructor.Invoke(new object[] { Context, asset });
+                    _items.Add(new AssetListItem(asset.FullName, createAssetView));
                 }
-            }
-
-            foreach (var asset in Game.ContentManager.CachedObjects)
-            {
-                var assetName = AssetView.GetAssetName(asset);
-                if (assetName == null)
-                {
-                    continue;
-                }
-
-                AddItem(assetName, () => AssetView.CreateAssetView(Context, asset));
-            }
-
-            // TODO: Remove these, once audio assets are handled the same as other assets.
-            foreach (var objectDefinition in Context.Game.ContentManager.IniDataContext.Objects)
-            {
-                AddItem($"GameObject:{objectDefinition.Name}", () => new GameObjectView(Context, objectDefinition));
-            }
-            foreach (var audioFilename in _audioFilenames)
-            {
-                AddItem($"Audio:{audioFilename}", () => new SoundView(Context, audioFilename));
-            }
-            foreach (var particleSystemDefinition in Context.Game.ContentManager.IniDataContext.ParticleSystems)
-            {
-                AddItem($"ParticleSystem:{particleSystemDefinition.Name}", () => new ParticleSystemView(Context, particleSystemDefinition.ToFXParticleSystemTemplate()));
-            }
-            foreach (var particleSystemTemplate in Context.Game.ContentManager.IniDataContext.FXParticleSystems)
-            {
-                AddItem($"FXParticleSystem:{particleSystemTemplate.Name}", () => new ParticleSystemView(Context, particleSystemTemplate));
             }
         }
     }

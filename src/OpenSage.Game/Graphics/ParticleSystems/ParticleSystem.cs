@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
@@ -59,9 +60,9 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public ParticleSystemState State { get; private set; }
 
-        public ParticleSystem(
-            ContentManager contentManager,
+        internal ParticleSystem(
             FXParticleSystemTemplate template,
+            AssetLoadContext loadContext,
             GetMatrixReferenceDelegate getWorldMatrix)
         {
             Template = template;
@@ -76,22 +77,19 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
 
-            var texturePath = Path.Combine("Art", "Textures", Template.ParticleName);
-            var texture = contentManager.Load<Texture>(texturePath);
-
-            _particleResourceSet = AddDisposable(contentManager.ShaderResources.Particle.CreateParticleResoureSet(
+            _particleResourceSet = AddDisposable(loadContext.ShaderResources.Particle.CreateParticleResoureSet(
                 _renderItemConstantsBufferVS.Buffer,
-                texture));
+                Template.ParticleTexture.Value));
 
-            _shaderSet = contentManager.ShaderResources.Particle.ShaderSet;
-            _pipeline = contentManager.ShaderResources.Particle.GetCachedPipeline(Template.Shader);
+            _shaderSet = loadContext.ShaderResources.Particle.ShaderSet;
+            _pipeline = loadContext.ShaderResources.Particle.GetCachedPipeline(Template.Shader);
 
             _initialDelay = Template.InitialDelay.GetRandomInt();
 
@@ -134,15 +132,15 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
             var numVertices = maxParticles * 4;
-            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
+            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) (ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
+                    (uint) (ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
                     BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
             _vertices = new ParticleShaderResources.ParticleVertex[numVertices];
 
             _indexBuffer = AddDisposable(CreateIndexBuffer(
-                contentManager.GraphicsDevice,
+                loadContext.GraphicsDevice,
                 maxParticles,
                 out _numIndices));
 

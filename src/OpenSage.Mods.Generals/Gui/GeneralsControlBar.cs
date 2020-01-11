@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
+using OpenSage.Core;
 using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -35,8 +35,11 @@ namespace OpenSage.Mods.Generals.Gui
             get => _state;
             set
             {
-                _state = value;
-                _state.OnEnterState(this);
+                if (_state != value)
+                {
+                    _state = value;
+                    _state.OnEnterState(this);
+                }
             }
         }
 
@@ -69,10 +72,9 @@ namespace OpenSage.Mods.Generals.Gui
 
         private ControlBarSize _size = ControlBarSize.Maximized;
 
-        private Image LoadImage(string name) => _contentManager.WndImageLoader.CreateNormalImage(name);
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
-        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
+        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
             _window = window;
@@ -91,16 +93,16 @@ namespace OpenSage.Mods.Generals.Gui
 
             _resize = FindControl("ButtonLarge") as Button;
 
-            _resizeDownBackground = LoadImage(_scheme.ToggleButtonDownOn);
-            _resizeDownHover = LoadImage(_scheme.ToggleButtonDownIn);
-            _resizeDownPushed = LoadImage(_scheme.ToggleButtonDownPushed);
+            _resizeDownBackground = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownOn);
+            _resizeDownHover = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownIn);
+            _resizeDownPushed = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownPushed);
 
-            _resizeUpBackground = LoadImage(_scheme.ToggleButtonUpOn);
-            _resizeUpHover = LoadImage(_scheme.ToggleButtonUpIn);
-            _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
+            _resizeUpBackground = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpOn);
+            _resizeUpHover = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpIn);
+            _resizeUpPushed = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonUpPushed);
 
-            _commandButtonHover = LoadImage("Cameo_hilited");
-            _commandButtonPushed = LoadImage("Cameo_push");
+            _commandButtonHover = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_hilited"));
+            _commandButtonPushed = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_push"));
 
             UpdateResizeButtonStyle();
 
@@ -120,7 +122,15 @@ namespace OpenSage.Mods.Generals.Gui
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
-                State = new SelectedControlBarState();
+                var unit = player.SelectedUnits.First();
+                if (player.SelectedUnits.Count == 1 && unit.IsBeingConstructed())
+                {
+                    State = ControlBarState.Construction;
+                }
+                else
+                {
+                    State = ControlBarState.Selected;
+                }
             }
             else
             {
@@ -176,6 +186,34 @@ namespace OpenSage.Mods.Generals.Gui
             public abstract void Update(Player player, GeneralsControlBar controlBar);
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
+            public static ControlBarState Selected { get; } = new SelectedControlBarState();
+            public static ControlBarState Construction { get; } = new UnderConstructionControlBarState();
+
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+            protected void ClearControls(GeneralsControlBar controlBar)
+            {
+                foreach (var control in controlBar._center.Controls)
+                {
+                    if (control.Name == "ControlBar.wnd:CommandWindow")
+                    {
+                        foreach (var child in control.Controls)
+                        {
+                            child.Hide();
+                        }
+                        control.Show();
+                    }
+                    else
+                    {
+                        control.Hide();
+                    }
+                }
+
+                foreach (var control in controlBar._right.Controls)
+                {
+                    control.Hide();
+                }
+            }
 
             protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
             {
@@ -183,11 +221,11 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
 
-                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonName))
+                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
                     {
-                        var commandButton = controlBar._contentManager.IniDataContext.CommandButtons.Find(x => x.Name == commandButtonName);
+                        var commandButton = commandButtonReference.Value;
 
-                        buttonControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(commandButton.ButtonImage);
+                        buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
 
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
@@ -195,17 +233,21 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
                         buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
 
-                        buttonControl.SystemCallback = (control, mesage, context) =>
+                        buttonControl.SystemCallback = (control, message, context) =>
                         {
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
+
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
-                            ObjectDefinition objectDefinition;
+                            var objectDefinition = commandButton.Object?.Value;
+
+                            logger.Debug($"Relevant object: {objectDefinition?.Name}");
+
                             Order order = null;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
                                     context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
                                     break;
 
@@ -218,8 +260,13 @@ namespace OpenSage.Mods.Generals.Gui
                                     break;
 
                                 case CommandType.UnitBuild:
-                                    objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
-                                    context.Game.OrderGenerator.StartConstructUnit(objectDefinition);
+                                    order = CreateOrder(OrderType.CreateUnit);
+                                    order.AddIntegerArgument(objectDefinition.InternalId);
+                                    order.AddIntegerArgument(1);
+                                    break;
+
+                                case CommandType.SetRallyPoint:
+                                    context.Game.OrderGenerator.SetRallyPoint();
                                     break;
                                 default:
                                     throw new NotImplementedException();
@@ -255,7 +302,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                     case CommandButtonBorderType.Upgrade:
                         return scheme.ButtonBorderUpgradeColor;
-                        
+
                     case CommandButtonBorderType.System:
                         return scheme.ButtonBorderSystemColor;
 
@@ -269,26 +316,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                foreach (var control in controlBar._center.Controls)
-                {
-                    if (control.Name == "ControlBar.wnd:CommandWindow")
-                    {
-                        foreach (var child in control.Controls)
-                        {
-                            child.Hide();
-                        }
-                        control.Show();
-                    }
-                    else
-                    {
-                        control.Hide();
-                    }
-                }
-
-                foreach (var control in controlBar._right.Controls)
-                {
-                    control.Hide();
-                }
+                ClearControls(controlBar);
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
@@ -301,29 +329,76 @@ namespace OpenSage.Mods.Generals.Gui
         {
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                
+                ClearControls(controlBar);
             }
+
+            private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+            const int PRODUCTION_QUEUE_SIZE = 9;
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
-                var commandSet = controlBar._contentManager.IniDataContext.CommandSets.Find(x => x.Name == unit.Definition.CommandSet);
+                var commandSet = unit.Definition.CommandSet.Value;
                 ApplyCommandSet(controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
-                var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
-                iconControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+                var isProducing = unit.ProductionUpdate?.IsProducing ?? false;
 
-                void ApplyUpgradeImage(string upgradeControlName, string upgradeName)
+                var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
+                productionQueueWindow.Visible = isProducing;
+
+                if (isProducing)
                 {
-                    var upgrade = upgradeName != null
-                        ? controlBar._contentManager.IniDataContext.Upgrades.Find(x => x.Name == upgradeName)
-                        : null;
+                    var queue = unit.ProductionUpdate.ProductionQueue;
+
+                    for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
+                    {
+                        var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
+
+                        if (queueButton == null)
+                        {
+                            logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
+                            continue;
+                        }
+
+                        Image img = null;
+                        if (queue.Count > pos)
+                        {
+                            var job = queue[pos];
+                            if (job != null)
+                            {
+                                // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
+                                queueButton.Opacity = (1.0f - job.Progress);
+
+                                img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+
+                                var posCopy = pos;
+
+                                queueButton.SystemCallback = (control, message, context) =>
+                                {
+                                    unit.ProductionUpdate.CancelProduction(posCopy);
+                                };
+                            }
+
+                        }
+                        queueButton.BackgroundImage = img;
+                    }
+                }
+
+                var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
+                var cameoImg = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.SelectPortrait);
+                iconControl.BackgroundImage = cameoImg;
+                iconControl.Visible = !isProducing;
+
+                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<Upgrade> upgradeReference)
+                {
+                    var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
                     upgradeControl.BackgroundImage = upgrade != null
-                        ? controlBar._contentManager.WndImageLoader.CreateNormalImage(upgrade.ButtonImage)
+                        ? controlBar._window.ImageLoader.CreateFromMappedImageReference(upgrade.ButtonImage)
                         : null;
                 }
 
@@ -339,29 +414,43 @@ namespace OpenSage.Mods.Generals.Gui
 
         private sealed class UnderConstructionControlBarState : ControlBarState
         {
+            Control _window;
+            Control _progressText;
+            string _baseText;
+
+
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                ClearControls(controlBar);
+
+                _window = controlBar._center.Controls.FindControl("ControlBar.wnd:UnderConstructionWindow");
+                _window.Show();
+                _progressText = _window.Controls.FindControl("ControlBar.wnd:UnderConstructionDesc");
+
+                if (string.IsNullOrEmpty(_baseText))
+                {
+                    _baseText = StringConverter.FromPrintf(_progressText.Text);
+                }
+
+                //TODO: connect cancel button to some order.
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                var unit = player.SelectedUnits.First();
+                var percent = unit.BuildProgress * 100.0f;
+                //TODO: the formatting should be taken from the printf string
+                var text = string.Format(_baseText, percent.ToString("0.00"));
+                _progressText.Text = text;
             }
         }
     }
 
     public sealed class GeneralsControlBarSource : IControlBarSource
     {
-        public IControlBar Create(string side, ContentManager contentManager)
+        public IControlBar Create(string side, Game game)
         {
-            // TODO: This is not the best place for this.
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandSet.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandButton.ini");
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\Upgrade.ini");
-
-            var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
+            var scheme = game.AssetStore.ControlBarSchemes.FindBySide(side);
 
             // TODO: Support multiple image parts?
             // Generals always uses exactly one image part.
@@ -371,14 +460,14 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 Name = "OpenSAGE:ControlBarBackground",
                 Bounds = new Rectangle(imagePart.Position, imagePart.Size),
-                BackgroundImage = LoadImage(imagePart.ImageName)
             };
 
-            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, contentManager);
-            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd", new LoadOptions { CacheAsset = false });
+            var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game);
+            var controlBarWindow = game.LoadWindow("ControlBar.wnd");
+
+            background.BackgroundImage = backgroundWindow.ImageLoader.CreateFromMappedImageReference(imagePart.ImageName);
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
-            Image LoadImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -405,8 +494,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var button = ApplyBounds(name, coordPrefix) as Button;
 
                 Image LoadImageForState(string state) =>
-                    LoadImage(
-                        (string) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
+                    controlBarWindow.ImageLoader.CreateFromMappedImageReference(
+                        (LazyAssetReference<MappedImage>) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
                 button.BackgroundImage = LoadImageForState("Enable");
                 button.DisabledBackgroundImage = LoadImageForState("Disabled");
@@ -432,11 +521,11 @@ namespace OpenSage.Mods.Generals.Gui
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;
             rightHud.BackgroundColor = ColorRgbaF.Transparent;
-            rightHud.BackgroundImage = LoadImage(scheme.RightHudImage);
+            rightHud.BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.RightHudImage);
 
-            FindControl("ExpBarForeground").BackgroundImage = LoadImage(scheme.ExpBarForegroundImage);
+            FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
-            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, game.ContentManager, game.AssetStore);
         }
     }
 }

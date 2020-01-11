@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -14,12 +16,19 @@ namespace OpenSage.Diagnostics
     {
         private readonly DiagnosticViewContext _context;
         private readonly List<DiagnosticView> _views;
+        private readonly IReadOnlyDictionary<MapCache, string> _maps;
 
         public MainView(DiagnosticViewContext context)
         {
             _context = context;
 
             _views = new List<DiagnosticView>();
+
+            _maps = _context.Game.AssetStore.MapCaches
+                .Where(m => _context.Game.ContentManager.GetMapEntry(m.Name) != null)
+                .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
+                .OrderBy(m => m.mapName)
+                .ToDictionary(m => m.mapCache, m => m.mapName);
 
             void AddView(DiagnosticView view)
             {
@@ -99,25 +108,31 @@ namespace OpenSage.Diagnostics
                 {
                     if (ImGui.BeginMenu("Map"))
                     {
-                        foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
-                        {
-                            var mapName = mapCache.GetNameKey().Translate();
-
-                            if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
+                        foreach (var mapCache in _maps)
+                        {                           
+                            if (ImGui.MenuItem($"{mapCache.Value} ({mapCache.Key.Name})"))
                             {
-                                var iniContext = _context.Game.ContentManager.IniDataContext;
-                                var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);
-                                var faction2 = iniContext.PlayerTemplates.FindLast(x => x.PlayableSide == true);
+                                var playableSides = _context.Game.GetPlayableSides();
+                                var faction1 = playableSides.First();
+                                var faction2 = playableSides.Last();
 
-                                _context.Game.StartMultiPlayerGame(
-                                    mapCache.Name,
-                                    new EchoConnection(),
-                                    new[]
-                                    {
-                                        new PlayerSetting(faction1.Side, new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting(faction2.Side, new ColorRgb(255, 255, 255)),
-                                    },
-                                    0);
+                                if (mapCache.Key.IsMultiplayer)
+                                {
+                                    _context.Game.StartMultiPlayerGame(
+                                        mapCache.Key.Name,
+                                        new EchoConnection(),
+                                        new PlayerSetting?[]
+                                        {
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                        },
+                                        0
+                                    );
+                                }
+                                else
+                                {
+                                    _context.Game.StartSinglePlayerGame(mapCache.Key.Name);
+                                }
                             }
                         }
 

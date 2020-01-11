@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data;
-using OpenSage.Data.Ini;
 using SharpAudio;
 using SharpAudio.Util;
 using SharpAudio.Util.Wave;
@@ -13,11 +11,7 @@ namespace OpenSage.Audio
     {
         private readonly List<AudioSource> _sources;
         private readonly Dictionary<string, AudioBuffer> _cached;
-        private readonly AudioSettings _settings;
         private readonly AudioEngine _engine;
-
-        private readonly string _localisedAudioRoot;
-        private readonly string _audioRoot;
 
         private readonly Random _random;
 
@@ -26,33 +20,6 @@ namespace OpenSage.Audio
             _engine = AudioEngine.CreateDefault();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
-
-            switch (game.ContentManager.SageGame)
-            {
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    // TODO: implements AudioSystem settings for games from CNC3 onwards
-                    return;
-
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Voice.ini");
-                    break;
-            }
-
-            _settings = game.ContentManager.IniDataContext.AudioSettings;
-
-            _localisedAudioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, Game.ContentManager.Language);
-            _audioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder);
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
@@ -99,28 +66,24 @@ namespace OpenSage.Audio
             return source;
         }
 
-        private FileSystemEntry ResolveAudioEventPath(AudioEvent ev)
+        private FileSystemEntry ResolveAudioEventEntry(AudioEvent ev)
         {
-            // TODO: Try to remove these allocations.
-            if(ev.Sounds.Length == 0)
+            if (ev.Sounds.Length == 0)
             {
                 return null;
             }
 
-            // TOOD: Check control flag before choosing at random?
-            var soundFileName = $"{ev.Sounds[_random.Next(ev.Sounds.Length)]}.{_settings.SoundsExtension}";
-            var isLocalised = ev.Type?.Get(AudioTypeFlags.Voice) ?? false;
-            var filePath = Path.Combine(isLocalised ? _localisedAudioRoot : _audioRoot, soundFileName);
-            return Game.ContentManager.FileSystem.GetFile(filePath);
+            // TOOD: Check control flag before choosing at random.
+            var sound = ev.Sounds[_random.Next(ev.Sounds.Length)];
+            var audioFile = sound.AudioFile.Value;
+            return audioFile.Entry;
         }
 
         /// <summary>
         /// Open a a music/audio file that gets streamed.
         /// </summary>
-        public SoundStream GetStream(string streamPath)
+        public SoundStream GetStream(FileSystemEntry entry)
         {
-            var entry = Game.ContentManager.FileSystem.GetFile(streamPath);
-
             return new SoundStream(entry.Open(), _engine);
         }
 
@@ -128,25 +91,42 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(string eventName)
         {
-            if (!Game.ContentManager.IniDataContext.AudioEvents.TryGetValue(eventName, out var ev))
+            var audioEvent = Game.AssetStore.AudioEvents.GetByName(eventName);
+
+            if (audioEvent == null)
             {
                 logger.Warn($"Missing AudioEvent: {eventName}");
                 return;
             }
 
-            var entry = ResolveAudioEventPath(ev);
+            PlayAudioEvent(audioEvent);
+        }
 
-            if (entry == null)
+        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        {
+            if (baseAudioEvent == null)
             {
-                logger.Warn($"Missing Audio File: {ev.Name}");
                 return;
             }
 
-            var source = GetSound(entry, ev.Control.HasFlag(AudioControlFlags.Loop));
+            if (!(baseAudioEvent is AudioEvent audioEvent))
+            {
+                // TODO
+                return;
+            }
+
+            var entry = ResolveAudioEventEntry(audioEvent);
+
+            if (entry == null)
+            {
+                logger.Warn($"Missing Audio File: {audioEvent.Name}");
+                return;
+            }
+
+            var source = GetSound(entry, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
             _sources.Add(source);
 
-            // Divide the volume by 100, because SAGE uses the scale [0, 100] while SharpAudio uses [0, 1]
-            source.Volume = ev.Volume / 100.0f;
+            source.Volume = (float) audioEvent.Volume;
 
             source.Play();
         }

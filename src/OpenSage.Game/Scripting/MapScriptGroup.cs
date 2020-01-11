@@ -1,9 +1,22 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
 {
     public sealed class MapScriptGroup
     {
+        internal static MapScriptGroup[] Create(ScriptGroup[] scriptGroups)
+        {
+            var result = new MapScriptGroup[scriptGroups.Length];
+
+            for (var i = 0; i < result.Length; i++)
+            {
+                result[i] = new MapScriptGroup(scriptGroups[i]);
+            }
+
+            return result;
+        }
+
         private readonly MapScript[] _scripts;
 
         public IEnumerable<MapScript> Scripts => _scripts;
@@ -14,16 +27,12 @@ namespace OpenSage.Scripting
 
         private readonly bool _isSubroutine;
 
-        public MapScriptGroup(
-            string name,
-            MapScript[] scripts,
-            bool isInitiallyActive,
-            bool isSubroutine)
+        private MapScriptGroup(ScriptGroup scriptGroup)
         {
-            Name = name;
-            _scripts = scripts;
-            IsActive = isInitiallyActive;
-            _isSubroutine = isSubroutine;
+            Name = scriptGroup.Name;
+            _scripts = MapScript.Create(scriptGroup.Scripts);
+            IsActive = scriptGroup.IsActive;
+            _isSubroutine = scriptGroup.IsSubroutine;
         }
 
         public void Execute(ScriptExecutionContext context)

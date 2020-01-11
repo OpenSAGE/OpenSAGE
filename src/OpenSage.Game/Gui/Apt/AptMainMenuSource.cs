@@ -1,6 +1,4 @@
-﻿using OpenSage.Content;
-
-namespace OpenSage.Gui.Apt
+﻿namespace OpenSage.Gui.Apt
 {
     public class AptMainMenuSource : IMainMenuSource
     {
@@ -13,12 +11,12 @@ namespace OpenSage.Gui.Apt
             _fallbackShell = "ShellMapLowLOD";
         }
 
-        public void AddToScene(ContentManager contentManager, Scene2D scene, bool useShellMap)
+        public void AddToScene(Game game, Scene2D scene, bool useShellMap)
         {
-            var aptWindow = contentManager.Load<AptWindow>(_aptFileName);
+            var aptWindow = game.LoadAptWindow(_aptFileName);
             if (!useShellMap)
             {
-                aptWindow.BackgroundImage = aptWindow.ImageLoader.GetMappedImage(_fallbackShell);
+                aptWindow.BackgroundImage = game.AssetStore.MappedImages.GetByName(_fallbackShell);
             }
             scene.AptWindowManager.PushWindow(aptWindow);
         }

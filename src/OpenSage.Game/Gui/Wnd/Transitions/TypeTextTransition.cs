@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd.Transitions

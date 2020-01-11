@@ -1,11 +1,10 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.W3x
 {
-    public sealed class W3xBox : W3xRenderObject
+    public sealed class W3xBox
     {
         public Vector3 Center { get; private set; }
         public Vector3 Extent { get; private set; }

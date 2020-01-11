@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
 {
@@ -9,8 +10,11 @@ namespace OpenSage.Scripting
         public MapScriptGroup[] ScriptGroups { get; }
         public MapScript[] Scripts { get; }
 
-        public MapScriptCollection(MapScriptGroup[] scriptGroups, MapScript[] scripts)
+        public MapScriptCollection(ScriptList scriptList)
         {
+            var scriptGroups = MapScriptGroup.Create(scriptList.ScriptGroups);
+            var scripts = MapScript.Create(scriptList.Scripts);
+
             ScriptGroups = scriptGroups;
             Scripts = scripts;
 

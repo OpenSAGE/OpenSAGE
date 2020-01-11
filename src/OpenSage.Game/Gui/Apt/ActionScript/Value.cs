@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -41,6 +35,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (Type != ValueType.Register)
                 return this;
+
+            if (context.Registers.Length - 1 < _number)
+                return Value.FromInteger(_number);
 
             return context.Registers[_number];
         }
@@ -229,9 +226,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Integer:
                     return _number.ToString();
                 case ValueType.Float:
-                    return _decimal.ToString();     
+                    return _decimal.ToString();
                 case ValueType.Undefined:
                     return "";
+                case ValueType.Object:
+                    return _object.Item.Name;
                 default:
                     throw new NotImplementedException();
             }
@@ -264,6 +263,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.String:
                     result = (b._string == _string);
+                    break;
+                case ValueType.Boolean:
+                    result = b._boolean == _boolean;
                     break;
                 default:
                     throw new NotImplementedException();

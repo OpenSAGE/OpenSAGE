@@ -7,21 +7,18 @@ namespace OpenSage.Gui.Wnd.Images
 {
     public sealed class Image
     {
-        private readonly Func<Size, Texture> _createTexture;
+        private readonly ImageSource _source;
         private Texture _texture;
         private Size _size;
-        private bool _flipped;
 
         public string Name { get; }
 
-        public Size NaturalSize { get; }
+        public Size NaturalSize => _source.NaturalSize;
 
-        internal Image(string name, in Size naturalSize, Func<Size, Texture> createTexture, in bool flipped = false)
+        internal Image(string name, ImageSource source)
         {
             Name = name;
-            NaturalSize = naturalSize;
-            _createTexture = createTexture;
-            _flipped = flipped;
+            _source = source;
         }
 
         internal void SetSize(in Size size)
@@ -31,13 +28,7 @@ namespace OpenSage.Gui.Wnd.Images
                 return;
             }
 
-            if (_texture != null)
-            {
-                _texture.Dispose();
-                _texture = null;
-            }
-
-            _texture = _createTexture(size);
+            _texture = _source.GetTexture(size);
 
             if (_texture == null)
             {
@@ -49,7 +40,7 @@ namespace OpenSage.Gui.Wnd.Images
 
         internal void Draw(DrawingContext2D drawingContext, in Rectangle destinationRect)
         {
-            drawingContext.DrawImage(_texture, null, destinationRect, _flipped);
+            drawingContext.DrawImage(_texture, null, destinationRect);
         }
     }
 }

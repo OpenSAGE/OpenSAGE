@@ -83,7 +83,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var nArgs = context.Stack.Pop().ToInteger();
             Value[] args = new Value[nArgs];
 
-            for(int i = 0;i<nArgs;++i)
+            for (int i = 0; i < nArgs; ++i)
             {
                 args[i] = context.Stack.Pop();
             }
@@ -187,6 +187,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             // TODO: fix this
             //throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops an object from stack and enumerates it's slots
+    /// </summary>
+    public sealed class RandomNumber : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Random;
+
+        public override void Execute(ActionContext context)
+        {
+            // TODO: fix this
+            var max = context.Stack.Pop().ToInteger();
+
+            var rnd = new Random();
+            context.Stack.Push(Value.FromInteger(rnd.Next(0, max)));
         }
     }
 }

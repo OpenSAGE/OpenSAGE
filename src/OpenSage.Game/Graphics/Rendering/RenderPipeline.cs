@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Graphics.Shaders;
@@ -26,6 +27,7 @@ namespace OpenSage.Graphics.Rendering
 
         private readonly CommandList _commandList;
 
+        private readonly GraphicsLoadContext _loadContext;
         private readonly GlobalShaderResources _globalShaderResources;
         private readonly GlobalShaderResourceData _globalShaderResourceData;
 
@@ -54,7 +56,9 @@ namespace OpenSage.Graphics.Rendering
 
             var graphicsDevice = game.GraphicsDevice;
 
-            _globalShaderResources = game.ContentManager.ShaderResources.Global;
+            _loadContext = game.GraphicsLoadContext;
+
+            _globalShaderResources = game.GraphicsLoadContext.ShaderResources.Global;
             _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources));
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
@@ -62,7 +66,7 @@ namespace OpenSage.Graphics.Rendering
 
             _renderItemConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    game.ContentManager.ShaderResources.Mesh.RenderItemConstantsResourceLayout,
+                    game.GraphicsLoadContext.ShaderResources.Mesh.RenderItemConstantsResourceLayout,
                     _renderItemConstantsBufferVS.Buffer,
                     _renderItemConstantsBufferPS.Buffer)));
 
@@ -70,10 +74,11 @@ namespace OpenSage.Graphics.Rendering
 
             _drawingContext = AddDisposable(new DrawingContext2D(
                 game.ContentManager,
+                game.GraphicsLoadContext,
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
-            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice, game.ContentManager.ShaderResources.Global));
+            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
 
             _textureCopier = AddDisposable(new TextureCopier(
                 game,
@@ -140,7 +145,7 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.Begin(
                     _commandList,
-                    context.ContentManager.LinearClampSampler,
+                    _loadContext.StandardGraphicsResources.LinearClampSampler,
                     new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
 
                 context.Scene3D?.Render(_drawingContext);
@@ -219,8 +224,20 @@ namespace OpenSage.Graphics.Rendering
 
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
+            commandList.PushDebugGroup("Terrain");
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Road");
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Water");
+            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
             commandList.PushDebugGroup("Opaque");
-            RenderedObjectsOpaque = DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
@@ -269,14 +286,10 @@ namespace OpenSage.Graphics.Rendering
                         lastWorld = renderItem.World;
                     }
 
-                    if (renderItem.HouseColor != null)
+                    if (renderItem.RenderItemConstantsPS != null)
                     {
-                        var houseColor = renderItem.HouseColor.Value.ToVector3();
-                        if (houseColor != _renderItemConstantsBufferPS.Value.HouseColor)
-                        {
-                            _renderItemConstantsBufferPS.Value.HouseColor = houseColor;
-                            _renderItemConstantsBufferPS.Update(commandList);
-                        }
+                        _renderItemConstantsBufferPS.Value = renderItem.RenderItemConstantsPS.Value;
+                        _renderItemConstantsBufferPS.Update(commandList);
                     }
                 }
 

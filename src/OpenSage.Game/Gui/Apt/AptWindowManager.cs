@@ -35,7 +35,8 @@ namespace OpenSage.Gui.Apt
 
         public void PopWindow()
         {
-            WindowStack.Pop();
+            var popped = WindowStack.Pop();
+            popped.Dispose();
         }
 
         internal void OnViewportSizeChanged(in Size newSize)
@@ -56,8 +57,8 @@ namespace OpenSage.Gui.Apt
             if (_newWindow != null)
             {
                 WindowStack.Clear();
-                WindowStack.Push(_newWindow);
-                _newWindow = null;
+                PushWindow(_newWindow);
+                 _newWindow = null;
             }
 
             foreach (var window in WindowStack)
@@ -79,7 +80,7 @@ namespace OpenSage.Gui.Apt
         {
             foreach (var window in WindowStack)
             {
-                if(window.HandleInput(mousePos,mouseDown))
+                if (window.HandleInput(mousePos, mouseDown))
                 {
                     return true;
                 }

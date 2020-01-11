@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev002479" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-dev002479" />
+    <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
     <PackageReference Include="SharpAudio.Util" Version="$(SharpAudioVersion)" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
@@ -20,7 +21,7 @@
     <PackageReference Include="Veldrid.RenderDoc" Version="1.0.0" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.9" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.11" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,7 +52,7 @@
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath) -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -V %(ShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv&quot;" />
   </Target>
 
   <Target Name="EmbedShaders" AfterTargets="CompileShaders">

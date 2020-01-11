@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -23,7 +24,7 @@ namespace OpenSage.Logic.Object
                 { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = AnimAndDuration.Parse(parser) }
             });
 
-        public float CursePercentage { get; private set; }
+        public Percentage CursePercentage { get; private set; }
         public int UnpackingVariation { get; private set; }
         public float StartAbilityRange { get; private set; }
         public int UnpackTime { get; private set; }

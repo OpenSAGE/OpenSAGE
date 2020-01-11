@@ -10,5 +10,12 @@ namespace OpenSage.Mods.Bfme2.Gui
         public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
         {
         }
+
+        public static void Exit(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("MainMenu.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
     }
 }

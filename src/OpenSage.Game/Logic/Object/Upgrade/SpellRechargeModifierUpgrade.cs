@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,6 +17,6 @@ namespace OpenSage.Logic.Object
             });
 
         public string LabelForPalantirString { get; private set; }
-        public List<float> Percentages { get; } = new List<float>();
+        public List<Percentage> Percentages { get; } = new List<Percentage>();
     }
 }

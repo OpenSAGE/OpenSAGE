@@ -30,6 +30,9 @@ namespace OpenSage.Gui.DebugUI
                         case Key.F3:
                             _overlay.ToggleColliders();
                             return InputMessageResult.Handled;
+                        case Key.F4:
+                            _overlay.ToggleRoadMeshes();
+                            return InputMessageResult.Handled;
                     }
                     break;
             }

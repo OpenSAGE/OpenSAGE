@@ -14,8 +14,10 @@ namespace OpenSage.Gui.Apt
 
         private void CalculateTransform(ref ItemTransform transform, AptContext context)
         {
-            var movie = (Movie) context.Root.Character;
-            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
+            if (Window == null)
+            {
+                return;
+            }
 
             var scaling = Window.GetScaling();
             transform.GeometryRotation.M11 *= scaling.X;
@@ -23,7 +25,7 @@ namespace OpenSage.Gui.Apt
             transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
         }
 
-        public AptRenderer(AptWindow window,ContentManager contentManager)
+        public AptRenderer(AptWindow window, ContentManager contentManager)
         {
             _contentManager = contentManager;
             Window = window;
@@ -32,7 +34,7 @@ namespace OpenSage.Gui.Apt
         public void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
-            var font = _contentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var font = _contentManager.FontManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
             CalculateTransform(ref transform, context);
 
             drawingContext.DrawText(

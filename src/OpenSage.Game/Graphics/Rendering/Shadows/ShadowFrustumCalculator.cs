@@ -121,7 +121,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
                     {
                         // Create a temporary view matrix for the light
                         var lightCameraPos = frustumCenter;
-                        var lookAt = frustumCenter + light.Direction;
+                        var lookAt = frustumCenter - light.Direction;
                         var lightView = Matrix4x4.CreateLookAt(lightCameraPos, lookAt, upDir);
 
                         // Calculate an AABB around the frustum corners

@@ -1,6 +1,6 @@
 ﻿using System;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
                 { "HarvestActionTime", (parser, x) => x.HarvestActionTime = parser.ParseInteger() },
             });
 
-        public float RepairHealthPercentPerSecond { get; private set; }
+        public Percentage RepairHealthPercentPerSecond { get; private set; }
         public int BoredTime { get; private set; }
         public int BoredRange { get; private set; }
         public int MaxBoxes { get; private set; }

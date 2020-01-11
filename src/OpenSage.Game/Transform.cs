@@ -51,6 +51,8 @@ namespace OpenSage
             }
         }
 
+        internal bool IsDirty => _isMatrixDirty || _isMatrixInverseDirty;
+
         private void SetMatricesDirty()
         {
             _isMatrixDirty = true;

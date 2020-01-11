@@ -162,6 +162,12 @@ namespace OpenSage.Logic
                     continue;
                 }
 
+                //only allow own objects to be drag selected
+                if (gameObject.Owner != Game.Scene3D.LocalPlayer)
+                {
+                    continue;
+                }
+
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
                     var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);

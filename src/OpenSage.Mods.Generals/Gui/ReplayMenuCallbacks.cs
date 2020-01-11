@@ -31,7 +31,7 @@ namespace OpenSage.Mods.Generals.Gui
                         file.FilePath,
                         new[]
                         {
-                            replayFile.Header.Filename, // Path.GetFileNameWithoutExtension(file.FilePath),
+                            Path.GetFileNameWithoutExtension(file.FilePath),
                             $"{replayFile.Header.Timestamp.Hour.ToString("D2")}:{replayFile.Header.Timestamp.Minute.ToString("D2")}",
                             replayFile.Header.Version,
                             replayFile.Header.Metadata.MapFile.Replace("maps/", string.Empty)
@@ -59,31 +59,14 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Handle no selected item.
 
                             var listBox = (ListBox) control.Window.Controls.FindControl("ReplayMenu.wnd:ListboxReplayFiles");
-                            ReplayFile replayFile;
                             using (var fileSystem = GetReplaysFileSystem(context.Game))
                             {
                                 var replayFileEntry = fileSystem.GetFile((string) listBox.Items[listBox.SelectedIndex].DataItem);
-                                replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+
+                                context.Game.Scene2D.WndWindowManager.PopWindow();
+
+                                context.Game.LoadReplayFile(replayFileEntry);
                             }
-
-                            // TODO: This probably isn't right.
-                            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
-                            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
-
-                            context.Game.Scene2D.WndWindowManager.PopWindow();
-
-                            // TODO: set the correct factions & colors
-                            PlayerSetting[] pSettings = new[]
-                            {
-                                new PlayerSetting("America", new ColorRgb(255, 0, 0)),
-                                new PlayerSetting("Observer", new ColorRgb(255, 255, 255)),
-                            };
-
-                            context.Game.StartMultiPlayerGame(
-                                mapFilename,
-                                new ReplayConnection(replayFile),
-                                pSettings,
-                                0);
 
                             break;
 

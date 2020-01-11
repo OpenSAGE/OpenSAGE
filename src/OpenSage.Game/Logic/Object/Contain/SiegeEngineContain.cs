@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
 
         public BitArray<ObjectStatus> ObjectStatusOfCrew { get; private set; }
         public int Slots { get; private set; }
-        public float DamagePercentToUnits { get; private set; }
+        public Percentage DamagePercentToUnits { get; private set; }
         public ObjectFilter PassengerFilter { get; private set; }
         public bool KillPassengersOnDeath { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
         public List<BoneSpecificConditionState> BoneSpecificConditionStates { get; } = new List<BoneSpecificConditionState>();
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
         public bool ShowPips { get; private set; }
-        public float SpeedPercentPerCrew { get; private set; }
+        public Percentage SpeedPercentPerCrew { get; private set; }
     }
 
     public struct Crew

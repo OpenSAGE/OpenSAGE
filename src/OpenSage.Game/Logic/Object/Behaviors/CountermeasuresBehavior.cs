@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
         public int DelayBetweenVolleys { get; private set; }
         public int NumberOfVolleys { get; private set; }
         public int ReloadTime { get; private set; }
-        public float EvasionRate { get; private set; }
+        public Percentage EvasionRate { get; private set; }
         public int ReactionLaunchLatency { get; private set; }
         public int MissileDecoyDelay { get; private set; }
     }

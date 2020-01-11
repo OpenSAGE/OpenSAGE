@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Content;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.StreamFS
@@ -137,23 +137,27 @@ namespace OpenSage.Data.StreamFS
         }
     }
 
-    public sealed class AssetImportCollection : ReadOnlyCollection<AssetImport>
+    public sealed class AssetImportCollection : ReadOnlyDictionary<uint, AssetImport>
     {
         public AssetImportCollection(IList<AssetImport> list)
-            : base(list)
+            : base(list.ToDictionary(x => x.InstanceDataIndex))
         {
         }
 
-        public T GetImportedData<T>(BinaryReader reader)
+        public LazyAssetReference<T> GetImportedData<T>(BinaryReader reader)
+            where T : class
         {
-            var position = reader.BaseStream.Position;
+            var position = (uint) reader.BaseStream.Position;
 
             // I thought this might be the import index, but doesn't seem so.
             var unknown = reader.ReadUInt32();
-            
-            var import = this.First(x => x.InstanceDataIndex == position);
 
-            return (T) import.ImportedAsset?.InstanceData;
+            if (TryGetValue(position, out var import))
+            {
+                return new LazyAssetReference<T>((T) import.ImportedAsset?.InstanceData);
+            }
+
+            return null;
         }
     }
 

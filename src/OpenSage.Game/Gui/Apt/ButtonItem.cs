@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
@@ -62,7 +61,7 @@ namespace OpenSage.Gui.Apt
                         _isHovered = true;
                     }
 
-                    if(_isHovered && mouseDown && !_isDown)
+                    if (_isHovered && mouseDown && !_isDown)
                     {
                         logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
                         var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
@@ -73,7 +72,7 @@ namespace OpenSage.Gui.Apt
                         _isDown = true;
                     }
 
-                    if(_isHovered && !mouseDown && _isDown)
+                    if (_isHovered && !mouseDown && _isDown)
                     {
                         logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
                         var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
@@ -105,12 +104,12 @@ namespace OpenSage.Gui.Apt
         {
             var button = Character as Button;
             var idx = button.Records.FindIndex(br => br.Flags.HasFlag(ButtonRecordFlags.StateHit));
-            if(idx != -1)
+            if (idx != -1)
             {
                 var br = button.Records[idx];
 
-                var a = new Matrix3x2(t.M11,t.M12, t.M21, t.M22,t.M31,t.M32);
-                var b = new Matrix3x2(br.RotScale.M11, br.RotScale.M12, br.RotScale.M21, br.RotScale.M22,0,0);
+                var a = new Matrix3x2(t.M11, t.M12, t.M21, t.M22, t.M31, t.M32);
+                var b = new Matrix3x2(br.RotScale.M11, br.RotScale.M12, br.RotScale.M21, br.RotScale.M22, 0, 0);
                 var c = Matrix3x2.Multiply(a, b);
 
                 t.M11 = c.M11;
@@ -120,7 +119,7 @@ namespace OpenSage.Gui.Apt
 
                 t.M31 += br.Translation.X;
                 t.M32 += br.Translation.Y;
-            }    
+            }
         }
 
         public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
@@ -130,36 +129,37 @@ namespace OpenSage.Gui.Apt
             _curTransform.GeometryTranslation *= renderer.Window.GetScaling();
             _curTransform.GeometryRotation.M11 *= renderer.Window.GetScaling().X;
             _curTransform.GeometryRotation.M22 *= renderer.Window.GetScaling().Y;
-
-            var transform = _curTransform.GeometryRotation;
-            transform.Translation = _curTransform.GeometryTranslation;
-            ApplyCurrentRecord(ref transform);
-
-            var verts = button.Vertices;
-
-            foreach (var tri in button.Triangles)
-            {
-                var v1 = Vector2.Transform(verts[tri.IDX0], transform);
-                var v2 = Vector2.Transform(verts[tri.IDX1], transform);
-                var v3 = Vector2.Transform(verts[tri.IDX2], transform);
-
-                var color = ColorRgbaF.White;
-
-                if (button.IsMenu)
-                {
-                    color = new ColorRgbaF(1.0f, 0.0f, 0.0f, 1.0f);
-                }
-
-                if (_isHovered)
-                {
-                    color = new ColorRgbaF(0.0f, 1.0f, 1.0f, 1.0f);
-                }
-
-                dc.DrawLine(new Line2D(v1, v2), 1.0f, color);
-                dc.DrawLine(new Line2D(v2, v3), 1.0f, color);
-                dc.DrawLine(new Line2D(v3, v1), 1.0f, color);
-            }
         }
+
+        //    var transform = _curTransform.GeometryRotation;
+        //    transform.Translation = _curTransform.GeometryTranslation;
+        //    ApplyCurrentRecord(ref transform);
+
+            //    var verts = button.Vertices;
+
+            //    foreach (var tri in button.Triangles)
+            //    {
+            //        var v1 = Vector2.Transform(verts[tri.IDX0], transform);
+            //        var v2 = Vector2.Transform(verts[tri.IDX1], transform);
+            //        var v3 = Vector2.Transform(verts[tri.IDX2], transform);
+
+            //        var color = ColorRgbaF.White;
+
+            //        if (button.IsMenu)
+            //        {
+            //            color = new ColorRgbaF(1.0f, 0.0f, 0.0f, 1.0f);
+            //        }
+
+            //        if (_isHovered)
+            //        {
+            //            color = new ColorRgbaF(0.0f, 1.0f, 1.0f, 1.0f);
+            //        }
+
+            //        dc.DrawLine(new Line2D(v1, v2), 1.0f, color);
+            //        dc.DrawLine(new Line2D(v2, v3), 1.0f, color);
+            //        dc.DrawLine(new Line2D(v3, v1), 1.0f, color);
+            //    }
+            //}
 
         public override void RunActions(TimeInterval gt)
         {

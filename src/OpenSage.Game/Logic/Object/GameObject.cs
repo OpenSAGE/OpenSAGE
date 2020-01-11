@@ -1,19 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
+using OpenSage.Content.Loaders;
+using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
+    [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
+        internal static GameObject FromMapObject(
+            MapObject mapObject,
+            IReadOnlyList<Team> teams,
+            AssetStore assetStore,
+            GameObjectCollection parent,
+            in Vector3 position)
+        {
+            var gameObject = parent.Add(mapObject.TypeName);
+
+            // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
+            if (gameObject == null)
+            {
+                return null;
+            }
+
+            // TODO: If the object doesn't have a health value, how do we initialise it?
+            if (gameObject.Definition.Body is ActiveBodyModuleData body)
+            {
+                var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
+                    ? (uint) health.Value / 100.0f
+                    : 1.0f;
+
+                // TODO: Should we use InitialHealth or MaximumHealth here?
+                var initialHealth = body.InitialHealth * healthMultiplier;
+                gameObject.Health = (decimal) initialHealth;
+            }
+
+            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
+            {
+                var name = (string) teamName.Value;
+                if (name.Contains('/'))
+                {
+                    name = name.Split('/')[1];
+                }
+                var team = teams.FirstOrDefault(t => t.Name == name);
+                gameObject.Team = team;
+                gameObject.Owner = team?.Owner;
+            }
+
+            if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
+            {
+                gameObject.IsSelectable = (bool) selectable.Value;
+            }
+
+            gameObject.Transform.Translation = position;
+            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
+
+            if (gameObject.Definition.IsBridge)
+            {
+                BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
+            }
+
+            return gameObject;
+        }
+
+        internal void CopyModelConditionFlags(BitArray<ModelConditionFlag> newFlags)
+        {
+            ModelConditionFlags.CopyFrom(newFlags);
+            UpdateDrawModuleConditionStates();
+        }
+
+        private readonly GameObject _rallyPointMarker;
+
         public ObjectDefinition Definition { get; }
 
         public Transform Transform { get; }
@@ -23,6 +91,8 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
 
         public IReadOnlyList<DrawModule> DrawModules { get; }
+
+        public IReadOnlyList<BehaviorModule> BehaviorModules { get; }
 
         public Collider Collider { get; }
 
@@ -36,23 +106,47 @@ namespace OpenSage.Logic.Object
         public bool IsSelectable { get; set; }
 
         public bool IsSelected { get; set; }
-
-        public Vector3 RallyPoint { get; set; }
+        public Vector3? RallyPoint { get; set; }
 
         private Locomotor CurrentLocomotor { get; set; }
 
-        private IniDataContext Context { get; set; }
-
-        private Vector3? TargetPoint { get; set; }
-        private float TargetAngle { get; set; }
+        public List<Vector3> TargetPoints { get; set; }
 
         private TimeSpan ConstructionStart { get; set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
+        public float BuildProgress { get; set; }
+
+        private Navigation.Navigation Navigation { get; set; }
+
+        public bool Destroyed { get; set; }
+
+        public bool Damaged { get; set; }
+
+        public float Speed { get; set; }
+        public float Lift { get; set; }
+
+        public bool IsPlacementPreview { get; set; }
+
+        public bool IsPlacementInvalid { get; set; }
+
+        public GameObjectCollection Parent { get; private set; }
+
+        public ProductionUpdate ProductionUpdate { get; }
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner,
+                            GameObjectCollection parent, Navigation.Navigation navigation)
         {
+            if (objectDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(objectDefinition));
+            }
+
             Definition = objectDefinition;
-            Context = contentManager.IniDataContext;
             Owner = owner;
+            Parent = parent;
+            Navigation = navigation;
 
             SetLocomotor();
             Transform = Transform.CreateIdentity();
@@ -60,7 +154,7 @@ namespace OpenSage.Logic.Object
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(contentManager));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(loadContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -69,17 +163,39 @@ namespace OpenSage.Logic.Object
             }
             DrawModules = drawModules;
 
+            var behaviors = new List<BehaviorModule>();
+            foreach (var behaviorData in objectDefinition.Behaviors)
+            {
+                var module = AddDisposable(behaviorData.CreateModule(this));
+                if (module != null)
+                {
+                    // TODO: This will never be null once we've implemented all the draw modules.
+                    behaviors.Add(module);
+                }
+            }
+            BehaviorModules = behaviors;
+
+            ProductionUpdate = FindBehavior<ProductionUpdate>();
+
             Collider = Collider.Create(objectDefinition, Transform);
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)
-                .Distinct(new BitArrayEqualityComparer<ModelConditionFlag>())
+                .Distinct()
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
 
-            SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+            ModelConditionFlags = new BitArray<ModelConditionFlag>();
+            UpdateDrawModuleConditionStates();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
+            TargetPoints = new List<Vector3>();
+
+            if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
+            {
+                var rpMarkerDef = loadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation));
+            }
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -93,26 +209,92 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void LogicTick(ulong frame)
+        internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            // TODO: Update modules.
+            foreach (var behavior in BehaviorModules)
+            {
+                behavior.Update(time);
+            }
         }
 
-        internal void MoveTo(Vector3 targetPos)
+        private void HandleConstruction(in TimeInterval gameTime)
+        {
+            // Check if the unit is being constructed
+            if (IsBeingConstructed())
+            {
+                var passed = gameTime.TotalTime - ConstructionStart;
+                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+
+                if (BuildProgress == 1.0f)
+                {
+                    FinishConstruction();
+                }
+            }
+        }
+
+        internal Vector3 ToWorldspace(in Vector3 localPos)
+        {
+            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), Transform.Matrix);
+            return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
+        }
+
+        internal T FindBehavior<T>()
+        {
+            // TODO: Cache this?
+            return BehaviorModules.OfType<T>().FirstOrDefault();
+        }
+
+        internal void Spawn(ObjectDefinition objectDefinition)
+        {
+            var productionExit = FindBehavior<IProductionExit>();
+
+            if (productionExit == null)
+            {
+                // If there's no IProductionExit behavior on this object, don't spawn anything.
+                return;
+            }
+
+            var spawnedUnit = Parent.Add(objectDefinition, Owner);
+            spawnedUnit.Transform.Rotation = Transform.Rotation;
+            spawnedUnit.Transform.Translation = ToWorldspace(productionExit.GetUnitCreatePoint());
+
+            // First go to the natural rally point
+            var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
+            if (naturalRallyPoint != null)
+            {
+                spawnedUnit.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
+            }
+
+            // Then go to the rally point if it exists
+            if (RallyPoint.HasValue)
+            {
+                spawnedUnit.AddTargetPoint(RallyPoint.Value);
+            }
+        }
+
+        internal void AddTargetPoint(Vector3 targetPoint)
         {
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
                 || Definition.KindOf.Get(ObjectKinds.Vehicle))
             {
-                TargetPoint = targetPos;
-                var delta = TargetPoint.Value - Transform.Translation;
-                TargetAngle = (float) Math.Atan2(delta.Y - Vector3.UnitX.Y, delta.X - Vector3.UnitX.X);            
+                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : Transform.Translation;
+                var path = Navigation.CalculatePath(start, targetPoint);
+                TargetPoints.AddRange(path);
+                Logger.Debug("Set new target points: " + TargetPoints.Count);
             }
 
-            var flags = new BitArray<ModelConditionFlag>();
-            flags.Set(ModelConditionFlag.Moving, true);
-            SetModelConditionFlags(flags);
+            ModelConditionFlags.SetAll(false);
+            ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
+            UpdateDrawModuleConditionStates();
+        }
+
+        internal void SetTargetPoint(Vector3 targetPoint)
+        {
+            TargetPoints.Clear();
+
+            AddTargetPoint(targetPoint);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -121,81 +303,62 @@ namespace OpenSage.Logic.Object
 
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
-                var flags = new BitArray<ModelConditionFlag>();
-                flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
-                flags.Set(ModelConditionFlag.AwaitingConstruction, true);
-                flags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                SetModelConditionFlags(flags);
+                ModelConditionFlags.SetAll(false);
+                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+                ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
+                UpdateDrawModuleConditionStates();
                 ConstructionStart = gameTime.TotalTime;
-                //ConstructionTick = TimeSpan.FromSeconds(Definition.BuildTime) / 100.0f;
             }
+        }
+
+        internal void FinishConstruction()
+        {
+            ClearModelConditionFlags();
+
+            foreach (var behavior in Definition.Behaviors)
+            {
+                if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
+                {
+                    Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
+                }
+            }
+        }
+
+        public bool IsBeingConstructed()
+        {
+            return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
+                   ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
+                   ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed);
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            var flags = new BitArray<ModelConditionFlag>();
-            var deltaTime = gameTime.DeltaTime.Milliseconds / 1000.0f;
+            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
             // Check if the unit is currently moving
-            flags.Set(ModelConditionFlag.Moving, true);
-            if (ModelConditionFlags.And(flags).AnyBitSet && TargetPoint.HasValue)
+            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
             {
-                var x = Transform.Translation.X;
-                var y = Transform.Translation.Y;
-                var trans = Transform.Translation;
-
-                // This locomotor speed is distance/second
-                var delta = TargetPoint.Value - Transform.Translation;
-                var distance = CurrentLocomotor.Speed * deltaTime;
-                if (delta.Length() < distance) distance = delta.Length();
-
-                var currentAngle = -Transform.EulerAngles.Z;
-                var angleDelta = TargetAngle - currentAngle;
-
-                var d = CurrentLocomotor.TurnRate * deltaTime * 0.1f;
-                var newAngle = currentAngle + (angleDelta * d);
-                //var newAngle = currentAngle + d;
-
-                if (Math.Abs(angleDelta) > 0.1f)
+                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
+                var distance = Vector2.Distance(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
+                if (distance < 0.5f)
                 {
-                    var pitch = 0.0f;
-                    if (Definition.KindOf.Get(ObjectKinds.Vehicle))
+                    Logger.Debug($"Reached point {TargetPoints[0]}");
+                    TargetPoints.RemoveAt(0);
+                    if (TargetPoints.Count == 0)
                     {
-                        var normal = heightMap.GetNormal(x, y);
-                        pitch = (float) Math.Atan2(Vector3.UnitZ.Y - normal.Y, Vector3.UnitZ.X - normal.X);
+                        ClearModelConditionFlags();
+                        Speed = 0;
                     }
-                    Transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, newAngle);
-                }
-
-                var direction = Vector3.Normalize(delta);
-                trans += direction * distance;
-                trans.Z = heightMap.GetHeight(x, y);
-                Transform.Translation = trans;
-
-                if (Vector3.Distance(Transform.Translation, TargetPoint.Value) < 0.5f)
-                {
-                    TargetPoint = null;
-                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
                 }
             }
 
-            // Check if the unit is being constructed
-            flags.SetAll(false);
-            flags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
-            flags.Set(ModelConditionFlag.AwaitingConstruction, true);
-            flags.Set(ModelConditionFlag.PartiallyConstructed, true);
-            if (ModelConditionFlags.And(flags).AnyBitSet)
-            {
-                if (gameTime.TotalTime > (ConstructionStart + TimeSpan.FromSeconds(Definition.BuildTime)))
-                {
-                    SetModelConditionFlags(new BitArray<ModelConditionFlag>());
-                }
-            }
+            HandleConstruction(gameTime);
 
             // Update all draw modules
             foreach (var drawModule in DrawModules)
             {
-                drawModule.Update(gameTime);
+                drawModule.Update(gameTime, this);
             }
 
             // TODO: Make sure we've processed everything that might update
@@ -205,10 +368,22 @@ namespace OpenSage.Logic.Object
             {
                 drawModule.SetWorldMatrix(worldMatrix);
             }
+
+            _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
         {
+            if (Destroyed)
+            {
+                return;
+            }
+
+            if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
+            {
+                return;
+            }
+
             var castsShadow = false;
             switch (Definition.Shadow)
             {
@@ -218,55 +393,71 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
+            var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
+            {
+                HouseColor = Owner.Color.ToVector3(),
+                Opacity = IsPlacementPreview ? 0.7f : 1.0f,
+                TintColor = IsPlacementInvalid ? new Vector3(1, 0.3f, 0.3f) : Vector3.One,
+            };
+
             foreach (var drawModule in DrawModules)
             {
                 drawModule.BuildRenderList(
                     renderList,
                     camera,
                     castsShadow,
-                    Owner);
+                    renderItemConstantsPS);
             }
+
+            if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
+            {
+                _rallyPointMarker.Transform.Translation = RallyPoint.Value;
+
+                // TODO: check if this should be drawn with transparency?
+                _rallyPointMarker.BuildRenderList(renderList, camera);
+            }
+
         }
 
-        public void SetModelConditionFlags(BitArray<ModelConditionFlag> flags)
+        public void ClearModelConditionFlags()
         {
-            ModelConditionFlags = flags;
+            ModelConditionFlags.SetAll(false);
+            UpdateDrawModuleConditionStates();
+        }
 
+        internal void UpdateDrawModuleConditionStates()
+        {
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
-
             foreach (var drawModule in DrawModules)
             {
-                drawModule.UpdateConditionState(flags);
+                drawModule.UpdateConditionState(ModelConditionFlags);
             }
         }
 
         public void OnLocalSelect(AudioSystem gameAudio)
         {
-            if (Definition.VoiceSelect != null)
+            var audioEvent = Definition.VoiceSelect?.Value;
+            if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(Definition.VoiceSelect);
+                gameAudio.PlayAudioEvent(audioEvent);
             }
         }
 
         public void OnLocalMove(AudioSystem gameAudio)
         {
-            if (Definition.VoiceMove != null)
+            var audioEvent = Definition.VoiceMove?.Value;
+            if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(Definition.VoiceMove);
+                gameAudio.PlayAudioEvent(audioEvent);
             }
         }
 
         private void SetLocomotor()
         {
-            var locoDefs = Definition.Locomotors;
-            if (locoDefs.Count > 0)
-            {
-                var name = locoDefs.First().Value[0];
-                if (Context.Locomotors.ContainsKey(name))
-                {
-                    CurrentLocomotor = Context.Locomotors[name];
-                }
-            }
+            var locomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
+            CurrentLocomotor = (locomotorSet != null)
+                ? new Locomotor(this, locomotorSet)
+                : null;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace OpenSage.Data.Rep
         public int MapCrc { get; private set; }
         public int MapSize { get; private set; }
 
-        // Might be seed.
+        // Might be seed. Seems to influence the color and faction when set to random
         public int SD { get; private set; }
 
         public int C { get; private set; }
@@ -156,6 +156,7 @@ namespace OpenSage.Data.Rep
                 case ReplaySlotType.Human:
                     result.HumanName = slotDetails[0].Substring(1);
                     // TODO: 1, 2, 3, 4
+                    result.Color = (ReplaySlotColor) Convert.ToInt32(slotDetails[4]);
                     result.Faction = Convert.ToInt32(slotDetails[5]);
                     result.StartPosition = Convert.ToInt32(slotDetails[6]);
                     result.Team = Convert.ToInt32(slotDetails[7]);

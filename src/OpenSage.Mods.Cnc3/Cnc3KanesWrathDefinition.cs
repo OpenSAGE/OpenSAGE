@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage.Mods.CnC3
 {
@@ -24,6 +26,8 @@ namespace OpenSage.Mods.CnC3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
+
+        public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();
     }

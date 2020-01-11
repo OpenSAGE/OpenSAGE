@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
+using OpenSage.Data.Ini;
 using OpenSage.Scripting.Lua;
 
 namespace OpenSage.Scripting
@@ -9,6 +10,8 @@ namespace OpenSage.Scripting
     public sealed class LuaScriptEngine : GameSystem
     {
         public Script MainScript;
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public LuaScriptEngine(Game game) : base(game)
         {
@@ -26,29 +29,21 @@ namespace OpenSage.Scripting
             {
                 LuaCompatibility.Apply(MainScript);
 
-                var filePath = Path.Combine(Game.ContentManager.FileSystem.RootDirectory, "Data", "Scripts", "scripts.lua");
-                //load scripts.lua file from folder or big file
-                if (File.Exists(filePath))
+                // Load scripts.lua file from file system or big file
+                var filePath = Path.Combine("Data", "Scripts", "scripts.lua");
+                var fileEntry = Game.ContentManager.FileSystem.GetFile(filePath);
+                if (fileEntry != null)
                 {
-                    MainScript.DoFile(filePath);
+                    logger.Info($"Executing file {filePath}");
+                    using (var fileStream = fileEntry.Open())
+                    {
+                        MainScript.DoStream(fileStream);
+                    }
                 }
-                else
-                {
-                    //load scripts.lua from big file
-                    MainScript.DoString(Game.ContentManager.IniDataContext.GetIniFileContent(Path.Combine("Data", "Scripts", "scripts.lua")));
-                }
-            }
-            catch (NullReferenceException) //standard case for generals and zero hour since no scripts.lua file
-            {
-                Debug.Write("no scripts.lua file found");
-            }
-            catch (FileNotFoundException)
-            {
-                Debug.Write("no scripts.lua file found");
             }
             catch (Exception ex)
             {
-                Debug.Write(ex);
+                logger.Error(ex, "Error while loading script file");
             }
 
             LuaEventHandlerInit();
@@ -58,6 +53,7 @@ namespace OpenSage.Scripting
         {
             try
             {
+                logger.Info($"Executing user code {externalCode}");
                 MainScript.DoString(externalCode);
             }
             catch (SyntaxErrorException exeption)
@@ -208,12 +204,12 @@ namespace OpenSage.Scripting
         public string Spawn(string objectType)  //quick spawn
         {
             if (objectType.Equals("")) { objectType = "AmericaVehicleDozer"; }
-            var spawnUnit = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == objectType), Game.Scene3D.LocalPlayer);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, Game.Scene3D.LocalPlayer);
             var localPlayerStartPosition = Game.Scene3D.Waypoints[$"Player_{1}_Start"].Position;
             localPlayerStartPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(localPlayerStartPosition.X, localPlayerStartPosition.Y);
             var spawnUnitPosition = localPlayerStartPosition;
-            var playerTemplate = Game.ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == Game.Scene3D.LocalPlayer.Side);
-            var startingBuilding = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), Game.Scene3D.LocalPlayer);
+            var playerTemplate = Game.Scene3D.LocalPlayer.Template;
+            var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
             spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
             spawnUnit.Transform.Translation = spawnUnitPosition;
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
@@ -222,7 +218,7 @@ namespace OpenSage.Scripting
         public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
         {
             var player = Game.Scene3D.LocalPlayer;
-            var spawnUnit = Game.Scene3D.GameObjects.Add(Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == objectType), player);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, player);
             var spawnPosition = new System.Numerics.Vector3(xPos, yPos, zPos);
             spawnPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(spawnPosition.X, spawnPosition.Y);
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }
@@ -291,14 +287,12 @@ namespace OpenSage.Scripting
 
         public void ObjectSetModelCondition(string gameObject, string modelCondition)
         {
-            var Parser = new Data.Ini.Parser.IniParser(null, null, null, Game.SageGame);
-            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).SetModelConditionFlags(Parser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition));
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).CopyModelConditionFlags(IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None));
         }
 
         public bool ObjectTestModelCondition(string gameObject, string modelCondition)
         {
-            var Parser = new Data.Ini.Parser.IniParser(null, null, null, Game.SageGame);
-            var modelConditionBitArray = Parser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition);
+            var modelConditionBitArray = IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None);
             var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {
@@ -312,8 +306,7 @@ namespace OpenSage.Scripting
 
         public void ObjectClearModelCondition(string gameObject, string modelCondition)
         {
-            var Parser = new Data.Ini.Parser.IniParser(null, null, null, Game.SageGame);
-            var modelConditionBitArray = Parser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition);
+            var modelConditionBitArray = IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None);
             var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {

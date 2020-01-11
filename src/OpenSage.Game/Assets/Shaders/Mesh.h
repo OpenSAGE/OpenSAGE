@@ -33,6 +33,8 @@ struct RenderItemConstantsVSType
 struct RenderItemConstantsPSType
 {
     vec3 HouseColor;
+    float Opacity;
+    vec3 TintColor;
     float _Padding;
 };
 

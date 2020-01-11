@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
 
         public int ResetTimeInMilliseconds { get; private set; }
         public bool OpenByDefault { get; private set; }
-        public float PercentOpenForPathing { get; private set; }
+        public Percentage PercentOpenForPathing { get; private set; }
         public string SoundOpeningGateLoop { get; private set; }
         public string SoundClosingGateLoop { get; private set; }
         public string SoundFinishedOpeningGate { get; private set; }
