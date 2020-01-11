@@ -215,7 +215,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
+            protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 for (var i = 1; i <= 12; i++)
                 {
@@ -233,14 +233,16 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
                         buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
 
+                        var objectDefinition = commandButton.Object?.Value;
+
+                        buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
                             logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
 
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
-
-                            var objectDefinition = commandButton.Object?.Value;
 
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
@@ -341,7 +343,7 @@ namespace OpenSage.Mods.Generals.Gui
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
                 var commandSet = unit.Definition.CommandSet.Value;
-                ApplyCommandSet(controlBar, commandSet);
+                ApplyCommandSet(unit, controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 

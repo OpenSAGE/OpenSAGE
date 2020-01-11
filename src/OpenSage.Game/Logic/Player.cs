@@ -74,6 +74,51 @@ namespace OpenSage.Logic
             _selectedUnits.Clear();
         }
 
+        public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
+        {
+            if (objectToProduce.Prerequisites == null)
+            {
+                return true;
+            }
+
+            // TODO: Make this more efficient.
+            bool HasPrerequisite(ObjectDefinition prerequisite)
+            {
+                foreach (var gameObject in allGameObjects.Items)
+                {
+                    if (gameObject.Owner == this && gameObject.Definition == prerequisite)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            // Prerequisites are AND'd.
+            foreach (var prerequisiteList in objectToProduce.Prerequisites.Objects)
+            {
+                // The list within each prerequisite is OR'd.
+
+                var hasPrerequisite = false;
+                foreach (var prerequisite in prerequisiteList)
+                {
+                    if (HasPrerequisite(prerequisite.Value))
+                    {
+                        hasPrerequisite = true;
+                        break;
+                    }
+                }
+
+                if (!hasPrerequisite)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
