@@ -155,7 +155,7 @@ namespace OpenSage.Graphics.Shaders
             public Bool32 IgnoreAlpha;
             public SpriteFillMethod FillMethod;
             public float FillAmount;
-            private readonly float _padding;
+            public Bool32 Grayscale;
         }
 
         [StructLayout(LayoutKind.Sequential)]

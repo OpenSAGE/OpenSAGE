@@ -109,16 +109,18 @@ namespace OpenSage.Gui
             Texture texture,
             in Rectangle? sourceRect,
             in Rectangle destinationRect,
-            in bool flipped = false)
+            bool flipped = false,
+            bool grayscale = false)
         {
-            DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped);
+            DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped, grayscale);
         }
 
         public void DrawImage(
             Texture texture,
             in Rectangle? sourceRect,
             in RectangleF destinationRect,
-            in bool flipped = false)
+            bool flipped = false,
+            bool grayscale = false)
         {
             var color = ColorRgbaF.White.WithA(_currentOpacity);
 
@@ -127,7 +129,8 @@ namespace OpenSage.Gui
                 sourceRect,
                 RectangleF.Transform(destinationRect, _currentTransform),
                 color,
-                flipped);
+                flipped,
+                grayscale: grayscale);
         }
 
         public static SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)

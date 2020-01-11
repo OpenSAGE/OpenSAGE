@@ -227,6 +227,8 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
 
+                        buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
+
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
 
@@ -343,6 +345,8 @@ namespace OpenSage.Mods.Generals.Gui
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
                 var commandSet = unit.Definition.CommandSet.Value;
+
+                // TODO: Only do this when command set changes.
                 ApplyCommandSet(unit, controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");

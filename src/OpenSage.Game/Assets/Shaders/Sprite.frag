@@ -10,7 +10,7 @@ layout(set = 0, binding = 1) uniform SpriteConstants
     bool IgnoreAlpha;
     int FillMethod;
     float FillAmount;
-    float _Padding;
+    bool Grayscale;
 } _SpriteConstants;
 
 layout(set = 1, binding = 0) uniform sampler Sampler;
@@ -61,6 +61,12 @@ void main()
     }
 
     textureColor *= in_Color;
+
+    if (_SpriteConstants.Grayscale)
+    {
+        float gray = 0.299 * textureColor.r + 0.587 * textureColor.g + 0.114 * textureColor.b;
+        textureColor = vec4(gray, gray, gray, textureColor.w);
+    }
 
     out_Color = textureColor;
 }
