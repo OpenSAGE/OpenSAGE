@@ -683,7 +683,6 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
-            Scripting.Active = true;
         }
 
         public void StartCampaign(string side)
