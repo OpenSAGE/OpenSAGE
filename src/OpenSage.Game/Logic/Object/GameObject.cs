@@ -43,6 +43,11 @@ namespace OpenSage.Logic.Object
                 gameObject.Body.SetInitialHealth(healthMultiplier);
             }
 
+            if (mapObject.Properties.TryGetValue("objectName", out var objectName))
+            {
+                gameObject.Name = (string)objectName.Value;
+            }
+
             if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
             {
                 var name = (string) teamName.Value;
@@ -95,6 +100,27 @@ namespace OpenSage.Logic.Object
         public Collider Collider { get; }
 
         public Player Owner { get; set; }
+
+        private string _name;
+
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+
+            set
+            {
+                if (_name != null)
+                {
+                    throw new InvalidOperationException("An object's name cannot change once it's been set.");
+                }
+
+                _name = value ?? throw new ArgumentNullException(nameof(value));
+                Parent.AddNameLookup(this);
+            }
+        }
 
         public Team Team { get; set; }
 

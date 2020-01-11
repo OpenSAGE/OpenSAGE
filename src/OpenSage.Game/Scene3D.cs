@@ -62,7 +62,7 @@ namespace OpenSage
         public Bridge[] Bridges { get; }
         public bool ShowBridges { get; set; } = true;
 
-        public MapScriptCollection Scripts { get; }
+        public MapScriptCollection[] PlayerScripts { get; }
 
         public GameObjectCollection GameObjects { get; }
         public bool ShowObjects { get; set; } = true;
@@ -143,11 +143,11 @@ namespace OpenSage
             Cameras = cameras;
             Audio = game.Audio;
 
-            // TODO: Don't hardcode this.
-            // Perhaps add one ScriptComponent for the neutral player, 
-            // and one for the active player.
-            var scriptList = mapFile.GetPlayerScriptsList().ScriptLists[0];
-            Scripts = new MapScriptCollection(scriptList);
+            PlayerScripts = mapFile
+                .GetPlayerScriptsList()
+                .ScriptLists
+                .Select(s => new MapScriptCollection(s))
+                .ToArray();
 
             CameraController = new RtsCameraController(game.AssetStore.GameData.Current)
             {

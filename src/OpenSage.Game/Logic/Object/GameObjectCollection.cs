@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
@@ -7,6 +8,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly AssetLoadContext _loadContext;
         private readonly List<GameObject> _items;
+        private readonly Dictionary<string, GameObject> _nameLookup;
         private readonly Player _civilianPlayer;
         private readonly Navigation.Navigation _navigation;
 
@@ -19,6 +21,7 @@ namespace OpenSage.Logic.Object
         {
             _loadContext = loadContext;
             _items = new List<GameObject>();
+            _nameLookup = new Dictionary<string, GameObject>();
             _civilianPlayer = civilianPlayer;
             _navigation = navigation;
         }
@@ -82,5 +85,16 @@ namespace OpenSage.Logic.Object
             return _items[objectId - 1];
         }
 
+        public bool TryGetObjectByName(string name, out GameObject gameObject)
+        {
+            return _nameLookup.TryGetValue(name, out gameObject);
+        }
+
+        public void AddNameLookup(GameObject gameObject)
+        {
+            _nameLookup.Add(
+                gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object."),
+                gameObject);
+        }
     }
 }
