@@ -682,6 +682,9 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
+
+            // Scripts should be enabled in all games, even replays
+            Scripting.Active = true;
         }
 
         public void StartCampaign(string side)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
@@ -24,6 +25,8 @@ namespace OpenSage.Scripting
 
     public sealed class ScriptingSystem : GameSystem
     {
+        public static NLog.Logger Logger => NLog.LogManager.GetCurrentClassLogger();
+
         // How many updates are performed per second?
         public const int TickRate = 30;
 
@@ -32,7 +35,7 @@ namespace OpenSage.Scripting
         private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
         private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
 
-        private MapScriptCollection _mapScripts;
+        private MapScriptCollection[] _playerScripts;
 
         public Dictionary<string, bool> Flags { get; }
         public CounterCollection Counters { get; }
@@ -65,34 +68,26 @@ namespace OpenSage.Scripting
 
         internal override void OnSceneChanged()
         {
-            _mapScripts = Game.Scene3D?.Scripts;
+            _playerScripts = Game.Scene3D?.PlayerScripts;
         }
 
-        public void EnableScript(string name)
+        public MapScript FindScript(string name)
         {
-            var mapScript = _mapScripts?.FindScript(name);
-            if (mapScript != null)
+            if (_playerScripts == null)
             {
-                mapScript.IsActive = true;
+                return null;
             }
-        }
 
-        public void DisableScript(string name)
-        {
-            var mapScript = _mapScripts?.FindScript(name);
-            if (mapScript != null)
+            for (int i = 0; i < _playerScripts.Length; i++)
             {
-                mapScript.IsActive = false;
+                var script = _playerScripts[i].FindScript(name);
+                if (script != null)
+                {
+                   return null;
+                }
             }
-        }
 
-        public void ExecuteSubroutine(string name)
-        {
-            var mapScript = _mapScripts?.FindScript(name);
-            if (mapScript != null)
-            {
-                mapScript.ExecuteAsSubroutine(_executionContext);
-            }
+            return null;
         }
 
         public void AddCoroutine(ActionResult.ActionContinuation coroutine)
@@ -102,7 +97,7 @@ namespace OpenSage.Scripting
 
         public void ScriptingTick()
         {
-            if (_mapScripts == null)
+            if (_playerScripts == null)
             {
                 return;
             }
@@ -126,7 +121,10 @@ namespace OpenSage.Scripting
                 _activeCoroutines.Remove(coroutine);
             }
 
-            _mapScripts.Execute(_executionContext);
+            foreach (var playerScripts in _playerScripts)
+            {
+                playerScripts.Execute(_executionContext);
+            }
 
             OnUpdateFinished?.Invoke(this, this);
 
