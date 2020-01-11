@@ -25,19 +25,23 @@ namespace OpenSage.Gui.Wnd.Images
 
         internal void SetSize(in Size size)
         {
-            if (_size == size)
+            var actualSize = _source.NaturalSize.Width > size.Width
+                ? _source.NaturalSize
+                : size;
+
+            if (_size == actualSize)
             {
                 return;
             }
 
-            _texture = _source.GetTexture(size);
+            _texture = _source.GetTexture(actualSize);
 
             if (_texture == null)
             {
                 throw new InvalidOperationException();
             }
 
-            _size = size;
+            _size = actualSize;
         }
 
         public Image WithGrayscale(bool grayscale)
