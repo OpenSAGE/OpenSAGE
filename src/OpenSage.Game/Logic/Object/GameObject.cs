@@ -318,6 +318,13 @@ namespace OpenSage.Logic.Object
             AddTargetPoint(targetPoint);
         }
 
+        internal void Stop()
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
+            TargetPoints.Clear();
+            Speed = 0;
+        }
+
         internal void StartConstruction(in TimeInterval gameTime)
         {
             if (Definition.KindOf == null) return;
@@ -367,8 +374,7 @@ namespace OpenSage.Logic.Object
                     TargetPoints.RemoveAt(0);
                     if (TargetPoints.Count == 0)
                     {
-                        ClearModelConditionFlags();
-                        Speed = 0;
+                        Stop();
                     }
                 }
             }
