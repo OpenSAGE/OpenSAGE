@@ -10,6 +10,7 @@
         BuildObject = 1049,
         Sell = 1052,
         DrawBoxSelection = 1058,
+        AttackGround = 1061,
         MoveTo = 1068,
         ToggleOvercharge = 1078,
         SetCameraPosition = 1092,
@@ -91,7 +92,6 @@
 
         Unknown1059 = 1059,
         Unknown1060 = 1060,
-        Unknown1061 = 1061,
         Unknown1062 = 1062,
         Unknown1063 = 1063,
         Unknown1064 = 1064,
@@ -99,7 +99,7 @@
         Unknown1066 = 1066,
         Unknown1067 = 1067,
 
-        Unknown1069 = 1069,
+        Unknown1069 = 1069,//AttackMove?
         Unknown1070 = 1070,
         Unknown1071 = 1071,
         Unknown1072 = 1072,
