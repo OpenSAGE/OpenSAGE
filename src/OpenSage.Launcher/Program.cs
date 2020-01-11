@@ -114,10 +114,14 @@ namespace OpenSage.Launcher
 
                 if (opts.ReplayFile != null)
                 {
-                    using (var fileSystem = new FileSystem(Path.Combine(game.UserDataFolder, "Replays")))
+                    var replayFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Replays", opts.ReplayFile));
+                    if (replayFile == null)
                     {
-                        game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
+                        logger.Debug("Could not find MapCache entry for map " + opts.Map);
+                        game.ShowMainMenu();
                     }
+
+                    game.LoadReplayFile(replayFile);
                 }
                 else if (opts.Map != null)
                 {
