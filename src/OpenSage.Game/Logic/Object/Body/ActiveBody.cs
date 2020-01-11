@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly ActiveBodyModuleData _moduleData;
 
+        public override decimal MaxHealth => (decimal) _moduleData.MaxHealth;
+
         internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
         {
             _gameObject = gameObject;
