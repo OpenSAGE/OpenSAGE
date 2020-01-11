@@ -1,10 +1,11 @@
-﻿using OpenSage.Mathematics;
+﻿using OpenSage.Content;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class WeaponSetSlot
     {
-        public string Weapon { get; internal set; }
+        public LazyAssetReference<WeaponTemplate> Weapon { get; internal set; }
         public CommandSourceTypes AutoChooseSources { get; internal set; }
         public BitArray<ObjectKinds> PreferredAgainst { get; internal set; }
 
