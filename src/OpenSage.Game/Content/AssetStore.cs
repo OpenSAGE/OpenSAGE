@@ -169,7 +169,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<Video> Videos { get; }
         public ScopedAssetCollection<WaterSet> WaterSets { get; }
         public ScopedAssetCollection<WaterTextureList> WaterTextureLists { get; }
-        public ScopedAssetCollection<Weapon> Weapons { get; }
+        public ScopedAssetCollection<WeaponTemplate> WeaponTemplates { get; }
         public ScopedAssetCollection<WeatherData> WeatherDatas { get; }
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
@@ -344,7 +344,7 @@ namespace OpenSage.Content
             AddAssetCollection(Videos = new ScopedAssetCollection<Video>(this));
             AddAssetCollection(WaterSets = new ScopedAssetCollection<WaterSet>(this));
             AddAssetCollection(WaterTextureLists = new ScopedAssetCollection<WaterTextureList>(this));
-            AddAssetCollection(Weapons = new ScopedAssetCollection<Weapon>(this));
+            AddAssetCollection(WeaponTemplates = new ScopedAssetCollection<WeaponTemplate>(this));
             AddAssetCollection(WeatherDatas = new ScopedAssetCollection<WeatherData>(this));
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
         }

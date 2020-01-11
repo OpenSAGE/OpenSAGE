@@ -161,7 +161,7 @@ namespace OpenSage.Data.Ini
             { "WaterSet", (parser, assetStore) => assetStore.WaterSets.Add(WaterSet.Parse(parser)) },
             { "WaterTextureList", (parser, assetStore) => assetStore.WaterTextureLists.Add(WaterTextureList.Parse(parser)) },
             { "WaterTransparency", (parser, assetStore) => WaterTransparency.Parse(parser, assetStore.WaterTransparency.Current) },
-            { "Weapon", (parser, assetStore) => assetStore.Weapons.Add(Weapon.Parse(parser)) },
+            { "Weapon", (parser, assetStore) => assetStore.WeaponTemplates.Add(WeaponTemplate.Parse(parser)) },
             { "Weather", (parser, assetStore) => Weather.Parse(parser, assetStore.Weather.Current) },
             { "WeatherData", (parser, assetStore) => assetStore.WeatherDatas.Add(WeatherData.Parse(parser)) },
             { "WindowTransition", (parser, assetStore) => assetStore.WindowTransitions.Add(WindowTransition.Parse(parser)) },

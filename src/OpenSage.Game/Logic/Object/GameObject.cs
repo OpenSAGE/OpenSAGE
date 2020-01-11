@@ -104,6 +104,7 @@ namespace OpenSage.Logic.Object
         public Vector3? RallyPoint { get; set; }
 
         private Locomotor CurrentLocomotor { get; set; }
+        private Weapon CurrentWeapon { get; set; }
 
         public List<Vector3> TargetPoints { get; set; }
 
@@ -127,6 +128,7 @@ namespace OpenSage.Logic.Object
         public GameObjectCollection Parent { get; private set; }
 
         public ProductionUpdate ProductionUpdate { get; }
+        public GameObject TargetEnemy { get; }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -144,6 +146,7 @@ namespace OpenSage.Logic.Object
             Navigation = navigation;
 
             SetLocomotor();
+            SetWeapon();
             Transform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();
@@ -347,6 +350,11 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+            {
+                CurrentWeapon.LocalLogicTick(gameTime, TargetEnemy);
+            }
+
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
@@ -449,6 +457,15 @@ namespace OpenSage.Logic.Object
             var locomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
             CurrentLocomotor = (locomotorSet != null)
                 ? new Locomotor(this, locomotorSet)
+                : null;
+        }
+
+        private void SetWeapon()
+        {
+            //TODO: we always pick the weapon without any conditions
+            var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
+            CurrentWeapon = (weaponSet != null)
+                ? new Weapon(this, weaponSet)
                 : null;
         }
     }
