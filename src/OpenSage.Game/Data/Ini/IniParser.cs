@@ -487,6 +487,19 @@ namespace OpenSage.Data.Ini
             return _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<ObjectDefinition>[] ParseObjectReferenceArray()
+        {
+            var result = new List<LazyAssetReference<ObjectDefinition>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                result.Add(_assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(token.Value.Text));
+            }
+
+            return result.ToArray();
+        }
+
         public LazyAssetReference<TextureAsset> ParseTextureReference()
         {
             var fileName = ParseFileName();
