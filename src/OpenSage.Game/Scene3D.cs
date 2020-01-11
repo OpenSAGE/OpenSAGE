@@ -430,7 +430,15 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
-                var boundingSphere = new BoundingSphere(gameObject.Transform.Translation, gameObject.Definition.Geometry.MajorRadius);
+                var geometrySize = gameObject.Definition.Geometry.MajorRadius;
+
+                // Not sure if this is what IsSmall is actually for.
+                if (gameObject.Definition.Geometry.IsSmall)
+                {
+                    geometrySize = Math.Max(geometrySize, 15);
+                }
+
+                var boundingSphere = new BoundingSphere(gameObject.Transform.Translation, geometrySize);
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
                 var healthBoxWorldSpacePos = gameObject.Transform.Translation.WithZ(gameObject.Transform.Translation.Z + gameObject.Definition.Geometry.Height);
