@@ -102,9 +102,8 @@ namespace OpenSage
         {
             var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
-            var mapFilename = replayFile.Header.Metadata.MapFile
-                .Replace('/', '\\')
-                .Replace("userdata", _userDataFileSystem?.RootDirectory);
+            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", _userDataFileSystem?.RootDirectory);
+            mapFilename = FileSystem.NormalizeFilePath(mapFilename);
             var mapName = mapFilename.Substring(mapFilename.LastIndexOf('\\'));
 
             var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
