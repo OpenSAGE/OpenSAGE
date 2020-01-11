@@ -102,14 +102,15 @@ namespace OpenSage
         {
             var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
-            // TODO: This probably isn't right.
-            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
-            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
+            var mapFilename = replayFile.Header.Metadata.MapFile
+                .Replace('/', '\\')
+                .Replace("userdata", _userDataFileSystem?.RootDirectory);
+            var mapName = mapFilename.Substring(mapFilename.LastIndexOf('\\'));
 
             var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
 
             StartMultiPlayerGame(
-                mapFilename,
+                mapFilename + mapName + ".map",
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
                 0);
@@ -682,6 +683,7 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
+            Scripting.Active = true;
         }
 
         public void StartCampaign(string side)
