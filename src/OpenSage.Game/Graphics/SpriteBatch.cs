@@ -141,7 +141,8 @@ namespace OpenSage.Graphics
             in ColorRgbaF color,
             in bool flipped = false,
             SpriteFillMethod fillMethod = SpriteFillMethod.Normal,
-            float fillAmount = 0.0f)
+            float fillAmount = 0.0f,
+            bool grayscale = false)
         {
             ref var batchItem = ref CreateBatchItem();
 
@@ -162,7 +163,8 @@ namespace OpenSage.Graphics
                 texCoordBR,
                 0,
                 fillMethod,
-                fillAmount);
+                fillAmount,
+                grayscale);
         }
 
         public void DrawImage(
@@ -236,12 +238,14 @@ namespace OpenSage.Graphics
                 if (batchItem.OutputOffset != _spriteConstantsPSBuffer.Value.OutputOffset
                     || batchItem.OutputSize != _spriteConstantsPSBuffer.Value.OutputSize
                     || batchItem.FillMethod != _spriteConstantsPSBuffer.Value.FillMethod
-                    || batchItem.FillAmount != _spriteConstantsPSBuffer.Value.FillAmount)
+                    || batchItem.FillAmount != _spriteConstantsPSBuffer.Value.FillAmount
+                    || batchItem.Grayscale != _spriteConstantsPSBuffer.Value.Grayscale)
                 {
                     _spriteConstantsPSBuffer.Value.OutputOffset = batchItem.OutputOffset;
                     _spriteConstantsPSBuffer.Value.OutputSize = batchItem.OutputSize;
                     _spriteConstantsPSBuffer.Value.FillMethod = batchItem.FillMethod;
                     _spriteConstantsPSBuffer.Value.FillAmount = batchItem.FillAmount;
+                    _spriteConstantsPSBuffer.Value.Grayscale = batchItem.Grayscale;
                     _spriteConstantsPSBuffer.Update(_commandList);
                 }
 
@@ -293,6 +297,8 @@ namespace OpenSage.Graphics
             public SpriteFillMethod FillMethod;
             public float FillAmount;
 
+            public bool Grayscale;
+
             public void Set(float x, float y, float dx, float dy, float w, float h, float sin, float cos, in ColorRgbaF color, in Vector2 texCoordTL, in Vector2 texCoordBR, float depth)
             {
                 ItemType = SpriteBatchItemType.Quad;
@@ -333,7 +339,8 @@ namespace OpenSage.Graphics
                 in Vector2 texCoordBR,
                 float depth,
                 SpriteFillMethod fillMethod,
-                float fillAmount)
+                float fillAmount,
+                bool grayscale)
             {
                 ItemType = SpriteBatchItemType.Quad;
 
@@ -369,6 +376,8 @@ namespace OpenSage.Graphics
                 OutputSize = new Vector2(w, h);
                 FillMethod = fillMethod;
                 FillAmount = fillAmount;
+
+                Grayscale = grayscale;
             }
 
             public void Set(in Triangle2D triangle, in Triangle2D texCoords, in ColorRgbaF color, float depth)
