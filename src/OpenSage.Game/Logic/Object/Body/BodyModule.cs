@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
         // TODO: This could use a smaller fixed point type.
         public decimal Health { get; protected set; }
 
+        public abstract decimal MaxHealth { get; }
+
         public virtual void SetInitialHealth(float multiplier) { }
     }
 

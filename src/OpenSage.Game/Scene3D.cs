@@ -442,17 +442,41 @@ namespace OpenSage
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
                 var healthBoxWorldSpacePos = gameObject.Transform.Translation.WithZ(gameObject.Transform.Translation.Z + gameObject.Definition.Geometry.Height);
-                var rect = Camera.WorldToScreenRectangle(
+                var healthBoxRect = Camera.WorldToScreenRectangle(
                     healthBoxWorldSpacePos,
                     new SizeF(healthBoxSize, 3));
 
-                if (rect == null)
+                if (healthBoxRect == null)
                 {
                     return;
                 }
-                
-                drawingContext.FillRectangle(rect.Value, new ColorRgbaF(0, 1, 0, 1));
-                drawingContext.DrawRectangle(rect.Value, new ColorRgbaF(0, 0.5f, 0, 1), 1);
+
+                void DrawBar(in RectangleF rect, in ColorRgbaF color, float value)
+                {
+                    var actualRect = rect.WithWidth(rect.Width * value);
+                    drawingContext.FillRectangle(actualRect, color);
+
+                    var borderColor = color.WithRGB(color.R / 2.0f, color.G / 2.0f, color.B / 2.0f);
+                    drawingContext.DrawRectangle(rect, borderColor, 1);
+                }
+
+                DrawBar(
+                    healthBoxRect.Value,
+                    new ColorRgbaF(0, 1, 0, 1),
+                    (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+
+                if (gameObject.ProductionUpdate != null)
+                {
+                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+                    var productionBoxValue = gameObject.ProductionUpdate.IsProducing
+                        ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
+                        : 0;
+
+                    DrawBar(
+                        productionBoxRect,
+                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
+                        productionBoxValue);
+                }
             }
 
             foreach (var selectedUnit in LocalPlayer.SelectedUnits)
