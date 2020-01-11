@@ -38,8 +38,9 @@ namespace OpenSage.Scripting.Actions
             // Team
             { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact },
 
-            // Unit/Move
-            { ScriptActionType.MoveNamedUnitTo, UnitActions.MoveNamedUnitTo }
+            // Unit
+            { ScriptActionType.MoveNamedUnitTo, UnitActions.MoveNamedUnitTo },
+            { ScriptActionType.NamedStop, UnitActions.NamedStop }
         };
 
         public static ScriptingAction Get(ScriptAction action)
