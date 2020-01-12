@@ -120,7 +120,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             _moneyDisplay.Text = $"$ {player.Money}";
 
-            if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
+            if (player.SelectedUnits.Count > 0)
             {
                 var unit = player.SelectedUnits.First();
                 if (player.SelectedUnits.Count == 1 && unit.IsBeingConstructed())

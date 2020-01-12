@@ -183,18 +183,18 @@ namespace OpenSage.Logic.Object
 
             SetActiveConditionState(bestConditionState);
 
-            bestConditionState.WeaponMuzzleFlashes.ForEach(x => {
+            foreach(var WeaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes){
                 var visible = flags.Get(ModelConditionFlag.FiringA);
-                foreach (var item in _activeModelDrawConditionState._modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }))
+                foreach (var item in _activeModelDrawConditionState.Model.ModelBoneInstances.Select((value, i) => new { i, value }))
                 {
                     var bone = item.value;
                     // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
-                    if (bone.Name.StartsWith(x.BoneName.ToUpper()))
+                    if (bone.Name.StartsWith(WeaponMuzzleFlash.BoneName.ToUpper()))
                     {
-                        _activeModelDrawConditionState._modelInstance.BoneVisibilities[item.i] = visible;
+                        _activeModelDrawConditionState.Model.BoneVisibilities[item.i] = visible;
                     }
                 }
-            });
+            };
             
             AnimationState bestAnimationState = null;
             bestMatch = int.MinValue;
@@ -369,7 +369,7 @@ namespace OpenSage.Logic.Object
 
     internal sealed class W3dModelDrawConditionState : DisposableBase
     {
-        public readonly ModelInstance _modelInstance;
+        private readonly ModelInstance _modelInstance;
 
         public ModelInstance Model => _modelInstance;
 
@@ -412,11 +412,13 @@ namespace OpenSage.Logic.Object
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
+
             _modelInstance.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
                 renderItemConstantsPS);
+
         }
     }
 
