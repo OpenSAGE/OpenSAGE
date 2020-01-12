@@ -5,16 +5,16 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Armor : BaseAsset
+    public sealed class ArmorTemplate : BaseAsset
     {
-        internal static Armor Parse(IniParser parser)
+        internal static ArmorTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("Armor", name),
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<Armor> FieldParseTable = new IniParseTable<Armor>
+        private static readonly IniParseTable<ArmorTemplate> FieldParseTable = new IniParseTable<ArmorTemplate>
         {
             { "DamageScalar", (parser, x) => x.DamageScalar = parser.ParsePercentage() },
             { "Armor", (parser, x) => x.Values.Add(ArmorValue.Parse(parser)) },

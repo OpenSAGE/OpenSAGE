@@ -77,7 +77,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<AIDozerAssignment> AIDozerAssignments { get; }
         public ScopedAssetCollection<AmbientStream> AmbientStreams { get; }
         public ScopedAssetCollection<Animation> Animations { get; }
-        public ScopedAssetCollection<Armor> Armors { get; }
+        public ScopedAssetCollection<ArmorTemplate> ArmorTemplates { get; }
         public ScopedAssetCollection<ArmyDefinition> ArmyDefinitions { get; }
         public ScopedAssetCollection<AudioEvent> AudioEvents { get; }
         public ScopedAssetCollection<AudioFile> AudioFiles { get; }
@@ -252,7 +252,7 @@ namespace OpenSage.Content
             AddAssetCollection(AIDozerAssignments = new ScopedAssetCollection<AIDozerAssignment>(this));
             AddAssetCollection(AmbientStreams = new ScopedAssetCollection<AmbientStream>(this));
             AddAssetCollection(Animations = new ScopedAssetCollection<Animation>(this));
-            AddAssetCollection(Armors = new ScopedAssetCollection<Armor>(this));
+            AddAssetCollection(ArmorTemplates = new ScopedAssetCollection<ArmorTemplate>(this));
             AddAssetCollection(ArmyDefinitions = new ScopedAssetCollection<ArmyDefinition>(this));
             AddAssetCollection(AudioEvents = new ScopedAssetCollection<AudioEvent>(this));
             AddAssetCollection(AudioFiles = new ScopedAssetCollection<AudioFile>(this, loadStrategy.CreateAudioFileLoader()));
