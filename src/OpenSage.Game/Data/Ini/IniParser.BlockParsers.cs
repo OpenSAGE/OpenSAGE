@@ -155,7 +155,7 @@ namespace OpenSage.Data.Ini
             { "StaticGameLOD", (parser, assetStore) => assetStore.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "StrategicHUD", (parser, assetStore) => StrategicHud.Parse(parser, assetStore.StrategicHud.Current) },
             { "Terrain", (parser, assetStore) => assetStore.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
-            { "Upgrade", (parser, assetStore) => assetStore.Upgrades.Add(Upgrade.Parse(parser)) },
+            { "Upgrade", (parser, assetStore) => assetStore.Upgrades.Add(UpgradeDefinition.Parse(parser)) },
             { "VictorySystemData", (parser, assetStore) => assetStore.VictorySystemDatas.Add(VictorySystemData.Parse(parser)) },
             { "Video", (parser, assetStore) => assetStore.Videos.Add(Video.Parse(parser)) },
             { "WaterSet", (parser, assetStore) => assetStore.WaterSets.Add(WaterSet.Parse(parser)) },

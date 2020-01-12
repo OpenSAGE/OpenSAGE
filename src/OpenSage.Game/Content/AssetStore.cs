@@ -164,7 +164,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<LoadSubsystem> Subsystems { get; }
         public ScopedAssetCollection<TerrainTexture> TerrainTextures { get; }
         public ScopedAssetCollection<TextureAsset> Textures { get; }
-        public ScopedAssetCollection<Upgrade> Upgrades { get; }
+        public ScopedAssetCollection<UpgradeDefinition> Upgrades { get; }
         public ScopedAssetCollection<VictorySystemData> VictorySystemDatas { get; }
         public ScopedAssetCollection<Video> Videos { get; }
         public ScopedAssetCollection<WaterSet> WaterSets { get; }
@@ -339,7 +339,7 @@ namespace OpenSage.Content
             AddAssetCollection(Subsystems = new ScopedAssetCollection<LoadSubsystem>(this));
             AddAssetCollection(TerrainTextures = new ScopedAssetCollection<TerrainTexture>(this));
             AddAssetCollection(Textures = new ScopedAssetCollection<TextureAsset>(this, loadStrategy.CreateTextureLoader()));
-            AddAssetCollection(Upgrades = new ScopedAssetCollection<Upgrade>(this));
+            AddAssetCollection(Upgrades = new ScopedAssetCollection<UpgradeDefinition>(this));
             AddAssetCollection(VictorySystemDatas = new ScopedAssetCollection<VictorySystemData>(this));
             AddAssetCollection(Videos = new ScopedAssetCollection<Video>(this));
             AddAssetCollection(WaterSets = new ScopedAssetCollection<WaterSet>(this));

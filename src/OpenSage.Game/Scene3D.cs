@@ -479,14 +479,18 @@ namespace OpenSage
                 }
             }
 
-            foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+            // The AssetViewer has no LocalPlayer
+            if (LocalPlayer != null)
             {
-                DrawHealthBox(selectedUnit);
-            }
+                foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+                {
+                    DrawHealthBox(selectedUnit);
+                }
 
-            if (LocalPlayer.HoveredUnit != null)
-            {
-                DrawHealthBox(LocalPlayer.HoveredUnit);
+                if (LocalPlayer.HoveredUnit != null)
+                {
+                    DrawHealthBox(LocalPlayer.HoveredUnit);
+                }
             }
         }
     }

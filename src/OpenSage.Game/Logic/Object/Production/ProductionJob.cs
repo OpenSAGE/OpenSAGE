@@ -4,17 +4,18 @@ namespace OpenSage.Logic.Object.Production
 {
     public sealed class ProductionJob
     {
-        private readonly int _cost;
-        private int _spent;
+        //Duration in milliseconds
+        private readonly int _duration;
+        private float _passed;
 
         public ProductionJobType Type { get; }
 
-        public float Progress => Math.Max(0, Math.Min(1, _spent / (float) _cost));
+        public float Progress => Math.Max(0, Math.Min(1, (float) (_passed / _duration)));
 
-        public ProductionJobResult Produce(int spent)
+        public ProductionJobResult Produce(float passed)
         {
-            _spent += spent;
-            if (_spent >= _cost)
+            _passed += passed;
+            if (_passed >= _duration)
             {
                 return ProductionJobResult.Finished;
             }
@@ -22,12 +23,20 @@ namespace OpenSage.Logic.Object.Production
         }
 
         public ObjectDefinition ObjectDefinition { get; }
+        public UpgradeDefinition UpgradeDefinition { get; }
 
         public ProductionJob(ObjectDefinition definition)
         {
             ObjectDefinition = definition;
             Type = ProductionJobType.Unit;
-            _cost = (int) definition.BuildCost;
+            _duration = (int) (definition.BuildTime * 1000.0f);
+        }
+
+        public ProductionJob(UpgradeDefinition definition)
+        {
+            UpgradeDefinition = definition;
+            Type = ProductionJobType.Upgrade;
+            _duration = (int) (definition.BuildTime * 1000.0f);
         }
     }
 
