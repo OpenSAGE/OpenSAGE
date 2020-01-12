@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
@@ -9,19 +10,32 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly ActiveBodyModuleData _moduleData;
 
-        public override decimal MaxHealth => (decimal) _moduleData.MaxHealth;
+        public override Fix64 MaxHealth { get; }
 
         internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
 
-            Health = (decimal) moduleData.InitialHealth;
+            MaxHealth = (Fix64) moduleData.MaxHealth;
+
+            Health = (Fix64) moduleData.InitialHealth;
         }
 
         public override void SetInitialHealth(float multiplier)
         {
-            Health = (decimal) (_moduleData.InitialHealth * multiplier);
+            Health = (Fix64) (_moduleData.InitialHealth * multiplier);
+        }
+
+        public override void DoDamage(DamageType damageType, Fix64 amount)
+        {
+            // Actual amount of damage depends on armor.
+            var armor = _gameObject.CurrentArmorSet.Armor.Value;
+            var damagePercent = armor.GetDamagePercent(damageType);
+            var actualDamage = amount * (Fix64) ((float) damagePercent);
+            Health -= actualDamage;
+
+            // TODO: DamageFX
         }
     }
 
