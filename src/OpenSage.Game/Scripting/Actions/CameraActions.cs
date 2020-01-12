@@ -88,12 +88,17 @@ namespace OpenSage.Scripting.Actions
 
         public static ActionResult MoveCameraAlongWaypointPath(ScriptAction action, ScriptExecutionContext context)
         {
-            var firstNode = context.Scene.Waypoints[action.Arguments[0].StringValue];
-            var path = context.Scene.WaypointPaths.GetFullPath(firstNode).ToList();
+            var firstWaypointName = action.Arguments[0].StringValue;
+            if (!context.Scene.Waypoints.TryGetByName(firstWaypointName, out var waypoint))
+            {
+                ScriptingSystem.Logger.Warn($"Waypoint \"{firstWaypointName}\" does not exist.");
+                return ActionResult.Finished;
+            }
+
             var totalDuration = TimeSpan.FromSeconds(action.Arguments[1].FloatValue.Value);
             var shutter = action.Arguments[2].FloatValue.Value;
 
-            return new MoveCameraAlongWaypointPathAction(path, totalDuration, shutter).Execute(context);
+            return new MoveCameraAlongWaypointPathAction(waypoint.FollowPath(context.Scene.Random), totalDuration, shutter).Execute(context);
         }
     }
 
@@ -128,13 +133,13 @@ namespace OpenSage.Scripting.Actions
 
     public sealed class MoveCameraAlongWaypointPathAction : ActionResult.ActionContinuation
     {
-        private readonly List<Waypoint> _path;
+        private readonly IEnumerable<Vector3> _path;
         private readonly float _shutter;
         private readonly TimeSpan _totalDuration;
 
         private CameraAnimation _animation;
 
-        public MoveCameraAlongWaypointPathAction(List<Waypoint> path, TimeSpan totalDuration, float shutter)
+        public MoveCameraAlongWaypointPathAction(IEnumerable<Vector3> path, TimeSpan totalDuration, float shutter)
         {
             _path = path;
             _totalDuration = totalDuration;
@@ -148,11 +153,10 @@ namespace OpenSage.Scripting.Actions
             {
                 // TODO: Avoid allocating this list?
                 // TODO: Does the real engine start the animation from the current position? 
-                var pathWithCurrentPos = new List<Vector3> {context.Scene.CameraController.TerrainPosition};
-                pathWithCurrentPos.AddRange(_path.Select(waypoint => waypoint.Position));
+                var pathWithCurrentPos = _path.Prepend(context.Scene.CameraController.TerrainPosition);
 
                 _animation = context.Scene.CameraController.StartAnimation(
-                    pathWithCurrentPos,
+                    pathWithCurrentPos.ToList(),
                     context.UpdateTime.TotalTime, _totalDuration);
             }
 

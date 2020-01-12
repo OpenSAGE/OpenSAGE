@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -9,8 +11,9 @@ namespace OpenSage.Scripting
 {
     public sealed class WaypointCollection
     {
-        private readonly Dictionary<string, Waypoint> _waypointsByName;
         private readonly Dictionary<uint, Waypoint> _waypointsByID;
+        private readonly Dictionary<string, Waypoint> _waypointsByName;
+        private readonly Dictionary<string, HashSet<Waypoint>> _waypointsByPathLabel;
 
         public Waypoint this[string name] => _waypointsByName[name];
         public Waypoint this[uint id] => _waypointsByID[id];
@@ -21,15 +24,36 @@ namespace OpenSage.Scripting
 
             _waypointsByName = new Dictionary<string, Waypoint>();
             _waypointsByID = new Dictionary<uint, Waypoint>();
+            _waypointsByPathLabel = new Dictionary<string, HashSet<Waypoint>>();
         }
 
-        public WaypointCollection(IEnumerable<Waypoint> waypoints)
+        public WaypointCollection(IEnumerable<Waypoint> waypoints, IEnumerable<WaypointPath> paths)
             : this()
         {
             foreach (var waypoint in waypoints)
             {
                 _waypointsByName[waypoint.Name] = waypoint;
                 _waypointsByID[waypoint.ID] = waypoint;
+
+                foreach (var pathLabel in waypoint.PathLabels)
+                {
+                    if (!_waypointsByPathLabel.TryGetValue(pathLabel, out var collection))
+                    {
+                        collection = new HashSet<Waypoint>();
+                        _waypointsByPathLabel.Add(pathLabel, collection);
+                    }
+
+                    collection.Add(waypoint);
+                }
+            }
+
+            foreach (var path in paths)
+            {
+                if (_waypointsByID.TryGetValue(path.StartWaypointID, out var startWaypoint) &&
+                    _waypointsByID.TryGetValue(path.EndWaypointID, out var endWaypoint))
+                {
+                    startWaypoint.AddConnectionTo(endWaypoint);
+                }
             }
         }
 
@@ -37,11 +61,20 @@ namespace OpenSage.Scripting
         {
             return _waypointsByName.TryGetValue(name, out waypoint);
         }
+
+        public IReadOnlyCollection<Waypoint> GetByPathLabel(string pathLabel)
+        {
+            return _waypointsByPathLabel.TryGetValue(pathLabel, out var waypoints) ?
+                (IReadOnlyCollection<Waypoint>) waypoints :
+                Array.Empty<Waypoint>();
+        }
     }
 
     [DebuggerDisplay("ID = {ID}, Name = {Name}")]
     public sealed class Waypoint
     {
+        private List<Waypoint> _connectedWaypoints;
+
         public uint ID { get; }
         public string Name { get; }
         public Vector3 Position { get; }
@@ -69,65 +102,30 @@ namespace OpenSage.Scripting
                 PathLabels = Enumerable.Empty<string>();
             }
         }
-    }
 
-    public sealed class WaypointPathCollection
-    {
-        private readonly Dictionary<string, WaypointPath> _waypointPathsByLabel;
-        private readonly Dictionary<Waypoint, WaypointPath> _waypointPathsByFirstNode;
-
-        public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode.TryGetValue(firstNode, out var path) ? path : null;
-        public WaypointPath this[string label] => _waypointPathsByLabel.TryGetValue(label, out var path) ? path : null;
-
-        public WaypointPathCollection()
+        public void AddConnectionTo(Waypoint waypoint)
         {
-            _waypointPathsByLabel = new Dictionary<string, WaypointPath>();
-            _waypointPathsByFirstNode = new Dictionary<Waypoint, WaypointPath>();
+            _connectedWaypoints ??= new List<Waypoint>();
+            _connectedWaypoints.Add(waypoint);
         }
 
-        public WaypointPathCollection(WaypointCollection waypoints, Data.Map.WaypointPath[] paths)
-            : this()
-        {
-            foreach (var waypointPath in paths)
-            {
-                var start = waypoints[waypointPath.StartWaypointID];
-                var end = waypoints[waypointPath.EndWaypointID];
-                var path = new WaypointPath(start, end);
+        public IReadOnlyList<Waypoint> ConnectedWaypoints =>
+            (IReadOnlyList<Waypoint>) _connectedWaypoints ?? Array.Empty<Waypoint>();
 
-                foreach (var label in path.Start.PathLabels)
+        public IEnumerable<Vector3> FollowPath(Random random)
+        {
+            var currentWaypoint = this;
+            while (currentWaypoint != null)
+            {
+                yield return currentWaypoint.Position;
+                var connectedWaypoints = currentWaypoint.ConnectedWaypoints;
+                currentWaypoint = connectedWaypoints.Count switch
                 {
-                    _waypointPathsByLabel[label] = path;
-                }
-
-                _waypointPathsByFirstNode[path.Start] = path;
+                    0 => null,
+                    1 => connectedWaypoints[0],
+                    int n => connectedWaypoints[random.Next(n)]
+                };
             }
-        }
-
-        /// <summary>
-        /// Iterates through the waypoint path, starting at given node.
-        /// </summary>
-        public IEnumerable<Waypoint> GetFullPath(Waypoint node)
-        {
-            while (node != null)
-            {
-                yield return node;
-                node = this[node]?.End;
-            }
-        }
-
-        public IEnumerable<Waypoint> GetFullPath(string label) => GetFullPath(this[label]?.Start);
-    }
-
-    // Note: this is not actually a path despite the name, just a node of a doubly linked list.
-    public sealed class WaypointPath
-    {
-        public Waypoint Start { get; }
-        public Waypoint End { get; }
-
-        public WaypointPath(Waypoint start, Waypoint end)
-        {
-            Start = start;
-            End = end;
         }
     }
 }

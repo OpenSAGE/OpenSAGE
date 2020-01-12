@@ -47,6 +47,7 @@ namespace OpenSage.Diagnostics
                 new ArcballCameraController(cameraTarget, cameraDistance),
                 gameObjects,
                 WorldLighting.CreateDefault(),
+                Environment.TickCount,
                 isDiagnosticScene: true));
 
             RenderPipeline = AddDisposable(new RenderPipeline(context.Game));

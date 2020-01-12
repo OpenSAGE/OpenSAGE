@@ -12,6 +12,7 @@ using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Scripting;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -132,7 +133,18 @@ namespace OpenSage.Logic.Object
         private Locomotor CurrentLocomotor { get; set; }
         private Weapon CurrentWeapon { get; set; }
 
+        /// <summary>
+        /// These are the points of the path to the current target.
+        /// </summary>
         public List<Vector3> TargetPoints { get; set; }
+
+        /// <summary>
+        /// These are the waypoints the unit is currently following.
+        /// The path to the next waypoint can contain multiple target points.
+        /// </summary>
+        private IEnumerator<Vector3> _waypointEnumerator;
+
+        public bool IsFollowingWaypoints() => _waypointEnumerator != null;
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -323,9 +335,18 @@ namespace OpenSage.Logic.Object
             AddTargetPoint(targetPoint);
         }
 
+        internal void FollowWaypoints(IEnumerable<Vector3> waypoints)
+        {
+            TargetPoints.Clear();
+            _waypointEnumerator = waypoints.GetEnumerator();
+            MoveToNextWaypointOrStop();
+        }
+
         internal void Stop()
         {
             ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
+            _waypointEnumerator?.Dispose();
+            _waypointEnumerator = null;
             TargetPoints.Clear();
             Speed = 0;
         }
@@ -372,14 +393,14 @@ namespace OpenSage.Logic.Object
             if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
             {
                 CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
-                var distance = Vector2.Distance(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
-                if (distance < 0.5f)
+                var distance = Vector2.DistanceSquared(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
+                if (distance < 0.25f)
                 {
                     Logger.Debug($"Reached point {TargetPoints[0]}");
                     TargetPoints.RemoveAt(0);
                     if (TargetPoints.Count == 0)
                     {
-                        Stop();
+                        MoveToNextWaypointOrStop();
                     }
                 }
             }
@@ -392,6 +413,18 @@ namespace OpenSage.Logic.Object
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
+        }
+
+        private void MoveToNextWaypointOrStop()
+        {
+            if (_waypointEnumerator != null && _waypointEnumerator.MoveNext())
+            {
+                AddTargetPoint(_waypointEnumerator.Current);
+            }
+            else
+            {
+                Stop();
+            }
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
