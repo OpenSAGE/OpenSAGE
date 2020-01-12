@@ -35,7 +35,7 @@ namespace OpenSage.Data.Ini
             { "Animation", (parser, assetStore) => assetStore.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, assetStore) => AnimationSoundClientBehaviorGlobalSetting.Parse(parser, assetStore.AnimationSoundClientBehaviorGlobalSetting.Current) },
             { "AptButtonTooltipMap", (parser, assetStore) => AptButtonTooltipMap.Parse(parser, assetStore.AptButtonTooltipMap.Current) },
-            { "Armor", (parser, assetStore) => assetStore.Armors.Add(Armor.Parse(parser)) },
+            { "Armor", (parser, assetStore) => assetStore.ArmorTemplates.Add(ArmorTemplate.Parse(parser)) },
             { "ArmyDefinition", (parser, assetStore) => assetStore.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
             { "ArmySummaryDescription", (parser, assetStore) => ArmySummaryDescription.Parse(parser, assetStore.ArmySummaryDescription.Current) },
             { "AudioEvent", (parser, assetStore) => assetStore.AudioEvents.Add(AudioEvent.Parse(parser)) },
