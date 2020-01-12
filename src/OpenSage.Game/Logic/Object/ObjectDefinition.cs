@@ -373,11 +373,11 @@ namespace OpenSage.Logic.Object
         public int PlacementViewAngle { get; private set; }
         public LazyAssetReference<MappedImage> SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo1 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo2 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo3 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo4 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo5 { get; private set; }
+        public LazyAssetReference<UpgradeDefinition> UpgradeCameo1 { get; private set; }
+        public LazyAssetReference<UpgradeDefinition> UpgradeCameo2 { get; private set; }
+        public LazyAssetReference<UpgradeDefinition> UpgradeCameo3 { get; private set; }
+        public LazyAssetReference<UpgradeDefinition> UpgradeCameo4 { get; private set; }
+        public LazyAssetReference<UpgradeDefinition> UpgradeCameo5 { get; private set; }
 
         // Design
         public ObjectBuildableType Buildable { get; private set; }

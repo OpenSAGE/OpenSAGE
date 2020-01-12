@@ -9,6 +9,7 @@ using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
+using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -272,6 +273,17 @@ namespace OpenSage.Mods.Generals.Gui
                                 case CommandType.SetRallyPoint:
                                     context.Game.OrderGenerator.SetRallyPoint();
                                     break;
+
+                                case CommandType.ObjectUpgrade:
+                                    order = CreateOrder(OrderType.ObjectUprade);
+                                    //TODO: figure this out correctly
+                                    var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
+                                    var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
+                                    order.AddIntegerArgument(objId);
+                                    var name = commandButton.Upgrade;
+                                    var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
+                                    order.AddIntegerArgument(upgrade.InternalId);
+                                    break;
                                 default:
                                     throw new NotImplementedException();
                             }
@@ -389,8 +401,14 @@ namespace OpenSage.Mods.Generals.Gui
                                         job.Progress);
                                 };
 
-                                img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
-
+                                if (job.Type == ProductionJobType.Unit)
+                                {
+                                    img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+                                }
+                                else if (job.Type == ProductionJobType.Upgrade)
+                                {
+                                    img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.UpgradeDefinition.ButtonImage);
+                                }
                                 var posCopy = pos;
 
                                 queueButton.SystemCallback = (control, message, context) =>
@@ -414,7 +432,7 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<Upgrade> upgradeReference)
+                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeDefinition> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");

@@ -58,22 +58,35 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            if (_productionQueue.Count > 0 && _productionQueue[0].Produce(20) == ProductionJobResult.Finished)
+            if (_productionQueue.Count > 0)
             {
-                if (_moduleData.NumDoorAnimations > 0)
+                var front = _productionQueue[0];
+                var result = front.Produce((float) time.DeltaTime.TotalMilliseconds);
+                if (result == ProductionJobResult.Finished)
                 {
-                    Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
-                    _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
-                    _currentDoorState = DoorState.Opening;
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
+                    if (front.Type == ProductionJobType.Unit)
+                    {
+                        if (_moduleData.NumDoorAnimations > 0)
+                        {
+                            Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
+                            _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
+                            _currentDoorState = DoorState.Opening;
+                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
 
-                    ProduceObject(_productionQueue[0]);
-                }
-                else
-                {
-                    ProduceObject(_productionQueue[0]);
-                    MoveProducedObjectOut();
-                    _productionQueue.RemoveAt(0);
+                            ProduceObject(front);
+                        }
+                        else
+                        {
+                            ProduceObject(front);
+                            MoveProducedObjectOut();
+                            _productionQueue.RemoveAt(0);
+                        }
+                    }
+                    else if (front.Type == ProductionJobType.Upgrade)
+                    {
+                        GrantUpgrade(front);
+                        _productionQueue.RemoveAt(0);
+                    }
                 }
             }
 
@@ -110,6 +123,21 @@ namespace OpenSage.Logic.Object
                     ProduceObject(job.ObjectDefinition);
                     break;
             }
+        }
+
+        private void GrantUpgrade(ProductionJob job)
+        {
+            switch (job.Type)
+            {
+                case ProductionJobType.Upgrade:
+                    GrantUpgrade(job.UpgradeDefinition);
+                    break;
+            }
+        }
+
+        private void GrantUpgrade(UpgradeDefinition upgradeDefinition)
+        {
+            _gameObject.Upgrade(upgradeDefinition);
         }
 
         private void ProduceObject(ObjectDefinition objectDefinition)
@@ -155,6 +183,12 @@ namespace OpenSage.Logic.Object
         internal void QueueProduction(ObjectDefinition objectDefinition)
         {
             var job = new ProductionJob(objectDefinition);
+            _productionQueue.Add(job);
+        }
+
+        internal void QueueUpgrade(UpgradeDefinition upgradeDefinition)
+        {
+            var job = new ProductionJob(upgradeDefinition);
             _productionQueue.Add(job);
         }
 
