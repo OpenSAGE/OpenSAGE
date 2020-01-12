@@ -5,14 +5,14 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSet
+    public sealed class WeaponTemplateSet
     {
-        internal static WeaponSet Parse(IniParser parser)
+        internal static WeaponTemplateSet Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<WeaponSet> FieldParseTable = new IniParseTable<WeaponSet>
+        private static readonly IniParseTable<WeaponTemplateSet> FieldParseTable = new IniParseTable<WeaponTemplateSet>
         {
             { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumBitArray<WeaponSetConditions>() },
             { "Weapon", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.Weapon = parser.ParseWeaponTemplateReference()) },
@@ -56,6 +56,5 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PREFER_LEAST_MOVEMENT")]
         PreferLeastMovement,
-
     }
 }

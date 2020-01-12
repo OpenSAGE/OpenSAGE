@@ -2,15 +2,15 @@
 
 namespace OpenSage.Logic.Object
 {
-    class Weapon
+    public sealed class Weapon
     {
         private readonly GameObject _gameObject;
-        private readonly WeaponSet _weaponSet;
+        private readonly WeaponTemplateSet _weaponSet;
         private readonly WeaponTemplate _currentWeaponTemplate;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Weapon(GameObject gameObject, WeaponSet weaponSet)
+        internal Weapon(GameObject gameObject, WeaponTemplateSet weaponSet)
         {
             _gameObject = gameObject;
             _weaponSet = weaponSet;

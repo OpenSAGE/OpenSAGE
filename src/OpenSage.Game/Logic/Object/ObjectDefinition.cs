@@ -66,7 +66,7 @@ namespace OpenSage.Logic.Object
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
-            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
+            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponTemplateSet.Parse(parser)) },
             { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
@@ -406,7 +406,7 @@ namespace OpenSage.Logic.Object
         public bool IsForbidden { get; private set; }
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
-        public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
+        public List<WeaponTemplateSet> WeaponSets { get; } = new List<WeaponTemplateSet>();
         public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
         public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
