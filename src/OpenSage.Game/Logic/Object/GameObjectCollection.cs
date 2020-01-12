@@ -92,9 +92,7 @@ namespace OpenSage.Logic.Object
 
         public void AddNameLookup(GameObject gameObject)
         {
-            _nameLookup.Add(
-                gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object."),
-                gameObject);
+            _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
         }
     }
 }

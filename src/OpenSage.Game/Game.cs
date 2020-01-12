@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Data.Apt;
+using OpenSage.Data.Map;
+using OpenSage.Data.Rep;
+using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -18,14 +26,6 @@ using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
-using OpenSage.Data.Rep;
-using OpenSage.Data.Map;
-using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Data.Wnd;
-using OpenSage.Gui.Apt;
-using OpenSage.Data.Apt;
-using OpenSage.Graphics.Shaders;
-using OpenSage.Gui;
 
 namespace OpenSage
 {
@@ -54,7 +54,7 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
-
+        
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
@@ -542,7 +542,7 @@ namespace OpenSage
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile);
+            return new Scene3D(this, mapFile, Environment.TickCount);
         }
 
         public Window LoadWindow(string wndFileName)

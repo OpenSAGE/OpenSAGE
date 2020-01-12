@@ -40,6 +40,7 @@ namespace OpenSage.Scripting.Actions
 
             // Unit
             { ScriptActionType.MoveNamedUnitTo, UnitActions.MoveNamedUnitTo },
+            { ScriptActionType.NamedFollowWaypoints, UnitActions.NamedFollowWaypoints },
             { ScriptActionType.NamedStop, UnitActions.NamedStop }
         };
 
