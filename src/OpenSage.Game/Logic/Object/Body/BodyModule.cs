@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
-        // TODO: This could use a smaller fixed point type.
-        // TODO: This shouldn't be publicly settable.
-        public decimal Health { get; set; }
+        public Fix64 Health { get; protected set; }
 
-        public abstract decimal MaxHealth { get; }
+        public abstract Fix64 MaxHealth { get; }
 
         public virtual void SetInitialHealth(float multiplier) { }
+
+        public virtual void DoDamage(DamageType damageType, Fix64 amount) { }
     }
 
     public abstract class BodyModuleData : BehaviorModuleData

@@ -168,6 +168,10 @@ namespace OpenSage.Logic.Object
         public ProductionUpdate ProductionUpdate { get; }
         public GameObject TargetEnemy { get; }
         public List<UpgradeTemplate> Upgrades { get; }
+
+        // TODO
+        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets[0];
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner,

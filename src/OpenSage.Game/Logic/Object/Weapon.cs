@@ -1,4 +1,6 @@
 ﻿using System.Numerics;
+using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
@@ -29,8 +31,10 @@ namespace OpenSage.Logic.Object
             }
 
             //TODO: take care of weaponspeed and spawn projectile
-            // TODO: Let ActiveBody set its own health?
-            target.Body.Health -= (decimal)_currentWeaponTemplate.PrimaryDamage;
+
+            target.Body.DoDamage(
+                _currentWeaponTemplate.DamageType,
+                (Fix64) _currentWeaponTemplate.PrimaryDamage);
         }
     }
 }
