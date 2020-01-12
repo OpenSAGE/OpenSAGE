@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
             { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponTemplateSet.Parse(parser)) },
-            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
+            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorTemplateSet.Parse(parser)) },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
@@ -407,7 +407,7 @@ namespace OpenSage.Logic.Object
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
         public List<WeaponTemplateSet> WeaponSets { get; } = new List<WeaponTemplateSet>();
-        public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
+        public List<ArmorTemplateSet> ArmorSets { get; } = new List<ArmorTemplateSet>();
         public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
@@ -1249,7 +1249,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
             { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
-            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) },
+            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorTemplateSet.Parse(parser) },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
@@ -1260,7 +1260,7 @@ namespace OpenSage.Logic.Object
         public ModuleData Module { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ArmorSet ArmorSet { get; private set; }
+        public ArmorTemplateSet ArmorSet { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public LocomotorSet LocomotorSet { get; private set; }

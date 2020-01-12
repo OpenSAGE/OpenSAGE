@@ -433,6 +433,12 @@ namespace OpenSage.Data.Ini
             return _assetStore.WeaponTemplates.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<ArmorTemplate> ParseArmorTemplateReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.ArmorTemplates.GetLazyAssetReferenceByName(name);
+        }
+
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
         {
             var result = new List<LazyAssetReference<Graphics.Animation.W3DAnimation>>();
