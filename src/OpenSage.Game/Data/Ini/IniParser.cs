@@ -409,7 +409,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.CommandSets.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<UpgradeDefinition> ParseUpgradeReference()
+        public LazyAssetReference<UpgradeTemplate> ParseUpgradeReference()
         {
             var name = ParseAssetReference();
             return _assetStore.Upgrades.GetLazyAssetReferenceByName(name);
