@@ -7,7 +7,8 @@ namespace OpenSage.Logic.Object
     public abstract class BodyModule : BehaviorModule
     {
         // TODO: This could use a smaller fixed point type.
-        public decimal Health { get; protected set; }
+        // TODO: This shouldn't be publicly settable.
+        public decimal Health { get; set; }
 
         public abstract decimal MaxHealth { get; }
 
