@@ -65,21 +65,5 @@ namespace OpenSage.Graphics
             return new ModelInstance(this, loadContext);
         }
 
-        [DebuggerDisplay("ModelSubOject '{Name}'")]
-        public sealed class ModelSubObject
-        {
-            public readonly string Name;
-            public readonly ModelBone Bone;
-            public readonly ModelMesh RenderObject;
-
-            internal ModelSubObject(string name, ModelBone bone, ModelMesh renderObject)
-            {
-                Name = name;
-                Bone = bone;
-                RenderObject = renderObject;
-            }
-
-        }
-
     }
 }
