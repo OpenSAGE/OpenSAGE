@@ -432,7 +432,7 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeDefinition> upgradeReference)
+                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");

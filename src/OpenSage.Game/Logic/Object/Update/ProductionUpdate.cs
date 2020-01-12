@@ -135,7 +135,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void GrantUpgrade(UpgradeDefinition upgradeDefinition)
+        private void GrantUpgrade(UpgradeTemplate upgradeDefinition)
         {
             _gameObject.Upgrade(upgradeDefinition);
         }
@@ -186,7 +186,7 @@ namespace OpenSage.Logic.Object
             _productionQueue.Add(job);
         }
 
-        internal void QueueUpgrade(UpgradeDefinition upgradeDefinition)
+        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
         {
             var job = new ProductionJob(upgradeDefinition);
             _productionQueue.Add(job);

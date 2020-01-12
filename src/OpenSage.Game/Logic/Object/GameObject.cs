@@ -129,8 +129,7 @@ namespace OpenSage.Logic.Object
 
         public ProductionUpdate ProductionUpdate { get; }
         public GameObject TargetEnemy { get; }
-        public List<UpgradeDefinition> Upgrades { get; }
-
+        public List<UpgradeTemplate> Upgrades { get; }
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner,
@@ -197,7 +196,7 @@ namespace OpenSage.Logic.Object
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation));
             }
 
-            Upgrades = new List<UpgradeDefinition>();
+            Upgrades = new List<UpgradeTemplate>();
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -471,8 +470,7 @@ namespace OpenSage.Logic.Object
                 ? new Weapon(this, weaponSet)
                 : null;
         }
-        
-        public void Upgrade(UpgradeDefinition upgrade)
+        public void Upgrade(UpgradeTemplate upgrade)
         {
             if (upgrade.AcademyClassify == AcademyType.Superpower)
             {
