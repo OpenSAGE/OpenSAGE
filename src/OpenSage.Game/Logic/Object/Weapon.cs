@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 
@@ -32,9 +33,16 @@ namespace OpenSage.Logic.Object
 
             //TODO: take care of weaponspeed and spawn projectile
 
-            target.Body.DoDamage(
-                _currentWeaponTemplate.DamageType,
-                (Fix64) _currentWeaponTemplate.PrimaryDamage);
+            // TODO: Use nuggets properly.
+            var damageNugget = _currentWeaponTemplate.Nuggets
+                .OfType<DamageNugget>()
+                .FirstOrDefault();
+            if (damageNugget != null)
+            {
+                target.Body.DoDamage(
+                    damageNugget.DamageType,
+                    (Fix64) damageNugget.Damage);
+            }
         }
     }
 }

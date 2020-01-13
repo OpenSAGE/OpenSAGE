@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -17,36 +18,77 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<WeaponTemplate> FieldParseTable = new IniParseTable<WeaponTemplate>
         {
-            { "PrimaryDamage", (parser, x) => x.PrimaryDamage = parser.ParseFloat() },
-            { "PrimaryDamageRadius", (parser, x) => x.PrimaryDamageRadius = parser.ParseFloat() },
+            // Legacy
+            { "PrimaryDamage", (parser, x) => x.SetDamageNuggetDamage(0, parser.ParseFloat()) },
+            { "PrimaryDamageRadius", (parser, x) => x.SetDamageNuggetRadius(0, parser.ParseFloat()) },
+            { "SecondaryDamage", (parser, x) => x.SetDamageNuggetDamage(1, parser.ParseFloat()) },
+            { "SecondaryDamageRadius", (parser, x) => x.SetDamageNuggetRadius(1, parser.ParseFloat()) },
+            {
+                "DamageType",
+                (parser, x) =>
+                {
+                    var damageType = parser.ParseEnum<DamageType>();
+                    foreach (var damageNugget in x.GetDamageNuggets())
+                    {
+                        damageNugget.DamageType = damageType;
+                    }
+                }
+            },
+            {
+                "DamageStatusType",
+                (parser, x) =>
+                {
+                    var damageStatusType = parser.ParseEnum<DamageStatusType>();
+                    foreach (var damageNugget in x.GetDamageNuggets())
+                    {
+                        damageNugget.DamageStatusType = damageStatusType;
+                    }
+                }
+            },
+            {
+                "DeathType",
+                (parser, x) =>
+                {
+                    var deathType = parser.ParseEnum<DeathType>();
+                    foreach (var damageNugget in x.GetDamageNuggets())
+                    {
+                        damageNugget.DeathType = deathType;
+                    }
+                }
+            },
+            { "ProjectileObject", (parser, x) => x.Nuggets.Add(new ProjectileNugget { ProjectileTemplateName = parser.ParseAssetReference() }) },
+            { "ShockWaveAmount", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveAmount = parser.ParseFloat() },
+            { "ShockWaveRadius", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveRadius = parser.ParseFloat() },
+            { "ShockWaveTaperOff", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveTaperOff = parser.ParseFloat() },
+
             { "ScatterRadius", (parser, x) => x.ScatterRadius = parser.ParseFloat() },
             { "ScatterRadiusVsInfantry", (parser, x) => x.ScatterRadiusVsInfantry = parser.ParseFloat() },
             { "ScatterTargetScalar", (parser, x) => x.ScatterTargetScalar = parser.ParseFloat() },
             { "ScatterTarget", (parser, x) => x.ScatterTargets.Add(parser.ParseVector2()) },
-            { "SecondaryDamage", (parser, x) => x.SecondaryDamage = parser.ParseFloat() },
-            { "SecondaryDamageRadius", (parser, x) => x.SecondaryDamageRadius = parser.ParseFloat() },
             { "LeechRangeWeapon", (parser, x) => x.LeechRangeWeapon = parser.ParseBoolean() },
             { "AttackRange", (parser, x) => x.AttackRange = parser.ParseFloat() },
             { "MinimumAttackRange", (parser, x) => x.MinimumAttackRange = parser.ParseFloat() },
             { "MinTargetPitch", (parser, x) => x.MinTargetPitch = parser.ParseInteger() },
             { "MaxTargetPitch", (parser, x) => x.MaxTargetPitch = parser.ParseInteger() },
-            { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
-            { "DamageStatusType", (parser, x) => x.DamageStatusType = parser.ParseEnum<DamageStatusType>() },
-            { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
             { "WeaponSpeed", (parser, x) => x.WeaponSpeed = parser.ParseFloat() },
             { "MinWeaponSpeed", (parser, x) => x.MinWeaponSpeed = parser.ParseFloat() },
+            { "MaxWeaponSpeed", (parser, x) => x.MaxWeaponSpeed = parser.ParseInteger() },
             { "ScaleWeaponSpeed", (parser, x) => x.ScaleWeaponSpeed = parser.ParseBoolean() },
             { "WeaponRecoil", (parser, x) => x.WeaponRecoil = parser.ParseInteger() },
             { "FireFX", (parser, x) => x.FireFX = parser.ParseAssetReference() },
             { "PlayFXWhenStealthed", (parser, x) => x.PlayFXWhenStealthed = parser.ParseBoolean() },
             { "FireOCL", (parser, x) => x.FireOCL = parser.ParseAssetReference() },
             { "VeterancyFireFX", (parser, x) => x.VeterancyFireFX = ParseVeterancyAssetReference(parser) },
+
+            { "ProjectileStreamName", (parser, x) => x.ProjectileStreamName = parser.ParseAssetReference() },
             { "ProjectileDetonationFX", (parser, x) => x.ProjectileDetonationFX = parser.ParseAssetReference() },
             { "ProjectileDetonationOCL", (parser, x) => x.ProjectileDetonationOCL = parser.ParseAssetReference() },
-            { "ProjectileObject", (parser, x) => x.ProjectileObject = parser.ParseAssetReference() },
             { "ProjectileExhaust", (parser, x) => x.ProjectileExhaust = parser.ParseAssetReference() },
             { "VeterancyProjectileExhaust", (parser, x) => x.VeterancyProjectileExhaust = ParseVeterancyAssetReference(parser) },
-            { "ProjectileStreamName", (parser, x) => x.ProjectileStreamName = parser.ParseAssetReference() },
+            { "ProjectileFilterInContainer", (parser, x) => x.ProjectileFilterInContainer = ObjectFilter.Parse(parser) },
+            { "ProjectileSelf", (parser, x) => x.ProjectileSelf = parser.ParseBoolean() },
+            { "ProjectileCollidesWith", (parser, x) => x.ProjectileCollidesWith = parser.ParseEnumFlags<WeaponCollideTypes>() },
+
             { "FireSound", (parser, x) => x.FireSound = parser.ParseAssetReference() },
             { "FireSoundLoopTime", (parser, x) => x.FireSoundLoopTime = parser.ParseInteger() },
             { "SuspendFXDelay", (parser, x) => x.SuspendFXDelay = parser.ParseInteger() },
@@ -64,13 +106,48 @@ namespace OpenSage.Logic.Object
             { "PreAttackType", (parser, x) => x.PreAttackType = parser.ParseEnum<WeaponPrefireType>() },
             { "ContinueAttackRange", (parser, x) => x.ContinueAttackRange = parser.ParseInteger() },
             { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseFloat() },
-            { "AntiSmallMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiSmallMissile, parser.ParseBoolean()) },
-            { "AntiProjectile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiProjectile, parser.ParseBoolean()) },
-            { "AntiAirborneVehicle", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneVehicle, parser.ParseBoolean()) },
-            { "AntiAirborneInfantry", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneInfantry, parser.ParseBoolean()) },
-            { "AntiGround", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiGround, parser.ParseBoolean()) },
-            { "AntiBallisticMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiBallisticMissile, parser.ParseBoolean()) },
-            { "AntiMine", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiMine, parser.ParseBoolean()) },
+            { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
+            { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
+            { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
+            { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() },
+            { "HitStoredTarget", (parser, x) => x.HitStoredTarget = parser.ParseBoolean() },
+            { "PreferredTargetBone", (parser, x) => x.PreferredTargetBone = parser.ParseAssetReference() },
+            { "MeleeWeapon", (parser, x) => x.MeleeWeapon = parser.ParseBoolean() },
+            { "IdleAfterFiringDelay", (parser, x) => x.IdleAfterFiringDelay = parser.ParseInteger() },
+            { "HitPassengerPercentage", (parser, x) => x.HitPassengerPercentage = parser.ParsePercentage() },
+            { "CanBeDodged", (parser, x) => x.CanBeDodged = parser.ParseBoolean() },
+            { "OverrideVoiceAttackSound", (parser, x) => x.OverrideVoiceAttackSound = parser.ParseAssetReference() },
+            { "NoVictimNeeded", (parser, x) => x.NoVictimNeeded = parser.ParseBoolean() },
+            { "CanFireWhileMoving", (parser, x) => x.CanFireWhileMoving = parser.ParseBoolean() },
+            { "RequireFollowThru", (parser, x) => x.RequireFollowThru = parser.ParseBoolean() },
+            { "ScatterIndependently", (parser, x) => x.ScatterIndependently = parser.ParseBoolean() },
+            { "PreAttackFX", (parser, x) => x.PreAttackFX = parser.ParseAssetReference() },
+            { "AimDirection", (parser, x) => x.AimDirection = parser.ParseFloat() },
+            { "HoldAfterFiringDelay", (parser, x) => x.HoldAfterFiringDelay = parser.ParseInteger() },
+            { "FinishAttackOnceStarted", (parser, x) => x.FinishAttackOnceStarted = parser.ParseBoolean() },
+            { "ShareTimers", (parser, x) => x.ShareTimers = parser.ParseBoolean() },
+            { "DisableScatterForTargetsOnWall", (parser, x) => x.DisableScatterForTargetsOnWall = parser.ParseBoolean() },
+            { "ShouldPlayUnderAttackEvaEvent", (parser, x) => x.ShouldPlayUnderAttackEvaEvent = parser.ParseBoolean() },
+            { "CanSwoop", (parser, x) => x.CanSwoop = parser.ParseBoolean() },
+            { "PassengerProportionalAttack", (parser, x) => x.PassengerProportionalAttack = parser.ParseBoolean() },
+            { "MaxAttackPassengers", (parser, x) => x.MaxAttackPassengers = parser.ParseInteger() },
+            { "ChaseWeapon", (parser, x) => x.ChaseWeapon = parser.ParseBoolean() },
+            { "CanFireWhileCharging", (parser, x) => x.CanFireWhileCharging = parser.ParseBoolean() },
+            { "IgnoreLinearFirstTarget", (parser, x) => x.IgnoreLinearFirstTarget = parser.ParseBoolean() },
+            { "LinearTarget", (parser, x) => x.LinearTargets.Add(LinearTarget.Parse(parser)) },
+            { "ForceDisplayPercentReady", (parser, x) => x.ForceDisplayPercentReady = parser.ParseBoolean() },
+            { "RotatingTurret", (parser, x) => x.RotatingTurret = parser.ParseBoolean() },
+            { "RangeBonusMinHeight", (parser, x) => x.RangeBonusMinHeight = parser.ParseInteger() },
+            { "RangeBonus", (parser, x) => x.RangeBonus = parser.ParseInteger() },
+            { "RangeBonusPerFoot", (parser, x) => x.RangeBonusPerFoot = parser.ParseInteger() },
+            { "FireFlankFX", (parser, x) => x.FireFlankFX = parser.ParseAssetReference() },
+            { "InstantLoadClipOnActivate", (parser, x) => x.InstantLoadClipOnActivate = parser.ParseBoolean() },
+            { "BombardType", (parser, x) => x.BombardType = parser.ParseBoolean() },
+            { "OverrideVoiceEnterStateAttackSound", (parser, x) => x.OverrideVoiceEnterStateAttackSound = parser.ParseAssetReference() },
+            { "HoldDuringReload", (parser, x) => x.HoldDuringReload = parser.ParseBoolean() },
+            { "LockWhenUsing", (parser, x) => x.LockWhenUsing = parser.ParseBoolean() },
+            { "UseInnateAttributes", (parser, x) => x.UseInnateAttributes = parser.ParseBoolean() },
+            { "AntiMask", (parser, x) => x.AntiMask = parser.ParseEnumFlags<WeaponAntiFlags>() },
             { "ShowsAmmoPips", (parser, x) => x.ShowsAmmoPips = parser.ParseBoolean() },
             { "LaserName", (parser, x) => x.LaserName = parser.ParseAssetReference() },
             { "LaserBoneName", (parser, x) => x.LaserBoneName = parser.ParseBoneName() },
@@ -79,85 +156,45 @@ namespace OpenSage.Logic.Object
             { "AllowAttackGarrisonedBldgs", (parser, x) => x.AllowAttackGarrisonedBldgs = parser.ParseBoolean() },
             { "CapableOfFollowingWaypoints", (parser, x) => x.CapableOfFollowingWaypoints = parser.ParseBoolean() },
             { "WeaponBonus", (parser, x) => x.WeaponBonuses.Parse(parser) },
-            { "ProjectileCollidesWith", (parser, x) => x.ProjectileCollidesWith = parser.ParseEnumFlags<WeaponCollideTypes>() },
             { "HistoricBonusTime", (parser, x) => x.HistoricBonusTime = parser.ParseInteger() },
             { "HistoricBonusCount", (parser, x) => x.HistoricBonusCount = parser.ParseInteger() },
             { "HistoricBonusRadius", (parser, x) => x.HistoricBonusRadius = parser.ParseInteger() },
             { "HistoricBonusWeapon", (parser, x) => x.HistoricBonusWeapon = parser.ParseAssetReference() },
-            { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
-            { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
-            { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
             { "MissileCallsOnDie", (parser, x) => x.MissileCallsOnDie = parser.ParseBoolean() },
             { "FiringDuration", (parser, x) => x.FiringDuration = parser.ParseInteger() },
+
+            // Anti flags
+            { "AntiSmallMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiSmallMissile, parser.ParseBoolean()) },
+            { "AntiProjectile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiProjectile, parser.ParseBoolean()) },
+            { "AntiAirborneVehicle", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneVehicle, parser.ParseBoolean()) },
+            { "AntiAirborneInfantry", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneInfantry, parser.ParseBoolean()) },
+            { "AntiGround", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiGround, parser.ParseBoolean()) },
+            { "AntiBallisticMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiBallisticMissile, parser.ParseBoolean()) },
+            { "AntiMine", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiMine, parser.ParseBoolean()) },
+            { "AntiStructure", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiStructure, parser.ParseBoolean()) },
+            { "AntiAirborneMonster", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneMonster, parser.ParseBoolean()) },
+
+            // Nuggets
             { "ProjectileNugget", (parser, x) => x.Nuggets.Add(ProjectileNugget.Parse(parser)) },
             { "DamageNugget", (parser, x) => x.Nuggets.Add(DamageNugget.Parse(parser)) },
             { "MetaImpactNugget", (parser, x) => x.Nuggets.Add(MetaImpactNugget.Parse(parser)) },
-            { "MaxWeaponSpeed", (parser, x) => x.MaxWeaponSpeed = parser.ParseInteger() },
-            { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
-            { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
-            { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
-            { "AntiAirborneMonster", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneMonster, parser.ParseBoolean()) },
-            { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() },
-
-            { "ClearNuggets", (parser, x) => x.Nuggets.Clear() },
-
             { "SpecialModelConditionNugget", (parser, x) => x.Nuggets.Add(SpecialModelConditionNugget.Parse(parser)) },
             { "ParalyzeNugget", (parser, x) => x.Nuggets.Add(ParalyzeNugget.Parse(parser)) },
-            { "HitStoredTarget", (parser, x) => x.HitStoredTarget = parser.ParseBoolean() },
-            { "PreferredTargetBone", (parser, x) => x.PreferredTargetBone = parser.ParseAssetReference() },
-            { "MeleeWeapon", (parser, x) => x.MeleeWeapon = parser.ParseBoolean() },
-            { "IdleAfterFiringDelay", (parser, x) => x.IdleAfterFiringDelay = parser.ParseInteger() },
-            { "ProjectileSelf", (parser, x) => x.ProjectileSelf = parser.ParseBoolean() },
-            { "HitPassengerPercentage", (parser, x) => x.HitPassengerPercentage = parser.ParsePercentage() },
-            { "CanBeDodged", (parser, x) => x.CanBeDodged = parser.ParseBoolean() },
-            { "OverrideVoiceAttackSound", (parser, x) => x.OverrideVoiceAttackSound = parser.ParseAssetReference() },
-            { "ProjectileFilterInContainer", (parser, x) => x.ProjectileFilterInContainer = ObjectFilter.Parse(parser) },
-            { "NoVictimNeeded", (parser, x) => x.NoVictimNeeded = parser.ParseBoolean() },
-            { "CanFireWhileMoving", (parser, x) => x.CanFireWhileMoving = parser.ParseBoolean() },
-            { "AntiStructure", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiStructure, parser.ParseBoolean()) },
-            { "RequireFollowThru", (parser, x) => x.RequireFollowThru = parser.ParseBoolean() },
-            { "ScatterIndependently", (parser, x) => x.ScatterIndependently = parser.ParseBoolean() },
-            { "PreAttackFX", (parser, x) => x.PreAttackFX = parser.ParseAssetReference() },
-            { "AimDirection", (parser, x) => x.AimDirection = parser.ParseFloat() },
-            { "HoldAfterFiringDelay", (parser, x) => x.HoldAfterFiringDelay = parser.ParseInteger() },
-            { "FinishAttackOnceStarted", (parser, x) => x.FinishAttackOnceStarted = parser.ParseBoolean() },
             { "HordeAttackNugget", (parser, x) => x.Nuggets.Add(HordeAttackNugget.Parse(parser)) },
             { "SpawnAndFadeNugget", (parser, x) => x.Nuggets.Add(SpawnAndFadeNugget.Parse(parser)) },
-            { "ShareTimers", (parser, x) => x.ShareTimers = parser.ParseBoolean() },
-            { "DisableScatterForTargetsOnWall", (parser, x) => x.DisableScatterForTargetsOnWall = parser.ParseBoolean() },
             { "AttributeModifierNugget", (parser, x) => x.Nuggets.Add(AttributeModifierNugget.Parse(parser)) },
-            { "ShouldPlayUnderAttackEvaEvent", (parser, x) => x.ShouldPlayUnderAttackEvaEvent = parser.ParseBoolean() },
-            { "CanSwoop", (parser, x) => x.CanSwoop = parser.ParseBoolean() },
             { "DamageFieldNugget", (parser, x) => x.Nuggets.Add(DamageFieldNugget.Parse(parser)) },
-            { "PassengerProportionalAttack", (parser, x) => x.PassengerProportionalAttack = parser.ParseBoolean() },
-            { "MaxAttackPassengers", (parser, x) => x.MaxAttackPassengers = parser.ParseInteger() },
-            { "ChaseWeapon", (parser, x) => x.ChaseWeapon = parser.ParseBoolean() },
-            { "CanFireWhileCharging", (parser, x) => x.CanFireWhileCharging = parser.ParseBoolean() },
-            { "IgnoreLinearFirstTarget", (parser, x) => x.IgnoreLinearFirstTarget = parser.ParseBoolean() },
-            { "LinearTarget", (parser, x) => x.LinearTargets.Add(LinearTarget.Parse(parser)) },
-            { "ForceDisplayPercentReady", (parser, x) => x.ForceDisplayPercentReady = parser.ParseBoolean() },
             { "GrabNugget", (parser, x) => x.Nuggets.Add(GrabNugget.Parse(parser)) },
-            { "RotatingTurret", (parser, x) => x.RotatingTurret = parser.ParseBoolean() },
-            { "RangeBonusMinHeight", (parser, x) => x.RangeBonusMinHeight = parser.ParseInteger() },
-            { "RangeBonus", (parser, x) => x.RangeBonus = parser.ParseInteger() },
-            { "RangeBonusPerFoot", (parser, x) => x.RangeBonusPerFoot = parser.ParseInteger() },
             { "DOTNugget", (parser, x) => x.Nuggets.Add(DOTNugget.Parse(parser)) },
-            { "FireFlankFX", (parser, x) => x.FireFlankFX = parser.ParseAssetReference() },
-            { "InstantLoadClipOnActivate", (parser, x) => x.InstantLoadClipOnActivate = parser.ParseBoolean() },
-            { "BombardType", (parser, x) => x.BombardType = parser.ParseBoolean() },
-            { "OverrideVoiceEnterStateAttackSound", (parser, x) => x.OverrideVoiceEnterStateAttackSound = parser.ParseAssetReference() },
-            { "HoldDuringReload", (parser, x) => x.HoldDuringReload = parser.ParseBoolean() },
             { "SlaveAttackNugget", (parser, x) => x.Nuggets.Add(SlaveAttackNugget.Parse(parser)) },
             { "FireLogicNugget", (parser, x) => x.Nuggets.Add(FireLogicNugget.Parse(parser)) },
             { "EmotionWeaponNugget", (parser, x) => x.Nuggets.Add(EmotionWeaponNugget.Parse(parser)) },
             { "OpenGateNugget", (parser, x) => x.Nuggets.Add(OpenGateNugget.Parse(parser)) },
             { "WeaponOCLNugget", (parser, x) => x.Nuggets.Add(WeaponOCLNugget.Parse(parser)) },
-            { "LockWhenUsing", (parser, x) => x.LockWhenUsing = parser.ParseBoolean() },
             { "LuaEventNugget", (parser, x) => x.Nuggets.Add(LuaEventNugget.Parse(parser)) },
             { "DamageContainedNugget", (parser, x) => x.Nuggets.Add(DamageContainedNugget.Parse(parser)) },
-            { "UseInnateAttributes", (parser, x) => x.UseInnateAttributes = parser.ParseBoolean() },
             { "StealMoneyNugget", (parser, x) => x.Nuggets.Add(StealMoneyNugget.Parse(parser)) },
-            { "AntiMask", (parser, x) => x.AntiMask = parser.ParseEnumFlags<WeaponAntiFlags>() },
+            { "ClearNuggets", (parser, x) => x.Nuggets.Clear() },
         };
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -171,25 +208,53 @@ namespace OpenSage.Logic.Object
             return parser.ParseAssetReference();
         }
 
-        public float PrimaryDamage { get; private set; }
-        public float PrimaryDamageRadius { get; private set; }
+        private IEnumerable<DamageNugget> GetDamageNuggets()
+        {
+            return Nuggets.OfType<DamageNugget>();
+        }
+
+        private DamageNugget EnsureDammageNugget(int index)
+        {
+            var damageNuggets = GetDamageNuggets().ToList();
+            if (damageNuggets.Count < index + 1)
+            {
+                damageNuggets.Add(new DamageNugget());
+            }
+            return damageNuggets[index];
+        }
+
+        private void SetDamageNuggetDamage(int index, float value)
+        {
+            var damageNugget = EnsureDammageNugget(index);
+            damageNugget.Damage = value;
+        }
+
+        private void SetDamageNuggetRadius(int index, float value)
+        {
+            var damageNugget = EnsureDammageNugget(index);
+            damageNugget.Radius = value;
+        }
+
+        private MetaImpactNugget EnsureMetaImpactNugget()
+        {
+            var metaImpactNugget = Nuggets.OfType<MetaImpactNugget>().FirstOrDefault();
+            if (metaImpactNugget == null)
+            {
+                metaImpactNugget = new MetaImpactNugget();
+            }
+            return metaImpactNugget;
+        }
+
         public float ScatterRadius { get; private set; }
         public float ScatterRadiusVsInfantry { get; private set; }
         public float ScatterTargetScalar { get; private set; }
         public List<Vector2> ScatterTargets { get; } = new List<Vector2>();
-        public float SecondaryDamage { get; private set; }
-        public float SecondaryDamageRadius { get; private set; }
         public bool LeechRangeWeapon { get; private set; }
         public float AttackRange { get; private set; }
         public float MinimumAttackRange { get; private set; }
         public int MinTargetPitch { get; private set; }
         public int MaxTargetPitch { get; private set; }
-        public DamageType DamageType { get; private set; }
 
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public DamageStatusType DamageStatusType { get; private set; }
-
-        public DeathType DeathType { get; private set; }
         public float WeaponSpeed { get; private set; }
         public float MinWeaponSpeed { get; private set; }
         public bool ScaleWeaponSpeed { get; private set; }
@@ -200,7 +265,6 @@ namespace OpenSage.Logic.Object
         public string VeterancyFireFX { get; private set; }
         public string ProjectileDetonationFX { get; private set; }
         public string ProjectileDetonationOCL { get; private set; }
-        public string ProjectileObject { get; private set; }
         public string ProjectileExhaust { get; private set; }
         public string VeterancyProjectileExhaust { get; private set; }
         public string ProjectileStreamName { get; private set; }
@@ -237,15 +301,6 @@ namespace OpenSage.Logic.Object
         public int HistoricBonusCount { get; private set; }
         public int HistoricBonusRadius { get; private set; }
         public string HistoricBonusWeapon { get; private set; }
-
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public float ShockWaveAmount { get; private set; }
-
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public float ShockWaveRadius { get; private set; }
-
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public float ShockWaveTaperOff { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool MissileCallsOnDie { get; private set; }
@@ -466,7 +521,7 @@ namespace OpenSage.Logic.Object
                 { "WeaponLaunchBoneSlotOverride", (parser, x) => x.WeaponLaunchBoneSlotOverride = parser.ParseEnum<WeaponSlot>() }
             });
 
-        public string ProjectileTemplateName { get; private set; }
+        public string ProjectileTemplateName { get; internal set; }
         public string WarheadTemplateName { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
@@ -510,12 +565,19 @@ namespace OpenSage.Logic.Object
                 { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
             });
 
-        public float Damage { get; private set; }
-        public float Radius { get; private set; }
+        public float Damage { get; internal set; }
+        public float Radius { get; internal set; }
         public int DelayTime { get; private set; }
-        public DamageType DamageType { get; private set; }
+        public DamageType DamageType { get; internal set; }
+
+        /// <summary>
+        /// Used when <see cref="DamageType" is <see cref="DamageType.Status"/> />.
+        /// </summary>
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public DamageStatusType DamageStatusType { get; internal set; }
+
         public FxType DamageFxType { get; private set; }
-        public DeathType DeathType { get; private set; }
+        public DeathType DeathType { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
         public float DamageSpeed { get; private set; }
@@ -592,9 +654,9 @@ namespace OpenSage.Logic.Object
             });
 
         public float HeroResist { get; private set; }
-        public float ShockWaveAmount { get; private set; }
-        public float ShockWaveRadius { get; private set; }
-        public float ShockWaveTaperOff { get; private set; }
+        public float ShockWaveAmount { get; internal set; }
+        public float ShockWaveRadius { get; internal set; }
+        public float ShockWaveTaperOff { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
         public float ShockWaveArc { get; private set; }
