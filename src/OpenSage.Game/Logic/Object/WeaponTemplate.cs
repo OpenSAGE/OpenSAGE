@@ -851,55 +851,19 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public class DOTNugget : WeaponEffectNugget
+    public class DOTNugget : DamageNugget
     {
-        internal static DOTNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new DOTNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<DOTNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
+        private static new readonly IniParseTable<DOTNugget> FieldParseTable = DamageNugget.FieldParseTable
             .Concat(new IniParseTable<DOTNugget>
             {
-                { "AcceptDamageAdd", (parser, x) => x.AcceptDamageAdd = parser.ParseBoolean() },
-                { "Damage", (parser, x) => x.Damage = parser.ParseInteger() },
-                { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
-                { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
-                { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
-                { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
-                { "DamageFXType", (parser, x) => x.DamageFXType = parser.ParseEnum<FxType>() },
-                { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
                 { "DamageInterval", (parser, x) => x.DamageInterval = parser.ParseInteger() },
                 { "DamageDuration", (parser, x) => x.DamageDuration = parser.ParseInteger() },
-                { "DamageSubType", (parser, x) => x.DamageSubType = parser.ParseEnum<DamageType>() },
-                { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
-                { "DrainLife", (parser, x) => x.DrainLife = parser.ParseBoolean() },
-                { "DrainLifeMultiplier", (parser, x) => x.DrainLifeMultiplier = parser.ParseFloat() },
-                { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() }
             });
 
-        public bool AcceptDamageAdd { get; private set; }
-        public int Damage { get; private set; }
-        public DamageScalar DamageScalar { get; private set; }
-        public float Radius { get; private set; }
-        public int DelayTime { get; private set; }
-        public DamageType DamageType { get; private set; }
-        public FxType DamageFXType { get; private set; }
-        public DeathType DeathType { get; private set; }
         public int DamageInterval { get; private set; }
         public int DamageDuration { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public DamageType DamageSubType { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public int DamageArc { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public bool DrainLife { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public float DrainLifeMultiplier { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public int DamageMaxHeightAboveTerrain { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
