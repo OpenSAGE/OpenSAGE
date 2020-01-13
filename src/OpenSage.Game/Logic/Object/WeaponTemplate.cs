@@ -64,13 +64,13 @@ namespace OpenSage.Logic.Object
             { "PreAttackType", (parser, x) => x.PreAttackType = parser.ParseEnum<WeaponPrefireType>() },
             { "ContinueAttackRange", (parser, x) => x.ContinueAttackRange = parser.ParseInteger() },
             { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseFloat() },
-            { "AntiSmallMissile", (parser, x) => x.AntiSmallMissile = parser.ParseBoolean() },
-            { "AntiProjectile", (parser, x) => x.AntiProjectile = parser.ParseBoolean() },
-            { "AntiAirborneVehicle", (parser, x) => x.AntiAirborneVehicle = parser.ParseBoolean() },
-            { "AntiAirborneInfantry", (parser, x) => x.AntiAirborneInfantry = parser.ParseBoolean() },
-            { "AntiGround", (parser, x) => x.AntiGround = parser.ParseBoolean() },
-            { "AntiBallisticMissile", (parser, x) => x.AntiBallisticMissile = parser.ParseBoolean() },
-            { "AntiMine", (parser, x) => x.AntiMine = parser.ParseBoolean() },
+            { "AntiSmallMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiSmallMissile, parser.ParseBoolean()) },
+            { "AntiProjectile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiProjectile, parser.ParseBoolean()) },
+            { "AntiAirborneVehicle", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneVehicle, parser.ParseBoolean()) },
+            { "AntiAirborneInfantry", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneInfantry, parser.ParseBoolean()) },
+            { "AntiGround", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiGround, parser.ParseBoolean()) },
+            { "AntiBallisticMissile", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiBallisticMissile, parser.ParseBoolean()) },
+            { "AntiMine", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiMine, parser.ParseBoolean()) },
             { "ShowsAmmoPips", (parser, x) => x.ShowsAmmoPips = parser.ParseBoolean() },
             { "LaserName", (parser, x) => x.LaserName = parser.ParseAssetReference() },
             { "LaserBoneName", (parser, x) => x.LaserBoneName = parser.ParseBoneName() },
@@ -96,7 +96,7 @@ namespace OpenSage.Logic.Object
             { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
             { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
             { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
-            { "AntiAirborneMonster", (parser, x) => x.AntiAirborneMonster = parser.ParseBoolean() },
+            { "AntiAirborneMonster", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneMonster, parser.ParseBoolean()) },
             { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() },
 
             { "ClearNuggets", (parser, x) => x.Nuggets.Clear() },
@@ -114,7 +114,7 @@ namespace OpenSage.Logic.Object
             { "ProjectileFilterInContainer", (parser, x) => x.ProjectileFilterInContainer = ObjectFilter.Parse(parser) },
             { "NoVictimNeeded", (parser, x) => x.NoVictimNeeded = parser.ParseBoolean() },
             { "CanFireWhileMoving", (parser, x) => x.CanFireWhileMoving = parser.ParseBoolean() },
-            { "AntiStructure", (parser, x) => x.AntiStructure = parser.ParseBoolean() },
+            { "AntiStructure", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiStructure, parser.ParseBoolean()) },
             { "RequireFollowThru", (parser, x) => x.RequireFollowThru = parser.ParseBoolean() },
             { "ScatterIndependently", (parser, x) => x.ScatterIndependently = parser.ParseBoolean() },
             { "PreAttackFX", (parser, x) => x.PreAttackFX = parser.ParseAssetReference() },
@@ -156,7 +156,8 @@ namespace OpenSage.Logic.Object
             { "LuaEventNugget", (parser, x) => x.Nuggets.Add(LuaEventNugget.Parse(parser)) },
             { "DamageContainedNugget", (parser, x) => x.Nuggets.Add(DamageContainedNugget.Parse(parser)) },
             { "UseInnateAttributes", (parser, x) => x.UseInnateAttributes = parser.ParseBoolean() },
-            { "StealMoneyNugget", (parser, x) => x.Nuggets.Add(StealMoneyNugget.Parse(parser)) }
+            { "StealMoneyNugget", (parser, x) => x.Nuggets.Add(StealMoneyNugget.Parse(parser)) },
+            { "AntiMask", (parser, x) => x.AntiMask = parser.ParseEnumFlags<WeaponAntiFlags>() },
         };
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -220,13 +221,6 @@ namespace OpenSage.Logic.Object
         public WeaponPrefireType PreAttackType { get; private set; }
         public int ContinueAttackRange { get; private set; }
         public float AcceptableAimDelta { get; private set; }
-        public bool AntiSmallMissile { get; private set; }
-        public bool AntiProjectile { get; private set; }
-        public bool AntiAirborneVehicle { get; private set; }
-        public bool AntiAirborneInfantry { get; private set; }
-        public bool AntiGround { get; private set; } = true;
-        public bool AntiBallisticMissile { get; private set; }
-        public bool AntiMine { get; private set; }
         public bool ShowsAmmoPips { get; private set; }
         public string LaserName { get; private set; }
 
@@ -275,9 +269,6 @@ namespace OpenSage.Logic.Object
         public bool IsAimingWeapon { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public bool AntiAirborneMonster { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public ObjectKinds FxTrigger { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -312,9 +303,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool CanFireWhileMoving { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public bool AntiStructure { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool RequireFollowThru { get; private set; }
@@ -399,6 +387,20 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool UseInnateAttributes { get; private set; }
+
+        public WeaponAntiFlags AntiMask { get; private set; } = WeaponAntiFlags.AntiGround;
+
+        private void SetAntiMaskFlag(WeaponAntiFlags flag, bool set)
+        {
+            if (set)
+            {
+                AntiMask |= flag;
+            }
+            else
+            {
+                AntiMask &= ~flag;
+            }
+        }
     }
 
     public struct RangeDuration
@@ -1160,5 +1162,21 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DECREASE_BURN_RATE")]
         DecreaseBurnRate,
+    }
+
+    [Flags]
+    public enum WeaponAntiFlags
+    {
+        None                 = 0,
+        AntiAirborneVehicle  = 1 << 0,
+        AntiGround           = 1 << 1,
+        AntiProjectile       = 1 << 2,
+        AntiSmallMissile     = 1 << 3,
+        AntiMine             = 1 << 4,
+        AntiAirborneInfantry = 1 << 5,
+        AntiBallisticMissile = 1 << 6,
+        AntiParachute        = 1 << 7,
+        AntiStructure        = 1 << 8,
+        AntiAirborneMonster  = 1 << 9,
     }
 }
