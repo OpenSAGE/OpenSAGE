@@ -133,13 +133,13 @@ namespace OpenSage.Logic.Object
         private Locomotor CurrentLocomotor { get; set; }
 
         /// <summary>
-        /// These are the points of the path to the current target.
+        /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
         /// </summary>
         public List<Vector3> TargetPoints { get; set; }
 
         /// <summary>
-        /// These are the waypoints the unit is currently following.
-        /// The path to the next waypoint can contain multiple target points.
+        /// An enumerator of the waypoints if the unit is currently following a waypoint path.
+        /// The path (as in pathfinding) to the next waypoint can contain multiple <see cref="TargetPoints"/>.
         /// </summary>
         private IEnumerator<Vector3> _waypointEnumerator;
 
@@ -388,6 +388,8 @@ namespace OpenSage.Logic.Object
             if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
             {
                 CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
+
+                // this should be moved to LogicTick
                 var distance = Vector2.DistanceSquared(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
                 if (distance < 0.25f)
                 {
@@ -405,6 +407,12 @@ namespace OpenSage.Logic.Object
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
+        /// <summary>
+        /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
+        /// </summary>
+        /// <remarks>
+        /// It might be necessary to select a path randomly (if there are branches), so this method should only
+        /// be called from <see cref="LogicTick"/>.</remarks>
         private void MoveToNextWaypointOrStop()
         {
             if (_waypointEnumerator != null && _waypointEnumerator.MoveNext())

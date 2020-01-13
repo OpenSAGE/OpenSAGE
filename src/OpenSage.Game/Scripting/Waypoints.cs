@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +8,7 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Scripting
 {
-    public sealed class WaypointCollection
+    public sealed class WaypointCollection  
     {
         private readonly Dictionary<uint, Waypoint> _waypointsByID;
         private readonly Dictionary<string, Waypoint> _waypointsByName;
@@ -112,6 +111,13 @@ namespace OpenSage.Scripting
         public IReadOnlyList<Waypoint> ConnectedWaypoints =>
             (IReadOnlyList<Waypoint>) _connectedWaypoints ?? Array.Empty<Waypoint>();
 
+        /// <summary>
+        /// Follows a waypoint path starting with this waypoint.
+        /// A path can contain branches and loops, which means that
+        /// a) we need a random number generator to pick a path when there is more than one and
+        /// b) the returned enumerable is potentially infinite, so avoid materializing it by
+        /// calling <see cref="Enumerable.ToList"/> and co.
+        /// </summary>
         public IEnumerable<Vector3> FollowPath(Random random)
         {
             var currentWaypoint = this;
