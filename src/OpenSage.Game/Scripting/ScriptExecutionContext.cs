@@ -2,17 +2,17 @@
 {
     public sealed class ScriptExecutionContext
     {
-        public Game Game { get; }
+        private Game _game;
 
-        public ScriptingSystem Scripting => Game.Scripting;
+        public ScriptingSystem Scripting => _game.Scripting;
 
-        public TimeInterval UpdateTime => Game.MapTime;
+        public TimeInterval UpdateTime => _game.MapTime;
 
-        public Scene3D Scene => Game.Scene3D;
+        public Scene3D Scene => _game.Scene3D;
 
         public ScriptExecutionContext(Game game)
         {
-            Game = game;
+            _game = game;
         }
     }
 }
