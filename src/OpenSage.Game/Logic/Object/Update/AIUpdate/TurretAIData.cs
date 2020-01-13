@@ -87,4 +87,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int TurretMaxDeflectionACW { get; private set; }
     }
+
+    public sealed class TurretAITargetChooserData : BaseAITargetChooserData
+    {
+
+    }
 }
