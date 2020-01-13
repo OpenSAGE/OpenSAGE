@@ -152,11 +152,15 @@ namespace OpenSage.Scripting.Actions
             if (_animation == null)
             {
                 // TODO: Avoid allocating this list?
-                // TODO: Does the real engine start the animation from the current position? 
-                var pathWithCurrentPos = _path.Prepend(context.Scene.CameraController.TerrainPosition);
+                // TODO: Does the real engine start the animation from the current position?
+
+                // Calling .ToList() here is dangerous, as a path could contain a loop,
+                // but it shouldn't happen for camera paths (the original ZH freezes as well
+                // when you try this).
+                var pathWithCurrentPos = _path.Prepend(context.Scene.CameraController.TerrainPosition).ToList();
 
                 _animation = context.Scene.CameraController.StartAnimation(
-                    pathWithCurrentPos.ToList(),
+                    pathWithCurrentPos,
                     context.UpdateTime.TotalTime, _totalDuration);
             }
 

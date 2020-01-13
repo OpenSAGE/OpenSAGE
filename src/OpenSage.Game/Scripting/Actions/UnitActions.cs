@@ -58,7 +58,7 @@ namespace OpenSage.Scripting.Actions
             var nearestWaypoint = waypoints.MinByOrDefault(w => Vector3.DistanceSquared(unit.Transform.Translation, w.Position));
             if (nearestWaypoint != null)
             {
-                var positions = nearestWaypoint.FollowPath(context.Game.Scene3D.Random);
+                var positions = nearestWaypoint.FollowPath(context.Scene.Random);
                 unit.FollowWaypoints(positions);
             }
 
