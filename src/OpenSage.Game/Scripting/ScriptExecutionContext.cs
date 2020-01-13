@@ -2,7 +2,7 @@
 {
     public sealed class ScriptExecutionContext
     {
-        private Game _game;
+        private readonly Game _game;
 
         public ScriptingSystem Scripting => _game.Scripting;
 
