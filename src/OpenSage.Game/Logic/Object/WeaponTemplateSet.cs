@@ -23,14 +23,14 @@ namespace OpenSage.Logic.Object
             { "OnlyAgainst", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.PreferredAgainst = parser.ParseEnumBitArray<ObjectKinds>()) },
             { "OnlyInCondition", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.OnlyInCondition = parser.ParseEnumBitArray<ModelConditionFlag>()) },
             { "ReadyStatusSharedWithinSet", (parser, x) => x.ReadyStatusSharedWithinSet = parser.ParseBoolean() },
-            { "DefaultWeaponChoiceCritera", (parser, x) => x.DefaultWeaponChoiceCritera  = parser.ParseEnum<WeaponChoiceCritera>() }
+            { "DefaultWeaponChoiceCritera", (parser, x) => x.DefaultWeaponChoiceCriteria = parser.ParseEnum<WeaponChoiceCriteria>() }
         };
 
         public BitArray<WeaponSetConditions> Conditions { get; private set; }
         public Dictionary<WeaponSlot, WeaponSetSlot> Slots { get; } = new Dictionary<WeaponSlot, WeaponSetSlot>();
         public bool ShareWeaponReloadTime { get; private set; }
         public bool WeaponLockSharedAcrossSets { get; private set; }
-        public WeaponChoiceCritera DefaultWeaponChoiceCritera  { get; private set; }
+        public WeaponChoiceCriteria DefaultWeaponChoiceCriteria { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool ReadyStatusSharedWithinSet { get; private set; }
@@ -49,12 +49,18 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public enum WeaponChoiceCritera
+    public enum WeaponChoiceCriteria
     {
-        [IniEnum("SELECT_AT_RANDOM")]
-        SelectAtRandom,
+        PreferMostDamage,
+        PreferLongestDamage,
+        PreferGrabOverDamage,
 
         [IniEnum("PREFER_LEAST_MOVEMENT")]
         PreferLeastMovement,
+
+        [IniEnum("SELECT_AT_RANDOM")]
+        SelectAtRandom,
+
+        UseWeaponSetDefaultCriteria,
     }
 }

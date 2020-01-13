@@ -118,4 +118,14 @@ namespace OpenSage.Logic.Object
         [IniEnum("Stealthed")]
         Stealthed,
     }
+
+    public abstract class BaseAITargetChooserData
+    {
+
+    }
+
+    public sealed class UnitAITargetChooserData : BaseAITargetChooserData
+    {
+
+    }
 }
