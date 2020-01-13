@@ -166,7 +166,11 @@ namespace OpenSage.Logic.Object
         public GameObjectCollection Parent { get; private set; }
 
         public ProductionUpdate ProductionUpdate { get; }
-        public GameObject TargetEnemy { get; }
+
+        // TODO: Move these to somewhere else, probably TargetChooser.
+        public GameObject TargetEnemy { get; internal set; }
+        public Vector3 TargetEnemyPosition { get; internal set; }
+
         public List<UpgradeTemplate> Upgrades { get; }
 
         // TODO

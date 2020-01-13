@@ -73,7 +73,7 @@ namespace OpenSage.Logic
             return result;
         }
 
-        public void OnRightClick()
+        public void OnRightClick(bool ctrlDown)
         {
             if (!_worldPosition.HasValue)
             {
@@ -90,13 +90,25 @@ namespace OpenSage.Logic
             }
             else if (Game.Scene3D.LocalPlayer.SelectedUnits.Count > 0)
             {
-                // TODO: Check whether at least one of the selected units can actually be moved.
+                // TODO: Use ini files for this, don't hardcode it.
+                if (ctrlDown)
+                {
+                    // TODO: Check whether clicked point is an object, or empty ground.
+                    var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+                    //unit.OnLocalMove(Game.Audio);
 
-                // We choose the sound based on the most-recently-selected unit.
-                var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
-                unit.OnLocalMove(Game.Audio);
+                    order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                }
+                else
+                {
+                    // TODO: Check whether at least one of the selected units can actually be moved.
 
-                order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                    // We choose the sound based on the most-recently-selected unit.
+                    var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+                    unit.OnLocalMove(Game.Audio);
+
+                    order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                }
             }
 
             if (order != null)
