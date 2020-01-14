@@ -11,7 +11,6 @@ namespace OpenSage.Graphics
     [DebuggerDisplay("Model '{Name}'")]
     public sealed class Model : BaseAsset
     {
-
         internal static Model ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
             var hierarchy = imports.GetImportedData<ModelBoneHierarchy>(reader).Value;
@@ -51,7 +50,6 @@ namespace OpenSage.Graphics
             SetNameAndInstanceId(asset);
         }
 
-
         private Model(
             ModelBoneHierarchy boneHierarchy,
             ModelSubObject[] subObjects)
@@ -64,6 +62,5 @@ namespace OpenSage.Graphics
         {
             return new ModelInstance(this, loadContext);
         }
-
     }
 }
