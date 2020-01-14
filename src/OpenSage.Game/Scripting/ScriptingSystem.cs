@@ -83,7 +83,7 @@ namespace OpenSage.Scripting
                 var script = _playerScripts[i].FindScript(name);
                 if (script != null)
                 {
-                   return null;
+                   return script;
                 }
             }
 
