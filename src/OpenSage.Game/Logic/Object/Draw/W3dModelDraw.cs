@@ -412,13 +412,11 @@ namespace OpenSage.Logic.Object
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
-
             _modelInstance.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
                 renderItemConstantsPS);
-
         }
     }
 
