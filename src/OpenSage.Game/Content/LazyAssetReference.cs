@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace OpenSage.Content
 {
+    [DebuggerDisplay("Value: {Value}")]
     public sealed class LazyAssetReference<T>
         where T : class
     {
