@@ -67,6 +67,7 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.ParticleSystems);
                         SubsystemLoader.Load(Subsystem.ObjectCreation);
                         SubsystemLoader.Load(Subsystem.Locomotors);
+                        SubsystemLoader.Load(Subsystem.Weapons);
                         SubsystemLoader.Load(Subsystem.Multiplayer);
                         SubsystemLoader.Load(Subsystem.LinearCampaign);
                         SubsystemLoader.Load(Subsystem.Wnd);

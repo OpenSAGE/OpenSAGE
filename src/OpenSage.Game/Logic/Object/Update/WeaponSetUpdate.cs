@@ -4,28 +4,50 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSetUpdateModuleData : UpdateModuleData
+    public sealed class WeaponSetUpdate : UpdateModule
     {
-        public List<WeaponSlotHardpoint> WeaponSlotHardpoints { get; } = new List<WeaponSlotHardpoint>();
-        public List<WeaponSlotTurret> WeaponSlotTurrets { get; } = new List<WeaponSlotTurret>();
-        public List<WeaponSlotHierarchicalTurret> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurret>();
+        private readonly GameObject _gameObject;
+        private readonly WeaponSetUpdateModuleData _moduleData;
+
+        internal WeaponSetUpdate(GameObject gameObject, WeaponSetUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(in TimeInterval time)
+        {
+            
+        }
     }
 
-    public class WeaponSlotHardpoint
+    public sealed class WeaponSetUpdateModuleData : UpdateModuleData
     {
-        public uint ID { get; private set; }
+        public List<WeaponSlotHardpointData> WeaponSlotHardpoints { get; } = new List<WeaponSlotHardpointData>();
+        public List<WeaponSlotTurretData> WeaponSlotTurrets { get; } = new List<WeaponSlotTurretData>();
+        public List<WeaponSlotHierarchicalTurretData> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurretData>();
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new WeaponSetUpdate(gameObject, this);
+        }
+    }
+
+    public class WeaponSlotHardpointData
+    {
+        public uint ID { get; internal set; }
         public bool AllowInterleavedFiring { get; private set; }
         public WeaponSlotInterleavedStyle InterleavedStyle { get; private set; }
-        public WeaponChoiceCriteria WeaponChoiceCriteria { get; private set; }
+        public WeaponChoiceCriteria WeaponChoiceCriteria { get; internal set; }
         public List<WeaponSlotWeaponData> Weapons { get; } = new List<WeaponSlotWeaponData>();
     }
 
-    public class WeaponSlotTurret : WeaponSlotHardpoint
+    public class WeaponSlotTurretData : WeaponSlotHardpointData
     {
-        public TurretAIData TurretSettings { get; private set; }
+        public TurretAIData TurretSettings { get; internal set; }
     }
 
-    public sealed class WeaponSlotHierarchicalTurret : WeaponSlotTurret
+    public sealed class WeaponSlotHierarchicalTurretData : WeaponSlotTurretData
     {
         public uint ParentID { get; private set; }
     }
@@ -38,8 +60,8 @@ namespace OpenSage.Logic.Object
 
     public sealed class WeaponSlotWeaponData
     {
-        public WeaponSlot Ordering { get; private set; }
-        public LazyAssetReference<WeaponTemplate> Template { get; private set; }
+        public WeaponSlot Ordering { get; internal set; }
+        public LazyAssetReference<WeaponTemplate> Template { get; internal set; }
         public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
         public BitArray<ObjectStatus> ObjectStatus { get; private set; }
         public bool IsPlayerUpgradePermanent { get; private set; }

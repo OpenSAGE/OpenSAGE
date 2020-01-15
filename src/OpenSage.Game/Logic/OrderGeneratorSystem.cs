@@ -80,21 +80,36 @@ namespace OpenSage.Logic
                 return;
             }
 
+            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
+            {
+                return;
+            }
+
+            var canSetRallyPoint = false;
+            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
+            {
+                if (unit.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
+                {
+                    canSetRallyPoint = true;
+                    break;
+                }
+            }
+
             Order order = null;
 
-            if (StructuresSelected())
+            if (canSetRallyPoint)
             {
                 var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
                 var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
                 order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
             }
-            else if (Game.Scene3D.LocalPlayer.SelectedUnits.Count > 0)
+            else
             {
                 // TODO: Use ini files for this, don't hardcode it.
                 if (ctrlDown)
                 {
                     // TODO: Check whether clicked point is an object, or empty ground.
-                    var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+                    //var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
                     //unit.OnLocalMove(Game.Audio);
 
                     order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);

@@ -55,6 +55,10 @@ namespace OpenSage.Content
                     LoadFiles(
                         @"Data\INI\Locomotor.ini");
                     break;
+                case Subsystem.Weapons:
+                    LoadFiles(
+                        @"Data\INI\Weapon.ini");
+                    break;
                 case Subsystem.Players:
                     LoadFiles(
                         @"Data\INI\Default\PlayerTemplate.ini",
@@ -264,6 +268,18 @@ namespace OpenSage.Content
                         case SageGame.Cnc3:
                         case SageGame.Cnc3KanesWrath:
                             yield return "TheLocomotorStore";
+                            yield break;
+                    }
+                    break;
+                case Subsystem.Weapons:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                        case SageGame.Cnc3:
+                        case SageGame.Cnc3KanesWrath:
+                            yield return "TheWeaponStore";
                             yield break;
                     }
                     break;
