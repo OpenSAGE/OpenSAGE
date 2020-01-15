@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -106,60 +107,6 @@ namespace OpenSage.Logic.Object
         [IniEnum("TURRET_ROTATE")]
         TurretRotate,
 
-        [IniEnum("FIRING_A")]
-        FiringA,
-
-        [IniEnum("BETWEEN_FIRING_SHOTS_A")]
-        BetweenShotsFiringA,
-
-        [IniEnum("RELOADING_A")]
-        ReloadingA,
-
-        [IniEnum("PREATTACK_A")]
-        PreAttackA,
-
-        [IniEnum("FIRING_B")]
-        FiringB,
-
-        [IniEnum("BETWEEN_FIRING_SHOTS_B")]
-        BetweenShotsFiringB,
-
-        [IniEnum("RELOADING_B")]
-        ReloadingB,
-
-        [IniEnum("PREATTACK_B")]
-        PreAttackB,
-
-        [IniEnum("FIRING_C")]
-        FiringC,
-
-        [IniEnum("BETWEEN_FIRING_SHOTS_C")]
-        BetweenShotsFiringC,
-
-        [IniEnum("RELOADING_C")]
-        ReloadingC,
-
-        [IniEnum("PREATTACK_C")]
-        PreAttackC,
-
-        [IniEnum("FIRING_PRIMARY")]
-        FiringPrimary,
-
-        [IniEnum("FIRING_SECONDARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
-        FiringSecondary,
-
-        [IniEnum("FIRING_TERTIARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
-        FiringTertiary,
-
-        [IniEnum("USING_WEAPON_A")]
-        UsingWeaponA,
-
-        [IniEnum("USING_WEAPON_B")]
-        UsingWeaponB,
-
-        [IniEnum("USING_WEAPON_C"), AddedIn(SageGame.CncGeneralsZeroHour)]
-        UsingWeaponC,
-
         [IniEnum("FREEFALL")]
         FreeFall,
 
@@ -240,18 +187,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("RAPPELLING")]
         Rappelling,
-
-        [IniEnum("IS_FIRING_WEAPON")]
-        IsFiringWeapon,
-
-        [IniEnum("WEAPONSET_PLAYER_UPGRADE")]
-        WeaponSetPlayerUpgrade,
-
-        [IniEnum("WEAPONSET_CRATEUPGRADE_ONE")]
-        WeaponSetCrateUpgradeOne,
-
-        [IniEnum("WEAPONSET_CRATEUPGRADE_TWO")]
-        WeaponSetCrateUpgradeTwo,
 
         [IniEnum("JETEXHAUST")]
         JetExhaust,
@@ -361,14 +296,8 @@ namespace OpenSage.Logic.Object
         [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.Bfme)]
         EmotionAfraid,
 
-        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
-        WeaponSetToggle1,
-
         [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
         Mounted,
-
-        [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.Bfme)]
-        WeaponLockSecondary,
 
         [IniEnum("EMOTION_TAUNTING"), AddedIn(SageGame.Bfme)]
         EmotionTaunting,
@@ -405,9 +334,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("STUNNED_FLAILING"), AddedIn(SageGame.Bfme)]
         StunnedFlailing,
-
-        [IniEnum("FIRING_OR_PREATTACK_A"), AddedIn(SageGame.Bfme)]
-        FiringOrPreAttackA,
 
         [IniEnum("THROWN_PROJECTILE"), AddedIn(SageGame.Bfme)]
         ThrownProjectile,
@@ -472,12 +398,6 @@ namespace OpenSage.Logic.Object
         [IniEnum("SELECTED"), AddedIn(SageGame.Bfme)]
         Selected,
 
-        [IniEnum("WEAPONLOCK_PRIMARY"), AddedIn(SageGame.Bfme)]
-        WeaponLockPrimary,
-
-        [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
-        FiringOrPreattackB,
-
         [IniEnum("PACKING_TYPE_1"), AddedIn(SageGame.Bfme)]
         PackingType1,
 
@@ -492,15 +412,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("BURNT_MODEL"), AddedIn(SageGame.Bfme)]
         BurntModel,
-
-        [IniEnum("WEAPONSTATE_ONE"), AddedIn(SageGame.Bfme)]
-        WeaponstateOne,
-
-        [IniEnum("WEAPONSTATE_TWO"), AddedIn(SageGame.Bfme)]
-        WeaponstateTwo,
-
-        [IniEnum("FIRING_OR_PREATTACK_C"), AddedIn(SageGame.Bfme)]
-        FiringOrPreattackC,
 
         [IniEnum("PASSENGER_VARIATION_1"), AddedIn(SageGame.Bfme)]
         PassengerVariation1,
@@ -531,9 +442,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("REACT_5"), AddedIn(SageGame.Bfme)]
         React5,
-
-        [IniEnum("WEAPONSTATE_CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
-        WeaponstateCloseRange,
 
         [IniEnum("AIM_HIGH"), AddedIn(SageGame.Bfme)]
         AimHigh,
@@ -573,9 +481,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("TURN_RIGHT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
         TurnRightHighSpeed,
-
-        [IniEnum("WEAPONSET_RAMPAGE"), AddedIn(SageGame.Bfme)]
-        WeaponsetRampage,
 
         [IniEnum("CHARGING"), AddedIn(SageGame.Bfme)]
         Charging,
@@ -648,9 +553,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPON_TOGGLING"), AddedIn(SageGame.Bfme)]
         WeaponToggling,
-
-        [IniEnum("FIRING_OR_RELOADING_A"), AddedIn(SageGame.Bfme)]
-        FiringOrReloadingA,
 
         [IniEnum("UNCONTROLLABLE"), AddedIn(SageGame.Bfme)]
         Uncontrollable,
@@ -895,9 +797,6 @@ namespace OpenSage.Logic.Object
         [IniEnum("CREATE_A_HERO_65"), AddedIn(SageGame.Bfme2)]
         CreateAHero65,
 
-        [IniEnum("FIRING_ANY"), AddedIn(SageGame.Bfme2)]
-        FiringAny,
-
         [IniEnum("FORTRESS_IMPROVEMENT_1"), AddedIn(SageGame.Bfme2)]
         FortressImprovement1,
 
@@ -946,23 +845,8 @@ namespace OpenSage.Logic.Object
         [IniEnum("PORCUPINE"), AddedIn(SageGame.Bfme2)]
         Porcupine,
 
-        [IniEnum("FIRING_OR_RELOADING_C"), AddedIn(SageGame.Bfme2)]
-        FiringOrReloadingC,
-
         [IniEnum("STONED"), AddedIn(SageGame.Bfme2)]
         Stoned,
-
-        [IniEnum("FIRING_OR_PREATTACK_E"), AddedIn(SageGame.Bfme2)]
-        FiringOrPreattackE,
-
-        [IniEnum("SWAPPING_TO_WEAPONSET_1"), AddedIn(SageGame.Bfme2)]
-        SwappingToWeaponset1,
-
-        [IniEnum("PREATTACK_E"), AddedIn(SageGame.Bfme2)]
-        PreattackE,
-
-        [IniEnum("FIRING_OR_PREATTACK_D"), AddedIn(SageGame.Bfme2)]
-        FiringOrPreattackD,
 
         [IniEnum("FORTRESS_IMPROVEMENT_8"), AddedIn(SageGame.Bfme2)]
         FortressImprovement8,
@@ -978,15 +862,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("USER_6"), AddedIn(SageGame.Bfme2)]
         User6,
-
-        [IniEnum("FIRING_OR_RELOADING_E"), AddedIn(SageGame.Bfme2)]
-        FiringOrReloadingE,
-
-        [IniEnum("FIRING_E"), AddedIn(SageGame.Bfme2)]
-        FiringE,
-
-        [IniEnum("SWAPPING_TO_WEAPONSET_2"), AddedIn(SageGame.Bfme2)]
-        SwappingToWeaponset2,
 
         [IniEnum("START_CAPTURE"), AddedIn(SageGame.Bfme2)]
         StartCapture,
@@ -1054,14 +929,8 @@ namespace OpenSage.Logic.Object
         [IniEnum("DEATH_5"), AddedIn(SageGame.Bfme2Rotwk)]
         Death5,
 
-        [IniEnum("FIRING_OR_RELOADING_B"), AddedIn(SageGame.Bfme2Rotwk)]
-        FiringOrReloadingB,
-
         [IniEnum("FORTRESS_IMPROVEMENT_5"), AddedIn(SageGame.Bfme2Rotwk)]
         FortressImprovement5,
-
-        [IniEnum("FIRING_OR_RELOADING_D"), AddedIn(SageGame.Bfme2Rotwk)]
-        FiringOrReloadingD,
 
         [IniEnum("ARMORSET_PLAYER_UPGRADE_2"), AddedIn(SageGame.Bfme2Rotwk)]
         ArmorsetPlayerUpgrade2,
@@ -1074,9 +943,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SPECIAL_POWER_3"), AddedIn(SageGame.Bfme2Rotwk)]
         SpecialPower3,
-
-        [IniEnum("WEAPONLOCK_TERTIARY"), AddedIn(SageGame.Bfme2Rotwk)]
-        WeaponlockTertiary,
 
         [IniEnum("EMOTION_DISSIDENT"), AddedIn(SageGame.Bfme2)]
         EmotionDissident,
@@ -1146,5 +1012,223 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("USER_60"), AddedIn(SageGame.Bfme2Rotwk)]
         User60,
+
+        // Weapons
+
+        [IniEnum("IS_FIRING_WEAPON")]
+        IsFiringWeapon,
+
+        [IniEnum("PREATTACK_A")]
+        PreAttackA,
+
+        [IniEnum("PREATTACK_B")]
+        PreAttackB,
+
+        [IniEnum("PREATTACK_C")]
+        PreAttackC,
+
+        [IniEnum("PREATTACK_D")]
+        PreAttackD,
+
+        [IniEnum("PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+        PreAttackE,
+
+        [IniEnum("FIRING_A")]
+        FiringA,
+
+        [IniEnum("FIRING_B")]
+        FiringB,
+
+        [IniEnum("FIRING_C")]
+        FiringC,
+
+        [IniEnum("FIRING_D"), AddedIn(SageGame.Bfme2)]
+        FiringD,
+
+        [IniEnum("FIRING_E"), AddedIn(SageGame.Bfme2)]
+        FiringE,
+
+        [IniEnum("FIRING_ANY"), AddedIn(SageGame.Bfme2)]
+        FiringAny,
+
+        [IniEnum("FIRING_OR_RELOADING_A"), AddedIn(SageGame.Bfme)]
+        FiringOrReloadingA,
+
+        [IniEnum("FIRING_OR_RELOADING_B"), AddedIn(SageGame.Bfme2Rotwk)]
+        FiringOrReloadingB,
+
+        [IniEnum("FIRING_OR_RELOADING_C"), AddedIn(SageGame.Bfme2)]
+        FiringOrReloadingC,
+
+        [IniEnum("FIRING_OR_RELOADING_D"), AddedIn(SageGame.Bfme2Rotwk)]
+        FiringOrReloadingD,
+
+        [IniEnum("FIRING_OR_RELOADING_E"), AddedIn(SageGame.Bfme2)]
+        FiringOrReloadingE,
+
+        [IniEnum("FIRING_OR_PREATTACK_A"), AddedIn(SageGame.Bfme)]
+        FiringOrPreAttackA,
+
+        [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
+        FiringOrPreAttackB,
+
+        [IniEnum("FIRING_OR_PREATTACK_C"), AddedIn(SageGame.Bfme)]
+        FiringOrPreAttackC,
+
+        [IniEnum("FIRING_OR_PREATTACK_D"), AddedIn(SageGame.Bfme2)]
+        FiringOrPreAttackD,
+
+        [IniEnum("FIRING_OR_PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+        FiringOrPreAttackE,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_A")]
+        BetweenShotsFiringA,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_B")]
+        BetweenShotsFiringB,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_C")]
+        BetweenShotsFiringC,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_D")]
+        BetweenShotsFiringD,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_E")]
+        BetweenShotsFiringE,
+
+        [IniEnum("RELOADING_A")]
+        ReloadingA,
+
+        [IniEnum("RELOADING_B")]
+        ReloadingB,
+
+        [IniEnum("RELOADING_C")]
+        ReloadingC,
+
+        [IniEnum("RELOADING_D")]
+        ReloadingD,
+
+        [IniEnum("RELOADING_E")]
+        ReloadingE,
+
+        [IniEnum("FIRING_PRIMARY")]
+        FiringPrimary,
+
+        [IniEnum("FIRING_SECONDARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FiringSecondary,
+
+        [IniEnum("FIRING_TERTIARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FiringTertiary,
+
+        [IniEnum("USING_WEAPON_A")]
+        UsingWeaponA,
+
+        [IniEnum("USING_WEAPON_B")]
+        UsingWeaponB,
+
+        [IniEnum("USING_WEAPON_C"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        UsingWeaponC,
+
+        [IniEnum("SWAPPING_TO_WEAPONSET_1"), AddedIn(SageGame.Bfme2)]
+        SwappingToWeaponset1,
+
+        [IniEnum("SWAPPING_TO_WEAPONSET_2"), AddedIn(SageGame.Bfme2)]
+        SwappingToWeaponset2,
+
+        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
+        WeaponSetToggle1,
+
+        [IniEnum("WEAPONSET_PLAYER_UPGRADE")]
+        WeaponSetPlayerUpgrade,
+
+        [IniEnum("WEAPONSET_CRATEUPGRADE_ONE")]
+        WeaponSetCrateUpgradeOne,
+
+        [IniEnum("WEAPONSET_CRATEUPGRADE_TWO")]
+        WeaponSetCrateUpgradeTwo,
+
+        [IniEnum("WEAPONSET_RAMPAGE"), AddedIn(SageGame.Bfme)]
+        WeaponsetRampage,
+
+        [IniEnum("WEAPONLOCK_PRIMARY"), AddedIn(SageGame.Bfme)]
+        WeaponLockPrimary,
+
+        [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.Bfme)]
+        WeaponLockSecondary,
+
+        [IniEnum("WEAPONLOCK_TERTIARY"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponLockTertiary,
+
+        [IniEnum("WEAPONSTATE_ONE"), AddedIn(SageGame.Bfme)]
+        WeaponStateOne,
+
+        [IniEnum("WEAPONSTATE_TWO"), AddedIn(SageGame.Bfme)]
+        WeaponStateTwo,
+
+        [IniEnum("WEAPONSTATE_CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
+        WeaponStateCloseRange,
+    }
+
+    public static class ModelConditionFlagUtility
+    {
+        public static ModelConditionFlag GetFiringFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.FiringA,
+            1 => ModelConditionFlag.FiringB,
+            2 => ModelConditionFlag.FiringC,
+            3 => ModelConditionFlag.FiringD,
+            4 => ModelConditionFlag.FiringE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetPreAttackFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.PreAttackA,
+            1 => ModelConditionFlag.PreAttackB,
+            2 => ModelConditionFlag.PreAttackC,
+            3 => ModelConditionFlag.PreAttackD,
+            4 => ModelConditionFlag.PreAttackE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetReloadingFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.ReloadingA,
+            1 => ModelConditionFlag.ReloadingB,
+            2 => ModelConditionFlag.ReloadingC,
+            3 => ModelConditionFlag.ReloadingD,
+            4 => ModelConditionFlag.ReloadingE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetFiringOrPreAttackFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.FiringOrPreAttackA,
+            1 => ModelConditionFlag.FiringOrPreAttackB,
+            2 => ModelConditionFlag.FiringOrPreAttackC,
+            3 => ModelConditionFlag.FiringOrPreAttackD,
+            4 => ModelConditionFlag.FiringOrPreAttackE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetFiringOrReloadingFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.FiringOrReloadingA,
+            1 => ModelConditionFlag.FiringOrReloadingB,
+            2 => ModelConditionFlag.FiringOrReloadingC,
+            3 => ModelConditionFlag.FiringOrReloadingD,
+            4 => ModelConditionFlag.FiringOrReloadingE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetBetweenFiringShotsFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.BetweenShotsFiringA,
+            1 => ModelConditionFlag.BetweenShotsFiringB,
+            2 => ModelConditionFlag.BetweenShotsFiringC,
+            3 => ModelConditionFlag.BetweenShotsFiringD,
+            4 => ModelConditionFlag.BetweenShotsFiringE,
+            _ => throw new InvalidOperationException(),
+        };
     }
 }

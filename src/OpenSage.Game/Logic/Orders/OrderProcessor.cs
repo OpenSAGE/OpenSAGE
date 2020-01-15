@@ -130,7 +130,7 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.TargetEnemyPosition = targetPosition;
+                                unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
                             }
                         }
                         break;

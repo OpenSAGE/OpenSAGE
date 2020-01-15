@@ -18,5 +18,7 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("QUINARY")]
         Quinary,
+
+        NoWeapon,
     }
 }

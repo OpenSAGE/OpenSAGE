@@ -131,7 +131,7 @@ namespace OpenSage.Logic.Object
         public Vector3? RallyPoint { get; set; }
 
         private Locomotor CurrentLocomotor { get; set; }
-        private Weapon CurrentWeapon { get; set; }
+        internal Weapon CurrentWeapon { get; private set; }
 
         /// <summary>
         /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
@@ -166,10 +166,6 @@ namespace OpenSage.Logic.Object
         public GameObjectCollection Parent { get; private set; }
 
         public ProductionUpdate ProductionUpdate { get; }
-
-        // TODO: Move these to somewhere else, probably TargetChooser.
-        public GameObject TargetEnemy { get; internal set; }
-        public Vector3 TargetEnemyPosition { get; internal set; }
 
         public List<UpgradeTemplate> Upgrades { get; }
 
@@ -258,6 +254,11 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
+            //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+            {
+                CurrentWeapon?.LogicTick(time.TotalTime);
+            }
+
             foreach (var behavior in BehaviorModules)
             {
                 behavior.Update(time);
@@ -415,11 +416,6 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
-            {
-                CurrentWeapon.LocalLogicTick(gameTime, TargetEnemy);
-            }
-
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
@@ -545,12 +541,39 @@ namespace OpenSage.Logic.Object
 
         private void SetWeapon()
         {
-            //TODO: we always pick the weapon without any conditions
+            // TODO: we currently always pick the weapon without any conditions.
             var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
-            CurrentWeapon = (weaponSet != null)
-                ? new Weapon(this, weaponSet)
-                : null;
+            if (weaponSet != null)
+            {
+                var aiUpdate = Definition.Behaviors.OfType<AIUpdateModuleData>().FirstOrDefault();
+                var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
+
+                // TODO: This weapon selection is all wrong, and should be done in WeaponSetUpdate.
+
+                var weaponSlotHardpoint = weaponSetUpdateData.WeaponSlotHardpoints.Count > 0
+                    ? weaponSetUpdateData.WeaponSlotHardpoints[0]
+                    : weaponSetUpdateData.WeaponSlotTurrets[0];
+
+                var weaponTemplate = weaponSlotHardpoint.Weapons[0].Template.Value;
+
+                if (weaponTemplate != null)
+                {
+                    CurrentWeapon = new Weapon(
+                        this,
+                        weaponTemplate,
+                        0);
+                }
+                else
+                {
+                    CurrentWeapon = null;
+                }
+            }
+            else
+            {
+                CurrentWeapon = null;
+            }
         }
+
         public void Upgrade(UpgradeTemplate upgrade)
         {
             if (upgrade.AcademyClassify == AcademyType.Superpower)
