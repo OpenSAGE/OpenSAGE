@@ -18,8 +18,8 @@ namespace OpenSage.Terrain.Roads
 
             if (endNode == startNode)
             {
-                // create a new dummy vertex, otherwise this edge gets counted twice as incoming edge of startVertex
-                // add a small offset to make sure that other map objects use the 'normal' vertex
+                // create a new dummy node, otherwise this edge gets counted twice as incoming edge of startNode
+                // add a small offset to make sure that other map objects use the 'normal' node
                 endNode = GetOrCreateNode(end.Position + 0.001f * Vector3.UnitX);
             }
 
