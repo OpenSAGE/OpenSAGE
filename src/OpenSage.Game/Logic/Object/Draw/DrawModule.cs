@@ -16,6 +16,9 @@ namespace OpenSage.Logic.Object
     {
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
+        // TODO: Probably shouldn't have this here.
+        internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
+
         internal virtual IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
             yield break;

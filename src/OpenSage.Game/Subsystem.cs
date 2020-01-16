@@ -32,6 +32,11 @@
         Weapons,
 
         /// <summary>
+        /// Things that need to be loaded in order to execute FXLists.
+        /// </summary>
+        FXList,
+
+        /// <summary>
         /// Things that need be loaded in order to spawn players or list them in menus.
         /// </summary>
         Players,

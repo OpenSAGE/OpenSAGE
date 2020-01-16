@@ -1129,6 +1129,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("USING_WEAPON_C"), AddedIn(SageGame.CncGeneralsZeroHour)]
         UsingWeaponC,
 
+        [IniEnum("USING_WEAPON_D")]
+        UsingWeaponD,
+
+        [IniEnum("USING_WEAPON_E")]
+        UsingWeaponE,
+
         [IniEnum("SWAPPING_TO_WEAPONSET_1"), AddedIn(SageGame.Bfme2)]
         SwappingToWeaponset1,
 
@@ -1228,6 +1234,16 @@ namespace OpenSage.Logic.Object
             2 => ModelConditionFlag.BetweenShotsFiringC,
             3 => ModelConditionFlag.BetweenShotsFiringD,
             4 => ModelConditionFlag.BetweenShotsFiringE,
+            _ => throw new InvalidOperationException(),
+        };
+
+        public static ModelConditionFlag GetUsingWeaponFlag(int weaponIndex) => weaponIndex switch
+        {
+            0 => ModelConditionFlag.UsingWeaponA,
+            1 => ModelConditionFlag.UsingWeaponB,
+            2 => ModelConditionFlag.UsingWeaponC,
+            3 => ModelConditionFlag.UsingWeaponD,
+            4 => ModelConditionFlag.UsingWeaponE,
             _ => throw new InvalidOperationException(),
         };
     }

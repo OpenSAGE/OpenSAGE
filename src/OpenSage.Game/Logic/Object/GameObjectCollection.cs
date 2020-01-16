@@ -11,19 +11,24 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<string, GameObject> _nameLookup;
         private readonly Player _civilianPlayer;
         private readonly Navigation.Navigation _navigation;
+        private readonly Scene3D _scene;
 
         public IReadOnlyList<GameObject> Items => _items;
 
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal GameObjectCollection(AssetLoadContext loadContext,
-                Player civilianPlayer, Navigation.Navigation navigation)
+        internal GameObjectCollection(
+            AssetLoadContext loadContext,
+            Player civilianPlayer,
+            Navigation.Navigation navigation,
+            Scene3D scene)
         {
             _loadContext = loadContext;
             _items = new List<GameObject>();
             _nameLookup = new Dictionary<string, GameObject>();
             _civilianPlayer = civilianPlayer;
             _navigation = navigation;
+            _scene = scene;
         }
 
         public GameObject Add(string typeName, Player player)
@@ -46,7 +51,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this, _navigation));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this, _navigation, _scene));
             _items.Add(gameObject);
             return gameObject;
         }

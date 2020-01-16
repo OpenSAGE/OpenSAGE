@@ -59,6 +59,10 @@ namespace OpenSage.Content
                     LoadFiles(
                         @"Data\INI\Weapon.ini");
                     break;
+                case Subsystem.FXList:
+                    LoadFiles(
+                        @"Data\INI\FXList.ini");
+                    break;
                 case Subsystem.Players:
                     LoadFiles(
                         @"Data\INI\Default\PlayerTemplate.ini",
@@ -280,6 +284,16 @@ namespace OpenSage.Content
                         case SageGame.Cnc3:
                         case SageGame.Cnc3KanesWrath:
                             yield return "TheWeaponStore";
+                            yield break;
+                    }
+                    break;
+                case Subsystem.FXList:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            yield return "TheFXListStore";
                             yield break;
                     }
                     break;

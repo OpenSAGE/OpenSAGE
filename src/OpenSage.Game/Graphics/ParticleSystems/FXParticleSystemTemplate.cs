@@ -131,6 +131,13 @@ namespace OpenSage.Graphics.ParticleSystems
             { "TerrainCollision", FXParticleEventCollision.Parse },
         };
 
+        public FXParticleSystemTemplate() { }
+
+        internal FXParticleSystemTemplate(string name)
+        {
+            SetNameAndInstanceId("ParticleSystemTemplate", name);
+        }
+
         public ParticleSystemPriority Priority { get; internal set; }
         public bool IsOneShot { get; internal set; }
         public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;

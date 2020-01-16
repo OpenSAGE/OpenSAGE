@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,9 +22,40 @@ namespace OpenSage.Logic.Object
 
         protected override void OnEnterStateImpl(TimeSpan enterTime)
         {
+            base.OnEnterStateImpl(enterTime);
+
+            if (Context.Weapon.UsesClip)
+            {
+                Context.Weapon.CurrentRounds--;
+            }
+
+            Context.AudioSystem.PlayAudioEvent(Context.WeaponTemplate.FireSound.Value);
+
             foreach (var nugget in Context.Weapon.Nuggets)
             {
                 nugget.Activate(enterTime);
+            }
+
+            var fireFXPosition = Context.GameObject.GetWeaponFireFXBonePosition(
+                Context.Weapon.Slot,
+                Context.WeaponIndex);
+            if (fireFXPosition != null)
+            {
+                var fireFXListData = Context.WeaponTemplate.FireFX?.Value;
+                if (fireFXListData != null)
+                {
+                    // TODO: Need to dispose this.
+                    var fireFXList = new FXList(fireFXListData);
+
+                    var worldMatrix = Context.GameObject.Transform.Matrix;
+                    worldMatrix.Translation = fireFXPosition.Value;
+
+                    fireFXList.Execute(
+                        new FXListContext(
+                            Context.GameObject,
+                            worldMatrix,
+                            Context.AssetLoadContext));
+                }
             }
         }
 

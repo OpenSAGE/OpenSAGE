@@ -6,7 +6,9 @@ using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.FX;
 using OpenSage.Graphics;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object;
@@ -421,6 +423,12 @@ namespace OpenSage.Data.Ini
             return _assetStore.MappedImages.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<FXParticleSystemTemplate> ParseFXParticleSystemTemplateReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.FXParticleSystemTemplates.GetLazyAssetReferenceByName(name);
+        }
+
         public LazyAssetReference<LocomotorTemplate> ParseLocomotorTemplateReference()
         {
             var name = ParseAssetReference();
@@ -437,6 +445,12 @@ namespace OpenSage.Data.Ini
         {
             var name = ParseAssetReference();
             return _assetStore.ArmorTemplates.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<FXListData> ParseFXListReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
