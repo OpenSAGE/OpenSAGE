@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Audio;
+using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
@@ -67,11 +69,16 @@ namespace OpenSage.Logic.Object
     /// </summary>
     internal sealed class WeaponStateMachine
     {
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private readonly WeaponStateContext _context;
         private readonly Dictionary<WeaponState, BaseWeaponState> _states;
         private BaseWeaponState _currentState;
 
         public WeaponStateMachine(WeaponStateContext context)
         {
+            _context = context;
+
             _states = new Dictionary<WeaponState, BaseWeaponState>
             {
                 { WeaponState.Inactive, new InactiveWeaponState(context) },
@@ -88,6 +95,8 @@ namespace OpenSage.Logic.Object
 
         public void TransitionToState(WeaponState state, TimeSpan currentTime)
         {
+            Logger.Info($"Weapon {_context.WeaponTemplate.Name} on game object {_context.GameObject.Name} transitioning to state {state}");
+
             _currentState?.OnExitState();
 
             _currentState = _states[state];
@@ -117,20 +126,28 @@ namespace OpenSage.Logic.Object
     internal sealed class WeaponStateContext
     {
         public readonly GameObject GameObject;
+
         public readonly Weapon Weapon;
         public readonly WeaponTemplate WeaponTemplate;
         public readonly int WeaponIndex;
+
+        public readonly AudioSystem AudioSystem;
+        public readonly AssetLoadContext AssetLoadContext;
 
         public WeaponStateContext(
             GameObject gameObject,
             Weapon weapon,
             WeaponTemplate weaponTemplate,
-            int weaponIndex)
+            int weaponIndex,
+            AudioSystem audioSystem,
+            AssetLoadContext assetLoadContext)
         {
             GameObject = gameObject;
             Weapon = weapon;
             WeaponTemplate = weaponTemplate;
             WeaponIndex = weaponIndex;
+            AudioSystem = audioSystem;
+            AssetLoadContext = assetLoadContext;
         }
     }
 

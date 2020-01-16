@@ -83,7 +83,8 @@ namespace OpenSage
         public Player LocalPlayer { get; private set; }
         public Navigation.Navigation Navigation { get; private set; }
 
-        public AudioSystem Audio { get; }
+        internal readonly AudioSystem Audio;
+        internal readonly AssetLoadContext AssetLoadContext;
 
         public Random Random { get; }
 
@@ -119,6 +120,9 @@ namespace OpenSage
             WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
             Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
 
+            Audio = game.Audio;
+            AssetLoadContext = game.AssetStore.LoadContext;
+
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
@@ -141,7 +145,6 @@ namespace OpenSage
             GameObjects = gameObjects;
             Waypoints = waypoints;
             Cameras = cameras;
-            Audio = game.Audio;
 
             PlayerScripts = mapFile
                 .GetPlayerScriptsList()
@@ -173,7 +176,14 @@ namespace OpenSage
             out CameraCollection cameras)
         {
             var waypoints = new List<Waypoint>();
-            gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer, Navigation));
+
+            gameObjects = AddDisposable(
+                new GameObjectCollection(
+                    loadContext,
+                    civilianPlayer,
+                    Navigation,
+                    this));
+
             var bridgesList = new List<Bridge>();
 
             var roadTopology = new RoadTopology();

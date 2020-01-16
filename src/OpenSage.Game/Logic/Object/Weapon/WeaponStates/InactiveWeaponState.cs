@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
             }
 
             if (Context.WeaponTemplate.AutoReloadsClip != WeaponReloadType.None
-                && Context.WeaponTemplate.ClipSize > 0
+                && Context.Weapon.UsesClip
                 && Context.Weapon.CurrentRounds < Context.WeaponTemplate.ClipSize)
             {
                 return WeaponState.InactivePendingReload;

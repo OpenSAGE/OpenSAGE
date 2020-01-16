@@ -7,6 +7,7 @@ using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -82,6 +83,7 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.CopyFrom(newFlags);
         }
 
+        private readonly Scene3D _scene;
         private readonly GameObject _rallyPointMarker;
 
         public ObjectDefinition Definition { get; }
@@ -174,13 +176,20 @@ namespace OpenSage.Logic.Object
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal GameObject(ObjectDefinition objectDefinition, AssetLoadContext loadContext, Player owner,
-                            GameObjectCollection parent, Navigation.Navigation navigation)
+        internal GameObject(
+            ObjectDefinition objectDefinition,
+            AssetLoadContext loadContext,
+            Player owner,
+            GameObjectCollection parent,
+            Navigation.Navigation navigation,
+            Scene3D scene)
         {
             if (objectDefinition == null)
             {
                 throw new ArgumentNullException(nameof(objectDefinition));
             }
+
+            _scene = scene;
 
             Definition = objectDefinition;
             Owner = owner;
@@ -235,10 +244,44 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
             {
                 var rpMarkerDef = loadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation));
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation, null));
             }
 
             Upgrades = new List<UpgradeTemplate>();
+        }
+
+        // TODO: This probably shouldn't be here.
+        public Vector3? GetWeaponFireFXBonePosition(WeaponSlot slot, int index)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                var fireFXBone = drawModule.GetWeaponFireFXBone(slot);
+                if (fireFXBone != null)
+                {
+                    var (modelInstance, bone) = drawModule.FindBone(fireFXBone + (index + 1).ToString("D2"));
+                    if (bone != null)
+                    {
+                        return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
+                    }
+                    break;
+                }
+            }
+
+            return null;
+        }
+
+        public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                var (modelInstance, bone) = drawModule.FindBone(boneName);
+                if (bone != null)
+                {
+                    return (modelInstance, bone);
+                }
+            }
+
+            return (null, null);
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
@@ -250,7 +293,15 @@ namespace OpenSage.Logic.Object
                     yield return attachedParticleSystem;
                 }
             }
+
+            foreach (var attachedParticleSystem in TempParticleSystems)
+            {
+                yield return attachedParticleSystem;
+            }
         }
+
+        // TODO: This is ugly.
+        internal List<AttachedParticleSystem> TempParticleSystems { get; } = new List<AttachedParticleSystem>();
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
@@ -561,7 +612,10 @@ namespace OpenSage.Logic.Object
                     CurrentWeapon = new Weapon(
                         this,
                         weaponTemplate,
-                        0);
+                        0,
+                        WeaponSlot.Primary,
+                        _scene.Audio,
+                        _scene.AssetLoadContext);
                 }
                 else
                 {

@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -75,7 +78,7 @@ namespace OpenSage.Logic.Object
             { "MaxWeaponSpeed", (parser, x) => x.MaxWeaponSpeed = parser.ParseInteger() },
             { "ScaleWeaponSpeed", (parser, x) => x.ScaleWeaponSpeed = parser.ParseBoolean() },
             { "WeaponRecoil", (parser, x) => x.WeaponRecoil = parser.ParseInteger() },
-            { "FireFX", (parser, x) => x.FireFX = parser.ParseAssetReference() },
+            { "FireFX", (parser, x) => x.FireFX = parser.ParseFXListReference() },
             { "PlayFXWhenStealthed", (parser, x) => x.PlayFXWhenStealthed = parser.ParseBoolean() },
             { "FireOCL", (parser, x) => x.FireOCL = parser.ParseAssetReference() },
             { "VeterancyFireFX", (parser, x) => x.VeterancyFireFX = ParseVeterancyAssetReference(parser) },
@@ -89,7 +92,7 @@ namespace OpenSage.Logic.Object
             { "ProjectileSelf", (parser, x) => x.ProjectileSelf = parser.ParseBoolean() },
             { "ProjectileCollidesWith", (parser, x) => x.ProjectileCollidesWith = parser.ParseEnumFlags<WeaponCollideTypes>() },
 
-            { "FireSound", (parser, x) => x.FireSound = parser.ParseAssetReference() },
+            { "FireSound", (parser, x) => x.FireSound = parser.ParseAudioEventReference() },
             { "FireSoundLoopTime", (parser, x) => x.FireSoundLoopTime = parser.ParseInteger() },
             { "SuspendFXDelay", (parser, x) => x.SuspendFXDelay = parser.ParseInteger() },
             { "RadiusDamageAffects", (parser, x) => x.RadiusDamageAffects = ObjectFilter.Parse(parser) },
@@ -261,7 +264,7 @@ namespace OpenSage.Logic.Object
         public float MinWeaponSpeed { get; private set; }
         public bool ScaleWeaponSpeed { get; private set; }
         public int WeaponRecoil { get; private set; }
-        public string FireFX { get; private set; }
+        public LazyAssetReference<FXListData> FireFX { get; private set; }
         public bool PlayFXWhenStealthed { get; private set; }
         public string FireOCL { get; private set; }
         public string VeterancyFireFX { get; private set; }
@@ -270,7 +273,7 @@ namespace OpenSage.Logic.Object
         public string ProjectileExhaust { get; private set; }
         public string VeterancyProjectileExhaust { get; private set; }
         public string ProjectileStreamName { get; private set; }
-        public string FireSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> FireSound { get; private set; }
         public int FireSoundLoopTime { get; private set; }
         public int SuspendFXDelay { get; private set; }
         public ObjectFilter RadiusDamageAffects { get; private set; }

@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal abstract class FixedDurationWeaponState : BaseWeaponState
     {
-        private TimeSpan? _exitTime;
+        private TimeSpan _exitTime;
 
         protected abstract RangeDuration Duration { get; }
 
@@ -20,6 +20,6 @@ namespace OpenSage.Logic.Object
         }
 
         protected bool IsTimeToExitState(TimeSpan currentTime) =>
-            _exitTime != null && currentTime >= _exitTime;
+            currentTime >= _exitTime;
     }
 }

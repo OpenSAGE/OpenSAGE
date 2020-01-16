@@ -41,7 +41,7 @@ namespace OpenSage.Logic.Object
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
                 { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
                 { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
-                { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
+                { "DamageFXType", (parser, x) => x.DamageFXType = parser.ParseEnum<DamageFXType>() },
                 { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
                 { "DamageSpeed", (parser, x) => x.DamageSpeed = parser.ParseFloat() },
                 { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public DamageStatusType DamageStatusType { get; internal set; }
 
-        public FxType DamageFxType { get; private set; }
+        public DamageFXType DamageFXType { get; private set; }
         public DeathType DeathType { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]

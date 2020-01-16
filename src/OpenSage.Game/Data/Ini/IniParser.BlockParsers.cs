@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Eva;
+using OpenSage.FX;
 using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
@@ -83,7 +84,7 @@ namespace OpenSage.Data.Ini
             { "FontDefaultSettings", (parser, assetStore) => assetStore.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
             { "FontSubstitution", (parser, assetStore) => assetStore.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
             { "FormationAssistant", (parser, assetStore) => FormationAssistant.Parse(parser, assetStore.FormationAssistant.Current) },
-            { "FXList", (parser, assetStore) => assetStore.FXLists.Add(FXList.Parse(parser)) },
+            { "FXList", (parser, assetStore) => assetStore.FXLists.Add(FXListData.Parse(parser)) },
             { "FXParticleSystem", (parser, assetStore) => assetStore.FXParticleSystemTemplates.Add(FXParticleSystemTemplate.Parse(parser)) },
             { "GameData", (parser, assetStore) => GameData.Parse(parser, assetStore.GameData.Current) },
             { "GlowEffect", (parser, assetStore) => assetStore.Environment.Current.GlowEffect = GlowEffect.Parse(parser) },
@@ -133,7 +134,7 @@ namespace OpenSage.Data.Ini
             { "ObjectReskin", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, assetStore) => assetStore.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, assetStore) => OnlineChatColors.Parse(parser, assetStore.OnlineChatColors.Current) },
-            { "ParticleSystem", (parser, assetStore) => assetStore.ParticleSystemTemplates.Add(ParticleSystemTemplate.Parse(parser)) },
+            { "ParticleSystem", (parser, assetStore) => assetStore.FXParticleSystemTemplates.Add(ParticleSystemTemplate.Parse(parser).ToFXParticleSystemTemplate()) },
             { "Pathfinder", (parser, assetStore) => Pathfinder.Parse(parser, assetStore.Pathfinder.Current) },
             { "PlayerAIType", (parser, assetStore) => assetStore.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
             { "PlayerTemplate", (parser, assetStore) => assetStore.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },

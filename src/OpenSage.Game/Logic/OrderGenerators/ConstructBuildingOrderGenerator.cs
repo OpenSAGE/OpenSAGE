@@ -48,7 +48,13 @@ namespace OpenSage.Logic.OrderGenerators
             _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
             _angle = _baseAngle;
 
-            _previewObject = new GameObject(buildingDefinition, loadContext, player, null, null);
+            _previewObject = new GameObject(
+                buildingDefinition,
+                loadContext,
+                player,
+                null,
+                null,
+                null);
             _previewObject.IsPlacementPreview = true;
 
             UpdatePreviewObjectPosition();

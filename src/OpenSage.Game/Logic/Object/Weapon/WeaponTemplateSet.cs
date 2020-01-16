@@ -68,7 +68,10 @@ namespace OpenSage.Logic.Object
 
             void AddWeapon(WeaponSlotHardpointData weaponSlot, WeaponSlot slot)
             {
-                var weaponSetSlot = Slots[slot];
+                if (!Slots.TryGetValue(slot, out var weaponSetSlot))
+                {
+                    return;
+                }
 
                 // TODO: PreferredAgainst
                 // TODO: OnlyAgainst
@@ -96,6 +99,11 @@ namespace OpenSage.Logic.Object
                 foreach (var controlledWeaponSlot in turretAIData.ControlledWeaponSlots.GetSetBits())
                 {
                     AddWeapon(weaponSlot, controlledWeaponSlot);
+                }
+
+                if (weaponSlot.Weapons.Count == 0)
+                {
+                    return;
                 }
 
                 result.WeaponSlotTurrets.Add(weaponSlot);

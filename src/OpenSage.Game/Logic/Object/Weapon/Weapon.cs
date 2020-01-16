@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Audio;
+using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,11 +12,13 @@ namespace OpenSage.Logic.Object
         private readonly WeaponTemplate _weaponTemplate;
         private readonly int _weaponIndex;
 
+        private readonly ModelConditionFlag _usingFlag;
+
         private readonly WeaponStateMachine _stateMachine;
 
         public readonly WeaponEffectNugget[] Nuggets;
 
-        public int CurrentRounds { get; private set; }
+        public int CurrentRounds { get; internal set; }
 
         public WeaponTarget CurrentTarget { get; private set; }
 
@@ -38,11 +42,21 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal Weapon(GameObject gameObject, WeaponTemplate weaponTemplate, int weaponIndex)
+        public readonly WeaponSlot Slot;
+
+        internal Weapon(
+            GameObject gameObject,
+            WeaponTemplate weaponTemplate,
+            int weaponIndex,
+            WeaponSlot slot,
+            AudioSystem audioSystem,
+            AssetLoadContext assetLoadContext)
         {
             _gameObject = gameObject;
             _weaponTemplate = weaponTemplate;
             _weaponIndex = weaponIndex;
+
+            Slot = slot;
 
             FillClip();
 
@@ -62,10 +76,16 @@ namespace OpenSage.Logic.Object
                     gameObject,
                     this,
                     weaponTemplate,
-                    weaponIndex));
+                    weaponIndex,
+                    audioSystem,
+                    assetLoadContext));
+
+            _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(weaponIndex);
         }
 
-        public bool IsClipEmpty() => _weaponTemplate.ClipSize > 0 && CurrentRounds == 0;
+        public bool UsesClip => _weaponTemplate.ClipSize > 0;
+
+        public bool IsClipEmpty() => UsesClip && CurrentRounds == 0;
 
         public void FillClip()
         {
@@ -79,7 +99,17 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            if (CurrentTarget != null)
+            {
+                _gameObject.ModelConditionFlags.Set(_usingFlag, false);
+            }
+
             CurrentTarget = target;
+
+            if (CurrentTarget != null)
+            {
+                _gameObject.ModelConditionFlags.Set(_usingFlag, true);
+            }
         }
 
         public void LogicTick(TimeSpan currentTime)

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 using Veldrid;

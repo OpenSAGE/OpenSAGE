@@ -273,7 +273,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            return new FXParticleSystemTemplate
+            return new FXParticleSystemTemplate(Name)
             {
                 Priority = Priority,
                 IsOneShot = IsOneShot,

@@ -2,6 +2,7 @@
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -275,11 +276,11 @@ namespace OpenSage.Logic.Object
             return new ParticleSysBone
             {
                 BoneName = parser.ParseBoneName(),
-                ParticleSystem = parser.ParseAssetReference()
+                ParticleSystem = parser.ParseFXParticleSystemTemplateReference()
             };
         }
 
         public string BoneName { get; private set; }
-        public string ParticleSystem { get; private set; }
+        public LazyAssetReference<FXParticleSystemTemplate> ParticleSystem { get; private set; }
     }
 }

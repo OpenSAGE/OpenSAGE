@@ -12,14 +12,14 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<AttributeModifierNugget>
             {
                 { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
-                { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
+                { "DamageFXType", (parser, x) => x.DamageFXType = parser.ParseEnum<DamageFXType>() },
                 { "AntiCategories", (parser, x) => x.AntiCategories = parser.ParseEnumBitArray<ModifierCategory>() },
                 { "Radius", (parser, x) => x.Radius = parser.ParseLong() },
                 { "AffectHordeMembers", (parser, x) => x.AffectHordeMembers = parser.ParseBoolean() },
             });
 
         public string AttributeModifier { get; private set; }
-        public FxType DamageFxType { get; private set; }
+        public DamageFXType DamageFXType { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public BitArray<ModifierCategory> AntiCategories { get; private set; }

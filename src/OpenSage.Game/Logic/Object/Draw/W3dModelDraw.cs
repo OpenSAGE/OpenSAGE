@@ -58,6 +58,9 @@ namespace OpenSage.Logic.Object
                 : Enumerable.Empty<AttachedParticleSystem>();
         }
 
+        internal override string GetWeaponFireFXBone(WeaponSlot slot)
+            => _defaultConditionState?.WeaponFireFXBones.Find(x => x.WeaponSlot == slot)?.BoneName;
+
         internal W3dModelDraw(W3dModelDrawModuleData data, AssetLoadContext loadContext)
         {
             _data = data;
@@ -265,15 +268,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = particleSysBone.ParticleSystem.Value;
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _loadContext.AssetStore.ParticleSystemTemplates.GetByName(particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
-
-                        if (particleSystemTemplate == null)
-                        {
-                            throw new InvalidOperationException("Missing referenced particle system: " + particleSysBone.ParticleSystem);
-                        }
+                        throw new InvalidOperationException();
                     }
 
                     var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
