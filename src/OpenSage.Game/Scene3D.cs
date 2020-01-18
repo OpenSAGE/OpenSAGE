@@ -471,10 +471,13 @@ namespace OpenSage
                     drawingContext.DrawRectangle(rect, borderColor, 1);
                 }
 
-                DrawBar(
-                    healthBoxRect.Value,
-                    new ColorRgbaF(0, 1, 0, 1),
-                    (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                if (gameObject.Body != null)
+                {
+                    DrawBar(
+                        healthBoxRect.Value,
+                        new ColorRgbaF(0, 1, 0, 1),
+                        (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                }
 
                 if (gameObject.ProductionUpdate != null)
                 {

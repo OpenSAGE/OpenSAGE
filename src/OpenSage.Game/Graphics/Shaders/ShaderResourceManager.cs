@@ -28,7 +28,7 @@ namespace OpenSage.Graphics.Shaders
 
                 FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
                 MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice, Global, Mesh));
-                Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global));
+                Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global, solidWhiteTexture));
                 Road = AddDisposable(new RoadShaderResources(graphicsDevice, Global));
                 Sprite = AddDisposable(new SpriteShaderResources(graphicsDevice));
                 Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global));

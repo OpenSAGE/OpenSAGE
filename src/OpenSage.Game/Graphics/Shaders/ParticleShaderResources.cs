@@ -14,10 +14,12 @@ namespace OpenSage.Graphics.Shaders
         private readonly Pipeline _additivePipeline;
 
         private readonly ResourceLayout _particleResourceLayout;
+        private readonly Texture _solidWhiteTexture;
 
         public ParticleShaderResources(
             GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources)
+            GlobalShaderResources globalShaderResources,
+            Texture solidWhiteTexture)
             : base(
                 graphicsDevice,
                 "Particle",
@@ -35,6 +37,8 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources.GlobalConstantsResourceLayout,
                 _particleResourceLayout
             };
+
+            _solidWhiteTexture = solidWhiteTexture;
 
             Pipeline CreatePipeline(in BlendStateDescription blendStateDescription)
             {
@@ -77,7 +81,7 @@ namespace OpenSage.Graphics.Shaders
                 new ResourceSetDescription(
                     _particleResourceLayout,
                     renderItemConstantsBufferVS,
-                    texture,
+                    texture != null ? texture : _solidWhiteTexture,
                     GraphicsDevice.LinearSampler));
         }
 
