@@ -72,6 +72,8 @@ namespace OpenSage.Scripting
     [DebuggerDisplay("ID = {ID}, Name = {Name}")]
     public sealed class Waypoint
     {
+        public const string ObjectTypeName = "*Waypoints/Waypoint";
+
         private List<Waypoint> _connectedWaypoints;
 
         public uint ID { get; }
