@@ -111,7 +111,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<FactionVictoryData> FactionVictoryDatas { get; }
         public ScopedAssetCollection<FontDefaultSetting> FontDefaultSettings { get; }
         public ScopedAssetCollection<FontSubstitution> FontSubstitutions { get; }
-        public ScopedAssetCollection<FXListData> FXLists { get; }
+        public ScopedAssetCollection<FXList> FXLists { get; }
         public ScopedAssetCollection<FXParticleSystemTemplate> FXParticleSystemTemplates { get; }
         public ScopedAssetCollection<GuiTextureAsset> GuiTextures { get; }
         public ScopedAssetCollection<HeaderTemplate> HeaderTemplates { get; }
@@ -285,7 +285,7 @@ namespace OpenSage.Content
             AddAssetCollection(FactionVictoryDatas = new ScopedAssetCollection<FactionVictoryData>(this));
             AddAssetCollection(FontDefaultSettings = new ScopedAssetCollection<FontDefaultSetting>(this));
             AddAssetCollection(FontSubstitutions = new ScopedAssetCollection<FontSubstitution>(this));
-            AddAssetCollection(FXLists = new ScopedAssetCollection<FXListData>(this));
+            AddAssetCollection(FXLists = new ScopedAssetCollection<FXList>(this));
             AddAssetCollection(FXParticleSystemTemplates = new ScopedAssetCollection<FXParticleSystemTemplate>(this));
             AddAssetCollection(GuiTextures = new ScopedAssetCollection<GuiTextureAsset>(this, loadStrategy.CreateGuiTextureLoader()));
             AddAssetCollection(HeaderTemplates = new ScopedAssetCollection<HeaderTemplate>(this));

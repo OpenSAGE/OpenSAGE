@@ -5,24 +5,9 @@ namespace OpenSage.FX
 {
     public sealed class TracerFXNugget : FXNugget
     {
-        private readonly TracerFXNuggetData _data;
+        internal static TracerFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal TracerFXNugget(TracerFXNuggetData data)
-        {
-            _data = data;
-        }
-
-        internal override void Execute(FXListContext context)
-        {
-            // TODO
-        }
-    }
-
-    public sealed class TracerFXNuggetData : FXNuggetData
-    {
-        internal static TracerFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<TracerFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TracerFXNuggetData>
+        private static readonly IniParseTable<TracerFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TracerFXNugget>
         {
             { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "DecayAt", (parser, x) => x.DecayAt = parser.ParseFloat() },
@@ -38,10 +23,5 @@ namespace OpenSage.FX
         public float Probability { get; private set; }
         public int Speed { get; private set; }
         public float Width { get; private set; }
-
-        internal override FXNugget CreateNugget()
-        {
-            return new TracerFXNugget(this);
-        }
     }
 }

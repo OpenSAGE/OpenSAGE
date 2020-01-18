@@ -8,38 +8,9 @@ namespace OpenSage.FX
 {
     public sealed class ParticleSystemFXNugget : FXNugget
     {
-        private readonly ParticleSystemFXNuggetData _data;
+        internal static ParticleSystemFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal ParticleSystemFXNugget(ParticleSystemFXNuggetData data)
-        {
-            _data = data;
-        }
-
-        internal override void Execute(FXListContext context)
-        {
-            var particleSystem = AddDisposable(
-                new ParticleSystem(
-                    _data.Template.Value,
-                    context.AssetLoadContext,
-                    () => ref context.WorldMatrix));
-
-            context.GameObject.TempParticleSystems.Add(
-                new AttachedParticleSystem(
-                    particleSystem,
-                    x =>
-                    {
-                        context.GameObject.TempParticleSystems.Remove(x);
-                        RemoveToDispose(particleSystem);
-                        particleSystem.Dispose();
-                    }));
-        }
-    }
-
-    public sealed class ParticleSystemFXNuggetData : FXNuggetData
-    {
-        internal static ParticleSystemFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<ParticleSystemFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<ParticleSystemFXNuggetData>
+        private static readonly IniParseTable<ParticleSystemFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<ParticleSystemFXNugget>
         {
             { "AttachToObject", (parser, x) => x.AttachToObject = parser.ParseBoolean() },
             { "AttachToBone", (parser, x) => x.AttachToBone = parser.ParseBoneName() },
@@ -105,9 +76,13 @@ namespace OpenSage.FX
         [AddedIn(SageGame.Bfme)]
         public bool OnlyIfOnWater { get; private set; }
 
-        internal override FXNugget CreateNugget()
+        internal override void Execute(FXListExecutionContext context)
         {
-            return new ParticleSystemFXNugget(this);
+            var particleSystem = context.GameContext.ParticleSystems.Create(
+                Template.Value,
+                () => ref context.WorldMatrix);
+
+            particleSystem.Activate();
         }
     }
 }

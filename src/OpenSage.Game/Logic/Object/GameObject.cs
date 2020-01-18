@@ -5,15 +5,12 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
-using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
-using OpenSage.Scripting;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -83,26 +80,26 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.CopyFrom(newFlags);
         }
 
-        private readonly Scene3D _scene;
+        private readonly GameContext _gameContext;
         private readonly GameObject _rallyPointMarker;
 
-        public ObjectDefinition Definition { get; }
+        public readonly ObjectDefinition Definition;
 
-        public Transform Transform { get; }
+        public readonly Transform Transform;
 
-        public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
+        public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
 
-        public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
+        public readonly BitArray<ModelConditionFlag> ModelConditionFlags;
 
-        public IReadOnlyList<DrawModule> DrawModules { get; }
+        public readonly IReadOnlyList<DrawModule> DrawModules;
 
-        public IReadOnlyList<BehaviorModule> BehaviorModules { get; }
+        public readonly IReadOnlyList<BehaviorModule> BehaviorModules;
 
-        public BodyModule Body { get; }
+        public readonly BodyModule Body;
 
-        public Collider Collider { get; }
+        public readonly Collider Collider;
 
-        public Player Owner { get; set; }
+        public Player Owner { get; private set; }
 
         private string _name;
 
@@ -127,7 +124,7 @@ namespace OpenSage.Logic.Object
 
         public Team Team { get; set; }
 
-        public bool IsSelectable { get; set; }
+        public bool IsSelectable { get; private set; }
 
         public bool IsSelected { get; set; }
         public Vector3? RallyPoint { get; set; }
@@ -178,18 +175,17 @@ namespace OpenSage.Logic.Object
 
         internal GameObject(
             ObjectDefinition objectDefinition,
-            AssetLoadContext loadContext,
+            GameContext gameContext,
             Player owner,
             GameObjectCollection parent,
-            Navigation.Navigation navigation,
-            Scene3D scene)
+            Navigation.Navigation navigation)
         {
             if (objectDefinition == null)
             {
                 throw new ArgumentNullException(nameof(objectDefinition));
             }
 
-            _scene = scene;
+            _gameContext = gameContext;
 
             Definition = objectDefinition;
             Owner = owner;
@@ -203,7 +199,7 @@ namespace OpenSage.Logic.Object
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(loadContext));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(gameContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -243,8 +239,8 @@ namespace OpenSage.Logic.Object
 
             if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
             {
-                var rpMarkerDef = loadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, loadContext, owner, parent, navigation, null));
+                var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent, navigation));
             }
 
             Upgrades = new List<UpgradeTemplate>();
@@ -283,25 +279,6 @@ namespace OpenSage.Logic.Object
 
             return (null, null);
         }
-
-        internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            foreach (var drawModule in DrawModules)
-            {
-                foreach (var attachedParticleSystem in drawModule.GetAllAttachedParticleSystems())
-                {
-                    yield return attachedParticleSystem;
-                }
-            }
-
-            foreach (var attachedParticleSystem in TempParticleSystems)
-            {
-                yield return attachedParticleSystem;
-            }
-        }
-
-        // TODO: This is ugly.
-        internal List<AttachedParticleSystem> TempParticleSystems { get; } = new List<AttachedParticleSystem>();
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
@@ -614,8 +591,7 @@ namespace OpenSage.Logic.Object
                         weaponTemplate,
                         0,
                         WeaponSlot.Primary,
-                        _scene.Audio,
-                        _scene.AssetLoadContext);
+                        _gameContext);
                 }
                 else
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
@@ -11,6 +12,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
+    [DebuggerDisplay("ParticleSystem {Template.Name}")]
     public sealed class ParticleSystem : DisposableBase
     {
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
@@ -55,6 +57,8 @@ namespace OpenSage.Graphics.ParticleSystems
         public FXParticleSystemTemplate Template { get; }
 
         public ParticleSystemState State { get; private set; }
+
+        public int CurrentParticleCount { get; private set; }
 
         internal ParticleSystem(
             FXParticleSystemTemplate template,
@@ -140,7 +144,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 maxParticles,
                 out _numIndices));
 
-            State = ParticleSystemState.Active;
+            State = ParticleSystemState.Inactive;
 
             _beforeRender = (cl, context) =>
             {
@@ -156,6 +160,22 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
+        }
+
+        public void Activate()
+        {
+            if (State == ParticleSystemState.Inactive)
+            {
+                State = ParticleSystemState.Active;
+            }
+        }
+
+        public void Deactivate()
+        {
+            if (State == ParticleSystemState.Active)
+            {
+                State = ParticleSystemState.Inactive;
+            }
         }
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
@@ -234,7 +254,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 EmitParticles();
             }
 
-            var anyAlive = false;
+            var particleCount = 0;
 
             for (var i = 0; i < _particles.Length; i++)
             {
@@ -247,12 +267,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 UpdateParticle(ref particle);
 
-                anyAlive = true;
+                particleCount++;
             }
+
+            CurrentParticleCount = particleCount;
 
             UpdateVertexBuffer(commandList);
 
-            if (!anyAlive && State == ParticleSystemState.Finished)
+            if (particleCount == 0 && State == ParticleSystemState.Finished)
             {
                 State = ParticleSystemState.Dead;
             }
@@ -474,7 +496,7 @@ namespace OpenSage.Graphics.ParticleSystems
             commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        internal void BuildRenderList(RenderList renderList, TimeInterval gameTime)
+        internal void BuildRenderList(RenderList renderList)
         {
             if (_particles == null)
             {
@@ -504,6 +526,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
     public enum ParticleSystemState
     {
+        Inactive,
         Active,
         Finished,
         Dead

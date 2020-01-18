@@ -1,19 +1,13 @@
-﻿using System.Numerics;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.FX
 {
-    public abstract class FXNugget : DisposableBase
+    public abstract class FXNugget
     {
-        internal abstract void Execute(FXListContext context);
-    }
-
-    public abstract class FXNuggetData
-    {
-        internal static readonly IniParseTable<FXNuggetData> FXNuggetFieldParseTable = new IniParseTable<FXNuggetData>
+        internal static readonly IniParseTable<FXNugget> FXNuggetFieldParseTable = new IniParseTable<FXNugget>
         {
             { "ExcludedSourceModelConditions", (parser, x) => x.ExcludedSourceModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "RequiredSourceModelConditions", (parser, x) => x.RequiredSourceModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
@@ -40,6 +34,6 @@ namespace OpenSage.FX
         [AddedIn(SageGame.Bfme)]
         public bool OnlyIfOnLand { get; private set; }
 
-        internal virtual FXNugget CreateNugget() => null; // TODO: This should be abstract.
+        internal virtual void Execute(FXListExecutionContext context) { } // TODO: This should be abstract.
     }
 }

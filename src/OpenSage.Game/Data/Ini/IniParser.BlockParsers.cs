@@ -84,7 +84,7 @@ namespace OpenSage.Data.Ini
             { "FontDefaultSettings", (parser, assetStore) => assetStore.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
             { "FontSubstitution", (parser, assetStore) => assetStore.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
             { "FormationAssistant", (parser, assetStore) => FormationAssistant.Parse(parser, assetStore.FormationAssistant.Current) },
-            { "FXList", (parser, assetStore) => assetStore.FXLists.Add(FXListData.Parse(parser)) },
+            { "FXList", (parser, assetStore) => assetStore.FXLists.Add(FXList.Parse(parser)) },
             { "FXParticleSystem", (parser, assetStore) => assetStore.FXParticleSystemTemplates.Add(FXParticleSystemTemplate.Parse(parser)) },
             { "GameData", (parser, assetStore) => GameData.Parse(parser, assetStore.GameData.Current) },
             { "GlowEffect", (parser, assetStore) => assetStore.Environment.Current.GlowEffect = GlowEffect.Parse(parser) },

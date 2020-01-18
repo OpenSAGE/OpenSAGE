@@ -4,11 +4,11 @@ using OpenSage.Mathematics;
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class TintDrawableFXNuggetData : FXNuggetData
+    public sealed class TintDrawableFXNugget : FXNugget
     {
-        internal static TintDrawableFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static TintDrawableFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TintDrawableFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TintDrawableFXNuggetData>
+        private static readonly IniParseTable<TintDrawableFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TintDrawableFXNugget>
         {
             { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "PreColorTime", (parser, x) => x.PreColorTime = parser.ParseInteger() },

@@ -2,11 +2,11 @@
 
 namespace OpenSage.FX
 {
-    public sealed class FXListAtBonePosFXNuggetData : FXNuggetData
+    public sealed class FXListAtBonePosFXNugget : FXNugget
     {
-        internal static FXListAtBonePosFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXListAtBonePosFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FXListAtBonePosFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<FXListAtBonePosFXNuggetData>
+        private static readonly IniParseTable<FXListAtBonePosFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<FXListAtBonePosFXNugget>
         {
             { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
             { "BoneName", (parser, x) => x.BoneName = parser.ParseAssetReference() },

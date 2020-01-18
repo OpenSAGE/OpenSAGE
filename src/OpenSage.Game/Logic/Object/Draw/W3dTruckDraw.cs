@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -11,8 +10,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
-        internal W3dTruckDraw(W3dTruckDrawModuleData data, AssetLoadContext loadContext)
-            : base(data, loadContext)
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameContext context)
+            : base(data, context)
         {
             _data = data;
         }
@@ -136,9 +135,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(AssetLoadContext loadContext)
+        internal override DrawModule CreateDrawModule(GameContext context)
         {
-            return new W3dTruckDraw(this, loadContext);
+            return new W3dTruckDraw(this, context);
         }
     }
 }

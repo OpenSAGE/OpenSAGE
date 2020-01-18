@@ -3,11 +3,11 @@
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class EvaEventFXNuggetData : FXNuggetData
+    public sealed class EvaEventFXNugget : FXNugget
     {
-        internal static EvaEventFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static EvaEventFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<EvaEventFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<EvaEventFXNuggetData>
+        private static readonly IniParseTable<EvaEventFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<EvaEventFXNugget>
         {
             { "EvaEventOwner", (parser, x) => x.EvaEventOwner = parser.ParseAssetReference() },
             { "EvaEventAlly", (parser, x) => x.EvaEventAlly = parser.ParseAssetReference() }

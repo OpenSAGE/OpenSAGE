@@ -131,23 +131,20 @@ namespace OpenSage.Logic.Object
         public readonly WeaponTemplate WeaponTemplate;
         public readonly int WeaponIndex;
 
-        public readonly AudioSystem AudioSystem;
-        public readonly AssetLoadContext AssetLoadContext;
+        public readonly GameContext GameContext;
 
         public WeaponStateContext(
             GameObject gameObject,
             Weapon weapon,
             WeaponTemplate weaponTemplate,
             int weaponIndex,
-            AudioSystem audioSystem,
-            AssetLoadContext assetLoadContext)
+            GameContext gameContext)
         {
             GameObject = gameObject;
             Weapon = weapon;
             WeaponTemplate = weaponTemplate;
             WeaponIndex = weaponIndex;
-            AudioSystem = audioSystem;
-            AssetLoadContext = assetLoadContext;
+            GameContext = gameContext;
         }
     }
 

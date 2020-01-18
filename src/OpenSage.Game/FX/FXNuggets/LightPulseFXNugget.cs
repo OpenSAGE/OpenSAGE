@@ -3,11 +3,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FX
 {
-    public sealed class LightPulseFXNuggetData : FXNuggetData
+    public sealed class LightPulseFXNugget : FXNugget
     {
-        internal static LightPulseFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static LightPulseFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<LightPulseFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<LightPulseFXNuggetData>
+        private static readonly IniParseTable<LightPulseFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<LightPulseFXNugget>
         {
             { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },

@@ -3,11 +3,11 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.FX
 {
-    public sealed class TerrainScorchFXNuggetData : FXNuggetData
+    public sealed class TerrainScorchFXNugget : FXNugget
     {
-        internal static TerrainScorchFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static TerrainScorchFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TerrainScorchFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TerrainScorchFXNuggetData>
+        private static readonly IniParseTable<TerrainScorchFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<TerrainScorchFXNugget>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<TerrainScorchType>() },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
