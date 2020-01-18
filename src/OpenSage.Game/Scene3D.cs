@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
@@ -29,12 +28,13 @@ namespace OpenSage
 {
     public sealed class Scene3D : DisposableBase
     {
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
-        private readonly SelectionMessageHandler _selectionMessageHandler;
+        internal readonly GameContext GameContext;
+
         public SelectionGui SelectionGui { get; }
 
         private readonly DebugMessageHandler _debugMessageHandler;
@@ -44,34 +44,34 @@ namespace OpenSage
 
         private readonly OrderGeneratorSystem _orderGeneratorSystem;
 
-        public Camera Camera { get; }
+        public readonly Camera Camera;
 
-        public ICameraController CameraController { get; set; }
+        public readonly ICameraController CameraController;
 
-        public MapFile MapFile { get; set; }
+        public readonly MapFile MapFile;
 
-        public Terrain.Terrain Terrain { get; }
+        public readonly Terrain.Terrain Terrain;
         public bool ShowTerrain { get; set; } = true;
 
-        public WaterAreaCollection WaterAreas { get; }
+        public readonly WaterAreaCollection WaterAreas;
         public bool ShowWater { get; set; } = true;
 
-        public RoadCollection Roads { get; }
+        public readonly RoadCollection Roads;
         public bool ShowRoads { get; set; } = true;
 
-        public Bridge[] Bridges { get; }
+        public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
         public MapScriptCollection[] PlayerScripts { get; }
 
-        public GameObjectCollection GameObjects { get; }
+        public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
-        public CameraCollection Cameras { get; set; }
-        public WaypointCollection Waypoints { get; set; }
+        public readonly CameraCollection Cameras;
+        public readonly WaypointCollection Waypoints;
 
-        public WorldLighting Lighting { get; }
+        public readonly WorldLighting Lighting;
 
-        public ShadowSettings Shadows { get; } = new ShadowSettings();
+        public readonly ShadowSettings Shadows = new ShadowSettings();
 
         private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;
@@ -81,25 +81,14 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
-        public Navigation.Navigation Navigation { get; private set; }
+        public readonly Navigation.Navigation Navigation;
 
         internal readonly AudioSystem Audio;
         internal readonly AssetLoadContext AssetLoadContext;
 
-        public Random Random { get; }
+        public readonly Random Random;
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
-
-        internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            foreach (var gameObject in GameObjects.Items)
-            {
-                foreach (var attachedParticleSystem in gameObject.GetAllAttachedParticleSystems())
-                {
-                    yield return attachedParticleSystem;
-                }
-            }
-        }
 
         internal Scene3D(Game game, MapFile mapFile, int randomSeed)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false)
@@ -135,14 +124,12 @@ namespace OpenSage
                 MapFile.NamedCameras,
                 _teams,
                 out var waypoints,
-                out var gameObjects,
                 out var roads,
                 out var bridges,
                 out var cameras);
 
             Roads = roads;
             Bridges = bridges;
-            GameObjects = gameObjects;
             Waypoints = waypoints;
             Cameras = cameras;
 
@@ -170,19 +157,11 @@ namespace OpenSage
             NamedCameras namedCameras,
             List<Team> teams,
             out WaypointCollection waypointCollection,
-            out GameObjectCollection gameObjects,
             out RoadCollection roads,
             out Bridge[] bridges,
             out CameraCollection cameras)
         {
             var waypoints = new List<Waypoint>();
-
-            gameObjects = AddDisposable(
-                new GameObjectCollection(
-                    loadContext,
-                    civilianPlayer,
-                    Navigation,
-                    this));
 
             var bridgesList = new List<Bridge>();
 
@@ -206,7 +185,7 @@ namespace OpenSage
                             default:
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, gameObjects, position);
+                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, GameObjects, position);
 
                                 break;
                         }
@@ -229,7 +208,7 @@ namespace OpenSage
                             mapObject,
                             mapObject.Position,
                             bridgeEnd.Position,
-                            gameObjects)));
+                            GameObjects)));
 
                         break;
 
@@ -280,7 +259,6 @@ namespace OpenSage
             InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
-            GameObjectCollection gameObjects,
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
@@ -297,7 +275,6 @@ namespace OpenSage
 
             Roads = AddDisposable(new RoadCollection());
             Bridges = Array.Empty<Bridge>();
-            GameObjects = gameObjects;
             Waypoints = new WaypointCollection();
             Cameras = new CameraCollection();
 
@@ -318,12 +295,23 @@ namespace OpenSage
 
             if (!isDiagnosticScene)
             {
-                RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), inputMessageBuffer);
+                RegisterInputHandler(new SelectionMessageHandler(game.Selection), inputMessageBuffer);
                 RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), inputMessageBuffer);
                 RegisterInputHandler(_debugMessageHandler = new DebugMessageHandler(DebugOverlay), inputMessageBuffer);
             }
 
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
+
+            GameContext = new GameContext(
+                game.AssetStore.LoadContext,
+                game.Audio,
+                _particleSystemManager);
+
+            GameObjects = AddDisposable(
+                new GameObjectCollection(
+                    GameContext,
+                    game.CivilianPlayer,
+                    Navigation));
 
             _orderGeneratorSystem = game.OrderGenerator;
         }
@@ -423,7 +411,7 @@ namespace OpenSage
                 }
             }
 
-            _particleSystemManager.BuildRenderList(renderList, gameTime);
+            _particleSystemManager.BuildRenderList(renderList);
 
             _orderGeneratorSystem.BuildRenderList(renderList, camera, gameTime);
         }

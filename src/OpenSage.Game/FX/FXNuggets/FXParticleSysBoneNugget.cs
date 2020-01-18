@@ -3,11 +3,11 @@
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class FXParticleSysBoneNuggetData : FXNuggetData
+    public sealed class FXParticleSysBoneNugget : FXNugget
     {
-        internal static FXParticleSysBoneNuggetData Parse(IniParser parser)
+        internal static FXParticleSysBoneNugget Parse(IniParser parser)
         {
-            return new FXParticleSysBoneNuggetData
+            return new FXParticleSysBoneNugget
             {
                 Bone = parser.ParseBoneName(),
                 Particle = parser.ParseAssetReference(),

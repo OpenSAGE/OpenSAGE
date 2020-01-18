@@ -4,11 +4,11 @@ using OpenSage.Mathematics;
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class CursorParticleSystemFXNuggetData : FXNuggetData
+    public sealed class CursorParticleSystemFXNugget : FXNugget
     {
-        internal static CursorParticleSystemFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CursorParticleSystemFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CursorParticleSystemFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<CursorParticleSystemFXNuggetData>
+        private static readonly IniParseTable<CursorParticleSystemFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<CursorParticleSystemFXNugget>
         {
             { "Anim2DTemplateName", (parser, x) => x.Anim2DTemplateName = parser.ParseAssetReference() },
             { "BurstCount", (parser, x) => x.BurstCount = parser.ParseInteger() },

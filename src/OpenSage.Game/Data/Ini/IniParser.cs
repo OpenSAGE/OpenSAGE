@@ -447,7 +447,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.ArmorTemplates.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<FXListData> ParseFXListReference()
+        public LazyAssetReference<FXList> ParseFXListReference()
         {
             var name = ParseAssetReference();
             return _assetStore.FXLists.GetLazyAssetReferenceByName(name);

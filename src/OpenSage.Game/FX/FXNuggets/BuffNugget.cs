@@ -4,11 +4,11 @@ using OpenSage.Mathematics;
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class BuffNuggetData : FXNuggetData
+    public sealed class BuffNugget : FXNugget
     {
-        internal static BuffNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BuffNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BuffNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<BuffNuggetData>
+        private static readonly IniParseTable<BuffNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<BuffNugget>
         {
             { "BuffType", (parser, x) => x.BuffType = parser.ParseIdentifier() },
             { "BuffThingTemplate", (parser, x) => x.BuffThingTemplate = parser.ParseAssetReference() },

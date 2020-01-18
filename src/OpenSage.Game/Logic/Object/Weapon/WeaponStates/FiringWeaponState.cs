@@ -29,34 +29,43 @@ namespace OpenSage.Logic.Object
                 Context.Weapon.CurrentRounds--;
             }
 
-            Context.AudioSystem.PlayAudioEvent(Context.WeaponTemplate.FireSound.Value);
+            Context.GameContext.AudioSystem.PlayAudioEvent(
+                Context.WeaponTemplate.FireSound.Value);
 
             foreach (var nugget in Context.Weapon.Nuggets)
             {
                 nugget.Activate(enterTime);
             }
 
+            TriggerWeaponFireFX();
+
+            // TODO: ProjectileObject
+        }
+
+        private void TriggerWeaponFireFX()
+        {
             var fireFXPosition = Context.GameObject.GetWeaponFireFXBonePosition(
                 Context.Weapon.Slot,
                 Context.WeaponIndex);
-            if (fireFXPosition != null)
+            if (fireFXPosition == null)
             {
-                var fireFXListData = Context.WeaponTemplate.FireFX?.Value;
-                if (fireFXListData != null)
-                {
-                    // TODO: Need to dispose this.
-                    var fireFXList = new FXList(fireFXListData);
-
-                    var worldMatrix = Context.GameObject.Transform.Matrix;
-                    worldMatrix.Translation = fireFXPosition.Value;
-
-                    fireFXList.Execute(
-                        new FXListContext(
-                            Context.GameObject,
-                            worldMatrix,
-                            Context.AssetLoadContext));
-                }
+                return;
             }
+
+            var fireFXListData = Context.WeaponTemplate.FireFX?.Value;
+            if (fireFXListData == null)
+            {
+                return;
+            }
+
+            var worldMatrix = Context.GameObject.Transform.Matrix;
+            worldMatrix.Translation = fireFXPosition.Value;
+
+            fireFXListData.Execute(
+                new FXListExecutionContext(
+                    Context.GameObject,
+                    worldMatrix,
+                    Context.GameContext));
         }
 
         public override WeaponState? GetNextState(TimeSpan currentTime)

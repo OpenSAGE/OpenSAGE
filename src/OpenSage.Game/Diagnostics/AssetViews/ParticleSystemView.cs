@@ -22,11 +22,13 @@ namespace OpenSage.Diagnostics.AssetViews
                 game.AssetStore.LoadContext,
                 () => ref WorldIdentity));
 
+            particleSystem.Activate();
+
             _renderedView = AddDisposable(new RenderedView(context));
 
             void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
-                particleSystem.BuildRenderList(e.RenderList, e.GameTime);
+                particleSystem.BuildRenderList(e.RenderList);
             }
 
             _renderedView.RenderPipeline.BuildingRenderList += onBuildingRenderList;

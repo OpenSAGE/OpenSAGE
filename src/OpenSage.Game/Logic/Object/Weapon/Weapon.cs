@@ -49,8 +49,7 @@ namespace OpenSage.Logic.Object
             WeaponTemplate weaponTemplate,
             int weaponIndex,
             WeaponSlot slot,
-            AudioSystem audioSystem,
-            AssetLoadContext assetLoadContext)
+            GameContext gameContext)
         {
             _gameObject = gameObject;
             _weaponTemplate = weaponTemplate;
@@ -77,8 +76,7 @@ namespace OpenSage.Logic.Object
                     this,
                     weaponTemplate,
                     weaponIndex,
-                    audioSystem,
-                    assetLoadContext));
+                    gameContext));
 
             _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(weaponIndex);
         }

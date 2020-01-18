@@ -264,7 +264,7 @@ namespace OpenSage.Logic.Object
         public float MinWeaponSpeed { get; private set; }
         public bool ScaleWeaponSpeed { get; private set; }
         public int WeaponRecoil { get; private set; }
-        public LazyAssetReference<FXListData> FireFX { get; private set; }
+        public LazyAssetReference<FXList> FireFX { get; private set; }
         public bool PlayFXWhenStealthed { get; private set; }
         public string FireOCL { get; private set; }
         public string VeterancyFireFX { get; private set; }

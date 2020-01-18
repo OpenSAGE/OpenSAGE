@@ -3,11 +3,11 @@
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class CameraShakerVolumeFXNuggetData : FXNuggetData
+    public sealed class CameraShakerVolumeFXNugget : FXNugget
     {
-        internal static CameraShakerVolumeFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CameraShakerVolumeFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CameraShakerVolumeFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<CameraShakerVolumeFXNuggetData>
+        private static readonly IniParseTable<CameraShakerVolumeFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<CameraShakerVolumeFXNugget>
         {
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
             { "Duration_Seconds", (parser, x) => x.Duration = parser.ParseFloat() },

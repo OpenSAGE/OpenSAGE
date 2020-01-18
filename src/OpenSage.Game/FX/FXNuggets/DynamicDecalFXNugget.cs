@@ -5,11 +5,11 @@ using OpenSage.Mathematics;
 namespace OpenSage.FX
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class DynamicDecalFXNuggetData : FXNuggetData
+    public sealed class DynamicDecalFXNugget : FXNugget
     {
-        internal static DynamicDecalFXNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DynamicDecalFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DynamicDecalFXNuggetData> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<DynamicDecalFXNuggetData>
+        private static readonly IniParseTable<DynamicDecalFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<DynamicDecalFXNugget>
         {
             { "DecalName", (parser, x) => x.DecalName = parser.ParseAssetReference() },
             { "Size", (parser, x) => x.Size = parser.ParseInteger() },

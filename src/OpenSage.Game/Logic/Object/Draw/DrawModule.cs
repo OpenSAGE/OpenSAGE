@@ -5,7 +5,6 @@ using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -18,11 +17,6 @@ namespace OpenSage.Logic.Object
 
         // TODO: Probably shouldn't have this here.
         internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
-
-        internal virtual IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            yield break;
-        }
 
         public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
@@ -74,6 +68,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(AssetLoadContext loadContext) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(GameContext context) => null; // TODO: Make this abstract.
     }
 }

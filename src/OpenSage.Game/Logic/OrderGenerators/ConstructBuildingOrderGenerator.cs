@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
@@ -36,7 +35,7 @@ namespace OpenSage.Logic.OrderGenerators
             int definitionIndex,
             GameData config,
             Player player,
-            AssetLoadContext loadContext,
+            GameContext gameContext,
             Scene3D scene)
         {
             _buildingDefinition = buildingDefinition;
@@ -50,9 +49,8 @@ namespace OpenSage.Logic.OrderGenerators
 
             _previewObject = new GameObject(
                 buildingDefinition,
-                loadContext,
+                gameContext,
                 player,
-                null,
                 null,
                 null);
             _previewObject.IsPlacementPreview = true;
