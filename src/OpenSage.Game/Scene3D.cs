@@ -199,7 +199,7 @@ namespace OpenSage
                     case RoadType.None:
                         switch (mapObject.TypeName)
                         {
-                            case "*Waypoints/Waypoint":
+                            case Waypoint.ObjectTypeName:
                                 waypoints.Add(new Waypoint(mapObject));
                                 break;
 
