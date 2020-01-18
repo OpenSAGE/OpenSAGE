@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Audio;
+using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.FX
 {
@@ -8,9 +10,14 @@ namespace OpenSage.FX
 
         private static readonly IniParseTable<SoundFXNugget> FieldParseTable = FXNuggetFieldParseTable.Concat(new IniParseTable<SoundFXNugget>
         {
-            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() }
+            { "Name", (parser, x) => x.Value = parser.ParseAudioEventReference() }
         });
 
-        public string Name { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> Value { get; private set; }
+
+        internal override void Execute(FXListExecutionContext context)
+        {
+            context.GameContext.AudioSystem.PlayAudioEvent(Value.Value);
+        }
     }
 }
