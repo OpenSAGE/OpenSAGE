@@ -16,7 +16,10 @@ namespace OpenSage.FX
         [IniEnum("SEVERE")]
         Severe,
 
-        [IniEnum("CINE_EXTREME"), AddedIn(SageGame.Bfme)]
-        CineExtreme
+        [IniEnum("CINE_EXTREME")]
+        CineExtreme,
+
+        [IniEnum("CINE_INSANE")]
+        CineInsane,
     }
 }
