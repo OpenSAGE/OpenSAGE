@@ -24,6 +24,8 @@ namespace OpenSage.Diagnostics
 
         public RenderPipeline RenderPipeline { get; }
 
+        public Scene3D Scene => _scene3D;
+
         public RenderedView(
             DiagnosticViewContext context,
             in Vector3 cameraTarget = default,
