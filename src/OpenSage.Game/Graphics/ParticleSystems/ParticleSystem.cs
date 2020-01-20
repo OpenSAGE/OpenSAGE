@@ -393,7 +393,7 @@ namespace OpenSage.Graphics.ParticleSystems
             if (!prevC.Equals(nextC))
             {
                 var colorInterpoland = (float) (particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
-                particle.Color = Vector3Utility.Lerp(in prevC.Color, in nextC.Color, colorInterpoland);
+                particle.Color = Vector3.Lerp(prevC.Color, nextC.Color, colorInterpoland);
             }
             else
             {
