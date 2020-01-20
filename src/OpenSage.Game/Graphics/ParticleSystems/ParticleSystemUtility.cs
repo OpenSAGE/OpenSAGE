@@ -15,32 +15,25 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public static float GetRandomFloat(this RandomVariable variable)
         {
-            if (variable.Low == variable.High)
+            var min = variable.Low;
+            var max = variable.High;
+
+            if (min == max)
             {
-                return variable.Low;
+                return min;
             }
 
-            float min, max;
-            // TODO: Is this ever not the case?
-            if (variable.Low <= variable.High)
+            // This is how the original engine behaves.
+            if (max < min)
             {
-                min = variable.Low;
-                max = variable.High;
-            }
-            else
-            {
-                min = variable.High;
-                max = variable.Low;
+                return max;
             }
 
-            switch (variable.DistributionType)
+            return variable.DistributionType switch
             {
-                case DistributionType.Uniform:
-                    return min + ((float) Random.NextDouble() * (max - min));
-
-                default:
-                    throw new NotSupportedException();
-            }
+                DistributionType.Uniform => min + ((float) Random.NextDouble() * (max - min)),
+                _ => throw new NotSupportedException(),
+            };
         }
 
         public static int GetRandomInt(this RandomVariable variable)

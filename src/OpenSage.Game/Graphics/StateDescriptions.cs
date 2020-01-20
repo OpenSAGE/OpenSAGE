@@ -24,4 +24,24 @@ namespace OpenSage.Graphics
                 false);
         }
     }
+
+    internal static class BlendStateDescriptionUtility
+    {
+        public static readonly BlendStateDescription SingleAdditiveBlendNoAlpha = new BlendStateDescription
+        {
+            AttachmentStates = new[]
+            {
+                new BlendAttachmentDescription
+                {
+                    BlendEnabled = true,
+                    SourceColorFactor = BlendFactor.One,
+                    DestinationColorFactor = BlendFactor.One,
+                    ColorFunction = BlendFunction.Add,
+                    SourceAlphaFactor = BlendFactor.One,
+                    DestinationAlphaFactor = BlendFactor.One,
+                    AlphaFunction = BlendFunction.Add,
+                }
+            }
+        };
+    }
 }

@@ -91,7 +91,7 @@ namespace OpenSage
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
         internal Scene3D(Game game, MapFile mapFile, int randomSeed)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile)
         {
             var contentManager = game.ContentManager;
 
@@ -104,11 +104,6 @@ namespace OpenSage
                 .Select(team => Team.FromMapData(team, _players))
                 .ToList();
 
-            MapFile = mapFile;
-            Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
-            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
-            Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
-
             Audio = game.Audio;
             AssetLoadContext = game.AssetStore.LoadContext;
 
@@ -118,7 +113,6 @@ namespace OpenSage
 
             LoadObjects(
                 game.AssetStore.LoadContext,
-                game.CivilianPlayer,
                 Terrain.HeightMap,
                 mapFile.ObjectsList.Objects,
                 MapFile.NamedCameras,
@@ -151,7 +145,6 @@ namespace OpenSage
 
         private void LoadObjects(
             AssetLoadContext loadContext,
-            Player civilianPlayer,
             HeightMap heightMap,
             MapObject[] mapObjects,
             NamedCameras namedCameras,
@@ -262,7 +255,7 @@ namespace OpenSage
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene)
+            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null)
         {
             _players = new List<Player>();
             _teams = new List<Team>();
@@ -281,7 +274,7 @@ namespace OpenSage
             CameraController = cameraController;
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene)
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile)
         {
             Camera = new Camera(getViewport);
 
@@ -290,6 +283,14 @@ namespace OpenSage
             DebugOverlay = new DebugOverlay(this, game.ContentManager);
 
             Random = new Random(randomSeed);
+
+            if (mapFile != null)
+            {
+                MapFile = mapFile;
+                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
+                WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
+                Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
+            }
 
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
@@ -305,7 +306,8 @@ namespace OpenSage
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
-                _particleSystemManager);
+                _particleSystemManager,
+                Terrain);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(

@@ -78,9 +78,22 @@ namespace OpenSage.FX
 
         internal override void Execute(FXListExecutionContext context)
         {
+            var worldMatrix = OrientToObject
+                ? Matrix4x4.CreateFromQuaternion(context.Rotation)
+                : Matrix4x4.Identity;
+
+            var position = context.Position;
+
+            if (CreateAtGroundHeight)
+            {
+                position.Z = context.GameContext.Terrain.HeightMap.GetHeight(position.X, position.Y);
+            }
+
+            worldMatrix.Translation = position;
+
             var particleSystem = context.GameContext.ParticleSystems.Create(
                 Template.Value,
-                () => ref context.WorldMatrix);
+                worldMatrix);
 
             particleSystem.Activate();
         }

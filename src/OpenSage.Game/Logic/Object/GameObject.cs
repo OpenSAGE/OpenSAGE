@@ -247,7 +247,7 @@ namespace OpenSage.Logic.Object
         }
 
         // TODO: This probably shouldn't be here.
-        public Vector3? GetWeaponFireFXBonePosition(WeaponSlot slot, int index)
+        public Matrix4x4? GetWeaponFireFXBoneTransform(WeaponSlot slot, int index)
         {
             foreach (var drawModule in DrawModules)
             {
@@ -257,7 +257,7 @@ namespace OpenSage.Logic.Object
                     var (modelInstance, bone) = drawModule.FindBone(fireFXBone + (index + 1).ToString("D2"));
                     if (bone != null)
                     {
-                        return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
+                        return modelInstance.AbsoluteBoneTransforms[bone.Index];
                     }
                     break;
                 }
