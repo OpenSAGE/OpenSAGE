@@ -18,6 +18,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
 
         private readonly GetMatrixReferenceDelegate _getWorldMatrix;
+        private readonly Matrix4x4 _worldMatrix;
 
         private readonly GraphicsDevice _graphicsDevice;
 
@@ -25,6 +26,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
         private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ConstantBuffer<ParticleShaderResources.ParticleConstantsVS> _particleConstantsBufferVS;
         private readonly ResourceSet _particleResourceSet;
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
@@ -64,10 +66,25 @@ namespace OpenSage.Graphics.ParticleSystems
             FXParticleSystemTemplate template,
             AssetLoadContext loadContext,
             GetMatrixReferenceDelegate getWorldMatrix)
+            : this(template, loadContext)
+        {
+            _getWorldMatrix = getWorldMatrix;
+        }
+
+        internal ParticleSystem(
+            FXParticleSystemTemplate template,
+            AssetLoadContext loadContext,
+            in Matrix4x4 worldMatrix)
+            : this(template, loadContext)
+        {
+            _worldMatrix = worldMatrix;
+        }
+
+        private ParticleSystem(
+            FXParticleSystemTemplate template,
+            AssetLoadContext loadContext)
         {
             Template = template;
-
-            _getWorldMatrix = getWorldMatrix;
 
             var maxParticles = CalculateMaxParticles();
 
@@ -81,11 +98,16 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
 
+            _particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleShaderResources.ParticleConstantsVS>(_graphicsDevice));
+            _particleConstantsBufferVS.Value.IsGroundAligned = template.IsGroundAligned;
+            _particleConstantsBufferVS.Update(loadContext.GraphicsDevice);
+
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
 
             _particleResourceSet = AddDisposable(loadContext.ShaderResources.Particle.CreateParticleResoureSet(
                 _renderItemConstantsBufferVS.Buffer,
+                _particleConstantsBufferVS.Buffer,
                 Template.ParticleTexture.Value));
 
             _shaderSet = loadContext.ShaderResources.Particle.ShaderSet;
@@ -149,7 +171,22 @@ namespace OpenSage.Graphics.ParticleSystems
             _beforeRender = (cl, context) =>
             {
                 // Only update once we know this particle system is visible on screen.
-                Update(cl, context.GameTime);
+                // We need to run enough updates to catch up for any time
+                // the particle system has been offscreen.
+                var anyUpdates = false;
+                while (true)
+                {
+                    if (!Update(context.GameTime))
+                    {
+                        break;
+                    }
+                    anyUpdates = true;
+                }
+
+                if (anyUpdates)
+                {
+                    UpdateVertexBuffer(cl);
+                }
 
                 if (_worldMatrixChanged)
                 {
@@ -208,24 +245,29 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
-        private void Update(CommandList commandList, in TimeInterval gameTime)
+        private bool Update(in TimeInterval gameTime)
         {
             if (_particles == null)
             {
-                return;
+                return false;
             }
 
             if (gameTime.TotalTime < _nextUpdate)
             {
-                return;
+                return false;
             }
 
-            _nextUpdate = gameTime.TotalTime + TimeSpan.FromSeconds(1 / 30.0f);
+            if (_nextUpdate == TimeSpan.Zero)
+            {
+                _nextUpdate = gameTime.TotalTime;
+            }
+
+            _nextUpdate += TimeSpan.FromSeconds(1 / 30.0f);
 
             if (_initialDelay > 0)
             {
                 _initialDelay -= 1;
-                return;
+                return false;
             }
 
             if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
@@ -272,14 +314,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             CurrentParticleCount = particleCount;
 
-            UpdateVertexBuffer(commandList);
-
             if (particleCount == 0 && State == ParticleSystemState.Finished)
             {
                 State = ParticleSystemState.Dead;
             }
 
             _timer += 1;
+
+            return true;
         }
 
         private void EmitParticles()
@@ -394,11 +436,16 @@ namespace OpenSage.Graphics.ParticleSystems
             var physics = (FXParticleDefaultPhysics) Template.Physics;
 
             particle.Velocity *= particle.VelocityDamping;
-            var totalVelocity = particle.Velocity;
 
             if (physics != null)
             {
                 particle.Velocity.Z += physics.Gravity;
+            }
+
+            var totalVelocity = particle.Velocity;
+
+            if (physics != null)
+            {
                 totalVelocity += physics.DriftVelocity;
             }
 
@@ -503,7 +550,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            ref readonly var worldMatrix = ref _getWorldMatrix();
+            ref readonly var worldMatrix = ref GetWorldMatrix();
 
             _worldMatrixChanged = false;
             if (worldMatrix != _renderItemConstantsBufferVS.Value.World)
@@ -521,6 +568,18 @@ namespace OpenSage.Graphics.ParticleSystems
                 _numIndices,
                 _indexBuffer,
                 _beforeRender));
+        }
+
+        private ref readonly Matrix4x4 GetWorldMatrix()
+        {
+            if (_getWorldMatrix != null)
+            {
+                return ref _getWorldMatrix();
+            }
+            else
+            {
+                return ref _worldMatrix;
+            }
         }
     }
 

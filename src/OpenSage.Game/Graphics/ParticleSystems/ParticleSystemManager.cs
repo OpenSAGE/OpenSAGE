@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 
@@ -31,6 +32,22 @@ namespace OpenSage.Graphics.ParticleSystems
                         template,
                         _loadContext,
                         getWorldMatrix)));
+
+            return result;
+        }
+
+        public ParticleSystem Create(
+            FXParticleSystemTemplate template,
+            in Matrix4x4 worldMatrix)
+        {
+            ParticleSystem result;
+
+            _particleSystems.Add(
+                AddDisposable(
+                    result = new ParticleSystem(
+                        template,
+                        _loadContext,
+                        worldMatrix)));
 
             return result;
         }

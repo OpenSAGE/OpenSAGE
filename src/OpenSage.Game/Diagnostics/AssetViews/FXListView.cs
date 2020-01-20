@@ -15,8 +15,8 @@ namespace OpenSage.Diagnostics.AssetViews
 
             fxList.Execute(
                 new FXListExecutionContext(
-                    null, // TODO
-                    Matrix4x4.Identity,
+                    Quaternion.Identity,
+                    Vector3.Zero,
                     _renderedView.Scene.GameContext));
         }
 

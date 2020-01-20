@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
@@ -44,10 +45,10 @@ namespace OpenSage.Logic.Object
 
         private void TriggerWeaponFireFX()
         {
-            var fireFXPosition = Context.GameObject.GetWeaponFireFXBonePosition(
+            var fireFXTransform = Context.GameObject.GetWeaponFireFXBoneTransform(
                 Context.Weapon.Slot,
                 Context.WeaponIndex);
-            if (fireFXPosition == null)
+            if (fireFXTransform == null)
             {
                 return;
             }
@@ -58,13 +59,16 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var worldMatrix = Context.GameObject.Transform.Matrix;
-            worldMatrix.Translation = fireFXPosition.Value;
+            Matrix4x4.Decompose(
+                fireFXTransform.Value,
+                out _,
+                out var rotation,
+                out var translation);
 
             fireFXListData.Execute(
                 new FXListExecutionContext(
-                    Context.GameObject,
-                    worldMatrix,
+                    rotation,
+                    translation,
                     Context.GameContext));
         }
 
