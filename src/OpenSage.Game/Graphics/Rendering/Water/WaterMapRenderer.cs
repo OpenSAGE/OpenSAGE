@@ -46,6 +46,9 @@ namespace OpenSage.Graphics.Rendering.Water
         private bool _isRenderReflection;
         private bool _isRenderRefraction;
 
+        private float _transparentWaterDepth;
+        private float _transparentWaterMinOpacity;
+
         public WaterMapRenderer(
             AssetStore assetStore,
             GraphicsLoadContext graphicsLoadContext,
@@ -75,6 +78,9 @@ namespace OpenSage.Graphics.Rendering.Water
 
             _uvFactor = new Vector2(0.01f, 0.01f);
             _uvOffset = new Vector2(0, 0);
+
+            _transparentWaterDepth = assetStore.WaterTransparency.Current.TransparentWaterDepth;
+            _transparentWaterMinOpacity = assetStore.WaterTransparency.Current.TransparentWaterMinOpacity;
         }
 
         private void UpdateTimer()
@@ -111,6 +117,8 @@ namespace OpenSage.Graphics.Rendering.Water
             _waterConstantsPS.NearPlaneDistance = _nearPlaneDistance;
             _waterConstantsPS.IsRenderReflection = _isRenderReflection ? 1u : 0;
             _waterConstantsPS.IsRenderRefraction = _isRenderRefraction ? 1u : 0;
+            _waterConstantsPS.TransparentWaterDepth = _transparentWaterDepth;
+            _waterConstantsPS.TransparentWaterMinOpacity = _transparentWaterMinOpacity;
             _waterConstantsPSBuffer.Value = _waterConstantsPS;
         }
 

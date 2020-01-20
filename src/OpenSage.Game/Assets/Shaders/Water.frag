@@ -22,6 +22,9 @@ layout(set = 4, binding = 1) uniform WaterConstantsPS
     float NearPlaneDistance;
     uint IsRenderReflection;
     uint IsRenderRefraction;
+    float TransparentWaterMinOpacity;
+    float TransparentWaterDepth;
+    vec2 Padding;
 };
 layout(set = 4, binding = 2) uniform texture2D WaterTexture;
 layout(set = 4, binding = 3) uniform texture2D BumpTexture;
@@ -43,7 +46,7 @@ in vec4 gl_FragCoord;
 layout(location = 0) out vec4 out_Color;
 
 const float distortionPower = 0.05f;
-const float depthFactor = 7.0f;
+const float depthFactor = 2.0f;
 const float minWaterDepth = 20.0f;
 
 float getLinearDepthMap(float nearPlaneDistance, float farPlaneDistance, float depth)
@@ -61,8 +64,8 @@ void main()
 
     vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstantsPS.ViewportSize.x, gl_FragCoord.y / _GlobalConstantsPS.ViewportSize.y);
     vec2 distortion = (texture(sampler2D(WaterTexture, WaterSampler), waterUV - UVOffset).xy * 2.0f - 1.0f) * distortionPower;
-    vec2 reflectionMapUV = vec2(clamp(normalDeviceCoord.x, 0.01f, 0.99f), clamp(normalDeviceCoord.y, 0.01f, 0.99f)); // Add minus to y coord if not using stencil clipping
-    vec2 refractionMapUV = vec2(clamp(normalDeviceCoord.x, 0.01f, 0.99f), clamp(normalDeviceCoord.y, 0.01f, 0.99f));
+    vec2 reflectionMapUV = vec2(clamp(normalDeviceCoord.x, 0.0f, 1.0f), clamp(normalDeviceCoord.y, 0.0f, 1.0)); // Add minus to y coord if not using stencil clipping
+    vec2 refractionMapUV = vec2(clamp(normalDeviceCoord.x, 0.0f, 1.0f), clamp(normalDeviceCoord.y, 0.0f, 1.0));
     
     vec4 textureColor = texture(sampler2D(WaterTexture, WaterSampler), waterUV + distortion);
     vec4 reflectionColor = texture(sampler2D(ReflectionMap, ReflectionMapSampler), reflectionMapUV + distortion);
@@ -72,7 +75,6 @@ void main()
     float linearRefractionDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, refractionDepth.x);
     float linearPlaneDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, gl_FragCoord.z);
     float linearWaterDepth = linearRefractionDepth -  linearPlaneDepth;
-    float waterDepth = clamp((linearWaterDepth)/depthFactor, 0.0f, 1.0f);
     
     vec3 cloudColor = GetCloudColor(Global_CloudTexture, WaterSampler, in_CloudUV + distortion);
     vec3 worldNormal = texture(sampler2D(BumpTexture, WaterSampler), waterUV + distortion).xyz;
@@ -105,20 +107,24 @@ void main()
         diffuseColor,
         specularColor);
 
-    vec4 finalColor;
-    if (IsRenderReflection == 0)
-    {
-        finalColor = vec4(diffuseColor * refractionColor.xyz * textureColor.xyz * cloudColor, waterDepth);
-    }
-    else if (IsRenderRefraction == 0) {
-        finalColor = vec4(diffuseColor * reflectionColor.xyz * textureColor.xyz * cloudColor, waterDepth);
-    }
-    else
+    // Calculate water transparency
+    float alpha = clamp(clamp(linearWaterDepth/depthFactor,0.0f,1.0f)/TransparentWaterDepth, 0.0f, TransparentWaterMinOpacity);
+    vec4 finalColor = vec4(diffuseColor * textureColor.xyz * cloudColor, alpha);
+
+    if (IsRenderReflection != 0 && IsRenderRefraction != 0)
     {
         float refractionFactor = linearWaterDepth - minWaterDepth;
         vec4 fresnelColor = mix(refractionColor, reflectionColor, fresnelFactor);
-        float alpha = fresnelColor.w * waterDepth;
-        finalColor = vec4(diffuseColor * fresnelColor.xyz * textureColor.xyz * cloudColor, alpha);
+        finalColor.a *= fresnelColor.w;
+        finalColor.xyz *= fresnelColor.xyz;
+    }
+    else if (IsRenderReflection != 0)
+    {
+        finalColor.xyz *= reflectionColor.xyz;
+    }
+    else if (IsRenderRefraction != 0) 
+    {
+        finalColor.xyz *= refractionColor.xyz;
     }
     out_Color = finalColor;
 }
