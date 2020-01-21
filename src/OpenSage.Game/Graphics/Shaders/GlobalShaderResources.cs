@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -208,7 +209,7 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
         public struct WaterConstantsPS
         {
-            public const int SizeInBytes = 16 * 2;
+            public const int SizeInBytes = 16 * 4;
 
             public Vector2 UVOffset;
 
@@ -220,6 +221,9 @@ namespace OpenSage.Graphics.Shaders
 
             public float TransparentWaterMinOpacity;
             public float TransparentWaterDepth;
+            // Figure out when how to use those correctly
+            public ColorRgbaF DiffuseColor;
+            public ColorRgbaF TransparentDiffuseColor;
         }
     }
 }

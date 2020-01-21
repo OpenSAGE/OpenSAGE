@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering.Water
@@ -25,6 +26,8 @@ namespace OpenSage.Graphics.Rendering.Water
 
         private readonly Dictionary<TimeOfDay, Texture> _waterTextureSet;
         private readonly Dictionary<TimeOfDay, Vector2> _waterUvScrollSet;
+        private readonly Dictionary<TimeOfDay, ColorRgba> _waterDiffuseColorSet;
+        private readonly Dictionary<TimeOfDay, ColorRgba> _waterTransparentDiffuseColorSet;
         private readonly Texture _bumpTexture;
 
         private readonly ConstantBuffer<GlobalShaderResources.WaterConstantsVS> _waterConstantsVSBuffer;
@@ -36,7 +39,6 @@ namespace OpenSage.Graphics.Rendering.Water
         private readonly WaterShaderResources _waterShaderResources;
 
         private Vector2 _uvOffset;
-        private Vector2 _uvFactor;
 
         private DeltaTimer _deltaTimer;
 
@@ -60,10 +62,15 @@ namespace OpenSage.Graphics.Rendering.Water
             var _waterSets = assetStore.WaterSets;
             _waterTextureSet = new Dictionary<TimeOfDay, Texture>();
             _waterUvScrollSet = new Dictionary<TimeOfDay, Vector2>();
+            _waterDiffuseColorSet = new Dictionary<TimeOfDay, ColorRgba>();
+            _waterTransparentDiffuseColorSet = new Dictionary<TimeOfDay, ColorRgba>();
+
             foreach (var waterSet in _waterSets)
             {
                 _waterTextureSet.Add(waterSet.TimeOfDay, waterSet.WaterTexture.Value.Texture);
                 _waterUvScrollSet.Add(waterSet.TimeOfDay, new Vector2(waterSet.UScrollPerMS, waterSet.VScrollPerMS));
+                _waterDiffuseColorSet.Add(waterSet.TimeOfDay, waterSet.DiffuseColor);
+                _waterTransparentDiffuseColorSet.Add(waterSet.TimeOfDay, waterSet.TransparentDiffuseColor);
             }
 
             _bumpTexture = graphicsLoadContext.StandardGraphicsResources.SolidWhiteTexture;
@@ -78,7 +85,7 @@ namespace OpenSage.Graphics.Rendering.Water
             _waterConstantsVS.ModelMatrix = Matrix4x4.Identity;
             _waterConstantsVSBuffer.Value = _waterConstantsVS;
 
-            _uvOffset = new Vector2(0, 0);
+            _uvOffset = Vector2.Zero;
 
             _transparentWaterDepth = assetStore.WaterTransparency.Current.TransparentWaterDepth;
             _transparentWaterMinOpacity = assetStore.WaterTransparency.Current.TransparentWaterMinOpacity;
@@ -99,20 +106,22 @@ namespace OpenSage.Graphics.Rendering.Water
 
         private void CalculateUVOffset(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
         {
-            var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.TotalSeconds;
-            var uvScroll = _waterUvScrollSet[timeOfDay] * deltaTime;
-            _uvOffset.X += uvScroll.X;
-            _uvOffset.Y += uvScroll.Y;
+            // UVScroll specifies the amount of pixels the texture moves per millisecond
+            var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.Milliseconds;
+            var tex = _waterTextureSet[timeOfDay];
+            var texSize = new Vector2(tex.Width, tex.Height);
+            var uvScroll = _waterUvScrollSet[timeOfDay] * deltaTime / texSize;
+            _uvOffset += uvScroll;
 
             if (_uvOffset.X >= 1)
                 _uvOffset.X %= 1;
             if (_uvOffset.Y >= 1)
                 _uvOffset.Y %= 1;
 
-            UpdateVariableBuffers(graphicsDevice);
+            UpdateVariableBuffers(graphicsDevice, timeOfDay);
         }
 
-        private void UpdateVariableBuffers(GraphicsDevice graphicsDevice)
+        private void UpdateVariableBuffers(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
         {
             _waterConstantsPS.UVOffset = _uvOffset;
             _waterConstantsPS.FarPlaneDistance = _farPlaneDistance;
@@ -121,6 +130,8 @@ namespace OpenSage.Graphics.Rendering.Water
             _waterConstantsPS.IsRenderRefraction = _isRenderRefraction ? 1u : 0;
             _waterConstantsPS.TransparentWaterDepth = _transparentWaterDepth;
             _waterConstantsPS.TransparentWaterMinOpacity = _transparentWaterMinOpacity;
+            _waterConstantsPS.DiffuseColor = _waterDiffuseColorSet[timeOfDay].ToColorRgbaF();
+            _waterConstantsPS.TransparentDiffuseColor = _waterTransparentDiffuseColorSet[timeOfDay].ToColorRgbaF();
             _waterConstantsPSBuffer.Value = _waterConstantsPS;
         }
 

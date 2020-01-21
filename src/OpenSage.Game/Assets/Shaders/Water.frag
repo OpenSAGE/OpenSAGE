@@ -23,6 +23,8 @@ layout(set = 4, binding = 1) uniform WaterConstantsPS
     uint IsRenderRefraction;
     float TransparentWaterMinOpacity;
     float TransparentWaterDepth;
+    vec4 DiffuseColor;
+    vec4 TransparentDiffuseColor;
 };
 layout(set = 4, binding = 2) uniform texture2D WaterTexture;
 layout(set = 4, binding = 3) uniform texture2D BumpTexture;
@@ -59,7 +61,7 @@ void main()
         
     //this assumes that the normal vector points upwards
     float fresnelFactor = dot(normalize(in_ViewVector), vec3(0.0f, 0.0f, 1.0f));
-    fresnelFactor = pow(fresnelFactor, 4.0f);
+    fresnelFactor = pow(fresnelFactor, 2.0f);
 
     vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstantsPS.ViewportSize.x, gl_FragCoord.y / _GlobalConstantsPS.ViewportSize.y);
     vec2 distortion = (texture(sampler2D(WaterTexture, WaterSampler), waterUV - UVOffset).xy * 2.0f - 1.0f) * distortionPower;
@@ -69,9 +71,9 @@ void main()
     vec4 textureColor = texture(sampler2D(WaterTexture, WaterSampler), waterUV + distortion);
     vec4 reflectionColor = texture(sampler2D(ReflectionMap, ReflectionMapSampler), reflectionMapUV + distortion);
     vec4 refractionColor = texture(sampler2D(RefractionMap, RefractionMapSampler), refractionMapUV + distortion);
-    vec4 refractionDepth = texture(sampler2D(RefractionDepthMap, RefractionMapSampler), refractionMapUV);
+    float refractionDepth = texture(sampler2D(RefractionDepthMap, RefractionMapSampler), refractionMapUV).x;
 
-    float linearRefractionDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, refractionDepth.x);
+    float linearRefractionDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, refractionDepth);
     float linearPlaneDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, gl_FragCoord.z);
     float linearWaterDepth = linearRefractionDepth -  linearPlaneDepth;
     
@@ -96,8 +98,8 @@ void main()
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         worldNormal,
-        vec3(1, 1, 1),
-        vec3(1, 1, 1),
+        vec3(0.3, 0.3, 0.3), //where to take this from
+        DiffuseColor.xyz,
         vec3(0, 0, 0),
         0,
         _GlobalConstantsShared.CameraPosition,
@@ -107,7 +109,7 @@ void main()
         specularColor);
 
     // Calculate water transparency
-    float alpha = clamp(linearWaterDepth/TransparentWaterDepth, 0.0f, TransparentWaterMinOpacity);
+    float alpha = clamp((linearWaterDepth/depthFactor)/TransparentWaterDepth, 0.0f, TransparentWaterMinOpacity);
     vec4 finalColor = vec4(diffuseColor * textureColor.xyz * cloudColor, alpha);
 
     if (IsRenderReflection != 0 && IsRenderRefraction != 0)
