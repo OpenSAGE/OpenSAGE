@@ -4,7 +4,6 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering.Water
@@ -25,6 +24,7 @@ namespace OpenSage.Graphics.Rendering.Water
         public ResourceSet ResourceSetForRendering => _resourceSet;
 
         private readonly Dictionary<TimeOfDay, Texture> _waterTextureSet;
+        private readonly Dictionary<TimeOfDay, Vector2> _waterUvScrollSet;
         private readonly Texture _bumpTexture;
 
         private readonly ConstantBuffer<GlobalShaderResources.WaterConstantsVS> _waterConstantsVSBuffer;
@@ -59,9 +59,11 @@ namespace OpenSage.Graphics.Rendering.Water
 
             var _waterSets = assetStore.WaterSets;
             _waterTextureSet = new Dictionary<TimeOfDay, Texture>();
+            _waterUvScrollSet = new Dictionary<TimeOfDay, Vector2>();
             foreach (var waterSet in _waterSets)
             {
                 _waterTextureSet.Add(waterSet.TimeOfDay, waterSet.WaterTexture.Value.Texture);
+                _waterUvScrollSet.Add(waterSet.TimeOfDay, new Vector2(waterSet.UScrollPerMS, waterSet.VScrollPerMS));
             }
 
             _bumpTexture = graphicsLoadContext.StandardGraphicsResources.SolidWhiteTexture;
@@ -76,7 +78,6 @@ namespace OpenSage.Graphics.Rendering.Water
             _waterConstantsVS.ModelMatrix = Matrix4x4.Identity;
             _waterConstantsVSBuffer.Value = _waterConstantsVS;
 
-            _uvFactor = new Vector2(0.01f, 0.01f);
             _uvOffset = new Vector2(0, 0);
 
             _transparentWaterDepth = assetStore.WaterTransparency.Current.TransparentWaterDepth;
@@ -96,22 +97,23 @@ namespace OpenSage.Graphics.Rendering.Water
             }
         }
 
-        private void CalculateUVOffset(GraphicsDevice graphicsDevice)
+        private void CalculateUVOffset(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
         {
             var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.TotalSeconds;
-            _uvOffset += _uvFactor * deltaTime;
+            var uvScroll = _waterUvScrollSet[timeOfDay] * deltaTime;
+            _uvOffset.X += uvScroll.X;
+            _uvOffset.Y += uvScroll.Y;
 
             if (_uvOffset.X >= 1)
-                _uvOffset.X = 0;
+                _uvOffset.X %= 1;
             if (_uvOffset.Y >= 1)
-                _uvOffset.Y = 0;
+                _uvOffset.Y %= 1;
 
             UpdateVariableBuffers(graphicsDevice);
         }
 
         private void UpdateVariableBuffers(GraphicsDevice graphicsDevice)
         {
-            _waterConstantsPS.UVFactor = _uvFactor;
             _waterConstantsPS.UVOffset = _uvOffset;
             _waterConstantsPS.FarPlaneDistance = _farPlaneDistance;
             _waterConstantsPS.NearPlaneDistance = _nearPlaneDistance;
@@ -142,7 +144,7 @@ namespace OpenSage.Graphics.Rendering.Water
             _isRenderRefraction = scene.Waters.IsRenderRefraction;
 
             UpdateTimer();
-            CalculateUVOffset(graphicsDevice);
+            CalculateUVOffset(graphicsDevice, scene.Lighting.TimeOfDay);
 
             _waterConstantsVSBuffer.Update(commandList);
             _waterConstantsPSBuffer.Update(commandList);
