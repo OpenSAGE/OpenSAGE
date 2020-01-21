@@ -19,7 +19,6 @@ layout(location = 0) out vec3 out_WorldPosition;
 layout(location = 1) out vec2 out_CloudUV;
 layout(location = 2) out float out_ViewSpaceDepth;
 layout(location = 3) out vec4 out_ClipSpace;
-layout(location = 4) out vec3 out_ViewVector;
 
 void main()
 {
@@ -34,8 +33,5 @@ void main()
     out_ClipSpace = _GlobalConstantsVS.Projection * _GlobalConstantsVS.ViewProjection * ModelMatrix * vec4(worldPosition, 1);
     gl_Position = _GlobalConstantsVS.ViewProjection * vec4(worldPosition, 1);
 
-    out_ViewVector = normalize(_GlobalConstantsShared.CameraPosition);
-
     out_ViewSpaceDepth = gl_Position.z;
-
 }

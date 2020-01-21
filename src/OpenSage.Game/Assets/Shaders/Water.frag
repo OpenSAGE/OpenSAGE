@@ -39,7 +39,6 @@ layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec2 in_CloudUV;
 layout(location = 2) in float in_ViewSpaceDepth;
 layout(location = 3) in vec4 in_ClipSpace;
-layout(location = 4) in vec3 in_ViewVector;
 
 in vec4 gl_FragCoord;
 
@@ -58,10 +57,10 @@ float getLinearDepthMap(float nearPlaneDistance, float farPlaneDistance, float d
 void main()
 {
     vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
+    vec3 viewVector = CalculateViewVector(_GlobalConstantsShared.CameraPosition, in_WorldPosition);
         
     //this assumes that the normal vector points upwards
-    float fresnelFactor = dot(normalize(in_ViewVector), vec3(0.0f, 0.0f, 1.0f));
-    fresnelFactor = pow(fresnelFactor, 2.0f);
+    float fresnelFactor = dot(viewVector, vec3(0.0f, 0.0f, 1.0f));
 
     vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstantsPS.ViewportSize.x, gl_FragCoord.y / _GlobalConstantsPS.ViewportSize.y);
     vec2 distortion = (texture(sampler2D(WaterTexture, WaterSampler), waterUV - UVOffset).xy * 2.0f - 1.0f) * distortionPower;
@@ -98,7 +97,7 @@ void main()
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         worldNormal,
-        vec3(0.3, 0.3, 0.3), //where to take this from
+        vec3(0.2, 0.2, 0.2),
         DiffuseColor.xyz,
         vec3(0, 0, 0),
         0,

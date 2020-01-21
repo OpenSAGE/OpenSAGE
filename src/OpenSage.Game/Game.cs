@@ -12,6 +12,7 @@ using OpenSage.Data.Rep;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -845,6 +846,12 @@ namespace OpenSage
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
                 DeveloperModeEnabled = !DeveloperModeEnabled;
+            }
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Comma))
+            {
+                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
             }
 
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
