@@ -6,7 +6,24 @@ namespace OpenSage.Logic.Object
 {
     public abstract class BehaviorModule : DisposableBase
     {
-        internal virtual void Update(in TimeInterval time) { }
+        internal virtual void Update(BehaviorUpdateContext context) { }
+    }
+
+    internal sealed class BehaviorUpdateContext
+    {
+        public readonly GameContext GameContext;
+        public readonly GameObject GameObject;
+        public readonly TimeInterval Time;
+
+        public BehaviorUpdateContext(
+            GameContext gameContext,
+            GameObject gameObject,
+            in TimeInterval time)
+        {
+            GameContext = gameContext;
+            GameObject = gameObject;
+            Time = time;
+        }
     }
 
     public abstract class BehaviorModuleData : ModuleData
@@ -31,7 +48,7 @@ namespace OpenSage.Logic.Object
             { "ClearanceTestingSlowDeathBehavior", ClearanceTestingSlowDeathBehaviorModuleData.Parse },
             { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
-            { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
+            { "DumbProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
             { "DynamicPortalBehaviour", DynamicPortalBehaviorModuleData.Parse },
             { "FakePathfindPortalBehaviour", FakePathfindPortalBehaviourModuleData.Parse },

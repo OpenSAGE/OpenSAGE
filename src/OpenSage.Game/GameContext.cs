@@ -1,6 +1,7 @@
 ﻿using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Logic.Object;
 
 namespace OpenSage
 {
@@ -10,6 +11,9 @@ namespace OpenSage
         public readonly AudioSystem AudioSystem;
         public readonly ParticleSystemManager ParticleSystems;
         public readonly Terrain.Terrain Terrain;
+
+        // TODO: Make this readonly.
+        public GameObjectCollection GameObjects;
 
         public GameContext(
             AssetLoadContext assetLoadContext,

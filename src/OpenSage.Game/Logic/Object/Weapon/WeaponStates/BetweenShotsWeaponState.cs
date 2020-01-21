@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class BetweenShotsWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.CoolDownDelayBetweenShots;
+        protected override RangeDuration Duration => Context.Weapon.Template.CoolDownDelayBetweenShots;
 
         public BetweenShotsWeaponState(WeaponStateContext context)
             : base(context)

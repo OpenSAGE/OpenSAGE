@@ -3,11 +3,11 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class HordeAttackNugget : WeaponEffectNuggetData
+    public class HordeAttackNugget : WeaponEffectNugget
     {
         internal static HordeAttackNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<HordeAttackNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<HordeAttackNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<HordeAttackNugget>
             {
                 { "LockWeaponSlot", (parser, x) => x.LockWeaponSlot = parser.ParseEnum<WeaponSlot>() },

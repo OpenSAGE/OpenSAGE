@@ -7,7 +7,6 @@ using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Wnd;
@@ -33,7 +32,7 @@ namespace OpenSage
     public sealed class Game : DisposableBase
     {
         // TODO: These should be configurable at runtime with GameSpeed.
-        private const double LogicUpdateInterval = 1000.0 / 5.0;
+        internal const double LogicUpdateInterval = 1000.0 / 5.0;
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;

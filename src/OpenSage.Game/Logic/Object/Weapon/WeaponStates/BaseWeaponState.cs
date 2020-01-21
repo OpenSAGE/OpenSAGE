@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
         protected BaseWeaponState(WeaponStateContext context)
         {
             Context = context;
-            ModelConditionFlags = GetModelConditionFlags(context.WeaponIndex);
+            ModelConditionFlags = GetModelConditionFlags(context.Weapon.WeaponIndex);
         }
 
         private void SetModelConditionFlags(bool value)

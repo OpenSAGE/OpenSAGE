@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
@@ -55,6 +54,9 @@ namespace OpenSage.Logic.Object
 
         internal override string GetWeaponFireFXBone(WeaponSlot slot)
             => _defaultConditionState?.WeaponFireFXBones.Find(x => x.WeaponSlot == slot)?.BoneName;
+
+        internal override string GetWeaponLaunchBone(WeaponSlot slot)
+            => _defaultConditionState?.WeaponLaunchBones.Find(x => x.WeaponSlot == slot)?.BoneName;
 
         internal W3dModelDraw(
             W3dModelDrawModuleData data,

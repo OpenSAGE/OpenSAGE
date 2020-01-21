@@ -1,18 +1,10 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class WeaponEffectNugget
     {
-        internal abstract void Activate(TimeSpan currentTime);
-
-        internal abstract void Update(TimeSpan currentTime);
-    }
-
-    public abstract class WeaponEffectNuggetData
-    {
-        private protected static readonly IniParseTable<WeaponEffectNuggetData> FieldParseTable = new IniParseTable<WeaponEffectNuggetData>
+        private protected static readonly IniParseTable<WeaponEffectNugget> FieldParseTable = new IniParseTable<WeaponEffectNugget>
         {
             { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
             { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
@@ -23,7 +15,6 @@ namespace OpenSage.Logic.Object
         public string[] ForbiddenUpgradeNames { get; private set; }
         public string[] RequiredUpgradeNames { get; private set; }
 
-        // TODO: Make this abstract.
-        internal virtual WeaponEffectNugget CreateNugget(Weapon weapon) => null;
+        internal virtual void Execute(WeaponEffectExecutionContext context) { } // TODO: This should be abstract.
     }
 }

@@ -1,41 +1,19 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
+    /// <summary>
+    /// Just does damage.
+    /// </summary>
+    [AddedIn(SageGame.Bfme2)]
     public class DamageNugget : WeaponEffectNugget
     {
-        private readonly Weapon _weapon;
-        private readonly DamageNuggetData _data;
+        internal static DamageNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal DamageNugget(Weapon weapon, DamageNuggetData data)
-        {
-            _weapon = weapon;
-            _data = data;
-        }
-
-        internal override void Activate(TimeSpan currentTime)
-        {
-            _weapon.CurrentTarget.DoDamage(
-                _data.DamageType,
-                (Fix64) _data.Damage);
-        }
-
-        internal override void Update(TimeSpan currentTime)
-        {
-            // TODO: DelayTime
-        }
-    }
-
-    [AddedIn(SageGame.Bfme2)]
-    public class DamageNuggetData : WeaponEffectNuggetData
-    {
-        internal static DamageNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private protected static new readonly IniParseTable<DamageNuggetData> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
-            .Concat(new IniParseTable<DamageNuggetData>
+        private protected static new readonly IniParseTable<DamageNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
+            .Concat(new IniParseTable<DamageNugget>
             {
                 { "Damage", (parser, x) => x.Damage = parser.ParseFloat() },
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
@@ -60,8 +38,19 @@ namespace OpenSage.Logic.Object
                 { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
             });
 
+        /// <summary>
+        /// Damage for a normal hit.
+        /// </summary>
         public float Damage { get; internal set; }
+
+        /// <summary>
+        /// Radius of damage.
+        /// </summary>
         public float Radius { get; internal set; }
+
+        /// <summary>
+        /// Delay after hit till the damage is applied.
+        /// </summary>
         public int DelayTime { get; private set; }
         public DamageType DamageType { get; internal set; }
 
@@ -119,9 +108,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public int MinRadius { get; private set; }
 
-        internal override WeaponEffectNugget CreateNugget(Weapon weapon)
+        internal override void Execute(WeaponEffectExecutionContext context)
         {
-            return new DamageNugget(weapon, this);
+            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage);
         }
     }
 }

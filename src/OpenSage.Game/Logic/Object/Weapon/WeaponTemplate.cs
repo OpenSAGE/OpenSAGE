@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
             },
-            { "ProjectileObject", (parser, x) => x.Nuggets.Add(new ProjectileNuggetData { ProjectileTemplate = parser.ParseObjectReference() }) },
+            { "ProjectileObject", (parser, x) => x.Nuggets.Add(new ProjectileNugget { IsConvertedFromLegacyData = true, ParentWeaponTemplate = x, ProjectileTemplate = parser.ParseObjectReference() }) },
             { "ShockWaveAmount", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveAmount = parser.ParseFloat() },
             { "ShockWaveRadius", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveTaperOff = parser.ParseFloat() },
@@ -84,7 +84,7 @@ namespace OpenSage.Logic.Object
             { "VeterancyFireFX", (parser, x) => x.VeterancyFireFX = ParseVeterancyAssetReference(parser) },
 
             { "ProjectileStreamName", (parser, x) => x.ProjectileStreamName = parser.ParseAssetReference() },
-            { "ProjectileDetonationFX", (parser, x) => x.ProjectileDetonationFX = parser.ParseAssetReference() },
+            { "ProjectileDetonationFX", (parser, x) => x.ProjectileDetonationFX = parser.ParseFXListReference() },
             { "ProjectileDetonationOCL", (parser, x) => x.ProjectileDetonationOCL = parser.ParseAssetReference() },
             { "ProjectileExhaust", (parser, x) => x.ProjectileExhaust = parser.ParseAssetReference() },
             { "VeterancyProjectileExhaust", (parser, x) => x.VeterancyProjectileExhaust = ParseVeterancyAssetReference(parser) },
@@ -178,8 +178,8 @@ namespace OpenSage.Logic.Object
             { "AntiAirborneMonster", (parser, x) => x.SetAntiMaskFlag(WeaponAntiFlags.AntiAirborneMonster, parser.ParseBoolean()) },
 
             // Nuggets
-            { "ProjectileNugget", (parser, x) => x.Nuggets.Add(ProjectileNuggetData.Parse(parser)) },
-            { "DamageNugget", (parser, x) => x.Nuggets.Add(DamageNuggetData.Parse(parser)) },
+            { "ProjectileNugget", (parser, x) => x.Nuggets.Add(ProjectileNugget.Parse(parser)) },
+            { "DamageNugget", (parser, x) => x.Nuggets.Add(DamageNugget.Parse(parser)) },
             { "MetaImpactNugget", (parser, x) => x.Nuggets.Add(MetaImpactNugget.Parse(parser)) },
             { "SpecialModelConditionNugget", (parser, x) => x.Nuggets.Add(SpecialModelConditionNugget.Parse(parser)) },
             { "ParalyzeNugget", (parser, x) => x.Nuggets.Add(ParalyzeNugget.Parse(parser)) },
@@ -211,17 +211,17 @@ namespace OpenSage.Logic.Object
             return parser.ParseAssetReference();
         }
 
-        private IEnumerable<DamageNuggetData> GetDamageNuggets()
+        private IEnumerable<DamageNugget> GetDamageNuggets()
         {
-            return Nuggets.OfType<DamageNuggetData>();
+            return Nuggets.OfType<DamageNugget>();
         }
 
-        private DamageNuggetData EnsureDammageNugget(int index)
+        private DamageNugget EnsureDammageNugget(int index)
         {
             var damageNuggets = GetDamageNuggets().ToList();
             while (damageNuggets.Count < index + 1)
             {
-                var damageNugget = new DamageNuggetData();
+                var damageNugget = new DamageNugget();
                 Nuggets.Add(damageNugget);
                 damageNuggets.Add(damageNugget);
             }
@@ -268,7 +268,7 @@ namespace OpenSage.Logic.Object
         public bool PlayFXWhenStealthed { get; private set; }
         public string FireOCL { get; private set; }
         public string VeterancyFireFX { get; private set; }
-        public string ProjectileDetonationFX { get; private set; }
+        public LazyAssetReference<FXList> ProjectileDetonationFX { get; private set; }
         public string ProjectileDetonationOCL { get; private set; }
         public string ProjectileExhaust { get; private set; }
         public string VeterancyProjectileExhaust { get; private set; }
@@ -301,7 +301,7 @@ namespace OpenSage.Logic.Object
         public bool AllowAttackGarrisonedBldgs { get; private set; }
         public bool CapableOfFollowingWaypoints { get; private set; }
         public WeaponBonusSet WeaponBonuses { get; } = new WeaponBonusSet();
-        public WeaponCollideTypes ProjectileCollidesWith { get; private set; }
+        public WeaponCollideTypes ProjectileCollidesWith { get; internal set; }
         public int HistoricBonusTime { get; private set; }
         public int HistoricBonusCount { get; private set; }
         public int HistoricBonusRadius { get; private set; }
@@ -314,7 +314,7 @@ namespace OpenSage.Logic.Object
         public RangeDuration FiringDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public List<WeaponEffectNuggetData> Nuggets { get; } = new List<WeaponEffectNuggetData>();
+        public List<WeaponEffectNugget> Nuggets { get; } = new List<WeaponEffectNugget>();
 
         [AddedIn(SageGame.Bfme2)]
         public int MaxWeaponSpeed { get; private set; }

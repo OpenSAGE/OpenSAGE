@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class IdleAfterFiringWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.IdleAfterFiringDelay;
+        protected override RangeDuration Duration => Context.Weapon.Template.IdleAfterFiringDelay;
 
         public IdleAfterFiringWeaponState(WeaponStateContext context)
             : base(context)
@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
                 {
                     return WeaponState.Reloading;
                 }
-                else if (Context.WeaponTemplate.PreAttackType == WeaponPrefireType.PerShot)
+                else if (Context.Weapon.Template.PreAttackType == WeaponPrefireType.PerShot)
                 {
                     return WeaponState.PreAttack;
                 }

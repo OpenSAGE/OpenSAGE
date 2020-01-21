@@ -3,11 +3,11 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme2)]
-    public class LuaEventNugget : WeaponEffectNuggetData
+    public class LuaEventNugget : WeaponEffectNugget
     {
         internal static LuaEventNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<LuaEventNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<LuaEventNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<LuaEventNugget>
             {
                 { "LuaEvent", (parser, x) => x.LuaEvent = parser.ParseAssetReference() },

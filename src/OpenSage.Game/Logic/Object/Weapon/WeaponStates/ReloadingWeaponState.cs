@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class ReloadingWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.ClipReloadTime;
+        protected override RangeDuration Duration => Context.Weapon.Template.ClipReloadTime;
 
         public ReloadingWeaponState(WeaponStateContext context)
             : base(context)
@@ -28,8 +28,8 @@ namespace OpenSage.Logic.Object
                 {
                     return WeaponState.Inactive;
                 }
-                else if (Context.WeaponTemplate.PreAttackType == WeaponPrefireType.PerClip
-                    || Context.WeaponTemplate.PreAttackType == WeaponPrefireType.PerShot)
+                else if (Context.Weapon.Template.PreAttackType == WeaponPrefireType.PerClip
+                    || Context.Weapon.Template.PreAttackType == WeaponPrefireType.PerShot)
                 {
                     return WeaponState.PreAttack;
                 }

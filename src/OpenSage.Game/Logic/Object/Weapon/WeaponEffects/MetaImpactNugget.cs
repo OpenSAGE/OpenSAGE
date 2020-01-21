@@ -2,12 +2,15 @@
 
 namespace OpenSage.Logic.Object
 {
+    /// <summary>
+    /// Throws things back with force.
+    /// </summary>
     [AddedIn(SageGame.Bfme2)]
-    public sealed class MetaImpactNugget : WeaponEffectNuggetData
+    public sealed class MetaImpactNugget : WeaponEffectNugget
     {
         internal static MetaImpactNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<MetaImpactNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<MetaImpactNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<MetaImpactNugget>
             {
                 { "HeroResist", (parser, x) => x.HeroResist = parser.ParseFloat() },

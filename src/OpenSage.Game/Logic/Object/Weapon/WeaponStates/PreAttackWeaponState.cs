@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class PreAttackWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.PreAttackDelay;
+        protected override RangeDuration Duration => Context.Weapon.Template.PreAttackDelay;
 
         public PreAttackWeaponState(WeaponStateContext context)
             : base(context)

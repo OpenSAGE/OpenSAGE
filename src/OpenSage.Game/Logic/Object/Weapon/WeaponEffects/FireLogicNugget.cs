@@ -3,11 +3,11 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme2)]
-    public class FireLogicNugget : DamageNuggetData
+    public class FireLogicNugget : DamageNugget
     {
         internal static new FireLogicNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<FireLogicNugget> FieldParseTable = DamageNuggetData.FieldParseTable
+        private static new readonly IniParseTable<FireLogicNugget> FieldParseTable = DamageNugget.FieldParseTable
             .Concat(new IniParseTable<FireLogicNugget>
             {
                 { "LogicType", (parser, x) => x.LogicType = parser.ParseEnum<FireLogicType>() },
