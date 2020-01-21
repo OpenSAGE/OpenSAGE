@@ -208,9 +208,8 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
         public struct WaterConstantsPS
         {
-            public const int SizeInBytes = 16 * 3;
+            public const int SizeInBytes = 16 * 2;
 
-            public Vector2 UVFactor;
             public Vector2 UVOffset;
 
             public float FarPlaneDistance;
@@ -221,8 +220,6 @@ namespace OpenSage.Graphics.Shaders
 
             public float TransparentWaterMinOpacity;
             public float TransparentWaterDepth;
-
-            public long Padding;
         }
     }
 }

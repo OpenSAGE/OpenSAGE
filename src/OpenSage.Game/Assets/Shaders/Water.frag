@@ -16,7 +16,6 @@ MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
 
 layout(set = 4, binding = 1) uniform WaterConstantsPS
 {
-	vec2 UVFactor;
     vec2 UVOffset;
     float FarPlaneDistance;
     float NearPlaneDistance;
@@ -24,7 +23,6 @@ layout(set = 4, binding = 1) uniform WaterConstantsPS
     uint IsRenderRefraction;
     float TransparentWaterMinOpacity;
     float TransparentWaterDepth;
-    vec2 Padding;
 };
 layout(set = 4, binding = 2) uniform texture2D WaterTexture;
 layout(set = 4, binding = 3) uniform texture2D BumpTexture;
@@ -59,13 +57,14 @@ void main()
 {
     vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
         
-    float fresnelFactor = dot(in_ViewVector, vec3(0.0f, 0.0f, 1.0f));
-    fresnelFactor = pow(fresnelFactor, 0.5f);
+    //this assumes that the normal vector points upwards
+    float fresnelFactor = dot(normalize(in_ViewVector), vec3(0.0f, 0.0f, 1.0f));
+    fresnelFactor = pow(fresnelFactor, 4.0f);
 
     vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstantsPS.ViewportSize.x, gl_FragCoord.y / _GlobalConstantsPS.ViewportSize.y);
     vec2 distortion = (texture(sampler2D(WaterTexture, WaterSampler), waterUV - UVOffset).xy * 2.0f - 1.0f) * distortionPower;
-    vec2 reflectionMapUV = vec2(clamp(normalDeviceCoord.x, 0.0f, 1.0f), clamp(normalDeviceCoord.y, 0.0f, 1.0)); // Add minus to y coord if not using stencil clipping
-    vec2 refractionMapUV = vec2(clamp(normalDeviceCoord.x, 0.0f, 1.0f), clamp(normalDeviceCoord.y, 0.0f, 1.0));
+    vec2 reflectionMapUV = vec2(clamp(normalDeviceCoord.x, 0.001f, 0.999f), clamp(normalDeviceCoord.y, 0.001f, 0.999)); // Add minus to y coord if not using stencil clipping
+    vec2 refractionMapUV = vec2(clamp(normalDeviceCoord.x, 0.001f, 0.999f), clamp(normalDeviceCoord.y, 0.001f, 0.999));
     
     vec4 textureColor = texture(sampler2D(WaterTexture, WaterSampler), waterUV + distortion);
     vec4 reflectionColor = texture(sampler2D(ReflectionMap, ReflectionMapSampler), reflectionMapUV + distortion);
@@ -108,13 +107,13 @@ void main()
         specularColor);
 
     // Calculate water transparency
-    float alpha = clamp(clamp(linearWaterDepth/depthFactor,0.0f,1.0f)/TransparentWaterDepth, 0.0f, TransparentWaterMinOpacity);
+    float alpha = clamp(linearWaterDepth/TransparentWaterDepth, 0.0f, TransparentWaterMinOpacity);
     vec4 finalColor = vec4(diffuseColor * textureColor.xyz * cloudColor, alpha);
 
     if (IsRenderReflection != 0 && IsRenderRefraction != 0)
     {
         float refractionFactor = linearWaterDepth - minWaterDepth;
-        vec4 fresnelColor = mix(refractionColor, reflectionColor, fresnelFactor);
+        vec4 fresnelColor = mix(reflectionColor, refractionColor, fresnelFactor);
         finalColor.a *= fresnelColor.w;
         finalColor.xyz *= fresnelColor.xyz;
     }
