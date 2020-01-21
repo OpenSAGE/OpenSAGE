@@ -3,11 +3,11 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme2)]
-    public class EmotionWeaponNugget : WeaponEffectNuggetData
+    public class EmotionWeaponNugget : WeaponEffectNugget
     {
         internal static EmotionWeaponNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<EmotionWeaponNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<EmotionWeaponNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<EmotionWeaponNugget>
             {
                 { "EmotionType", (parser, x) => x.EmotionType = parser.ParseEnum<EmotionType>() },

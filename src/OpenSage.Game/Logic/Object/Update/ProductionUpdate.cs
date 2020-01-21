@@ -39,8 +39,10 @@ namespace OpenSage.Logic.Object
             _currentDoorState = DoorState.Closed;
         }
 
-        internal override void Update(in TimeInterval time)
+        internal override void Update(BehaviorUpdateContext context)
         {
+            var time = context.Time;
+
             // If door is opening, halt production until it's finished opening.
             if (_currentDoorState == DoorState.Opening)
             {

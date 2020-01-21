@@ -1,39 +1,21 @@
-﻿using System;
+﻿using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    /// <summary>
+    /// Creates an object and sends it towards the target with a warhead.
+    /// </summary>
+    [AddedIn(SageGame.Bfme)]
     public sealed class ProjectileNugget : WeaponEffectNugget
     {
-        private readonly Weapon _weapon;
-        private readonly ProjectileNuggetData _data;
+        internal static ProjectileNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal ProjectileNugget(Weapon weapon, ProjectileNuggetData data)
-        {
-            _weapon = weapon;
-            _data = data;
-        }
-
-        internal override void Activate(TimeSpan currentTime)
-        {
-            // TODO: take care of weaponspeed and spawn projectile
-        }
-
-        internal override void Update(TimeSpan currentTime)
-        {
-            
-        }
-    }
-
-    [AddedIn(SageGame.Bfme)]
-    public sealed class ProjectileNuggetData : WeaponEffectNuggetData
-    {
-        internal static ProjectileNuggetData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<ProjectileNuggetData> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
-            .Concat(new IniParseTable<ProjectileNuggetData>
+        private static new readonly IniParseTable<ProjectileNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
+            .Concat(new IniParseTable<ProjectileNugget>
             {
                 { "ProjectileTemplateName", (parser, x) => x.ProjectileTemplate = parser.ParseObjectReference() },
                 { "WarheadTemplateName", (parser, x) => x.WarheadTemplate = parser.ParseWeaponTemplateReference() },
@@ -42,6 +24,10 @@ namespace OpenSage.Logic.Object
                 { "UseAlwaysAttackOffset", (parser, x) => x.UseAlwaysAttackOffset = parser.ParseBoolean() },
                 { "WeaponLaunchBoneSlotOverride", (parser, x) => x.WeaponLaunchBoneSlotOverride = parser.ParseEnum<WeaponSlot>() }
             });
+
+        internal bool IsConvertedFromLegacyData;
+
+        internal WeaponTemplate ParentWeaponTemplate;
 
         public LazyAssetReference<ObjectDefinition> ProjectileTemplate { get; internal set; }
         public LazyAssetReference<WeaponTemplate> WarheadTemplate { get; private set; }
@@ -55,9 +41,42 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public WeaponSlot WeaponLaunchBoneSlotOverride { get; private set; } = WeaponSlot.NoWeapon;
 
-        internal override WeaponEffectNugget CreateNugget(Weapon weapon)
+        internal override void Execute(WeaponEffectExecutionContext context)
         {
-            return new ProjectileNugget(weapon, this);
+            var projectileTemplate = ProjectileTemplate.Value;
+
+            WeaponTemplate warheadTemplate;
+            if (IsConvertedFromLegacyData)
+            {
+                warheadTemplate = new WeaponTemplate();
+                warheadTemplate.ProjectileCollidesWith = ParentWeaponTemplate.ProjectileCollidesWith;
+                warheadTemplate.Nuggets.AddRange(ParentWeaponTemplate.Nuggets.OfType<DamageNugget>());
+            }
+            else
+            {
+                warheadTemplate = WarheadTemplate.Value;
+            }
+
+            var projectileObject = context.GameContext.GameObjects.Add(
+                projectileTemplate,
+                context.Weapon.ParentGameObject.Owner);
+
+            var launchBoneTransform = context.Weapon.ParentGameObject.GetWeaponLaunchBoneTransform(
+                context.Weapon.Slot, context.Weapon.WeaponIndex);
+
+            projectileObject.Transform.CopyFrom(launchBoneTransform.Value);
+
+            projectileObject.SetWeapon(warheadTemplate);
+
+            var direction = Vector3.Normalize(launchBoneTransform.Value.Right());
+            projectileObject.Velocity = direction * ParentWeaponTemplate.WeaponSpeed;
+
+            var projectileDetonationFX = ParentWeaponTemplate.ProjectileDetonationFX?.Value;
+            if (projectileDetonationFX != null)
+            {
+                var bezierProjectileBehavior = projectileObject.FindBehavior<BezierProjectileBehavior>();
+                bezierProjectileBehavior.GroundHitFX = projectileDetonationFX;
+            }
         }
     }
 }

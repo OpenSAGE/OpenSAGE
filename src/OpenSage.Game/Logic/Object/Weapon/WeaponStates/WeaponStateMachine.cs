@@ -69,7 +69,7 @@ namespace OpenSage.Logic.Object
     /// </summary>
     internal sealed class WeaponStateMachine
     {
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly WeaponStateContext _context;
         private readonly Dictionary<WeaponState, BaseWeaponState> _states;
@@ -95,7 +95,7 @@ namespace OpenSage.Logic.Object
 
         public void TransitionToState(WeaponState state, TimeSpan currentTime)
         {
-            Logger.Info($"Weapon {_context.WeaponTemplate.Name} on game object {_context.GameObject.Name} transitioning to state {state}");
+            Logger.Info($"Weapon {_context.Weapon.Template.Name} on game object {_context.GameObject.Name} transitioning to state {state}");
 
             _currentState?.OnExitState();
 
@@ -126,24 +126,16 @@ namespace OpenSage.Logic.Object
     internal sealed class WeaponStateContext
     {
         public readonly GameObject GameObject;
-
         public readonly Weapon Weapon;
-        public readonly WeaponTemplate WeaponTemplate;
-        public readonly int WeaponIndex;
-
         public readonly GameContext GameContext;
 
         public WeaponStateContext(
             GameObject gameObject,
             Weapon weapon,
-            WeaponTemplate weaponTemplate,
-            int weaponIndex,
             GameContext gameContext)
         {
             GameObject = gameObject;
             Weapon = weapon;
-            WeaponTemplate = weaponTemplate;
-            WeaponIndex = weaponIndex;
             GameContext = gameContext;
         }
     }

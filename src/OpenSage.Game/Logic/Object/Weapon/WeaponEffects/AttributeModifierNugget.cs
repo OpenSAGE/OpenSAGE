@@ -4,11 +4,11 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class AttributeModifierNugget : WeaponEffectNuggetData
+    public class AttributeModifierNugget : WeaponEffectNugget
     {
         internal static AttributeModifierNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<AttributeModifierNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<AttributeModifierNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<AttributeModifierNugget>
             {
                 { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },

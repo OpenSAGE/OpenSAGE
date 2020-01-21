@@ -315,6 +315,8 @@ namespace OpenSage
                     game.CivilianPlayer,
                     Navigation));
 
+            GameContext.GameObjects = GameObjects;
+
             _orderGeneratorSystem = game.OrderGenerator;
         }
 

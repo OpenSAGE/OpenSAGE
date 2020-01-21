@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal override void Update(in TimeInterval time)
+        internal override void Update(BehaviorUpdateContext context)
         {
             
         }

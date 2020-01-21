@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Audio;
-using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
     internal sealed class Weapon
     {
-        private readonly GameObject _gameObject;
-        private readonly WeaponTemplate _weaponTemplate;
-        private readonly int _weaponIndex;
-
         private readonly ModelConditionFlag _usingFlag;
 
         private readonly WeaponStateMachine _stateMachine;
 
-        public readonly WeaponEffectNugget[] Nuggets;
+        public readonly int WeaponIndex;
+
+        public readonly GameObject ParentGameObject;
+
+        public readonly WeaponTemplate Template;
 
         public int CurrentRounds { get; internal set; }
 
@@ -36,9 +33,9 @@ namespace OpenSage.Logic.Object
 
                 var distance = Vector3.Distance(
                     currentTargetPosition.Value,
-                    _gameObject.Transform.Translation);
+                    ParentGameObject.Transform.Translation);
 
-                return distance <= _weaponTemplate.AttackRange;
+                return distance <= Template.AttackRange;
             }
         }
 
@@ -51,43 +48,30 @@ namespace OpenSage.Logic.Object
             WeaponSlot slot,
             GameContext gameContext)
         {
-            _gameObject = gameObject;
-            _weaponTemplate = weaponTemplate;
-            _weaponIndex = weaponIndex;
+            ParentGameObject = gameObject;
+            Template = weaponTemplate;
+            WeaponIndex = weaponIndex;
 
             Slot = slot;
 
             FillClip();
 
-            var nuggets = new List<WeaponEffectNugget>();
-            foreach (var nuggetData in weaponTemplate.Nuggets)
-            {
-                var nugget = nuggetData.CreateNugget(this);
-                if (nugget != null) // TODO: This should never be null.
-                {
-                    nuggets.Add(nugget);
-                }
-            }
-            Nuggets = nuggets.ToArray();
-
             _stateMachine = new WeaponStateMachine(
                 new WeaponStateContext(
                     gameObject,
                     this,
-                    weaponTemplate,
-                    weaponIndex,
                     gameContext));
 
             _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(weaponIndex);
         }
 
-        public bool UsesClip => _weaponTemplate.ClipSize > 0;
+        public bool UsesClip => Template.ClipSize > 0;
 
         public bool IsClipEmpty() => UsesClip && CurrentRounds == 0;
 
         public void FillClip()
         {
-            CurrentRounds = _weaponTemplate.ClipSize;
+            CurrentRounds = Template.ClipSize;
         }
 
         public void SetTarget(WeaponTarget target)
@@ -99,14 +83,14 @@ namespace OpenSage.Logic.Object
 
             if (CurrentTarget != null)
             {
-                _gameObject.ModelConditionFlags.Set(_usingFlag, false);
+                ParentGameObject.ModelConditionFlags.Set(_usingFlag, false);
             }
 
             CurrentTarget = target;
 
             if (CurrentTarget != null)
             {
-                _gameObject.ModelConditionFlags.Set(_usingFlag, true);
+                ParentGameObject.ModelConditionFlags.Set(_usingFlag, true);
             }
         }
 

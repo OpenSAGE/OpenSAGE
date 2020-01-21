@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class InactivePendingReloadWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.AutoReloadWhenIdle;
+        protected override RangeDuration Duration => Context.Weapon.Template.AutoReloadWhenIdle;
 
         public InactivePendingReloadWeaponState(WeaponStateContext context)
             : base(context)

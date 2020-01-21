@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class FiringWeaponState : FixedDurationWeaponState
     {
-        protected override RangeDuration Duration => Context.WeaponTemplate.FiringDuration;
+        protected override RangeDuration Duration => Context.Weapon.Template.FiringDuration;
 
         public FiringWeaponState(WeaponStateContext context)
             : base(context)
@@ -31,29 +31,28 @@ namespace OpenSage.Logic.Object
             }
 
             Context.GameContext.AudioSystem.PlayAudioEvent(
-                Context.WeaponTemplate.FireSound.Value);
+                Context.Weapon.Template.FireSound.Value);
 
-            foreach (var nugget in Context.Weapon.Nuggets)
+            var weaponEffectExecutionContext = new WeaponEffectExecutionContext(Context.Weapon, Context.GameContext);
+            foreach (var nugget in Context.Weapon.Template.Nuggets)
             {
-                nugget.Activate(enterTime);
+                nugget.Execute(weaponEffectExecutionContext);
             }
 
             TriggerWeaponFireFX();
-
-            // TODO: ProjectileObject
         }
 
         private void TriggerWeaponFireFX()
         {
             var fireFXTransform = Context.GameObject.GetWeaponFireFXBoneTransform(
                 Context.Weapon.Slot,
-                Context.WeaponIndex);
+                Context.Weapon.WeaponIndex);
             if (fireFXTransform == null)
             {
                 return;
             }
 
-            var fireFXListData = Context.WeaponTemplate.FireFX?.Value;
+            var fireFXListData = Context.Weapon.Template.FireFX?.Value;
             if (fireFXListData == null)
             {
                 return;
@@ -77,11 +76,6 @@ namespace OpenSage.Logic.Object
             if (!Context.Weapon.HasValidTarget)
             {
                 return WeaponState.Inactive;
-            }
-
-            foreach (var nugget in Context.Weapon.Nuggets)
-            {
-                nugget.Update(currentTime);
             }
 
             if (IsTimeToExitState(currentTime))

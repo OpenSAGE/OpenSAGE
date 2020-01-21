@@ -158,6 +158,9 @@ namespace OpenSage.Logic.Object
         public float Speed { get; set; }
         public float Lift { get; set; }
 
+        // This and Speed probably shouldn't both exist.
+        public Vector3 Velocity { get; set; }
+
         public bool IsPlacementPreview { get; set; }
 
         public bool IsPlacementInvalid { get; set; }
@@ -266,6 +269,26 @@ namespace OpenSage.Logic.Object
             return null;
         }
 
+        // TODO: This probably shouldn't be here.
+        public Matrix4x4? GetWeaponLaunchBoneTransform(WeaponSlot slot, int index)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                var fireFXBone = drawModule.GetWeaponLaunchBone(slot);
+                if (fireFXBone != null)
+                {
+                    var (modelInstance, bone) = drawModule.FindBone(fireFXBone + (index + 1).ToString("D2"));
+                    if (bone != null)
+                    {
+                        return modelInstance.AbsoluteBoneTransforms[bone.Index];
+                    }
+                    break;
+                }
+            }
+
+            return null;
+        }
+
         public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
         {
             foreach (var drawModule in DrawModules)
@@ -282,14 +305,25 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
+            if (Destroyed)
+            {
+                return;
+            }
+
             //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
                 CurrentWeapon?.LogicTick(time.TotalTime);
             }
 
+            // TODO: Don't create this every time.
+            var behaviorUpdateContext = new BehaviorUpdateContext(
+                _gameContext,
+                this,
+                time);
+
             foreach (var behavior in BehaviorModules)
             {
-                behavior.Update(time);
+                behavior.Update(behaviorUpdateContext);
             }
         }
 
@@ -424,6 +458,11 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
+            if (Destroyed)
+            {
+                return;
+            }
+
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
             // Check if the unit is currently moving
@@ -602,6 +641,16 @@ namespace OpenSage.Logic.Object
             {
                 CurrentWeapon = null;
             }
+        }
+
+        internal void SetWeapon(WeaponTemplate weaponTemplate)
+        {
+            CurrentWeapon = new Weapon(
+                this,
+                weaponTemplate,
+                0,
+                WeaponSlot.Primary,
+                _gameContext);
         }
 
         public void Upgrade(UpgradeTemplate upgrade)

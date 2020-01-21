@@ -3,11 +3,11 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class ParalyzeNugget : WeaponEffectNuggetData
+    public class ParalyzeNugget : WeaponEffectNugget
     {
         internal static ParalyzeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<ParalyzeNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<ParalyzeNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<ParalyzeNugget>
             {
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },

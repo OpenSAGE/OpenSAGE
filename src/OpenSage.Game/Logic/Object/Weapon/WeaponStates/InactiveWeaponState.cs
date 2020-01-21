@@ -19,9 +19,9 @@ namespace OpenSage.Logic.Object
                 return WeaponState.PreAttack;
             }
 
-            if (Context.WeaponTemplate.AutoReloadsClip != WeaponReloadType.None
+            if (Context.Weapon.Template.AutoReloadsClip != WeaponReloadType.None
                 && Context.Weapon.UsesClip
-                && Context.Weapon.CurrentRounds < Context.WeaponTemplate.ClipSize)
+                && Context.Weapon.CurrentRounds < Context.Weapon.Template.ClipSize)
             {
                 return WeaponState.InactivePendingReload;
             }

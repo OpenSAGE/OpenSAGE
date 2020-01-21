@@ -4,11 +4,11 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class SpawnAndFadeNugget : WeaponEffectNuggetData
+    public class SpawnAndFadeNugget : WeaponEffectNugget
     {
         internal static SpawnAndFadeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SpawnAndFadeNugget> FieldParseTable = WeaponEffectNuggetData.FieldParseTable
+        private static new readonly IniParseTable<SpawnAndFadeNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
             .Concat(new IniParseTable<SpawnAndFadeNugget>
             {
                 { "ObjectTargetFilter", (parser, x) => x.ObjectTargetFilter = ObjectFilter.Parse(parser) },
