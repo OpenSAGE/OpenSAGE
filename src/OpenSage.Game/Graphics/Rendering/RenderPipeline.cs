@@ -267,6 +267,7 @@ namespace OpenSage.Graphics.Rendering
 
                     if (refractionFramebuffer != null)
                     {
+                        commandList.PushDebugGroup("Refraction");
                         camera.FarPlaneDistance = scene.Waters.RefractionRenderDistance;
                         var clippingPlane = new ClippingPlane(new Vector4(0, 0, -1, pivot + clippingOffset));
 
@@ -283,10 +284,12 @@ namespace OpenSage.Graphics.Rendering
 
                         RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
                         RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        commandList.PopDebugGroup();
                     }
 
                     if (reflectionFramebuffer != null)
                     {
+                        commandList.PushDebugGroup("Reflection");
                         camera.FarPlaneDistance = scene.Waters.ReflectionRenderDistance;
                         var clippingPlane = new ClippingPlane(new Vector4(0, 0, 1, -pivot - clippingOffset));
 
@@ -315,6 +318,7 @@ namespace OpenSage.Graphics.Rendering
                         RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
 
                         camera.SetMirrorX(pivot);
+                        commandList.PopDebugGroup();
                     }
 
                     if (reflectionFramebuffer != null || refractionFramebuffer != null)
