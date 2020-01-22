@@ -148,6 +148,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             _contentManager.LoadIniFile(@"Data\INI\Mouse.ini");
                             _contentManager.LoadIniFile(@"Data\INI\Water.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\WaterTextures.ini");
                             _contentManager.LoadIniFile(@"Maps\MapCache.ini");
                             break;
 
