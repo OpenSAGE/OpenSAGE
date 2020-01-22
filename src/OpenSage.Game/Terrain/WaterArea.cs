@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;

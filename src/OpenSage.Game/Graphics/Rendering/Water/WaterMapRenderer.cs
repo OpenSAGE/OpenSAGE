@@ -117,8 +117,6 @@ namespace OpenSage.Graphics.Rendering.Water
                 _uvOffset.X %= 1;
             if (_uvOffset.Y >= 1)
                 _uvOffset.Y %= 1;
-
-            UpdateVariableBuffers(graphicsDevice, timeOfDay);
         }
 
         private void UpdateVariableBuffers(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
@@ -156,6 +154,7 @@ namespace OpenSage.Graphics.Rendering.Water
 
             UpdateTimer();
             CalculateUVOffset(graphicsDevice, scene.Lighting.TimeOfDay);
+            UpdateVariableBuffers(graphicsDevice, scene.Lighting.TimeOfDay);
 
             _waterConstantsVSBuffer.Update(commandList);
             _waterConstantsPSBuffer.Update(commandList);
