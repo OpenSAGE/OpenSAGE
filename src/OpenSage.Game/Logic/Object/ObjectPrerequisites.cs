@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -12,22 +13,35 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ObjectPrerequisites> FieldParseTable = new IniParseTable<ObjectPrerequisites>
         {
-            { "Object", (parser, x) => x.Objects.Add(PrerequisiteList.Parse(parser)) },
-            { "Science", (parser, x) => x.Sciences.Add(PrerequisiteList.Parse(parser)) }
+            { "Object", (parser, x) => x.Objects.Add(ObjectPrerequisiteList.Parse(parser)) },
+            { "Science", (parser, x) => x.Sciences.Add(SciencePrerequisiteList.Parse(parser)) }
         };
 
-        public List<PrerequisiteList> Objects { get; } = new List<PrerequisiteList>();
-        public List<PrerequisiteList> Sciences { get; } = new List<PrerequisiteList>();
+        public List<ObjectPrerequisiteList> Objects { get; } = new List<ObjectPrerequisiteList>();
+        public List<SciencePrerequisiteList> Sciences { get; } = new List<SciencePrerequisiteList>();
     }
 
     /// <summary>
-    /// Contains an OR'd list of prequisite objects or sciences.
+    /// Contains an OR'd list of prequisite objects.
     /// </summary>
-    public sealed class PrerequisiteList : List<string>
+    public sealed class ObjectPrerequisiteList : List<LazyAssetReference<ObjectDefinition>>
     {
-        internal static PrerequisiteList Parse(IniParser parser)
+        internal static ObjectPrerequisiteList Parse(IniParser parser)
         {
-            var result = new PrerequisiteList();
+            var result = new ObjectPrerequisiteList();
+            result.AddRange(parser.ParseObjectReferenceArray());
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Contains an OR'd list of prequisite sciences.
+    /// </summary>
+    public sealed class SciencePrerequisiteList : List<string>
+    {
+        internal static SciencePrerequisiteList Parse(IniParser parser)
+        {
+            var result = new SciencePrerequisiteList();
             result.AddRange(parser.ParseAssetReferenceArray());
             return result;
         }

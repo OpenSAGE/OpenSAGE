@@ -74,6 +74,7 @@ namespace OpenSage.Diagnostics
                 _shapeRenderer = new ShapeRenderer(
                     geometry,
                     Context.Game.ContentManager,
+                    Context.Game.AssetStore,
                     Context.SelectedAptWindow.AptFile.ImageMap,
                     Context.SelectedAptWindow.AptFile.MovieName);
             }
@@ -104,12 +105,13 @@ namespace OpenSage.Diagnostics
             public ShapeRenderer(
                 Geometry shape,
                 ContentManager contentManager,
+                AssetStore assetStore,
                 ImageMap map,
                 string movieName)
             {
                 _shape = shape;
-                _context = new AptContext(map, movieName, contentManager);
-                _renderer = new AptRenderer(contentManager);
+                _context = new AptContext(map, movieName, assetStore);
+                _renderer = new AptRenderer(null, contentManager);
             }
 
             public void Update(GraphicsDevice gd, in Size windowSize)
@@ -121,8 +123,6 @@ namespace OpenSage.Diagnostics
                     shapeBoundingBox.Size,
                     windowSize,
                     out _scale);
-
-                _renderer.Resize(target.Size);
             }
 
             public void Render(DrawingContext2D drawingContext)

@@ -102,6 +102,12 @@ namespace OpenSage.FileFormats
             return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes((int) length));
         }
 
+        public static string ReadBytePrefixedUnicodeString(this BinaryReader reader)
+        {
+            var length = reader.ReadByte();
+            return Encoding.Unicode.GetString(reader.ReadBytes(length * 2));
+        }
+
         public static string ReadUInt16PrefixedUnicodeString(this BinaryReader reader)
         {
             var length = reader.ReadUInt16();
@@ -648,10 +654,10 @@ namespace OpenSage.FileFormats
 
         public static string ReadFourCc(this BinaryReader reader, bool bigEndian = false)
         {
-            var a = reader.ReadChar();
-            var b = reader.ReadChar();
-            var c = reader.ReadChar();
-            var d = reader.ReadChar();
+            var a = (char) reader.ReadByte();
+            var b = (char) reader.ReadByte();
+            var c = (char) reader.ReadByte();
+            var d = (char) reader.ReadByte();
 
             return bigEndian
                 ? new string(new[] { d, c, b, a })
@@ -724,6 +730,64 @@ namespace OpenSage.FileFormats
             return new Line2D(
                 reader.ReadVector2(),
                 reader.ReadVector2());
+        }
+
+        public static TimeSpan ReadTime(this BinaryReader reader)
+        {
+            return TimeSpan.FromSeconds(reader.ReadSingle());
+        }
+
+        public static Percentage ReadPercentage(this BinaryReader reader)
+        {
+            return new Percentage(reader.ReadSingle());
+        }
+
+        public static FloatRange ReadFloatRange(this BinaryReader reader)
+        {
+            return new FloatRange(reader.ReadSingle(), reader.ReadSingle());
+        }
+
+        public static IntRange ReadIntRange(this BinaryReader reader)
+        {
+            return new IntRange(reader.ReadInt32(), reader.ReadInt32());
+        }
+
+        public static T? ReadOptionalValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+            where T : struct
+        {
+            var offset = reader.ReadUInt32();
+            if (offset > 0)
+            {
+                var current = reader.BaseStream.Position;
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                var value = readCallback();
+                reader.BaseStream.Seek(current, SeekOrigin.Begin);
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public static T ReadOptionalClassTypedValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+            where T : class
+        {
+            var offset = reader.ReadUInt32();
+            if (offset > 0)
+            {
+                var current = reader.BaseStream.Position;
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                var value = readCallback();
+                reader.BaseStream.Seek(current, SeekOrigin.Begin);
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+
         }
     }
 

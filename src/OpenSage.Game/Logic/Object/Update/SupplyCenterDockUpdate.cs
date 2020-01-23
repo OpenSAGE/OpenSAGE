@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
         public string BonusScience { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float BonusScienceMultiplier { get; private set; }
+        public Percentage BonusScienceMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float ValueMultiplier { get; private set; }

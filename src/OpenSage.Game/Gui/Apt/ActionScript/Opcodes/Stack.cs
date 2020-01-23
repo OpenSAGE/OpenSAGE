@@ -92,7 +92,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
-            else if(context.CheckLocal(str))
+            else if (context.CheckLocal(str))
             {
                 result = context.GetLocal(str);
             }
@@ -143,7 +143,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(null));
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage
@@ -50,6 +51,8 @@ namespace OpenSage
             }
         }
 
+        internal bool IsDirty => _isMatrixDirty || _isMatrixInverseDirty;
+
         private void SetMatricesDirty()
         {
             _isMatrixDirty = true;
@@ -90,6 +93,23 @@ namespace OpenSage
                 }
                 return _matrixInverse;
             }
+        }
+        public Vector3 EulerAngles
+        {
+            get
+            {
+                var x = (float) Math.Atan2(Matrix.M32, Matrix.M33);
+                var y = (float) Math.Atan2(-Matrix.M31, Math.Sqrt(Math.Pow(Matrix.M32, 2) + Math.Pow(Matrix.M33, 2)));
+                var z = (float) Math.Atan2(Matrix.M21, Matrix.M11);
+                return new Vector3(x, y, z);
+            }
+        }
+
+        internal void CopyFrom(in Matrix4x4 matrix)
+        {
+            Matrix4x4.Decompose(matrix, out _, out var rotation, out var translation);
+            Rotation = rotation;
+            Translation = translation;
         }
     }
 }

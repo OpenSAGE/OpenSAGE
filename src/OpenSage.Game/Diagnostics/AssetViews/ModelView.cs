@@ -1,10 +1,12 @@
 ﻿using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(Model))]
     internal sealed class ModelView : AssetView
     {
         private readonly RenderedView _renderedView;
@@ -13,7 +15,7 @@ namespace OpenSage.Diagnostics.AssetViews
         public ModelView(DiagnosticViewContext context, Model model)
             : base(context)
         {
-            _modelInstance = AddDisposable(model.CreateInstance(context.Game.ContentManager));
+            _modelInstance = AddDisposable(model.CreateInstance(context.Game.AssetStore.LoadContext));
             _modelInstance.Update(TimeInterval.Zero);
 
             var enclosingBoundingBox = GetEnclosingBoundingBox(_modelInstance);
@@ -26,7 +28,15 @@ namespace OpenSage.Diagnostics.AssetViews
             void OnBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
                 _modelInstance.SetWorldMatrix(Matrix4x4.Identity);
-                _modelInstance.BuildRenderList(e.RenderList, e.Camera, true, context.Game.CivilianPlayer);
+                _modelInstance.BuildRenderList(
+                    e.RenderList,
+                    e.Camera,
+                    true,
+                    new MeshShaderResources.RenderItemConstantsPS
+                    {
+                        HouseColor = context.Game.CivilianPlayer.Color.ToVector3(),
+                        Opacity = 1.0f
+                    });
             }
 
             _renderedView.RenderPipeline.BuildingRenderList += OnBuildingRenderList;

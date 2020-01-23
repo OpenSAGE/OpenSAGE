@@ -35,10 +35,10 @@ namespace OpenSage.Graphics.Shaders
                 Water = AddDisposable(new WaterShaderResources(graphicsDevice, Global));
 
                 _shaderMaterialResources = new Dictionary<string, ShaderMaterialShaderResources>
-            {
-                { "NormalMapped", AddDisposable(new NormalMappedShaderResources(graphicsDevice, Global, Mesh)) },
-                { "Simple", AddDisposable(new SimpleShaderResources(graphicsDevice, Global, Mesh)) }
-            };
+                {
+                    { "NormalMapped", AddDisposable(new NormalMappedShaderResources(graphicsDevice, Global, Mesh)) },
+                    { "Simple", AddDisposable(new SimpleShaderResources(graphicsDevice, Global, Mesh)) }
+                };
             }
         }
 

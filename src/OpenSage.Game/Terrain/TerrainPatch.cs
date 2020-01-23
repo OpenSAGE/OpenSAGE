@@ -2,12 +2,13 @@
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainPatch
+    public sealed class TerrainPatch : DisposableBase
     {
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
@@ -22,19 +23,28 @@ namespace OpenSage.Terrain
         public Triangle[] Triangles { get; }
 
         internal TerrainPatch(
+            HeightMap heightMap,
             Rectangle patchBounds,
-            DeviceBuffer vertexBuffer,
-            DeviceBuffer indexBuffer,
-            uint numIndices,
-            Triangle[] triangles,
-            in BoundingBox boundingBox,
+            GraphicsDevice graphicsDevice,
+            TerrainPatchIndexBufferCache indexBufferCache,
             ResourceSet materialResourceSet)
         {
             Bounds = patchBounds;
 
-            _vertexBuffer = vertexBuffer;
-            _indexBuffer = indexBuffer;
-            _numIndices = numIndices;
+            _indexBuffer = indexBufferCache.GetIndexBuffer(
+                patchBounds.Width,
+                patchBounds.Height,
+                out var indices);
+
+            _numIndices = (uint) indices.Length;
+
+            _vertexBuffer = AddDisposable(CreateVertexBuffer(
+                graphicsDevice,
+                heightMap,
+                patchBounds,
+                indices,
+                out var boundingBox,
+                out var triangles));
 
             BoundingBox = boundingBox;
             Triangles = triangles;
@@ -44,6 +54,62 @@ namespace OpenSage.Terrain
                 cl.SetGraphicsResourceSet(4, materialResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
+        }
+
+        private static DeviceBuffer CreateVertexBuffer(
+           GraphicsDevice graphicsDevice,
+           HeightMap heightMap,
+           Rectangle patchBounds,
+           ushort[] indices,
+           out BoundingBox boundingBox,
+           out Triangle[] triangles)
+        {
+            var numVertices = patchBounds.Width * patchBounds.Height;
+
+            var vertices = new TerrainShaderResources.TerrainVertex[numVertices];
+            var points = new Vector3[numVertices];
+
+            var vertexIndex = 0;
+            for (var y = patchBounds.Y; y < patchBounds.Y + patchBounds.Height; y++)
+            {
+                for (var x = patchBounds.X; x < patchBounds.X + patchBounds.Width; x++)
+                {
+                    var position = heightMap.GetPosition(x, y);
+                    points[vertexIndex] = position;
+                    vertices[vertexIndex++] = new TerrainShaderResources.TerrainVertex
+                    {
+                        Position = position,
+                        Normal = heightMap.Normals[x, y],
+                        UV = new Vector2(x, y)
+                    };
+                }
+            }
+
+            boundingBox = BoundingBox.CreateFromPoints(points);
+
+            triangles = new Triangle[(patchBounds.Width - 1) * (patchBounds.Height) * 2];
+
+            var triangleIndex = 0;
+            var indexIndex = 0;
+            for (var y = 0; y < patchBounds.Height - 1; y++)
+            {
+                for (var x = 0; x < patchBounds.Width - 1; x++)
+                {
+                    // Triangle 1
+                    triangles[triangleIndex++] = new Triangle(
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]]);
+
+                    // Triangle 2
+                    triangles[triangleIndex++] = new Triangle(
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]]);
+                }
+            }
+
+            return graphicsDevice.CreateStaticBuffer(vertices, BufferUsage.VertexBuffer);
         }
 
         internal void Intersect(
@@ -79,7 +145,7 @@ namespace OpenSage.Terrain
             ShaderSet shaderSet,
             Pipeline pipeline)
         {
-            renderList.Opaque.RenderItems.Add(new RenderItem(
+            renderList.Terrain.RenderItems.Add(new RenderItem(
                 shaderSet,
                 pipeline,
                 BoundingBox,

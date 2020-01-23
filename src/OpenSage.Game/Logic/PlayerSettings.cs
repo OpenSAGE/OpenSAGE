@@ -1,4 +1,5 @@
-﻿using OpenSage.Mathematics;
+﻿using System.Diagnostics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -11,17 +12,23 @@ namespace OpenSage.Logic
         None
     }
 
+
+    [DebuggerDisplay("[Player:{Name}]")]
     public struct PlayerSetting
     {
         public ColorRgb Color { get; set; }
-        public string Side { get; set; }
+        public int? StartPosition { get; }
+        public PlayerTemplate Template { get; set; }
         public PlayerOwner Owner { get; set; }
+        public string Name { get; private set; }
 
-        public PlayerSetting(string side, ColorRgb color, PlayerOwner owner = PlayerOwner.None)
+        public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, PlayerOwner owner = PlayerOwner.None, string name = "")
         {
-            Side = side;
+            StartPosition = startPosition;
+            Template = template;
             Color = color;
             Owner = owner;
+            Name = name;
         }
     }
 }

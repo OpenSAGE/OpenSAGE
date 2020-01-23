@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 using Veldrid;
@@ -26,19 +27,20 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        public DrawingContext2D(
+        internal DrawingContext2D(
             ContentManager contentManager,
+            GraphicsLoadContext loadContext,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
-            _solidWhiteTexture = contentManager.SolidWhiteTexture;
+            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
+            _spriteBatch = AddDisposable(new SpriteBatch(loadContext, blendStateDescription, outputDescription));
 
-            _textCache = AddDisposable(new TextCache(contentManager.GraphicsDevice));
+            _textCache = AddDisposable(new TextCache(loadContext.GraphicsDevice));
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);
@@ -107,23 +109,18 @@ namespace OpenSage.Gui
             Texture texture,
             in Rectangle? sourceRect,
             in Rectangle destinationRect,
-            in bool flipped = false)
+            bool flipped = false,
+            bool grayscale = false)
         {
-            var color = ColorRgbaF.White.WithA(_currentOpacity);
-
-            _spriteBatch.DrawImage(
-                texture,
-                sourceRect,
-                RectangleF.Transform(destinationRect.ToRectangleF(), _currentTransform),
-                color,
-                flipped);
+            DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped, grayscale);
         }
 
         public void DrawImage(
             Texture texture,
             in Rectangle? sourceRect,
             in RectangleF destinationRect,
-            in bool flipped = false)
+            bool flipped = false,
+            bool grayscale = false)
         {
             var color = ColorRgbaF.White.WithA(_currentOpacity);
 
@@ -132,7 +129,8 @@ namespace OpenSage.Gui
                 sourceRect,
                 RectangleF.Transform(destinationRect, _currentTransform),
                 color,
-                flipped);
+                flipped,
+                grayscale: grayscale);
         }
 
         public static SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)
@@ -163,7 +161,12 @@ namespace OpenSage.Gui
                 return;
             }
 
-            var actualFont = _contentManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            if (rect.Size == SizeF.Zero)
+            {
+                return;
+            }
+
+            var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
             var actualColor = GetModifiedColorWithCurrentOpacity(color);
@@ -247,11 +250,27 @@ namespace OpenSage.Gui
 
         public void FillRectangle(in Rectangle rect, in ColorRgbaF fillColor)
         {
+            FillRectangle(rect.ToRectangleF(), fillColor);
+        }
+
+        public void FillRectangle(in RectangleF rect, in ColorRgbaF fillColor)
+        {
+            _spriteBatch.DrawImage(
+                _solidWhiteTexture,
+                new Rectangle(0, 0, 1, 1),
+                RectangleF.Transform(rect, _currentTransform),
+                GetModifiedColorWithCurrentOpacity(fillColor));
+        }
+
+        public void FillRectangleRadial360(in Rectangle rect, in ColorRgbaF fillColor, float progress)
+        {
             _spriteBatch.DrawImage(
                 _solidWhiteTexture,
                 new Rectangle(0, 0, 1, 1),
                 RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
-                GetModifiedColorWithCurrentOpacity(fillColor));
+                GetModifiedColorWithCurrentOpacity(fillColor),
+                fillMethod: SpriteFillMethod.Radial360,
+                fillAmount: progress * MathUtility.TwoPi);
         }
 
         public void End()

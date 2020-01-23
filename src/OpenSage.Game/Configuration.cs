@@ -9,5 +9,7 @@
     public sealed class Configuration
     {
         public bool LoadShellMap { get; set; } = true;
+        public bool UseRenderDoc { get; set; } = false;
+        public bool UseFullscreen { get; set; } = false;
     }
 }

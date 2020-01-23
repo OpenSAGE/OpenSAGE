@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Ini;
 
 namespace OpenSage.Graphics.ParticleSystems
 {

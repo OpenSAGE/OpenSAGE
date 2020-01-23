@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+    tags:
+    - v*
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+        - os: windows-latest
+          runtime: win-x64
+        - os: macos-latest
+          runtime: osx-x64
+        - os: ubuntu-latest
+          runtime: linux-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+
+    - name: Test
+      run: dotnet test src --configuration Release --filter Category!=Interactive
+
+    - name: Publish
+      run: dotnet publish src/OpenSage.Launcher --configuration Release --runtime ${{ matrix.runtime }} --output build/artifacts/${{ matrix.runtime }}
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.runtime }}
+        path: build/artifacts/${{ matrix.runtime }}
+
+  publish:
+    needs: build
+
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Download Artifacts win-x64
+      uses: actions/download-artifact@v1
+      with:
+        name: win-x64
+
+    - name: Download Artifacts osx-x64
+      uses: actions/download-artifact@v1
+      with:
+        name: osx-x64
+
+    - name: Download Artifacts linux-x64
+      uses: actions/download-artifact@v1
+      with:
+        name: linux-x64
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: "## Instructions\n1. Download the correct .zip file for your operating system\n2. Linux/Mac: export the path to your game path as an environment variable e.g.: `export CNC_GENERALS_PATH=~/generals/`\n3. Start the `OpenSage.Launcher` executable\n\n## Launcher\nThis executable will start OpenSAGE with the C&C Generals game files. To specify a different SAGE game, or see what other command line options are available, run `OpenSage.Launcher.exe --help`."
+        draft: false
+        prerelease: true
+
+    # TODO: Upload Release Assets
+    # using actions/upload-a-release-asset

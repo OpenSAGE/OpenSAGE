@@ -1,16 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OpenSage;
-using OpenSage.Gui;
-using OpenSage.Gui.Wnd;
-using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
 namespace OpenSage.Gui.Wnd.Controls
 {
-    public class Control : DisposableBase
+    public partial class Control : DisposableBase
     {
         public ControlCallback SystemCallback { get; set; }
         public ControlCallback InputCallback { get; set; }
@@ -185,6 +181,11 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public bool IsMouseOver { get; private set; }
         public bool IsMouseDown { get; private set; }
+
+        /// <summary>
+        /// Used to pass arbitrary data items between callbacks.
+        /// </summary>
+        public Dictionary<string, object> Data { get; } = new Dictionary<string, object>();
 
         public Control()
         {

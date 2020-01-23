@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.StreamFS;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Content
@@ -14,11 +15,11 @@ namespace OpenSage.Content
 
     public class GeneralsSubsystemLoader : ISubsystemLoader
     {
-        private readonly IniDataContext _iniDataContext;
+        private readonly ContentManager _contentManager;
 
-        public GeneralsSubsystemLoader(IniDataContext iniDataContext)
+        public GeneralsSubsystemLoader(ContentManager contentManager)
         {
-            _iniDataContext = iniDataContext;
+            _contentManager = contentManager;
         }
 
         public void Load(Subsystem subsystem)
@@ -30,16 +31,45 @@ namespace OpenSage.Content
                         @"Data\INI\Default\GameData.ini",
                         @"Data\INI\GameData.ini",
                         @"Data\INI\Mouse.ini",
+                        @"Data\INI\Water.ini",
+                        @"Data\INI\AudioSettings.ini",
+                        $@"Data\{_contentManager.Language}\HeaderTemplate.ini",
                         @"Maps\MapCache.ini");
+
+                    break;
+                case Subsystem.Audio:
+                    LoadFiles(
+                        @"Data\INI\AudioSettings.ini",
+                        @"Data\INI\SoundEffects.ini",
+                        @"Data\INI\MiscAudio.ini",
+                        @"Data\INI\Voice.ini");
                     break;
                 case Subsystem.ObjectCreation:
-                    LoadFiles(@"Data\INI\Default\Object.ini");
-                    _iniDataContext.LoadIniFiles(@"Data\INI\Object");
+                    LoadFiles(
+                        @"Data\INI\Default\Object.ini",
+                        @"Data\INI\Upgrade.ini",
+                        @"Data\INI\Crate.ini");
+                    _contentManager.LoadIniFiles(@"Data\INI\Object");
+                    break;
+                case Subsystem.Locomotors:
+                    LoadFiles(
+                        @"Data\INI\Locomotor.ini");
+                    break;
+                case Subsystem.Weapons:
+                    LoadFiles(
+                        @"Data\INI\Weapon.ini");
+                    break;
+                case Subsystem.FXList:
+                    LoadFiles(
+                        @"Data\INI\FXList.ini");
                     break;
                 case Subsystem.Players:
                     LoadFiles(
                         @"Data\INI\Default\PlayerTemplate.ini",
-                        @"Data\INI\PlayerTemplate.ini");
+                        @"Data\INI\PlayerTemplate.ini",
+                        @"Data\INI\ControlBarScheme.ini",
+                        @"Data\INI\CommandSet.ini",
+                        @"Data\INI\CommandButton.ini");
                     break;
                 case Subsystem.Terrain:
                     LoadFiles(
@@ -54,14 +84,18 @@ namespace OpenSage.Content
                 case Subsystem.Wnd:
                     LoadFiles(
                         @"Data\INI\WindowTransitions.ini",
-                        @"Data\English\HeaderTemplate.ini",
                         @"Data\INI\ControlBarScheme.ini");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
                     break;
                 case Subsystem.Multiplayer:
                     LoadFiles(@"Data\INI\Multiplayer.ini");
                     break;
                 case Subsystem.LinearCampaign:
                     LoadFiles(@"Data\INI\Campaign.ini");
+                    break;
+                case Subsystem.Credits:
+                    LoadFiles(@"Data\INI\Credits.ini");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
@@ -72,33 +106,110 @@ namespace OpenSage.Content
         {
             foreach (var file in files)
             {
-                _iniDataContext.LoadIniFile(file);
+                _contentManager.LoadIniFile(file);
             }
         }
     }
 
     public class ConfiguredSubsystemLoader : ISubsystemLoader
     {
-        private readonly IniDataContext _iniDataContext;
+        private readonly ContentManager _contentManager;
+        private readonly Game _game;
         private readonly IGameDefinition _gameDefinition;
         private readonly FileSystem _fileSystem;
-        private readonly Dictionary<string, LoadSubsystem> _subsystems;
+        private readonly ScopedAssetCollection<LoadSubsystem> _subsystems;
 
-        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, IniDataContext iniDataContext)
+        public ConfiguredSubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
         {
             _gameDefinition = gameDefinition;
-            _iniDataContext = iniDataContext;
+            _contentManager = contentManager;
+            _game = game;
             _fileSystem = fileSystem;
 
-            _iniDataContext.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
-            _subsystems = _iniDataContext.Subsystems.ToDictionary(subsystem => subsystem.Name);
+            _contentManager.LoadIniFile(@"Data\INI\Default\subsystemlegend.ini");
+            _subsystems = game.AssetStore.Subsystems;
         }
 
         public void Load(Subsystem subsystem)
         {
             foreach (var entry in GetFilesForSubsystem(subsystem))
             {
-                _iniDataContext.LoadIniFile(entry);
+                _contentManager.LoadIniFile(entry);
+            }
+
+            // Load hardcoded files
+            switch (subsystem)
+            {
+                case Subsystem.Core:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\Mouse.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\Water.ini");
+                            _contentManager.LoadIniFile(@"Maps\MapCache.ini");
+                            break;
+
+                        case SageGame.Cnc3:
+                            // TODO: Use .version file.
+                            var manifestFileEntry = _fileSystem.GetFile(@"Data\global_common.manifest");
+                            var gameStream = new GameStream(manifestFileEntry, _game);
+                            var manifestFileEntry2 = _fileSystem.GetFile(@"Data\static_common.manifest");
+                            var gameStream2 = new GameStream(manifestFileEntry2, _game);
+                            break;
+                    }
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                            _contentManager.LoadIniFile($@"Lang\{_contentManager.Language}\HeaderTemplate.ini");
+                            break;
+
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile($@"HeaderTemplate.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Players:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\CommandSet.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\CommandButton.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Audio:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\SoundEffects.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\MiscAudio.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\Voice.ini");
+                            break;
+                    }
+                    break;
+
+                case Subsystem.Wnd:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
+                            break;
+                    }
+                    break;
             }
         }
 
@@ -123,6 +234,8 @@ namespace OpenSage.Content
                             yield break;
                     }
                     break;
+                case Subsystem.Audio:
+                    yield break;
                 case Subsystem.ObjectCreation:
                     switch (_gameDefinition.Game)
                     {
@@ -130,6 +243,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheThingFactory";
+                            yield return "TheUpgradeCenter";
                             yield break;
                         // TODO: Figure out how to load object config for C&C3 and later
                         case SageGame.Cnc3:
@@ -146,6 +260,40 @@ namespace OpenSage.Content
                         case SageGame.Cnc3:
                         case SageGame.Cnc3KanesWrath:
                             yield return "ThePlayerTemplateStore";
+                            yield break;
+                    }
+                    break;
+                case Subsystem.Locomotors:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                        case SageGame.Cnc3:
+                        case SageGame.Cnc3KanesWrath:
+                            yield return "TheLocomotorStore";
+                            yield break;
+                    }
+                    break;
+                case Subsystem.Weapons:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                        case SageGame.Cnc3:
+                        case SageGame.Cnc3KanesWrath:
+                            yield return "TheWeaponStore";
+                            yield break;
+                    }
+                    break;
+                case Subsystem.FXList:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            yield return "TheFXListStore";
                             yield break;
                     }
                     break;
@@ -198,9 +346,12 @@ namespace OpenSage.Content
                         case SageGame.Cnc3KanesWrath:
                             yield return "TheLinearCampaignManager";
                             yield break;
-                        // TODO: Figure out how to load campaigns for RA3 and later
+                            // TODO: Figure out how to load campaigns for RA3 and later
                     }
                     break;
+                case Subsystem.Credits:
+                    yield return "Credits";
+                    yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -208,7 +359,7 @@ namespace OpenSage.Content
 
         private IEnumerable<FileSystemEntry> GetFilesForSubsystem(Subsystem abstractSubsystem)
         {
-            var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems[entryName]).ToList();
+            var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems.GetByName(entryName)).ToList();
 
             foreach (var subsystem in subsystems)
             {
@@ -231,40 +382,25 @@ namespace OpenSage.Content
                     }
                 }
             }
-
-            // Load hardcoded files
-            switch (abstractSubsystem)
-            {
-                case Subsystem.Core:
-                    switch (_gameDefinition.Game)
-                    {
-                        case SageGame.Bfme:
-                        case SageGame.Bfme2:
-                        case SageGame.Bfme2Rotwk:
-                            yield return _fileSystem.GetFile(@"Maps\MapCache.ini");
-                            break;
-                    }
-                    break;
-            }
         }
     }
 
     public static class SubsystemLoader
     {
-        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, IniDataContext iniDataContext)
+        public static ISubsystemLoader Create(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
         {
             switch (gameDefinition.Game)
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    return new GeneralsSubsystemLoader(iniDataContext);
+                    return new GeneralsSubsystemLoader(contentManager);
 
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
                 case SageGame.Cnc3:
                 case SageGame.Cnc3KanesWrath:
-                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, iniDataContext);
+                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, game, contentManager);
 
                 default:
                     // TODO: Implement subsystem loader for new XML-based format used in RA3 and beyond.

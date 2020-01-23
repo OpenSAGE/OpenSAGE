@@ -1,10 +1,44 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
+    public class ActiveBody : BodyModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly ActiveBodyModuleData _moduleData;
+
+        public override Fix64 MaxHealth { get; }
+
+        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+
+            MaxHealth = (Fix64) moduleData.MaxHealth;
+
+            Health = (Fix64) moduleData.InitialHealth;
+        }
+
+        public override void SetInitialHealth(float multiplier)
+        {
+            Health = (Fix64) (_moduleData.InitialHealth * multiplier);
+        }
+
+        public override void DoDamage(DamageType damageType, Fix64 amount)
+        {
+            // Actual amount of damage depends on armor.
+            var armor = _gameObject.CurrentArmorSet.Armor.Value;
+            var damagePercent = armor.GetDamagePercent(damageType);
+            var actualDamage = amount * (Fix64) ((float) damagePercent);
+            Health -= actualDamage;
+
+            // TODO: DamageFX
+        }
+    }
+
     public class ActiveBodyModuleData : BodyModuleData
     {
         internal static ActiveBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -76,7 +110,7 @@ namespace OpenSage.Logic.Object
         public int CheerRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float DodgePercent { get; private set; }
+        public Percentage DodgePercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool UseDefaultDamageSettings { get; private set; }
@@ -98,6 +132,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string ReallyDamagedAttributeModifier { get; private set; }
+
+        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        {
+            return new ActiveBody(gameObject, this);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]

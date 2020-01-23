@@ -53,6 +53,12 @@ namespace OpenSage.Graphics.Shaders
         {
             var constantBufferField = _resourceType.GetMember(name);
 
+            if (constantBufferField == null)
+            {
+                // TODO
+                return;
+            }
+
             if (valueBytes.Length != constantBufferField.Size)
             {
                 throw new InvalidOperationException();

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
-using OpenSage.Utilities.Extensions;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -21,10 +20,10 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed class ModelMesh : DisposableBase
+    public sealed partial class ModelMesh : BaseAsset
     {
         private readonly ShaderSet _shaderSet;
-        private readonly ShaderSet _depthShaderSet;
+        private ShaderSet _depthShaderSet;
 
         private readonly Pipeline _depthPipeline;
 
@@ -33,12 +32,10 @@ namespace OpenSage.Graphics
 
         private readonly ResourceSet _meshConstantsResourceSet;
 
-        private readonly ResourceSet _samplerResourceSet;
+        private ResourceSet _samplerResourceSet;
 
-        internal readonly BeforeRenderDelegate[] BeforeRenderDelegates;
-        internal readonly BeforeRenderDelegate[] BeforeRenderDelegatesDepth;
-
-        public readonly string Name;
+        internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
+        internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
 
         public readonly BoundingBox BoundingBox;
 
@@ -49,55 +46,17 @@ namespace OpenSage.Graphics
         public readonly bool Hidden;
         public readonly bool CameraOriented;
 
-        internal ModelMesh(
-            GraphicsDevice graphicsDevice,
-            ShaderResourceManager shaderResources,
-            string name,
-            ShaderSet shaderSet,
-            Pipeline depthPipeline,
-            ReadOnlySpan<byte> vertexData,
-            ushort[] indices,
-            List<ModelMeshPart> meshParts,
-            bool isSkinned,
-            in BoundingBox boundingBox,
-            bool hidden,
-            bool cameraOriented,
-            bool hasHouseColor)
+        private void PostInitialize(AssetLoadContext loadContext)
         {
-            Name = name;
+            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
+            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
 
-            _shaderSet = shaderSet;
-            _depthShaderSet = shaderResources.MeshDepth.ShaderSet;
-
-            _depthPipeline = depthPipeline;
-
-            BoundingBox = boundingBox;
-
-            Skinned = isSkinned;
-
-            Hidden = hidden;
-            CameraOriented = cameraOriented;
-
-            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
-
-            _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
-                indices,
-                BufferUsage.IndexBuffer));
-
-            _meshConstantsResourceSet = shaderResources.Mesh.GetCachedMeshResourceSet(
-                isSkinned,
-                hasHouseColor);
-
-            _samplerResourceSet = shaderResources.Mesh.SamplerResourceSet;
-
-            MeshParts = meshParts;
-
-            BeforeRenderDelegates = new BeforeRenderDelegate[meshParts.Count];
-            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[meshParts.Count];
+            BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
+            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];
 
             for (var i = 0; i < BeforeRenderDelegates.Length; i++)
             {
-                var meshPart = meshParts[i];
+                var meshPart = MeshParts[i];
 
                 BeforeRenderDelegates[i] = (cl, context) =>
                 {
@@ -136,7 +95,7 @@ namespace OpenSage.Graphics
             ModelBone parentBone,
             in Matrix4x4 modelTransform,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
@@ -151,7 +110,7 @@ namespace OpenSage.Graphics
                 parentBone,
                 meshWorldMatrix,
                 castsShadow,
-                owner);
+                renderItemConstantsPS);
         }
 
         internal void BuildRenderListWithWorldMatrix(
@@ -163,7 +122,7 @@ namespace OpenSage.Graphics
             ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow,
-            Player owner = null)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
             if (Hidden)
             {
@@ -209,7 +168,8 @@ namespace OpenSage.Graphics
             {
                 var meshPart = MeshParts[i];
 
-                var blendEnabled = meshPart.BlendEnabled;
+                var forceBlendEnabled = renderItemConstantsPS != null && renderItemConstantsPS.Value.Opacity < 1.0f;
+                var blendEnabled = meshPart.BlendEnabled || forceBlendEnabled;
 
                 // Depth pass
 
@@ -235,14 +195,14 @@ namespace OpenSage.Graphics
 
                 renderQueue.RenderItems.Add(new RenderItem(
                     _shaderSet,
-                    meshPart.Pipeline,
+                    forceBlendEnabled ? meshPart.PipelineBlend : meshPart.Pipeline,
                     meshBoundingBox,
                     world,
                     meshPart.StartIndex,
                     meshPart.IndexCount,
                     _indexBuffer,
                     beforeRender[i],
-                    owner?.Color));
+                    renderItemConstantsPS));
             }
         }
     }

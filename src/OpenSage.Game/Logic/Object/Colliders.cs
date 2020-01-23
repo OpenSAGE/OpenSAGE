@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
             Transform = transform;
         }
 
+        public abstract float Height { get; }
+
         public bool Intersects(in Ray ray, out float depth)
         {
             var transformedRay = Ray.Transform(ray, Transform.MatrixInverse);
@@ -66,6 +68,9 @@ namespace OpenSage.Logic.Object
     public class BoxCollider : Collider
     {
         private readonly BoundingBox _bounds;
+        private readonly float _height;
+
+        public override float Height => _height;
 
         public BoxCollider(ObjectDefinition def, Transform transform)
             : base(transform)
@@ -73,6 +78,7 @@ namespace OpenSage.Logic.Object
             var min = new Vector3(-def.Geometry.MajorRadius, -def.Geometry.MinorRadius, 0);
             var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
             _bounds = new BoundingBox(min, max);
+            _height = def.Geometry.Height;
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -135,11 +141,15 @@ namespace OpenSage.Logic.Object
     public class SphereCollider : Collider
     {
         private readonly BoundingSphere _bounds;
+        private readonly float _height;
+
+        public override float Height => _height;
 
         public SphereCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
             _bounds = new BoundingSphere(Vector3.Zero, def.Geometry.MajorRadius);
+            _height = def.Geometry.Height;
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -172,16 +182,19 @@ namespace OpenSage.Logic.Object
     public class CylinderCollider : Collider
     {
         private readonly BoundingBox _bounds;
+        private readonly float _height;
+
+        public override float Height => _height;
 
         public CylinderCollider(ObjectDefinition def, Transform transform)
-            : base(transform)
+             : base(transform)
         {
             var radius = def.Geometry.MajorRadius;
-            var height = def.Geometry.Height;
+            _height = def.Geometry.Height;
 
             _bounds = new BoundingBox(
                 new Vector3(-radius, -radius, 0),
-                new Vector3(radius, radius, height));
+                new Vector3(radius, radius, _height));
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)

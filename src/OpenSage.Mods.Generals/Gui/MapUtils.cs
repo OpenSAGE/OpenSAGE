@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
+using OpenSage.Data;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -47,26 +49,24 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SetMapPreview(MapCache mapCache, Control mapWindow, Game game)
         {
-            var mapPath = mapCache.Name;
-            var basePath = Path.GetDirectoryName(mapPath) + "\\" + Path.GetFileNameWithoutExtension(mapPath);
+            var mapPath = FileSystem.NormalizeFilePath(mapCache.Name);
+            var basePath = Path.GetDirectoryName(mapPath) + "/" + Path.GetFileNameWithoutExtension(mapPath);
             var thumbPath = basePath + ".tga";
 
             // Set thumbnail
-            mapWindow.BackgroundImage = game.ContentManager.WndImageLoader.CreateFileImage(thumbPath);
+            var thumbTexture = game.AssetStore.GuiTextures.GetByName(thumbPath).Texture;
+            mapWindow.Data["MapPreview"] = thumbTexture;
 
             // Hide all start positions
-            for (int i = 0; i < 8; ++i)
+            for (var i = 0; i < 8; ++i)
             {
                 mapWindow.Controls[i].Hide();
             }
 
             // Set starting positions
-            for (int i = 0; i < mapCache.NumPlayers; ++i)
+            for (var i = 0; i < mapCache.NumPlayers; ++i)
             {
                 var startPosCtrl = mapWindow.Controls[i];
-                startPosCtrl.BackgroundImage = game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStart");
-                startPosCtrl.HoverBackgroundImage = game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStartHilite");
-                startPosCtrl.DisabledBackgroundImage = game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStartDisabled");
                 startPosCtrl.Show();
 
                 var relPos = GetRelativePosition(mapCache, i);

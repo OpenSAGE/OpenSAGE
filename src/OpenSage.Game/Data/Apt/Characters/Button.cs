@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
@@ -27,11 +26,11 @@ namespace OpenSage.Data.Apt.Characters
         public int Depth;
         public Matrix2x2 RotScale;
         public Vector2 Translation;
-        public ColorRgba Color;
+        public ColorRgbaF Color;
         public Vector4 Unknown;
 
         public ButtonRecord(ButtonRecordFlags flags,uint reserved, uint character, int depth, Matrix2x2 rotscale,
-            Vector2 translation, ColorRgba color, Vector4 unknown)
+            Vector2 translation, ColorRgbaF color, Vector4 unknown)
         {
             Flags = flags;
             Character = character;
@@ -51,7 +50,7 @@ namespace OpenSage.Data.Apt.Characters
                 reader.ReadInt32(),
                 reader.ReadMatrix2x2(),
                 reader.ReadVector2(),
-                reader.ReadColorRgba(),
+                reader.ReadColorRgbaF(),
                 reader.ReadVector4()
                 );
         }
@@ -105,8 +104,8 @@ namespace OpenSage.Data.Apt.Characters
             var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
             var input = reader.ReadUInt16AsEnum<ButtonInput>();
             var reserved = reader.ReadByte();
-            var instructions = new InstructionCollection(reader.BaseStream);
-            instructions.Parse();
+            var instructionsPosition = reader.ReadUInt32();
+            var instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
 
             return new ButtonAction(flags, input, reserved, instructions);
         }

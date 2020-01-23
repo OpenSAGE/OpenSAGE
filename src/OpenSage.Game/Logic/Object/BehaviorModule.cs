@@ -1,9 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class BehaviorModule : DisposableBase
+    {
+        internal virtual void Update(BehaviorUpdateContext context) { }
+    }
+
+    internal sealed class BehaviorUpdateContext
+    {
+        public readonly GameContext GameContext;
+        public readonly GameObject GameObject;
+        public readonly TimeInterval Time;
+
+        public BehaviorUpdateContext(
+            GameContext gameContext,
+            GameObject gameObject,
+            in TimeInterval time)
+        {
+            GameContext = gameContext;
+            GameObject = gameObject;
+            Time = time;
+        }
+    }
+
     public abstract class BehaviorModuleData : ModuleData
     {
         internal static BehaviorModuleData ParseBehavior(IniParser parser) => ParseModule(parser, BehaviorParseTable);
@@ -26,7 +48,7 @@ namespace OpenSage.Logic.Object
             { "ClearanceTestingSlowDeathBehavior", ClearanceTestingSlowDeathBehaviorModuleData.Parse },
             { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
-            { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
+            { "DumbProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
             { "DynamicPortalBehaviour", DynamicPortalBehaviorModuleData.Parse },
             { "FakePathfindPortalBehaviour", FakePathfindPortalBehaviourModuleData.Parse },
@@ -370,5 +392,7 @@ namespace OpenSage.Logic.Object
             { "WeaponBonusUpgrade", WeaponBonusUpgradeModuleData.Parse },
             { "WeaponSetUpgrade", WeaponSetUpgradeModuleData.Parse },
         };
+
+        internal virtual BehaviorModule CreateModule(GameObject gameObject) => null; // TODO: Make this abstract.
     }
 }

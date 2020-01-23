@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Data.Ini;
+using OpenSage.Graphics.Mathematics;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 
@@ -26,6 +27,7 @@ namespace OpenSage.Graphics.Shaders
             _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("RenderItemConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("ParticleConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
@@ -49,7 +51,7 @@ namespace OpenSage.Graphics.Shaders
             }
 
             _alphaPipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAlphaBlend));
-            _additivePipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAdditiveBlend));
+            _additivePipeline = AddDisposable(CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha));
         }
 
         public Pipeline GetCachedPipeline(ParticleSystemShader shader)
@@ -70,12 +72,14 @@ namespace OpenSage.Graphics.Shaders
 
         public ResourceSet CreateParticleResoureSet(
             DeviceBuffer renderItemConstantsBufferVS,
+            DeviceBuffer particleConstantsBufferVS,
             Texture texture)
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     _particleResourceLayout,
                     renderItemConstantsBufferVS,
+                    particleConstantsBufferVS,
                     texture,
                     GraphicsDevice.LinearSampler));
         }
@@ -95,6 +99,13 @@ namespace OpenSage.Graphics.Shaders
                 new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
                 new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1));
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ParticleConstantsVS
+        {
+            private readonly Vector3 _padding;
+            public Bool32 IsGroundAligned;
         }
     }
 }

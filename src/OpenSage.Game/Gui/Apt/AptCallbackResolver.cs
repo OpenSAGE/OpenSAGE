@@ -51,13 +51,15 @@ namespace OpenSage.Gui.Apt
             return GetCallback<ActionscriptCallback>(name);
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private TDelegate GetCallback<TDelegate>(string name)
             where TDelegate : class
         {
 
             if (!_callbackCache.TryGetValue(name, out var method))
             {
-                // TODO: Shouldn't happen, but will during development. We should log a warning.
+                logger.Warn($"Failed to resolve callback '{name}'");
                 return null;
             }
 

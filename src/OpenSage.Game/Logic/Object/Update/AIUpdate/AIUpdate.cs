@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -117,5 +117,15 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Stealthed")]
         Stealthed,
+    }
+
+    public abstract class BaseAITargetChooserData
+    {
+
+    }
+
+    public sealed class UnitAITargetChooserData : BaseAITargetChooserData
+    {
+
     }
 }

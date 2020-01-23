@@ -1,22 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using OpenSage.Content.Translation;
+﻿using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics;
-using OpenSage.Graphics;
-using OpenSage.Graphics.Shaders;
-using OpenSage.Gui;
-using OpenSage.Gui.Apt;
-using OpenSage.Gui.Wnd;
-using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
-using OpenSage.Logic.Object;
 using OpenSage.Utilities;
-using OpenSage.Utilities.Extensions;
-using SixLabors.Fonts;
 using Veldrid;
 
 namespace OpenSage.Content
@@ -27,48 +14,18 @@ namespace OpenSage.Content
 
         public ISubsystemLoader SubsystemLoader { get; }
 
-        private readonly Dictionary<Type, ContentLoader> _contentLoaders;
-
-        private readonly Dictionary<string, object> _cachedObjects;
-
-        private readonly FileSystem _fileSystem;
-
-        private readonly Dictionary<FontKey, Font> _cachedFonts;
-
-        private readonly string _fallbackSystemFont = "Arial";
-        private readonly string _fallbackEmbeddedFont = "Roboto";
-
-        private readonly Dictionary<uint, DeviceBuffer> _cachedNullStructuredBuffers;
-
-        private FontCollection _fallbackFonts;
-
-        internal IEnumerable<object> CachedObjects => _cachedObjects.Values;
-
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
 
-        internal readonly ShaderResourceManager ShaderResources;
-
-        public Sampler LinearClampSampler { get; }
-        public Sampler PointClampSampler { get; }
-
-        public Texture NullTexture { get; }
-
-        public Texture SolidWhiteTexture { get; }
-
-        public FileSystem FileSystem => _fileSystem;
+        public FileSystem FileSystem { get; }
+        public FileSystem UserDataFileSystem { get; internal set; }
 
         public IniDataContext IniDataContext { get; }
 
-        /// <summary>
-        /// Eventually all game data will live here, and be scoped to global or map-specific.
-        /// </summary>
-        public DataContext DataContext { get; }
-
         public ITranslationManager TranslationManager { get; }
 
-        public WndImageLoader WndImageLoader { get; }
+        public FontManager FontManager { get; }
 
         public string Language { get; }
 
@@ -76,13 +33,13 @@ namespace OpenSage.Content
             Game game,
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
-            SageGame sageGame,
-            WndCallbackResolver wndCallbackResolver)
+            SageGame sageGame)
         {
             using (GameTrace.TraceDurationEvent("ContentManager()"))
             {
                 _game = game;
-                _fileSystem = fileSystem;
+
+                FileSystem = fileSystem;
 
                 GraphicsDevice = graphicsDevice;
 
@@ -90,11 +47,9 @@ namespace OpenSage.Content
 
                 Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
 
-                IniDataContext = new IniDataContext(fileSystem, sageGame);
+                IniDataContext = new IniDataContext();
 
-                DataContext = new DataContext();
-
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, FileSystem, game, this);
 
                 switch (sageGame)
                 {
@@ -106,257 +61,77 @@ namespace OpenSage.Content
                     case SageGame.Bfme2Rotwk:
                         SubsystemLoader.Load(Subsystem.Core);
 
-                        // TODO: Move this somewhere else.
-                        // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
-                        IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
-                        IniDataContext.LoadIniFile(@"Data\INI\Water.ini");
-                        IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
-
-                        break;
-                    default:
-                        break;
-                }
-
-                // TODO: Defer subsystem loading until necessary
-                switch (sageGame)
-                {
-                    // Only load these INI files for a subset of games, because we can't parse them for others yet.
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                    case SageGame.Bfme:
-                    case SageGame.Bfme2:
-                    case SageGame.Bfme2Rotwk:
+                        // TODO: Defer subsystem loading until necessary
+                        SubsystemLoader.Load(Subsystem.Audio);
                         SubsystemLoader.Load(Subsystem.Players);
                         SubsystemLoader.Load(Subsystem.ParticleSystems);
                         SubsystemLoader.Load(Subsystem.ObjectCreation);
+                        SubsystemLoader.Load(Subsystem.Locomotors);
+                        SubsystemLoader.Load(Subsystem.Weapons);
+                        SubsystemLoader.Load(Subsystem.FXList);
                         SubsystemLoader.Load(Subsystem.Multiplayer);
                         SubsystemLoader.Load(Subsystem.LinearCampaign);
+                        SubsystemLoader.Load(Subsystem.Wnd);
+                        SubsystemLoader.Load(Subsystem.Terrain);
+                        SubsystemLoader.Load(Subsystem.Credits);
+
                         break;
+
+                    case SageGame.Cnc3:
+                        SubsystemLoader.Load(Subsystem.Core);
+                        break;
+
                     default:
                         break;
                 }
 
-                _contentLoaders = new Dictionary<Type, ContentLoader>
-                {
-                    { typeof(Model), AddDisposable(new ModelLoader()) },
-                    { typeof(Scene3D), AddDisposable(new MapLoader()) },
-                    { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                    { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
-                    { typeof(AptWindow), AddDisposable(new AptLoader()) },
-                };
-
-                _cachedObjects = new Dictionary<string, object>();
-
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameCsf(fileSystem, Language, sageGame);
+                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
 
-                _cachedFonts = new Dictionary<FontKey, Font>();
-
-                var linearClampSamplerDescription = SamplerDescription.Linear;
-                linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-                linearClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-                linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-                LinearClampSampler = AddDisposable(
-                    graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
-
-                var pointClampSamplerDescription = SamplerDescription.Point;
-                pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-                pointClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-                pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-                PointClampSampler = AddDisposable(
-                    graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
-
-                NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
-
-                _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
-
-                SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                    1, 1, 1,
-                    new TextureMipMapData(
-                        new byte[] { 255, 255, 255, 255 },
-                        4, 4, 1, 1),
-                    PixelFormat.R8_G8_B8_A8_UNorm));
-
-                ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, SolidWhiteTexture));
-
-                WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
-
-                _fallbackFonts = new FontCollection();
-                var assembly = Assembly.GetExecutingAssembly();
-                var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Regular.ttf");
-                _fallbackFonts.Install(fontStream);
-                fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
-                _fallbackFonts.Install(fontStream);
+                FontManager = new FontManager();
             }
         }
 
-        internal DeviceBuffer GetNullStructuredBuffer(uint size)
+        // TODO: Move these methods to somewhere else (SubsystemLoader?)
+        internal void LoadIniFiles(string folder)
         {
-            if (!_cachedNullStructuredBuffers.TryGetValue(size, out var result))
+            foreach (var iniFile in FileSystem.GetFiles(folder))
             {
-                _cachedNullStructuredBuffers.Add(size, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateBuffer(
-                    new BufferDescription(
-                        size,
-                        BufferUsage.StructuredBufferReadOnly,
-                        size,
-                        true))));
+                LoadIniFile(iniFile);
             }
-            return result;
         }
 
-        public void Unload()
+        internal void LoadIniFile(string filePath)
         {
-            foreach (var cachedObject in _cachedObjects.Values)
-            {
-                if (cachedObject is IDisposable d)
-                {
-                    RemoveAndDispose(ref d);
-                }
-            }
-            _cachedObjects.Clear();
+            LoadIniFile(FileSystem.GetFile(filePath));
         }
 
-        public T Load<T>(
-            string[] filePaths,
-            LoadOptions options = null,
-            bool fallbackToPlaceholder = true)
-            where T : class
+        internal void LoadIniFile(FileSystemEntry entry)
         {
-            for (var i = 0; i < filePaths.Length; i++)
+            using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
             {
-                var actuallyFallbackToPlaceholder = fallbackToPlaceholder && i == filePaths.Length - 1;
-
-                var result = Load<T>(filePaths[i], options, actuallyFallbackToPlaceholder);
-                if (result != null)
+                if (!entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
                 {
-                    return result;
+                    return;
                 }
-            }
 
-            return null;
+                var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext);
+                parser.ParseFile();
+            }
         }
 
-        public T Load<T>(
-            string filePath,
-            LoadOptions options = null,
-            bool fallbackToPlaceholder = true)
-            where T : class
+        internal FileSystemEntry GetMapEntry(string mapPath)
         {
-            if (_cachedObjects.TryGetValue(filePath, out var asset))
+            var normalizedPath = FileSystem.NormalizeFilePath(mapPath);
+            if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))
             {
-                return (T) asset;
-            }
-
-            var type = typeof(T);
-
-            if (!_contentLoaders.TryGetValue(type, out var contentLoader))
-            {
-                throw new Exception($"Could not finder content loader for type '{type.FullName}'");
-            }
-
-            FileSystemEntry entry = null;
-            foreach (var testFilePath in contentLoader.GetPossibleFilePaths(filePath))
-            {
-                entry = _fileSystem.GetFile(testFilePath);
-                if (entry != null)
-                {
-                    break;
-                }
-            }
-
-            if (entry != null)
-            {
-                asset = contentLoader.Load(entry, this, _game, options);
-
-                if (asset is IDisposable d)
-                {
-                    AddDisposable(d);
-                }
-
-                var shouldCacheAsset = options?.CacheAsset ?? true;
-                if (shouldCacheAsset)
-                {
-                    _cachedObjects.Add(filePath, asset);
-                }
-            }
-            else if (fallbackToPlaceholder)
-            {
-                asset = contentLoader.PlaceholderValue;
-            }
-
-            GraphicsDevice.WaitForIdle();
-
-            return (T) asset;
-        }
-
-        public GameObject InstantiateObject(string typeName)
-        {
-            var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
-            if (objectDefinition != null)
-            {
-                return new GameObject(objectDefinition, this, _game.CivilianPlayer);
+                mapPath = mapPath.Substring(UserDataFileSystem.RootDirectory.Length + 1);
+                return UserDataFileSystem.GetFile(mapPath);
             }
             else
             {
-                // TODO
-                return null;
+                return FileSystem.GetFile(mapPath);
             }
-        }
-
-        public Font GetOrCreateFont(string fontName, float fontSize, FontWeight fontWeight)
-        {
-            var key = new FontKey
-            {
-                FontName = fontName,
-                FontSize = fontSize,
-                FontWeight = fontWeight
-            };
-
-            if (!_cachedFonts.TryGetValue(key, out var font))
-            {
-                var embeddedFallback = false;
-
-                if (!SystemFonts.TryFind(fontName, out var fontFamily))
-                {
-                    //First try to load a fallback system font (Arial)
-                    if (SystemFonts.TryFind(_fallbackSystemFont, out fontFamily))
-                    {
-                        fontName = _fallbackSystemFont;
-                    }
-                    //If this fails use an embedded fallback font (Roboto)
-                    else
-                    {
-                        embeddedFallback = true;
-                    }
-                }
-
-                var fontStyle = fontWeight == FontWeight.Bold
-                    ? FontStyle.Bold
-                    : FontStyle.Regular;
-
-                if (!embeddedFallback)
-                {
-                    font = SystemFonts.CreateFont(fontName,
-                                                fontSize,
-                                                fontStyle);
-                }
-                else
-                {
-                    font = _fallbackFonts.CreateFont(_fallbackEmbeddedFont,
-                                                    fontSize,
-                                                    fontStyle);
-                }
-                _cachedFonts.Add(key, font);
-            }
-
-            return font;
-        }
-
-        private struct FontKey
-        {
-            public string FontName;
-            public float FontSize;
-            public FontWeight FontWeight;
         }
     }
 }

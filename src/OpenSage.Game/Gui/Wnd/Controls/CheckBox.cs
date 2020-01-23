@@ -1,4 +1,5 @@
-﻿using OpenSage.Gui.Wnd.Images;
+﻿using OpenSage.Data.Wnd;
+using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -17,6 +18,18 @@ namespace OpenSage.Gui.Wnd.Controls
         public Image DisabledCheckedImage { get; set; }
 
         public bool Checked { get; set; }
+
+        public CheckBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
+        {
+            UncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 1);
+            CheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 2);
+
+            HoverUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 1);
+            HoverCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 2);
+
+            DisabledUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 1);
+            DisabledCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 2);
+        }
 
         protected override void LayoutOverride()
         {

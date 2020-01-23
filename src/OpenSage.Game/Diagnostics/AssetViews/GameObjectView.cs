@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
+    [AssetView(typeof(ObjectDefinition))]
     internal sealed class GameObjectView : AssetView
     {
         private GameObject _gameObject;
@@ -38,7 +39,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
                 if (ImGui.Selectable(modelConditionState.DisplayName, i == _selectedIndex))
                 {
-                    _gameObject.SetModelConditionFlags(modelConditionState);
+                    _gameObject.CopyModelConditionFlags(modelConditionState);
                     _selectedIndex = i;
                 }
             }

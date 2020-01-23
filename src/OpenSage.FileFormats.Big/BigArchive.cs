@@ -20,6 +20,7 @@ namespace OpenSage.FileFormats.Big
         internal Stream Stream => _stream;
 
         public string FilePath { get; }
+        public long Size => _stream.Length;
 
         public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 

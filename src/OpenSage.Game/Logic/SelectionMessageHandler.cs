@@ -29,6 +29,10 @@ namespace OpenSage.Logic
                     {
                         _system.OnDragSelection(_mousePos);
                     }
+                    else
+                    {
+                        _system.OnHoverSelection(_mousePos);
+                    }
 
                     break;
                 case InputMessageType.MouseLeftButtonDown:
@@ -39,7 +43,6 @@ namespace OpenSage.Logic
                     {
                         _system.OnEndDragSelection();
                     }
-
                     break;
             }
 

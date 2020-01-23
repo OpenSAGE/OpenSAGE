@@ -1,10 +1,10 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     /// <summary>
-    /// Requires <see cref="Locomotor.LocomotorWorksWhenDead"/> = <code>true</code> on the object's
+    /// Requires <see cref="LocomotorTemplate.LocomotorWorksWhenDead"/> = <code>true</code> on the object's
     /// Locomotor to function correctly.
     /// </summary>
     public sealed class JetSlowDeathBehaviorModuleData : SlowDeathBehaviorModuleData
@@ -35,9 +35,9 @@ namespace OpenSage.Logic.Object
         public string FXOnGroundDeath { get; private set; }
         public string OCLOnGroundDeath { get; private set; }
         public float RollRate { get; private set; }
-        public float RollRateDelta { get; private set; }
+        public Percentage RollRateDelta { get; private set; }
         public float PitchRate { get; private set; }
-        public float FallHowFast { get; private set; }
+        public Percentage FallHowFast { get; private set; }
         public string FXInitialDeath { get; private set; }
         public string OCLInitialDeath { get; private set; }
         public int DelaySecondaryFromInitialDeath { get; private set; }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -86,5 +86,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int TurretMaxDeflectionACW { get; private set; }
+    }
+
+    public sealed class TurretAITargetChooserData : BaseAITargetChooserData
+    {
+
     }
 }

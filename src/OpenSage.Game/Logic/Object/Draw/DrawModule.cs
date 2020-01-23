@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,21 +15,22 @@ namespace OpenSage.Logic.Object
     {
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
-        internal virtual IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            yield break;
-        }
+        // TODO: Probably shouldn't have this here.
+        internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
+        internal abstract string GetWeaponLaunchBone(WeaponSlot slot);
 
         public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
 
         }
 
-        internal abstract void Update(in TimeInterval time);
+        internal abstract void Update(in TimeInterval time, GameObject gameObject);
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
-        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, Player owner);
+        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
+
+        internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
     }
 
     public abstract class DrawModuleData : ModuleData
@@ -67,6 +69,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(ContentManager contentManager) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(GameContext context) => null; // TODO: Make this abstract.
     }
 }

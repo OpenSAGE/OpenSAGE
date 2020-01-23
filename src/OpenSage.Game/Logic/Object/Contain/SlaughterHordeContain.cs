@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
 
         public ObjectFilter PassengerFilter { get; private set; }
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
-        public float CashBackPercent { get; private set; }
+        public Percentage CashBackPercent { get; private set; }
         public int ContainMax { get; private set; }
         public int MaxHordeCapacity { get; private set; }
         public bool AllowAlliesInside { get; private set; }

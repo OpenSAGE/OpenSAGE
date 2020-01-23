@@ -1,12 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.FX;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class BezierProjectileBehavior : BehaviorModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly BezierProjectileBehaviorData _moduleData;
+
+        internal FXList GroundHitFX { get; set; }
+
+        internal BezierProjectileBehavior(GameObject gameObject, BezierProjectileBehaviorData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+
+            GroundHitFX = moduleData.GroundHitFX?.Value;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            // TODO: Bezier implementation.
+
+            var transform = _gameObject.Transform;
+
+            transform.Translation += _gameObject.Velocity * ((float)Game.LogicUpdateInterval / 1000.0f);
+
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(transform.Translation.X, transform.Translation.Y);
+            if (transform.Translation.Z < terrainHeight)
+            {
+                // TODO: Destroy this object properly.
+                context.GameObject.Destroyed = true;
+
+                GroundHitFX.Execute(new FXListExecutionContext(
+                    transform.Rotation,
+                    transform.Translation,
+                    context.GameContext));
+            }
+        }
+    }
+
     [AddedIn(SageGame.Bfme)]
-    public class BezierProjectileBehaviorData : BehaviorModuleData
+    public sealed class BezierProjectileBehaviorData : BehaviorModuleData
     {
         internal static BezierProjectileBehaviorData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
@@ -25,7 +62,7 @@ namespace OpenSage.Logic.Object
             { "BounceSecondHeight", (parser, x) => x.BounceSecondHeight = parser.ParseInteger() },
             { "BounceFirstPercentIndent", (parser, x) => x.BounceFirstPercentIndent = parser.ParsePercentage() },
             { "BounceSecondPercentIndent", (parser, x) => x.BounceSecondPercentIndet = parser.ParsePercentage() },
-            { "GroundHitFX", (parser, x) => x.GroundHitFX = parser.ParseAssetReference() },
+            { "GroundHitFX", (parser, x) => x.GroundHitFX = parser.ParseFXListReference() },
             { "GroundHitWeapon", (parser, x) => x.GroundHitWeapon = parser.ParseAssetReference() },
             { "GroundBounceFX", (parser, x) => x.GroundBounceFX = parser.ParseAssetReference() },
             { "GroundBounceWeapon", (parser, x) => x.GroundBounceWeapon = parser.ParseAssetReference() },
@@ -42,13 +79,17 @@ namespace OpenSage.Logic.Object
             { "SecondPercentHeight", (parser, x) => x.SecondPercentHeight = parser.ParsePercentage() },
             { "FinalStuckTime", (parser, x) => x.FinalStuckTime = parser.ParseInteger() },
             { "OrientToFlightPath", (parser, x) => x.OrientToFlightPath = parser.ParseBoolean() },
+            { "GarrisonHitKillRequiredKindOf", (parser, x) => x.GarrisonHitKillRequiredKindOf = parser.ParseEnum<ObjectKinds>() },
+            { "GarrisonHitKillForbiddenKindOf", (parser, x) => x.GarrisonHitKillForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
+            { "GarrisonHitKillCount", (parser, x) => x.GarrisonHitKillCount = parser.ParseInteger() },
+            { "GarrisonHitKillFX", (parser, x) => x.GarrisonHitKillFX = parser.ParseAssetReference() },
             { "PreLandingEmotionAffectsAllies", (parser, x) => x.PreLandingEmotionAffectsAllies = parser.ParseBoolean() },
         };
 
         public int FirstHeight { get; private set; }
         public int SecondHeight { get; private set; }
-        public float FirstPercentIndent { get; private set; }
-        public float SecondPercentIndent { get; private set; }
+        public Percentage FirstPercentIndent { get; private set; }
+        public Percentage SecondPercentIndent { get; private set; }
         public bool TumbleRandomly { get; private set; }
 
         public bool CrushStyle { get; private set; }
@@ -57,9 +98,9 @@ namespace OpenSage.Logic.Object
         public int BounceDistance { get; private set; }
         public int BounceFirstHeight { get; private set; }
         public int BounceSecondHeight { get; private set; }
-        public float BounceFirstPercentIndent { get; private set; }
-        public float BounceSecondPercentIndet { get; private set; }
-        public string GroundHitFX { get; private set; }
+        public Percentage BounceFirstPercentIndent { get; private set; }
+        public Percentage BounceSecondPercentIndet { get; private set; }
+        public LazyAssetReference<FXList> GroundHitFX { get; private set; }
         public string GroundHitWeapon { get; private set; }
         public string GroundBounceFX { get; private set; }
         public string GroundBounceWeapon { get; private set; }
@@ -72,12 +113,21 @@ namespace OpenSage.Logic.Object
         public float PreLandingEmotionRadius { get; private set; }
         public int FadeInTime { get; private set; }
         public bool IgnoreTerrainHeight { get; private set; }
-        public float FirstPercentHeight { get; private set; }
-        public float SecondPercentHeight { get; private set; }
+        public Percentage FirstPercentHeight { get; private set; }
+        public Percentage SecondPercentHeight { get; private set; }
         public int FinalStuckTime { get; private set; }
         public bool OrientToFlightPath { get; private set; }
+        public ObjectKinds GarrisonHitKillRequiredKindOf { get; private set; }
+        public ObjectKinds GarrisonHitKillForbiddenKindOf { get; private set; }
+        public int GarrisonHitKillCount { get; private set; }
+        public string GarrisonHitKillFX { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool PreLandingEmotionAffectsAllies { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new BezierProjectileBehavior(gameObject, this);
+        }
     }
 }

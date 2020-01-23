@@ -1,31 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
-using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class W3dModelDraw : DrawModule
+    public class W3dModelDraw : DrawModule
     {
-        private readonly ContentManager _contentManager;
         private readonly W3dModelDrawModuleData _data;
+        private readonly GameContext _context;
 
         private readonly List<ModelConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
 
+        private readonly List<AnimationState> _animationStates;
+        private readonly AnimationState _idleAnimationState;
+
+        private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
+
         private ModelConditionState _activeConditionState;
+        private AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
+        private float _sinkFactor;
+
+        protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
@@ -37,20 +44,26 @@ namespace OpenSage.Logic.Object
                 {
                     yield return conditionState.ConditionFlags;
                 }
+
+                foreach (var animationState in _animationStates)
+                {
+                    yield return animationState.TypeFlags;
+                }
             }
         }
 
-        internal override IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            return (_activeModelDrawConditionState != null)
-                ? _activeModelDrawConditionState.AttachedParticleSystems
-                : Enumerable.Empty<AttachedParticleSystem>();
-        }
+        internal override string GetWeaponFireFXBone(WeaponSlot slot)
+            => _defaultConditionState?.WeaponFireFXBones.Find(x => x.WeaponSlot == slot)?.BoneName;
 
-        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data)
+        internal override string GetWeaponLaunchBone(WeaponSlot slot)
+            => _defaultConditionState?.WeaponLaunchBones.Find(x => x.WeaponSlot == slot)?.BoneName;
+
+        internal W3dModelDraw(
+            W3dModelDrawModuleData data,
+            GameContext context)
         {
-            _contentManager = contentManager;
             _data = data;
+            _context = context;
 
             _conditionStates = new List<ModelConditionState>();
 
@@ -78,7 +91,21 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            _cachedModelDrawConditionStates = new Dictionary<ModelConditionState, W3dModelDrawConditionState>();
+
             SetActiveConditionState(_defaultConditionState);
+
+            _animationStates = new List<AnimationState>();
+
+            if (data.IdleAnimationState != null)
+            {
+                _idleAnimationState = data.IdleAnimationState;
+            }
+
+            foreach (var animationState in data.AnimationStates)
+            {
+                _animationStates.Add(animationState);
+            }
         }
 
         private void SetActiveConditionState(ModelConditionState conditionState)
@@ -88,13 +115,50 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            RemoveAndDispose(ref _activeModelDrawConditionState);
+            _activeModelDrawConditionState?.Deactivate();
+
+            if (!_cachedModelDrawConditionStates.TryGetValue(conditionState, out var modelDrawConditionState))
+            {
+                modelDrawConditionState = AddDisposable(CreateModelDrawConditionStateInstance(conditionState));
+                _cachedModelDrawConditionStates.Add(conditionState, modelDrawConditionState);
+            }
 
             _activeConditionState = conditionState;
+            _activeModelDrawConditionState = modelDrawConditionState;
 
-            _activeModelDrawConditionState = AddDisposable(
-                CreateModelDrawConditionStateInstance(
-                    conditionState));
+            _activeModelDrawConditionState?.Activate();
+        }
+
+        private void SetActiveAnimationState(AnimationState animationState)
+        {
+            if (_activeAnimationState == animationState
+             || _activeModelDrawConditionState == null)
+            {
+                return;
+            }
+
+            _activeAnimationState = animationState;
+
+            var modelInstance = _activeModelDrawConditionState.Model;
+
+            var firstAnimationBlock = animationState.Animations.FirstOrDefault();
+            if (firstAnimationBlock != null)
+            {
+                foreach(var animation in firstAnimationBlock.Animations)
+                {
+                    var anim = animation.Value;
+                    //Check if the animation does really exist
+                    if(anim != null)
+                    {
+                        var flags = animationState.Flags;
+                        var mode = firstAnimationBlock.AnimationMode;
+                        var animationInstance = new AnimationInstance(modelInstance, anim, mode, flags);
+                        modelInstance.AnimationInstances.Add(animationInstance);
+                        animationInstance.Play();
+                        break;
+                    }
+                }
+            }
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
@@ -105,11 +169,19 @@ namespace OpenSage.Logic.Object
             // Find best matching ModelConditionState.
             foreach (var conditionState in _conditionStates)
             {
-                var match = conditionState.ConditionFlags.And(flags).NumBitsSet;
-                if (match > bestMatch)
+                var numStateBits = conditionState.ConditionFlags.NumBitsSet;
+                var numIntersectionBits = conditionState.ConditionFlags.CountIntersectionBits(flags);
+
+                // If there's no intersection never select this.
+                if (numIntersectionBits != numStateBits)
+                {
+                    continue;
+                }
+
+                if (numIntersectionBits > bestMatch)
                 {
                     bestConditionState = conditionState;
-                    bestMatch = match;
+                    bestMatch = numIntersectionBits;
                 }
             }
 
@@ -119,19 +191,60 @@ namespace OpenSage.Logic.Object
             }
 
             SetActiveConditionState(bestConditionState);
+
+            foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
+            {
+                var visible = flags.Get(ModelConditionFlag.FiringA);
+                for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
+                {
+                    var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
+                    // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
+                    if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName.ToUpper()))
+                    {
+                        _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
+                    }
+                }
+            };
+            
+            AnimationState bestAnimationState = null;
+            bestMatch = int.MinValue;
+
+            // Find best matching ModelConditionState.
+            foreach (var animationState in _animationStates)
+            {
+                var numStateBits = animationState.TypeFlags.NumBitsSet;
+                var numIntersectionBits = animationState.TypeFlags.CountIntersectionBits(flags);
+
+                // If there's no intersection never select this.
+                if (numIntersectionBits != numStateBits)
+                {
+                    continue;
+                }
+
+                if (numIntersectionBits > bestMatch)
+                {
+                    bestAnimationState = animationState;
+                    bestMatch = numIntersectionBits;
+                }
+            }
+
+            if (bestAnimationState == null || bestMatch == 0)
+            {
+                bestAnimationState = _idleAnimationState;
+            }
+
+            SetActiveAnimationState(bestAnimationState);
         }
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
         {
+            // Load model, fallback to default model.
+            var model = conditionState.Model?.Value ?? _defaultConditionState.Model?.Value;
+
             ModelInstance modelInstance = null;
-            if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
+            if (model != null)
             {
-                var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
-                var model = _contentManager.Load<Model>(w3dFilePath);
-                if (model != null)
-                {
-                    modelInstance = model.CreateInstance(_contentManager);
-                }
+                modelInstance = model.CreateInstance(_context.AssetLoadContext);
             }
 
             if (modelInstance != null)
@@ -144,30 +257,15 @@ namespace OpenSage.Logic.Object
                     .LastOrDefault();
                 if (firstAnimation != null)
                 {
-                    if (!_contentManager.DataContext.Animations.TryGetValue(firstAnimation.Animation, out var animation))
+                    var animation = firstAnimation.Animation.Value;
+
+                    if (animation != null)
                     {
-                        var splitName = firstAnimation.Animation.Split('.');
-
-                        var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
-                        W3dFile w3dFile;
-                        using (var entryStream = w3dEntry.Open())
-                        {
-                            w3dFile = W3dFile.FromStream(entryStream, w3dEntry.FilePath);
-                        }
-
-                        var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
-                        if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new NotSupportedException();
-                        }
-
-                        animation = animations[0];
+                        var mode = conditionState.AnimationMode;
+                        var flags = conditionState.Flags;
+                        var animationInstance = new AnimationInstance(modelInstance, animation, mode, flags);
+                        modelInstance.AnimationInstances.Add(animationInstance);
                     }
-
-                    var animationInstance = new AnimationInstance(modelInstance, animation);
-                    modelInstance.AnimationInstances.Add(animationInstance);
-                    animationInstance.Play();
                 }
             }
 
@@ -176,15 +274,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = particleSysBone.ParticleSystem.Value;
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
-
-                        if (particleSystemTemplate == null)
-                        {
-                            throw new InvalidOperationException("Missing referenced particle system: " + particleSysBone.ParticleSystem);
-                        }
+                        throw new InvalidOperationException();
                     }
 
                     var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
@@ -194,82 +287,164 @@ namespace OpenSage.Logic.Object
                         continue;
                     }
 
-                    particleSystems.Add(new ParticleSystem(
-                        _contentManager,
+                    particleSystems.Add(_context.ParticleSystems.Create(
                         particleSystemTemplate,
                         () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
 
+            if (modelInstance != null)
+            {
+                if (conditionState.HideSubObject != null)
+                {
+                    foreach (var hideSubObject in conditionState.HideSubObject)
+                    {
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + hideSubObject.ToUpper()));
+                        if (item != null)
+                        {
+                            modelInstance.BoneVisibilities[item.i] = false;
+                        }
+
+                    }
+                }
+                if (conditionState.ShowSubObject != null)
+                {
+                    foreach (var showSubObject in conditionState.ShowSubObject)
+                    {
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + showSubObject.ToUpper()));
+                        if (item != null)
+                        {
+                            modelInstance.BoneVisibilities[item.i] = true;
+                        }
+
+                    }
+                }
+            }
+
             return modelInstance != null
-               ? new W3dModelDrawConditionState(modelInstance, particleSystems)
+               ? new W3dModelDrawConditionState(modelInstance, particleSystems, _context)
                : null;
         }
 
-        internal override void Update(in TimeInterval gameTime)
+        internal override (ModelInstance, ModelBone) FindBone(string boneName)
         {
+            return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        {
+            if(_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            {
+                //TODO: change the world matrix?
+                float progress = gameObject.BuildProgress;
+                _sinkFactor = (1.0f - progress) * gameObject.Collider.Height;
+            }
+
             _activeModelDrawConditionState?.Update(gameTime);
         }
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
+            if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            {
+                var mat = worldMatrix * Matrix4x4.CreateTranslation(-Vector3.UnitZ * _sinkFactor);// // _sinkFactor;
+                _activeModelDrawConditionState?.SetWorldMatrix(mat);
+            }
+            else
+            {
+                _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
+            }
         }
 
         internal override void BuildRenderList(
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
-            _activeModelDrawConditionState?.BuildRenderList(renderList, camera, castsShadow, owner);
+            _activeModelDrawConditionState?.BuildRenderList(
+                renderList,
+                camera,
+                castsShadow,
+                renderItemConstantsPS);
         }
     }
 
     internal sealed class W3dModelDrawConditionState : DisposableBase
     {
-        private readonly ModelInstance _modelInstance;
+        private readonly IEnumerable<ParticleSystem> _particleSystems;
+        private readonly GameContext _context;
 
-        public IReadOnlyList<AttachedParticleSystem> AttachedParticleSystems { get; }
+        public readonly ModelInstance Model;
 
-        public W3dModelDrawConditionState(ModelInstance modelInstance, IEnumerable<ParticleSystem> particleSystems)
+        public W3dModelDrawConditionState(
+            ModelInstance modelInstance,
+            IEnumerable<ParticleSystem> particleSystems,
+            GameContext context)
         {
-            _modelInstance = AddDisposable(modelInstance);
+            Model = AddDisposable(modelInstance);
 
-            var attachedParticleSystems = new List<AttachedParticleSystem>();
-            foreach (var particleSystem in particleSystems)
+            _particleSystems = particleSystems;
+            _context = context;
+        }
+
+        public void Activate()
+        {
+            foreach (var animationInstance in Model.AnimationInstances)
             {
-                AddDisposable(particleSystem);
-
-                attachedParticleSystems.Add(new AttachedParticleSystem(
-                    particleSystem,
-                    x =>
-                    {
-                        attachedParticleSystems.Remove(x);
-                        RemoveToDispose(particleSystem);
-                        particleSystem.Dispose();
-                    }));
+                animationInstance.Play();
             }
-            AttachedParticleSystems = attachedParticleSystems;
+
+            foreach (var particleSystem in _particleSystems)
+            {
+                particleSystem.Activate();
+            }
+        }
+
+        public void Deactivate()
+        {
+            foreach (var animationInstance in Model.AnimationInstances)
+            {
+                animationInstance.Stop();
+            }
+
+            foreach (var particleSystem in _particleSystems)
+            {
+                particleSystem.Deactivate();
+            }
         }
 
         public void Update(in TimeInterval gameTime)
         {
-            _modelInstance.Update(gameTime);
+            Model.Update(gameTime);
         }
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            _modelInstance.SetWorldMatrix(worldMatrix);
+            Model.SetWorldMatrix(worldMatrix);
         }
 
         public void BuildRenderList(
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
-            _modelInstance.BuildRenderList(renderList, camera, castsShadow, owner);
+            Model.BuildRenderList(
+                renderList,
+                camera,
+                castsShadow,
+                renderItemConstantsPS);
+        }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            foreach (var particleSystem in _particleSystems)
+            {
+                _context.ParticleSystems.Remove(particleSystem);
+            }
+
+            base.Dispose(disposeManagedResources);
         }
     }
 
@@ -375,9 +550,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(ContentManager contentManager)
+        internal override DrawModule CreateDrawModule(GameContext context)
         {
-            return new W3dModelDraw(contentManager, this);
+            return new W3dModelDraw(this, context);
         }
     }
 

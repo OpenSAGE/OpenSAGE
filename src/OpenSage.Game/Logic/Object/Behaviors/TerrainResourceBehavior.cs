@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
         public bool HighPriority { get; private set; }
         public bool Visible { get; private set; }
         public string Upgrade { get; private set; }
-        public float UpgradeBonusPercent { get; private set; }
+        public Percentage UpgradeBonusPercent { get; private set; }
         public ObjectFilter UpgradeMustBePresent { get; private set; }
     }
 }

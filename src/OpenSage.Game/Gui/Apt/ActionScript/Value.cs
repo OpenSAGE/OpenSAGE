@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -41,6 +35,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (Type != ValueType.Register)
                 return this;
+
+            if (context.Registers.Length - 1 < _number)
+                return Value.FromInteger(_number);
 
             return context.Registers[_number];
         }
@@ -147,11 +144,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public ObjectContext ToObject()
         {
             if (Type == ValueType.Undefined)
             {
-                Debug.WriteLine("Cannot create object from undefined!");
+                logger.Error("Cannot create object from undefined!");
                 return null;
             }
 
@@ -213,13 +213,27 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _function;
         }
 
+        // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
         public override string ToString()
         {
-            if (Type != ValueType.String &&
-                Type != ValueType.Undefined)
-                throw new InvalidOperationException();
-
-            return _string;
+            switch (Type)
+            {
+                case ValueType.String:
+                    return _string;
+                case ValueType.Boolean:
+                    return _boolean.ToString();
+                case ValueType.Short:
+                case ValueType.Integer:
+                    return _number.ToString();
+                case ValueType.Float:
+                    return _decimal.ToString();
+                case ValueType.Undefined:
+                    return "";
+                case ValueType.Object:
+                    return _object.Item.Name;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public TEnum ToEnum<TEnum>() where TEnum : struct
@@ -249,6 +263,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.String:
                     result = (b._string == _string);
+                    break;
+                case ValueType.Boolean:
+                    result = b._boolean == _boolean;
                     break;
                 default:
                     throw new NotImplementedException();

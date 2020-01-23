@@ -48,6 +48,10 @@ namespace OpenSage.Logic.Orders
                     sb.Append(Value.ScreenPosition.ToString());
                     break;
 
+                case OrderArgumentType.ScreenRectangle:
+                    sb.Append(Value.ScreenRectangle.ToString());
+                    break;
+
                 default:
                     throw new InvalidOperationException();
             }

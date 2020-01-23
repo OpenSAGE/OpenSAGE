@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using Veldrid;
 
@@ -25,8 +27,6 @@ namespace OpenSage.Graphics
         internal readonly Matrix4x4[] AbsoluteBoneTransforms;
 
         private Matrix4x4 _worldMatrix;
-
-        private bool _relativeBoneTransformsDirty;
 
         /// <summary>
         /// Calculated bone visibilities. Child bones will be hidden
@@ -51,11 +51,11 @@ namespace OpenSage.Graphics
 
         public readonly List<AnimationInstance> AnimationInstances;
 
-        internal ModelInstance(Model model, ContentManager contentManager)
+        internal ModelInstance(Model model, AssetLoadContext loadContext)
         {
             Model = model;
 
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = loadContext.GraphicsDevice;
 
             ModelBoneInstances = new ModelBoneInstance[model.BoneHierarchy.Bones.Length];
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
@@ -88,14 +88,12 @@ namespace OpenSage.Graphics
             }
             else
             {
-                skinningBuffer = contentManager.GetNullStructuredBuffer(64);
+                skinningBuffer = loadContext.StandardGraphicsResources.GetNullStructuredBuffer(64);
             }
 
-            SkinningBufferResourceSet = AddDisposable(contentManager.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));
+            SkinningBufferResourceSet = AddDisposable(loadContext.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));
 
             AnimationInstances = new List<AnimationInstance>();
-
-            _relativeBoneTransformsDirty = true;
 
             BeforeRenderDelegates = new BeforeRenderDelegate[model.SubObjects.Length][];
             BeforeRenderDelegatesDepth = new BeforeRenderDelegate[model.SubObjects.Length][];
@@ -134,13 +132,21 @@ namespace OpenSage.Graphics
             // Update animations.
             foreach (var animationInstance in AnimationInstances)
             {
-                if (animationInstance.Update(gameTime))
+                animationInstance.Update(gameTime);
+            }
+
+            // Check if any model bone transform has changed.
+            var isAnyModelBoneInstanceDirty = false;
+            foreach (var modelBoneInstance in ModelBoneInstances)
+            {
+                if (modelBoneInstance.IsDirty)
                 {
-                    _relativeBoneTransformsDirty = true;
+                    isAnyModelBoneInstanceDirty = true;
+                    break;
                 }
             }
 
-            if (_relativeBoneTransformsDirty)
+            if (isAnyModelBoneInstanceDirty)
             {
                 // Calculate (animated) bone transforms relative to root bone.
                 for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
@@ -163,7 +169,10 @@ namespace OpenSage.Graphics
                 }
             }
 
-            _relativeBoneTransformsDirty = false;
+            foreach (var modelBoneInstance in ModelBoneInstances)
+            {
+                modelBoneInstance.ResetDirty();
+            }
 
             if (!_hasSkinnedMeshes)
             {
@@ -183,11 +192,6 @@ namespace OpenSage.Graphics
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (worldMatrix == _worldMatrix)
-            {
-                return;
-            }
-
             _worldMatrix = worldMatrix;
 
             for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
@@ -200,7 +204,7 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            Player owner)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
@@ -215,7 +219,7 @@ namespace OpenSage.Graphics
                     subObject.Bone,
                     _worldMatrix,
                     castsShadow,
-                    owner);
+                    renderItemConstantsPS);
             }
         }
     }

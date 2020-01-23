@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace OpenSage.Gui.Apt.ActionScript.Opcodes
+﻿namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     /// <summary>
     /// Used to get variables from the engine (?)
@@ -14,7 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var url = Parameters[0].ToString();
-            var target  = Parameters[1].ToString();
+            var target = Parameters[1].ToString();
 
             context.Apt.Avm.Handle(context, url, target);
         }

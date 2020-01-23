@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -10,14 +11,14 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptWindow : DisposableBase
     {
-        private readonly ContentManager _contentManager;
         private readonly AptContext _context;
         private readonly Game _game;
-        private Size _destinationSize;
-        private AptCallbackResolver _resolver;
+        private readonly AptCallbackResolver _resolver;
+        private Vector2 _movieSize;
+        private Vector2 _destinationSize;
 
         /// <summary>
-        /// The background color of the movie set by the BackgroundColor frameitem
+        /// The background color of the movie set by the BackgroundColor frameItem
         /// <see cref="Data.Apt.FrameItems.BackgroundColor"/>
         /// </summary>
         private ColorRgbaF _backgroundColor { get; set; }
@@ -26,41 +27,52 @@ namespace OpenSage.Gui.Apt
         public string Name => AptFile.MovieName;
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
-        public MappedImageLoader ImageLoader { get; }
+        public ContentManager ContentManager { get; }
+        internal AssetStore AssetStore { get; }
+        public AptInputMessageHandler InputHandler { get; set; }
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
         /// </summary>
-        public MappedImageTexture BackgroundImage { get; set; }
+        public MappedImage BackgroundImage { get; set; }
 
-        public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
+        internal AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
-            _contentManager = contentManager;
-
-            //Create our context
-            _context = new AptContext(aptFile, contentManager);
-
-            //First thing to do here is to initialize the display list
-            Root = new SpriteItem { Transform = ItemTransform.None };
-            Root.SetBackgroundColor = (c) => _backgroundColor = c;
-            Root.Create(aptFile.Movie, _context);
-            _context.Root = Root;
-
-            _context.Avm.CommandHandler = HandleCommand;
-
+            _game = game;
+            ContentManager = contentManager;
+            AssetStore = game.AssetStore;
             AptFile = aptFile;
 
-            Renderer = new AptRenderer(contentManager);
+            //Create our context
+            _context = new AptContext(this);
 
-            ImageLoader = new MappedImageLoader(contentManager);
+            //First thing to do here is to initialize the display list
+            Root = new SpriteItem
+            {
+                Transform = ItemTransform.None,
+                SetBackgroundColor = (c) => _backgroundColor = c
+            };
+            Root.Create(aptFile.Movie, _context);
+
+            _context.Root = Root;
+            _context.Avm.CommandHandler = HandleCommand;
+
+            var m = Root.Character as Movie;
+            _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
+
+            Renderer = new AptRenderer(this, contentManager);
 
             _resolver = new AptCallbackResolver(game);
         }
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
-            _destinationSize = windowSize;
-            Renderer.Resize(_destinationSize);
+            _destinationSize = new Vector2(windowSize.Width, windowSize.Height);
+        }
+
+        internal bool HandleInput(Point2D mousePos, bool mouseDown)
+        {
+            return Root.HandleInput(mousePos, mouseDown);
         }
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)
@@ -70,13 +82,18 @@ namespace OpenSage.Gui.Apt
             Root.RunActions(gt);
         }
 
+        internal Vector2 GetScaling()
+        {
+            return _destinationSize / _movieSize;
+        }
+
         internal void Render(DrawingContext2D drawingContext)
         {
-            var fullsizeRect = new Rectangle(Point2D.Zero, _destinationSize);
+            var fullSizeRect = new Rectangle(0, 0, (int) _destinationSize.X, (int) _destinationSize.Y);
 
             if (BackgroundImage != null)
             {
-                drawingContext.DrawImage(BackgroundImage.Texture, BackgroundImage.SourceRect, fullsizeRect);
+                drawingContext.DrawImage(BackgroundImage.Texture.Value, BackgroundImage.Coords, fullSizeRect);
             }
 
             //The background color, which is set by the APT. Should be the clear color?
@@ -87,11 +104,11 @@ namespace OpenSage.Gui.Apt
             Root.Render(Renderer, transform, drawingContext);
         }
 
-        internal void HandleCommand(ActionContext context, string cmd)
+        internal void HandleCommand(ActionContext context, string cmd, string param)
         {
-            _resolver.GetCallback(cmd).Invoke(context, this, _game);
+            _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
         }
 
-        public delegate void ActionscriptCallback(ActionContext context, AptWindow window, Game game);
+        public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);
     }
 }

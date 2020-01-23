@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
+using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
@@ -13,12 +16,19 @@ namespace OpenSage.Diagnostics
     {
         private readonly DiagnosticViewContext _context;
         private readonly List<DiagnosticView> _views;
+        private readonly IReadOnlyDictionary<MapCache, string> _maps;
 
         public MainView(DiagnosticViewContext context)
         {
             _context = context;
 
             _views = new List<DiagnosticView>();
+
+            _maps = _context.Game.AssetStore.MapCaches
+                .Where(m => _context.Game.ContentManager.GetMapEntry(m.Name) != null)
+                .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
+                .OrderBy(m => m.mapName)
+                .ToDictionary(m => m.mapCache, m => m.mapName);
 
             void AddView(DiagnosticView view)
             {
@@ -37,6 +47,8 @@ namespace OpenSage.Diagnostics
             AddView(new AptGeometryView(context));
             AddView(new WndView(context));
             AddView(new GameLoopView(context));
+			AddView(new LuaScriptConsole(context));
+            AddView(new LogView(context));
         }
 
         private void DrawTimingControls()
@@ -96,25 +108,31 @@ namespace OpenSage.Diagnostics
                 {
                     if (ImGui.BeginMenu("Map"))
                     {
-                        foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
-                        {
-                            var mapName = mapCache.GetNameKey().Translate();
-
-                            if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
+                        foreach (var mapCache in _maps)
+                        {                           
+                            if (ImGui.MenuItem($"{mapCache.Value} ({mapCache.Key.Name})"))
                             {
-                                var iniContext = _context.Game.ContentManager.IniDataContext;
-                                var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);
-                                var faction2 = iniContext.PlayerTemplates.FindLast(x => x.PlayableSide == true);
+                                var playableSides = _context.Game.GetPlayableSides();
+                                var faction1 = playableSides.First();
+                                var faction2 = playableSides.Last();
 
-                                _context.Game.StartMultiPlayerGame(
-                                    mapCache.Name,
-                                    new EchoConnection(),
-                                    new[]
-                                    {
-                                        new PlayerSetting(faction1.Side, new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting(faction2.Side, new ColorRgb(255, 255, 255)),
-                                    },
-                                    0);
+                                if (mapCache.Key.IsMultiplayer)
+                                {
+                                    _context.Game.StartMultiPlayerGame(
+                                        mapCache.Key.Name,
+                                        new EchoConnection(),
+                                        new PlayerSetting?[]
+                                        {
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                        },
+                                        0
+                                    );
+                                }
+                                else
+                                {
+                                    _context.Game.StartSinglePlayerGame(mapCache.Key.Name);
+                                }
                             }
                         }
 
@@ -151,6 +169,67 @@ namespace OpenSage.Diagnostics
                     {
                         _context.Game.Window.Fullscreen = isFullscreen;
                     }
+                    ImGui.EndMenu();
+                }
+
+                if (_context.Game.Configuration.UseRenderDoc && ImGui.BeginMenu("RenderDoc"))
+                {
+                    var renderDoc = Game.RenderDoc;
+
+                    if (ImGui.MenuItem("Trigger Capture"))
+                    {
+                        renderDoc.TriggerCapture();
+                    }
+                    if (ImGui.BeginMenu("Options"))
+                    {
+                        bool allowVsync = renderDoc.AllowVSync;
+                        if (ImGui.Checkbox("Allow VSync", ref allowVsync))
+                        {
+                            renderDoc.AllowVSync = allowVsync;
+                        }
+                        bool validation = renderDoc.APIValidation;
+                        if (ImGui.Checkbox("API Validation", ref validation))
+                        {
+                            renderDoc.APIValidation = validation;
+                        }
+                        int delayForDebugger = (int) renderDoc.DelayForDebugger;
+                        if (ImGui.InputInt("Debugger Delay", ref delayForDebugger))
+                        {
+                            delayForDebugger = Math.Clamp(delayForDebugger, 0, int.MaxValue);
+                            renderDoc.DelayForDebugger = (uint) delayForDebugger;
+                        }
+                        bool verifyBufferAccess = renderDoc.VerifyBufferAccess;
+                        if (ImGui.Checkbox("Verify Buffer Access", ref verifyBufferAccess))
+                        {
+                            renderDoc.VerifyBufferAccess = verifyBufferAccess;
+                        }
+                        bool overlayEnabled = renderDoc.OverlayEnabled;
+                        if (ImGui.Checkbox("Overlay Visible", ref overlayEnabled))
+                        {
+                            renderDoc.OverlayEnabled = overlayEnabled;
+                        }
+                        bool overlayFrameRate = renderDoc.OverlayFrameRate;
+                        if (ImGui.Checkbox("Overlay Frame Rate", ref overlayFrameRate))
+                        {
+                            renderDoc.OverlayFrameRate = overlayFrameRate;
+                        }
+                        bool overlayFrameNumber = renderDoc.OverlayFrameNumber;
+                        if (ImGui.Checkbox("Overlay Frame Number", ref overlayFrameNumber))
+                        {
+                            renderDoc.OverlayFrameNumber = overlayFrameNumber;
+                        }
+                        bool overlayCaptureList = renderDoc.OverlayCaptureList;
+                        if (ImGui.Checkbox("Overlay Capture List", ref overlayCaptureList))
+                        {
+                            renderDoc.OverlayCaptureList = overlayCaptureList;
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.MenuItem("Launch Replay UI"))
+                    {
+                        renderDoc.LaunchReplayUI();
+                    }
+                  
                     ImGui.EndMenu();
                 }
 

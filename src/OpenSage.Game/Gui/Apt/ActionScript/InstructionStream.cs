@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -16,12 +14,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// the current instruction
         /// </summary>
-        private int _position;
+        private int _index;
 
         public InstructionStream(InstructionCollection instructions)
         {
             _instructions = instructions;
-            _position = 0;
+            _index = 0;
         }
 
         /// <summary>
@@ -30,43 +28,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionBase GetInstruction()
         {
-            if (_position - 1 > _instructions.Count)
+            if (_index - 1 > _instructions.Count)
             {
                 throw new IndexOutOfRangeException();
             }
 
-
-            //skip any possible padding
-            if (_instructions[_position].Type == InstructionType.Padding)
-            {
-                ++_position;
-            }
-
-
-            return _instructions[_position++];
-        }
-
-        /// <summary>
-        /// Calculate the byteoffset for an instruction
-        /// </summary>
-        /// <param name="instr">the index of the instruction</param>
-        /// <returns></returns>
-        private uint CalculateByteOffset(int instr)
-        {
-            uint size = 0;
-
-            for (int i = 0; i < instr; ++i)
-            {
-                size += _instructions[i].Size;
-
-                if (_instructions[i].Type != InstructionType.Padding)
-                {
-                    ++size;
-                }
-
-            }
-
-            return size;
+            return _instructions.GetInstructionByIndex(_index++);
         }
 
         /// <summary>
@@ -76,31 +43,25 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionCollection GetInstructions(int bytes)
         {
-            //get the amount of instructions contained in that byterange
-            int bytesCount = 0;
-            int instrCount = 0;
+            // get the amount of instructions contained in that byterange
+            var startPosition = _instructions.GetPositionByIndex(_index);
+            var endPosition = startPosition + bytes;
 
-            while (bytesCount < bytes)
+
+            var subRange = _instructions.GetPositionedInstructions().Skip(_index).TakeWhile((kv) => kv.Key < endPosition);
+            if (subRange.Any() && subRange.First().Key != startPosition) // sanity check
             {
-                var instr = _instructions[_position + instrCount];
-                bytesCount += (int) instr.Size;
-                if (_instructions[_position + instrCount].Type != InstructionType.Padding)
-                    ++bytesCount;
-
-                instrCount++;
-
+                throw new InvalidOperationException("Didn't not get the right instructions!");
             }
 
-            if (bytesCount != bytes)
-                throw new InvalidOperationException("Invalid bytesize");
+            var instructions = new SortedList<int, InstructionBase>();
+            foreach (var (position, instruction) in subRange)
+            {
+                instructions.Add(position, instruction);
+            }
+            _index += instructions.Count;
 
-            var result = _instructions
-                .Skip(_position)
-                .Take(instrCount)
-                .ToList();
-            _position += instrCount;
-
-            return new InstructionCollection(result);
+            return new InstructionCollection(instructions);
         }
 
 
@@ -110,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public bool IsFinished()
         {
-            return _position == _instructions.Count;
+            return _index == _instructions.Count;
         }
 
         /// <summary>
@@ -119,36 +80,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <param name="offset">The offset how much to move in bytes</param>
         public void Branch(int offset)
         {
-            bool forward = offset >= 0;
-            int bytesCount = 0;
-            int instrCount = 0;
-
-            if (forward)
-            {
-                while (bytesCount < offset)
-                {
-                    var instr = _instructions[_position + instrCount];
-                    bytesCount += (int) instr.Size;
-                    if (_instructions[_position + instrCount].Type != InstructionType.Padding)
-                        ++bytesCount;
-
-                    instrCount++;
-                }
-            }
-            else
-            {
-                while (bytesCount > offset)
-                {
-                    var instr = _instructions[_position + instrCount];
-                    bytesCount -= (int) instr.Size;
-                    if (_instructions[_position + instrCount].Type != InstructionType.Padding)
-                        --bytesCount;
-
-                    instrCount--;
-                }
-            }
-
-            _position += instrCount;
+            var startPosition = _instructions.GetPositionByIndex(_index);
+            var destinationPosition = startPosition + offset;
+            _index = _instructions.GetIndexByPosition(destinationPosition);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace OpenSage.Graphics
 
         public readonly bool BlendEnabled;
         public readonly Pipeline Pipeline;
+        public readonly Pipeline PipelineBlend;
         public readonly ResourceSet MaterialResourceSet;
 
         internal ModelMeshPart(
@@ -19,6 +20,7 @@ namespace OpenSage.Graphics
             uint indexCount,
             bool blendEnabled,
             Pipeline pipeline,
+            Pipeline pipelineBlend,
             ResourceSet materialResourceSet)
         {
             TexCoordVertexBuffer = texCoordVertexBuffer;
@@ -28,6 +30,7 @@ namespace OpenSage.Graphics
 
             BlendEnabled = blendEnabled;
             Pipeline = pipeline;
+            PipelineBlend = pipelineBlend;
             MaterialResourceSet = materialResourceSet;
         }
     }

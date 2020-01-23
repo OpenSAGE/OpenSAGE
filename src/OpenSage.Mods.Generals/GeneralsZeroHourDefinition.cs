@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd;
 using OpenSage.Mods.Generals.Gui;
 
@@ -33,6 +35,11 @@ namespace OpenSage.Mods.Generals
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
+
+        public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
+        {
+            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
+        }
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();
     }

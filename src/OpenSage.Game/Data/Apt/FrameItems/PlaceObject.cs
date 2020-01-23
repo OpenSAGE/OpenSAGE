@@ -35,17 +35,18 @@ namespace OpenSage.Data.Apt.FrameItems
     public sealed class ClipEvent
     {
         public ClipEventFlags Flags { get; private set; }
+        public Byte KeyCode { get; private set;  }
         public InstructionCollection Instructions { get; private set; }
 
         public static ClipEvent Parse(BinaryReader reader)
         {
             var ev = new ClipEvent();           
             ev.Flags = reader.ReadUInt24AsEnum<ClipEventFlags>();
-            var keycode = reader.ReadByte();
+            ev.KeyCode = reader.ReadByte();
             var offsetToNext = reader.ReadUInt32();
             //var keycode = reader.ReadByte();
-            ev.Instructions = new InstructionCollection(reader.BaseStream);
-            ev.Instructions.Parse();
+            var instructionsPosition = reader.ReadUInt32();
+            ev.Instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
             return ev;
         }
     }

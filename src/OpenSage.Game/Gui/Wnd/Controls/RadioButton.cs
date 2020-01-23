@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
@@ -11,6 +12,16 @@ namespace OpenSage.Gui.Wnd.Controls
         public Image HoverOverlayImage { get; set; }
         public Image StateActiveImage { get; set; }
         public bool State { get; set; }
+
+        public RadioButton(WndWindowDefinition wndWindow, ImageLoader imageLoader)
+        {
+            BackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.EnabledDrawData, 0, 1, 2);
+            HoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.HiliteDrawData, 0, 1, 2);
+            DisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.DisabledDrawData, 0, 1, 2);
+
+            HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF();
+            DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF();
+        }
 
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -64,7 +75,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             Click?.Invoke(this, EventArgs.Empty);
 
-            Window.Game?.Audio.PlayAudioEvent(Window.ContentManager.IniDataContext.MiscAudio.GuiClickSound);
+            Window.Game?.Audio.PlayAudioEvent(Window.Game.AssetStore.MiscAudio.Current.GuiClickSound.Value);
 
             SystemCallback.Invoke(
                 this,

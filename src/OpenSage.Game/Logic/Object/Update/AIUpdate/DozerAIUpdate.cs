@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,7 +20,7 @@ namespace OpenSage.Logic.Object
                 { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
             });
 
-        public float RepairHealthPercentPerSecond { get; private set; }
+        public Percentage RepairHealthPercentPerSecond { get; private set; }
         public int BoredTime { get; private set; }
         public int BoredRange { get; private set; }
     }

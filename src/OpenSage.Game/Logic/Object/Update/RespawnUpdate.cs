@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -55,7 +55,7 @@ namespace OpenSage.Logic.Object
         public bool AutoSpawn { get; private set; }
         public int Cost { get; private set; }
         public int Time { get; private set; }
-        public float Health { get; private set; }
+        public Percentage Health { get; private set; }
     }
 
     public sealed class RespawnEntry

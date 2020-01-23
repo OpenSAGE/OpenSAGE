@@ -49,6 +49,8 @@ namespace OpenSage.Gui.Wnd
             return GetCallback<ControlDrawCallback>(name);
         }
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private TDelegate GetCallback<TDelegate>(string name)
             where TDelegate : class
         {
@@ -59,7 +61,7 @@ namespace OpenSage.Gui.Wnd
 
             if (!_callbackCache.TryGetValue(name, out var method))
             {
-                // TODO: Shouldn't happen, but will during development. We should log a warning.
+                logger.Warn($"Failed to resolve callback '{name}'");
                 return null;
             }
 

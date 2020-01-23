@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
 
         public long EffectRadius { get; private set; }
         public int PingDelay { get; private set; }
-        public float HealPercentPerSecond { get; private set; }
+        public Percentage HealPercentPerSecond { get; private set; }
         public ObjectFilter AllowFilter { get; private set; }
         public List<string> ModifierNames { get; } = new List<string>();
 

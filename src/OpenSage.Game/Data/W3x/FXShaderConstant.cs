@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Data.StreamFS;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.W3d;
+using OpenSage.Graphics;
 using Veldrid;
 
 namespace OpenSage.Data.W3x
@@ -64,7 +64,7 @@ namespace OpenSage.Data.W3x
                     break;
 
                 case FXShaderConstantType.Texture:
-                    result.TextureValue = imports.GetImportedData<Texture>(reader);
+                    result.TextureValue = imports.GetImportedData<TextureAsset>(reader)?.Value;
                     break;
 
                 default:

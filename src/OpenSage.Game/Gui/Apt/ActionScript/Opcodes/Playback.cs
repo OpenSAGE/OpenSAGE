@@ -77,7 +77,30 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             bool play = Convert.ToBoolean(Parameters[0].ToInteger() & 0x01);
             var frame = context.Stack.Pop();
 
-            throw new InvalidOperationException();           
+            if (context.Scope.Item is SpriteItem si)
+            {
+                if (frame.Type == ValueType.String)
+                {
+                    si.Goto(frame.ToString());
+                }
+                else
+                {
+                    si.GotoFrame(frame.ToInteger());
+                }
+
+                if (play)
+                {
+                    si.Play();
+                }
+                else
+                {
+                    si.Stop();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 

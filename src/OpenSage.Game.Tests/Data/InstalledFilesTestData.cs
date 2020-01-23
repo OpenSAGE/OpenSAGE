@@ -73,7 +73,7 @@ namespace OpenSage.Tests.Data
 
             foreach (var installation in installations)
             {
-                using (var game = new Game(installation, null, false))
+                using (var game = new Game(installation, null))
                 {
                     foreach (var file in game.ContentManager.FileSystem.Files)
                     {

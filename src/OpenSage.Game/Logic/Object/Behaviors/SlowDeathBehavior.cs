@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -41,7 +41,7 @@ namespace OpenSage.Logic.Object
         public BitArray<ObjectStatus> RequiredStatus { get; private set; }
         public BitArray<ObjectStatus> ExemptStatus { get; private set; }
         public int ProbabilityModifier { get; private set; }
-        public float ModifierBonusPerOverkillPercent { get; private set; }
+        public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
         public int SinkDelay { get; private set; }
         public int SinkDelayVariance { get; private set; }

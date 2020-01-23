@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -48,8 +48,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public float MaxHealth { get; private set; }
-        public float TargetHealth { get; private set; }
+        public Percentage MaxHealth { get; private set; }
+        public Percentage TargetHealth { get; private set; }
         public ObjectFilter Filter { get; private set; }
     }
 }

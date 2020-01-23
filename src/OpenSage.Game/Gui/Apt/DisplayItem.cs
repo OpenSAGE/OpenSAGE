@@ -1,11 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {
-    public struct ItemTransform
+    public struct ItemTransform : ICloneable
     {
         public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity, Vector2.Zero);
 
@@ -33,30 +34,40 @@ namespace OpenSage.Gui.Apt
                          GeometryRotation,
                          GeometryTranslation);
         }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
     }
 
-    public interface IDisplayItem
+    public abstract class DisplayItem
     {
-        AptContext Context { get; }
-        SpriteItem Parent { get; }
-        Character Character { get; }
-        ItemTransform Transform { get; set; }
-        ObjectContext ScriptObject { get; }
-        string Name { get; set; }
-        bool Visible { get; set; }
+        public AptContext Context { get; protected set; }
+        public SpriteItem Parent { get; protected set; }
+        public Character Character { get; protected set; }
+        public ItemTransform Transform { get; set; }
+        public ObjectContext ScriptObject { get; protected set; }
+        public string Name { get; set; }
+        public bool Visible { get; set; }
 
         /// <summary>
         /// Create a new DisplayItem
         /// </summary>
-        /// <param name="chararacter"></param>
+        /// <param name="character"></param>
         /// The template character that is used for this Item
         /// <param name="context"></param>
         /// Contains information about the AptFile where this is part of
         /// <param name="parent"></param>
-        /// The parent displayitem (which must be a SpriteItem)
-        void Create(Character chararacter, AptContext context, SpriteItem parent = null);
-        void Update(TimeInterval gt);
-        void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc);
-        void RunActions(TimeInterval gt);
+        /// The parent displayItem (which must be a SpriteItem)
+        public abstract void Create(Character character, AptContext context, SpriteItem parent = null);
+
+        public virtual void Update(TimeInterval gt) { }
+
+        public virtual void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc) { }
+
+        public virtual void RunActions(TimeInterval gt) { }
+
+        public virtual bool HandleInput(Point2D mousePos, bool mouseDown) { return false; }
     }
 }

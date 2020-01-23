@@ -37,9 +37,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            //pop two values
-            var a = context.Stack.Pop().ResolveRegister(context);
-            var b = context.Stack.Pop().ResolveRegister(context);
+            //Pop two values
+            var va = context.Stack.Pop();
+            var vb = context.Stack.Pop();
+
+            var a = va.ResolveRegister(context);
+            var b = vb.ResolveRegister(context);
 
             if (a.Type == ValueType.Integer && b.Type == ValueType.Integer)
             {
@@ -47,10 +50,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             else
             {
-                if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
-                    !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
-                    throw new NotImplementedException();
-
                 context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
             }
         }
@@ -101,6 +100,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class Decrement : InstructionBase
     {
         public override InstructionType Type => InstructionType.Decrement;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class ShiftRight2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.ShiftRight2;
 
         public override void Execute(ActionContext context)
         {

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
+using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -28,7 +31,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
-            { "Model", (parser, x) => x.Model = parser.ParseFileName() },
+            { "Model", (parser, x) => x.Model = parser.ParseModelReference() },
             { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
 
             { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
@@ -38,7 +41,7 @@ namespace OpenSage.Logic.Object
             { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
             { "Animation", (parser, x) => x.ParseAnimation(parser) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
+            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = parser.ParseFloatRange() },
             { "IdleAnimation", (parser, x) => x.IdleAnimations.Add(ObjectConditionAnimation.Parse(parser)) },
             { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<AnimationFlags>() },
 
@@ -85,13 +88,13 @@ namespace OpenSage.Logic.Object
             }
             else
             {
-                Animations.Add(Animation.Parse(parser));
+                Animations.Add(AnimationStateAnimation.Parse(parser));
             }
         }
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
-        public string Model { get; private set; }
+        public LazyAssetReference<Model> Model { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string Skeleton { get; private set; }
@@ -105,7 +108,7 @@ namespace OpenSage.Logic.Object
 
         // Model animation settings
         public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
-        public List<Animation> Animations { get; private set; } = new List<Animation>();
+        public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public AnimationMode AnimationMode { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
@@ -226,10 +229,9 @@ namespace OpenSage.Logic.Object
     {
         internal static ObjectConditionAnimation Parse(IniParser parser)
         {
-            var result = new ObjectConditionAnimation
-            {
-                Animation = parser.ParseAnimationName()
-            };
+            var result = new ObjectConditionAnimation();
+
+            result.Animation = parser.ParseAnimationReference();
 
             var unknown1Token = parser.GetNextTokenOptional();
 
@@ -247,7 +249,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        public string Animation { get; private set; }
+        public LazyAssetReference<Graphics.Animation.W3DAnimation> Animation { get; private set; }
         public float Unknown1 { get; private set; }
         public int Unknown2 { get; private set; }
     }
@@ -274,11 +276,11 @@ namespace OpenSage.Logic.Object
             return new ParticleSysBone
             {
                 BoneName = parser.ParseBoneName(),
-                ParticleSystem = parser.ParseAssetReference()
+                ParticleSystem = parser.ParseFXParticleSystemTemplateReference()
             };
         }
 
         public string BoneName { get; private set; }
-        public string ParticleSystem { get; private set; }
+        public LazyAssetReference<FXParticleSystemTemplate> ParticleSystem { get; private set; }
     }
 }

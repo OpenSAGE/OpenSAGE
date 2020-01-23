@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Settings
 {
@@ -50,107 +47,32 @@ namespace OpenSage.Settings
         }
     }
 
-    public sealed class WaypointCollection
+    public sealed class CameraCollection
     {
-        private readonly Dictionary<string, Waypoint> _waypointsByName;
-        private readonly Dictionary<uint, Waypoint> _waypointsByID;
+        private readonly Dictionary<string, NamedCamera> _camerasByName;
 
-        public Waypoint this[string name] => _waypointsByName[name];
-        public Waypoint this[uint id] => _waypointsByID[id];
+        public NamedCamera this[string name] => _camerasByName[name];
 
-        public WaypointCollection()
+        public CameraCollection()
         {
-            // Note that we explicitly allow duplicate waypoint names.
-
-            _waypointsByName = new Dictionary<string, Waypoint>();
-            _waypointsByID = new Dictionary<uint, Waypoint>();
+            _camerasByName = new Dictionary<string, NamedCamera>();
         }
 
-        public WaypointCollection(IEnumerable<Waypoint> waypoints)
+        public CameraCollection(IEnumerable<NamedCamera> cameras)
             : this()
         {
-            foreach (var waypoint in waypoints)
+            if (cameras != null)
             {
-                _waypointsByName[waypoint.Name] = waypoint;
-                _waypointsByID[waypoint.ID] = waypoint;
-            }
-        }
-    }
-
-    [DebuggerDisplay("ID = {ID}, Name = {Name}")]
-    public sealed class Waypoint
-    {
-        public uint ID { get; }
-        public string Name { get; }
-        public Vector3 Position { get; }
-
-        public IEnumerable<string> PathLabels { get; }
-
-        public Waypoint(uint id, string name, Vector3 position, IEnumerable<string> pathLabels = null)
-        {
-            ID = id;
-            Name = name;
-            Position = position;
-
-            PathLabels = pathLabels != null
-                ? pathLabels.WhereNot(string.IsNullOrWhiteSpace).ToSet()
-                : Enumerable.Empty<string>();
-        }
-    }
-
-    public sealed class WaypointPathCollection
-    {
-        private readonly Dictionary<string, WaypointPath> _waypointPathsByLabel;
-        private readonly Dictionary<Waypoint, WaypointPath> _waypointPathsByFirstNode;
-
-        public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode.TryGetValue(firstNode, out var path) ? path : null;
-        public WaypointPath this[string label] => _waypointPathsByLabel.TryGetValue(label, out var path) ? path : null;
-
-        public WaypointPathCollection()
-        {
-            _waypointPathsByLabel = new Dictionary<string, WaypointPath>();
-            _waypointPathsByFirstNode = new Dictionary<Waypoint, WaypointPath>();
-        }
-
-        public WaypointPathCollection(IEnumerable<WaypointPath> paths)
-            : this()
-        {
-            foreach (var path in paths)
-            {
-                foreach (var label in path.Start.PathLabels)
+                foreach (var camera in cameras)
                 {
-                    _waypointPathsByLabel[label] = path;
+                    _camerasByName[camera.Name] = camera;
                 }
-
-                _waypointPathsByFirstNode[path.Start] = path;
             }
         }
 
-        /// <summary>
-        /// Iterates through the waypoint path, starting at given node.
-        /// </summary>
-        public IEnumerable<Waypoint> GetFullPath(Waypoint node)
+        public bool Exists(string camera)
         {
-            while (node != null)
-            {
-                yield return node;
-                node = this[node]?.End;
-            }
-        }
-
-        public IEnumerable<Waypoint> GetFullPath(string label) => GetFullPath(this[label]?.Start);
-    }
-
-    // Note: this is not actually a path despite the name, just a node of a doubly linked list.
-    public sealed class WaypointPath
-    {
-        public Waypoint Start { get; }
-        public Waypoint End { get; }
-
-        public WaypointPath(Waypoint start, Waypoint end)
-        {
-            Start = start;
-            End = end;
+            return _camerasByName.ContainsKey(camera);
         }
     }
 }

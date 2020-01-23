@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,11 +22,11 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Percentage of max health to drain per second when in overcharge mode.
         /// </summary>
-        public float HealthPercentToDrainPerSecond { get; private set; }
+        public Percentage HealthPercentToDrainPerSecond { get; private set; }
 
         /// <summary>
         /// Turn off overcharge bonus when object's current health is below this value.
         /// </summary>
-        public float NotAllowedWhenHealthBelowPercent { get; private set; }
+        public Percentage NotAllowedWhenHealthBelowPercent { get; private set; }
     }
 }

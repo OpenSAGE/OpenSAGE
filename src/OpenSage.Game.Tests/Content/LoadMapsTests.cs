@@ -25,7 +25,7 @@ namespace OpenSage.Tests.Content
 
             Platform.Start();
 
-            using (var game = new Game(installation, GraphicsBackend.Direct3D11, false))
+            using (var game = new Game(installation, GraphicsBackend.Direct3D11))
             {
                 var maps = game.ContentManager.FileSystem.GetFiles("maps").Where(x => x.FilePath.EndsWith(".map")).ToList();
 
@@ -33,10 +33,12 @@ namespace OpenSage.Tests.Content
                 {
                     _testOutputHelper.WriteLine($"Loading {map.FilePath}...");
 
-                    var scene = game.ContentManager.Load<Scene3D>(map.FilePath);
-                    Assert.NotNull(scene);
-
-                    game.ContentManager.Unload();
+                    game.AssetStore.PushScope();
+                    using (var scene = game.LoadMap(map.FilePath))
+                    {
+                        Assert.NotNull(scene);
+                    }
+                    game.AssetStore.PopScope();
                 }
             }
 

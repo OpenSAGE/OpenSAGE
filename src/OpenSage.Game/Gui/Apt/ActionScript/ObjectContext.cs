@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript.Library;
@@ -9,10 +8,13 @@ namespace OpenSage.Gui.Apt.ActionScript
 {
     public class ObjectContext
     {
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// The item that this context is connected to
         /// </summary>
-        public IDisplayItem Item { get; private set; }
+        public DisplayItem Item { get; private set; }
 
         /// <summary>
         /// Contains functions and member variables
@@ -36,7 +38,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public ObjectContext(IDisplayItem item)
+        public ObjectContext(DisplayItem item)
         {
             Variables = Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
             Constants = new List<Value>();
@@ -53,15 +55,18 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            Value result;
-
-            if (!Variables.TryGetValue(name, out result))
+            if (Builtin.IsBuiltInVariable(name))
             {
-                Debug.WriteLine("[WARN] Undefined variable: " + name);
-                result = Value.Undefined();
+                return Builtin.GetBuiltInVariable(name, this);
             }
 
-            return result;
+            if (Variables.TryGetValue(name, out var result))
+            {
+                return result;
+            }
+
+            logger.Warn($"[WARN] Undefined variable: {name}");
+            return Value.Undefined();
         }
 
         /// <summary>
@@ -95,7 +100,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         /// <summary>
-        /// Check wether or not a string is a builtin flash function
+        /// Check whether or not a string is a builtin flash function
         /// </summary>
         /// <param name="name">function name</param>
         /// <returns></returns>
@@ -107,7 +112,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// Execute a builtin function maybe move builtin functions elsewhere
         /// </summary>
-        /// <param name="name"><function name/param>
+        /// <param name="actx"></param>
+        /// <param name="name">function name</param>
+        /// <param name="args"></param>
         public virtual void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
             Builtin.CallBuiltInFunction(name, actx, this, args);
@@ -135,7 +142,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             var obj = this;
             var member = path.Last();
 
-            for (int i = 0; i < path.Length - 1; i++)
+            for (var i = 0; i < path.Length - 1; i++)
             {
                 var fragment = path[i];
 
@@ -156,7 +163,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             ObjectContext result = null;
 
-            if(Item.Parent!=null)
+            if (Item.Parent != null)
             {
                 result = Item.Parent.ScriptObject;
             }

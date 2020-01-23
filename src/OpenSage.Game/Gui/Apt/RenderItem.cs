@@ -5,47 +5,36 @@ using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    public sealed class RenderItem : IDisplayItem
+    public sealed class RenderItem : DisplayItem
     {
-        public SpriteItem Parent { get; private set; }
-        public Character Character { get; private set; }
-        public AptContext Context { get; private set; }
-        public ItemTransform Transform { get; set; }
-        public ObjectContext ScriptObject { get; private set; }
         public Texture Texture { get; set; }
-        public string Name { get; set; }
-        public bool Visible { get; set; }
 
-        public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
+        private bool IsHovered { get; set; }
+
+        public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
-            Character = chararacter;
+            Character = character;
             Context = context;
             Parent = parent;
             ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
+            IsHovered = false;
         }
 
-        public void Update(TimeInterval gt)
-        {
-
-        }
-
-        public void RunActions(TimeInterval gt)
-        {
-
-        }
-
-        public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
             if (!Visible)
                 return;
+
+            var cTransform = pTransform * Transform;
 
             switch (Character)
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-                    renderer.RenderGeometry(dc, Context, geometry, pTransform, Texture);
+
+                    renderer.RenderGeometry(dc, Context, geometry, cTransform, Texture);
                     break;
                 case Text t:
                     if (t.Value.Length > 0)
@@ -59,7 +48,7 @@ namespace OpenSage.Gui.Apt
                     t.Content = t.Content.Replace("$", "APT:");
                     t.Content = t.Content.Translate();
 
-                    renderer.RenderText(dc, Context, t, pTransform);
+                    renderer.RenderText(dc, Context, t, cTransform);
                     break;
             }
         }

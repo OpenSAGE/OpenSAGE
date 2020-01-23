@@ -19,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case "InBetaDemo":
                     return Value.FromBoolean(false);
                 case "InDreamMachineDemo":
-                    return Value.FromBoolean(true);
+                    return Value.FromBoolean(false);
                 case "PalantirMinLOD":
                     return Value.FromBoolean(false);
                 case "MinLOD":

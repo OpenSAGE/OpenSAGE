@@ -1,17 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
+using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Gui;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    [DebuggerDisplay("[ObjectDefinition:{Name}]")]
     public class ObjectDefinition : BaseInheritableAsset
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.SetNameAndInstanceId("GameObject", name),
                 FieldParseTable);
         }
 
@@ -23,7 +28,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = name;
+            result.SetNameAndInstanceId("GameObject", name);
             result.InheritFrom = reskinOf;
 
             return result;
@@ -32,13 +37,13 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
         {
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
-            { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseAssetReference() },
+            { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseMappedImageReference() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
-            { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseAssetReference() },
-            { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseAssetReference() },
-            { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseAssetReference() },
-            { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseAssetReference() },
-            { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseAssetReference() },
+            { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseUpgradeReference() },
+            { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseUpgradeReference() },
 
             { "Buildable", (parser, x) => x.Buildable = parser.ParseEnum<ObjectBuildableType>() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
@@ -61,9 +66,9 @@ namespace OpenSage.Logic.Object
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
-            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
-            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
-            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseOptionalLocalizedStringKey() },
+            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponTemplateSet.Parse(parser)) },
+            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorTemplateSet.Parse(parser)) },
+            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
             { "FenceWidth", (parser, x) => x.FenceWidth = parser.ParseFloat() },
@@ -73,12 +78,12 @@ namespace OpenSage.Logic.Object
             { "MaxSimultaneousOfType", (parser, x) => x.MaxSimultaneousOfType = MaxSimultaneousObjectCount.Parse(parser) },
             { "MaxSimultaneousLinkKey", (parser, x) => x.MaxSimultaneousLinkKey = parser.ParseIdentifier() },
 
-            { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
+            { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAudioEventReference() },
             { "VoiceSelectGroup", (parser, x) => x.VoiceSelectGroup = parser.ParseAssetReference() },
             { "VoiceSelectBattle", (parser, x) => x.VoiceSelectBattle = parser.ParseAssetReference() },
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
             { "VoiceSelectUnderConstruction", (parser, x) => x.VoiceSelectUnderConstruction = parser.ParseAssetReference() },
-            { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
+            { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAudioEventReference() },
             { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
             { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
             { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAssetReference() },
@@ -200,7 +205,7 @@ namespace OpenSage.Logic.Object
             { "SoundImpactCyclonic", (parser, x) => x.SoundImpactCyclonic = parser.ParseAssetReference() },
             { "SoundCrushing", (parser, x) => x.SoundCrushing = parser.ParseAssetReference() },
 
-            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
+            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
             { "UnitSpecificFX", (parser, x) => x.UnitSpecificFX = UnitSpecificAssets.Parse(parser) },
 
             { "VoicePriority", (parser, x) => x.VoicePriority = parser.ParseInteger() },
@@ -219,7 +224,9 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
+            { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetCondition>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
+            { "LocomotorSet", (parser, x) => x.LocomotorSets.Add(LocomotorSet.Parse(parser)) },
+
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -266,7 +273,6 @@ namespace OpenSage.Logic.Object
             { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
 
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
-            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
             { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParsePercentage() },
             { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParsePercentage() },
@@ -344,8 +350,8 @@ namespace OpenSage.Logic.Object
             { "AutoResolveUnitType", (parser, x) => x.AutoResolveUnitType = parser.ParseAssetReference() },
             { "AutoResolveCombatChain", (parser, x) => x.AutoResolveCombatChain = parser.ParseAssetReference() },
             { "AutoResolveBody", (parser, x) => x.AutoResolveBody = parser.ParseAssetReference() },
-            { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmor.Parse(parser) },
-            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
+            { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmorReference.Parse(parser) },
+            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeaponReference.Parse(parser) },
             { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
             { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() },
             { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = Decal.Parse(parser) },
@@ -363,17 +369,15 @@ namespace OpenSage.Logic.Object
             { "EvaEventDetectedOwner", (parser, x) => x.EvaEventDetectedOwner = parser.ParseAssetReference() },
         };
 
-        public string Name { get; protected set; }
-
         // Art
         public int PlacementViewAngle { get; private set; }
-        public string SelectPortrait { get; private set; }
+        public LazyAssetReference<MappedImage> SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
-        public string UpgradeCameo1 { get; private set; }
-        public string UpgradeCameo2 { get; private set; }
-        public string UpgradeCameo3 { get; private set; }
-        public string UpgradeCameo4 { get; private set; }
-        public string UpgradeCameo5 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo1 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo2 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo3 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo4 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo5 { get; private set; }
 
         // Design
         public ObjectBuildableType Buildable { get; private set; }
@@ -402,9 +406,9 @@ namespace OpenSage.Logic.Object
         public bool IsForbidden { get; private set; }
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
-        public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
-        public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
-        public string CommandSet { get; private set; }
+        public List<WeaponTemplateSet> WeaponSets { get; } = new List<WeaponTemplateSet>();
+        public List<ArmorTemplateSet> ArmorSets { get; } = new List<ArmorTemplateSet>();
+        public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
 
@@ -434,7 +438,7 @@ namespace OpenSage.Logic.Object
         public string MaxSimultaneousLinkKey { get; private set; }
 
         // Audio
-        public string VoiceSelect { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelect { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectGroup { get; private set; }
@@ -448,7 +452,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectUnderConstruction { get; private set; }
 
-        public string VoiceMove { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMove { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceMoveGroup { get; private set; }
@@ -751,7 +755,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundCrushing { get; private set; }
 
-        public UnitSpecificAssets UnitSpecificSounds { get; private set; }
+        public UnitSpecificSounds UnitSpecificSounds { get; private set; }
         public UnitSpecificAssets UnitSpecificFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -780,7 +784,10 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSetCondition, string[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, string[]>();
+
+        [AddedIn(SageGame.Bfme)]
+        public List<LocomotorSet> LocomotorSets { get; } = new List<LocomotorSet>();
+
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 
@@ -850,19 +857,16 @@ namespace OpenSage.Logic.Object
         public float ThreatLevel { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public LocomotorSet LocomotorSet { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
         public ClientBehaviorModuleData ClientBehavior { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string ThingClass { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float MinCrushVelocityPercent { get; private set; }
+        public Percentage MinCrushVelocityPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float CrushDecelerationPercent { get; private set; }
+        public Percentage CrushDecelerationPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int RamPower { get; private set; }
@@ -1051,16 +1055,16 @@ namespace OpenSage.Logic.Object
         public float ShockwaveResistance { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionSide { get; private set; }
+        public Percentage VisionSide { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionRear { get; private set; }
+        public Percentage VisionRear { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float VisionBonusPercentPerFoot { get; private set; }
+        public Percentage VisionBonusPercentPerFoot { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public float MaxVisionBonusPercent { get; private set; }
+        public Percentage MaxVisionBonusPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int VisionBonusTestRadius { get; private set; }
@@ -1093,10 +1097,10 @@ namespace OpenSage.Logic.Object
         public string AutoResolveBody { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public AutoResolveArmor AutoResolveArmor { get; private set; }
+        public AutoResolveArmorReference AutoResolveArmor { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public AutoResolveWeapon AutoResolveWeapon { get; private set; }
+        public AutoResolveWeaponReference AutoResolveWeapon { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public string DisplayNameStrategic { get; private set; }
@@ -1200,7 +1204,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = name?.Text;
+            result.SetNameAndInstanceId("GameObject", name?.Text);
 
             return result;
         }
@@ -1218,7 +1222,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = childName.Text;
+            result.SetNameAndInstanceId("GameObject", childName.Text);
             result.ChildOf = parentName.Text;
 
             return result;
@@ -1245,7 +1249,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
             { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
-            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) },
+            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorTemplateSet.Parse(parser) },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
@@ -1256,7 +1260,7 @@ namespace OpenSage.Logic.Object
         public ModuleData Module { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ArmorSet ArmorSet { get; private set; }
+        public ArmorTemplateSet ArmorSet { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public LocomotorSet LocomotorSet { get; private set; }
@@ -1366,11 +1370,11 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveArmor
+    public sealed class AutoResolveArmorReference
     {
-        internal static AutoResolveArmor Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoResolveArmorReference Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<AutoResolveArmor> FieldParseTable = new IniParseTable<AutoResolveArmor>
+        internal static readonly IniParseTable<AutoResolveArmorReference> FieldParseTable = new IniParseTable<AutoResolveArmorReference>
         {
             { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
             { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
@@ -1384,11 +1388,11 @@ namespace OpenSage.Logic.Object
 
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class AutoResolveWeapon
+    public sealed class AutoResolveWeaponReference
     {
-        internal static AutoResolveWeapon Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoResolveWeaponReference Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<AutoResolveWeapon> FieldParseTable = new IniParseTable<AutoResolveWeapon>
+        internal static readonly IniParseTable<AutoResolveWeaponReference> FieldParseTable = new IniParseTable<AutoResolveWeaponReference>
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
             { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },

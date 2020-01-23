@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {

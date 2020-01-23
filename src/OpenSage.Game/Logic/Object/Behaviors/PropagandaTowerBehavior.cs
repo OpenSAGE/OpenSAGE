@@ -1,5 +1,5 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,10 +21,10 @@ namespace OpenSage.Logic.Object
 
         public float Radius { get; private set; }
         public int DelayBetweenUpdates { get; private set; }
-        public float HealPercentEachSecond { get; private set; }
+        public Percentage HealPercentEachSecond { get; private set; }
         public string PulseFX { get; private set; }
         public string UpgradeRequired { get; private set; }
-        public float UpgradedHealPercentEachSecond { get; private set; }
+        public Percentage UpgradedHealPercentEachSecond { get; private set; }
         public string UpgradedPulseFX { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]

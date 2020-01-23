@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
@@ -28,6 +27,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
                 ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
+                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
                 ["_parent"] = GetParent,
                 ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject)
             };
@@ -37,18 +37,30 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 ["_alpha"] = (ctx, v) =>
                 {
-                    Debug.WriteLine("Setting alpha to: " + v.ToInteger());
-
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
+                },
+                ["textColor"] = (ctx, v) =>
+                {
+                    var hexStr = v.ToString();
+                    var hexColor = Convert.ToInt32(hexStr, 16);
+
+                    float b = (hexColor & 0xFF) / 255.0f;
+                    float g = ((hexColor & 0xFF00) >> 8) / 255.0f;
+                    float r = ((hexColor & 0xFF0000) >> 16) / 255.0f;
+
+                    var transform = ctx.Item.Transform;
+                    ctx.Item.Transform =
+                        transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
                 }
             };
 
             // list of builtin functions
             BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
             {
-                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(ctx, args),
+                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(actx, ctx, args),
+                ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
                 ["stop"] = (actx, ctx, args) => Stop(ctx),
                 ["clearInterval"] = ClearInterval,
                 ["setInterval"] = SetInterval
@@ -100,7 +112,34 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return Value.FromObject(parent);
         }
 
-        private static void GotoAndPlay(ObjectContext ctx, Value[] args)
+        private static void GotoAndPlay(ActionContext actx, ObjectContext ctx, Value[] args)
+        {
+            if (ctx.Item is SpriteItem si)
+            {
+                var dest = args.First().ResolveRegister(actx);
+
+                if (dest.Type == ValueType.String)
+                {
+                    si.Goto(dest.ToString());
+                }
+                else if (dest.Type == ValueType.Integer)
+                {
+                    si.GotoFrame(dest.ToInteger() - 1);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can only jump to labels or frame numbers");
+                }
+
+                si.Play();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        private static void GotoAndStop(ObjectContext ctx, Value[] args)
         {
             if (ctx.Item is SpriteItem si)
             {
@@ -119,7 +158,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     throw new InvalidOperationException("Can only jump to labels or frame numbers");
                 }
 
-                si.Play();
+                si.Stop();
             }
             else
             {

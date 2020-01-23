@@ -24,6 +24,7 @@ namespace OpenSage.Graphics.Shaders
             _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("BumpTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
             var resourceLayouts = new[]
@@ -46,12 +47,12 @@ namespace OpenSage.Graphics.Shaders
                     RenderPipeline.GameOutputDescription)));
         }
 
-        public ResourceSet CreateMaterialResourceSet(Texture texture)
+        public ResourceSet CreateMaterialResourceSet(Texture waterTexture, Texture bumpTexture)
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     _materialResourceLayout,
-                    texture,
+                    waterTexture, bumpTexture,
                     GraphicsDevice.Aniso4xSampler));
         }
 

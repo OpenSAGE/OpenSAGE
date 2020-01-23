@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using OpenSage.Content.Translation.Providers;
 using OpenSage.Data;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Content.Translation
 {
@@ -26,10 +27,29 @@ namespace OpenSage.Content.Translation
                     {
                         return;
                     }
+
                     CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = value;
                     OnLanguageChanged();
                 }
             }
+
+            public void SetCultureFromLanguage(string language)
+            {
+                //TODO: just a hack for now
+                var cultureString = "";
+                switch (language.ToLower())
+                {
+                    case "german":
+                        cultureString = "de-DE";
+                        break;
+                    case "english":
+                    default:
+                        cultureString = "en-US";
+                        break;
+                }
+                CurrentLanguage = new CultureInfo(cultureString);
+            }
+
             public IReadOnlyCollection<string> Labels
             {
                 get
@@ -51,6 +71,7 @@ namespace OpenSage.Content.Translation
                     return result;
                 }
             }
+
             public IReadOnlyList<ITranslationProvider> DefaultProviders
             {
                 get
@@ -98,7 +119,8 @@ namespace OpenSage.Content.Translation
                         providers.Add(provider);
                     }
                 }
-                if (shouldNotifyLanguageChange && providers == DefaultProviders)
+
+                if (shouldNotifyLanguageChange && Equals(providers, DefaultProviders))
                 {
                     OnLanguageChanged();
                 }
@@ -106,12 +128,14 @@ namespace OpenSage.Content.Translation
 
             public void UnregisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true)
             {
-                if (_translationProviders.TryGetValue(provider.Name, out var providers))
+                if (!_translationProviders.TryGetValue(provider.Name, out _))
                 {
-                    if (_translationProviders.Remove(provider.Name) && shouldNotifyLanguageChange)
-                    {
-                        OnLanguageChanged();
-                    }
+                    return;
+                }
+
+                if (_translationProviders.Remove(provider.Name) && shouldNotifyLanguageChange)
+                {
+                    OnLanguageChanged();
                 }
             }
 
@@ -122,11 +146,13 @@ namespace OpenSage.Content.Translation
                 {
                     return string.Empty;
                 }
+
                 // If the string does not contain a Category/Label separator we return the string
                 if (!str.Contains(':'))
                 {
                     return str;
                 }
+
                 string result;
                 foreach (var provider in DefaultProviders)
                 {
@@ -135,6 +161,7 @@ namespace OpenSage.Content.Translation
                         return result;
                     }
                 }
+
                 return string.Format(_missing, str);
             }
 
@@ -175,43 +202,67 @@ namespace OpenSage.Content.Translation
 
         public static ITranslationManager Instance => _lazy.Value;
 
-        public static void LoadGameCsf(FileSystem fileSystem, string language, SageGame game)
+        public static void LoadGameStrings(FileSystem fileSystem, string language, SageGame game)
         {
-            FileSystemEntry file = null;
+            var path = string.Empty;
             while (!(fileSystem is null))
             {
-                // TODO: .str files and StrTranslationProvider
                 switch (game)
                 {
                     case SageGame.CncGenerals:
                     case SageGame.CncGeneralsZeroHour:
-                        file = fileSystem.GetFile($"Data/{language}/generals.csf");
+                        path = $"Data/{language}/generals";
                         break;
                     case SageGame.Bfme:
+                        path = $"lang/{language}/lotr";
+                        break;
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
-                        file = fileSystem.GetFile("lotr.csf");
+                        if(language=="German")
+                        {
+                            path = "lotr";
+                        }
+                        else
+                        {
+                            path = "data/lotr";
+                        }
                         break;
                     case SageGame.Cnc3:
                     case SageGame.Cnc3KanesWrath:
-                        file = fileSystem.GetFile("cnc3.csf");
+                        path = "cnc3";
                         break;
                     case SageGame.Ra3:
                     case SageGame.Ra3Uprising: // there is a data/gamestrings_temp.csf in Uprising
                     case SageGame.Cnc4:
-                        file = fileSystem.GetFile("data/gamestrings.csf");
+                        path = "data/gamestrings";
                         break;
                 }
-                if (!(file is null))
+
+                FileSystemEntry file;
+                if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
                 {
                     using (var stream = file.Open())
                     {
+                        Instance.SetCultureFromLanguage(language);
                         Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
                     }
+
+                    return;
                 }
+
+                if (!((file = fileSystem.GetFile($"{path}.str")) is null))
+                {
+                    using (var stream = file.Open())
+                    {
+                        Instance.SetCultureFromLanguage(language);
+                        Instance.RegisterProvider(new StrTranslationProvider(stream, language));
+                    }
+
+                    return;
+                }
+
                 fileSystem = fileSystem.NextFileSystem;
             }
-
         }
     }
 }

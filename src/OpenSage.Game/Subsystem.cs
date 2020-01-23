@@ -12,9 +12,29 @@
         Core,
 
         /// <summary>
+        /// Things that need to be loaded in order to play sounds or music.
+        /// </summary>
+        Audio,
+
+        /// <summary>
         /// Things that need to be loaded in order to load and spawn game objects.
         /// </summary>
         ObjectCreation,
+
+        /// <summary>
+        /// Things that need to be loaded in order to move objects.
+        /// </summary>
+        Locomotors,
+
+        /// <summary>
+        /// Things that need to be loaded in order to shoot things.
+        /// </summary>
+        Weapons,
+
+        /// <summary>
+        /// Things that need to be loaded in order to execute FXLists.
+        /// </summary>
+        FXList,
 
         /// <summary>
         /// Things that need be loaded in order to spawn players or list them in menus.
@@ -45,5 +65,10 @@
         /// Things that need to be loaded in order to play the single-player campaign.
         /// </summary>
         LinearCampaign,
+
+        /// <summary>
+        /// Things that need to be loaded in order to display the credits.
+        /// </summary>
+        Credits,
     }
 }

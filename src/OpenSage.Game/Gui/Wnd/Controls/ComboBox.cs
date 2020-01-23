@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -154,6 +155,38 @@ namespace OpenSage.Gui.Wnd.Controls
                 base.TextColor = value;
                 _listBox.TextColor = value;
                 _editBox.TextColor = value;
+            }
+        }
+
+        public ComboBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
+            : this()
+        {
+            IsEditable = wndWindow.ComboBoxData.IsEditable;
+            MaxDisplay = wndWindow.ComboBoxData.MaxDisplay;
+
+            TextBoxBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxEnabledDrawData, 0, 2, 1);
+            TextBoxHoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1);
+            TextBoxDisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxEditBoxDisabledDrawData, 0, 2, 1);
+
+            DropDownSelectedItemBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxEnabledDrawData, 1, 3, 2);
+            DropDownSelectedItemHoverBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxHiliteDrawData, 1, 3, 2);
+            ListBoxDisabledBackgroundImage = imageLoader.CreateFromStretchableWndDrawData(wndWindow.ComboBoxListBoxDisabledDrawData, 1, 3, 2);
+
+            DropDownButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ComboBoxDropDownButtonEnabledDrawData, 0);
+
+            DropDownUpButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledUpButtonDrawData, 0);
+            DropDownUpButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteUpButtonDrawData, 0);
+
+            DropDownDownButtonImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxEnabledDownButtonDrawData, 0);
+            DropDownDownButtonHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.ListBoxHiliteDownButtonDrawData, 0);
+
+            DropDownThumbImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbEnabledDrawData, 0);
+            DropDownThumbHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbHiliteDrawData, 0);
+
+            if (wndWindow.ComboBoxListBoxEnabledDrawData.Items != null && wndWindow.ComboBoxListBoxEnabledDrawData.Items.Length > 0)
+            {
+                ListBoxBackgroundColor = wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].Color.ToColorRgbaF();
+                ListBoxBorderColor = wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
             }
         }
 

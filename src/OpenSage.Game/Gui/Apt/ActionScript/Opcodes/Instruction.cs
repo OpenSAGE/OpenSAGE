@@ -193,7 +193,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case InstructionType.SetTarget:
                 case InstructionType.GotoFrame:
                 case InstructionType.GotoFrame2:
+                case InstructionType.With:
                 case InstructionType.EA_PushString:
+                case InstructionType.EA_BranchIfFalse:
                 case InstructionType.EA_GetStringVar:
                 case InstructionType.EA_SetStringVar:
                 case InstructionType.EA_GetStringMember:

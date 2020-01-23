@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
@@ -18,6 +19,7 @@ namespace OpenSage.Logic.Orders
         public Order(int playerIndex, OrderType orderType)
         {
             OrderType = orderType;
+            PlayerIndex = playerIndex;
 
             _arguments = new List<OrderArgument>();
         }
@@ -68,7 +70,7 @@ namespace OpenSage.Logic.Orders
         {
             _arguments.Add(new OrderArgument(
                 OrderArgumentType.ScreenRectangle,
-                new OrderArgumentValue {ScreenRectangle  = value}));
+                new OrderArgumentValue { ScreenRectangle = value }));
         }
 
         public override string ToString()
@@ -123,13 +125,52 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateBuildObject(int playerId, int objectDefinitionId, Vector3 position, float angle)
+        public static Order CreateMoveOrder(int playerId, in Vector3 targetPosition)
+        {
+            var order = new Order(playerId, OrderType.MoveTo);
+
+            order.AddPositionArgument(targetPosition);
+
+            return order;
+        }
+
+        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, in Vector3 targetPosition)
+        {
+            var order = new Order(playerId, OrderType.SetRallyPoint);
+
+            if (objectIds.Count > 1)
+            {
+                order.AddPositionArgument(targetPosition);
+                foreach (var objId in objectIds)
+                {
+                    order.AddObjectIdArgument((uint) objId);
+                }
+            }
+            else
+            {
+                order.AddObjectIdArgument((uint) objectIds.ElementAt(0));
+                order.AddPositionArgument(targetPosition);
+            }
+
+            return order;
+        }
+
+        public static Order CreateBuildObject(int playerId, int objectDefinitionId, in Vector3 position, float angle)
         {
             var order = new Order(playerId, OrderType.BuildObject);
 
             order.AddIntegerArgument(objectDefinitionId);
             order.AddPositionArgument(position);
             order.AddFloatArgument(angle);
+
+            return order;
+        }
+
+        public static Order CreateAttackGround(int playerId, in Vector3 position)
+        {
+            var order = new Order(playerId, OrderType.AttackGround);
+
+            order.AddPositionArgument(position);
 
             return order;
         }

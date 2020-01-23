@@ -1,39 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
-using OpenSage.Data;
-using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace OpenSage.Tests.Data.Sav
 {
     public class SaveFileTests
     {
-        private readonly ITestOutputHelper _output;
+        private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Sav", "Assets");
 
-        public SaveFileTests(ITestOutputHelper output)
+        [Theory]
+        [MemberData(nameof(GetSaveFiles))]
+        public void CanLoadSaveFiles(string relativePath)
         {
-            _output = output;
+            var fullPath = Path.Combine(RootFolder, relativePath);
+            using (var stream = File.OpenRead(fullPath))
+            { 
+                var saveFile = SaveFile.FromStream(stream);
+                Assert.NotEmpty(saveFile.ChunkHeaders);
+            }
         }
 
-        [Fact]
-        public void Test_001_GLA_02_Start()
+        public static IEnumerable<object[]> GetSaveFiles()
         {
-            var saveFile = LoadSaveFile();
-
-            //Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
-            //Assert.Equal(366, replayFile.Header.NumTimecodes);
-            //Assert.Equal(616, replayFile.Chunks.Count);
-        }
-
-        private static SaveFile LoadSaveFile([CallerMemberName] string testName = null)
-        {
-            using (var fileSystem = new FileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Sav", "Assets")))
+            foreach (var file in Directory.GetFiles(RootFolder, "*.sav", SearchOption.AllDirectories))
             {
-                var entry = fileSystem.GetFile(testName + ".sav");
-                return SaveFile.FromFileSystemEntry(entry);
+                var relativePath = file.Substring(RootFolder.Length + 1);
+
+                if (relativePath.StartsWith("GeneralsSkirmish"))
+                {
+                    // Not working yet.
+                    continue;
+                }
+
+                yield return new object[] { relativePath };
             }
         }
     }
