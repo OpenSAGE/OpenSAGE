@@ -46,6 +46,9 @@ namespace OpenSage.Launcher
 
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
             public string ReplayFile { get; set; }
+
+            [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
+            public string GamePath { get; set; }
         }
 
         public static void Main(string[] args)
@@ -62,7 +65,65 @@ namespace OpenSage.Launcher
         {
             logger.Info("Starting...");
 
-            var definition = GameDefinition.FromGame(opts.Game);
+            var DetectedGame = opts.Game;
+            var GameFolder = opts.GamePath;
+            var ForceUseEnvironmentGamePath = true;
+
+            if (GameFolder == null)
+            {
+                GameFolder = Environment.CurrentDirectory;
+            }
+            if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INI.big")))
+            {
+                DetectedGame = SageGame.CncGenerals;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INIZH.big")))
+            {
+                DetectedGame = SageGame.CncGeneralsZeroHour;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme.exe")))
+            {
+                DetectedGame = SageGame.Bfme;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2.exe")))
+            {
+                DetectedGame = SageGame.Bfme2;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2ep1.exe")))
+            {
+                DetectedGame = SageGame.Bfme2Rotwk;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "CNC3.exe")))
+            {
+                DetectedGame = SageGame.Cnc3;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "CNC3EP1.exe")))
+            {
+                DetectedGame = SageGame.Cnc3KanesWrath;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "RA3.exe")))
+            {
+                DetectedGame = SageGame.Ra3;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "RA3EP1.exe")))
+            {
+                DetectedGame = SageGame.Ra3Uprising;
+            }
+            else if (File.Exists(Path.Combine(GameFolder, "CNC4.exe")))
+            {
+                DetectedGame = SageGame.Cnc4;
+            }
+            else
+            {
+                ForceUseEnvironmentGamePath = false;
+            }
+
+            var definition = GameDefinition.FromGame(DetectedGame);
+
+            if (ForceUseEnvironmentGamePath)
+            {
+                System.Environment.SetEnvironmentVariable(definition.Identifier.ToUpperInvariant() + "_PATH", GameFolder);
+            }
 
             var installation = GameInstallation
                 .FindAll(new[] { definition })
