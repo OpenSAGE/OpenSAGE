@@ -67,67 +67,35 @@ namespace OpenSage.Launcher
 
             var DetectedGame = opts.Game;
             var GameFolder = opts.GamePath;
-            var ForceUseEnvironmentGamePath = true;
+            var UseLocators = true;
 
             if (GameFolder == null)
             {
                 GameFolder = Environment.CurrentDirectory;
             }
-            if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INI.big")))
+
+            foreach (var gameDef in GameDefinition.All)
             {
-                DetectedGame = SageGame.CncGenerals;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INIZH.big")))
-            {
-                DetectedGame = SageGame.CncGeneralsZeroHour;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme.exe")))
-            {
-                DetectedGame = SageGame.Bfme;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2.exe")))
-            {
-                DetectedGame = SageGame.Bfme2;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2ep1.exe")))
-            {
-                DetectedGame = SageGame.Bfme2Rotwk;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "CNC3.exe")))
-            {
-                DetectedGame = SageGame.Cnc3;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "CNC3EP1.exe")))
-            {
-                DetectedGame = SageGame.Cnc3KanesWrath;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "RA3.exe")))
-            {
-                DetectedGame = SageGame.Ra3;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "RA3EP1.exe")))
-            {
-                DetectedGame = SageGame.Ra3Uprising;
-            }
-            else if (File.Exists(Path.Combine(GameFolder, "CNC4.exe")))
-            {
-                DetectedGame = SageGame.Cnc4;
-            }
-            else
-            {
-                ForceUseEnvironmentGamePath = false;
+                //TODO: think about a smart solution for generals ZH
+                if (File.Exists(Path.Combine(GameFolder, gameDef.LauncherExecutable)))
+                {
+                    DetectedGame = gameDef.Game;
+                    UseLocators = false;
+                }
             }
 
             var definition = GameDefinition.FromGame(DetectedGame);
-
-            if (ForceUseEnvironmentGamePath)
+            GameInstallation installation = null;
+            if (UseLocators)
             {
-                System.Environment.SetEnvironmentVariable(definition.Identifier.ToUpperInvariant() + "_PATH", GameFolder);
+                installation = GameInstallation
+                    .FindAll(new[] { definition })
+                    .FirstOrDefault();
             }
-
-            var installation = GameInstallation
-                .FindAll(new[] { definition })
-                .FirstOrDefault();
+            else
+            {
+                installation = new GameInstallation(definition, GameFolder);
+            }
 
             if (installation == null)
             {

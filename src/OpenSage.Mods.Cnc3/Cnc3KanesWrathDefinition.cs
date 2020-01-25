@@ -30,5 +30,7 @@ namespace OpenSage.Mods.CnC3
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();
+
+        public string LauncherExecutable => "CNC3EP1.exe";
     }
 }

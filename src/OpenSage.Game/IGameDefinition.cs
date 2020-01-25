@@ -14,6 +14,7 @@ namespace OpenSage
 
         bool LauncherImagePrefixLang { get; }
         string LauncherImagePath { get; }
+        string LauncherExecutable { get; }
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }

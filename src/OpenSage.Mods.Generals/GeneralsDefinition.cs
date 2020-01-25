@@ -38,5 +38,7 @@ namespace OpenSage.Mods.Generals
         }
 
         public static GeneralsDefinition Instance { get; } = new GeneralsDefinition();
+
+        public string LauncherExecutable => "generals.exe";
     }
 }

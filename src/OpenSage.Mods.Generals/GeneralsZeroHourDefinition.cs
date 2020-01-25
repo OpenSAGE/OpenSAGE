@@ -42,5 +42,6 @@ namespace OpenSage.Mods.Generals
         }
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();
+        public string LauncherExecutable => "generals.exe";
     }
 }

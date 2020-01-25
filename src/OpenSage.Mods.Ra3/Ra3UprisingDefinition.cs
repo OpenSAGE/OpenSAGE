@@ -30,5 +30,6 @@ namespace OpenSage.Mods.Ra3
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Ra3UprisingDefinition Instance { get; } = new Ra3UprisingDefinition();
+        public string LauncherExecutable => "RA3EP1.exe";
     }
 }

@@ -30,5 +30,7 @@ namespace OpenSage.Mods.Ra3
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Ra3Definition Instance { get; } = new Ra3Definition();
+
+        public string LauncherExecutable => "RA3.exe";
     }
 }

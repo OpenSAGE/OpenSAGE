@@ -37,5 +37,7 @@ namespace OpenSage.Mods.Bfme2
         }
 
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
+
+        public string LauncherExecutable => "lotrbfme2ep1.exe";
     }
 }
