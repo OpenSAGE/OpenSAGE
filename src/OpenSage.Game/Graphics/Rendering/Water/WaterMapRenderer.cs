@@ -95,7 +95,7 @@ namespace OpenSage.Graphics.Rendering.Water
             }
         }
 
-        private void CalculateUVOffset(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
+        private void CalculateUVOffset(TimeOfDay timeOfDay)
         {
             // UVScroll specifies the amount of pixels the texture moves per millisecond
             var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.Milliseconds;
@@ -105,12 +105,17 @@ namespace OpenSage.Graphics.Rendering.Water
             _uvOffset += uvScroll;
 
             if (_uvOffset.X >= 1)
+            {
                 _uvOffset.X %= 1;
+            }
+
             if (_uvOffset.Y >= 1)
+            {
                 _uvOffset.Y %= 1;
+            }
         }
 
-        private void UpdateVariableBuffers(GraphicsDevice graphicsDevice, TimeOfDay timeOfDay)
+        private void UpdateVariableBuffers(TimeOfDay timeOfDay)
         {
             _waterConstantsPS.UVOffset = _uvOffset;
             _waterConstantsPS.FarPlaneDistance = _farPlaneDistance;
@@ -130,7 +135,6 @@ namespace OpenSage.Graphics.Rendering.Water
             CommandList commandList,
             Action<Framebuffer?, Framebuffer?> drawSceneCallback)
         {
-
             // TODO: Get bump texture from water area somehow
             //_bumpTexture = assetStore.Textures.GetByName(bumpTexName);
 
@@ -144,8 +148,8 @@ namespace OpenSage.Graphics.Rendering.Water
             _isRenderRefraction = scene.Waters.IsRenderRefraction;
 
             UpdateTimer();
-            CalculateUVOffset(graphicsDevice, scene.Lighting.TimeOfDay);
-            UpdateVariableBuffers(graphicsDevice, scene.Lighting.TimeOfDay);
+            CalculateUVOffset(scene.Lighting.TimeOfDay);
+            UpdateVariableBuffers(scene.Lighting.TimeOfDay);
 
             _waterConstantsPSBuffer.Update(commandList);
 

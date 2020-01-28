@@ -60,7 +60,9 @@ namespace OpenSage.Terrain
                     cl.SetGraphicsResourceSet(4, causticsResourceSet);
                 }
                 else
+                {
                     cl.SetGraphicsResourceSet(4, materialResourceSet);
+                }
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }

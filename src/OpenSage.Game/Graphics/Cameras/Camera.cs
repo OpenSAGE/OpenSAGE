@@ -91,29 +91,14 @@ namespace OpenSage.Graphics.Cameras
             UpdateProjection();
         }
 
-        private void SetViewportSize(float width, float height)
-        {
-            _viewport.Width = width;
-            _viewport.Height = height;
-        }
-
-        public Vector2 GetViewportSize()
-        {
-            return new Vector2(_viewport.Width, _viewport.Height);
-        }
-
         public void SetMirrorX(float pivot)
         {
             // Used for rendering reflection without stencil clipping
-            /*var _position = Position - new Vector3(0, 0, 2 * (Position.Z - pivot));
-            var _target = Target - new Vector3(0, 0, 2 * (Target.Z - pivot));
-            SetLookAt(_position, _target, Up);*/
+            var position = Position - new Vector3(0, 0, 2 * (Position.Z - pivot));
+            var target = Target - new Vector3(0, 0, 2 * (Target.Z - pivot));
+            var up = Up - new Vector3(0, 0, 2 * Up.Z);
 
-            var _position = Position - new Vector3(0, 0, 2 * (Position.Z - pivot));
-            var _target = Target - new Vector3(0, 0, 2 * (Target.Z - pivot));
-            var _up = Up - new Vector3(0, 0, 2 * (Up.Z));
-
-            SetLookAt(_position, _target, _up);
+            SetLookAt(position, target, up);
             ViewProjection *= Matrix4x4.CreateScale(-1, 1, 1);
             BoundingFrustum.Matrix = ViewProjection;
         }
