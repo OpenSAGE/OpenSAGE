@@ -22,7 +22,6 @@ namespace OpenSage.Graphics.Shaders
         {
             WaterResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("WaterConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("WaterConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("BumpTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),

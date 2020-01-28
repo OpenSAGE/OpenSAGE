@@ -200,12 +200,6 @@ namespace OpenSage.Graphics.Shaders
             }
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct WaterConstantsVS
-        {
-            public Matrix4x4 ModelMatrix;
-        }
-
         [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
         public struct WaterConstantsPS
         {
