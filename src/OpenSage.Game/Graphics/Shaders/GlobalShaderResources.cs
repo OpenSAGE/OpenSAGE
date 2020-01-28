@@ -71,7 +71,6 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Sequential)]
         public struct GlobalConstantsVS
         {
-            public Matrix4x4 Projection;
             public Matrix4x4 ViewProjection;
             public Vector4 ClippingPlane;
         }
