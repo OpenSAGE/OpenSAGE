@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Audio;
-using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
@@ -120,6 +118,11 @@ namespace OpenSage.Logic.Object
                     break;
                 }
             }
+        }
+
+        public void Fire(TimeSpan currentTime)
+        {
+            TransitionToState(WeaponState.Firing, currentTime);
         }
     }
 

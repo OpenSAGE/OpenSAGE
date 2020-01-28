@@ -158,15 +158,13 @@ namespace OpenSage.Logic.Object
         public float Speed { get; set; }
         public float Lift { get; set; }
 
-        // This and Speed probably shouldn't both exist.
-        public Vector3 Velocity { get; set; }
-
         public bool IsPlacementPreview { get; set; }
 
         public bool IsPlacementInvalid { get; set; }
 
         public GameObjectCollection Parent { get; private set; }
 
+        public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
         public List<UpgradeTemplate> Upgrades { get; }
@@ -226,6 +224,8 @@ namespace OpenSage.Logic.Object
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
             Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this));
+
+            AIUpdate = AddDisposable(objectDefinition.AIUpdate?.CreateAIUpdate(this));
 
             Collider = Collider.Create(objectDefinition, Transform);
 
@@ -321,6 +321,8 @@ namespace OpenSage.Logic.Object
                 this,
                 time);
 
+            AIUpdate?.Update(behaviorUpdateContext);
+
             foreach (var behavior in BehaviorModules)
             {
                 behavior.Update(behaviorUpdateContext);
@@ -352,6 +354,12 @@ namespace OpenSage.Logic.Object
         {
             // TODO: Cache this?
             return BehaviorModules.OfType<T>().FirstOrDefault();
+        }
+
+        internal IEnumerable<T> FindBehaviors<T>()
+        {
+            // TODO: Cache this?
+            return BehaviorModules.OfType<T>();
         }
 
         internal void Spawn(ObjectDefinition objectDefinition)
@@ -387,7 +395,8 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf == null) return;
 
             if (Definition.KindOf.Get(ObjectKinds.Infantry)
-                || Definition.KindOf.Get(ObjectKinds.Vehicle))
+                || Definition.KindOf.Get(ObjectKinds.Vehicle)
+                || Definition.KindOf.Get(ObjectKinds.SmallMissile))
             {
                 var start = TargetPoints.Count > 0 ? TargetPoints.Last() : Transform.Translation;
                 var path = Navigation.CalculatePath(start, targetPoint);
@@ -463,10 +472,8 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
-
             // Check if the unit is currently moving
-            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
+            if (CurrentLocomotor != null && TargetPoints.Count > 0)
             {
                 CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
 
@@ -663,6 +670,33 @@ namespace OpenSage.Logic.Object
             {
                 throw new NotImplementedException();
             }
+        }
+
+        internal void Kill(DamageType damageType, DeathType deathType)
+        {
+            Body.DoDamage(damageType, Body.Health, deathType);
+        }
+
+        internal void Die(DeathType deathType)
+        {
+            // TODO: Figure out when / how to call `DeathBehavior`s.
+            // Need to use probability modifiers.
+
+            // TODO: Don't create this every time.
+            var behaviorUpdateContext = new BehaviorUpdateContext(
+                _gameContext,
+                this,
+                default);
+
+            foreach (var dieModule in BehaviorModules)
+            {
+                dieModule.OnDie(behaviorUpdateContext, deathType);
+            }
+        }
+
+        internal void Destroy()
+        {
+            Destroyed = true;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
     }
 
     public abstract class BodyModuleData : BehaviorModuleData

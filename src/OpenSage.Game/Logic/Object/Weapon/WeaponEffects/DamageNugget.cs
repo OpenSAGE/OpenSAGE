@@ -110,7 +110,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Execute(WeaponEffectExecutionContext context)
         {
-            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage);
+            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType);
         }
     }
 }

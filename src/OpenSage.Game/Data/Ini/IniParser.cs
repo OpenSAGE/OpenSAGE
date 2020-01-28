@@ -510,7 +510,10 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<ObjectDefinition> ParseObjectReference()
         {
             var name = ParseAssetReference();
-            return _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name);
+
+            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name)
+                : null;
         }
 
         public LazyAssetReference<ObjectDefinition>[] ParseObjectReferenceArray()

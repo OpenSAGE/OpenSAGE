@@ -218,7 +218,22 @@ namespace OpenSage.Logic.Object
             { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseInteger() },
             { "CampnessValueRadius", (parser, x) => x.CampnessValueRadius = parser.ParseInteger() },
 
-            { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
+            {
+                "Behavior",
+                (parser, x) =>
+                {
+                    var behavior = BehaviorModuleData.ParseBehavior(parser);
+                    if (behavior is AIUpdateModuleData aiUpdate)
+                    {
+                        x.AIUpdate = aiUpdate;
+                    }
+                    else
+                    {
+                        x.Behaviors.Add(behavior);
+                    }
+                }
+            },
+
             { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
@@ -251,7 +266,7 @@ namespace OpenSage.Logic.Object
 
             { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(ContactPoint.Parse(parser)) },
 
-            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
+            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()},
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
@@ -780,6 +795,7 @@ namespace OpenSage.Logic.Object
         public int CampnessValueRadius { get; private set; }
 
         // Engineering
+        public AIUpdateModuleData AIUpdate { get; private set; }
         public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }

@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             Health = (Fix64) (_moduleData.InitialHealth * multiplier);
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             // Actual amount of damage depends on armor.
             var armor = _gameObject.CurrentArmorSet.Armor.Value;
@@ -36,6 +36,11 @@ namespace OpenSage.Logic.Object
             Health -= actualDamage;
 
             // TODO: DamageFX
+
+            if (Health <= Fix64.Zero)
+            {
+                _gameObject.Die(deathType);
+            }
         }
     }
 
