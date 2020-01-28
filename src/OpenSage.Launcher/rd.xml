@@ -26,11 +26,12 @@
       <Type Name="SharpDX.Direct3D11.UserDefinedAnnotation" Dynamic="Required All" />
     </Assembly>
 
+    <Assembly Name="System.ComponentModel.TypeConverter" Dynamic="Required All" />
     <Assembly Name="System.Linq.Expressions">
       <Type Name="System.Linq.Expressions.ExpressionCreator`1[[System.Func`2[[System.Object,System.Private.CoreLib],[System.Object,System.Private.CoreLib]],System.Private.CoreLib]]" Dynamic="Required All" />
     </Assembly>
 
-    <Assembly Name="Commandline" Dynamic="Required All" />
+    <Assembly Name="CommandLine" Dynamic="Required All" />
 
     <Assembly Name="OpenSage.Mods.Generals">
       <Type Name="OpenSage.Mods.Generals.Gui.MainMenuCallbacks" Dynamic="Required All" />
