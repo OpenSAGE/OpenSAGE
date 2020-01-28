@@ -96,7 +96,7 @@ void main()
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         worldNormal,
-        vec3(0.2, 0.2, 0.2),
+        vec3(1, 1, 1),
         DiffuseColor.xyz,
         vec3(0, 0, 0),
         0,
