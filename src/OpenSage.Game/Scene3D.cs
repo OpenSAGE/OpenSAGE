@@ -466,10 +466,14 @@ namespace OpenSage
                     drawingContext.DrawRectangle(rect, borderColor, 1);
                 }
 
-                DrawBar(
-                    healthBoxRect.Value,
-                    new ColorRgbaF(0, 1, 0, 1),
-                    (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                // TODO: Not sure what to draw for InactiveBody?
+                if (gameObject.Body is ActiveBody)
+                {
+                    DrawBar(
+                        healthBoxRect.Value,
+                        new ColorRgbaF(0, 1, 0, 1),
+                        (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                }
 
                 if (gameObject.ProductionUpdate != null)
                 {
