@@ -1,8 +1,19 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class AIUpdate : UpdateModule
+    {
+        private readonly AIUpdateModuleData _moduleData;
+
+        internal AIUpdate(AIUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+    }
+
     public class AIUpdateModuleData : UpdateModuleData
     {
         internal static AIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -93,6 +104,16 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int BurningDeathTime { get; private set; }
+
+        internal sealed override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            throw new InvalidOperationException();
+        }
+
+        internal virtual AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new AIUpdate(this);
+        }
     }
 
     public enum AutoAcquireEnemiesType

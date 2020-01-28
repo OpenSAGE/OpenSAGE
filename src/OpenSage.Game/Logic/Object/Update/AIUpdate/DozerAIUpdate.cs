@@ -3,6 +3,14 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class DozerAIUpdate : AIUpdate
+    {
+        internal DozerAIUpdate(DozerAIUpdateModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+    }
+
     /// <summary>
     /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceNoBuild and VoiceTaskComplete 
     /// within UnitSpecificSounds section of the object.
@@ -23,5 +31,10 @@ namespace OpenSage.Logic.Object
         public Percentage RepairHealthPercentPerSecond { get; private set; }
         public int BoredTime { get; private set; }
         public int BoredRange { get; private set; }
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new DozerAIUpdate(this);
+        }
     }
 }

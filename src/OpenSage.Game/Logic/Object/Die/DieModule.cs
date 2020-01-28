@@ -3,6 +3,10 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class DieModule : BehaviorModule
+    {
+    }
+
     public abstract class DieModuleData : BehaviorModuleData
     {
         internal static readonly IniParseTable<DieModuleData> FieldParseTable = new IniParseTable<DieModuleData>

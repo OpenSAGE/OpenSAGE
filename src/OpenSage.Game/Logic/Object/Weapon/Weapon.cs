@@ -98,5 +98,10 @@ namespace OpenSage.Logic.Object
         {
             _stateMachine.Update(currentTime);
         }
+
+        public void Fire(TimeSpan currentTime)
+        {
+            _stateMachine.Fire(currentTime);
+        }
     }
 }

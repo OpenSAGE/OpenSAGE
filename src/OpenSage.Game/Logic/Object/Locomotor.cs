@@ -73,12 +73,16 @@ namespace OpenSage.Logic.Object
             var oldSpeed = _gameObject.Speed;
 
             // When we get to minimum braking distance, start braking.
-            var deltaLast = targetPoints.Last() - transform.Translation;
+            var lastTargetPoint = targetPoints.Last();
+            var deltaLast = lastTargetPoint - transform.Translation;
             // Distance is 2D
             var distanceRemaining = deltaLast.Vector2XY().Length();
             var damaged = _gameObject.Damaged;
 
-            var minimumBrakingDistance = (oldSpeed * oldSpeed) / GetLocomotorValue(x => x.Braking);
+            var braking = GetLocomotorValue(x => x.Braking);
+            var minimumBrakingDistance = braking > 0
+                ? (oldSpeed * oldSpeed) / braking
+                : 0;
 
             // Are we braking or accelerating?
             var accelerating = distanceRemaining > minimumBrakingDistance;
@@ -97,26 +101,37 @@ namespace OpenSage.Logic.Object
             var distance = MathF.Min(newSpeed * deltaTime, distanceRemaining);
 
             // Calculate translation
-            var deltaFirst = targetPoints.First() - transform.Translation;
+            var firstTargetPoint = targetPoints.First();
+            var deltaFirst = firstTargetPoint - transform.Translation;
             // The distance we're moving
             var direction = Vector2.Normalize(deltaFirst.Vector2XY());
             trans += new Vector3(direction * distance, 0.0f);
 
-            var height = heightMap.GetHeight(x, y);
-            if (!_locomotorTemplate.StickToGround)
+            switch (_locomotorTemplate.Appearance)
             {
-                var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
-                var oldLift = _gameObject.Lift;
-                var lift = GetLift();
-                var newLift = oldLift + lift;
-                newLift = MathUtility.Clamp(newLift, 0.0f, lift);
-                _gameObject.Lift = newLift;
-                trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+                case LocomotorAppearance.Thrust:
+                    trans.Z += (distance / distanceRemaining) * (lastTargetPoint.Z - trans.Z);
+                    break;
+
+                default:
+                    var height = heightMap.GetHeight(x, y);
+                    if (!_locomotorTemplate.StickToGround)
+                    {
+                        var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
+                        var oldLift = _gameObject.Lift;
+                        var lift = GetLift();
+                        var newLift = oldLift + lift;
+                        newLift = MathUtility.Clamp(newLift, 0.0f, lift);
+                        _gameObject.Lift = newLift;
+                        trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+                    }
+                    else
+                    {
+                        trans.Z = height;
+                    }
+                    break;
             }
-            else
-            {
-                trans.Z = height;
-            }
+            
             transform.Translation = trans;
 
             // Calculate rotation

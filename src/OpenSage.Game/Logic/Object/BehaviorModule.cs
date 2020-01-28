@@ -7,6 +7,8 @@ namespace OpenSage.Logic.Object
     public abstract class BehaviorModule : DisposableBase
     {
         internal virtual void Update(BehaviorUpdateContext context) { }
+
+        internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType) { }
     }
 
     internal sealed class BehaviorUpdateContext

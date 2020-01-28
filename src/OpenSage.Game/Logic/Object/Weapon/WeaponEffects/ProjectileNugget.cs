@@ -68,14 +68,23 @@ namespace OpenSage.Logic.Object
 
             projectileObject.SetWeapon(warheadTemplate);
 
-            var direction = Vector3.Normalize(launchBoneTransform.Value.Right());
-            projectileObject.Velocity = direction * ParentWeaponTemplate.WeaponSpeed;
+            projectileObject.CurrentWeapon.SetTarget(context.Weapon.CurrentTarget);
 
-            var projectileDetonationFX = ParentWeaponTemplate.ProjectileDetonationFX?.Value;
-            if (projectileDetonationFX != null)
+            projectileObject.Speed = ParentWeaponTemplate.WeaponSpeed;
+
+            if (IsConvertedFromLegacyData)
             {
                 var bezierProjectileBehavior = projectileObject.FindBehavior<BezierProjectileBehavior>();
-                bezierProjectileBehavior.GroundHitFX = projectileDetonationFX;
+                if (bezierProjectileBehavior != null)
+                {
+                    bezierProjectileBehavior.DetonationFX = ParentWeaponTemplate.ProjectileDetonationFX?.Value;
+                }
+
+                var missileAIUpdate = projectileObject.FindBehavior<MissileAIUpdate>();
+                if (missileAIUpdate != null)
+                {
+                    missileAIUpdate.DetonationFX = ParentWeaponTemplate.ProjectileDetonationFX?.Value;
+                }
             }
         }
     }
