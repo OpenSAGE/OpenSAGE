@@ -30,9 +30,6 @@ namespace OpenSage.Graphics.Rendering.Water
         private readonly Dictionary<TimeOfDay, ColorRgba> _waterTransparentDiffuseColorSet;
         private readonly Texture _bumpTexture;
 
-        private readonly ConstantBuffer<GlobalShaderResources.WaterConstantsVS> _waterConstantsVSBuffer;
-        private GlobalShaderResources.WaterConstantsVS _waterConstantsVS;
-
         private ConstantBuffer<GlobalShaderResources.WaterConstantsPS> _waterConstantsPSBuffer;
         private GlobalShaderResources.WaterConstantsPS _waterConstantsPS;
 
@@ -75,15 +72,9 @@ namespace OpenSage.Graphics.Rendering.Water
 
             _bumpTexture = graphicsLoadContext.StandardGraphicsResources.SolidWhiteTexture;
 
-            _waterConstantsVSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.WaterConstantsVS>(
-                graphicsDevice,
-                "WaterConstantsVS"));
             _waterConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.WaterConstantsPS>(
                 graphicsDevice,
                 "WaterConstantsPS"));
-
-            _waterConstantsVS.ModelMatrix = Matrix4x4.Identity;
-            _waterConstantsVSBuffer.Value = _waterConstantsVS;
 
             _uvOffset = Vector2.Zero;
 
@@ -156,7 +147,6 @@ namespace OpenSage.Graphics.Rendering.Water
             CalculateUVOffset(graphicsDevice, scene.Lighting.TimeOfDay);
             UpdateVariableBuffers(graphicsDevice, scene.Lighting.TimeOfDay);
 
-            _waterConstantsVSBuffer.Update(commandList);
             _waterConstantsPSBuffer.Update(commandList);
 
             if (_waterData != null && _waterData.ReflectionMap != null && _waterData.RefractionMap != null
@@ -180,7 +170,6 @@ namespace OpenSage.Graphics.Rendering.Water
                 _resourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
                         _waterShaderResources.WaterResourceLayout,
-                        _waterConstantsVSBuffer.Buffer,
                         _waterConstantsPSBuffer.Buffer,
                         texture,
                         _bumpTexture,

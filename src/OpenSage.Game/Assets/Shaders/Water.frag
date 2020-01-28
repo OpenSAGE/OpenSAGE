@@ -14,7 +14,7 @@ MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
 
 MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
 
-layout(set = 4, binding = 1) uniform WaterConstantsPS
+layout(set = 4, binding = 0) uniform WaterConstantsPS
 {
     vec2 UVOffset;
     float FarPlaneDistance;
@@ -26,19 +26,18 @@ layout(set = 4, binding = 1) uniform WaterConstantsPS
     vec4 DiffuseColor;
     vec4 TransparentDiffuseColor;
 };
-layout(set = 4, binding = 2) uniform texture2D WaterTexture;
-layout(set = 4, binding = 3) uniform texture2D BumpTexture;
-layout(set = 4, binding = 4) uniform sampler WaterSampler;
-layout(set = 4, binding = 5) uniform texture2D ReflectionMap;
-layout(set = 4, binding = 6) uniform sampler ReflectionMapSampler;
-layout(set = 4, binding = 7) uniform texture2D RefractionMap;
-layout(set = 4, binding = 8) uniform sampler RefractionMapSampler;
-layout(set = 4, binding = 9) uniform texture2D RefractionDepthMap;
+layout(set = 4, binding = 1) uniform texture2D WaterTexture;
+layout(set = 4, binding = 2) uniform texture2D BumpTexture;
+layout(set = 4, binding = 3) uniform sampler WaterSampler;
+layout(set = 4, binding = 4) uniform texture2D ReflectionMap;
+layout(set = 4, binding = 5) uniform sampler ReflectionMapSampler;
+layout(set = 4, binding = 6) uniform texture2D RefractionMap;
+layout(set = 4, binding = 7) uniform sampler RefractionMapSampler;
+layout(set = 4, binding = 8) uniform texture2D RefractionDepthMap;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec2 in_CloudUV;
 layout(location = 2) in float in_ViewSpaceDepth;
-layout(location = 3) in vec4 in_ClipSpace;
 
 in vec4 gl_FragCoord;
 
