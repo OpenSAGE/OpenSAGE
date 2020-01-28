@@ -672,9 +672,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Kill(DamageType damageType, DeathType deathType)
+        internal void Kill(DeathType deathType)
         {
-            Body.DoDamage(damageType, Body.Health, deathType);
+            Body.DoDamage(DamageType.Unresistable, Body.Health, deathType);
         }
 
         internal void Die(DeathType deathType)

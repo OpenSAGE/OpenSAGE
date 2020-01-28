@@ -94,6 +94,12 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
+            // TODO: This might not always be the right thing to do?
+            if (template.ParticleTexture?.Value == null)
+            {
+                return;
+            }
+
             _graphicsDevice = loadContext.GraphicsDevice;
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
