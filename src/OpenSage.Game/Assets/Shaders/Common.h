@@ -10,7 +10,6 @@ struct GlobalConstantsSharedType
 
 struct GlobalConstantsVSType
 {
-    mat4 Projection;
     mat4 ViewProjection;
     vec4 ClippingPlane;
 };

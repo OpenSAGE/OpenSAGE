@@ -206,7 +206,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.Projection, shadowViewProjection, new Vector4(0, 0, 0, 0));
+                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection, new Vector4(0, 0, 0, 0));
 
                     DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -219,7 +219,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.Projection, scene.Camera.ViewProjection, new Vector4(0, 0, 0, 0));
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection, new Vector4(0, 0, 0, 0));
             _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ClearColor);
@@ -272,7 +272,7 @@ namespace OpenSage.Graphics.Rendering
                         var clippingPlane = new ClippingPlane(new Vector4(0, 0, -1, pivot + clippingOffset));
 
                         // Render normal scene for water refraction shader
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.ConvertToVector4());
                         _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
                         commandList.SetFramebuffer(refractionFramebuffer);
@@ -295,7 +295,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // TODO: Improve rendering speed somehow?
                         // ------------------- Used for creating stencil mask -------------------
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.ConvertToVector4());
 
                         commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -306,7 +306,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // Render inverted scene for water reflection shader
                         camera.SetMirrorX(pivot);
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, clippingPlane.ConvertToVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.ConvertToVector4());
 
                         //commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -324,7 +324,7 @@ namespace OpenSage.Graphics.Rendering
                     if (reflectionFramebuffer != null || refractionFramebuffer != null)
                     {
                         camera.FarPlaneDistance = originalFarPlaneDistance;
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.Projection, camera.ViewProjection, new Vector4(0, 0, 0, 0));
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, new Vector4(0, 0, 0, 0));
                         _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
                         // Reset the render item pipeline
