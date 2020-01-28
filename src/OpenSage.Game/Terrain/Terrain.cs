@@ -84,7 +84,8 @@ namespace OpenSage.Terrain
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
             BuildCausticsTextureArray(loadContext.AssetStore);
-            Func<ResourceSet> causticsRenderer = () => {
+            Func<ResourceSet> causticsRenderer = () =>
+            {
                 UpdateTimer();
                 var casuticsTexture = GetCausticsTexture();
 
@@ -101,13 +102,13 @@ namespace OpenSage.Terrain
 
             var casuticsTexture = loadContext.StandardGraphicsResources.SolidBlackTexture;
             var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
-                    materialConstantsBuffer,
-                    tileDataTexture,
-                    cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
-                    textureDetailsBuffer,
-                    textureArray,
-                    macroTexture,
-                    casuticsTexture));
+                materialConstantsBuffer,
+                tileDataTexture,
+                cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                textureDetailsBuffer,
+                textureArray,
+                macroTexture,
+                casuticsTexture));
 
             Patches = CreatePatches(
                 loadContext.GraphicsDevice,

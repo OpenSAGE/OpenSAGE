@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
 using OpenSage.Mathematics;
 
@@ -57,12 +58,13 @@ namespace OpenSage.Graphics.Rendering
         {
             _culled[i] = cameraFrustum.Intersects(_items[i].BoundingBox);
         }
-        private void Cull(int i, in ClippingPlane clippingPlane)
+
+        private void Cull(int i, in Plane clippingPlane)
         {
-            _culled[i] = _culled[i] && clippingPlane.Contains(_items[i].BoundingBox);
+            _culled[i] = _culled[i] && _items[i].BoundingBox.Intersects(clippingPlane) != PlaneIntersectionType.Back;
         }
 
-        public void CullAndSort(in BoundingFrustum cameraFrustum, in ClippingPlane clippingPlane, int batchSize)
+        public void CullAndSort(in BoundingFrustum cameraFrustum, in Plane? clippingPlane, int batchSize)
         {
             if (Length == 0)
             {
@@ -79,7 +81,9 @@ namespace OpenSage.Graphics.Rendering
                 {
                     Cull(i, cameraFrustum);
                     if (clippingPlane != null)
-                        Cull(i, clippingPlane);
+                    {
+                        Cull(i, clippingPlane.Value);
+                    }
                 }
             }
             else
@@ -97,7 +101,9 @@ namespace OpenSage.Graphics.Rendering
                     {
                         Cull(i, frustum);
                         if (clip != null)
-                            Cull(i, clip);
+                        {
+                            Cull(i, clip.Value);
+                        }
                     }
                 });
             }
