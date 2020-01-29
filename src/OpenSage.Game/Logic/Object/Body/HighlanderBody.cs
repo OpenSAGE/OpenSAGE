@@ -5,8 +5,6 @@ namespace OpenSage.Logic.Object
 {
     public class HighlanderBody : ActiveBody
     {
-        private readonly GameObject _gameObject;
-
         internal HighlanderBody(GameObject gameObject, HighlanderBodyModuleData moduleData)
             : base(gameObject, moduleData)
         {
@@ -28,7 +26,7 @@ namespace OpenSage.Logic.Object
 
                 if (Health <= Fix64.Zero)
                 {
-                    _gameObject.Die(deathType);
+                    GameObject.Die(deathType);
                 }
             }
         }
