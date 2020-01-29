@@ -5,8 +5,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DozerAIUpdate : AIUpdate
     {
-        internal DozerAIUpdate(DozerAIUpdateModuleData moduleData)
-            : base(moduleData)
+        internal DozerAIUpdate(GameObject gameObject, DozerAIUpdateModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
     }
@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
         internal override AIUpdate CreateAIUpdate(GameObject gameObject)
         {
-            return new DozerAIUpdate(this);
+            return new DozerAIUpdate(gameObject, this);
         }
     }
 }

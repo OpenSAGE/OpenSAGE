@@ -310,7 +310,8 @@ namespace OpenSage
                 game.AssetStore.LoadContext,
                 game.Audio,
                 _particleSystemManager,
-                Terrain);
+                Terrain,
+                Navigation);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(

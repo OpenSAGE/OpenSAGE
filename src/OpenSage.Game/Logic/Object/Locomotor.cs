@@ -13,8 +13,6 @@ namespace OpenSage.Logic.Object
         private readonly LocomotorSet _locomotorSet;
         private readonly LocomotorTemplate _locomotorTemplate;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
         public Locomotor(GameObject gameObject, LocomotorSet locomotorSet)
         {
             _gameObject = gameObject;
@@ -25,26 +23,26 @@ namespace OpenSage.Logic.Object
         //TODO: check if the damaged values exists
         private float GetAcceleration()
         {
-            var damaged = _gameObject.Damaged;
-            return damaged ? GetLocomotorValue(x => x.AccelerationDamaged)
-                           : GetLocomotorValue(x => x.Acceleration);
+            return _gameObject.IsDamaged
+                ? GetLocomotorValue(x => x.AccelerationDamaged)
+                : GetLocomotorValue(x => x.Acceleration);
         }
 
         private float GetTurnRate()
         {
-            var damaged = _gameObject.Damaged;
-            return damaged ? GetLocomotorValue(x => x.TurnRateDamaged)
-                           : GetLocomotorValue(x => x.TurnRate);
+            return _gameObject.IsDamaged
+                ? GetLocomotorValue(x => x.TurnRateDamaged)
+                : GetLocomotorValue(x => x.TurnRate);
         }
 
         private float GetSpeed()
         {
-            //TODO: this is probably not correct for BFME
-            var damaged = _gameObject.Damaged;
+            // TODO: this is probably not correct for BFME
             if (_locomotorTemplate.Speed.HasValue)
             {
-                return damaged ? GetLocomotorValue(x => x.SpeedDamaged)
-               : GetLocomotorValue(x => x.Speed.Value);
+                return _gameObject.IsDamaged
+                    ? GetLocomotorValue(x => x.SpeedDamaged)
+                    : GetLocomotorValue(x => x.Speed.Value);
             }
             else
             {
@@ -54,12 +52,12 @@ namespace OpenSage.Logic.Object
 
         private float GetLift()
         {
-            var damaged = _gameObject.Damaged;
-            return damaged ? GetLocomotorValue(x => x.LiftDamaged)
-                           : GetLocomotorValue(x => x.Lift);
+            return _gameObject.IsDamaged
+                ? GetLocomotorValue(x => x.LiftDamaged)
+                : GetLocomotorValue(x => x.Lift);
         }
 
-        public void LocalLogicTick(in TimeInterval gameTime, in List<Vector3> targetPoints, HeightMap heightMap)
+        public void MoveTowardsPosition(in TimeInterval gameTime, in Vector3 targetPoint, HeightMap heightMap)
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
@@ -73,11 +71,10 @@ namespace OpenSage.Logic.Object
             var oldSpeed = _gameObject.Speed;
 
             // When we get to minimum braking distance, start braking.
-            var lastTargetPoint = targetPoints.Last();
-            var deltaLast = lastTargetPoint - transform.Translation;
+            var delta = targetPoint - transform.Translation;
             // Distance is 2D
-            var distanceRemaining = deltaLast.Vector2XY().Length();
-            var damaged = _gameObject.Damaged;
+            var distanceRemaining = delta.Vector2XY().Length();
+            var damaged = _gameObject.IsDamaged;
 
             var braking = GetLocomotorValue(x => x.Braking);
             var minimumBrakingDistance = braking > 0
@@ -100,17 +97,14 @@ namespace OpenSage.Logic.Object
             // This locomotor speed is distance/second
             var distance = MathF.Min(newSpeed * deltaTime, distanceRemaining);
 
-            // Calculate translation
-            var firstTargetPoint = targetPoints.First();
-            var deltaFirst = firstTargetPoint - transform.Translation;
             // The distance we're moving
-            var direction = Vector2.Normalize(deltaFirst.Vector2XY());
+            var direction = Vector2.Normalize(delta.Vector2XY());
             trans += new Vector3(direction * distance, 0.0f);
 
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Thrust:
-                    trans.Z += (distance / distanceRemaining) * (lastTargetPoint.Z - trans.Z);
+                    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
                     break;
 
                 default:

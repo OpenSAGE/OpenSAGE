@@ -239,7 +239,7 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetCondition>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
+            { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetType>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
             { "LocomotorSet", (parser, x) => x.LocomotorSets.Add(LocomotorSet.Parse(parser)) },
 
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },

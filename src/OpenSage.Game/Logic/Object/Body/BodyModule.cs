@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
 
         public abstract Fix64 MaxHealth { get; }
 
+        public Fix64 HealthPercentage => Health / MaxHealth;
+
         public virtual void SetInitialHealth(float multiplier) { }
 
         public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }

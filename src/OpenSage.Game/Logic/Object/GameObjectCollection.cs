@@ -47,7 +47,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this, _navigation));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this));
             _items.Add(gameObject);
             return gameObject;
         }

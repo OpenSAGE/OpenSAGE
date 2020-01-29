@@ -8,7 +8,6 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MissileAIUpdate : AIUpdate
     {
-        private readonly GameObject _gameObject;
         private readonly MissileAIUpdateModuleData _moduleData;
 
         private MissileState _state;
@@ -17,9 +16,8 @@ namespace OpenSage.Logic.Object
         internal FXList DetonationFX { get; set; }
 
         internal MissileAIUpdate(GameObject gameObject, MissileAIUpdateModuleData moduleData)
-            : base(moduleData)
+            : base(gameObject, moduleData)
         {
-            _gameObject = gameObject;
             _moduleData = moduleData;
 
             _state = MissileState.Inactive;
@@ -39,18 +37,18 @@ namespace OpenSage.Logic.Object
                     {
                         _moduleData.IgnitionFX?.Value?.Execute(
                             new FXListExecutionContext(
-                                _gameObject.Transform.Rotation,
-                                _gameObject.Transform.Translation,
+                                GameObject.Transform.Rotation,
+                                GameObject.Transform.Translation,
                                 context.GameContext));
 
                         if (_moduleData.DistanceToTravelBeforeTurning > 0)
                         {
                             var pointToReachBeforeTurning = context.GameObject.Transform.Translation
                                 + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix) * _moduleData.DistanceToTravelBeforeTurning;
-                            context.GameObject.AddTargetPoint(pointToReachBeforeTurning);
+                            AddTargetPoint(pointToReachBeforeTurning);
                         }
 
-                        context.GameObject.AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
+                        AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
 
                         context.GameObject.Speed = _moduleData.InitialVelocity;
 
@@ -66,6 +64,8 @@ namespace OpenSage.Logic.Object
                 default:
                     throw new InvalidOperationException();
             }
+
+            base.Update(context);
         }
 
         private enum MissileState

@@ -11,6 +11,7 @@ namespace OpenSage
         public readonly AudioSystem AudioSystem;
         public readonly ParticleSystemManager ParticleSystems;
         public readonly Terrain.Terrain Terrain;
+        public readonly Navigation.Navigation Navigation;
 
         // TODO: Make this readonly.
         public GameObjectCollection GameObjects;
@@ -19,12 +20,14 @@ namespace OpenSage
             AssetLoadContext assetLoadContext,
             AudioSystem audioSystem,
             ParticleSystemManager particleSystems,
-            Terrain.Terrain terrain)
+            Terrain.Terrain terrain,
+            Navigation.Navigation navigation)
         {
             AssetLoadContext = assetLoadContext;
             AudioSystem = audioSystem;
             ParticleSystems = particleSystems;
             Terrain = terrain;
+            Navigation = navigation;
         }
     }
 }
