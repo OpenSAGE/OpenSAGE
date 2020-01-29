@@ -7,14 +7,15 @@ namespace OpenSage.Logic.Object
 {
     public class ActiveBody : BodyModule
     {
-        private readonly GameObject _gameObject;
         private readonly ActiveBodyModuleData _moduleData;
+
+        protected readonly GameObject GameObject;
 
         public override Fix64 MaxHealth { get; }
 
         internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
         {
-            _gameObject = gameObject;
+            GameObject = gameObject;
             _moduleData = moduleData;
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
@@ -30,7 +31,7 @@ namespace OpenSage.Logic.Object
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             // Actual amount of damage depends on armor.
-            var armor = _gameObject.CurrentArmorSet.Armor.Value;
+            var armor = GameObject.CurrentArmorSet.Armor.Value;
             var damagePercent = armor.GetDamagePercent(damageType);
             var actualDamage = amount * (Fix64) ((float) damagePercent);
             Health -= actualDamage;
@@ -39,7 +40,7 @@ namespace OpenSage.Logic.Object
 
             if (Health <= Fix64.Zero)
             {
-                _gameObject.Die(deathType);
+                GameObject.Die(deathType);
             }
         }
     }
