@@ -32,6 +32,12 @@
     </Assembly>
 
     <Assembly Name="CommandLine" Dynamic="Required All" />
+    <Assembly Name="NLog" Dynamic="Required All" />
+    <Assembly Name="MoonSharp.Interpreter" Dynamic="Required All" />
+
+    <Assembly Name="OpenSage.Game">
+      <Type Name="OpenSage.Gui.Wnd.DefaultCallbacks" Dynamic="Required All" />
+    </Assembly>
 
     <Assembly Name="OpenSage.Mods.Generals">
       <Type Name="OpenSage.Mods.Generals.Gui.MainMenuCallbacks" Dynamic="Required All" />

@@ -9,7 +9,7 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class CrossingRoadSegment : IRoadSegment
     {
-        private CrossingRoadSegment(in Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, in Vector3 start, in Vector3 end, RoadTextureType type)
+        private CrossingRoadSegment(Vector3 position, IEnumerable<RoadSegmentEndPoint> endPoints, Vector3 start, Vector3 end, RoadTextureType type)
         {
             Position = position;
             EndPoints = endPoints;
@@ -117,12 +117,12 @@ namespace OpenSage.Terrain.Roads
 
                 default:
                     throw new ArgumentException($"Cannot create crossing for {angles.Count} incoming roads", nameof(incomingRoads));
-            }            
+            }
         }
 
         private static CrossingRoadSegment CreateTCrossing(
             IReadOnlyList<IncomingRoadData> roads,
-            in Vector3 crossingPosition,
+            Vector3 crossingPosition,
             RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
@@ -211,7 +211,7 @@ namespace OpenSage.Terrain.Roads
         {
             var maxAngle = roads.OrderBy(road => road.AngleToPreviousEdge).Last();
             var mirror = maxAngle.Previous.AngleToPreviousEdge < maxAngle.Previous.Previous.AngleToPreviousEdge;
-            
+
             var upDirection = Vector3.Normalize(maxAngle.Previous.TargetNodePosition - maxAngle.TargetNodePosition);
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
             var mirrorFactor = mirror ? -1 : 1;
@@ -302,7 +302,7 @@ namespace OpenSage.Terrain.Roads
                 start,
                 end,
                 RoadTextureType.SymmetricYCrossing);
-            
+
             Connect(crossingSegment, topEdge.TopologyEdge, top, upDirection, RoadConstants.OverlapLength * template.RoadWidth, edgeSegments);
             Connect(crossingSegment, leftEdge.TopologyEdge, leftSide, leftSideDirection, 0, edgeSegments);
             Connect(crossingSegment, rightEdge.TopologyEdge, rightSide, rightSideDirection, 0, edgeSegments);
@@ -316,7 +316,7 @@ namespace OpenSage.Terrain.Roads
             CrossingRoadSegment newSegment,
             RoadTopologyEdge edge,
             RoadSegmentEndPoint endPoint,
-            in Vector3 direction,
+            Vector3 direction,
             float overlap,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {

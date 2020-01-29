@@ -7,8 +7,8 @@ namespace OpenSage.Terrain.Roads
     {
         public IncomingRoadData(
             RoadTopologyEdge topologyEdge,
-            in Vector3 targetNodePosition,
-            in Vector3 outDirection,
+            Vector3 targetNodePosition,
+            Vector3 outDirection,
             float angleToAxis)
         {
             TopologyEdge = topologyEdge;
