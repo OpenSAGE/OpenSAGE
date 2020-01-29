@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -6,11 +9,130 @@ namespace OpenSage.Logic.Object
 {
     public class AIUpdate : UpdateModule
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private readonly Dictionary<LocomotorSetType, Locomotor> _locomotors;
+        private Locomotor _currentLocomotor;
+
         private readonly AIUpdateModuleData _moduleData;
 
-        internal AIUpdate(AIUpdateModuleData moduleData)
+        protected readonly GameObject GameObject;
+
+        /// <summary>
+        /// An enumerator of the waypoints if the unit is currently following a waypoint path.
+        /// The path (as in pathfinding) to the next waypoint can contain multiple <see cref="TargetPoints"/>.
+        /// </summary>
+        private IEnumerator<Vector3> _waypointEnumerator;
+
+        public bool IsFollowingWaypoints() => _waypointEnumerator != null;
+
+        /// <summary>
+        /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
+        /// </summary>
+        public List<Vector3> TargetPoints { get; set; }
+
+        internal AIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
         {
+            GameObject = gameObject;
             _moduleData = moduleData;
+
+            TargetPoints = new List<Vector3>();
+
+            _locomotors = new Dictionary<LocomotorSetType, Locomotor>();
+
+            SetLocomotor(LocomotorSetType.Normal);
+        }
+
+        internal void SetLocomotor(LocomotorSetType type)
+        {
+            if (!_locomotors.TryGetValue(type, out var locomotor))
+            {
+                var locomotorSet = GameObject.Definition.LocomotorSets.Find(x => x.Condition == type);
+                locomotor = (locomotorSet != null)
+                    ? new Locomotor(GameObject, locomotorSet)
+                    : null;
+            }
+
+            _currentLocomotor = locomotor;
+        }
+
+        internal void AddTargetPoint(in Vector3 targetPoint)
+        {
+            if (GameObject.Definition.KindOf == null) return;
+
+            // TODO: Do we need to do this?
+            if (GameObject.Definition.KindOf.Get(ObjectKinds.Infantry)
+                || GameObject.Definition.KindOf.Get(ObjectKinds.Vehicle)
+                || GameObject.Definition.KindOf.Get(ObjectKinds.SmallMissile))
+            {
+                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : GameObject.Transform.Translation;
+                var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
+                TargetPoints.AddRange(path);
+                Logger.Debug("Set new target points: " + TargetPoints.Count);
+            }
+
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
+        }
+
+        internal void SetTargetPoint(Vector3 targetPoint)
+        {
+            TargetPoints.Clear();
+
+            AddTargetPoint(targetPoint);
+        }
+
+        internal void FollowWaypoints(IEnumerable<Vector3> waypoints)
+        {
+            TargetPoints.Clear();
+            _waypointEnumerator = waypoints.GetEnumerator();
+            MoveToNextWaypointOrStop();
+        }
+
+        internal void Stop()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
+            _waypointEnumerator?.Dispose();
+            _waypointEnumerator = null;
+            TargetPoints.Clear();
+            GameObject.Speed = 0;
+        }
+
+        /// <summary>
+        /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
+        /// </summary>
+        /// <remarks>
+        /// It might be necessary to select a path randomly (if there are branches), so this method should only
+        /// be called from <see cref="LogicTick"/>.</remarks>
+        private void MoveToNextWaypointOrStop()
+        {
+            if (_waypointEnumerator != null && _waypointEnumerator.MoveNext())
+            {
+                AddTargetPoint(_waypointEnumerator.Current);
+            }
+            else
+            {
+                Stop();
+            }
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_currentLocomotor != null && TargetPoints.Count > 0)
+            {
+                _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap);
+
+                // this should be moved to LogicTick
+                var distance = Vector2.DistanceSquared(GameObject.Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
+                if (distance < 0.25f)
+                {
+                    Logger.Debug($"Reached point {TargetPoints[0]}");
+                    TargetPoints.RemoveAt(0);
+                    if (TargetPoints.Count == 0)
+                    {
+                        MoveToNextWaypointOrStop();
+                    }
+                }
+            }
         }
     }
 
@@ -112,7 +234,7 @@ namespace OpenSage.Logic.Object
 
         internal virtual AIUpdate CreateAIUpdate(GameObject gameObject)
         {
-            return new AIUpdate(this);
+            return new AIUpdate(gameObject, this);
         }
     }
 

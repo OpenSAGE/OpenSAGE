@@ -3,7 +3,7 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public enum LocomotorSetCondition
+    public enum LocomotorSetType
     {
         [IniEnum("SET_NORMAL")]
         Normal,

@@ -170,13 +170,13 @@ namespace OpenSage.Logic.Object
             var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
             if (naturalRallyPoint != null)
             {
-                _producedUnit.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
             if (_gameObject.RallyPoint.HasValue)
             {
-                _producedUnit.AddTargetPoint(_gameObject.RallyPoint.Value);
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
             _producedUnit = null;

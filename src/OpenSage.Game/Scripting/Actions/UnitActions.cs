@@ -15,7 +15,7 @@ namespace OpenSage.Scripting.Actions
                 return ActionResult.Finished;
             }
 
-            unit.Stop();
+            unit.AIUpdate.Stop();
 
             return ActionResult.Finished;
         }
@@ -36,7 +36,7 @@ namespace OpenSage.Scripting.Actions
                 return ActionResult.Finished;
             }
 
-            unit.SetTargetPoint(waypoint.Position);
+            unit.AIUpdate.SetTargetPoint(waypoint.Position);
 
             return ActionResult.Finished;
         }
@@ -59,7 +59,7 @@ namespace OpenSage.Scripting.Actions
             if (nearestWaypoint != null)
             {
                 var positions = nearestWaypoint.FollowPath(context.Scene.Random);
-                unit.FollowWaypoints(positions);
+                unit.AIUpdate.FollowWaypoints(positions);
             }
 
             return ActionResult.Finished;

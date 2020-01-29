@@ -13,12 +13,12 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<LocomotorSet> FieldParseTable = new IniParseTable<LocomotorSet>
         {
             { "Locomotor", (parser, x) => x.Locomotor = parser.ParseLocomotorTemplateReference() },
-            { "Condition", (parser, x) => x.Condition = parser.ParseEnum<LocomotorSetCondition>() },
+            { "Condition", (parser, x) => x.Condition = parser.ParseEnum<LocomotorSetType>() },
             { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },
         };
 
         public LazyAssetReference<LocomotorTemplate> Locomotor { get; internal set; }
-        public LocomotorSetCondition Condition { get; internal set; }
+        public LocomotorSetType Condition { get; internal set; }
         public float Speed { get; internal set; }
     }
 }

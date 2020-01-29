@@ -81,6 +81,9 @@ namespace OpenSage.Logic.Object
         }
 
         private readonly GameContext _gameContext;
+
+        internal GameContext GameContext => _gameContext;
+
         private readonly GameObject _rallyPointMarker;
 
         public readonly ObjectDefinition Definition;
@@ -130,31 +133,23 @@ namespace OpenSage.Logic.Object
         public bool IsSelected { get; set; }
         public Vector3? RallyPoint { get; set; }
 
-        private Locomotor CurrentLocomotor { get; set; }
         internal Weapon CurrentWeapon { get; private set; }
-
-        /// <summary>
-        /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
-        /// </summary>
-        public List<Vector3> TargetPoints { get; set; }
-
-        /// <summary>
-        /// An enumerator of the waypoints if the unit is currently following a waypoint path.
-        /// The path (as in pathfinding) to the next waypoint can contain multiple <see cref="TargetPoints"/>.
-        /// </summary>
-        private IEnumerator<Vector3> _waypointEnumerator;
-
-        public bool IsFollowingWaypoints() => _waypointEnumerator != null;
 
         private TimeSpan ConstructionStart { get; set; }
 
         public float BuildProgress { get; set; }
 
-        private Navigation.Navigation Navigation { get; set; }
-
         public bool Destroyed { get; set; }
 
-        public bool Damaged { get; set; }
+        public bool IsDamaged
+        {
+            get
+            {
+                var healthPercentage = (float) Body.HealthPercentage;
+                var damagedThreshold = _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
+                return healthPercentage <= damagedThreshold;
+            }
+        }
 
         public float Speed { get; set; }
         public float Lift { get; set; }
@@ -179,8 +174,7 @@ namespace OpenSage.Logic.Object
             ObjectDefinition objectDefinition,
             GameContext gameContext,
             Player owner,
-            GameObjectCollection parent,
-            Navigation.Navigation navigation)
+            GameObjectCollection parent)
         {
             if (objectDefinition == null)
             {
@@ -192,9 +186,7 @@ namespace OpenSage.Logic.Object
             Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
-            Navigation = navigation;
 
-            SetLocomotor();
             SetWeapon();
             Transform = Transform.CreateIdentity();
 
@@ -240,12 +232,11 @@ namespace OpenSage.Logic.Object
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
             CanAttack = Definition.KindOf?.Get(ObjectKinds.CanAttack) ?? false;
-            TargetPoints = new List<Vector3>();
 
             if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent, navigation));
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
             }
 
             Upgrades = new List<UpgradeTemplate>();
@@ -382,55 +373,14 @@ namespace OpenSage.Logic.Object
             var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
             if (naturalRallyPoint != null)
             {
-                spawnedUnit.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
+                spawnedUnit.AIUpdate.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
             if (RallyPoint.HasValue)
             {
-                spawnedUnit.AddTargetPoint(RallyPoint.Value);
+                spawnedUnit.AIUpdate.AddTargetPoint(RallyPoint.Value);
             }
-        }
-
-        internal void AddTargetPoint(Vector3 targetPoint)
-        {
-            if (Definition.KindOf == null) return;
-
-            if (Definition.KindOf.Get(ObjectKinds.Infantry)
-                || Definition.KindOf.Get(ObjectKinds.Vehicle)
-                || Definition.KindOf.Get(ObjectKinds.SmallMissile))
-            {
-                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : Transform.Translation;
-                var path = Navigation.CalculatePath(start, targetPoint);
-                TargetPoints.AddRange(path);
-                Logger.Debug("Set new target points: " + TargetPoints.Count);
-            }
-
-            ModelConditionFlags.SetAll(false);
-            ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
-        }
-
-        internal void SetTargetPoint(Vector3 targetPoint)
-        {
-            TargetPoints.Clear();
-
-            AddTargetPoint(targetPoint);
-        }
-
-        internal void FollowWaypoints(IEnumerable<Vector3> waypoints)
-        {
-            TargetPoints.Clear();
-            _waypointEnumerator = waypoints.GetEnumerator();
-            MoveToNextWaypointOrStop();
-        }
-
-        internal void Stop()
-        {
-            ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
-            _waypointEnumerator?.Dispose();
-            _waypointEnumerator = null;
-            TargetPoints.Clear();
-            Speed = 0;
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -474,45 +424,9 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            // Check if the unit is currently moving
-            if (CurrentLocomotor != null && TargetPoints.Count > 0)
-            {
-                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
-
-                // this should be moved to LogicTick
-                var distance = Vector2.DistanceSquared(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
-                if (distance < 0.25f)
-                {
-                    Logger.Debug($"Reached point {TargetPoints[0]}");
-                    TargetPoints.RemoveAt(0);
-                    if (TargetPoints.Count == 0)
-                    {
-                        MoveToNextWaypointOrStop();
-                    }
-                }
-            }
-
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
-        }
-
-        /// <summary>
-        /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
-        /// </summary>
-        /// <remarks>
-        /// It might be necessary to select a path randomly (if there are branches), so this method should only
-        /// be called from <see cref="LogicTick"/>.</remarks>
-        private void MoveToNextWaypointOrStop()
-        {
-            if (_waypointEnumerator != null && _waypointEnumerator.MoveNext())
-            {
-                AddTargetPoint(_waypointEnumerator.Current);
-            }
-            else
-            {
-                Stop();
-            }
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -616,14 +530,6 @@ namespace OpenSage.Logic.Object
             {
                 gameAudio.PlayAudioEvent(audioEvent);
             }
-        }
-
-        private void SetLocomotor()
-        {
-            var locomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
-            CurrentLocomotor = (locomotorSet != null)
-                ? new Locomotor(this, locomotorSet)
-                : null;
         }
 
         private void SetWeapon()

@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
             { "UsePorcupineBody", (parser, x) => x.UsePorcupineBody = parser.ParseBoolean() },
             { "SplitHorde", (parser, x) => x.SplitHordes.Add(SplitHorde.Parse(parser)) },
             { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() },
-            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() },
+            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetType>() },
             { "UpdateWeaponSetFlagsOnHordeToo", (parser, x) => x.UpdateWeaponSetFlagsOnHordeToo = parser.ParseBoolean() },
             { "RankSplit", (parser, x) => x.RankSplit = parser.ParseBoolean() },
             { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
@@ -105,7 +105,7 @@ namespace OpenSage.Logic.Object
         public bool UsePorcupineBody { get; private set; }
         public List<SplitHorde> SplitHordes { get; } = new List<SplitHorde>();
         public bool UseMarchingAnims { get; private set; }
-        public LocomotorSetCondition ForcedLocomotorSet { get; private set; }
+        public LocomotorSetType ForcedLocomotorSet { get; private set; }
         public bool UpdateWeaponSetFlagsOnHordeToo { get; private set; }
         public bool RankSplit { get; private set; }
         public int SplitHordeNumber { get; private set; }

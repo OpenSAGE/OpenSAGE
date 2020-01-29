@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TransportAIUpdate : AIUpdate
     {
-        internal TransportAIUpdate(TransportAIUpdateModuleData moduleData)
-            : base(moduleData)
+        internal TransportAIUpdate(GameObject gameObject, TransportAIUpdateModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
     }
@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
 
         internal override AIUpdate CreateAIUpdate(GameObject gameObject)
         {
-            return new TransportAIUpdate(this);
+            return new TransportAIUpdate(gameObject, this);
         }
     }
 }
