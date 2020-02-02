@@ -125,6 +125,7 @@ namespace OpenSage.Logic.Object
         public Team Team { get; set; }
 
         public bool IsSelectable { get; private set; }
+        public bool CanAttack { get; private set; }
 
         public bool IsSelected { get; set; }
         public Vector3? RallyPoint { get; set; }
@@ -238,6 +239,7 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
+            CanAttack = Definition.KindOf?.Get(ObjectKinds.CanAttack) ?? false;
             TargetPoints = new List<Vector3>();
 
             if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
@@ -596,9 +598,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        //TODO: make sure to play the correct voice event (e.g. VoiceMoveGroup etc.)
         public void OnLocalMove(AudioSystem gameAudio)
         {
             var audioEvent = Definition.VoiceMove?.Value;
+            if (audioEvent != null)
+            {
+                gameAudio.PlayAudioEvent(audioEvent);
+            }
+        }
+
+        //TODO: use the target to figure out which sound triggers
+        public void OnLocalAttack(AudioSystem gameAudio)
+        {
+            var audioEvent = Definition.VoiceAttack?.Value;
             if (audioEvent != null)
             {
                 gameAudio.PlayAudioEvent(audioEvent);

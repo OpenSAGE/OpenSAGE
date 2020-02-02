@@ -168,9 +168,18 @@ namespace OpenSage.Logic.Orders
 
         public static Order CreateAttackGround(int playerId, in Vector3 position)
         {
-            var order = new Order(playerId, OrderType.AttackGround);
+            var order = new Order(playerId, OrderType.ForceAttackGround);
 
             order.AddPositionArgument(position);
+
+            return order;
+        }
+
+        public static Order CreateAttackObject(int playerId, uint objectId, bool force)
+        {
+            var order = new Order(playerId, force ? OrderType.ForceAttackObject : OrderType.AttackObject);
+
+            order.AddObjectIdArgument(objectId);
 
             return order;
         }
