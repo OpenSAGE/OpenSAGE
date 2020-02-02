@@ -125,12 +125,31 @@ namespace OpenSage.Logic.Orders
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
-                    case OrderType.AttackGround:
+                    case OrderType.AttackObject:
+                    case OrderType.ForceAttackObject:
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                }
+                            }
+                        }
+                        break;
+
+                    case OrderType.ForceAttackGround:
                         {
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                }
                             }
                         }
                         break;

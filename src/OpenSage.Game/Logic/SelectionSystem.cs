@@ -46,7 +46,7 @@ namespace OpenSage.Logic
 
         public void OnHoverSelection(Point2D point)
         {
-            Game.Scene3D.LocalPlayer.HoveredUnit = FindClosestObject(point);
+            Game.Scene3D.LocalPlayer.HoveredUnit = FindClosestObject(point.ToVector2());
         }
 
         public void OnStartDragSelection(Point2D startPoint)
@@ -114,9 +114,9 @@ namespace OpenSage.Logic
             player.DeselectUnits();
         }
 
-        private GameObject FindClosestObject(Point2D point)
+        internal GameObject FindClosestObject(Vector2 point)
         {
-            var ray = Game.Scene3D.Camera.ScreenPointToRay(point.ToVector2());
+            var ray = Game.Scene3D.Camera.ScreenPointToRay(point);
 
             var closestDepth = float.MaxValue;
             GameObject closestObject = null;
@@ -140,7 +140,7 @@ namespace OpenSage.Logic
 
         private void SingleSelect()
         {
-            var closestObject = FindClosestObject(_startPoint);
+            var closestObject = FindClosestObject(_startPoint.ToVector2());
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));

@@ -436,6 +436,11 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
+                if (gameObject.Definition.Geometry is null)
+                {
+                    return;
+                }
+
                 var geometrySize = gameObject.Definition.Geometry.MajorRadius;
 
                 // Not sure if this is what IsSmall is actually for.
