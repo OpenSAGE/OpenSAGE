@@ -40,6 +40,7 @@ namespace OpenSage.Content.Translation
                 switch (language.ToLower())
                 {
                     case "german":
+                    case "german2":
                         cultureString = "de-DE";
                         break;
                     case "english":
