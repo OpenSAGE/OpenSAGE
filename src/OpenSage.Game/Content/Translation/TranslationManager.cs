@@ -43,6 +43,12 @@ namespace OpenSage.Content.Translation
                     case "german2":
                         cultureString = "de-DE";
                         break;
+                    // Special case for Generals: 
+                    // Generals does not distinct between Simplified Chinese (chinese_s) / Traditional Chinese (chinese_t)
+                    // It just assumes it's traditional
+                    case "chinese":
+                        cultureString = "zh-HK";
+                        break;
                     case "english":
                     default:
                         cultureString = "en-US";

@@ -21,7 +21,7 @@ namespace OpenSage.Content.Translation.Providers
             [Display("ja-JP")] Japanese,
             [Display("en-US")] Jabber,
             [Display("ko-KR")] Korean,
-            [Display("zh-CN")] ChineseSimplified,
+            [Display("zh-HK")] ChineseTraditional,
             [Display("pl-PL")] Polish = 12,
         }
         private enum LanguageBFME
