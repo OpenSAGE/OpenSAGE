@@ -9,7 +9,11 @@ namespace OpenSage.Content
     {
         private readonly Dictionary<FontKey, Font> _cachedFonts;
 
-        private const string FallbackSystemFont = "Arial";
+        // How Generals handles font fallback: https://github.com/OpenSAGE/OpenSAGE/issues/405
+        private string FallbackUnicodeFont => "Arial Unicode MS";
+        // According to what being seen in Generals, 
+        // the "fallback fallback font" is Times New Roman
+        private const string FallbackSystemFont = "Times New Roman";
         private const string FallbackEmbeddedFont = "Roboto";
 
         private readonly FontCollection _fallbackFonts;
@@ -42,8 +46,14 @@ namespace OpenSage.Content
 
                 if (!SystemFonts.TryFind(fontName, out _))
                 {
-                    // First try to load a fallback system font (Arial)
-                    if (SystemFonts.TryFind(FallbackSystemFont, out _))
+                    // https://github.com/OpenSAGE/OpenSAGE/issues/405
+                    // First try to load a unicode fallback font (e.g. Arial Unicode MS)
+                    if (SystemFonts.TryFind(FallbackUnicodeFont, out _))
+                    {
+                        fontName = FallbackUnicodeFont;
+                    }
+                    // Then try to load a fallback system font (Arial)
+                    else if (SystemFonts.TryFind(FallbackSystemFont, out _))
                     {
                         fontName = FallbackSystemFont;
                     }
