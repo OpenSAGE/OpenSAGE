@@ -1,4 +1,6 @@
-﻿using OpenSage.Content.Translation;
+﻿using System;
+using System.Text;
+using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics;
@@ -24,6 +26,8 @@ namespace OpenSage.Content
         public IniDataContext IniDataContext { get; }
 
         public ITranslationManager TranslationManager { get; }
+        // LocaleSpecificEncoding is Mainly used by "9x" ini files
+        public Encoding LocaleSpecificEncoding { get; private set; }
 
         public FontManager FontManager { get; }
 
@@ -46,6 +50,12 @@ namespace OpenSage.Content
                 SageGame = sageGame;
 
                 Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+
+                TranslationManager = Translation.TranslationManager.Instance;
+                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
+                LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
+                TranslationManager.LanguageChanged += 
+                    (sender, e) => throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
 
                 IniDataContext = new IniDataContext();
 
@@ -85,9 +95,6 @@ namespace OpenSage.Content
                         break;
                 }
 
-                TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
-
                 FontManager = new FontManager();
             }
         }
@@ -115,7 +122,7 @@ namespace OpenSage.Content
                     return;
                 }
 
-                var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext);
+                var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext, LocaleSpecificEncoding);
                 parser.ParseFile();
             }
         }
