@@ -54,7 +54,7 @@ namespace OpenSage.Content
                 TranslationManager = Translation.TranslationManager.Instance;
                 Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
-                TranslationManager.LanguageChanged += 
+                TranslationManager.LanguageChanged +=
                     (sender, e) => throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
 
                 IniDataContext = new IniDataContext();
@@ -95,7 +95,7 @@ namespace OpenSage.Content
                         break;
                 }
 
-                FontManager = new FontManager();
+                FontManager = new FontManager(Language, StringComparer.Create(TranslationManager.CurrentLanguage, true));
             }
         }
 
