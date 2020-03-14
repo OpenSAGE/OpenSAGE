@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -50,6 +51,8 @@ namespace OpenSage.Launcher
 
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             Target.Register<Core.InternalLogger>("OpenSage");
 
             Parser.Default.ParseArguments<Options>(args)
