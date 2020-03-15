@@ -51,7 +51,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="UserSettingsFiles\FontFallbackSettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Content\Fonts\FontFallbackSettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
