@@ -33,7 +33,7 @@ namespace OpenSage.Content
             using var fileSystem = new FileSystem(Environment.CurrentDirectory, assemblyFileSystem);
 
             var fontFallbackSettingsJson = "{}";
-            var fontFallbackSettingsEntry = fileSystem.GetFile("UserSettingsFiles/FontFallbackSettings.json");
+            var fontFallbackSettingsEntry = fileSystem.GetFile("Content/Fonts/FontFallbackSettings.json");
             if (fontFallbackSettingsEntry != null || true)
             {
                 Logger.Info($"FontFallback Settings loaded from {fontFallbackSettingsEntry.FullFilePath}");
