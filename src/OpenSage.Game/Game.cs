@@ -223,7 +223,13 @@ namespace OpenSage
 
         // Measures time when IsLogicRunning == true.
         // Is reset when the map changes.
+        // Used by local ticking objects (30hz)
         private readonly DeltaTimer _mapTimer;
+
+        // Measures time when IsLogicRunning == true.
+        // Is reset when the map changes.
+        // Used by ticking objects (5hz)
+        private readonly DeltaTimer _logicTimer;
 
         /// <summary>
         /// Used for RenderDoc integration
@@ -231,9 +237,14 @@ namespace OpenSage
         public static RenderDoc RenderDoc;
 
         /// <summary>
-        /// The amount of time the game has been in this map while running logic updates.
+        /// The amount of time the game has been in this map while running local logic updates.
         /// </summary>
         public TimeInterval MapTime { get; private set; }
+
+        /// <summary>
+        /// The amount of time the game has been in this map while running logic updates.
+        /// </summary>
+        public TimeInterval LogicTime { get; private set; }
 
         // Increments continuously.
         // Never stops, never resets.
@@ -366,6 +377,9 @@ namespace OpenSage
                 _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
 
+                _logicTimer = AddDisposable(new DeltaTimer());
+                _logicTimer.Start();
+
                 _renderTimer = AddDisposable(new DeltaTimer());
                 _renderTimer.Start();
 
@@ -445,6 +459,7 @@ namespace OpenSage
                 LauncherImage = LoadLauncherImage();
 
                 _mapTimer.Reset();
+                _logicTimer.Reset();
 
                 IsRunning = true;
                 IsLogicRunning = true;
@@ -675,6 +690,7 @@ namespace OpenSage
             // Reset everything, and run the first update on the first frame.
             CurrentFrame = 0;
             _mapTimer.Reset();
+            _logicTimer.Reset();
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
@@ -862,6 +878,9 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame)
         {
+            _logicTimer.Update();
+            LogicTime = _logicTimer.CurrentGameTime;
+
             NetworkMessageBuffer?.Tick();
 
             foreach (var gameSystem in GameSystems)
@@ -870,7 +889,7 @@ namespace OpenSage
             }
 
             // TODO: What is the order?
-            Scene3D?.LogicTick(frame, MapTime);
+            Scene3D?.LogicTick(frame, LogicTime);
 
             CurrentFrame += 1;
         }
