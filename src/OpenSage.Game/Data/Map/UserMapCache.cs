@@ -78,6 +78,9 @@ namespace OpenSage.Data.Map
 
             var fullMapCacheIniPath = Path.Combine(_contentManager.UserDataFileSystem.RootDirectory, MapCacheIniPath);
 
+            // Create the full path, user directory should already exist but the maps folder may not
+            Directory.CreateDirectory(Path.GetDirectoryName(fullMapCacheIniPath));
+
             GenerateMapCacheIniFile(fullMapCacheIniPath, mapCacheEntries);
 
             mapCacheIniEntry = new FileSystemEntry(
