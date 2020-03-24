@@ -1,4 +1,4 @@
-Contributing to OpenSAge
+Contributing to OpenSage
 ======================
 
 This document describes contribution guidelines that are specific to OpenSage. It closely matches the guidelines defined by the [C# standard library](https://github.com/dotnet/corefx) itself
