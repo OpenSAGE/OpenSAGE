@@ -21,7 +21,7 @@ namespace OpenSage.Content.Translation.Providers
             [Display("ja-JP")] Japanese,
             [Display("en-US")] Jabber,
             [Display("ko-KR")] Korean,
-            [Display("zh-HK")] ChineseTraditional,
+            [Display("zh-Hant")] ChineseTraditional,
             [Display("pl-PL")] Polish = 12,
         }
         private enum LanguageBFME
@@ -34,7 +34,7 @@ namespace OpenSage.Content.Translation.Providers
             [Display("nl-NL")] Dutch,
             [Display("pl-PL")] Polish = 11,
             [Display("nb-NO")] Norwegan,
-            [Display("zh-HK")] ChineseTraditional,
+            [Display("zh-Hant")] ChineseTraditional,
             [Display("ru-RU")] Russian = 17
         }
         private enum LanguageCnC3
@@ -51,8 +51,8 @@ namespace OpenSage.Content.Translation.Providers
             [Display("hu-HU")] Hungarian = 15,
             [Display("ru-RU")] Russian = 17,
             [Display("cs-CZ")] Czech = 19,
-            [Display("zh-CN")] ChineseSimplified = 21,
-            [Display("zh-HK")] ChineseTraditional
+            [Display("zh-Hans")] ChineseSimplified = 21,
+            [Display("zh-Hant")] ChineseTraditional
         }
         // Note: CnC3 only uses language code for the launcher's csf
         // Note: RA3 and CnC4 doesn't use language codes at all
