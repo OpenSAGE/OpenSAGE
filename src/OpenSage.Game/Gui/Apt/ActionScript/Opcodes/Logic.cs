@@ -41,9 +41,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.LessThan2;
 
+        //Should work according to ECMA-262 Section 11.8.5
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var arg1 = context.Stack.Pop().ToFloat();
+            var arg2 = context.Stack.Pop().ToFloat();
+
+            if (double.IsNaN(arg1) || double.IsNaN(arg2))
+            {
+                context.Stack.Push(Value.Undefined());
+            }
+            else
+            {
+                bool result = arg2 < arg1;
+                context.Stack.Push(Value.FromBoolean(result));
+            }
         }
     }
 

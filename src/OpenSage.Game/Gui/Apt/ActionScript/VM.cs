@@ -137,7 +137,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             var stream = new InstructionStream(code);
 
             var instr = stream.GetInstruction();
-            var context = new ActionContext()
+            var context = new ActionContext(4)
             {
                 Global = GlobalObject,
                 Scope = scope,
