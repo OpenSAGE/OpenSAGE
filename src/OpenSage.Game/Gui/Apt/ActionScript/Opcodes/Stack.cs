@@ -240,7 +240,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             // TODO: check if this is correct
             var name = context.Stack.Pop();
-            context.Scope.Variables.Add(name.ToString(), Value.FromInteger(0));
+            context.Scope.Variables[name.ToString()] = Value.FromInteger(0);
         }
     }
 

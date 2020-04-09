@@ -47,7 +47,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the member name
             var memberName = context.Stack.Pop().ResolveRegister(context).ToString();
             //pop the object
-            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
+            var p = context.Stack.Pop();
+            var obj = p.ResolveRegister(context).ToObject();
 
 
             if (obj.IsBuiltInVariable(memberName))

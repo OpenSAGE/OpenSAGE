@@ -15,6 +15,11 @@ namespace OpenSage.Mods.Bfme.Gui
             shape.Texture = game.GetMappedImage("LogoWithShadow").Texture.Value;
         }
 
+        public static void StopGameMovie(string param, ActionContext context, AptWindow window, Game game)
+        {
+            //TODO: somehow pause the playback
+        }
+
         // Close the game
         public static void ExitGame(string param, ActionContext context, AptWindow window, Game game)
         {
