@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
@@ -63,7 +64,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
                 ["stop"] = (actx, ctx, args) => Stop(ctx),
                 ["clearInterval"] = ClearInterval,
-                ["setInterval"] = SetInterval
+                ["setInterval"] = SetInterval,
+                ["loadMovie"] = LoadMovie,
+                // Global constructors / functions
+                ["Boolean"] = BoolFunc
             };
         }
 
@@ -178,6 +182,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             }
         }
 
+        private static void LoadMovie(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        {
+            var url = Path.ChangeExtension(args[0].ToString(),".apt");
+            var window = actionContext.Apt.Window.Manager.Game.LoadAptWindow(url);
+
+            actionContext.Apt.Window.Manager.QueryPush(window);
+        }
+
         private static void SetInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
         {
             var vm = actionContext.Apt.Avm;
@@ -195,6 +207,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
             vm.ClearInterval(name);
             ctx.Variables.Remove(name);
+        }
+
+        private static void BoolFunc(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        {
+            var result = Value.FromBoolean(args[0].ToBoolean());
+            actionContext.Stack.Push(result);
         }
     }
 }
