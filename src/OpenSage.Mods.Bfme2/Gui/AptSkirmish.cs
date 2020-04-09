@@ -17,5 +17,10 @@ namespace OpenSage.Mods.Bfme2.Gui
 
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
+
+        public static void DisableComponents(string param, ActionContext context, AptWindow window, Game game)
+        {
+            //TODO: no idea
+        }
     }
 }

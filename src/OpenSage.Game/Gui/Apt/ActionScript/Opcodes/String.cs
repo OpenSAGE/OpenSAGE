@@ -33,9 +33,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var a = context.Stack.Pop();
             var b = context.Stack.Pop();
 
-            if (a.Type != ValueType.String || b.Type != ValueType.String)
-                throw new InvalidOperationException();
-
             context.Stack.Push(Value.FromBoolean(b.ToString() == a.ToString()));
         }
     }

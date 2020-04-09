@@ -26,6 +26,16 @@ namespace OpenSage.Mods.Bfme.Gui
             game.Window.Close();
         }
 
+        public static void MultiplayerButtonPressed(string param, ActionContext context, AptWindow window, Game game)
+        {
+            //TODO: do something
+        }
+
+        public static void BattleSchool(string param, ActionContext context, AptWindow window, Game game)
+        {
+            //TODO: do something
+        }
+
         public static void ResetResolution(string param, ActionContext context, AptWindow window, Game game)
         {
             // Probably used for debug purposes

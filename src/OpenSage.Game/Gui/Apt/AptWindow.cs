@@ -28,6 +28,7 @@ namespace OpenSage.Gui.Apt
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
         public ContentManager ContentManager { get; }
+        public AptWindowManager Manager { get; set; }
         internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
 

@@ -48,15 +48,15 @@ namespace OpenSage.Gui.Apt.ActionScript
                 throw new InvalidOperationException();
 
             Value result;
-
-            var entry = context.Apt.Constants.Entries[_number];
+            
+            var entry = context.Scope.Item.Character.Container.Constants.Entries[_number];
             switch (entry.Type)
             {
                 case ConstantEntryType.String:
-                    result = Value.FromString((string) entry.Value);
+                    result = FromString((string) entry.Value);
                     break;
                 case ConstantEntryType.Register:
-                    result = Value.FromRegister((uint) entry.Value);
+                    result = FromRegister((uint) entry.Value);
                     break;
                 default:
                     throw new NotImplementedException();

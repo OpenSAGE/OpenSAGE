@@ -47,6 +47,20 @@ namespace OpenSage.Mods.Bfme2.Gui
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
+        public static void LAN(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
+
+        public static void Credits(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
+
         public static void OnTutorial(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Skirmish.apt");

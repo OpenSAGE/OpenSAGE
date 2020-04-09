@@ -16,7 +16,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args[i] = context.Stack.Pop();
+                args[i] = context.Stack.Pop().ResolveRegister(context);
             }
 
             return args;
@@ -292,7 +292,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var funcName = context.Stack.Pop().ToString();
+            var args = FunctionCommon.GetArgumentsFromStack(context);
+
+            FunctionCommon.ExecuteFunction(funcName, args, context.Global, context);
         }
     }
 
@@ -326,6 +329,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+
+            var result = context.Stack.Pop();
+            var varName = context.Stack.Pop();
+            context.Locals[varName.ToString()] = result;
         }
     }
 

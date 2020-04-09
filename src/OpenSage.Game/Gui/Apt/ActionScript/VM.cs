@@ -121,7 +121,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr.Execute(context);
 
                 if (context.Return)
-                    return context.Stack.Pop();
+                    return context.Stack.Pop().ResolveRegister(context);
 
                 if (stream.IsFinished())
                     break;
@@ -142,7 +142,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Global = GlobalObject,
                 Scope = scope,
                 Apt = scope.Item.Context,
-                Stream = stream
+                Stream = stream,
             };
 
             while (instr.Type != InstructionType.End)
