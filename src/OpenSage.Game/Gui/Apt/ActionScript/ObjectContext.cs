@@ -65,6 +65,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return result;
             }
 
+
             logger.Warn($"[WARN] Undefined variable: {name}");
             return Value.Undefined();
         }
