@@ -14,10 +14,12 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "LanLobbyMenu.wnd:ButtonBack":
+                            context.Game.LobbyScanSession.Stop();
                             context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
+                            context.Game.LobbyScanSession.Stop();
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
@@ -29,6 +31,17 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     break;
             }
+        }
+
+        private static void LanLobbyAdd(object sender, Network.LobbyScanSession.LobbyScannedEventArgs args)
+        {
+            //TODO: add new lobby
+        }
+
+        public static void LanLobbyMenuInit(Window window, Game game)
+        {
+            game.LobbyScanSession.LobbyDetected += LanLobbyAdd;
+            game.LobbyScanSession.Start();
         }
     }
 }
