@@ -19,6 +19,7 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
+                                context.Game.LobbyHostSession.Stop();
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 // TODO: Go back to Single Player sub-menu
                                 break;
@@ -31,6 +32,7 @@ namespace OpenSage.Mods.Generals.Gui
         public static void LanGameOptionsMenuInit(Window window, Game game)
         {
             GameOptions = new GameOptionsUtil(window, game, "Lan");
+            game.LobbyHostSession.Start();
         }
     }
 }

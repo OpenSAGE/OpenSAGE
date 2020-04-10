@@ -55,6 +55,9 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
+
+        public LobbyHostSession LobbyHostSession { get; }
+        public LobbyScanSession LobbyScanSession { get; }
         
         internal List<GameSystem> GameSystems { get; }
 
@@ -446,6 +449,9 @@ namespace OpenSage
 
                 _mapTimer.Reset();
 
+                LobbyHostSession = new LobbyHostSession();
+                LobbyScanSession = new LobbyScanSession();
+
                 IsRunning = true;
                 IsLogicRunning = true;
             }
@@ -557,6 +563,7 @@ namespace OpenSage
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
             var aptFile = AptFile.FromFileSystemEntry(entry);
             return new AptWindow(this, ContentManager, aptFile);
+
         }
 
         private void StartGame(
@@ -691,6 +698,11 @@ namespace OpenSage
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
             StartSinglePlayerGame(firstMission.Map);
+        }
+
+        public void HostSkirmishGame()
+        {
+
         }
 
         public void StartMultiPlayerGame(
