@@ -253,7 +253,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Stack.Push(Value.FromObject(context.Global));
+            context.Stack.Push(Value.FromObject(context.Apt.Avm.ExternObject));
         }
     }
 

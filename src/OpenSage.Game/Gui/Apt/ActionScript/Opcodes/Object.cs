@@ -110,7 +110,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             //pop the value
             var variableName = context.Stack.Pop();
-            var variable = context.Scope.Variables[variableName.ToString()];
+            Value variable = Value.Undefined();
+            if(context.Scope.Variables.ContainsKey(variableName.ToString()))
+            {
+                variable = context.Scope.Variables[variableName.ToString()];
+            }
+
             context.Stack.Push(variable);
         }
     }
