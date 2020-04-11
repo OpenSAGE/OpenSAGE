@@ -18,15 +18,25 @@ namespace OpenSage.Network
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private Game _game;
 
-        public class LobbyScannedEventArgs : EventArgs
+        public class LobbyGameScannedEventArgs : EventArgs
         {
             public IPEndPoint Host { get; set; }
             public string Name { get; set; }
             public string Map { get; set; }
         }
 
-        public delegate void LobbyScannedEventHandler(Object sender, LobbyScannedEventArgs e);
-        public event LobbyScannedEventHandler LobbyDetected;
+        public delegate void LobbyGameScannedEventHandler(object sender, LobbyGameScannedEventArgs e);
+        public event LobbyGameScannedEventHandler LobbyGameDetected;
+
+        public class LobbyPlayerScannedEventArgs : EventArgs
+        {
+            public IPEndPoint Host { get; set; }
+            public string Name { get; set; }
+            public string Map { get; set; }
+        }
+
+        public delegate void LobbyPlayerScannedEventHandler(object sender, LobbyPlayerScannedEventArgs e);
+        public event LobbyPlayerScannedEventHandler LobbyPlayerDetected;
 
         public LobbyScanSession(Game game)
         {
@@ -89,7 +99,7 @@ namespace OpenSage.Network
                 if (response.Host)
                 {
                     // Add the game to our lobby
-                    var lobbyGame = new LobbyBrowser.LobbyGame();
+                    var lobbyGame = new LobbyManager.LobbyGame();
                     lobbyGame.Name = response.Name;
 
                     if (!_game.LobbyBrowser.Games.ContainsKey(result.RemoteEndPoint))
@@ -98,21 +108,26 @@ namespace OpenSage.Network
                     }
 
                     // Fire event
-                    var args = new LobbyScannedEventArgs();
+                    var args = new LobbyGameScannedEventArgs();
                     args.Host = result.RemoteEndPoint;
                     args.Name = response.Name;
-                    LobbyDetected?.Invoke(this, args);
+                    LobbyGameDetected?.Invoke(this, args);
                 }
                 else if (!response.InLobby)
                 {
                     // Add the game to our lobby
-                    var lobbyPlayer = new LobbyBrowser.LobbyPlayer();
+                    var lobbyPlayer = new LobbyManager.LobbyPlayer();
                     lobbyPlayer.Name = response.Name;
 
                     if (!_game.LobbyBrowser.Players.ContainsKey(result.RemoteEndPoint))
                     {
                         _game.LobbyBrowser.Players.Add(result.RemoteEndPoint, lobbyPlayer);
                     }
+
+                    // Fire event
+                    var args = new LobbyPlayerScannedEventArgs();
+                    args.Host = result.RemoteEndPoint;
+                    LobbyPlayerDetected?.Invoke(this, args);
                 }
             }
         }

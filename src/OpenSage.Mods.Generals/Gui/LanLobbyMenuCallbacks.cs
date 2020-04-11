@@ -51,7 +51,13 @@ namespace OpenSage.Mods.Generals.Gui
             context.Game.LobbyBroadcastSession.Stop();
         }
 
-        private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyScannedEventArgs args)
+        private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyGameScannedEventArgs args)
+        {
+            //TODO: add new lobby
+            _game.LobbyBrowser.Updated = true;
+        }
+
+        private static void LanLobbyPlayerAdd(object sender, Network.LobbyScanSession.LobbyPlayerScannedEventArgs args)
         {
             //TODO: add new lobby
             _game.LobbyBrowser.Updated = true;
@@ -111,7 +117,9 @@ namespace OpenSage.Mods.Generals.Gui
             var buttonClear = (Button) _window.Controls.FindControl(ButtonClearPrefix);
             buttonClear.Click += ClearPlayerName;
 
-            game.LobbyScanSession.LobbyDetected += LanLobbyGameAdd;
+            game.LobbyScanSession.LobbyGameDetected += LanLobbyGameAdd;
+            game.LobbyScanSession.LobbyPlayerDetected += LanLobbyPlayerAdd;
+
             game.LobbyScanSession.Start();
             game.LobbyBroadcastSession.Start();
         }
