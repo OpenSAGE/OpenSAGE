@@ -5,7 +5,7 @@ using System.Net;
 
 namespace OpenSage.Network
 {
-    public class LobbyBrowser
+    public class LobbyManager
     {
         public struct LobbyPlayer
         {
@@ -27,7 +27,7 @@ namespace OpenSage.Network
         public bool InLobby { get; set; }
         public bool Hosting { get; set; }
 
-        public LobbyBrowser()
+        public LobbyManager()
         {
             Games = new Dictionary<IPEndPoint, LobbyGame>();
             Players = new Dictionary<IPEndPoint, LobbyPlayer>();
