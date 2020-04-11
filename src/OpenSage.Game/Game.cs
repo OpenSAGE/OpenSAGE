@@ -56,7 +56,7 @@ namespace OpenSage
 
         public InputMessageBuffer InputMessageBuffer { get; }
 
-        public LobbyHostSession LobbyHostSession { get; }
+        public LobbyBroadcastSession LobbyBroadcastSession { get; }
         public LobbyScanSession LobbyScanSession { get; }
         public LobbyBrowser LobbyBrowser { get; }
 
@@ -451,7 +451,7 @@ namespace OpenSage
                 _mapTimer.Reset();
 
                 LobbyBrowser = new LobbyBrowser();
-                LobbyHostSession = new LobbyHostSession(this);
+                LobbyBroadcastSession = new LobbyBroadcastSession(this);
                 LobbyScanSession = new LobbyScanSession(this);
 
                 IsRunning = true;
