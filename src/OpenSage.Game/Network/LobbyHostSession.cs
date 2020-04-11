@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using ProtoBuf;
 
 namespace OpenSage.Network
 {
@@ -13,14 +15,15 @@ namespace OpenSage.Network
         private CancellationTokenSource _cancelTokenSource;
         private CancellationToken _cancelToken;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private Game _game;
 
 
-        public LobbyHostSession()
+        public LobbyHostSession(Game game)
         {
             _sock = AddDisposable(new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp));
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
             _broadcastAddr = new IPEndPoint(IPAddress.Broadcast, Ports.LobbyScan);
-
+            _game = game;
         }
 
         public async void Start()
@@ -47,9 +50,18 @@ namespace OpenSage.Network
 
         private void Broadcast()
         {
-            byte[] data = Encoding.ASCII.GetBytes("langame");
-            _sock.SendTo(data, _broadcastAddr);
-            logger.Info("Sending broadcast!");
+            var broadcast = new LobbyProtocol.LobbyBroadcast();
+            broadcast.Name = _game.LobbyBrowser.Username;
+
+            var formatter = new BinaryFormatter();
+            using (var output = new MemoryStream())
+            //using (var compress = new BrotliStream(output, CompressionMode.Compress))
+            {
+                Serializer.Serialize(output, broadcast);
+                byte[] data = output.ToArray();
+                _sock.SendTo(data, _broadcastAddr);
+                logger.Info("Sending broadcast!");
+            }
         }
 
     }

@@ -58,7 +58,8 @@ namespace OpenSage
 
         public LobbyHostSession LobbyHostSession { get; }
         public LobbyScanSession LobbyScanSession { get; }
-        
+        public LobbyBrowser LobbyBrowser { get; }
+
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
@@ -449,8 +450,9 @@ namespace OpenSage
 
                 _mapTimer.Reset();
 
-                LobbyHostSession = new LobbyHostSession();
-                LobbyScanSession = new LobbyScanSession();
+                LobbyBrowser = new LobbyBrowser();
+                LobbyHostSession = new LobbyHostSession(this);
+                LobbyScanSession = new LobbyScanSession(this);
 
                 IsRunning = true;
                 IsLogicRunning = true;
