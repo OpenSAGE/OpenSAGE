@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ProtoBuf;
@@ -69,26 +70,50 @@ namespace OpenSage.Network
 
         private void ProcessReceive(UdpReceiveResult result)
         {
+            // Check if is localhost
+            if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
+                result.RemoteEndPoint.Address.Equals(_game.LobbyBrowser.Self))
+            {
+                logger.Info($"Skipping: Received broadcast from localhost");
+                return;
+            }
+
             byte[] receiveBytes = result.Buffer;
-            using(var receiveStream = new MemoryStream(receiveBytes))
+            string ascii = Encoding.UTF32.GetString(receiveBytes);
+            using (var receiveStream = new MemoryStream(receiveBytes))
             {
                 // Deserialize response
                 var response = Serializer.Deserialize<LobbyProtocol.LobbyBroadcast>(receiveStream);
                 logger.Info($"Received broadcast from: {response.Name}");
-                LobbyScannedEventArgs args = new LobbyScannedEventArgs();
-                args.Host = result.RemoteEndPoint;
-                args.Name = response.Name;
 
-                // Add the game to our lobby
-                var lobbyGame = new LobbyBrowser.LobbyGame();
-                lobbyGame.Name = args.Name;
-
-                if (!_game.LobbyBrowser.Games.ContainsKey(result.RemoteEndPoint))
+                if (response.Host)
                 {
-                    _game.LobbyBrowser.Games.Add(result.RemoteEndPoint, lobbyGame);
-                }
+                    // Add the game to our lobby
+                    var lobbyGame = new LobbyBrowser.LobbyGame();
+                    lobbyGame.Name = response.Name;
 
-                LobbyDetected?.Invoke(this, args);
+                    if (!_game.LobbyBrowser.Games.ContainsKey(result.RemoteEndPoint))
+                    {
+                        _game.LobbyBrowser.Games.Add(result.RemoteEndPoint, lobbyGame);
+                    }
+
+                    // Fire event
+                    var args = new LobbyScannedEventArgs();
+                    args.Host = result.RemoteEndPoint;
+                    args.Name = response.Name;
+                    LobbyDetected?.Invoke(this, args);
+                }
+                else if (!response.InLobby)
+                {
+                    // Add the game to our lobby
+                    var lobbyPlayer = new LobbyBrowser.LobbyPlayer();
+                    lobbyPlayer.Name = response.Name;
+
+                    if (!_game.LobbyBrowser.Players.ContainsKey(result.RemoteEndPoint))
+                    {
+                        _game.LobbyBrowser.Players.Add(result.RemoteEndPoint, lobbyPlayer);
+                    }
+                }
             }
         }
     }
