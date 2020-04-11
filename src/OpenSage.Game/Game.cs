@@ -58,7 +58,7 @@ namespace OpenSage
 
         public LobbyBroadcastSession LobbyBroadcastSession { get; }
         public LobbyScanSession LobbyScanSession { get; }
-        public LobbyBrowser LobbyBrowser { get; }
+        public LobbyManager LobbyBrowser { get; }
 
         internal List<GameSystem> GameSystems { get; }
 
@@ -450,7 +450,7 @@ namespace OpenSage
 
                 _mapTimer.Reset();
 
-                LobbyBrowser = new LobbyBrowser();
+                LobbyBrowser = new LobbyManager();
                 LobbyBroadcastSession = new LobbyBroadcastSession(this);
                 LobbyScanSession = new LobbyScanSession(this);
 
