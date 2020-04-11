@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.6" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
@@ -31,6 +32,11 @@
     <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Network\Protocol\lobby.proto" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <EmbeddedResource Include="Content\Fonts\*.ttf" />
