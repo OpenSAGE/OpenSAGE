@@ -8,7 +8,7 @@ using ProtoBuf;
 
 namespace OpenSage.Network
 {
-    public class LobbyHostSession : DisposableBase
+    public class LobbyBroadcastSession : DisposableBase
     {
         private Socket _sock;
         private IPEndPoint _broadcastAddr;
@@ -17,8 +17,7 @@ namespace OpenSage.Network
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private Game _game;
 
-
-        public LobbyHostSession(Game game)
+        public LobbyBroadcastSession(Game game)
         {
             _sock = AddDisposable(new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp));
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
@@ -52,6 +51,8 @@ namespace OpenSage.Network
         {
             var broadcast = new LobbyProtocol.LobbyBroadcast();
             broadcast.Name = _game.LobbyBrowser.Username;
+            broadcast.Host = _game.LobbyBrowser.Hosting;
+            broadcast.InLobby = _game.LobbyBrowser.InLobby;
 
             var formatter = new BinaryFormatter();
             using (var output = new MemoryStream())

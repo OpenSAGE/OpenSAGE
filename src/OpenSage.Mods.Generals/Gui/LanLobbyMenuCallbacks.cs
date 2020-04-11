@@ -29,10 +29,12 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
-                            LeaveLobby(context);
+                            context.Game.LobbyBrowser.Hosting = true;
+                            context.Game.LobbyBrowser.InLobby = true;
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
+                            context.Game.LobbyBrowser.InLobby = true;
                             // TODO: Connect to the currently selected game
                             break;
                         case "LanLobbyMenu.wnd:ButtonDirectConnect":
@@ -46,6 +48,7 @@ namespace OpenSage.Mods.Generals.Gui
         private static void LeaveLobby(ControlCallbackContext context)
         {
             context.Game.LobbyScanSession.Stop();
+            context.Game.LobbyBroadcastSession.Stop();
         }
 
         private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyScannedEventArgs args)
@@ -79,7 +82,7 @@ namespace OpenSage.Mods.Generals.Gui
             items.Add(new ListBoxDataItem(game.LobbyBrowser.Username, new[] { game.LobbyBrowser.Username }, listBoxGames.TextColor));
             foreach (var lobbyPlayer in game.LobbyBrowser.Players)
             {
-                items.Add(new ListBoxDataItem(lobbyPlayer, new[] { lobbyPlayer.Name }, listBoxGames.TextColor));
+                items.Add(new ListBoxDataItem(lobbyPlayer, new[] { lobbyPlayer.Value.Name }, listBoxGames.TextColor));
             }
 
             listBoxPlayers.Items = items.ToArray();
@@ -110,6 +113,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             game.LobbyScanSession.LobbyDetected += LanLobbyGameAdd;
             game.LobbyScanSession.Start();
+            game.LobbyBroadcastSession.Start();
         }
     }
 }
