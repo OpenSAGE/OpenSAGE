@@ -6,6 +6,9 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     public static class NetworkDirectConnectCallbacks
     {
+        private const string StaticLocalIPPrefix = "NetworkDirectConnect.wnd:StaticLocalIP";
+        private const string EditPlayerNamePrefix = "NetworkDirectConnect.wnd:EditPlayerName";
+
         public static void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
@@ -26,6 +29,17 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     break;
             }
+        }
+
+        public static void NetworkDirectConnectInit(Window window, Game game)
+        {
+            // Initialize player name
+            var editPlayerName = (TextBox) window.Controls.FindControl(EditPlayerNamePrefix);
+            editPlayerName.Text = game.LobbyBrowser.Username;
+
+            // Initialize local ip
+            var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
+            staticLocalIp.Text = game.LobbyBrowser.Self.ToString();
         }
     }
 }
