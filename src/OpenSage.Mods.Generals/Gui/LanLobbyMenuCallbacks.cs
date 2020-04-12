@@ -47,8 +47,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void LeaveLobby(ControlCallbackContext context)
         {
-            context.Game.LobbyScanSession.Stop();
             context.Game.LobbyBroadcastSession.Stop();
+            context.Game.LobbyScanSession.Stop();
         }
 
         private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyGameScannedEventArgs args)
@@ -122,6 +122,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             game.LobbyScanSession.Start();
             game.LobbyBroadcastSession.Start();
+            game.LobbyBrowser.Updated = true;
         }
     }
 }

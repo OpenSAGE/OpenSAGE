@@ -17,6 +17,7 @@ namespace OpenSage.Network
         private CancellationToken _cancelToken;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private Game _game;
+        private bool _running;
 
         public class LobbyGameScannedEventArgs : EventArgs
         {
@@ -45,10 +46,16 @@ namespace OpenSage.Network
             _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _client.ExclusiveAddressUse = false;
             _game = game;
+            _running = false;
         }
 
         public async void Start()
         {
+            if (_running)
+            {
+                return;
+            }
+            _running = true;
             _client.Client.Bind(_receiveEp);
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;
@@ -74,27 +81,30 @@ namespace OpenSage.Network
         public void Stop()
         {
             _cancelTokenSource.Cancel();
-            _client.Close();
-
+            _client.Client.Close();
+            _running = false;
         }
 
         private void ProcessReceive(UdpReceiveResult result)
         {
-            // Check if is localhost
-            if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
-                result.RemoteEndPoint.Address.Equals(_game.LobbyBrowser.Self))
-            {
-                logger.Info($"Skipping: Received broadcast from localhost");
-                return;
-            }
-
             byte[] receiveBytes = result.Buffer;
             string ascii = Encoding.UTF32.GetString(receiveBytes);
             using (var receiveStream = new MemoryStream(receiveBytes))
             {
                 // Deserialize response
                 var response = Serializer.Deserialize<LobbyProtocol.LobbyBroadcast>(receiveStream);
-                logger.Info($"Received broadcast from: {response.Name}");
+
+                // Check if is localhost
+                if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
+                    result.RemoteEndPoint.Address.Equals(_game.LobbyBrowser.Self))
+                {
+                    logger.Info($"Skipping: Received broadcast from localhost");
+                    return;
+                }
+                else
+                {
+                    logger.Info($"Received broadcast from: {response.Name}");
+                }
 
                 if (response.Host)
                 {

@@ -16,17 +16,27 @@ namespace OpenSage.Network
         private CancellationToken _cancelToken;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private Game _game;
+        private bool _running;
 
         public LobbyBroadcastSession(Game game)
         {
             _sock = AddDisposable(new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp));
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+            _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
             _broadcastAddr = new IPEndPoint(IPAddress.Broadcast, Ports.LobbyScan);
             _game = game;
+            _running = false;
         }
 
         public async void Start()
         {
+            if(_running)
+            {
+                return;
+            }
+
+            _running = true;
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;
 
@@ -35,15 +45,22 @@ namespace OpenSage.Network
                 while (true)
                 {
                     Broadcast();
-                    await Task.Delay(1000, _cancelToken);
-                    if (_cancelToken.IsCancellationRequested)
+                    try
+                    {
+                        await Task.Delay(1000, _cancelToken);
+                    }
+                    catch(TaskCanceledException e)
+                    {
                         break;
+                    }
                 }
             });
         }
 
         public void Stop()
         {
+            _running = true;
+            _sock.Close();
             _cancelTokenSource.Cancel();
         }
 
