@@ -96,7 +96,7 @@ namespace OpenSage.Network
 
                 // Check if is localhost
                 if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
-                    result.RemoteEndPoint.Address.Equals(_game.LobbyBrowser.Self))
+                    result.RemoteEndPoint.Address.Equals(_game.LobbyManager.LocalIPAdress))
                 {
                     logger.Info($"Skipping: Received broadcast from localhost");
                     return;
@@ -112,9 +112,9 @@ namespace OpenSage.Network
                     var lobbyGame = new LobbyManager.LobbyGame();
                     lobbyGame.Name = response.Name;
 
-                    if (!_game.LobbyBrowser.Games.ContainsKey(result.RemoteEndPoint))
+                    if (!_game.LobbyManager.Games.ContainsKey(result.RemoteEndPoint))
                     {
-                        _game.LobbyBrowser.Games.Add(result.RemoteEndPoint, lobbyGame);
+                        _game.LobbyManager.Games.Add(result.RemoteEndPoint, lobbyGame);
                     }
 
                     // Fire event
@@ -129,9 +129,9 @@ namespace OpenSage.Network
                     var lobbyPlayer = new LobbyManager.LobbyPlayer();
                     lobbyPlayer.Name = response.Name;
 
-                    if (!_game.LobbyBrowser.Players.ContainsKey(result.RemoteEndPoint))
+                    if (!_game.LobbyManager.Players.ContainsKey(result.RemoteEndPoint))
                     {
-                        _game.LobbyBrowser.Players.Add(result.RemoteEndPoint, lobbyPlayer);
+                        _game.LobbyManager.Players.Add(result.RemoteEndPoint, lobbyPlayer);
                     }
 
                     // Fire event
