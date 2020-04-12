@@ -21,7 +21,7 @@ namespace OpenSage.Network
         public Dictionary<IPEndPoint, LobbyPlayer> Players { get; }
 
         public string Username { get; set; }
-        public IPAddress Self { get; set; }
+        public IPAddress LocalIPAdress { get; set; }
 
         public bool Updated { get; set; }
         public bool InLobby { get; set; }
@@ -35,7 +35,8 @@ namespace OpenSage.Network
             InLobby = false;
             Hosting = false;
             Updated = true;
-            Self = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            var selfAdresses = Dns.GetHostAddresses(Dns.GetHostName());
+            LocalIPAdress = selfAdresses.FirstOrDefault(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
         }
     }
 }

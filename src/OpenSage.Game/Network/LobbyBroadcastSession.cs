@@ -67,9 +67,9 @@ namespace OpenSage.Network
         private void Broadcast()
         {
             var broadcast = new LobbyProtocol.LobbyBroadcast();
-            broadcast.Name = _game.LobbyBrowser.Username;
-            broadcast.Host = _game.LobbyBrowser.Hosting;
-            broadcast.InLobby = _game.LobbyBrowser.InLobby;
+            broadcast.Name = _game.LobbyManager.Username;
+            broadcast.Host = _game.LobbyManager.Hosting;
+            broadcast.InLobby = _game.LobbyManager.InLobby;
 
             var formatter = new BinaryFormatter();
             using (var output = new MemoryStream())

@@ -18,8 +18,8 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
-                                context.Game.LobbyBrowser.Hosting = false;
-                                context.Game.LobbyBrowser.InLobby = false;
+                                context.Game.LobbyManager.Hosting = false;
+                                context.Game.LobbyManager.InLobby = false;
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 // TODO: Go back to Single Player sub-menu
                                 break;
