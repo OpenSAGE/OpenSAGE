@@ -29,12 +29,12 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
-                            context.Game.LobbyBrowser.Hosting = true;
-                            context.Game.LobbyBrowser.InLobby = true;
+                            context.Game.LobbyManager.Hosting = true;
+                            context.Game.LobbyManager.InLobby = true;
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
-                            context.Game.LobbyBrowser.InLobby = true;
+                            context.Game.LobbyManager.InLobby = true;
                             // TODO: Connect to the currently selected game
                             break;
                         case "LanLobbyMenu.wnd:ButtonDirectConnect":
@@ -53,19 +53,19 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyGameScannedEventArgs args)
         {
-            //TODO: add new lobby
-            _game.LobbyBrowser.Updated = true;
+            _game.LobbyManager.Players.Remove(args.Host);
+            _game.LobbyManager.Updated = true;
         }
 
         private static void LanLobbyPlayerAdd(object sender, Network.LobbyScanSession.LobbyPlayerScannedEventArgs args)
         {
-            //TODO: add new lobby
-            _game.LobbyBrowser.Updated = true;
+            _game.LobbyManager.Games.Remove(args.Host);
+            _game.LobbyManager.Updated = true;
         }
 
         public static void LanLobbyMenuUpdate(Window window, Game game)
         {
-            if(!_game.LobbyBrowser.Updated)
+            if(!_game.LobbyManager.Updated)
             {
                 return;
             }
@@ -74,7 +74,7 @@ namespace OpenSage.Mods.Generals.Gui
             var listBoxGames = (ListBox) window.Controls.FindControl(ListBoxGamesPrefix);
             var items = new List<ListBoxDataItem>();
 
-            foreach (var lobbyGame in game.LobbyBrowser.Games)
+            foreach (var lobbyGame in game.LobbyManager.Games)
             {
                 items.Add(new ListBoxDataItem(lobbyGame, new[] { lobbyGame.Value.Name }, listBoxGames.TextColor));
             }
@@ -85,14 +85,14 @@ namespace OpenSage.Mods.Generals.Gui
             var listBoxPlayers = (ListBox) window.Controls.FindControl(ListBoxPlayersPrefix);
             items = new List<ListBoxDataItem>();
 
-            items.Add(new ListBoxDataItem(game.LobbyBrowser.Username, new[] { game.LobbyBrowser.Username }, listBoxGames.TextColor));
-            foreach (var lobbyPlayer in game.LobbyBrowser.Players)
+            items.Add(new ListBoxDataItem(game.LobbyManager.Username, new[] { game.LobbyManager.Username }, listBoxGames.TextColor));
+            foreach (var lobbyPlayer in game.LobbyManager.Players)
             {
                 items.Add(new ListBoxDataItem(lobbyPlayer, new[] { lobbyPlayer.Value.Name }, listBoxGames.TextColor));
             }
 
             listBoxPlayers.Items = items.ToArray();
-            game.LobbyBrowser.Updated = false;
+            game.LobbyManager.Updated = false;
         }
 
         private static void ClearPlayerName(object sender, EventArgs args)
@@ -100,8 +100,8 @@ namespace OpenSage.Mods.Generals.Gui
             var buttonClear = (Button) sender;
             var textEditPlayerName = (TextBox) buttonClear.Parent.Controls.FindControl(TextEntryPlayerNamePrefix);
             textEditPlayerName.Text = "";
-            _game.LobbyBrowser.Username = "";
-            _game.LobbyBrowser.Updated = true;
+            _game.LobbyManager.Username = "";
+            _game.LobbyManager.Updated = true;
         }
 
         public static void LanLobbyMenuInit(Window window, Game game)
@@ -111,7 +111,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Initialize player name
             var textEditPlayerName = (TextBox) _window.Controls.FindControl(TextEntryPlayerNamePrefix);
-            textEditPlayerName.Text = game.LobbyBrowser.Username;
+            textEditPlayerName.Text = game.LobbyManager.Username;
 
             // Setup clear button
             var buttonClear = (Button) _window.Controls.FindControl(ButtonClearPrefix);
@@ -122,7 +122,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             game.LobbyScanSession.Start();
             game.LobbyBroadcastSession.Start();
-            game.LobbyBrowser.Updated = true;
+            game.LobbyManager.Updated = true;
         }
     }
 }
