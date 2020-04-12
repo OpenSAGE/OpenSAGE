@@ -31,7 +31,7 @@ namespace OpenSage.Network
 
         public async void Start()
         {
-            if(_running)
+            if (_running)
             {
                 return;
             }
@@ -49,7 +49,7 @@ namespace OpenSage.Network
                     {
                         await Task.Delay(1000, _cancelToken);
                     }
-                    catch(TaskCanceledException e)
+                    catch (TaskCanceledException e)
                     {
                         break;
                     }
@@ -66,16 +66,31 @@ namespace OpenSage.Network
 
         private void Broadcast()
         {
-            var broadcast = new LobbyProtocol.LobbyBroadcast();
-            broadcast.Name = _game.LobbyManager.Username;
-            broadcast.Host = _game.LobbyManager.Hosting;
-            broadcast.InLobby = _game.LobbyManager.InLobby;
+            LobbyProtocol.LobbyMessage msg = null;
+            if (_game.LobbyManager.Hosting)
+            {
+                msg = new LobbyProtocol.LobbyGameMessage()
+                {
+                    InLobby = true,
+                    Map = _game.LobbyManager.Map,
+                    Name = _game.LobbyManager.Username,
+                    Players = 1
+                };
+            }
+            else
+            {
+                msg = new LobbyProtocol.LobbyMessage()
+                {
+                    InLobby = _game.LobbyManager.InLobby,
+                    Name = _game.LobbyManager.Username,
+                };
+            }
 
             var formatter = new BinaryFormatter();
             using (var output = new MemoryStream())
             //using (var compress = new BrotliStream(output, CompressionMode.Compress))
             {
-                Serializer.Serialize(output, broadcast);
+                Serializer.Serialize(output, msg);
                 byte[] data = output.ToArray();
                 _sock.SendTo(data, _broadcastAddr);
                 logger.Info("Sending broadcast!");

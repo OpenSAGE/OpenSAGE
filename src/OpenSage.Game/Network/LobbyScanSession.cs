@@ -92,21 +92,21 @@ namespace OpenSage.Network
             using (var receiveStream = new MemoryStream(receiveBytes))
             {
                 // Deserialize response
-                var response = Serializer.Deserialize<LobbyProtocol.LobbyBroadcast>(receiveStream);
+                var response = Serializer.Deserialize<LobbyProtocol.LobbyMessage>(receiveStream);
 
                 // Check if is localhost
                 if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
                     result.RemoteEndPoint.Address.Equals(_game.LobbyManager.LocalIPAdress))
                 {
                     logger.Info($"Skipping: Received broadcast from localhost");
-                    return;
+                    //return;
                 }
                 else
                 {
                     logger.Info($"Received broadcast from: {response.Name}");
                 }
 
-                if (response.Host)
+                if (response is LobbyProtocol.LobbyGameMessage)
                 {
                     // Add the game to our lobby
                     var lobbyGame = new LobbyManager.LobbyGame();
