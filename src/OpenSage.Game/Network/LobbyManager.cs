@@ -21,6 +21,7 @@ namespace OpenSage.Network
         public Dictionary<IPEndPoint, LobbyPlayer> Players { get; }
 
         public string Username { get; set; }
+        public string Map { get; set; }
         public IPAddress LocalIPAdress { get; set; }
 
         public bool Updated { get; set; }
