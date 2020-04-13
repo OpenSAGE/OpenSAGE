@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Net;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -47,6 +48,9 @@ namespace OpenSage.Launcher
 
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
             public string ReplayFile { get; set; }
+
+            [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
+            public string LanIPAddress { get; set; } = "";
         }
 
         public static void Main(string[] args)
@@ -106,6 +110,14 @@ namespace OpenSage.Launcher
                 UseRenderDoc = opts.RenderDoc,
                 LoadShellMap = !opts.NoShellmap,
             };
+
+            if(opts.LanIPAddress != ""){
+                try {
+                    config.LanIpAddress = IPAddress.Parse(opts.LanIPAddress);
+                }catch(FormatException){
+                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
+                }
+            }
 
             logger.Debug($"Have configuration");
 

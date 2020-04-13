@@ -55,9 +55,7 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
-
-        public LobbyBroadcastSession LobbyBroadcastSession { get; }
-        public LobbyScanSession LobbyScanSession { get; }
+        
         public LobbyManager LobbyManager { get; }
 
         internal List<GameSystem> GameSystems { get; }
@@ -450,9 +448,7 @@ namespace OpenSage
 
                 _mapTimer.Reset();
 
-                LobbyManager = new LobbyManager();
-                LobbyBroadcastSession = new LobbyBroadcastSession(this);
-                LobbyScanSession = new LobbyScanSession(this);
+                LobbyManager = new LobbyManager(this);
 
                 IsRunning = true;
                 IsLogicRunning = true;
