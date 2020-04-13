@@ -16,7 +16,7 @@ namespace OpenSage.Network
         private CancellationTokenSource _cancelTokenSource;
         private CancellationToken _cancelToken;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private Game _game;
+        private LobbyManager _lobbyManager;
         private bool _running;
 
         public class LobbyGameScannedEventArgs : EventArgs
@@ -26,9 +26,6 @@ namespace OpenSage.Network
             public string Map { get; set; }
         }
 
-        public delegate void LobbyGameScannedEventHandler(object sender, LobbyGameScannedEventArgs e);
-        public event LobbyGameScannedEventHandler LobbyGameDetected;
-
         public class LobbyPlayerScannedEventArgs : EventArgs
         {
             public IPEndPoint Host { get; set; }
@@ -36,16 +33,15 @@ namespace OpenSage.Network
             public string Map { get; set; }
         }
 
-        public delegate void LobbyPlayerScannedEventHandler(object sender, LobbyPlayerScannedEventArgs e);
-        public event LobbyPlayerScannedEventHandler LobbyPlayerDetected;
 
-        public LobbyScanSession(Game game)
+        public LobbyScanSession(LobbyManager lobbyManager)
         {
-            _receiveEp = new IPEndPoint(IPAddress.Any, Ports.LobbyScan);
+            _lobbyManager = lobbyManager;
+            
+            _receiveEp = new IPEndPoint(lobbyManager.LocalIPAdress, Ports.LobbyScan);
             _client = new UdpClient();
-            _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            _client.ExclusiveAddressUse = false;
-            _game = game;
+            _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, false);
+            // _client.ExclusiveAddressUse = true;
             _running = false;
         }
 
@@ -71,7 +67,7 @@ namespace OpenSage.Network
                     }
                     catch (OperationCanceledException)
                     {
-                        //Task is done / was canceld
+                        //Task is done / was cancelled
                         break;
                     }
                 }
@@ -96,14 +92,14 @@ namespace OpenSage.Network
 
                 // Check if is localhost
                 if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
-                    result.RemoteEndPoint.Address.Equals(_game.LobbyManager.LocalIPAdress))
+                    result.RemoteEndPoint.Address.Equals(_lobbyManager.LocalIPAdress))
                 {
-                    logger.Info($"Skipping: Received broadcast from localhost");
+                    logger.Debug($"Skipping: Received broadcast from localhost");
                     //return;
                 }
                 else
                 {
-                    logger.Info($"Received broadcast from: {response.Name}");
+                    logger.Info($"Received broadcast from: {result.RemoteEndPoint.Address}({response.Name})");
                 }
 
                 if (response is LobbyProtocol.LobbyGameMessage)
@@ -112,16 +108,16 @@ namespace OpenSage.Network
                     var lobbyGame = new LobbyManager.LobbyGame();
                     lobbyGame.Name = response.Name;
 
-                    if (!_game.LobbyManager.Games.ContainsKey(result.RemoteEndPoint))
+                    if (!_lobbyManager.Games.ContainsKey(result.RemoteEndPoint))
                     {
-                        _game.LobbyManager.Games.Add(result.RemoteEndPoint, lobbyGame);
+                        _lobbyManager.Games.Add(result.RemoteEndPoint, lobbyGame);
                     }
 
                     // Fire event
                     var args = new LobbyGameScannedEventArgs();
                     args.Host = result.RemoteEndPoint;
                     args.Name = response.Name;
-                    LobbyGameDetected?.Invoke(this, args);
+                    _lobbyManager.FireLobbyGameDetected(args);
                 }
                 else if (!response.InLobby)
                 {
@@ -129,15 +125,15 @@ namespace OpenSage.Network
                     var lobbyPlayer = new LobbyManager.LobbyPlayer();
                     lobbyPlayer.Name = response.Name;
 
-                    if (!_game.LobbyManager.Players.ContainsKey(result.RemoteEndPoint))
+                    if (!_lobbyManager.Players.ContainsKey(result.RemoteEndPoint))
                     {
-                        _game.LobbyManager.Players.Add(result.RemoteEndPoint, lobbyPlayer);
+                        _lobbyManager.Players.Add(result.RemoteEndPoint, lobbyPlayer);
                     }
 
                     // Fire event
                     var args = new LobbyPlayerScannedEventArgs();
                     args.Host = result.RemoteEndPoint;
-                    LobbyPlayerDetected?.Invoke(this, args);
+                    _lobbyManager.FireLobbyPlayerDetected(args);
                 }
             }
         }

@@ -47,8 +47,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void LeaveLobby(ControlCallbackContext context)
         {
-            context.Game.LobbyBroadcastSession.Stop();
-            context.Game.LobbyScanSession.Stop();
+            context.Game.LobbyManager.Stop();
         }
 
         private static void LanLobbyGameAdd(object sender, Network.LobbyScanSession.LobbyGameScannedEventArgs args)
@@ -117,11 +116,10 @@ namespace OpenSage.Mods.Generals.Gui
             var buttonClear = (Button) _window.Controls.FindControl(ButtonClearPrefix);
             buttonClear.Click += ClearPlayerName;
 
-            game.LobbyScanSession.LobbyGameDetected += LanLobbyGameAdd;
-            game.LobbyScanSession.LobbyPlayerDetected += LanLobbyPlayerAdd;
+            game.LobbyManager.LobbyGameDetected += LanLobbyGameAdd;
+            game.LobbyManager.LobbyPlayerDetected += LanLobbyPlayerAdd;
 
-            game.LobbyScanSession.Start();
-            game.LobbyBroadcastSession.Start();
+            game.LobbyManager.Start();
             game.LobbyManager.Updated = true;
         }
     }
