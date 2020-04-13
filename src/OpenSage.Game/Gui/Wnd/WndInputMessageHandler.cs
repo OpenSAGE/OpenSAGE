@@ -120,14 +120,18 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.KeyDown:
                     {
-                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
+                        var control = _windowManager.FocussedControl;
+                        if(control != null)
                         {
-                            element.InputCallback.Invoke(
-                                element,
-                                new WndWindowMessage(WndWindowMessageType.KeyDown, element, mousePosition, message.Value.Key),
-                                context);
+                            control?.InputCallback.Invoke(
+                                control,
+                                new WndWindowMessage(WndWindowMessageType.KeyDown, control, null, message.Value.Key),
+                                context
+                            );
                             return InputMessageResult.Handled;
                         }
+
+
                         break;
                     }
             }
