@@ -15,17 +15,18 @@ namespace OpenSage.Network
         private CancellationTokenSource _cancelTokenSource;
         private CancellationToken _cancelToken;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private Game _game;
+        private LobbyManager _lobbyManager;
         private bool _running;
 
-        public LobbyBroadcastSession(Game game)
+        public LobbyBroadcastSession(LobbyManager lobbyManager)
         {
+            _lobbyManager = lobbyManager;
+            
             _sock = AddDisposable(new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp));
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, false);
 
-            _broadcastAddr = new IPEndPoint(IPAddress.Broadcast, Ports.LobbyScan);
-            _game = game;
+            _broadcastAddr = new IPEndPoint(LobbyManager.GetBroadcastAddress(lobbyManager.Unicast), Ports.LobbyScan);
             _running = false;
         }
 
@@ -67,13 +68,13 @@ namespace OpenSage.Network
         private void Broadcast()
         {
             LobbyProtocol.LobbyMessage msg = null;
-            if (_game.LobbyManager.Hosting)
+            if (_lobbyManager.Hosting)
             {
                 msg = new LobbyProtocol.LobbyGameMessage()
                 {
                     InLobby = true,
-                    Map = _game.LobbyManager.Map,
-                    Name = _game.LobbyManager.Username,
+                    Map = _lobbyManager.Map,
+                    Name = _lobbyManager.Username,
                     Players = 1
                 };
             }
@@ -81,8 +82,8 @@ namespace OpenSage.Network
             {
                 msg = new LobbyProtocol.LobbyMessage()
                 {
-                    InLobby = _game.LobbyManager.InLobby,
-                    Name = _game.LobbyManager.Username,
+                    InLobby = _lobbyManager.InLobby,
+                    Name = _lobbyManager.Username,
                 };
             }
 
