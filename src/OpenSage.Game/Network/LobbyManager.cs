@@ -32,7 +32,6 @@ namespace OpenSage.Network
         }
 
         public string Map { get; set; }
-
         public UnicastIPAddressInformation Unicast { get; set; }
 
         public bool Updated { get; set; }
