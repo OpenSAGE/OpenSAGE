@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/netcoreapp3.0/OpenSage.Launcher.dll",
-            "args": ["--game", "1"],
+            "args": [],
             "cwd": "${workspaceFolder}/src/OpenSage.Launcher",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",

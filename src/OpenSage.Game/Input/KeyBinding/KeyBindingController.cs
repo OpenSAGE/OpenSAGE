@@ -37,10 +37,8 @@ namespace OpenSage.Input.KeyBinding
                 Logger.Info("Generating default keybindingFile");
                 DefaultKeyBindings defaultKeyBindings = new DefaultKeyBindings();
                 _keyBindings = defaultKeyBindings.keyBindings;
-                // Deal with creating/saving a default for this file.
                 using (var writer = new StreamWriter(File.Create(FileSystem.NormalizeFilePath(_contentManager.UserDataFileSystem.RootDirectory + '/' + KeyBindingsJsonPath))))
                 {
-
                     writer.Write(JsonConvert.SerializeObject(defaultKeyBindings.keyBindings));
                     writer.Flush();
                     writer.Close();

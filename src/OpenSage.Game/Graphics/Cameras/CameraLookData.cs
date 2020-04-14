@@ -4,7 +4,6 @@ using System.Text;
 namespace OpenSage.Graphics.Cameras
 {
 
-
     class CameraLookData
     {
         public Vector3 newPosition { get; set; }
