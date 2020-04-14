@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Mathematics;
-using OpenSage.Content;
+using OpenSage.Input.KeyBinding;
 using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
@@ -19,7 +19,7 @@ namespace OpenSage.Graphics.Cameras
         private CameraAnimation _animation;
 
         public bool CanPlayerInputChangePitch { get; set; }
-        
+
         private Vector3 _lookDirection;
         public void SetLookDirection(Vector3 lookDirection)
         {
@@ -66,7 +66,11 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(GameData gameData)
+        private Dictionary<int, CameraLookData> cameraSaves = new Dictionary<int, CameraLookData>();
+
+        private KeyBindingController _keyBindingController;
+
+        public RtsCameraController(GameData gameData, KeyBindingController keyBindingController)
         {
             _defaultHeight = gameData.DefaultCameraMaxHeight > 0
                 ? gameData.DefaultCameraMaxHeight
@@ -78,6 +82,8 @@ namespace OpenSage.Graphics.Cameras
                 MathUtility.Sin(yaw),
                 MathUtility.Cos(yaw),
                 0));
+
+            _keyBindingController = keyBindingController;
         }
 
         public void EndAnimation()
@@ -204,6 +210,23 @@ namespace OpenSage.Graphics.Cameras
                 newPosition,
                 targetPosition,
                 Vector3.UnitZ);
+
+            CameraLookData lookData = createLookData(newPosition, targetPosition);
+            checkForCameraPositionSave(inputState, lookData);
+            checkForCameraPositionLoad(inputState, lookData, camera);
+        }
+
+        private CameraLookData createLookData(Vector3 newPosition, Vector3 targetPosition)
+        {
+            CameraLookData lookData = new CameraLookData();
+            lookData.newPosition = newPosition;
+            lookData.targetPosition = targetPosition;
+            lookData.lookDirection = _lookDirection;
+            lookData.terrainPosition = _terrainPosition;
+            lookData.pitch = Pitch;
+            lookData.zoom = _zoom;
+            lookData.intersect = _toCameraIntersectionDistance;
+            return lookData;
         }
 
         private void RotateCamera(float deltaX, float deltaY)
@@ -244,6 +267,32 @@ namespace OpenSage.Graphics.Cameras
             var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
+        }
+
+        private void checkForCameraPositionSave(in CameraInputState inputState, CameraLookData lookData)
+        {
+            KeyBinding saveCameraBinding = _keyBindingController.getBinding(KeyAction.CAMERA_SAVE_POSITION, inputState.PressedKeys);
+            if (saveCameraBinding != null)
+            {
+                cameraSaves[saveCameraBinding.actionInstance] = lookData;
+            }
+        }
+
+        private void checkForCameraPositionLoad(in CameraInputState inputState, CameraLookData lookData, Camera camera)
+        {
+            KeyBinding loadCameraBinding = _keyBindingController.getBinding(KeyAction.CAMERA_LOAD_POSITION, inputState.PressedKeys);
+            if (loadCameraBinding != null && cameraSaves.ContainsKey(loadCameraBinding.actionInstance))
+            {
+                camera.SetLookAt(
+                  cameraSaves[loadCameraBinding.actionInstance].newPosition,
+                  cameraSaves[loadCameraBinding.actionInstance].targetPosition,
+                  Vector3.UnitZ);
+                _lookDirection = cameraSaves[loadCameraBinding.actionInstance].lookDirection;
+                _terrainPosition = cameraSaves[loadCameraBinding.actionInstance].terrainPosition;
+                _zoom = cameraSaves[loadCameraBinding.actionInstance].zoom;
+                Pitch = cameraSaves[loadCameraBinding.actionInstance].pitch;
+                _toCameraIntersectionDistance = cameraSaves[loadCameraBinding.actionInstance].intersect;
+            }
         }
 
         public void GoToObject(Logic.Object.GameObject gameObject)

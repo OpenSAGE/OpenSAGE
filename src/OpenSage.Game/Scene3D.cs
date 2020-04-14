@@ -14,6 +14,7 @@ using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Input;
+using OpenSage.Input.KeyBinding;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -48,6 +49,8 @@ namespace OpenSage
         public readonly Camera Camera;
 
         public readonly ICameraController CameraController;
+
+        public readonly KeyBindingController KeyBindingController;
 
         public readonly MapFile MapFile;
 
@@ -135,8 +138,10 @@ namespace OpenSage
                 .ScriptLists
                 .Select(s => new MapScriptCollection(s))
                 .ToArray();
+            
+            KeyBindingController = new KeyBindingController(contentManager);
 
-            CameraController = new RtsCameraController(game.AssetStore.GameData.Current)
+            CameraController = new RtsCameraController(game.AssetStore.GameData.Current, KeyBindingController)
             {
                 TerrainPosition = Terrain.HeightMap.GetPosition(
                     Terrain.HeightMap.Width / 2,
