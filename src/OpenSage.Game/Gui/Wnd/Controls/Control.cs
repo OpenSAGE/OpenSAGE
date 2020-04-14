@@ -116,7 +116,23 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected virtual void OnSizeChanged(in Size newSize) { }
 
-        public string Text { get; set; }
+        public delegate void OnTextChangedHandler(object sender, string Text);
+        public event OnTextChangedHandler OnTextChanged;
+
+        private string _text = "";
+
+        public string Text {
+            get {
+                return _text;
+            }
+            set {
+                if (value != _text)
+                {
+                    _text = value;
+                    OnTextChanged?.Invoke(this, value);
+                }
+            }
+        }
 
         public virtual Font Font { get; set; }
 

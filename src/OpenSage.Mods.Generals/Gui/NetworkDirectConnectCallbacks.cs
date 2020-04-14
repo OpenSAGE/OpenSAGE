@@ -39,7 +39,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = game.LobbyManager.LocalIPAdress.ToString();
+            staticLocalIp.Text = game.LobbyManager.Unicast.Address.ToString();
         }
     }
 }

@@ -257,7 +257,7 @@ namespace OpenSage.Gui.Wnd.Controls
     public sealed class ListBoxDataItem
     {
         public object DataItem { get; }
-        public string[] ColumnData { get; }
+        public string[] ColumnData { get; set; }
         public int ListBoxItemHeight { get; set; }
         public ColorRgbaF TextColor { get; }
 

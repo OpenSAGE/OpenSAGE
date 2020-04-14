@@ -11,56 +11,62 @@ namespace OpenSage.Network
         public struct LobbyPlayer
         {
             public string Name { get; set; }
+            public bool IsHosting { get; set; }
+            public IPEndPoint Endpoint { get; set; }
         }
 
-        public struct LobbyGame
-        {
-            public string Name { get; set; }
-        }
-
-        public Dictionary<IPEndPoint, LobbyGame> Games { get; }
         public Dictionary<IPEndPoint, LobbyPlayer> Players { get; }
 
-        public string Username { get; set; }
+        private string _username;
+        public string Username {
+            get
+            {
+                return _username;
+            }
+            set
+            {
+                _username = value;
+                LobbyBroadcastSession.Bump();
+            }
+        }
+
         public string Map { get; set; }
-        public IPAddress LocalIPAdress { get; set; }
+
         public UnicastIPAddressInformation Unicast { get; set; }
 
         public bool Updated { get; set; }
-        public bool InLobby { get; set; }
         public bool Hosting { get; set; }
 
         public LobbyBroadcastSession LobbyBroadcastSession { get; }
         public LobbyScanSession LobbyScanSession { get; }
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public LobbyManager(Game game)
         {
 
-            LocalIPAdress = game.Configuration.LanIpAddress;
+            var localIp = game.Configuration.LanIpAddress;
 
-            if(LocalIPAdress == IPAddress.Any){
+            if(localIp == IPAddress.Any){
                 var selfAdresses = Dns.GetHostAddresses(Dns.GetHostName());
-                LocalIPAdress = selfAdresses.FirstOrDefault(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                localIp = selfAdresses.FirstOrDefault(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
             }
 
-            Unicast = GetLocalAdapter(LocalIPAdress);
+            Unicast = GetLocalAdapter(localIp);
 
             LobbyBroadcastSession = new LobbyBroadcastSession(this);
             LobbyScanSession = new LobbyScanSession(this);
 
-            Games = new Dictionary<IPEndPoint, LobbyGame>();
             Players = new Dictionary<IPEndPoint, LobbyPlayer>();
             Username = Environment.MachineName;
-            InLobby = false;
             Hosting = false;
             Updated = true;
 
-
-            
         }
 
         public void Start()
         {
+            Hosting = false;
             LobbyBroadcastSession.Start();
             LobbyScanSession.Start();
         }
@@ -69,21 +75,6 @@ namespace OpenSage.Network
         {
             LobbyBroadcastSession.Stop();
             LobbyScanSession.Stop();
-        }
-
-
-        public delegate void LobbyGameScannedEventHandler(object sender, LobbyScanSession.LobbyGameScannedEventArgs e);
-        public event LobbyGameScannedEventHandler LobbyGameDetected;
-        public void FireLobbyGameDetected(LobbyScanSession.LobbyGameScannedEventArgs args)
-        {
-            this.LobbyGameDetected?.Invoke(this, args);
-        }
-
-        public delegate void LobbyPlayerScannedEventHandler(object sender, LobbyScanSession.LobbyPlayerScannedEventArgs e);
-        public event LobbyPlayerScannedEventHandler LobbyPlayerDetected;
-        public void FireLobbyPlayerDetected(LobbyScanSession.LobbyPlayerScannedEventArgs args)
-        {
-            this.LobbyPlayerDetected?.Invoke(this, args);
         }
 
         public static IPAddress GetBroadcastAddress(UnicastIPAddressInformation unicastAddress)
