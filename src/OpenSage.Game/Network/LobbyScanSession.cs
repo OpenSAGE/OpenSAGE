@@ -37,11 +37,7 @@ namespace OpenSage.Network
         public LobbyScanSession(LobbyManager lobbyManager)
         {
             _lobbyManager = lobbyManager;
-            
-            _receiveEp = new IPEndPoint(lobbyManager.LocalIPAdress, Ports.LobbyScan);
-            _client = new UdpClient();
-            _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, false);
-            // _client.ExclusiveAddressUse = true;
+            _receiveEp = new IPEndPoint(lobbyManager.Unicast.Address, Ports.LobbyScan);
             _running = false;
         }
 
@@ -52,13 +48,17 @@ namespace OpenSage.Network
                 return;
             }
             _running = true;
+
+            _client = new UdpClient();
+            _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _client.Client.Bind(_receiveEp);
+
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;
 
             await Task.Run(async () =>
             {
-                while (true)
+                while (_running)
                 {
                     try
                     {
@@ -68,7 +68,7 @@ namespace OpenSage.Network
                     catch (OperationCanceledException)
                     {
                         //Task is done / was cancelled
-                        break;
+                        logger.Info("Cancelled");
                     }
                 }
             });
@@ -76,9 +76,9 @@ namespace OpenSage.Network
 
         public void Stop()
         {
+            _running = false;
             _cancelTokenSource.Cancel();
             _client.Client.Close();
-            _running = false;
         }
 
         private void ProcessReceive(UdpReceiveResult result)
@@ -90,51 +90,36 @@ namespace OpenSage.Network
                 // Deserialize response
                 var response = Serializer.Deserialize<LobbyProtocol.LobbyMessage>(receiveStream);
 
-                // Check if is localhost
-                if (IPAddress.IsLoopback(result.RemoteEndPoint.Address) ||
-                    result.RemoteEndPoint.Address.Equals(_lobbyManager.LocalIPAdress))
+                logger.Info($"Received broadcast from: {result.RemoteEndPoint.Address}({response.Name})");
+
+                switch (response)
                 {
-                    logger.Debug($"Skipping: Received broadcast from localhost");
-                    //return;
+                    case LobbyProtocol.LobbyMessage lobbyMessage:
+
+                        var endpoint = result.RemoteEndPoint;
+
+                        if (!_lobbyManager.Players.ContainsKey(endpoint))
+                        {
+                            _lobbyManager.Players[endpoint] = new LobbyManager.LobbyPlayer();
+                        }
+
+                        var player = _lobbyManager.Players[endpoint];
+                        player.Endpoint = endpoint;
+                        player.Name = lobbyMessage.Name;
+                        player.IsHosting = lobbyMessage.IsHosting;
+                        if (!player.Equals(_lobbyManager.Players[endpoint]))
+                        {
+                            _lobbyManager.Players[endpoint] = player;
+                            _lobbyManager.Updated = true;
+                        }
+
+                        break;
+
+                    default:
+                        logger.Error($"Unknown message: {response.GetType().Name}");
+                        break;
                 }
-                else
-                {
-                    logger.Info($"Received broadcast from: {result.RemoteEndPoint.Address}({response.Name})");
-                }
 
-                if (response is LobbyProtocol.LobbyGameMessage)
-                {
-                    // Add the game to our lobby
-                    var lobbyGame = new LobbyManager.LobbyGame();
-                    lobbyGame.Name = response.Name;
-
-                    if (!_lobbyManager.Games.ContainsKey(result.RemoteEndPoint))
-                    {
-                        _lobbyManager.Games.Add(result.RemoteEndPoint, lobbyGame);
-                    }
-
-                    // Fire event
-                    var args = new LobbyGameScannedEventArgs();
-                    args.Host = result.RemoteEndPoint;
-                    args.Name = response.Name;
-                    _lobbyManager.FireLobbyGameDetected(args);
-                }
-                else if (!response.InLobby)
-                {
-                    // Add the game to our lobby
-                    var lobbyPlayer = new LobbyManager.LobbyPlayer();
-                    lobbyPlayer.Name = response.Name;
-
-                    if (!_lobbyManager.Players.ContainsKey(result.RemoteEndPoint))
-                    {
-                        _lobbyManager.Players.Add(result.RemoteEndPoint, lobbyPlayer);
-                    }
-
-                    // Fire event
-                    var args = new LobbyPlayerScannedEventArgs();
-                    args.Host = result.RemoteEndPoint;
-                    _lobbyManager.FireLobbyPlayerDetected(args);
-                }
             }
         }
     }
