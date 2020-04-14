@@ -43,7 +43,7 @@ namespace OpenSage.Network
 
             await Task.Run(async () =>
             {
-                while (true)
+                while (_running)
                 {
                     Broadcast();
                     try
@@ -52,40 +52,41 @@ namespace OpenSage.Network
                     }
                     catch (TaskCanceledException e)
                     {
-                        break;
+                        //maybe refresh the token
+                        if (_running)
+                        {
+                            _cancelTokenSource = new CancellationTokenSource();
+                            _cancelToken = _cancelTokenSource.Token;
+                        }
                     }
                 }
             });
         }
 
+        public void Bump()
+        {
+            if(_cancelTokenSource != null)
+            {
+                // interrupt the sleeping of the thread, to enable quick rebroadcast
+                _cancelTokenSource.Cancel();
+            }
+        }
+
         public void Stop()
         {
-            _running = true;
-            _sock.Close();
+            _running = false;
             _cancelTokenSource.Cancel();
         }
 
         private void Broadcast()
         {
             LobbyProtocol.LobbyMessage msg = null;
-            if (_lobbyManager.Hosting)
+
+            msg = new LobbyProtocol.LobbyMessage()
             {
-                msg = new LobbyProtocol.LobbyGameMessage()
-                {
-                    InLobby = true,
-                    Map = _lobbyManager.Map,
-                    Name = _lobbyManager.Username,
-                    Players = 1
-                };
-            }
-            else
-            {
-                msg = new LobbyProtocol.LobbyMessage()
-                {
-                    InLobby = _lobbyManager.InLobby,
-                    Name = _lobbyManager.Username,
-                };
-            }
+                IsHosting = _lobbyManager.Hosting,
+                Name = _lobbyManager.Username,
+            };
 
             var formatter = new BinaryFormatter();
             using (var output = new MemoryStream())
