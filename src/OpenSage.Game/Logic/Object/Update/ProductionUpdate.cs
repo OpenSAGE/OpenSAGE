@@ -39,43 +39,56 @@ namespace OpenSage.Logic.Object
             _currentDoorState = DoorState.Closed;
         }
 
-        internal override void Update(in TimeInterval time)
+        internal override void Update(BehaviorUpdateContext context)
         {
+            var time = context.Time;
+
             // If door is opening, halt production until it's finished opening.
             if (_currentDoorState == DoorState.Opening)
             {
                 if (time.TotalTime >= _currentStepEnd)
                 {
+                    _productionQueue.RemoveAt(0);
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
                     _currentDoorState = DoorState.Open;
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, true);
-                    _gameObject.UpdateDrawModuleConditionStates();
                     MoveProducedObjectOut();
                 }
 
                 return;
             }
 
-            if (_productionQueue.Count > 0 && _productionQueue[0].Produce(20) == ProductionJobResult.Finished)
+            if (_productionQueue.Count > 0)
             {
-                if (_moduleData.NumDoorAnimations > 0)
+                var front = _productionQueue[0];
+                var result = front.Produce((float) time.DeltaTime.TotalMilliseconds);
+                if (result == ProductionJobResult.Finished)
                 {
-                    Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
-                    _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
-                    _currentDoorState = DoorState.Opening;
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
-                    _gameObject.UpdateDrawModuleConditionStates();
+                    if (front.Type == ProductionJobType.Unit)
+                    {
+                        if (_moduleData.NumDoorAnimations > 0)
+                        {
+                            Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
+                            _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
+                            _currentDoorState = DoorState.Opening;
+                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
 
-                    ProduceObject(_productionQueue[0]);
-                    _productionQueue.RemoveAt(0);
-                }
-                else
-                {
-                    ProduceObject(_productionQueue[0]);
-                    MoveProducedObjectOut();
-                    _productionQueue.RemoveAt(0);
+                            ProduceObject(front);
+                        }
+                        else
+                        {
+                            ProduceObject(front);
+                            MoveProducedObjectOut();
+                            _productionQueue.RemoveAt(0);
+                        }
+                    }
+                    else if (front.Type == ProductionJobType.Upgrade)
+                    {
+                        GrantUpgrade(front);
+                        _productionQueue.RemoveAt(0);
+                    }
                 }
             }
 
@@ -89,7 +102,6 @@ namespace OpenSage.Logic.Object
                         _currentDoorState = DoorState.Closing;
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, false);
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
-                        _gameObject.UpdateDrawModuleConditionStates();
                         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
                     }
                     break;
@@ -100,7 +112,6 @@ namespace OpenSage.Logic.Object
                         Logger.Info($"Door closed");
                         _currentDoorState = DoorState.Closed;
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
-                        _gameObject.UpdateDrawModuleConditionStates();
                     }
                     break;
             }
@@ -114,6 +125,21 @@ namespace OpenSage.Logic.Object
                     ProduceObject(job.ObjectDefinition);
                     break;
             }
+        }
+
+        private void GrantUpgrade(ProductionJob job)
+        {
+            switch (job.Type)
+            {
+                case ProductionJobType.Upgrade:
+                    GrantUpgrade(job.UpgradeDefinition);
+                    break;
+            }
+        }
+
+        private void GrantUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            _gameObject.Upgrade(upgradeDefinition);
         }
 
         private void ProduceObject(ObjectDefinition objectDefinition)
@@ -159,6 +185,12 @@ namespace OpenSage.Logic.Object
         internal void QueueProduction(ObjectDefinition objectDefinition)
         {
             var job = new ProductionJob(objectDefinition);
+            _productionQueue.Add(job);
+        }
+
+        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            var job = new ProductionJob(upgradeDefinition);
             _productionQueue.Add(job);
         }
 

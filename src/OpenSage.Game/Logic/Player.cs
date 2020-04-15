@@ -38,6 +38,8 @@ namespace OpenSage.Logic
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
+        public GameObject HoveredUnit { get; set; }
+
         public Player(PlayerTemplate template, in ColorRgb color)
         {
             Template = template;
@@ -70,6 +72,51 @@ namespace OpenSage.Logic
                 unit.IsSelected = false;
             }
             _selectedUnits.Clear();
+        }
+
+        public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
+        {
+            if (objectToProduce.Prerequisites == null)
+            {
+                return true;
+            }
+
+            // TODO: Make this more efficient.
+            bool HasPrerequisite(ObjectDefinition prerequisite)
+            {
+                foreach (var gameObject in allGameObjects.Items)
+                {
+                    if (gameObject.Owner == this && gameObject.Definition == prerequisite)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            // Prerequisites are AND'd.
+            foreach (var prerequisiteList in objectToProduce.Prerequisites.Objects)
+            {
+                // The list within each prerequisite is OR'd.
+
+                var hasPrerequisite = false;
+                foreach (var prerequisite in prerequisiteList)
+                {
+                    if (HasPrerequisite(prerequisite.Value))
+                    {
+                        hasPrerequisite = true;
+                        break;
+                    }
+                }
+
+                if (!hasPrerequisite)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)

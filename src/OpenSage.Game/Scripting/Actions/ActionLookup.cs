@@ -36,7 +36,12 @@ namespace OpenSage.Scripting.Actions
             { ScriptActionType.CameraModLookToward, CameraActions.CameraModLookToward },
 
             // Team
-            { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact }
+            { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact },
+
+            // Unit
+            { ScriptActionType.MoveNamedUnitTo, UnitActions.MoveNamedUnitTo },
+            { ScriptActionType.NamedFollowWaypoints, UnitActions.NamedFollowWaypoints },
+            { ScriptActionType.NamedStop, UnitActions.NamedStop }
         };
 
         public static ScriptingAction Get(ScriptAction action)

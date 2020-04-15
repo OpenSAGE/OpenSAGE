@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
@@ -8,7 +7,7 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class WaterShaderResources : ShaderResourcesBase
     {
-        private readonly ResourceLayout _materialResourceLayout;
+        public readonly ResourceLayout WaterResourceLayout;
 
         public readonly Pipeline Pipeline;
 
@@ -21,11 +20,17 @@ namespace OpenSage.Graphics.Shaders
                 new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
                 WaterVertex.VertexDescriptor)
         {
-            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            WaterResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("WaterConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("BumpTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
+                    new ResourceLayoutElementDescription("WaterSampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("ReflectionMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("ReflectionMapSampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RefractionMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RefractionMapSampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RefractionDepthMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
             var resourceLayouts = new[]
             {
@@ -33,7 +38,7 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources.GlobalLightingConstantsResourceLayout,
                 globalShaderResources.GlobalCloudResourceLayout,
                 globalShaderResources.GlobalShadowResourceLayout,
-                _materialResourceLayout
+                WaterResourceLayout
             };
 
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
@@ -45,15 +50,6 @@ namespace OpenSage.Graphics.Shaders
                     ShaderSet.Description,
                     resourceLayouts,
                     RenderPipeline.GameOutputDescription)));
-        }
-
-        public ResourceSet CreateMaterialResourceSet(Texture waterTexture, Texture bumpTexture)
-        {
-            return GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    _materialResourceLayout,
-                    waterTexture, bumpTexture,
-                    GraphicsDevice.Aniso4xSampler));
         }
 
         [StructLayout(LayoutKind.Sequential)]

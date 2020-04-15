@@ -1,11 +1,14 @@
-﻿using System.IO;
+﻿﻿using System.IO;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.StreamFS;
 using OpenSage.Data.W3x;
 using OpenSage.FileFormats;
+using System.Diagnostics;
+using OpenSage.Content;
 
 namespace OpenSage.Graphics
 {
+    [DebuggerDisplay("Model '{Name}'")]
     public sealed class Model : BaseAsset
     {
         internal static Model ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)

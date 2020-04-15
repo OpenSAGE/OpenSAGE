@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Data.Apt;
+using OpenSage.Data.Map;
+using OpenSage.Data.Rep;
+using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -18,21 +27,13 @@ using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
-using OpenSage.Data.Rep;
-using OpenSage.Data.Map;
-using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Data.Wnd;
-using OpenSage.Gui.Apt;
-using OpenSage.Data.Apt;
-using OpenSage.Graphics.Shaders;
-using OpenSage.Gui;
 
 namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
         // TODO: These should be configurable at runtime with GameSpeed.
-        private const double LogicUpdateInterval = 1000.0 / 5.0;
+        internal const double LogicUpdateInterval = 1000.0 / 5.0;
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
@@ -54,7 +55,7 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
-
+        
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
@@ -102,14 +103,14 @@ namespace OpenSage
         {
             var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
-            // TODO: This probably isn't right.
-            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
-            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
+            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", _userDataFileSystem?.RootDirectory);
+            mapFilename = FileSystem.NormalizeFilePath(mapFilename);
+            var mapName = mapFilename.Substring(mapFilename.LastIndexOf(Path.DirectorySeparatorChar));
 
             var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
 
             StartMultiPlayerGame(
-                mapFilename,
+                mapFilename + mapName + ".map",
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
                 0);
@@ -402,12 +403,7 @@ namespace OpenSage
                     _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
                     ContentManager.UserDataFileSystem = _userDataFileSystem;
 
-                    // TODO: Re-generate MapCache.ini for user maps
-                    var file = _userDataFileSystem.GetFile(@"Maps\MapCache.ini");
-                    if (file != null)
-                    {
-                        ContentManager.LoadIniFile(file);
-                    }
+                    new UserMapCache(ContentManager).Initialize(AssetStore);
                 }
 
                 _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
@@ -542,7 +538,7 @@ namespace OpenSage
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile);
+            return new Scene3D(this, mapFile, Environment.TickCount);
         }
 
         public Window LoadWindow(string wndFileName)
@@ -682,6 +678,9 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
+
+            // Scripts should be enabled in all games, even replays
+            Scripting.Active = true;
         }
 
         public void StartCampaign(string side)
@@ -813,7 +812,7 @@ namespace OpenSage
             }
         }
 
-        internal void LocalLogicTick(IEnumerable<InputMessage> messages)
+        private void LocalLogicTick(IEnumerable<InputMessage> messages)
         {
             _mapTimer.Update();
             MapTime = _mapTimer.CurrentGameTime;
@@ -847,6 +846,12 @@ namespace OpenSage
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
                 DeveloperModeEnabled = !DeveloperModeEnabled;
+            }
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Comma))
+            {
+                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
             }
 
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))

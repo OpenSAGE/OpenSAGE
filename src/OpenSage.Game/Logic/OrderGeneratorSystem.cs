@@ -6,6 +6,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -31,10 +32,12 @@ namespace OpenSage.Logic
         public OrderGeneratorSystem(Game game) : base(game) { }
 
         private Vector3? _worldPosition;
+        private GameObject _worldObject;
 
         public void UpdatePosition(Vector2 mousePosition)
         {
             _worldPosition = GetTerrainPosition(mousePosition);
+            _worldObject = Game.Selection.FindClosestObject(mousePosition);
 
             if (_worldPosition.HasValue && ActiveGenerator != null)
             {
@@ -52,51 +55,75 @@ namespace OpenSage.Logic
             }
         }
 
-        private bool StructuresSelected()
-        {
-            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
-            {
-                return false;
-            }
-
-            bool result = true;
-
-            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
-            {
-                if (!unit.Definition.KindOf.Get(ObjectKinds.Structure))
-                {
-                    result = false;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        public void OnRightClick()
+        public void OnRightClick(bool ctrlDown)
         {
             if (!_worldPosition.HasValue)
             {
                 return;
             }
 
+            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
+            {
+                return;
+            }
+
+            var canSetRallyPoint = false;
+            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
+            {
+                if (unit.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
+                {
+                    canSetRallyPoint = true;
+                    break;
+                }
+            }
+
             Order order = null;
 
-            if (StructuresSelected())
+            if (canSetRallyPoint)
             {
                 var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
                 var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
                 order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
             }
-            else if (Game.Scene3D.LocalPlayer.SelectedUnits.Count > 0)
+            else
             {
-                // TODO: Check whether at least one of the selected units can actually be moved.
-
                 // We choose the sound based on the most-recently-selected unit.
                 var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
-                unit.OnLocalMove(Game.Audio);
 
-                order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                // TODO: Use ini files for this, don't hardcode it.
+                if (ctrlDown)
+                {
+                    // TODO: Check whether clicked point is an object, or empty ground.
+                    unit.OnLocalAttack(Game.Audio);
+                    if (_worldObject != null)
+                    {
+                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
+
+                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, true);
+                    }
+                    else
+                    { 
+                        order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                    }
+                }
+                else
+                {
+                    // TODO: should only work on enemy objects
+                    if (_worldObject != null)
+                    {
+                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
+
+                        unit.OnLocalAttack(Game.Audio);
+                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, false);
+                    }
+                    else
+                    {
+                        // TODO: Check whether at least one of the selected units can actually be moved.
+
+                        unit.OnLocalMove(Game.Audio);
+                        order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                    }
+                }
             }
 
             if (order != null)
@@ -168,7 +195,7 @@ namespace OpenSage.Logic
             var gameData = Game.AssetStore.GameData.Current;
             var definitionIndex = buildingDefinition.InternalId;
 
-            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.AssetStore.LoadContext, Game.Scene3D);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
         }
 
         public void StartConstructUnit(ObjectDefinition unitDefinition)

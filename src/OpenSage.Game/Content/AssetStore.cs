@@ -3,6 +3,7 @@ using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Data;
 using OpenSage.Eva;
+using OpenSage.FX;
 using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Shaders;
@@ -77,7 +78,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<AIDozerAssignment> AIDozerAssignments { get; }
         public ScopedAssetCollection<AmbientStream> AmbientStreams { get; }
         public ScopedAssetCollection<Animation> Animations { get; }
-        public ScopedAssetCollection<Armor> Armors { get; }
+        public ScopedAssetCollection<ArmorTemplate> ArmorTemplates { get; }
         public ScopedAssetCollection<ArmyDefinition> ArmyDefinitions { get; }
         public ScopedAssetCollection<AudioEvent> AudioEvents { get; }
         public ScopedAssetCollection<AudioFile> AudioFiles { get; }
@@ -146,7 +147,6 @@ namespace OpenSage.Content
         public ScopedAssetCollection<MusicTrack> MusicTracks { get; }
         public ScopedAssetCollection<ObjectCreationList> ObjectCreationLists { get; }
         public ScopedAssetCollection<ObjectDefinition> ObjectDefinitions { get; }
-        public ScopedAssetCollection<ParticleSystemTemplate> ParticleSystemTemplates { get; }
         public ScopedAssetCollection<PlayerAIType> PlayerAITypes { get; }
         public ScopedAssetCollection<PlayerTemplate> PlayerTemplates { get; }
         public ScopedAssetCollection<Rank> Ranks { get; }
@@ -164,12 +164,12 @@ namespace OpenSage.Content
         public ScopedAssetCollection<LoadSubsystem> Subsystems { get; }
         public ScopedAssetCollection<TerrainTexture> TerrainTextures { get; }
         public ScopedAssetCollection<TextureAsset> Textures { get; }
-        public ScopedAssetCollection<Upgrade> Upgrades { get; }
+        public ScopedAssetCollection<UpgradeTemplate> Upgrades { get; }
         public ScopedAssetCollection<VictorySystemData> VictorySystemDatas { get; }
         public ScopedAssetCollection<Video> Videos { get; }
         public ScopedAssetCollection<WaterSet> WaterSets { get; }
         public ScopedAssetCollection<WaterTextureList> WaterTextureLists { get; }
-        public ScopedAssetCollection<Weapon> Weapons { get; }
+        public ScopedAssetCollection<WeaponTemplate> WeaponTemplates { get; }
         public ScopedAssetCollection<WeatherData> WeatherDatas { get; }
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
@@ -252,7 +252,7 @@ namespace OpenSage.Content
             AddAssetCollection(AIDozerAssignments = new ScopedAssetCollection<AIDozerAssignment>(this));
             AddAssetCollection(AmbientStreams = new ScopedAssetCollection<AmbientStream>(this));
             AddAssetCollection(Animations = new ScopedAssetCollection<Animation>(this));
-            AddAssetCollection(Armors = new ScopedAssetCollection<Armor>(this));
+            AddAssetCollection(ArmorTemplates = new ScopedAssetCollection<ArmorTemplate>(this));
             AddAssetCollection(ArmyDefinitions = new ScopedAssetCollection<ArmyDefinition>(this));
             AddAssetCollection(AudioEvents = new ScopedAssetCollection<AudioEvent>(this));
             AddAssetCollection(AudioFiles = new ScopedAssetCollection<AudioFile>(this, loadStrategy.CreateAudioFileLoader()));
@@ -321,7 +321,6 @@ namespace OpenSage.Content
             AddAssetCollection(MusicTracks = new ScopedAssetCollection<MusicTrack>(this));
             AddAssetCollection(ObjectCreationLists = new ScopedAssetCollection<ObjectCreationList>(this));
             AddAssetCollection(ObjectDefinitions = new ScopedAssetCollection<ObjectDefinition>(this));
-            AddAssetCollection(ParticleSystemTemplates = new ScopedAssetCollection<ParticleSystemTemplate>(this));
             AddAssetCollection(PlayerAITypes = new ScopedAssetCollection<PlayerAIType>(this));
             AddAssetCollection(PlayerTemplates = new ScopedAssetCollection<PlayerTemplate>(this));
             AddAssetCollection(Ranks = new ScopedAssetCollection<Rank>(this));
@@ -339,12 +338,12 @@ namespace OpenSage.Content
             AddAssetCollection(Subsystems = new ScopedAssetCollection<LoadSubsystem>(this));
             AddAssetCollection(TerrainTextures = new ScopedAssetCollection<TerrainTexture>(this));
             AddAssetCollection(Textures = new ScopedAssetCollection<TextureAsset>(this, loadStrategy.CreateTextureLoader()));
-            AddAssetCollection(Upgrades = new ScopedAssetCollection<Upgrade>(this));
+            AddAssetCollection(Upgrades = new ScopedAssetCollection<UpgradeTemplate>(this));
             AddAssetCollection(VictorySystemDatas = new ScopedAssetCollection<VictorySystemData>(this));
             AddAssetCollection(Videos = new ScopedAssetCollection<Video>(this));
             AddAssetCollection(WaterSets = new ScopedAssetCollection<WaterSet>(this));
             AddAssetCollection(WaterTextureLists = new ScopedAssetCollection<WaterTextureList>(this));
-            AddAssetCollection(Weapons = new ScopedAssetCollection<Weapon>(this));
+            AddAssetCollection(WeaponTemplates = new ScopedAssetCollection<WeaponTemplate>(this));
             AddAssetCollection(WeatherDatas = new ScopedAssetCollection<WeatherData>(this));
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
         }

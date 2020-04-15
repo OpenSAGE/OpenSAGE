@@ -188,6 +188,11 @@ namespace OpenSage.Mathematics
             return new RectangleF(X, y, Width, Height);
         }
 
+        public RectangleF WithWidth(float width)
+        {
+            return new RectangleF(X, Y, width, Height);
+        }
+
         public bool Equals(in RectangleF other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y) && Width.Equals(other.Width) && Height.Equals(other.Height);

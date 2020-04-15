@@ -9,6 +9,7 @@ using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
+using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -215,7 +216,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
+            protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 for (var i = 1; i <= 12; i++)
                 {
@@ -227,11 +228,17 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
 
+                        buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
+
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
 
                         buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
                         buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
+
+                        var objectDefinition = commandButton.Object?.Value;
+
+                        buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
@@ -239,8 +246,6 @@ namespace OpenSage.Mods.Generals.Gui
 
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
-
-                            var objectDefinition = commandButton.Object?.Value;
 
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
@@ -267,6 +272,17 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.SetRallyPoint:
                                     context.Game.OrderGenerator.SetRallyPoint();
+                                    break;
+
+                                case CommandType.ObjectUpgrade:
+                                    order = CreateOrder(OrderType.ObjectUprade);
+                                    //TODO: figure this out correctly
+                                    var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
+                                    var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
+                                    order.AddIntegerArgument(objId);
+                                    var name = commandButton.Upgrade;
+                                    var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
+                                    order.AddIntegerArgument(upgrade.InternalId);
                                     break;
                                 default:
                                     throw new NotImplementedException();
@@ -341,13 +357,17 @@ namespace OpenSage.Mods.Generals.Gui
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
                 var commandSet = unit.Definition.CommandSet.Value;
-                ApplyCommandSet(controlBar, commandSet);
+
+                // TODO: Only do this when command set changes.
+                ApplyCommandSet(unit, controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
                 var isProducing = unit.ProductionUpdate?.IsProducing ?? false;
 
                 var productionQueueWindow = controlBar._right.Controls.FindControl("ControlBar.wnd:ProductionQueueWindow");
+
+                unitSelectedControl.Visible = !isProducing;
                 productionQueueWindow.Visible = isProducing;
 
                 if (isProducing)
@@ -370,11 +390,25 @@ namespace OpenSage.Mods.Generals.Gui
                             var job = queue[pos];
                             if (job != null)
                             {
-                                // quick and dirty progress indicator. needs to be remade to show the clock-like overlay
-                                queueButton.Opacity = (1.0f - job.Progress);
+                                queueButton.DrawCallback = (control, drawingContext) =>
+                                {
+                                    queueButton.DefaultDraw(control, drawingContext);
 
-                                img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+                                    // Draw radial progress indicator.
+                                    drawingContext.FillRectangleRadial360(
+                                        control.ClientRectangle,
+                                        controlBar._scheme.BuildUpClockColor.ToColorRgbaF(),
+                                        job.Progress);
+                                };
 
+                                if (job.Type == ProductionJobType.Unit)
+                                {
+                                    img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+                                }
+                                else if (job.Type == ProductionJobType.Upgrade)
+                                {
+                                    img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.UpgradeDefinition.ButtonImage);
+                                }
                                 var posCopy = pos;
 
                                 queueButton.SystemCallback = (control, message, context) =>
@@ -382,9 +416,14 @@ namespace OpenSage.Mods.Generals.Gui
                                     unit.ProductionUpdate.CancelProduction(posCopy);
                                 };
                             }
-
                         }
                         queueButton.BackgroundImage = img;
+
+                        if (img == null)
+                        {
+                            queueButton.DrawCallback = queueButton.DefaultDraw;
+                            queueButton.SystemCallback = null;
+                        }
                     }
                 }
 
@@ -393,7 +432,7 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<Upgrade> upgradeReference)
+                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
@@ -407,8 +446,6 @@ namespace OpenSage.Mods.Generals.Gui
                 ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
                 ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
                 ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
-
-                unitSelectedControl.Show();
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Eva;
+using OpenSage.FX;
 using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
@@ -35,7 +36,7 @@ namespace OpenSage.Data.Ini
             { "Animation", (parser, assetStore) => assetStore.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, assetStore) => AnimationSoundClientBehaviorGlobalSetting.Parse(parser, assetStore.AnimationSoundClientBehaviorGlobalSetting.Current) },
             { "AptButtonTooltipMap", (parser, assetStore) => AptButtonTooltipMap.Parse(parser, assetStore.AptButtonTooltipMap.Current) },
-            { "Armor", (parser, assetStore) => assetStore.Armors.Add(Armor.Parse(parser)) },
+            { "Armor", (parser, assetStore) => assetStore.ArmorTemplates.Add(ArmorTemplate.Parse(parser)) },
             { "ArmyDefinition", (parser, assetStore) => assetStore.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
             { "ArmySummaryDescription", (parser, assetStore) => ArmySummaryDescription.Parse(parser, assetStore.ArmySummaryDescription.Current) },
             { "AudioEvent", (parser, assetStore) => assetStore.AudioEvents.Add(AudioEvent.Parse(parser)) },
@@ -133,7 +134,7 @@ namespace OpenSage.Data.Ini
             { "ObjectReskin", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, assetStore) => assetStore.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, assetStore) => OnlineChatColors.Parse(parser, assetStore.OnlineChatColors.Current) },
-            { "ParticleSystem", (parser, assetStore) => assetStore.ParticleSystemTemplates.Add(ParticleSystemTemplate.Parse(parser)) },
+            { "ParticleSystem", (parser, assetStore) => assetStore.FXParticleSystemTemplates.Add(ParticleSystemTemplate.Parse(parser).ToFXParticleSystemTemplate()) },
             { "Pathfinder", (parser, assetStore) => Pathfinder.Parse(parser, assetStore.Pathfinder.Current) },
             { "PlayerAIType", (parser, assetStore) => assetStore.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
             { "PlayerTemplate", (parser, assetStore) => assetStore.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
@@ -155,13 +156,13 @@ namespace OpenSage.Data.Ini
             { "StaticGameLOD", (parser, assetStore) => assetStore.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "StrategicHUD", (parser, assetStore) => StrategicHud.Parse(parser, assetStore.StrategicHud.Current) },
             { "Terrain", (parser, assetStore) => assetStore.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
-            { "Upgrade", (parser, assetStore) => assetStore.Upgrades.Add(Upgrade.Parse(parser)) },
+            { "Upgrade", (parser, assetStore) => assetStore.Upgrades.Add(UpgradeTemplate.Parse(parser)) },
             { "VictorySystemData", (parser, assetStore) => assetStore.VictorySystemDatas.Add(VictorySystemData.Parse(parser)) },
             { "Video", (parser, assetStore) => assetStore.Videos.Add(Video.Parse(parser)) },
             { "WaterSet", (parser, assetStore) => assetStore.WaterSets.Add(WaterSet.Parse(parser)) },
             { "WaterTextureList", (parser, assetStore) => assetStore.WaterTextureLists.Add(WaterTextureList.Parse(parser)) },
             { "WaterTransparency", (parser, assetStore) => WaterTransparency.Parse(parser, assetStore.WaterTransparency.Current) },
-            { "Weapon", (parser, assetStore) => assetStore.Weapons.Add(Weapon.Parse(parser)) },
+            { "Weapon", (parser, assetStore) => assetStore.WeaponTemplates.Add(WeaponTemplate.Parse(parser)) },
             { "Weather", (parser, assetStore) => Weather.Parse(parser, assetStore.Weather.Current) },
             { "WeatherData", (parser, assetStore) => assetStore.WeatherDatas.Add(WeatherData.Parse(parser)) },
             { "WindowTransition", (parser, assetStore) => assetStore.WindowTransitions.Add(WindowTransition.Parse(parser)) },

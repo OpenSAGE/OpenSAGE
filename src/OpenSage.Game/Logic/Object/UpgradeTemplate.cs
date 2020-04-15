@@ -4,16 +4,16 @@ using OpenSage.Gui;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class Upgrade : BaseAsset
+    public sealed class UpgradeTemplate : BaseAsset
     {
-        internal static Upgrade Parse(IniParser parser)
+        internal static UpgradeTemplate Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("Upgrade", name),
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<Upgrade> FieldParseTable = new IniParseTable<Upgrade>
+        private static readonly IniParseTable<UpgradeTemplate> FieldParseTable = new IniParseTable<UpgradeTemplate>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<UpgradeType>() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },

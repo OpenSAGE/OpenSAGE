@@ -10,6 +10,12 @@ layout(set = 1, binding = 0) uniform RenderItemConstants
     mat4 _World;
 };
 
+layout(set = 1, binding = 1) uniform ParticleConstants
+{
+    vec3 _Padding;
+    bool _IsGroundAligned;
+};
+
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in float in_Size;
 layout(location = 2) in vec3 in_Color;
@@ -24,9 +30,18 @@ vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPo
 {
     vec3 particlePosWS = (_World * vec4(particlePosition, 1)).xyz;
 
-    vec3 toEye = normalize(_GlobalConstantsShared.CameraPosition - particlePosWS);
+    vec3 toEye;
+    if (_IsGroundAligned)
+    {
+        toEye = vec3(0, 0, 1);
+    }
+    else
+    {
+        toEye = normalize(_GlobalConstantsShared.CameraPosition - particlePosWS);
+    }
+
     vec3 up = vec3(cos(angle), 0, sin(angle));
-    vec3 right = cross(toEye, up);
+    vec3 right = cross(up, toEye);
     up = cross(toEye, right);
 
     particlePosWS += (right * size * quadPosition.x) + (up * size * quadPosition.y);
@@ -36,6 +51,8 @@ vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPo
 
 void main()
 {
+    gl_ClipDistance[0] = CalculateClippingPlane(in_Position, _GlobalConstantsVS.ClippingPlane);
+
     // Vertex layout:
     // 0 - 1
     // | / |
@@ -45,10 +62,10 @@ void main()
 
     const vec4 vertexUVPos[4] = vec4[4]
     (
-        vec4(0.0, 1.0, -1.0, -1.0),
-        vec4(0.0, 0.0, -1.0, +1.0),
-        vec4(1.0, 1.0, +1.0, -1.0),
-        vec4(1.0, 0.0, +1.0, +1.0)
+        vec4(0.0, 0.0, -1.0, -1.0),
+        vec4(1.0, 0.0, -1.0, +1.0),
+        vec4(0.0, 1.0, +1.0, -1.0),
+        vec4(1.0, 1.0, +1.0, +1.0)
     );
 
     vec4 quadData = vertexUVPos[quadVertexID];

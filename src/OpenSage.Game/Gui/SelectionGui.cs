@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Graphics.Cameras;
-using OpenSage.Logic.Object;
-using OpenSage.Mathematics;
+﻿using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
 {
@@ -10,22 +7,8 @@ namespace OpenSage.Gui
         public Rectangle SelectionRectangle { get; set; }
         public bool SelectionBoxVisible { get; set; }
 
-        public List<Collider> SelectedObjects { get; set; }
-
-        public SelectionGui()
+        public void Draw(DrawingContext2D context)
         {
-            SelectedObjects = new List<Collider>();
-        }
-
-        public void Draw(DrawingContext2D context, Camera camera)
-        {
-            foreach (var collider in SelectedObjects)
-            {
-                var rect = collider.GetBoundingRectangle(camera);
-                context.FillRectangle(rect, new ColorRgbaF(1, 0, 0, 0.2f));
-                context.DrawRectangle(rect.ToRectangleF(), ColorRgbaF.Black, 2);
-            }
-
             if (SelectionBoxVisible)
             {
                 context.FillRectangle(SelectionRectangle, new ColorRgbaF(1, 1, 1, 0.1f));

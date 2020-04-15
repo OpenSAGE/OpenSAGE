@@ -10,6 +10,8 @@ namespace OpenSage.Graphics
         internal RenderPipeline RenderPipeline { get; private set; }
 
         public Texture ShadowMap => RenderPipeline.ShadowMap;
+        public Texture ReflectionMap => RenderPipeline.ReflectionMap;
+        public Texture RefractionMap => RenderPipeline.RefractionMap;
 
         public GraphicsSystem(Game game)
             : base(game)

@@ -139,7 +139,10 @@ namespace OpenSage.Graphics
             in Rectangle? sourceRect,
             in RectangleF destinationRect,
             in ColorRgbaF color,
-            in bool flipped = false)
+            in bool flipped = false,
+            SpriteFillMethod fillMethod = SpriteFillMethod.Normal,
+            float fillAmount = 0.0f,
+            bool grayscale = false)
         {
             ref var batchItem = ref CreateBatchItem();
 
@@ -158,7 +161,10 @@ namespace OpenSage.Graphics
                 color,
                 texCoordTL,
                 texCoordBR,
-                0);
+                0,
+                fillMethod,
+                fillAmount,
+                grayscale);
         }
 
         public void DrawImage(
@@ -223,10 +229,25 @@ namespace OpenSage.Graphics
         public void End()
         {
             // TODO: Batch draw calls by texture.
+            // TODO: Sort by FillMethod
 
             for (var i = 0; i < _currentBatchIndex; i++)
             {
                 ref var batchItem = ref _batchItems[i];
+
+                if (batchItem.OutputOffset != _spriteConstantsPSBuffer.Value.OutputOffset
+                    || batchItem.OutputSize != _spriteConstantsPSBuffer.Value.OutputSize
+                    || batchItem.FillMethod != _spriteConstantsPSBuffer.Value.FillMethod
+                    || batchItem.FillAmount != _spriteConstantsPSBuffer.Value.FillAmount
+                    || batchItem.Grayscale != _spriteConstantsPSBuffer.Value.Grayscale)
+                {
+                    _spriteConstantsPSBuffer.Value.OutputOffset = batchItem.OutputOffset;
+                    _spriteConstantsPSBuffer.Value.OutputSize = batchItem.OutputSize;
+                    _spriteConstantsPSBuffer.Value.FillMethod = batchItem.FillMethod;
+                    _spriteConstantsPSBuffer.Value.FillAmount = batchItem.FillAmount;
+                    _spriteConstantsPSBuffer.Value.Grayscale = batchItem.Grayscale;
+                    _spriteConstantsPSBuffer.Update(_commandList);
+                }
 
                 _vertices[0] = batchItem.VertexTL;
                 _vertices[1] = batchItem.VertexTR;
@@ -271,6 +292,13 @@ namespace OpenSage.Graphics
             // Not used for a triangle item.
             public SpriteShaderResources.SpriteVertex VertexBR;
 
+            public Vector2 OutputOffset;
+            public Vector2 OutputSize;
+            public SpriteFillMethod FillMethod;
+            public float FillAmount;
+
+            public bool Grayscale;
+
             public void Set(float x, float y, float dx, float dy, float w, float h, float sin, float cos, in ColorRgbaF color, in Vector2 texCoordTL, in Vector2 texCoordBR, float depth)
             {
                 ItemType = SpriteBatchItemType.Quad;
@@ -304,7 +332,15 @@ namespace OpenSage.Graphics
                 VertexBR.UV.Y = texCoordBR.Y;
             }
 
-            public void Set(float x, float y, float w, float h, in ColorRgbaF color, in Vector2 texCoordTL, in Vector2 texCoordBR, float depth)
+            public void Set(
+                float x, float y, float w, float h,
+                in ColorRgbaF color,
+                in Vector2 texCoordTL,
+                in Vector2 texCoordBR,
+                float depth,
+                SpriteFillMethod fillMethod,
+                float fillAmount,
+                bool grayscale)
             {
                 ItemType = SpriteBatchItemType.Quad;
 
@@ -335,6 +371,13 @@ namespace OpenSage.Graphics
                 VertexBR.Color = color;
                 VertexBR.UV.X = texCoordBR.X;
                 VertexBR.UV.Y = texCoordBR.Y;
+
+                OutputOffset = new Vector2(x, y);
+                OutputSize = new Vector2(w, h);
+                FillMethod = fillMethod;
+                FillAmount = fillAmount;
+
+                Grayscale = grayscale;
             }
 
             public void Set(in Triangle2D triangle, in Triangle2D texCoords, in ColorRgbaF color, float depth)
@@ -369,5 +412,11 @@ namespace OpenSage.Graphics
             Quad,
             Triangle
         }
+    }
+
+    public enum SpriteFillMethod
+    {
+        Normal,
+        Radial360
     }
 }

@@ -10,6 +10,9 @@
         BuildObject = 1049,
         Sell = 1052,
         DrawBoxSelection = 1058,
+        AttackObject = 1059,
+        ForceAttackObject = 1060,
+        ForceAttackGround = 1061,
         MoveTo = 1068,
         ToggleOvercharge = 1078,
         SetCameraPosition = 1092,
@@ -75,7 +78,7 @@
         Unknown1042 = 1042,
 
         ChooseGeneralPromotion = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
-        Unknown1045 = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593)
+        ObjectUprade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593)
         Unknown1046 = 1046,
 
         Unknown1048 = 1048,
@@ -89,9 +92,6 @@
         Unknown1056 = 1056,
         Unknown1057 = 1057,
 
-        Unknown1059 = 1059,
-        Unknown1060 = 1060,
-        Unknown1061 = 1061,
         Unknown1062 = 1062,
         Unknown1063 = 1063,
         Unknown1064 = 1064,
@@ -99,7 +99,7 @@
         Unknown1066 = 1066,
         Unknown1067 = 1067,
 
-        Unknown1069 = 1069,
+        Unknown1069 = 1069,//AttackMove?
         Unknown1070 = 1070,
         Unknown1071 = 1071,
         Unknown1072 = 1072,

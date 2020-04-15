@@ -75,6 +75,8 @@ namespace OpenSage.Graphics.Cameras
         public Matrix4x4 ViewProjection { get; private set; }
 
         public Vector3 Position { get; private set; }
+        public Vector3 Target { get; private set; }
+        public Vector3 Up { get; private set; }
 
         public Camera(Func<Viewport> getViewport)
         {
@@ -84,9 +86,21 @@ namespace OpenSage.Graphics.Cameras
             BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
             _nearPlaneDistance = 4.0f;
-            _farPlaneDistance = 10000.0f;
+            _farPlaneDistance = 2000.0f;
 
             UpdateProjection();
+        }
+
+        public void SetMirrorX(float pivot)
+        {
+            // Used for rendering reflection without stencil clipping
+            var position = Position - new Vector3(0, 0, 2 * (Position.Z - pivot));
+            var target = Target - new Vector3(0, 0, 2 * (Target.Z - pivot));
+            var up = Up - new Vector3(0, 0, 2 * Up.Z);
+
+            SetLookAt(position, target, up);
+            ViewProjection *= Matrix4x4.CreateScale(-1, 1, 1);
+            BoundingFrustum.Matrix = ViewProjection;
         }
 
         public void SetLookAt(in Vector3 cameraPosition, in Vector3 cameraTarget, in Vector3 up)
@@ -94,6 +108,8 @@ namespace OpenSage.Graphics.Cameras
             View = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, up);
             _world = Matrix4x4Utility.Invert(View);
             Position = cameraPosition;
+            Target = cameraTarget;
+            Up = up;
 
             UpdateViewProjection();
         }
@@ -112,19 +128,22 @@ namespace OpenSage.Graphics.Cameras
 
         private void CreateProjection(out Matrix4x4 projection)
         {
-            const int height = 24; // Height in mm of 35mm film.
-            var fieldOfView = 2 * MathUtility.Atan(0.5f * height / _focalLength);
+            var fieldOfView = GetFieldOfView();
 
             projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 fieldOfView, _viewport.Width / _viewport.Height,
                 NearPlaneDistance, FarPlaneDistance);
         }
 
+        private float GetFieldOfView()
+        {
+            const int height = 24; // Height in mm of 35mm film.
+            return 2 * MathUtility.Atan(0.5f * height / _focalLength);
+        }
+
         /// <summary>
         /// Creates a ray going from the camera's near plane, through the specified screen position, to the camera's far plane.
         /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
         public Ray ScreenPointToRay(Vector2 position)
         {
             var near = _viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
@@ -176,6 +195,16 @@ namespace OpenSage.Graphics.Cameras
         {
             _viewport = _getViewport();
             UpdateProjection();
+        }
+
+        /// <summary>
+        /// Get size in screen space of world-space bounding sphere.
+        /// </summary>
+        public float GetScreenSize(in BoundingSphere boundingSphere)
+        {
+            var fieldOfView = GetFieldOfView();
+            var distance = Vector3.Distance(boundingSphere.Center, Position);
+            return (boundingSphere.Radius / (MathF.Tan(fieldOfView / 2) * distance)) * (_viewport.Height / 2);
         }
 
         /// <summary>

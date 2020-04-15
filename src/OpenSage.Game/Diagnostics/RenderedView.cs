@@ -6,7 +6,6 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
-using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Settings;
@@ -25,9 +24,11 @@ namespace OpenSage.Diagnostics
 
         public RenderPipeline RenderPipeline { get; }
 
+        public Scene3D Scene => _scene3D;
+
         public RenderedView(
             DiagnosticViewContext context,
-            in Vector3 cameraTarget = default(Vector3),
+            in Vector3 cameraTarget = default,
             float cameraDistance = 200,
             Action<GameObjectCollection> createGameObjects = null)
         {
@@ -35,19 +36,16 @@ namespace OpenSage.Diagnostics
 
             _inputMessageBuffer = new InputMessageBuffer();
 
-            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.AssetStore.LoadContext,
-                                                                    context.Game.CivilianPlayer,
-                                                                    context.Game.Scene3D?.Navigation));
-            createGameObjects?.Invoke(gameObjects);
-
             _scene3D = AddDisposable(new Scene3D(
                 context.Game,
                 _inputMessageBuffer,
                 () => new Viewport(0, 0, ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y, 0, 1),
                 new ArcballCameraController(cameraTarget, cameraDistance),
-                gameObjects,
                 WorldLighting.CreateDefault(),
+                Environment.TickCount,
                 isDiagnosticScene: true));
+
+            createGameObjects?.Invoke(_scene3D.GameObjects);
 
             RenderPipeline = AddDisposable(new RenderPipeline(context.Game));
 

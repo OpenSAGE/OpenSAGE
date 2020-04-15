@@ -41,6 +41,12 @@ namespace OpenSage.Terrain
 
         public ResourceSet CloudResourceSet { get; }
 
+        private float _causticsIndex;
+        private DeltaTimer _deltaTimer;
+
+        private List<Texture> _causticsTextureList;
+        private readonly uint _numOfCausticsAnimation = 32;
+
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
             HeightMap = new HeightMap(mapFile.HeightMapData);
@@ -77,19 +83,39 @@ namespace OpenSage.Terrain
 
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
+            BuildCausticsTextureArray(loadContext.AssetStore);
+            Func<ResourceSet> causticsRenderer = () =>
+            {
+                UpdateTimer();
+                var casuticsTexture = GetCausticsTexture();
+
+                var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+                    materialConstantsBuffer,
+                    tileDataTexture,
+                    cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                    textureDetailsBuffer,
+                    textureArray,
+                    macroTexture,
+                    casuticsTexture));
+                return materialResourceSet;
+            };
+
+            var casuticsTexture = loadContext.StandardGraphicsResources.SolidBlackTexture;
             var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 materialConstantsBuffer,
                 tileDataTexture,
                 cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
                 textureDetailsBuffer,
                 textureArray,
-                macroTexture));
+                macroTexture,
+                casuticsTexture));
 
             Patches = CreatePatches(
                 loadContext.GraphicsDevice,
                 HeightMap,
                 indexBufferCache,
-                materialResourceSet);
+                materialResourceSet,
+                causticsRenderer);
 
             var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
@@ -107,11 +133,48 @@ namespace OpenSage.Terrain
             _pipeline = terrainPipeline;
         }
 
+        private void UpdateTimer()
+        {
+            if (_deltaTimer == null)
+            {
+                _deltaTimer = new DeltaTimer();
+                _deltaTimer.Start();
+            }
+            else
+            {
+                _deltaTimer.Update();
+            }
+        }
+
+        private Texture GetCausticsTexture()
+        {
+            var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.TotalSeconds;
+            _causticsIndex += 10f * deltaTime;
+            if (_causticsIndex >= _numOfCausticsAnimation)
+                _causticsIndex = 0;
+            return _causticsTextureList[(int) _causticsIndex];
+        }
+
+        private void BuildCausticsTextureArray(AssetStore assetStore)
+        {
+            _causticsTextureList = new List<Texture>();
+            var baseTextureName = "causts";
+            var textureFormat = ".tga";
+
+            for (int i = 0; i < _numOfCausticsAnimation; i++)
+            {
+                var numString = i < 10 ? ("0" + i.ToString()) : i.ToString();
+                var texture = assetStore.Textures.GetByName(baseTextureName + numString + textureFormat);
+                _causticsTextureList.Add(texture);
+            }
+        }
+
         private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet)
+            ResourceSet materialResourceSet,
+            Func<ResourceSet> causticsRendererCallback)
         {
             const int numTilesPerPatch = PatchSize - 1;
 
@@ -149,7 +212,8 @@ namespace OpenSage.Terrain
                         patchBounds,
                         graphicsDevice,
                         indexBufferCache,
-                        materialResourceSet)));
+                        materialResourceSet,
+                        causticsRendererCallback)));
                 }
             }
 

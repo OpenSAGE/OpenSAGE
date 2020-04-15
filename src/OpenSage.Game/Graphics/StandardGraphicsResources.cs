@@ -15,6 +15,7 @@ namespace OpenSage.Graphics
 
         public Texture NullTexture { get; }
         public Texture SolidWhiteTexture { get; }
+        public Texture SolidBlackTexture { get; }
         public Texture PlaceholderTexture { get; }
 
         public StandardGraphicsResources(GraphicsDevice graphicsDevice)
@@ -45,6 +46,14 @@ namespace OpenSage.Graphics
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
             SolidWhiteTexture.Name = "Solid White Texture";
+
+            SolidBlackTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
+                1, 1, 1,
+                new TextureMipMapData(
+                    new byte[] { 0, 0, 0, 255 },
+                    4, 4, 1, 1),
+                PixelFormat.R8_G8_B8_A8_UNorm));
+            SolidBlackTexture.Name = "Solid Black Texture";
 
             PlaceholderTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
                 1, 1, 1,

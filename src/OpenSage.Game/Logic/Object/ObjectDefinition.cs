@@ -66,8 +66,8 @@ namespace OpenSage.Logic.Object
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
-            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
-            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
+            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponTemplateSet.Parse(parser)) },
+            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorTemplateSet.Parse(parser)) },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
@@ -84,94 +84,94 @@ namespace OpenSage.Logic.Object
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
             { "VoiceSelectUnderConstruction", (parser, x) => x.VoiceSelectUnderConstruction = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAudioEventReference() },
-            { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
-            { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
-            { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAssetReference() },
-            { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
-            { "VoiceGuardGroup", (parser, x) => x.VoiceGuardGroup = parser.ParseAssetReference() },
-            { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
-            { "VoiceAttackGroup", (parser, x) => x.VoiceAttackGroup = parser.ParseAssetReference() },
-            { "VoiceAttackCharge", (parser, x) => x.VoiceAttackCharge = parser.ParseAssetReference() },
-            { "VoiceAttackChargeGroup", (parser, x) => x.VoiceAttackChargeGroup = parser.ParseAssetReference() },
-            { "VoiceAttackAir", (parser, x) => x.VoiceAttackAir = parser.ParseAssetReference() },
-            { "VoiceAttackAirGroup", (parser, x) => x.VoiceAttackAirGroup = parser.ParseAssetReference() },
-            { "VoiceGroupSelect", (parser, x) => x.VoiceGroupSelect = parser.ParseAssetReference() },
-            { "VoiceEnter", (parser, x) => x.VoiceEnter = parser.ParseAssetReference() },
-            { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAssetReference() },
-            { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAssetReference() },
-            { "VoiceSelectElite", (parser, x) => x.VoiceSelectElite = parser.ParseAssetReference() },
-            { "VoiceCreated", (parser, x) => x.VoiceCreated = parser.ParseAssetReference() },
-            { "VoiceTaskUnable", (parser, x) => x.VoiceTaskUnable = parser.ParseAssetReference() },
-            { "VoiceTaskComplete", (parser, x) => x.VoiceTaskComplete = parser.ParseAssetReference() },
-            { "VoiceDefect", (parser, x) => x.VoiceDefect = parser.ParseAssetReference() },
-            { "VoiceMeetEnemy", (parser, x) => x.VoiceMeetEnemy = parser.ParseAssetReference() },
-            { "VoiceAlert", (parser, x) => x.VoiceAlert = parser.ParseAssetReference() },
-            { "VoiceFullyCreated", (parser, x) => x.VoiceFullyCreated = parser.ParseAssetReference() },
-            { "VoiceRetreatToCastle", (parser, x) => x.VoiceRetreatToCastle = parser.ParseAssetReference() },
-            { "VoiceRetreatToCastleGroup", (parser, x) => x.VoiceRetreatToCastleGroup = parser.ParseAssetReference() },
-            { "VoiceMoveToCamp", (parser, x) => x.VoiceMoveToCamp = parser.ParseAssetReference() },
-            { "VoiceMoveToCampGroup", (parser, x) => x.VoiceMoveToCampGroup = parser.ParseAssetReference() },
-            { "VoiceAttackStructure", (parser, x) => x.VoiceAttackStructure = parser.ParseAssetReference() },
-            { "VoiceAttackStructureGroup", (parser, x) => x.VoiceAttackStructureGroup = parser.ParseAssetReference() },
-            { "VoiceAttackMachine", (parser, x) => x.VoiceAttackMachine = parser.ParseAssetReference() },
-            { "VoiceAttackMachineGroup", (parser, x) => x.VoiceAttackMachineGroup = parser.ParseAssetReference() },
-            { "VoiceMoveWhileAttacking", (parser, x) => x.VoiceMoveWhileAttacking = parser.ParseAssetReference() },
-            { "VoiceMoveWhileAttackingGroup", (parser, x) => x.VoiceMoveWhileAttackingGroup = parser.ParseAssetReference() },
-            { "VoiceAmbushed", (parser, x) => x.VoiceAmbushed = parser.ParseAssetReference() },
-            { "VoiceCombineWithHorde", (parser, x) => x.VoiceCombineWithHorde = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttack", (parser, x) => x.VoiceEnterStateAttack = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackCharge", (parser, x) => x.VoiceEnterStateAttackCharge = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackAir", (parser, x) => x.VoiceEnterStateAttackAir = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackStructure", (parser, x) => x.VoiceEnterStateAttackStructure = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackMachine", (parser, x) => x.VoiceEnterStateAttackMachine = parser.ParseAssetReference() },
-            { "VoiceEnterStateMove", (parser, x) => x.VoiceEnterStateMove = parser.ParseAssetReference() },
-            { "VoiceEnterStateRetreatToCastle", (parser, x) => x.VoiceEnterStateRetreatToCastle = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveToCamp", (parser, x) => x.VoiceEnterStateMoveToCamp = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveToHigherGround", (parser, x) => x.VoiceEnterStateMoveToHigherGround = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveOverWalls", (parser, x) => x.VoiceEnterStateMoveOverWalls = parser.ParseAssetReference() },
+            { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAudioEventReference() },
+            { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAudioEventReference() },
+            { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAudioEventReference() },
+            { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAudioEventReference() },
+            { "VoiceGuardGroup", (parser, x) => x.VoiceGuardGroup = parser.ParseAudioEventReference() },
+            { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAudioEventReference() },
+            { "VoiceAttackGroup", (parser, x) => x.VoiceAttackGroup = parser.ParseAudioEventReference() },
+            { "VoiceAttackCharge", (parser, x) => x.VoiceAttackCharge = parser.ParseAudioEventReference() },
+            { "VoiceAttackChargeGroup", (parser, x) => x.VoiceAttackChargeGroup = parser.ParseAudioEventReference() },
+            { "VoiceAttackAir", (parser, x) => x.VoiceAttackAir = parser.ParseAudioEventReference() },
+            { "VoiceAttackAirGroup", (parser, x) => x.VoiceAttackAirGroup = parser.ParseAudioEventReference() },
+            { "VoiceGroupSelect", (parser, x) => x.VoiceGroupSelect = parser.ParseAudioEventReference() },
+            { "VoiceEnter", (parser, x) => x.VoiceEnter = parser.ParseAudioEventReference() },
+            { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAudioEventReference() },
+            { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAudioEventReference() },
+            { "VoiceSelectElite", (parser, x) => x.VoiceSelectElite = parser.ParseAudioEventReference() },
+            { "VoiceCreated", (parser, x) => x.VoiceCreated = parser.ParseAudioEventReference() },
+            { "VoiceTaskUnable", (parser, x) => x.VoiceTaskUnable = parser.ParseAudioEventReference() },
+            { "VoiceTaskComplete", (parser, x) => x.VoiceTaskComplete = parser.ParseAudioEventReference() },
+            { "VoiceDefect", (parser, x) => x.VoiceDefect = parser.ParseAudioEventReference() },
+            { "VoiceMeetEnemy", (parser, x) => x.VoiceMeetEnemy = parser.ParseAudioEventReference() },
+            { "VoiceAlert", (parser, x) => x.VoiceAlert = parser.ParseAudioEventReference() },
+            { "VoiceFullyCreated", (parser, x) => x.VoiceFullyCreated = parser.ParseAudioEventReference() },
+            { "VoiceRetreatToCastle", (parser, x) => x.VoiceRetreatToCastle = parser.ParseAudioEventReference() },
+            { "VoiceRetreatToCastleGroup", (parser, x) => x.VoiceRetreatToCastleGroup = parser.ParseAudioEventReference() },
+            { "VoiceMoveToCamp", (parser, x) => x.VoiceMoveToCamp = parser.ParseAudioEventReference() },
+            { "VoiceMoveToCampGroup", (parser, x) => x.VoiceMoveToCampGroup = parser.ParseAudioEventReference() },
+            { "VoiceAttackStructure", (parser, x) => x.VoiceAttackStructure = parser.ParseAudioEventReference() },
+            { "VoiceAttackStructureGroup", (parser, x) => x.VoiceAttackStructureGroup = parser.ParseAudioEventReference() },
+            { "VoiceAttackMachine", (parser, x) => x.VoiceAttackMachine = parser.ParseAudioEventReference() },
+            { "VoiceAttackMachineGroup", (parser, x) => x.VoiceAttackMachineGroup = parser.ParseAudioEventReference() },
+            { "VoiceMoveWhileAttacking", (parser, x) => x.VoiceMoveWhileAttacking = parser.ParseAudioEventReference() },
+            { "VoiceMoveWhileAttackingGroup", (parser, x) => x.VoiceMoveWhileAttackingGroup = parser.ParseAudioEventReference() },
+            { "VoiceAmbushed", (parser, x) => x.VoiceAmbushed = parser.ParseAudioEventReference() },
+            { "VoiceCombineWithHorde", (parser, x) => x.VoiceCombineWithHorde = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttack", (parser, x) => x.VoiceEnterStateAttack = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackCharge", (parser, x) => x.VoiceEnterStateAttackCharge = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackAir", (parser, x) => x.VoiceEnterStateAttackAir = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackStructure", (parser, x) => x.VoiceEnterStateAttackStructure = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackMachine", (parser, x) => x.VoiceEnterStateAttackMachine = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMove", (parser, x) => x.VoiceEnterStateMove = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateRetreatToCastle", (parser, x) => x.VoiceEnterStateRetreatToCastle = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveToCamp", (parser, x) => x.VoiceEnterStateMoveToCamp = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveToHigherGround", (parser, x) => x.VoiceEnterStateMoveToHigherGround = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveOverWalls", (parser, x) => x.VoiceEnterStateMoveOverWalls = parser.ParseAudioEventReference() },
 
-            { "VoiceSelect2", (parser, x) => x.VoiceSelect2 = parser.ParseAssetReference() },
-            { "VoiceSelectGroup2", (parser, x) => x.VoiceSelectGroup2 = parser.ParseAssetReference() },
-            { "VoiceSelectBattle2", (parser, x) => x.VoiceSelectBattle2 = parser.ParseAssetReference() },
-            { "VoiceSelectBattleGroup2", (parser, x) => x.VoiceSelectBattleGroup2 = parser.ParseAssetReference() },
-            { "VoiceMove2", (parser, x) => x.VoiceMove2 = parser.ParseAssetReference() },
-            { "VoiceMoveGroup2", (parser, x) => x.VoiceMoveGroup2 = parser.ParseAssetReference() },
-            { "VoiceGuard2", (parser, x) => x.VoiceGuard2 = parser.ParseAssetReference() },
-            { "VoiceGuardGroup2", (parser, x) => x.VoiceGuardGroup2 = parser.ParseAssetReference() },
-            { "VoiceAttack2", (parser, x) => x.VoiceAttack2 = parser.ParseAssetReference() },
-            { "VoiceAttackGroup2", (parser, x) => x.VoiceAttackGroup2 = parser.ParseAssetReference() },
-            { "VoiceAttackCharge2", (parser, x) => x.VoiceAttackCharge2 = parser.ParseAssetReference() },
-            { "VoiceAttackChargeGroup2", (parser, x) => x.VoiceAttackChargeGroup2 = parser.ParseAssetReference() },
-            { "VoiceAttackAir2", (parser, x) => x.VoiceAttackAir2 = parser.ParseAssetReference() },
-            { "VoiceAttackAirGroup2", (parser, x) => x.VoiceAttackAirGroup2 = parser.ParseAssetReference() },
-            { "VoiceFear2", (parser, x) => x.VoiceFear2 = parser.ParseAssetReference() },
-            { "VoiceCreated2", (parser, x) => x.VoiceCreated2 = parser.ParseAssetReference() },
-            { "VoiceTaskComplete2", (parser, x) => x.VoiceTaskComplete2 = parser.ParseAssetReference() },
-            { "VoiceDefect2", (parser, x) => x.VoiceDefect2 = parser.ParseAssetReference() },
-            { "VoiceAlert2", (parser, x) => x.VoiceAlert2 = parser.ParseAssetReference() },
-            { "VoiceFullyCreated2", (parser, x) => x.VoiceFullyCreated2 = parser.ParseAssetReference() },
-            { "VoiceRetreatToCastle2", (parser, x) => x.VoiceRetreatToCastle2 = parser.ParseAssetReference() },
-            { "VoiceRetreatToCastleGroup2", (parser, x) => x.VoiceRetreatToCastleGroup2 = parser.ParseAssetReference() },
-            { "VoiceMoveToCamp2", (parser, x) => x.VoiceMoveToCamp2 = parser.ParseAssetReference() },
-            { "VoiceMoveToCampGroup2", (parser, x) => x.VoiceMoveToCampGroup2 = parser.ParseAssetReference() },
-            { "VoiceAttackStructure2", (parser, x) => x.VoiceAttackStructure2 = parser.ParseAssetReference() },
-            { "VoiceAttackStructureGroup2", (parser, x) => x.VoiceAttackStructureGroup2 = parser.ParseAssetReference() },
-            { "VoiceAttackMachine2", (parser, x) => x.VoiceAttackMachine2 = parser.ParseAssetReference() },
-            { "VoiceAttackMachineGroup2", (parser, x) => x.VoiceAttackMachineGroup2 = parser.ParseAssetReference() },
-            { "VoiceMoveWhileAttacking2", (parser, x) => x.VoiceMoveWhileAttacking2 = parser.ParseAssetReference() },
-            { "VoiceMoveWhileAttackingGroup2", (parser, x) => x.VoiceMoveWhileAttackingGroup2 = parser.ParseAssetReference() },
-            { "VoiceAmbushed2", (parser, x) => x.VoiceAmbushed2 = parser.ParseAssetReference() },
-            { "VoiceCombineWithHorde2", (parser, x) => x.VoiceCombineWithHorde2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttack2", (parser, x) => x.VoiceEnterStateAttack2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackCharge2", (parser, x) => x.VoiceEnterStateAttackCharge2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackAir2", (parser, x) => x.VoiceEnterStateAttackAir2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackStructure2", (parser, x) => x.VoiceEnterStateAttackStructure2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateAttackMachine2", (parser, x) => x.VoiceEnterStateAttackMachine2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateMove2", (parser, x) => x.VoiceEnterStateMove2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateRetreatToCastle2", (parser, x) => x.VoiceEnterStateRetreatToCastle2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveToCamp2", (parser, x) => x.VoiceEnterStateMoveToCamp2 = parser.ParseAssetReference() },
-            { "VoiceEnterStateMoveWhileAttacking2", (parser, x) => x.VoiceEnterStateMoveWhileAttacking2 = parser.ParseAssetReference() },
+            { "VoiceSelect2", (parser, x) => x.VoiceSelect2 = parser.ParseAudioEventReference() },
+            { "VoiceSelectGroup2", (parser, x) => x.VoiceSelectGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceSelectBattle2", (parser, x) => x.VoiceSelectBattle2 = parser.ParseAudioEventReference() },
+            { "VoiceSelectBattleGroup2", (parser, x) => x.VoiceSelectBattleGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceMove2", (parser, x) => x.VoiceMove2 = parser.ParseAudioEventReference() },
+            { "VoiceMoveGroup2", (parser, x) => x.VoiceMoveGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceGuard2", (parser, x) => x.VoiceGuard2 = parser.ParseAudioEventReference() },
+            { "VoiceGuardGroup2", (parser, x) => x.VoiceGuardGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAttack2", (parser, x) => x.VoiceAttack2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackGroup2", (parser, x) => x.VoiceAttackGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackCharge2", (parser, x) => x.VoiceAttackCharge2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackChargeGroup2", (parser, x) => x.VoiceAttackChargeGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackAir2", (parser, x) => x.VoiceAttackAir2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackAirGroup2", (parser, x) => x.VoiceAttackAirGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceFear2", (parser, x) => x.VoiceFear2 = parser.ParseAudioEventReference() },
+            { "VoiceCreated2", (parser, x) => x.VoiceCreated2 = parser.ParseAudioEventReference() },
+            { "VoiceTaskComplete2", (parser, x) => x.VoiceTaskComplete2 = parser.ParseAudioEventReference() },
+            { "VoiceDefect2", (parser, x) => x.VoiceDefect2 = parser.ParseAudioEventReference() },
+            { "VoiceAlert2", (parser, x) => x.VoiceAlert2 = parser.ParseAudioEventReference() },
+            { "VoiceFullyCreated2", (parser, x) => x.VoiceFullyCreated2 = parser.ParseAudioEventReference() },
+            { "VoiceRetreatToCastle2", (parser, x) => x.VoiceRetreatToCastle2 = parser.ParseAudioEventReference() },
+            { "VoiceRetreatToCastleGroup2", (parser, x) => x.VoiceRetreatToCastleGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceMoveToCamp2", (parser, x) => x.VoiceMoveToCamp2 = parser.ParseAudioEventReference() },
+            { "VoiceMoveToCampGroup2", (parser, x) => x.VoiceMoveToCampGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackStructure2", (parser, x) => x.VoiceAttackStructure2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackStructureGroup2", (parser, x) => x.VoiceAttackStructureGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackMachine2", (parser, x) => x.VoiceAttackMachine2 = parser.ParseAudioEventReference() },
+            { "VoiceAttackMachineGroup2", (parser, x) => x.VoiceAttackMachineGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceMoveWhileAttacking2", (parser, x) => x.VoiceMoveWhileAttacking2 = parser.ParseAudioEventReference() },
+            { "VoiceMoveWhileAttackingGroup2", (parser, x) => x.VoiceMoveWhileAttackingGroup2 = parser.ParseAudioEventReference() },
+            { "VoiceAmbushed2", (parser, x) => x.VoiceAmbushed2 = parser.ParseAudioEventReference() },
+            { "VoiceCombineWithHorde2", (parser, x) => x.VoiceCombineWithHorde2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttack2", (parser, x) => x.VoiceEnterStateAttack2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackCharge2", (parser, x) => x.VoiceEnterStateAttackCharge2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackAir2", (parser, x) => x.VoiceEnterStateAttackAir2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackStructure2", (parser, x) => x.VoiceEnterStateAttackStructure2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateAttackMachine2", (parser, x) => x.VoiceEnterStateAttackMachine2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMove2", (parser, x) => x.VoiceEnterStateMove2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateRetreatToCastle2", (parser, x) => x.VoiceEnterStateRetreatToCastle2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveToCamp2", (parser, x) => x.VoiceEnterStateMoveToCamp2 = parser.ParseAudioEventReference() },
+            { "VoiceEnterStateMoveWhileAttacking2", (parser, x) => x.VoiceEnterStateMoveWhileAttacking2 = parser.ParseAudioEventReference() },
 
             { "SoundMoveStart", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
             { "SoundMoveStartDamaged", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
@@ -218,7 +218,22 @@ namespace OpenSage.Logic.Object
             { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseInteger() },
             { "CampnessValueRadius", (parser, x) => x.CampnessValueRadius = parser.ParseInteger() },
 
-            { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
+            {
+                "Behavior",
+                (parser, x) =>
+                {
+                    var behavior = BehaviorModuleData.ParseBehavior(parser);
+                    if (behavior is AIUpdateModuleData aiUpdate)
+                    {
+                        x.AIUpdate = aiUpdate;
+                    }
+                    else
+                    {
+                        x.Behaviors.Add(behavior);
+                    }
+                }
+            },
+
             { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
@@ -251,7 +266,7 @@ namespace OpenSage.Logic.Object
 
             { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(ContactPoint.Parse(parser)) },
 
-            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
+            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()},
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
@@ -373,11 +388,11 @@ namespace OpenSage.Logic.Object
         public int PlacementViewAngle { get; private set; }
         public LazyAssetReference<MappedImage> SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo1 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo2 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo3 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo4 { get; private set; }
-        public LazyAssetReference<Upgrade> UpgradeCameo5 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo1 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo2 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo3 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo4 { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeCameo5 { get; private set; }
 
         // Design
         public ObjectBuildableType Buildable { get; private set; }
@@ -406,8 +421,8 @@ namespace OpenSage.Logic.Object
         public bool IsForbidden { get; private set; }
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
-        public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
-        public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
+        public List<WeaponTemplateSet> WeaponSets { get; } = new List<WeaponTemplateSet>();
+        public List<ArmorTemplateSet> ArmorSets { get; } = new List<ArmorTemplateSet>();
         public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
@@ -455,246 +470,246 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<BaseAudioEventInfo> VoiceMove { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public string VoiceMoveOverWall { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveOverWall { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public string VoiceMoveToHigherGround { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveToHigherGround { get; private set; }
 
-        public string VoiceGuard { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string VoiceGuardGroup { get; private set; }
-
-        public string VoiceAttack { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGuard { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGuardGroup { get; private set; }
+
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttack { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackCharge { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackChargeGroup { get; private set; }
-
-        public string VoiceAttackAir { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackCharge { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackAirGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackChargeGroup { get; private set; }
 
-        public string VoiceGroupSelect { get; private set; }
-        public string VoiceEnter { get; private set; }
-        public string VoiceGarrison { get; private set; }
-        public string VoiceFear { get; private set; }
-        public string VoiceSelectElite { get; private set; }
-        public string VoiceCreated { get; private set; }
-        public string VoiceTaskUnable { get; private set; }
-        public string VoiceTaskComplete { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackAir { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceDefect { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackAirGroup { get; private set; }
 
-        public string VoiceMeetEnemy { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string VoiceAlert { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string VoiceFullyCreated { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string VoiceRetreatToCastle { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGroupSelect { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnter { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGarrison { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceFear { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelectElite { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceCreated { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceTaskUnable { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceTaskComplete { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceRetreatToCastleGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceDefect { get; private set; }
+
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMeetEnemy { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveToCamp { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAlert { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveToCampGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceFullyCreated { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackStructure { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceRetreatToCastle { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackStructureGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceRetreatToCastleGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackMachine { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveToCamp { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackMachineGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveToCampGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveWhileAttacking { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackStructure { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveWhileAttackingGroup { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackStructureGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAmbushed { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackMachine { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceCombineWithHorde { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackMachineGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttack { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveWhileAttacking { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackCharge { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveWhileAttackingGroup { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackAir { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAmbushed { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackStructure { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceCombineWithHorde { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackMachine { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttack { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMove { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackCharge { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateRetreatToCastle { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackAir { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMoveToCamp { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackStructure { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMoveWhileAttacking { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackMachine { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterStateMoveToHigherGround { get; private set; } 
+        [AddedIn(SageGame.Bfme)]
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMove { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateRetreatToCastle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveToCamp { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveWhileAttacking { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public string VoiceEnterStateMoveOverWalls { get; private set; } 
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveToHigherGround { get; private set; } 
+
+        [AddedIn(SageGame.Bfme2)]
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveOverWalls { get; private set; } 
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceSelect2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelect2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceSelectGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelectGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceSelectBattle2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelectBattle2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceSelectBattleGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceSelectBattleGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMove2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMove2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceGuard2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGuard2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceGuardGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceGuardGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttack2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttack2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackCharge2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackCharge2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackChargeGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackChargeGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackAir2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackAir2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackAirGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackAirGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceFear2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceFear2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceCreated2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceCreated2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceTaskComplete2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceTaskComplete2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceDefect2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceDefect2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAlert2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAlert2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceFullyCreated2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceFullyCreated2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceRetreatToCastle2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceRetreatToCastle2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceRetreatToCastleGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceRetreatToCastleGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveToCamp2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveToCamp2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveToCampGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveToCampGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackStructure2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackStructure2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackStructureGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackStructureGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackMachine2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackMachine2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAttackMachineGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAttackMachineGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveWhileAttacking2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveWhileAttacking2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceMoveWhileAttackingGroup2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceMoveWhileAttackingGroup2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceAmbushed2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceAmbushed2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceCombineWithHorde2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceCombineWithHorde2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttack2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttack2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackCharge2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackCharge2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackAir2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackAir2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackStructure2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackStructure2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateAttackMachine2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateAttackMachine2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMove2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMove2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateRetreatToCastle2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateRetreatToCastle2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMoveToCamp2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveToCamp2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string VoiceEnterStateMoveWhileAttacking2 { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveWhileAttacking2 { get; private set; }
 
         public string SoundMoveStart { get; private set; }
         public string SoundMoveStartDamaged { get; private set; }
@@ -780,6 +795,7 @@ namespace OpenSage.Logic.Object
         public int CampnessValueRadius { get; private set; }
 
         // Engineering
+        public AIUpdateModuleData AIUpdate { get; private set; }
         public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
@@ -1249,7 +1265,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
             { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
-            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) },
+            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorTemplateSet.Parse(parser) },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
@@ -1260,7 +1276,7 @@ namespace OpenSage.Logic.Object
         public ModuleData Module { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ArmorSet ArmorSet { get; private set; }
+        public ArmorTemplateSet ArmorSet { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public LocomotorSet LocomotorSet { get; private set; }

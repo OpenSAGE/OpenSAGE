@@ -356,7 +356,7 @@ namespace OpenSage.Scripting
 
         public int ObjectGetHealthFraction(string gameObject)
         {
-            return (int) Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Health;
+            return (int)(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Body?.Health ?? (Mathematics.FixedMath.Fix64) 0);
         }
 
         public string ObjectDescription(string gameObject)  //EXAMPLE C&C3: "Object 1187 (_jIWv4) [NODAvatar, owned by player 3 (MetaIdea)]"

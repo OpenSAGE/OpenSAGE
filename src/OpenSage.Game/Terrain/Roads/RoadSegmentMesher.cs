@@ -303,6 +303,12 @@ namespace OpenSage.Terrain.Roads
                 _ => (DirectionNormalNoZ + neighborNormal) / 2,      // otherwise, meet in the middle
             };
 
+            // This shouldn't happen but sometimes does in broken maps (Heartland Shield for example).
+            if (toCornerDirection.LengthSquared() < 0.1f)
+            {
+                toCornerDirection = DirectionNormalNoZ;
+            }
+
             // When two road segments meet in an angled curve, their meeting edge is tilted and thus longer than the width of the road
             // -> divide by cosine
             // For straight roads ending in a crossing:

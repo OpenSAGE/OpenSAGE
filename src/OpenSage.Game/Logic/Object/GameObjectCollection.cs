@@ -1,35 +1,39 @@
-﻿using System.Collections.Generic;
-using OpenSage.Content.Loaders;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class GameObjectCollection : DisposableBase
     {
-        private readonly AssetLoadContext _loadContext;
+        private readonly GameContext _gameContext;
         private readonly List<GameObject> _items;
+        private readonly Dictionary<string, GameObject> _nameLookup;
         private readonly Player _civilianPlayer;
         private readonly Navigation.Navigation _navigation;
 
         public IReadOnlyList<GameObject> Items => _items;
 
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal GameObjectCollection(AssetLoadContext loadContext,
-                Player civilianPlayer, Navigation.Navigation navigation)
+        internal GameObjectCollection(
+            GameContext gameContext,
+            Player civilianPlayer,
+            Navigation.Navigation navigation)
         {
-            _loadContext = loadContext;
+            _gameContext = gameContext;
             _items = new List<GameObject>();
+            _nameLookup = new Dictionary<string, GameObject>();
             _civilianPlayer = civilianPlayer;
             _navigation = navigation;
         }
 
         public GameObject Add(string typeName, Player player)
         {
-            var definition = _loadContext.AssetStore.ObjectDefinitions.GetByName(typeName);
+            var definition = _gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(typeName);
 
             if (definition == null)
             {
-                logger.Warn($"Skipping unknown GameObject \"{typeName}\"");
+                Logger.Warn($"Skipping unknown GameObject \"{typeName}\"");
                 return null;
             }
 
@@ -43,7 +47,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _loadContext, player, this, _navigation));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this, _navigation));
             _items.Add(gameObject);
             return gameObject;
         }
@@ -82,5 +86,14 @@ namespace OpenSage.Logic.Object
             return _items[objectId - 1];
         }
 
+        public bool TryGetObjectByName(string name, out GameObject gameObject)
+        {
+            return _nameLookup.TryGetValue(name, out gameObject);
+        }
+
+        public void AddNameLookup(GameObject gameObject)
+        {
+            _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
+        }
     }
 }

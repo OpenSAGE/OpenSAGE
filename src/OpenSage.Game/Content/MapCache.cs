@@ -17,8 +17,8 @@ namespace OpenSage.Content
         {
             { "fileSize", (parser, x) => x.FileSize = parser.ParseInteger() },
             { "fileCRC", (parser, x) => x.FileCrc = parser.ParseLong() },
-            { "timestampLo", (parser, x) => x.TimestampLo = parser.ParseLong() },
-            { "timestampHi", (parser, x) => x.TimestampHi = parser.ParseLong() },
+            { "timestampLo", (parser, x) => x.TimestampLo = parser.ParseInteger() },
+            { "timestampHi", (parser, x) => x.TimestampHi = parser.ParseInteger() },
             { "isOfficial", (parser, x) => x.IsOfficial = parser.ParseBoolean() },
             { "isMultiplayer", (parser, x) => x.IsMultiplayer = parser.ParseBoolean() },
             { "numPlayers", (parser, x) => x.NumPlayers = parser.ParseInteger() },
@@ -42,35 +42,35 @@ namespace OpenSage.Content
             { "PlayerPosition", (parser, x) => x.PlayerPositions.Add(PlayerPosition.Parse(parser)) },
         };
 
-        public int FileSize { get; private set; }
-        public long FileCrc { get; private set; }
-        public long TimestampLo { get; private set; }
-        public long TimestampHi { get; private set; }
-        public bool IsOfficial { get; private set; }
-        public bool IsMultiplayer { get; private set; }
-        public int NumPlayers { get; private set; }
-        public Vector3 ExtentMin { get; private set; }
-        public Vector3 ExtentMax { get; private set; }
+        public int FileSize { get; internal set; }
+        public long FileCrc { get; internal set; }
+        public int TimestampLo { get; internal set; }
+        public int TimestampHi { get; internal set; }
+        public bool IsOfficial { get; internal set; }
+        public bool IsMultiplayer { get; internal set; }
+        public int NumPlayers { get; internal set; }
+        public Vector3 ExtentMin { get; internal set; }
+        public Vector3 ExtentMax { get; internal set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public string NameLookupTag { get; private set; }
+        public string NameLookupTag { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
-        public bool IsScenarioMP { get; private set; }
+        public bool IsScenarioMP { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string Description { get; private set; }
+        public string Description { get; internal set; }
 
-        public string DisplayName { get; private set; }
-        public Vector3 InitialCameraPosition { get; private set; }
-        public Vector3 Player1Start { get; private set; }
-        public Vector3 Player2Start { get; private set; }
-        public Vector3 Player3Start { get; private set; }
-        public Vector3 Player4Start { get; private set; }
-        public Vector3 Player5Start { get; private set; }
-        public Vector3 Player6Start { get; private set; }
-        public Vector3 Player7Start { get; private set; }
-        public Vector3 Player8Start { get; private set; }
+        public string DisplayName { get; internal set; }
+        public Vector3 InitialCameraPosition { get; internal set; }
+        public Vector3 Player1Start { get; internal set; }
+        public Vector3 Player2Start { get; internal set; }
+        public Vector3 Player3Start { get; internal set; }
+        public Vector3 Player4Start { get; internal set; }
+        public Vector3 Player5Start { get; internal set; }
+        public Vector3 Player6Start { get; internal set; }
+        public Vector3 Player7Start { get; internal set; }
+        public Vector3 Player8Start { get; internal set; }
         public List<Vector3> TechPositions { get; } = new List<Vector3>();
         public List<Vector3> SupplyPositions { get; } = new List<Vector3>();
 

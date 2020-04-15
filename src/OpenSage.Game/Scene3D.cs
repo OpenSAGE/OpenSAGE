@@ -10,11 +10,13 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
@@ -27,12 +29,13 @@ namespace OpenSage
 {
     public sealed class Scene3D : DisposableBase
     {
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
-        private readonly SelectionMessageHandler _selectionMessageHandler;
+        internal readonly GameContext GameContext;
+
         public SelectionGui SelectionGui { get; }
 
         private readonly DebugMessageHandler _debugMessageHandler;
@@ -42,35 +45,36 @@ namespace OpenSage
 
         private readonly OrderGeneratorSystem _orderGeneratorSystem;
 
-        public Camera Camera { get; }
+        public readonly Camera Camera;
 
-        public ICameraController CameraController { get; set; }
+        public readonly ICameraController CameraController;
 
-        public MapFile MapFile { get; set; }
+        public readonly MapFile MapFile;
 
-        public Terrain.Terrain Terrain { get; }
+        public readonly Terrain.Terrain Terrain;
         public bool ShowTerrain { get; set; } = true;
 
-        public WaterAreaCollection WaterAreas { get; }
+        public readonly WaterAreaCollection WaterAreas;
         public bool ShowWater { get; set; } = true;
 
-        public RoadCollection Roads { get; }
+        public readonly RoadCollection Roads;
         public bool ShowRoads { get; set; } = true;
 
-        public Bridge[] Bridges { get; }
+        public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
-        public MapScriptCollection Scripts { get; }
+        public MapScriptCollection[] PlayerScripts { get; }
 
-        public GameObjectCollection GameObjects { get; }
+        public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
-        public CameraCollection Cameras { get; set; }
-        public WaypointCollection Waypoints { get; set; }
-        public WaypointPathCollection WaypointPaths { get; set; }
+        public readonly CameraCollection Cameras;
+        public readonly WaypointCollection Waypoints;
 
-        public WorldLighting Lighting { get; }
+        public readonly WorldLighting Lighting;
 
-        public ShadowSettings Shadows { get; } = new ShadowSettings();
+        public readonly ShadowSettings Shadows = new ShadowSettings();
+
+        public WaterSettings Waters { get; } = new WaterSettings();
 
         private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;
@@ -80,25 +84,17 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
-        public Navigation.Navigation Navigation { get; private set; }
+        public readonly Navigation.Navigation Navigation;
 
-        public AudioSystem Audio { get; }
+        internal readonly AudioSystem Audio;
+        internal readonly AssetLoadContext AssetLoadContext;
+
+        public readonly Random Random;
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
-        internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
-        {
-            foreach (var gameObject in GameObjects.Items)
-            {
-                foreach (var attachedParticleSystem in gameObject.GetAllAttachedParticleSystems())
-                {
-                    yield return attachedParticleSystem;
-                }
-            }
-        }
-
-        internal Scene3D(Game game, MapFile mapFile)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, false)
+        internal Scene3D(Game game, MapFile mapFile, int randomSeed)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile)
         {
             var contentManager = game.ContentManager;
 
@@ -111,10 +107,8 @@ namespace OpenSage
                 .Select(team => Team.FromMapData(team, _players))
                 .ToList();
 
-            MapFile = mapFile;
-            Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
-            WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
-            Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
+            Audio = game.Audio;
+            AssetLoadContext = game.AssetStore.LoadContext;
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -122,30 +116,25 @@ namespace OpenSage
 
             LoadObjects(
                 game.AssetStore.LoadContext,
-                game.CivilianPlayer,
                 Terrain.HeightMap,
                 mapFile.ObjectsList.Objects,
                 MapFile.NamedCameras,
                 _teams,
                 out var waypoints,
-                out var gameObjects,
                 out var roads,
                 out var bridges,
                 out var cameras);
 
             Roads = roads;
             Bridges = bridges;
-            GameObjects = gameObjects;
             Waypoints = waypoints;
-            WaypointPaths = new WaypointPathCollection(waypoints, mapFile.WaypointsList.WaypointPaths);
             Cameras = cameras;
-            Audio = game.Audio;
 
-            // TODO: Don't hardcode this.
-            // Perhaps add one ScriptComponent for the neutral player, 
-            // and one for the active player.
-            var scriptList = mapFile.GetPlayerScriptsList().ScriptLists[0];
-            Scripts = new MapScriptCollection(scriptList);
+            PlayerScripts = mapFile
+                .GetPlayerScriptsList()
+                .ScriptLists
+                .Select(s => new MapScriptCollection(s))
+                .ToArray();
 
             CameraController = new RtsCameraController(game.AssetStore.GameData.Current)
             {
@@ -159,20 +148,17 @@ namespace OpenSage
 
         private void LoadObjects(
             AssetLoadContext loadContext,
-            Player civilianPlayer,
             HeightMap heightMap,
             MapObject[] mapObjects,
             NamedCameras namedCameras,
             List<Team> teams,
             out WaypointCollection waypointCollection,
-            out GameObjectCollection gameObjects,
             out RoadCollection roads,
             out Bridge[] bridges,
             out CameraCollection cameras)
         {
             var waypoints = new List<Waypoint>();
-            gameObjects = AddDisposable(new GameObjectCollection(loadContext, civilianPlayer, Navigation));
-            var roadsList = new List<Road>();
+
             var bridgesList = new List<Bridge>();
 
             var roadTopology = new RoadTopology();
@@ -188,14 +174,14 @@ namespace OpenSage
                     case RoadType.None:
                         switch (mapObject.TypeName)
                         {
-                            case "*Waypoints/Waypoint":
+                            case Waypoint.ObjectTypeName:
                                 waypoints.Add(new Waypoint(mapObject));
                                 break;
 
                             default:
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, gameObjects, position);
+                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, GameObjects, position);
 
                                 break;
                         }
@@ -218,7 +204,7 @@ namespace OpenSage
                             mapObject,
                             mapObject.Position,
                             bridgeEnd.Position,
-                            gameObjects)));
+                            GameObjects)));
 
                         break;
 
@@ -260,7 +246,7 @@ namespace OpenSage
 
             cameras = new CameraCollection(namedCameras?.Cameras);
             roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
-            waypointCollection = new WaypointCollection(waypoints);
+            waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
             bridges = bridgesList.ToArray();
         }
 
@@ -269,10 +255,10 @@ namespace OpenSage
             InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
-            GameObjectCollection gameObjects,
             WorldLighting lighting,
+            int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, isDiagnosticScene)
+            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null)
         {
             _players = new List<Player>();
             _teams = new List<Team>();
@@ -285,15 +271,13 @@ namespace OpenSage
 
             Roads = AddDisposable(new RoadCollection());
             Bridges = Array.Empty<Bridge>();
-            GameObjects = gameObjects;
             Waypoints = new WaypointCollection();
-            WaypointPaths = new WaypointPathCollection();
             Cameras = new CameraCollection();
 
             CameraController = cameraController;
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, bool isDiagnosticScene)
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile)
         {
             Camera = new Camera(getViewport);
 
@@ -301,16 +285,40 @@ namespace OpenSage
 
             DebugOverlay = new DebugOverlay(this, game.ContentManager);
 
+            Random = new Random(randomSeed);
+
+            if (mapFile != null)
+            {
+                MapFile = mapFile;
+                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
+                WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
+                Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
+            }
+
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
             {
-                RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), inputMessageBuffer);
+                RegisterInputHandler(new SelectionMessageHandler(game.Selection), inputMessageBuffer);
                 RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), inputMessageBuffer);
                 RegisterInputHandler(_debugMessageHandler = new DebugMessageHandler(DebugOverlay), inputMessageBuffer);
             }
 
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
+
+            GameContext = new GameContext(
+                game.AssetStore.LoadContext,
+                game.Audio,
+                _particleSystemManager,
+                Terrain);
+
+            GameObjects = AddDisposable(
+                new GameObjectCollection(
+                    GameContext,
+                    game.CivilianPlayer,
+                    Navigation));
+
+            GameContext.GameObjects = GameObjects;
 
             _orderGeneratorSystem = game.OrderGenerator;
         }
@@ -406,11 +414,11 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    gameObject.BuildRenderList(renderList, camera);
+                    gameObject.BuildRenderList(renderList, camera, gameTime);
                 }
             }
 
-            _particleSystemManager.BuildRenderList(renderList, gameTime);
+            _particleSystemManager.BuildRenderList(renderList);
 
             _orderGeneratorSystem.BuildRenderList(renderList, camera, gameTime);
         }
@@ -418,8 +426,87 @@ namespace OpenSage
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
         internal void Render(DrawingContext2D drawingContext)
         {
-            SelectionGui?.Draw(drawingContext, Camera);
+            DrawHealthBoxes(drawingContext);
+
+            SelectionGui?.Draw(drawingContext);
             DebugOverlay?.Draw(drawingContext, Camera);
+        }
+
+        private void DrawHealthBoxes(DrawingContext2D drawingContext)
+        {
+            void DrawHealthBox(GameObject gameObject)
+            {
+                if (gameObject.Definition.Geometry is null)
+                {
+                    return;
+                }
+
+                var geometrySize = gameObject.Definition.Geometry.MajorRadius;
+
+                // Not sure if this is what IsSmall is actually for.
+                if (gameObject.Definition.Geometry.IsSmall)
+                {
+                    geometrySize = Math.Max(geometrySize, 15);
+                }
+
+                var boundingSphere = new BoundingSphere(gameObject.Transform.Translation, geometrySize);
+                var healthBoxSize = Camera.GetScreenSize(boundingSphere);
+
+                var healthBoxWorldSpacePos = gameObject.Transform.Translation.WithZ(gameObject.Transform.Translation.Z + gameObject.Definition.Geometry.Height);
+                var healthBoxRect = Camera.WorldToScreenRectangle(
+                    healthBoxWorldSpacePos,
+                    new SizeF(healthBoxSize, 3));
+
+                if (healthBoxRect == null)
+                {
+                    return;
+                }
+
+                void DrawBar(in RectangleF rect, in ColorRgbaF color, float value)
+                {
+                    var actualRect = rect.WithWidth(rect.Width * value);
+                    drawingContext.FillRectangle(actualRect, color);
+
+                    var borderColor = color.WithRGB(color.R / 2.0f, color.G / 2.0f, color.B / 2.0f);
+                    drawingContext.DrawRectangle(rect, borderColor, 1);
+                }
+
+                // TODO: Not sure what to draw for InactiveBody?
+                if (gameObject.Body is ActiveBody)
+                {
+                    DrawBar(
+                        healthBoxRect.Value,
+                        new ColorRgbaF(0, 1, 0, 1),
+                        (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                }
+
+                if (gameObject.ProductionUpdate != null)
+                {
+                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+                    var productionBoxValue = gameObject.ProductionUpdate.IsProducing
+                        ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
+                        : 0;
+
+                    DrawBar(
+                        productionBoxRect,
+                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
+                        productionBoxValue);
+                }
+            }
+
+            // The AssetViewer has no LocalPlayer
+            if (LocalPlayer != null)
+            {
+                foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+                {
+                    DrawHealthBox(selectedUnit);
+                }
+
+                if (LocalPlayer.HoveredUnit != null)
+                {
+                    DrawHealthBox(LocalPlayer.HoveredUnit);
+                }
+            }
         }
     }
 }

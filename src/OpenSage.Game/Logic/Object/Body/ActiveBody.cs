@@ -1,9 +1,50 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
+    public class ActiveBody : BodyModule
+    {
+        private readonly ActiveBodyModuleData _moduleData;
+
+        protected readonly GameObject GameObject;
+
+        public override Fix64 MaxHealth { get; }
+
+        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
+        {
+            GameObject = gameObject;
+            _moduleData = moduleData;
+
+            MaxHealth = (Fix64) moduleData.MaxHealth;
+
+            Health = (Fix64) moduleData.InitialHealth;
+        }
+
+        public override void SetInitialHealth(float multiplier)
+        {
+            Health = (Fix64) (_moduleData.InitialHealth * multiplier);
+        }
+
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        {
+            // Actual amount of damage depends on armor.
+            var armor = GameObject.CurrentArmorSet.Armor.Value;
+            var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
+            var actualDamage = amount * (Fix64) ((float) damagePercent);
+            Health -= actualDamage;
+
+            // TODO: DamageFX
+
+            if (Health <= Fix64.Zero)
+            {
+                GameObject.Die(deathType);
+            }
+        }
+    }
+
     public class ActiveBodyModuleData : BodyModuleData
     {
         internal static ActiveBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -97,6 +138,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string ReallyDamagedAttributeModifier { get; private set; }
+
+        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        {
+            return new ActiveBody(gameObject, this);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]

@@ -4,11 +4,6 @@ namespace OpenSage.Mathematics
 {
     public static class Vector3Utility
     {
-        public static Vector3 Lerp(in Vector3 x, in Vector3 y, float s)
-        {
-            return x + s * (y - x);
-        }
-
         //  From https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
         public static Vector3 Slerp(in Vector3 start, in Vector3 end, float percent)
         {

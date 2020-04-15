@@ -4,7 +4,7 @@
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
@@ -39,7 +39,7 @@
   <ItemGroup>
     <ShaderFiles Include="Assets\Shaders\*.vert;Assets\Shaders\*.frag" />
     <UpToDateCheckInput Include="@(ShaderFiles)" />
-    
+
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
     <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
   </ItemGroup>
@@ -49,6 +49,10 @@
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\glslangValidator</GlslangValidatorPath>
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('linux'))">linux-x64\glslangValidator</GlslangValidatorPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Content\Fonts\FontFallbackSettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />

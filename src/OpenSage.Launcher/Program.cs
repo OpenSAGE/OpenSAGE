@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -50,6 +51,8 @@ namespace OpenSage.Launcher
 
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             Target.Register<Core.InternalLogger>("OpenSage");
 
             Parser.Default.ParseArguments<Options>(args)
@@ -114,10 +117,14 @@ namespace OpenSage.Launcher
 
                 if (opts.ReplayFile != null)
                 {
-                    using (var fileSystem = new FileSystem(Path.Combine(game.UserDataFolder, "Replays")))
+                    var replayFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Replays", opts.ReplayFile));
+                    if (replayFile == null)
                     {
-                        game.LoadReplayFile(fileSystem.GetFile(opts.ReplayFile));
+                        logger.Debug("Could not find entry for Replay " + opts.ReplayFile);
+                        game.ShowMainMenu();
                     }
+
+                    game.LoadReplayFile(replayFile);
                 }
                 else if (opts.Map != null)
                 {

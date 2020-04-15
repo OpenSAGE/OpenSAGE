@@ -87,6 +87,11 @@ namespace OpenSage.Data
             return NextFileSystem?.GetFile(filePath);
         }
 
+        public void Update(FileSystemEntry entry)
+        {
+            _fileTable[entry.FilePath] = entry;
+        }
+
         public FileSystemEntry SearchFile(string fileName, params string[] searchFolders)
         {
             fileName = NormalizeFilePath(fileName);

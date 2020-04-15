@@ -2,6 +2,26 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class PhysicsBehavior : BehaviorModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly PhysicsBehaviorModuleData _moduleData;
+
+        internal PhysicsBehavior(GameObject gameObject, PhysicsBehaviorModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            var gravity = context.GameContext.AssetLoadContext.AssetStore.GameData.Current.Gravity;
+            var mass = _moduleData.Mass;
+
+            // TODO
+        }
+    }
+
     public sealed class PhysicsBehaviorModuleData : UpdateModuleData
     {
         internal static PhysicsBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -52,5 +72,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int SecondHeight { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new PhysicsBehavior(gameObject, this);
+        }
     }
 }

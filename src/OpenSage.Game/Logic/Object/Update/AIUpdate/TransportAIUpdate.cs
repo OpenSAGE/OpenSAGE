@@ -2,6 +2,14 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class TransportAIUpdate : AIUpdate
+    {
+        internal TransportAIUpdate(TransportAIUpdateModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+    }
+
     /// <summary>
     /// Used on TRANSPORT KindOfs that contain other objects.
     /// </summary>
@@ -11,5 +19,10 @@ namespace OpenSage.Logic.Object
 
         private static new readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<TransportAIUpdateModuleData>());
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new TransportAIUpdate(this);
+        }
     }
 }

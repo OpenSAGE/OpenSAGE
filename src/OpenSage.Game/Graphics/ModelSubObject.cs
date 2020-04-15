@@ -1,5 +1,8 @@
-﻿namespace OpenSage.Graphics
+﻿using System.Diagnostics;
+
+namespace OpenSage.Graphics
 {
+    [DebuggerDisplay("ModelSubOject '{Name}'")]
     public sealed class ModelSubObject
     {
         public readonly string Name;

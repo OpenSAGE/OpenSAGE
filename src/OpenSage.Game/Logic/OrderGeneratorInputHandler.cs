@@ -10,6 +10,7 @@ namespace OpenSage.Logic
         private bool _isDragging;
         private Point2D _mousePosition;
         private Point2D _dragEndPosition;
+        private bool _ctrlDown;
 
         public override HandlingPriority Priority => _priority;
         private HandlingPriority _priority = HandlingPriority.Disabled;
@@ -72,9 +73,27 @@ namespace OpenSage.Logic
 
                     return InputMessageResult.Handled;
                 case InputMessageType.MouseRightButtonDown:
-                    _orderGeneratorSystem.OnRightClick();
+                    _orderGeneratorSystem.OnRightClick(_ctrlDown);
 
                     return InputMessageResult.Handled;
+
+                case InputMessageType.KeyDown:
+                    if (message.Value.Key == Veldrid.Key.ControlLeft ||
+                        message.Value.Key == Veldrid.Key.ControlRight)
+                    {
+                        _ctrlDown = true;
+                        return InputMessageResult.Handled;
+                    }
+                    break;
+
+                case InputMessageType.KeyUp:
+                    if (message.Value.Key == Veldrid.Key.ControlLeft ||
+                        message.Value.Key == Veldrid.Key.ControlRight)
+                    {
+                        _ctrlDown = false;
+                        return InputMessageResult.Handled;
+                    }
+                    break;
             }
 
             return InputMessageResult.NotHandled;

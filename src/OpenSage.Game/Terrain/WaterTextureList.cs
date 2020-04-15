@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 
 namespace OpenSage.Terrain
 {
@@ -15,9 +17,9 @@ namespace OpenSage.Terrain
 
         private static readonly IniParseTable<WaterTextureList> FieldParseTable = new IniParseTable<WaterTextureList>
         {
-            { "Texture", (parser, x) => x.Textures.Add(parser.ParseFileName()) }
+            { "Texture", (parser, x) => x.Textures.Add(parser.ParseTextureReference()) }
         };
 
-        public List<string> Textures { get; } = new List<string>();
+        public List<LazyAssetReference<TextureAsset>> Textures { get; } = new List<LazyAssetReference<TextureAsset>>();
     }
 }

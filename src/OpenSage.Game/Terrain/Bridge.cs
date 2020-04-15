@@ -28,6 +28,10 @@ namespace OpenSage.Terrain
             GameObjectCollection parent)
         {
             var template = loadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
+            if (template == null)
+            {
+                return;
+            }
 
             var model = template.BridgeModelName.Value;
             if (model == null)

@@ -125,7 +125,7 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateMoveOrder(int playerId, Vector3 targetPosition)
+        public static Order CreateMoveOrder(int playerId, in Vector3 targetPosition)
         {
             var order = new Order(playerId, OrderType.MoveTo);
 
@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, Vector3 targetPosition)
+        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, in Vector3 targetPosition)
         {
             var order = new Order(playerId, OrderType.SetRallyPoint);
 
@@ -155,13 +155,31 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateBuildObject(int playerId, int objectDefinitionId, Vector3 position, float angle)
+        public static Order CreateBuildObject(int playerId, int objectDefinitionId, in Vector3 position, float angle)
         {
             var order = new Order(playerId, OrderType.BuildObject);
 
             order.AddIntegerArgument(objectDefinitionId);
             order.AddPositionArgument(position);
             order.AddFloatArgument(angle);
+
+            return order;
+        }
+
+        public static Order CreateAttackGround(int playerId, in Vector3 position)
+        {
+            var order = new Order(playerId, OrderType.ForceAttackGround);
+
+            order.AddPositionArgument(position);
+
+            return order;
+        }
+
+        public static Order CreateAttackObject(int playerId, uint objectId, bool force)
+        {
+            var order = new Order(playerId, force ? OrderType.ForceAttackObject : OrderType.AttackObject);
+
+            order.AddObjectIdArgument(objectId);
 
             return order;
         }

@@ -21,6 +21,8 @@ layout(location = 4) out float out_ViewSpaceDepth;
 
 void main()
 {
+    gl_ClipDistance[0] = CalculateClippingPlane(in_Position, _GlobalConstantsVS.ClippingPlane);
+
     vec3 worldPosition = in_Position;
 
     gl_Position = _GlobalConstantsVS.ViewProjection * vec4(worldPosition, 1);

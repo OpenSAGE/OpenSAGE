@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.MoveTo:
                         {
                             var targetPosition = order.Arguments[0].Value.Position;
-                            foreach(var unit in player.SelectedUnits)
+                            foreach (var unit in player.SelectedUnits)
                             {
                                 unit.SetTargetPoint(targetPosition);
                             }
@@ -54,12 +54,25 @@ namespace OpenSage.Logic.Orders
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
                             var position = order.Arguments[1].Value.Position;
                             var angle = order.Arguments[2].Value.Float;
-                            player.Money -= (uint)objectDefinition.BuildCost;
+                            player.Money -= (uint) objectDefinition.BuildCost;
 
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                             gameObject.Transform.Translation = position;
                             gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
                             gameObject.StartConstruction(_game.MapTime);
+                        }
+                        break;
+
+                    case OrderType.ObjectUprade:
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var upgradeDefinitionId = order.Arguments[1].Value.Integer;
+
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+                            var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
+                            player.Money -= (uint) upgradeDefinition.BuildCost;
+
+                            gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
                         }
                         break;
 
@@ -78,7 +91,7 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     case OrderType.Sell:
-                        foreach(var unit in player.SelectedUnits)
+                        foreach (var unit in player.SelectedUnits)
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
                             player.Money += (uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
@@ -112,6 +125,35 @@ namespace OpenSage.Logic.Orders
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
+                    case OrderType.AttackObject:
+                    case OrderType.ForceAttackObject:
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                }
+                            }
+                        }
+                        break;
+
+                    case OrderType.ForceAttackGround:
+                        {
+                            var targetPosition = order.Arguments[0].Value.Position;
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                }
+                            }
+                        }
+                        break;
+
                     case OrderType.SetRallyPoint:
                         try
                         {
@@ -143,13 +185,13 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     //case OrderType.ChooseGeneralPromotion:
-                        //gla:
-                        //tier 1:
-                        //34, 35, 36
+                    //gla:
+                    //tier 1:
+                    //34, 35, 36
 
-                        //usa:
-                        //tier1:
-                        //12, 13, 14
+                    //usa:
+                    //tier1:
+                    //12, 13, 14
                     //    break;
 
                     default:

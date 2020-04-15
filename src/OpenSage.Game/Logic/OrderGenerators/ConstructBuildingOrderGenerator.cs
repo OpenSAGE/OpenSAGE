@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
@@ -36,7 +35,7 @@ namespace OpenSage.Logic.OrderGenerators
             int definitionIndex,
             GameData config,
             Player player,
-            AssetLoadContext loadContext,
+            GameContext gameContext,
             Scene3D scene)
         {
             _buildingDefinition = buildingDefinition;
@@ -48,7 +47,12 @@ namespace OpenSage.Logic.OrderGenerators
             _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
             _angle = _baseAngle;
 
-            _previewObject = new GameObject(buildingDefinition, loadContext, player, null, null);
+            _previewObject = new GameObject(
+                buildingDefinition,
+                gameContext,
+                player,
+                null,
+                null);
             _previewObject.IsPlacementPreview = true;
 
             UpdatePreviewObjectPosition();
@@ -64,7 +68,7 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Draw arrow (locater02.w3d) to visualise rotation angle.
 
             _previewObject.LocalLogicTick(gameTime, 0, null);
-            _previewObject.BuildRenderList(renderList, camera);
+            _previewObject.BuildRenderList(renderList, camera, gameTime);
         }
 
         public OrderGeneratorResult TryActivate(Scene3D scene)

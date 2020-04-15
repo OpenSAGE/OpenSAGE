@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Mathematics
 {
@@ -69,18 +70,26 @@ namespace OpenSage.Mathematics
             return _data.And(other._data).NumBitsSet;
         }
 
+        public IEnumerable<TEnum> GetSetBits()
+        {
+            for (var i = 0; i < _data.Length; i++)
+            {
+                if (_data.Get(i))
+                {
+                    yield return (TEnum) (object) i;
+                }
+            }
+        }
+
         public string DisplayName
         {
             get
             {
                 var result = string.Empty;
 
-                for (var i = 0; i < _data.Length; i++)
+                foreach (var bit in GetSetBits())
                 {
-                    if (_data.Get(i))
-                    {
-                        result += ((TEnum) (object) i).ToString() + ", ";
-                    }
+                    result += bit.ToString() + ", ";
                 }
 
                 return (result == string.Empty)
@@ -97,6 +106,13 @@ namespace OpenSage.Mathematics
         public override int GetHashCode()
         {
             return _data.GetHashCode();
+        }
+
+        public BitArray<TEnum> Clone()
+        {
+            var result = new BitArray<TEnum>();
+            result.CopyFrom(this);
+            return result;
         }
     }
 }
