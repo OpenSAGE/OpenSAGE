@@ -16,6 +16,7 @@ namespace OpenSage.Gui.Wnd
         internal Stack<Window> WindowStack { get; }
 
         public WindowTransitionManager TransitionManager { get; }
+        public Control ?FocussedControl { get; private set; }
 
         public WndWindowManager(Game game)
         {
@@ -80,6 +81,11 @@ namespace OpenSage.Gui.Wnd
             var window = WindowStack.Peek();
 
             return window.GetSelfOrDescendantAtPoint(mousePosition);
+        }
+
+        internal void Focus(Control control)
+        {
+            FocussedControl = control;
         }
 
         public Control[] GetControlsAtPoint(in Point2D mousePosition)
