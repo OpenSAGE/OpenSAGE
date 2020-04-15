@@ -51,6 +51,11 @@ namespace OpenSage.Mods.Generals.Gui
             context.Game.LobbyManager.Stop();
         }
 
+        public static void LanLobbyMenuShutdown(Window window, Game game)
+        {
+            game.LobbyManager.Stop();
+        }
+
         public static void LanLobbyMenuUpdate(Window window, Game game)
         {
             if(!_game.LobbyManager.Updated)
