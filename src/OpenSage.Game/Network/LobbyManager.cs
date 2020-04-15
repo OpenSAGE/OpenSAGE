@@ -13,6 +13,7 @@ namespace OpenSage.Network
             public string Name { get; set; }
             public bool IsHosting { get; set; }
             public IPEndPoint Endpoint { get; set; }
+            public DateTime LastSeen;
         }
 
         public Dictionary<IPEndPoint, LobbyPlayer> Players { get; }

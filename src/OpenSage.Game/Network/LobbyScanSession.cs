@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -62,6 +63,7 @@ namespace OpenSage.Network
                 {
                     try
                     {
+                        CleanExpiredPlayers();
                         var result = await _client.ReceiveAsync().WithCancellation(_cancelToken);
                         ProcessReceive(result);
                     }
@@ -72,6 +74,19 @@ namespace OpenSage.Network
                     }
                 }
             });
+        }
+
+        private void CleanExpiredPlayers()
+        {
+            var threshold = DateTime.Now.Subtract(new TimeSpan(0, 0, 3));
+
+            var expireds = _lobbyManager.Players.Where(x => x.Value.LastSeen < threshold);
+
+            foreach (var expired in expireds)
+            {
+                _lobbyManager.Updated = true;
+                _lobbyManager.Players.Remove(expired.Key);
+            }
         }
 
         public void Stop()
@@ -104,14 +119,17 @@ namespace OpenSage.Network
                         }
 
                         var player = _lobbyManager.Players[endpoint];
+
                         player.Endpoint = endpoint;
                         player.Name = lobbyMessage.Name;
                         player.IsHosting = lobbyMessage.IsHosting;
-                        if (!player.Equals(_lobbyManager.Players[endpoint]))
-                        {
-                            _lobbyManager.Players[endpoint] = player;
-                            _lobbyManager.Updated = true;
-                        }
+                        var updated = !player.Equals(_lobbyManager.Players[endpoint]);
+
+                        player.LastSeen = DateTime.Now;
+
+                        _lobbyManager.Players[endpoint] = player;
+
+                        _lobbyManager.Updated |= updated;
 
                         break;
 
