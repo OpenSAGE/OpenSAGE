@@ -1,5 +1,6 @@
 ﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -7,6 +8,8 @@ namespace OpenSage.Mods.Generals.Gui
     public static class SkirmishGameOptionsMenuCallbacks
     {
         public static GameOptionsUtil GameOptions { get; private set; }
+
+        private static SkirmishManager _manager;
 
         public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -19,6 +22,7 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             case "SkirmishGameOptionsMenu.wnd:ButtonBack":
                                 context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                                _manager.Stop();
                                 // TODO: Go back to Single Player sub-menu
                                 break;
                         }
@@ -27,9 +31,18 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
+        public static void LanGameOptionsMenuUpdate(Window window, Game game)
+        {
+            //TODO: update manager state to slots
+            
+        }
+
         public static void SkirmishGameOptionsMenuInit(Window window, Game game)
         {
             GameOptions = new GameOptionsUtil(window, game, "Skirmish");
+
+            _manager = new SkirmishManager(game);
+            _manager.Start();
         }
     }
 }
