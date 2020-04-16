@@ -5,14 +5,14 @@ namespace OpenSage.Input
 {
     public sealed class InputMessage
     {
-        public static InputMessage CreateKeyUp(Key value)
+        public static InputMessage CreateKeyUp(Key key, ModifierKeys modifiers)
         {
-            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue(value));
+            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue(key, modifiers));
         }
 
-        public static InputMessage CreateKeyDown(Key value)
+        public static InputMessage CreateKeyDown(Key key, ModifierKeys modifiers)
         {
-            return new InputMessage(InputMessageType.KeyDown, new InputMessageValue(value));
+            return new InputMessage(InputMessageType.KeyDown, new InputMessageValue(key, modifiers));
         }
 
         public static InputMessage CreateMouseButton(InputMessageType messageType, in Point2D position)
