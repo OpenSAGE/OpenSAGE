@@ -125,7 +125,7 @@ namespace OpenSage.Gui.Wnd
                         {
                             control?.InputCallback.Invoke(
                                 control,
-                                new WndWindowMessage(WndWindowMessageType.KeyDown, control, null, message.Value.Key),
+                                new WndWindowMessage(WndWindowMessageType.KeyDown, control, null, message.Value.Key, message.Value.Modifiers),
                                 context
                             );
                             return InputMessageResult.Handled;

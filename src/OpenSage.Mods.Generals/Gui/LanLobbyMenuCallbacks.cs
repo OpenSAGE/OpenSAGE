@@ -11,13 +11,13 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     public static class LanLobbyMenuCallbacks
     {
-        private static Window _window;
         private static Game _game;
 
         private const string ListBoxGamesPrefix = "LanLobbyMenu.wnd:ListboxGames";
         private const string ListBoxPlayersPrefix = "LanLobbyMenu.wnd:ListboxPlayers";
         private const string TextEntryPlayerNamePrefix = "LanLobbyMenu.wnd:TextEntryPlayerName";
         private const string ButtonClearPrefix = "LanLobbyMenu.wnd:ButtonClear";
+        private const string TextEntryChatPrefix = "LanLobbyMenu.wnd:TextEntryChat";
 
         public static void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -58,9 +58,7 @@ namespace OpenSage.Mods.Generals.Gui
                 return;
             }
 
-
             // Update games
-
             var games = _game.LobbyManager.Players.Where(x => x.Value.IsHosting);
 
             var listBoxGames = (ListBox) window.Controls.FindControl(ListBoxGamesPrefix);
@@ -86,9 +84,6 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             listBoxGames.Items = items.ToArray();
-
-
-
 
             // Update players
             var listBoxPlayers = (ListBox) window.Controls.FindControl(ListBoxPlayersPrefix);
@@ -123,23 +118,26 @@ namespace OpenSage.Mods.Generals.Gui
         {
             var buttonClear = (Button) sender;
             var textEditPlayerName = (TextBox) buttonClear.Parent.Controls.FindControl(TextEntryPlayerNamePrefix);
-            textEditPlayerName.Text = "";
+            textEditPlayerName.Text = string.Empty;
         }
 
         public static void LanLobbyMenuInit(Window window, Game game)
         {
             _game = game;
-            _window = window;
 
             // Initialize player name
-            var textEditPlayerName = (TextBox) _window.Controls.FindControl(TextEntryPlayerNamePrefix);
+            var textEditPlayerName = (TextBox) window.Controls.FindControl(TextEntryPlayerNamePrefix);
             textEditPlayerName.Text = game.LobbyManager.Username;
 
             textEditPlayerName.OnTextChanged += TextEditPlayerName_OnTextChanged;
 
             // Setup clear button
-            var buttonClear = (Button) _window.Controls.FindControl(ButtonClearPrefix);
+            var buttonClear = (Button) window.Controls.FindControl(ButtonClearPrefix);
             buttonClear.Click += ClearPlayerName;
+
+            // Clear chat field
+            var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
+            textChat.Text = string.Empty;
 
             game.LobbyManager.Start();
             game.LobbyManager.Updated = true;

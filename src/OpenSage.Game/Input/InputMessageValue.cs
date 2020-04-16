@@ -16,11 +16,14 @@ namespace OpenSage.Input
         [FieldOffset(0)]
         public readonly int ScrollWheel;
 
-        internal InputMessageValue(Key key)
+        [FieldOffset(sizeof(Key))]
+        public readonly ModifierKeys Modifiers;
+
+        internal InputMessageValue(Key key, ModifierKeys modifiers)
         {
             MousePosition = Point2D.Zero;
             ScrollWheel = 0;
-
+            Modifiers = modifiers;
             Key = key;
         }
 
@@ -28,7 +31,7 @@ namespace OpenSage.Input
         {
             Key = 0;
             ScrollWheel = 0;
-
+            Modifiers = 0;
             MousePosition = mousePosition;
         }
 
@@ -36,7 +39,7 @@ namespace OpenSage.Input
         {
             Key = 0;
             MousePosition = Point2D.Zero;
-
+            Modifiers = 0;
             ScrollWheel = scrollWheel;
         }
     }
