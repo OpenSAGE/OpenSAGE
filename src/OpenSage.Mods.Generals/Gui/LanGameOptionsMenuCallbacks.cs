@@ -6,6 +6,8 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     class LanGameOptionsMenuCallbacks
     {
+        private const string TextEntryChatPrefix = "LanGameOptionsMenu.wnd:TextEntryChat";
+
         public static GameOptionsUtil GameOptions { get; private set; }
 
         public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -31,6 +33,10 @@ namespace OpenSage.Mods.Generals.Gui
         public static void LanGameOptionsMenuInit(Window window, Game game)
         {
             GameOptions = new GameOptionsUtil(window, game, "Lan");
+
+            // Clear chat field
+            var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
+            textChat.Text = string.Empty;
         }
     }
 }

@@ -110,13 +110,13 @@ namespace OpenSage
 
         private void HandleKeyDown(KeyEvent evt)
         {
-            var message = InputMessage.CreateKeyDown(evt.Key);
+            var message = InputMessage.CreateKeyDown(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
         private void HandleKeyUp(KeyEvent evt)
         {
-            var message = InputMessage.CreateKeyUp(evt.Key);
+            var message = InputMessage.CreateKeyUp(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
