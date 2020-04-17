@@ -26,7 +26,7 @@ namespace OpenSage.Tests.Data.Map
                 {
                     // Differences in passability data, because the original files have unusual
                     // values for partial passability bytes beyond the map width.
-                    case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
+                    case @"maps\usa07-taskforces\usa07-taskforces.map":
                     case @"maps\map evil shelobslair\map evil shelobslair.map": // BFME
                     case @"maps\map good shelobslair\map good shelobslair.map": // BFME
                     case @"data\maps\official\map_sp_aliens_1_1_london\map_sp_aliens_1_1_london.map": // CNC3
