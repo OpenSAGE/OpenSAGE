@@ -20,13 +20,13 @@ namespace OpenSage.Tests.Data.W3d
         {
             InstalledFilesTestData.ReadFiles(".w3d", _output, entry =>
             {
-                switch (Path.GetFileName(entry.FilePath))
+                switch (Path.GetFileName(entry.FilePath).ToLower())
                 {
-                    case "UISabotr_idel.w3d":
-                    case "UISabotr_Jump.w3d":
-                    case "UISabotr_Left.w3d":
-                    case "UISabotr_Right.w3d":
-                    case "UISabotr_Up.w3d":
+                    case "uisabotr_idel.w3d":
+                    case "uisabotr_jump.w3d":
+                    case "uisabotr_left.w3d":
+                    case "uisabotr_right.w3d":
+                    case "uisabotr_up.w3d":
                     case "cusheep_grza.w3d":
                     case "gbmtwalld.w3d":
                     case "gbmtwalldramp.w3d":
