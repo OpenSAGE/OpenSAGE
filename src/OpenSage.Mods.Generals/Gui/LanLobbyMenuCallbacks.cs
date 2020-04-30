@@ -19,11 +19,15 @@ namespace OpenSage.Mods.Generals.Gui
         private const string ButtonClearPrefix = "LanLobbyMenu.wnd:ButtonClear";
         private const string TextEntryChatPrefix = "LanLobbyMenu.wnd:TextEntryChat";
 
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
+
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
+                    logger.Info($"Have message {message.MessageType} for control {message.Element.Name}");
                     switch (message.Element.Name)
                     {
                         case "LanLobbyMenu.wnd:ButtonBack":
@@ -34,8 +38,21 @@ namespace OpenSage.Mods.Generals.Gui
                         case "LanLobbyMenu.wnd:ButtonHost":
                             context.Game.LobbyManager.Hosting = true;
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
+                            context.Game.SkirmishManager.Host();
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
+
+                            var listBoxGames = (ListBox) control.Window.Controls.FindControl(ListBoxGamesPrefix);
+                            var selectedItemIndex = listBoxGames.SelectedIndex;
+                            var selectedItem = listBoxGames.Items[selectedItemIndex];
+
+                            var dataItem = (KeyValuePair<IPEndPoint, LobbyPlayer>) selectedItem.DataItem;
+
+                            var endpoint = dataItem.Key;
+
+                            logger.Info($"Requesting to join {endpoint}");
+
+                            context.Game.SkirmishManager.Join(endpoint);
                             // TODO: Connect to the currently selected game
                             break;
                         case "LanLobbyMenu.wnd:ButtonDirectConnect":
@@ -146,6 +163,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             game.LobbyManager.Start();
             game.LobbyManager.Updated = true;
+        }
+
+        public static void LanLobbyMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+        {
+            logger.Info($"Have message {message.MessageType} for control {control.Name}");
         }
 
         private static void TextEditPlayerName_OnTextChanged(object sender, string Text)
