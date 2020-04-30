@@ -7,14 +7,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using ProtoBuf;
+using System.IO;
 
 namespace OpenSage.Network
 {
     public class SkirmishManager
     {
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public class SkirmishClient
         {
-            TcpClient Client;
+
+            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
             string Name = "";
             private SkirmishManager _manager;
             private TcpClient _client;
@@ -31,15 +37,13 @@ namespace OpenSage.Network
             {
                 _manager = manager;
                 _client = client;
+            }
 
-                var result = _manager.AddClient(this);
+            public void Close()
+            {
 
-                if (!result)
-                {
-                    client.Close();
-                    client.Dispose();
-                }
-
+                _client.Close();
+                _client.Dispose();
             }
 
             public async void Run()
@@ -55,18 +59,35 @@ namespace OpenSage.Network
                     }
                     var msg = await Task.Run(() => Serializer.Deserialize<SkirmishProtocol.UpdateState>(stream), _cancelToken);
 
-                    Slot.ColorIndex = msg.ColorIndex;
-                    Slot.FactionIndex = msg.FactionIndex;
-                    Slot.HumanName = msg.Name;
+                    logger.Info("Have new UpdateState message");
+
+                    var slot = Slot;
+                    slot.Type = msg.Slot.Type;
+                    slot.Team = msg.Slot.Team;
+                    slot.ColorIndex = msg.Slot.ColorIndex;
+                    slot.FactionIndex = msg.Slot.FactionIndex;
+                    slot.HumanName = msg.Slot.Name;
+                    slot.Ready = msg.Slot.Ready;
 
                     Slot.Updated = true;
+
+                    _manager.Sync();
                 }
 
             }
+
+            internal void Send(byte[] statePacket)
+            {
+                if(_client != null)
+                {
+                    _client.GetStream().Write(statePacket);
+                }
+            }
         }
 
+
         private Game _game;
-        private List<SkirmishSlot> _slots;
+        private List<SkirmishSlot> _slots = new List<SkirmishSlot>(8);
         private TcpListener _server;
         private bool _running;
         private CancellationTokenSource _cancelTokenSource;
@@ -74,6 +95,19 @@ namespace OpenSage.Network
         public const int Port = 8087;
 
         public string Map;
+
+        public bool Hosting = false;
+
+        private TcpClient _serverConnection;
+        private SkirmishSlot ownSlot;
+
+        public List<SkirmishSlot> Slots
+        {
+            get
+            {
+                return _slots;
+            }
+        }
 
         public class SkirmishSlot
         {
@@ -97,8 +131,8 @@ namespace OpenSage.Network
             }
 
             public SlotType Type;
-            public int ColorIndex;
-            public int FactionIndex;
+            public byte ColorIndex;
+            public byte FactionIndex;
             public TeamType Team;
             public bool Disabled
             {
@@ -114,20 +148,154 @@ namespace OpenSage.Network
 
             public string HumanName;
 
+            public bool Ready {
+                get {
+                    return true;
+                }
+                set
+                {
+
+                }
+            }
+
             public SkirmishClient Client { get; internal set; }
             public bool Updated;
 
+            public int id;
+
+        }
+
+        public async void Start()
+        {
+            if (_running)
+            {
+                return;
+            }
+
+            _running = true;
+            var _cancelTokenSource = new CancellationTokenSource();
+            var _cancelToken = _cancelTokenSource.Token;
+
+            await Task.Run(async () =>
+            {
+                while (_running)
+                {
+                    Sync();
+                    try
+                    {
+                        await Task.Delay(1000, _cancelToken);
+                    }
+                    catch (TaskCanceledException e)
+                    {
+                        //maybe refresh the token
+                        if (_running)
+                        {
+                            _cancelTokenSource = new CancellationTokenSource();
+                            _cancelToken = _cancelTokenSource.Token;
+                        }
+                    }
+                }
+            });
+        }
+
+        public async void Join(IPEndPoint endpoint)
+        {
+            _serverConnection = new TcpClient();
+            _serverConnection.Connect(endpoint.Address, Port);
+
+            Start();
+
+            while (_running)
+            {
+                if (_cancelTokenSource == null || _cancelTokenSource.IsCancellationRequested)
+                {
+                    _cancelTokenSource = new CancellationTokenSource();
+                    _cancelToken = _cancelTokenSource.Token;
+                }
+
+                var msg = await Task.Run(() => Serializer.Deserialize<SkirmishProtocol.SkirmishState>(_serverConnection.GetStream()), _cancelToken);
+
+                logger.Info("Have new Skirmish State");
+
+            }
+            _serverConnection.Close();
+        }
+
+        public void Sync()
+        {
+            if (Hosting)
+            {
+                //TODO: send full state packet to all clients
+                var statePacket = new SkirmishProtocol.SkirmishState();
+                statePacket.Map = "Map!";
+
+                statePacket.Slots = _slots.Select(x =>
+                {
+                    var skirmishSlot = new SkirmishProtocol.SkirmishSlot();
+                    skirmishSlot.ColorIndex = x.ColorIndex;
+                    skirmishSlot.FactionIndex = x.FactionIndex;
+                    skirmishSlot.Name = x.HumanName;
+                    skirmishSlot.Ready = x.Ready;
+                    skirmishSlot.Type = x.Type;
+                    skirmishSlot.Team = x.Team;
+                    return skirmishSlot;
+                }).ToArray();
+
+
+                using (var output = new MemoryStream())
+                //using (var compress = new BrotliStream(output, CompressionMode.Compress))
+                {
+                    Serializer.Serialize(output, statePacket);
+                    byte[] data = output.ToArray();
+
+                    _slots.ForEach(x =>
+                    {
+                        if (x.Client != null)
+                        {
+                            x.Client.Send(data);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                var selfPacket = new SkirmishProtocol.UpdateState();
+
+                var skirmishSlot = new SkirmishProtocol.SkirmishSlot();
+                skirmishSlot.ColorIndex = ownSlot.ColorIndex;
+                skirmishSlot.FactionIndex = ownSlot.FactionIndex;
+                skirmishSlot.Name = ownSlot.HumanName;
+                skirmishSlot.Ready = ownSlot.Ready;
+                skirmishSlot.Type = ownSlot.Type;
+                skirmishSlot.Team = ownSlot.Team;
+                selfPacket.Slot = skirmishSlot;
+
+
+                Serializer.Serialize(_serverConnection.GetStream(), selfPacket);
+            }
         }
 
         public SkirmishManager(Game game)
         {
             _game = game;
 
-            _slots = new List<SkirmishSlot>(8);
+            for (var a = 0; a < 8; a++)
+            {
+                var slot = new SkirmishSlot();
+                slot.Type = SkirmishSlot.SlotType.Closed;
+                slot.id = a;
+                _slots.Add(slot);
+            }
+            
         }
 
-        public async void Start()
+        
+
+        public async void Host()
         {
+            Start();
+
+            Hosting = true;
 
             _running = true;
 
@@ -147,7 +315,13 @@ namespace OpenSage.Network
                     () => _server.AcceptTcpClientAsync(),
                     _cancelToken);
 
-                new SkirmishClient(this, client);
+                var skirmishClient = new SkirmishClient(this, client);
+
+                var result = this.AddClient(skirmishClient);
+                if (!result)
+                {
+                    skirmishClient.Close();
+                }
 
 
             }
@@ -176,6 +350,8 @@ namespace OpenSage.Network
         {
             _running = false;
             _cancelTokenSource.Cancel();
+
+
         }
     }
 }
