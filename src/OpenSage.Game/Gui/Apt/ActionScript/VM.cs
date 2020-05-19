@@ -129,7 +129,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr = stream.GetInstruction();
             }
 
-            return null;
+            return Value.Undefined();
         }
 
         public void Execute(InstructionCollection code, ObjectContext scope)
