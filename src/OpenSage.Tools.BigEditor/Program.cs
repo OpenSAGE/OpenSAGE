@@ -35,7 +35,7 @@ namespace OpenSage.Tools.BigEditor
 
                 gameTimer.Start();
 
-                using (var mainForm = new MainForm())
+                using (var mainForm = new MainForm(graphicsDevice, imGuiRenderer))
                 {
                     while (windowOpen)
                     {

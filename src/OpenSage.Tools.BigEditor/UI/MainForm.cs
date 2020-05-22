@@ -8,6 +8,8 @@ using OpenSage.FileFormats.Big;
 using OpenSage.Tools.BigEditor.Util;
 using Veldrid.Sdl2;
 using SharpFileDialog;
+using Veldrid;
+using OpenSage.Tools.BigEditor.Views;
 
 namespace OpenSage.Tools.BigEditor.UI
 {
@@ -17,20 +19,23 @@ namespace OpenSage.Tools.BigEditor.UI
         private readonly List<BigArchiveEntry> _files;
         private int _currentFile;
         private string _currentFileName;
-        private string _currentFileText;
+        private View _currentView;
+        private GraphicsDevice _graphicsDevice;
+        private ImGuiRenderer _imguiRenderer;
 
         private byte[] _searchTextBuffer;
-        private byte[] _filePathBuffer;
         private string _searchText;
         private float _scrollY;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public MainForm()
+        public MainForm(GraphicsDevice gd, ImGuiRenderer ren)
         {
             _files = new List<BigArchiveEntry>();
+            _imguiRenderer = ren;
             _currentFileName = null;
             _scrollY = 0.0f;
+            _graphicsDevice = gd;
             OpenBigFile(null);
         }
 
@@ -173,18 +178,9 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             ImGui.BeginChild("content");
 
-            if (_currentFileText != null)
+            if (_currentView != null)
             {
-                ImGui.TextUnformatted(_currentFileText);
-
-                if (ImGui.BeginPopupContextItem())
-                {
-                    if (ImGui.Selectable("Copy to clipboard"))
-                    {
-                        ImGui.SetClipboardText(_currentFileText);
-                    }
-                    ImGui.EndPopup();
-                }
+                _currentView.Draw();
             }
             else
             {
@@ -212,9 +208,8 @@ namespace OpenSage.Tools.BigEditor.UI
 
             _currentFile = -1;
             _currentFileName = "";
-            _currentFileText = null;
+            _currentView = null;
             _searchTextBuffer = new byte[32];
-            _filePathBuffer = new byte[1024];
             _files.Clear();
             UpdateSearch(null);
         }
@@ -272,14 +267,21 @@ namespace OpenSage.Tools.BigEditor.UI
                         case ".txt":
                         case ".wnd":
                             using (var stream = entry.Open())
-                            using (var reader = new StreamReader(stream))
                             {
-                                _currentFileText = reader.ReadToEnd();
+                                _currentView = new TextView(stream);
                             }
                             break;
-
+                        case ".tga":
+                        case ".bmp":
+                        case ".jpg":
+                        case ".png":
+                            using (var stream = entry.Open())
+                            {
+                                _currentView = new ImageView(stream, _graphicsDevice, _imguiRenderer);
+                            }
+                            break;
                         default:
-                            _currentFileText = null;
+                            _currentView = null;
                             break;
                     }
                 }
@@ -323,7 +325,7 @@ namespace OpenSage.Tools.BigEditor.UI
         {
             ImGui.BeginChild("statusbar", new Vector2(0, 30), true, 0);
 
-            ImGui.Text($"{_bigArchive.FilePath} | Version: {_bigArchive.Version} | Size: {ImGuiUtility.GetFormatedSize(_bigArchive.Size)} | Files: {_bigArchive.Entries.Count}");
+            ImGui.Text($"{Path.GetFileName(_bigArchive.FilePath)} | Version: {_bigArchive.Version} | Size: {ImGuiUtility.GetFormatedSize(_bigArchive.Size)} | Files: {_bigArchive.Entries.Count}");
 
             ImGui.SameLine();
 
