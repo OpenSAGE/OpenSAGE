@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using NLog.Internal;
 
 namespace OpenSage.FileFormats.Big
 {
@@ -20,24 +23,31 @@ namespace OpenSage.FileFormats.Big
         internal Stream Stream => _stream;
 
         public string FilePath { get; }
+
+        public BigArchiveMode Mode { get; }
         public long Size => _stream.Length;
 
         public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 
         public BigArchiveVersion Version { get; private set; }
 
-        public BigArchive(string filePath)
+        public BigArchive(string filePath, BigArchiveMode mode = BigArchiveMode.Update)
         {
             FilePath = filePath;
+            Mode = mode;
 
             _entries = new List<BigArchiveEntry>();
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
 
+            FileMode fileMode = mode == BigArchiveMode.Create ? FileMode.Create : FileMode.Open;
+            FileAccess fileAccess = mode == BigArchiveMode.Read ? FileAccess.Read : FileAccess.ReadWrite;
+            FileShare fileShare = mode == BigArchiveMode.Read ? FileShare.Read : FileShare.ReadWrite;
+
             _stream = AddDisposable(new FileStream(
                 filePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read));
+                fileMode,
+                fileAccess,
+                fileShare));
 
             Read();
         }
@@ -108,6 +118,14 @@ namespace OpenSage.FileFormats.Big
             }
         }
 
+        public BigArchiveEntry CreateEntry(string entryName)
+        {
+            var entry = new BigArchiveEntry(this, entryName);
+            _entriesDictionary[entryName] = entry;
+            _entries.Add(entry);
+            return entry;
+        }
+
         public BigArchiveEntry GetEntry(string entryName)
         {
             if (entryName == null)
@@ -117,6 +135,115 @@ namespace OpenSage.FileFormats.Big
 
             _entriesDictionary.TryGetValue(entryName, out var result);
             return result;
+        }
+
+        internal void DeleteEntry(BigArchiveEntry entry)
+        {
+            _entries.Remove(entry);
+        }
+
+        private long CalculateContentSize()
+        {
+            long contentSize = 0;
+            foreach (var entry in _entries)
+            {
+                using (var stream = entry.Open())
+                {
+                    contentSize += stream.Length;
+                }
+            }
+
+            return contentSize;
+        }
+
+        private int CalculateTableSize()
+        {
+            int tableSize = 0;
+            foreach (var entry in _entries)
+            {
+                // Each entry has 4 bytes for the offset + 4 for size
+                tableSize += 8;
+                // And a null-terminated string
+                tableSize += entry.FullName.Length + 1;
+            }
+
+            return tableSize;
+        }
+
+        private void WriteHeader(BinaryWriter bw, long archiveSize, int dataStart)
+        {
+            string fourCC = "";
+            switch (Version)
+            {
+                case BigArchiveVersion.BigF:
+                    fourCC = "BIGF";
+                    break;
+                case BigArchiveVersion.Big4:
+                    fourCC = "BIG4";
+                    break;
+                default:
+                    throw new InvalidDataException("Big archive version must be set");
+            }
+
+            bw.WriteFourCc(fourCC);
+            bw.Write((int) archiveSize);
+            bw.Write(_entries.Count);
+            bw.Write(dataStart);
+        }
+
+        private void WriteFileTable(BinaryWriter bw, int dataStart)
+        {
+            long entryOffset = dataStart;
+            foreach (var entry in _entries)
+            {
+                // Each entry has 4 bytes for the offset + 4 for size
+                bw.Write((int) entry.Length);
+                bw.Write((int) entryOffset);
+                bw.WriteNullterminatedString(entry.FullName);
+
+                entry.Offset = (uint) entryOffset;
+                entry.Length = (uint) entry.Length;
+
+                entryOffset += entry.Length;
+
+            }
+        }
+
+        private void WriteFileContent(BinaryWriter bw)
+        {
+            foreach (var entry in _entries)
+            {
+                using (var stream = entry.Open())
+                {
+                    // Each entry has 4 bytes for the offset + 4 for size
+                    var content = new MemoryStream();
+                    stream.CopyTo(content);
+                    bw.Write(content.ToArray());
+                }
+            }
+        }
+
+        internal void WriteToDisk()
+        {
+            bool needsWrite = _entries.Any(x => x.OnDisk == false);
+
+            if (needsWrite)
+            {
+                const int headerSize = 16;
+                _entries.ForEach(x => x.OnDisk = true);
+                int tableSize = CalculateTableSize();
+                long contentSize = CalculateContentSize();
+                long archiveSize = headerSize + tableSize + contentSize;
+                int dataStart = headerSize + tableSize;
+                _stream.SetLength(archiveSize);
+
+                using (var writer = new BinaryWriter(_stream))
+                {
+                    WriteHeader(writer, archiveSize, dataStart);
+                    WriteFileTable(writer, dataStart);
+                    WriteFileContent(writer);
+                }
+            }
         }
     }
 

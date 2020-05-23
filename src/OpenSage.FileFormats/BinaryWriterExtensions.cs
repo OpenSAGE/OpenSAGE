@@ -286,6 +286,16 @@ namespace OpenSage.FileFormats
             }
         }
 
+        public static void WriteNullterminatedString(this BinaryWriter writer, in string content)
+        {
+            foreach(var b in Encoding.UTF8.GetBytes(content))
+            {
+                writer.Write(b);
+            }
+
+            writer.Write('\0');
+        }
+
         public static void Write(this BinaryWriter writer, in Line2D line)
         {
             writer.Write(line.V0);

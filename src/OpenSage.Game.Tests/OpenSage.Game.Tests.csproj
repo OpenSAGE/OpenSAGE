@@ -32,4 +32,14 @@
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Data\Big\Assets\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Data\Big\Assets\test.big">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

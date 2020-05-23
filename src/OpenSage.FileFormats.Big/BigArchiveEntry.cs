@@ -6,25 +6,49 @@ namespace OpenSage.FileFormats.Big
 {
     public class BigArchiveEntry
     {
-        private readonly uint _offset;
+        internal uint Offset;
 
         public BigArchive Archive { get; }
 
         public string FullName { get; }
         public string Name => FullName.Split('\\').Last();
-        public uint Length { get; }
+        public uint Length { get; internal set; }
 
-        public BigArchiveEntry(BigArchive archive, string name, uint offset, uint size)
+        internal bool OnDisk { get; set; }
+        internal MemoryStream WriteBuffer { get; set; }
+
+        private Stream _stream;
+
+        internal BigArchiveEntry(BigArchive archive, string name, uint offset, uint size)
         {
             Archive = archive;
             FullName = name;
-            _offset = offset;
+            Offset = offset;
             Length = size;
+            OnDisk = true;
+        }
+
+        internal BigArchiveEntry(BigArchive archive, string name)
+        {
+            Archive = archive;
+            FullName = name;
+            Length = 0;
+            OnDisk = false;
+        }
+
+        public void Delete()
+        {
+            Archive.DeleteEntry(this);
         }
 
         public Stream Open()
         {
-            var bigStream = new BigArchiveEntryStream(this, _offset);
+            if(WriteBuffer!=null)
+            {
+                return WriteBuffer;
+            }
+                
+            var bigStream = new BigArchiveEntryStream(this, Offset);
 
             // Wrapping BigStream in a BufferedStream significantly improves performance.
             var bufferedBigStream = new BufferedStream(bigStream);
