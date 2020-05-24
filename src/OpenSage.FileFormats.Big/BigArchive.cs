@@ -138,6 +138,7 @@ namespace OpenSage.FileFormats.Big
         internal void DeleteEntry(BigArchiveEntry entry)
         {
             _entries.Remove(entry);
+            WriteToDisk(true);
         }
 
         private long CalculateContentSize()
@@ -235,11 +236,11 @@ namespace OpenSage.FileFormats.Big
             }
         }
 
-        internal void WriteToDisk()
+        internal void WriteToDisk(bool forceWrite = false)
         {
             bool needsWrite = _entries.Any(x => x.OnDisk == false);
 
-            if (needsWrite)
+            if (needsWrite || forceWrite)
             {
                 var outArchive = new MemoryStream();
                 const int headerSize = 16;

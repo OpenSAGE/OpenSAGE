@@ -10,6 +10,7 @@ using Veldrid.Sdl2;
 using SharpFileDialog;
 using Veldrid;
 using OpenSage.Tools.BigEditor.Views;
+using SharpDX;
 
 namespace OpenSage.Tools.BigEditor.UI
 {
@@ -36,20 +37,11 @@ namespace OpenSage.Tools.BigEditor.UI
             _currentFileName = null;
             _scrollY = 0.0f;
             _graphicsDevice = gd;
-            OpenBigFile(null);
+            Reset();
         }
 
-        private void UpdateSearch(string searchText)
+        private void UpdateFilesList()
         {
-            searchText = ImGuiUtility.TrimToNullByte(searchText);
-
-            if (searchText == _searchText)
-            {
-                return;
-            }
-
-            _searchText = searchText;
-
             _files.Clear();
 
             if (_bigArchive == null)
@@ -69,6 +61,30 @@ namespace OpenSage.Tools.BigEditor.UI
             }
         }
 
+        private void UpdateSearch(string searchText)
+        {
+            searchText = ImGuiUtility.TrimToNullByte(searchText);
+
+            if (searchText == _searchText)
+            {
+                return;
+            }
+
+            _searchText = searchText;
+            UpdateFilesList();
+        }
+
+        private void Reset()
+        {
+            RemoveAndDispose(ref _bigArchive);
+            _currentFile = -1;
+            _currentFileName = "";
+            _currentView = null;
+            _searchTextBuffer = new byte[32];
+            _files.Clear();
+            UpdateSearch(null);
+        }
+
         public void Draw(Sdl2Window window)
         {
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
@@ -80,7 +96,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             var wasOpenClicked = false;
             var wasExportAllClicked = false;
-            var wasImportFilesClicked = false;
+            var wasImportDirectoryClicked = false;
             var wasImportFileClicked = false;
 
             if (ImGui.BeginMenuBar())
@@ -93,7 +109,7 @@ namespace OpenSage.Tools.BigEditor.UI
                     }
                     if (ImGui.MenuItem("Close", null, false, _bigArchive != null))
                     {
-                        OpenBigFile(null);
+                        Reset();
                     }
 
                     ImGui.Separator();
@@ -114,9 +130,9 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.Separator();
 
-                    if (ImGui.MenuItem("Import Files", "Ctrl+Shift+I", false, _bigArchive != null))
+                    if (ImGui.MenuItem("Import Directory", "Ctrl+Shift+I", false, _bigArchive != null))
                     {
-                        wasImportFilesClicked = true;
+                        wasImportDirectoryClicked = true;
                     }
 
                     if (ImGui.MenuItem("Import File...", "Ctrl+I", false, _bigArchive != null))
@@ -133,22 +149,22 @@ namespace OpenSage.Tools.BigEditor.UI
             if (wasOpenClicked)
             {
                 var openDialog = new OpenFileDialog("Open .big file");
-                openDialog.Open(result => OpenBigFile(result.FileName), "Big archive(*.big) | *.big");
+                openDialog.Open(result => OpenBigFile(result), "Big archive(*.big) | *.big");
             }
             if (wasExportAllClicked)
             {
                 var dirDialog = new DirectoryDialog("Select folder for export files");
-                dirDialog.Open(result => Export(result.FileName));
+                dirDialog.Open(result => Export(result));
             }
-            if (wasImportFilesClicked)
+            if (wasImportDirectoryClicked)
             {
                 var dirDialog = new DirectoryDialog("Select folder for import files");
-                dirDialog.Open(result => Import(result.FileName));
+                dirDialog.Open(result => ImportDirectory(result));
             }
             if (wasImportFileClicked)
             {
                 var openDialog = new OpenFileDialog("Select file which you want to import");
-                openDialog.Open(result => ImportFile(result.FileName));
+                openDialog.Open(result => ImportFile(result));
             }
 
             if (_bigArchive != null)
@@ -190,28 +206,26 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild();
         }
 
-        private void OpenBigFile(string filePath)
+        private void OpenBigFile(DialogResult result)
         {
-            RemoveAndDispose(ref _bigArchive);
+            if (!result.Success)
+            {
+                return;
+            }
 
-            if (File.Exists(filePath))
+            Reset();
+
+            if (File.Exists(result.FileName))
             {
                 try
                 {
-                    _bigArchive = AddDisposable(new BigArchive(filePath));
+                    _bigArchive = AddDisposable(new BigArchive(result.FileName));
                 }
                 catch (Exception e)
                 {
                     logger.Error(e.Message);
                 }
             }
-
-            _currentFile = -1;
-            _currentFileName = "";
-            _currentView = null;
-            _searchTextBuffer = new byte[32];
-            _files.Clear();
-            UpdateSearch(null);
         }
 
         private void DrawFilesList(Vector2 windowSize)
@@ -256,8 +270,11 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 var entry = _files[i];
 
-                if (ImGui.Selectable(entry.FullName, i == _currentFile, ImGuiSelectableFlags.SpanAllColumns) || i == _currentFile)
+                if (ImGui.Selectable(entry.FullName, i == _currentFile, ImGuiSelectableFlags.SpanAllColumns))
                 {
+                    if (_currentFile == i)
+                        continue;
+
                     _currentFile = i;
                     _currentFileName = entry.FullName;
 
@@ -266,9 +283,12 @@ namespace OpenSage.Tools.BigEditor.UI
                         case ".ini":
                         case ".txt":
                         case ".wnd":
+                        case ".xml":
+                        case ".lua":
+                        case ".inc":
                             using (var stream = entry.Open())
                             {
-                                _currentView = new TextView(stream);
+                                _currentView = AddDisposable(new TextView(stream));
                             }
                             break;
                         case ".tga":
@@ -277,7 +297,7 @@ namespace OpenSage.Tools.BigEditor.UI
                         case ".png":
                             using (var stream = entry.Open())
                             {
-                                _currentView = new ImageView(stream, _graphicsDevice, _imguiRenderer);
+                                _currentView = AddDisposable(new ImageView(stream, _graphicsDevice, _imguiRenderer));
                             }
                             break;
                         default:
@@ -298,6 +318,15 @@ namespace OpenSage.Tools.BigEditor.UI
                         shouldOpenSaveDialog = true;
                     }
 
+                    if (ImGui.Selectable("Delete"))
+                    {
+                        entry.Delete();
+                        UpdateFilesList();
+                        _currentFile = -1;
+                        _currentFileName = "";
+                        _currentView = null;
+                    }
+
                     ImGui.EndPopup();
                 }
 
@@ -310,7 +339,7 @@ namespace OpenSage.Tools.BigEditor.UI
                 {
                     var saveDialog = new SaveFileDialog("Export file");
                     saveDialog.DefaultFileName = entry.Name;
-                    saveDialog.Save(result => ExportFile(entry, result.FileName));
+                    saveDialog.Save(result => ExportFile(entry, result));
                 }
             }
 
@@ -337,11 +366,16 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild(); // end statusbar
         }
 
-        private void Export(string path)
+        private void Export(DialogResult result)
         {
+            if (!result.Success)
+            {
+                return;
+            }
+
             foreach (var entry in _files)
             {
-                string filePath = Path.Combine(path, Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar)));
+                string filePath = Path.Combine(result.FileName, Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar)));
                 try
                 {
                     Directory.CreateDirectory(filePath);
@@ -369,27 +403,63 @@ namespace OpenSage.Tools.BigEditor.UI
             }
         }
 
-        private void ExportFile(BigArchiveEntry entry, string filePath)
+        private void ExportFile(BigArchiveEntry entry, DialogResult result)
         {
+            if (!result.Success)
+            {
+                return;
+            }
+
             using (var entryStream = entry.Open())
             {
-                using (var fileStream = File.OpenWrite(filePath))
+                using (var fileStream = File.OpenWrite(result.FileName))
                 {
                     entryStream.CopyTo(fileStream);
                 }
             }
         }
 
-        private void Import(string directory)
+        private void ImportDirectory(DialogResult result)
         {
-            // TODO: Implement import files from directory
-            logger.Info("Import files from: {0}", directory);
+            if (!result.Success)
+            {
+                return;
+            }
+
+            foreach (var filePath in Directory.GetFiles(result.FileName))
+            {
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    var entry = _bigArchive.CreateEntry(filePath);
+
+                    using (var entryStream = entry.Open())
+                    {
+                        fileStream.CopyTo(entryStream);
+                    }
+                }
+            }
+
+            UpdateFilesList();
         }
 
-        private void ImportFile(string filePath)
+        private void ImportFile(DialogResult result)
         {
-            // TODO: Implement import one file
-            logger.Info("Import file: {0}", filePath);
+            if(!result.Success)
+            {
+                return;
+            }
+
+            using (var fileStream = File.OpenRead(result.FileName))
+            {
+                var entry = _bigArchive.CreateEntry(result.FileName);
+
+                using (var entryStream = entry.Open())
+                {
+                    fileStream.CopyTo(entryStream);
+                }
+            }
+
+            UpdateFilesList();
         }
     }
 }

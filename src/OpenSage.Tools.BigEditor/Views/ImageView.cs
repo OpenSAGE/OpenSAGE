@@ -25,6 +25,7 @@ namespace OpenSage.Tools.BigEditor.Views
 
             var imageSharpTex = new ImageSharpTexture(stream);
             _texture = imageSharpTex.CreateDeviceTexture(_graphicsDevice, _graphicsDevice.ResourceFactory);
+            _textureViews = new Dictionary<TextureViewDescription, TextureView>();
         }
 
         public override void Draw()
