@@ -10,7 +10,6 @@ namespace OpenSage.FileFormats.Big
         private readonly uint _offset;
         private bool _locked;
         private bool _write;
-        private MemoryStream _writeBuffer;
 
         public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
         {
@@ -28,7 +27,6 @@ namespace OpenSage.FileFormats.Big
             if (_write)
             {
                 _entry.Length = (uint) this.Length;
-                _entry.WriteBuffer = _writeBuffer;
             }
             _archive.WriteToDisk();
         }
@@ -49,7 +47,7 @@ namespace OpenSage.FileFormats.Big
             }
             else
             {
-                result = _writeBuffer.Read(buffer, offset, count);
+                result = _entry.OutstandingWriteStream.Read(buffer, offset, count);
                 Position += result;
             }
 
@@ -83,8 +81,8 @@ namespace OpenSage.FileFormats.Big
         {
             if (_write == false)
             {
-                _writeBuffer = new MemoryStream();
-                CopyTo(_writeBuffer);
+                _entry.OutstandingWriteStream = new MemoryStream();
+                CopyTo(_entry.OutstandingWriteStream);
                 _write = true;
             }
         }
@@ -94,7 +92,7 @@ namespace OpenSage.FileFormats.Big
             EnsureWriteMode();
 
             _entry.OnDisk = false;
-            _writeBuffer.SetLength(value);
+            _entry.OutstandingWriteStream.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -102,8 +100,8 @@ namespace OpenSage.FileFormats.Big
             EnsureWriteMode();
 
             _entry.OnDisk = false;
-            _writeBuffer.Position = Position;
-            _writeBuffer.Write(buffer, offset, count);
+            _entry.OutstandingWriteStream.Position = Position;
+            _entry.OutstandingWriteStream.Write(buffer, offset, count);
         }
 
         public override bool CanRead => _archive.Stream.CanRead;
@@ -112,7 +110,7 @@ namespace OpenSage.FileFormats.Big
 
         public override bool CanWrite => true;
 
-        public override long Length => _write ? _writeBuffer.Length : _entry.Length;
+        public override long Length => _write ? _entry.OutstandingWriteStream.Length : _entry.Length;
 
         public override long Position { get; set; }
 

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Xunit;
-using System.Text;
 using OpenSage.FileFormats.Big;
 
 namespace OpenSage.Tests.Data.Big
@@ -26,7 +24,7 @@ namespace OpenSage.Tests.Data.Big
                 {
                     using(var sw = new StreamWriter(stream))
                     {
-                        sw.WriteLine("This is sample B");
+                        sw.Write("This is sample B");
                     }
                 }
             }

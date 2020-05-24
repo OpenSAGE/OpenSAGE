@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using NLog.Internal;
 
 namespace OpenSage.FileFormats.Big
 {
@@ -147,10 +145,7 @@ namespace OpenSage.FileFormats.Big
             long contentSize = 0;
             foreach (var entry in _entries)
             {
-                using (var stream = entry.Open())
-                {
-                    contentSize += stream.Length;
-                }
+                contentSize += entry.Length;
             }
 
             return contentSize;
@@ -186,9 +181,18 @@ namespace OpenSage.FileFormats.Big
             }
 
             bw.WriteFourCc(fourCC);
-            bw.Write((int) archiveSize);
-            bw.Write(_entries.Count);
-            bw.Write(dataStart);
+            bw.WriteBigEndianUInt32((uint) archiveSize);
+            bw.WriteBigEndianUInt32((uint) _entries.Count);
+            bw.WriteBigEndianUInt32((uint) dataStart);
+        }
+
+        private void UpdateOffsets()
+        {
+            foreach (var entry in _entries)
+            {
+                entry.Offset = entry.OutstandingOffset;
+                entry.OutstandingOffset = 0;
+            }
         }
 
         private void WriteFileTable(BinaryWriter bw, int dataStart)
@@ -197,15 +201,12 @@ namespace OpenSage.FileFormats.Big
             foreach (var entry in _entries)
             {
                 // Each entry has 4 bytes for the offset + 4 for size
-                bw.Write((int) entry.Length);
-                bw.Write((int) entryOffset);
+                bw.WriteBigEndianUInt32((uint) entryOffset);
+                bw.WriteBigEndianUInt32((uint) entry.Length);
                 bw.WriteNullterminatedString(entry.FullName);
 
-                entry.Offset = (uint) entryOffset;
-                entry.Length = (uint) entry.Length;
-
+                entry.OutstandingOffset = (uint) entryOffset;
                 entryOffset += entry.Length;
-
             }
         }
 
@@ -213,11 +214,22 @@ namespace OpenSage.FileFormats.Big
         {
             foreach (var entry in _entries)
             {
-                using (var stream = entry.Open())
+                using (var content = new MemoryStream())
                 {
-                    // Each entry has 4 bytes for the offset + 4 for size
-                    var content = new MemoryStream();
-                    stream.CopyTo(content);
+                    if (entry.OutstandingWriteStream != null)
+                    {
+                        entry.OutstandingWriteStream.WriteTo(content);
+                    }
+                    else
+                    {
+                        using (var stream = entry.Open())
+                        {
+                            // Each entry has 4 bytes for the offset + 4 for size
+                            stream.CopyTo(content);
+                        }
+                    }
+                    bw.BaseStream.Position = entry.OutstandingOffset;
+                    var str = Encoding.ASCII.GetString(content.ToArray());
                     bw.Write(content.ToArray());
                 }
             }
@@ -229,20 +241,26 @@ namespace OpenSage.FileFormats.Big
 
             if (needsWrite)
             {
+                var outArchive = new MemoryStream();
                 const int headerSize = 16;
                 _entries.ForEach(x => x.OnDisk = true);
                 int tableSize = CalculateTableSize();
                 long contentSize = CalculateContentSize();
                 long archiveSize = headerSize + tableSize + contentSize;
                 int dataStart = headerSize + tableSize;
-                _stream.SetLength(archiveSize);
+                outArchive.SetLength(archiveSize);
 
-                using (var writer = new BinaryWriter(_stream))
+                using (var writer = new BinaryWriter(outArchive))
                 {
                     WriteHeader(writer, archiveSize, dataStart);
                     WriteFileTable(writer, dataStart);
                     WriteFileContent(writer);
+                    _stream.Position = 0;
+                    _stream.SetLength(archiveSize);
+                    outArchive.WriteTo(_stream);
                 }
+
+                UpdateOffsets();
             }
         }
     }
