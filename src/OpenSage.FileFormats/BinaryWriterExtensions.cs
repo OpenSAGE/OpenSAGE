@@ -296,6 +296,14 @@ namespace OpenSage.FileFormats
             writer.Write('\0');
         }
 
+        public static void WriteBigEndianUInt32(this BinaryWriter writer, uint num)
+        {
+            var array = BitConverter.GetBytes(num);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(array);
+            writer.Write(array);
+        }
+
         public static void Write(this BinaryWriter writer, in Line2D line)
         {
             writer.Write(line.V0);
