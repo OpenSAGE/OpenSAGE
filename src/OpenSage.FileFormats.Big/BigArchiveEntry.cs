@@ -16,12 +16,11 @@ namespace OpenSage.FileFormats.Big
         public string Name => FullName.Split('\\').Last();
         public uint Length { get; internal set; }
 
+        // Internal members
         internal bool OnDisk { get; set; }
         internal MemoryStream OutstandingWriteStream { get; set; }
         internal uint OutstandingOffset { get; set; }
-
-        private bool _currentlyOpenForWrite;
-        private bool _everOpenedForWrite;
+        internal bool CurrentlyOpenForWrite { get; set; }
 
         internal BigArchiveEntry(BigArchive archive, string name, uint offset, uint size)
         {
@@ -31,8 +30,7 @@ namespace OpenSage.FileFormats.Big
             Length = size;
             OnDisk = true;
             OutstandingOffset = 0;
-            _currentlyOpenForWrite = false;
-            _everOpenedForWrite = false;
+            CurrentlyOpenForWrite = false;
         }
 
         internal BigArchiveEntry(BigArchive archive, string name)
@@ -41,8 +39,7 @@ namespace OpenSage.FileFormats.Big
             FullName = name;
             Length = 0;
             OnDisk = false;
-            _currentlyOpenForWrite = false;
-            _everOpenedForWrite = false;
+            CurrentlyOpenForWrite = false;
         }
 
         public void Delete()
@@ -50,7 +47,7 @@ namespace OpenSage.FileFormats.Big
             if (Archive == null)
                 return;
 
-            if (_currentlyOpenForWrite)
+            if (CurrentlyOpenForWrite)
                 throw new IOException("Entry is currently being written to");
 
             if (Archive.Mode != BigArchiveMode.Update)
@@ -81,10 +78,10 @@ namespace OpenSage.FileFormats.Big
 
         private Stream OpenInWriteMode()
         {
-            if (_everOpenedForWrite)
+            if (CurrentlyOpenForWrite)
                 throw new IOException("Can only write once and one entry at a time!");
 
-            _everOpenedForWrite = true;
+            CurrentlyOpenForWrite = true;
 
             var bigStream = new BigArchiveEntryStream(this, Offset);
 
@@ -100,11 +97,10 @@ namespace OpenSage.FileFormats.Big
 
         private Stream OpenInUpdateMode()
         {
-            if (_everOpenedForWrite)
-                throw new IOException("Can only write once and one entry at a time!");
+            if (CurrentlyOpenForWrite)
+                throw new IOException("Can only open a single write stream!");
 
-            _everOpenedForWrite = true;
-            _currentlyOpenForWrite = true;
+            CurrentlyOpenForWrite = true;
 
             var bigStream = new BigArchiveEntryStream(this, Offset);
 

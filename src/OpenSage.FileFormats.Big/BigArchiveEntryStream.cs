@@ -120,8 +120,10 @@ namespace OpenSage.FileFormats.Big
             {
                 _archive.ReleaseLock();
                 _locked = false;
+                _entry.CurrentlyOpenForWrite = false;
             }
 
+            Flush();
             base.Close();
         }
     }
