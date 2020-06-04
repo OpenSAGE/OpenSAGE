@@ -286,7 +286,7 @@ namespace OpenSage.FileFormats
             }
         }
 
-        public static void WriteNullterminatedString(this BinaryWriter writer, in string content)
+        public static void WriteNullTerminatedString(this BinaryWriter writer, in string content)
         {
             foreach(var b in Encoding.UTF8.GetBytes(content))
             {

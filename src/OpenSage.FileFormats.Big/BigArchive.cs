@@ -204,7 +204,7 @@ namespace OpenSage.FileFormats.Big
                 // Each entry has 4 bytes for the offset + 4 for size
                 bw.WriteBigEndianUInt32((uint) entryOffset);
                 bw.WriteBigEndianUInt32((uint) entry.Length);
-                bw.WriteNullterminatedString(entry.FullName);
+                bw.WriteNullTerminatedString(entry.FullName);
 
                 entry.OutstandingOffset = (uint) entryOffset;
                 entryOffset += entry.Length;
@@ -225,7 +225,6 @@ namespace OpenSage.FileFormats.Big
                     {
                         using (var stream = entry.Open())
                         {
-                            // Each entry has 4 bytes for the offset + 4 for size
                             stream.CopyTo(content);
                         }
                     }
