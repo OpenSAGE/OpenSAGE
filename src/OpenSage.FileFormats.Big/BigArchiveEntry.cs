@@ -132,10 +132,8 @@ namespace OpenSage.FileFormats.Big
         internal void CloseStreams()
         {
             // if the user left the stream open, close the underlying stream for them
-            if (OutstandingWriteStream != null)
-            {
-                OutstandingWriteStream.Dispose();
-            }
+            OutstandingWriteStream?.Dispose();
+            OutstandingWriteStream = null;
         }
     }
 }
