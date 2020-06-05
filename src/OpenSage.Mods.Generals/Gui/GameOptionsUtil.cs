@@ -93,6 +93,11 @@ namespace OpenSage.Mods.Generals.Gui
                             return true;
                         }
 
+                        if(_optionsPath.StartsWith("LaneGame"))
+                        {
+                            context.Game.HostSkirmishGame();
+                        }
+
                         context.Game.Scene2D.WndWindowManager.PopWindow();
                         context.Game.StartMultiPlayerGame(
                             CurrentMap.Name,
