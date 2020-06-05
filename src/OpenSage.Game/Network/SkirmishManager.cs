@@ -349,9 +349,7 @@ namespace OpenSage.Network
         public void Stop()
         {
             _running = false;
-            _cancelTokenSource.Cancel();
-
-
+            _cancelTokenSource?.Cancel();
         }
     }
 }
