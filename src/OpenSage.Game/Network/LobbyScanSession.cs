@@ -113,12 +113,10 @@ namespace OpenSage.Network
 
                         var endpoint = result.RemoteEndPoint;
 
-                        if (!_lobbyManager.Players.ContainsKey(endpoint))
+                        if (!_lobbyManager.Players.TryGetValue(endpoint, out var player))
                         {
-                            _lobbyManager.Players[endpoint] = new LobbyManager.LobbyPlayer();
+                            player = _lobbyManager.Players[endpoint] = new LobbyManager.LobbyPlayer();
                         }
-
-                        var player = _lobbyManager.Players[endpoint];
 
                         player.Endpoint = endpoint;
                         player.Name = lobbyMessage.Name;

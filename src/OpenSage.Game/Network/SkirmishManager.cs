@@ -21,7 +21,6 @@ namespace OpenSage.Network
 
             private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-            string Name = "";
             private SkirmishManager _manager;
             private TcpClient _client;
             private CancellationTokenSource _cancelTokenSource;
@@ -101,13 +100,7 @@ namespace OpenSage.Network
         private TcpClient _serverConnection;
         private SkirmishSlot ownSlot;
 
-        public List<SkirmishSlot> Slots
-        {
-            get
-            {
-                return _slots;
-            }
-        }
+        public List<SkirmishSlot> Slots => _slots;
 
         public class SkirmishSlot
         {
@@ -231,13 +224,15 @@ namespace OpenSage.Network
 
                 statePacket.Slots = _slots.Select(x =>
                 {
-                    var skirmishSlot = new SkirmishProtocol.SkirmishSlot();
-                    skirmishSlot.ColorIndex = x.ColorIndex;
-                    skirmishSlot.FactionIndex = x.FactionIndex;
-                    skirmishSlot.Name = x.HumanName;
-                    skirmishSlot.Ready = x.Ready;
-                    skirmishSlot.Type = x.Type;
-                    skirmishSlot.Team = x.Team;
+                    var skirmishSlot = new SkirmishProtocol.SkirmishSlot
+                    {
+                        ColorIndex = x.ColorIndex,
+                        FactionIndex = x.FactionIndex,
+                        Name = x.HumanName,
+                        Ready = x.Ready,
+                        Type = x.Type,
+                        Team = x.Team
+                    };
                     return skirmishSlot;
                 }).ToArray();
 
