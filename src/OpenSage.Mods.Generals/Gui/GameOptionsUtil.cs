@@ -93,7 +93,7 @@ namespace OpenSage.Mods.Generals.Gui
                             return true;
                         }
 
-                        if(_optionsPath.StartsWith("LaneGame"))
+                        if(_optionsPath.StartsWith("LanGame"))
                         {
                             context.Game.HostSkirmishGame();
                         }

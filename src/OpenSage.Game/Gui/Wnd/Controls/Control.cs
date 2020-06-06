@@ -119,7 +119,7 @@ namespace OpenSage.Gui.Wnd.Controls
         public delegate void OnTextChangedHandler(object sender, string Text);
         public event OnTextChangedHandler OnTextChanged;
 
-        private string _text = "";
+        private string _text = string.Empty;
 
         public string Text {
             get {

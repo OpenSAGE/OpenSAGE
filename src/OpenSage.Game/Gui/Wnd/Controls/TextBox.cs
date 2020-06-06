@@ -67,9 +67,9 @@ namespace OpenSage.Gui.Wnd.Controls
                             switch (message.Key)
                             {
                                 case Veldrid.Key.BackSpace:
-                                    if (Text != "")
+                                    if (Text.Length > 0)
                                     {
-                                        Text = Text.Remove(Text.Length - 1);
+                                        Text = Text.Remove(Text.Length - 1, 1);
                                     }
                                     break;
                             }
