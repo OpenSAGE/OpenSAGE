@@ -122,29 +122,64 @@ namespace OpenSage.Tools.BigTool
             }
         }
 
+        static void AddDirectoryToArchive(BigArchive archive, string dirpath, bool update = false)
+        {
+            foreach (string dir in Directory.GetDirectories(dirpath))
+            {
+                foreach (string file in Directory.GetFiles(dir))
+                {
+                    AddFileToArchive(archive, file);
+                }
+                AddDirectoryToArchive(archive, dir);
+            }
+        }
+
+        static void AddFileToArchive(BigArchive archive, string filepath, bool update = false)
+        {
+            BigArchiveEntry entry = null;
+
+            if(!update)
+            {
+                Console.WriteLine("adding: {0}", filepath);
+                entry = archive.CreateEntry(filepath);
+            }
+            else
+            {
+                try
+                {
+                    entry = archive.Entries.First(x => x.FullName == filepath);
+                    Console.WriteLine("updating: {0}", filepath);
+                }
+                catch (InvalidOperationException e)
+                {
+                    entry = archive.CreateEntry(filepath);
+                    Console.WriteLine("adding: {0}", filepath);
+                }
+            }
+
+            using (var entryStream = entry.Open())
+            {
+                using (var fileStream = File.OpenRead(filepath))
+                {    
+                    fileStream.CopyTo(entryStream);
+                }
+            }
+        }
+
         static void UpdateMode(Options opts)
         {
             var archive = new BigArchive(opts.ArchiveName, BigArchiveMode.Update);
             foreach (var entryName in opts.Files)
             {
-                BigArchiveEntry entry = null;
-                try
-                {
-                    entry = archive.Entries.First(x => x.FullName == entryName);
-                    Console.WriteLine("updating: {0}", entryName);
-                }
-                catch (InvalidOperationException e)
-                {
-                    entry = archive.CreateEntry(entryName);
-                    Console.WriteLine("adding: {0}", entryName);
-                }
+                var attr = File.GetAttributes(entryName);
 
-                using(var entryStream = entry.Open())
+                if (attr.HasFlag(FileAttributes.Directory))
                 {
-                    using(var fileStream = File.OpenRead(entryName))
-                    {
-                        fileStream.CopyTo(entryStream);
-                    }
+                    AddDirectoryToArchive(archive, entryName, true);
+                }
+                else
+                {
+                    AddFileToArchive(archive, entryName, true);
                 }
             }
         }
@@ -154,15 +189,15 @@ namespace OpenSage.Tools.BigTool
             var archive = new BigArchive(opts.ArchiveName, BigArchiveMode.Create);
             foreach (var entryName in opts.Files)
             {
-                var entry = archive.CreateEntry(entryName);
-                Console.WriteLine("adding: {0}", entryName);
+                var attr = File.GetAttributes(entryName);
 
-                using (var entryStream = entry.Open())
+                if (attr.HasFlag(FileAttributes.Directory))
                 {
-                    using (var fileStream = File.OpenRead(entryName))
-                    {
-                        fileStream.CopyTo(entryStream);
-                    }
+                    AddDirectoryToArchive(archive, entryName);
+                }
+                else
+                {
+                    AddFileToArchive(archive, entryName);
                 }
             }
         }
