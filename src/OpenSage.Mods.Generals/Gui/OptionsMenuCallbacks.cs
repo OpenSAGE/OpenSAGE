@@ -28,7 +28,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             var comboBoxIP = (ComboBox) window.Controls.FindControl(ComboBoxIPPrefix);
             var items = new List<ListBoxDataItem>();
-            items.Add(new ListBoxDataItem(game.LobbyManager.Unicast.Address, new[] { game.LobbyManager.Unicast.Address.ToString() }, comboBoxIP.TextColor));
+            // items.Add(new ListBoxDataItem(game.LobbyManager.Unicast.Address, new[] { game.LobbyManager.Unicast.Address.ToString() }, comboBoxIP.TextColor));
 
             comboBoxIP.Items = items.ToArray();
             comboBoxIP.SelectedIndex = 0;

@@ -4,7 +4,7 @@ using System.Net;
 using System.Linq;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
-using static OpenSage.Network.LobbyManager;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -36,9 +36,9 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
-                            context.Game.LobbyManager.Hosting = true;
+                            //context.Game.LobbyManager.Hosting = true;
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
-                            context.Game.SkirmishManager.Host();
+                            //context.Game.SkirmishManager.Host();
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
 
@@ -75,65 +75,19 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanLobbyMenuUpdate(Window window, Game game)
         {
-            if(!_game.LobbyManager.Updated)
-            {
-                return;
-            }
-
             // Update games
-            var games = _game.LobbyManager.Players.Where(x => x.Value.IsHosting);
-
             var listBoxGames = (ListBox) window.Controls.FindControl(ListBoxGamesPrefix);
-            var items = new List<ListBoxDataItem>(listBoxGames.Items);
-            
-            //remove items that are no longer in the list
-            items.RemoveAll(x => games.Where(y => y.Key.Equals(((KeyValuePair<IPEndPoint, LobbyPlayer>) x.DataItem).Key)).Count() == 0);
 
-            //update the items that are in the list
-            items.ForEach(x => x.ColumnData = new[] { ((KeyValuePair<IPEndPoint, LobbyPlayer>) x.DataItem).Value.Name });
-
-            //add the missing items to the list
-            foreach (var lobbyPlayer in games)
-            {
-                var existing = items.Find(x => ((KeyValuePair<IPEndPoint, LobbyPlayer>) x.DataItem).Key.Equals(lobbyPlayer.Key));
-                if (existing == null)
-                {
-                    existing = new ListBoxDataItem(lobbyPlayer, new[] { lobbyPlayer.Value.Name }, listBoxGames.TextColor);
-                    items.Add(existing);
-                }
-
-                existing.ColumnData = new[] { lobbyPlayer.Value.Name };
-            }
-
-            listBoxGames.Items = items.ToArray();
+            listBoxGames.Items = (from player in _game.LobbyManager.Players
+                                  where player.IsHosting
+                                  select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor)).ToArray();
 
             // Update players
             var listBoxPlayers = (ListBox) window.Controls.FindControl(ListBoxPlayersPrefix);
-            items = new List<ListBoxDataItem>(listBoxPlayers.Items);
 
-            var players = _game.LobbyManager.Players.Where(x => x.Value.IsHosting == false);
-
-            //remove items that are no longer in the list
-            items.RemoveAll(x => players.Where(y => y.Key.Equals(((KeyValuePair<IPEndPoint, LobbyPlayer>) x.DataItem).Key)).Count() == 0);
-
-            //add the missing items to the list
-            foreach (var lobbyPlayer in players)
-            {
-                var existing = items.Find(x => ((KeyValuePair<IPEndPoint, LobbyPlayer>) x.DataItem).Key.Equals(lobbyPlayer.Key));
-                if(existing == null)
-                {
-                    existing = new ListBoxDataItem(lobbyPlayer, new[] { lobbyPlayer.Value.Name }, listBoxPlayers.TextColor);
-                    items.Add(existing);
-                }
-
-                existing.ColumnData = new[] { lobbyPlayer.Value.Name };   
-            }
-
-            listBoxPlayers.Items = items.ToArray();
-
-
-
-            game.LobbyManager.Updated = false;
+            listBoxPlayers.Items = (from player in _game.LobbyManager.Players
+                                    where !player.IsHosting
+                                    select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor)).ToArray();
         }
 
         private static void ClearPlayerName(object sender, EventArgs args)
@@ -162,7 +116,6 @@ namespace OpenSage.Mods.Generals.Gui
             textChat.Text = string.Empty;
 
             game.LobbyManager.Start();
-            game.LobbyManager.Updated = true;
         }
 
         public static void LanLobbyMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -170,9 +123,9 @@ namespace OpenSage.Mods.Generals.Gui
             logger.Info($"Have message {message.MessageType} for control {control.Name}");
         }
 
-        private static void TextEditPlayerName_OnTextChanged(object sender, string Text)
+        private static void TextEditPlayerName_OnTextChanged(object sender, string text)
         {
-            _game.LobbyManager.Username = Text;
+            _game.LobbyManager.Username = string.IsNullOrEmpty(text) ? Environment.MachineName : text;
         }
     }
 }

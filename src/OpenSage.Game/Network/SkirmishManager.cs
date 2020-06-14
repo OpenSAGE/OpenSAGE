@@ -291,8 +291,7 @@ namespace OpenSage.Network
 
             _running = true;
 
-            var unicast = _game.LobbyManager.Unicast;
-            _server = new TcpListener(unicast.Address, Port);
+            _server = new TcpListener(/*unicast.Address, */Port);
             _server.Start();
 
             while (_running)

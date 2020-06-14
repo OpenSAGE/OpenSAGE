@@ -68,12 +68,11 @@ namespace OpenSage
 
         public InputMessageBuffer InputMessageBuffer { get; }
         
-        public LobbyManager LobbyManager { get; }
-
         public SkirmishManager SkirmishManager { get; }
 
         //TODO: this will be part of SkirmishManager after merging litenetlib PR
         public MapCache CurrentMap { get; private set; }
+        public LobbyManager LobbyManager { get; }
 
         internal List<GameSystem> GameSystems { get; }
 
@@ -476,7 +475,7 @@ namespace OpenSage
                 _mapTimer.Reset();
 
                 LobbyManager = new LobbyManager(this);
-                SkirmishManager = new SkirmishManager(this);
+                SkirmishManager = new SkirmishManager(this);                
 
                 IsRunning = true;
                 IsLogicRunning = true;

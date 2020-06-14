@@ -2,113 +2,135 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
+using System.Threading;
+using LiteNetLib;
+using LiteNetLib.Utils;
+using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
 {
     public class LobbyManager
     {
-        public struct LobbyPlayer
-        {
-            public string Name { get; set; }
-            public bool IsHosting { get; set; }
-            public IPEndPoint Endpoint { get; set; }
-            public DateTime LastSeen;
-        }
-
-        public Dictionary<IPEndPoint, LobbyPlayer> Players { get; }
-
-        private string _username;
-        public string Username {
-            get
-            {
-                return _username;
-            }
-            set
-            {
-                _username = value;
-                LobbyBroadcastSession.Bump();
-            }
-        }
-
-        public string Map { get; set; }
-        public UnicastIPAddressInformation Unicast { get; set; }
-
-        public bool Updated { get; set; }
-        public bool Hosting { get; set; }
-
-        public LobbyBroadcastSession LobbyBroadcastSession { get; }
-        public LobbyScanSession LobbyScanSession { get; }
+        private Game _game;
+        private EventBasedNetListener _listener;
+        private NetManager _manager;
+        private Thread _thread;
+        private bool _isRunning;
+        private NetPacketProcessor _processor;
+        private List<LobbyPlayer> _players = new List<LobbyPlayer>();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public IReadOnlyCollection<LobbyPlayer> Players => _players;
+
         public LobbyManager(Game game)
         {
+            _game = game;
 
-            var localIp = game.Configuration.LanIpAddress;
+            _listener = new EventBasedNetListener();
+            _manager = new NetManager(_listener)
+            {
+                BroadcastReceiveEnabled = true,
+                ReuseAddress = true,
+                IPv6Enabled = false, // TODO: temporary
+            };
 
-            if(localIp == IPAddress.Any){
-                var selfAdresses = Dns.GetHostAddresses(Dns.GetHostName());
-                localIp = selfAdresses.FirstOrDefault(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            }
+            _processor = new NetPacketProcessor();
+            _processor.SubscribeReusable<LobbyBroadcastPacket, IPEndPoint>(LobbyBroadcastReceived);
 
-            Unicast = GetLocalAdapter(localIp);
-
-            LobbyBroadcastSession = new LobbyBroadcastSession(this);
-            LobbyScanSession = new LobbyScanSession(this);
-
-            Players = new Dictionary<IPEndPoint, LobbyPlayer>();
-            Username = Environment.MachineName;
-            Hosting = false;
-            Updated = true;
-
+            _listener.NetworkReceiveUnconnectedEvent += NetworkReceiveUnconnectedEvent;
         }
+
+        public string Username { get; set; } = Environment.MachineName;
 
         public void Start()
         {
-            Hosting = false;
-            LobbyBroadcastSession.Start();
-            LobbyScanSession.Start();
+            if (_game.Configuration.LanIpAddress != IPAddress.Any)
+            {
+                Logger.Trace($"Starting network manager using configured IP Address { _game.Configuration.LanIpAddress }");
+                _manager.Start(_game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.LobbyScan); // TODO: what about IPV6
+            }
+            else
+            {
+                Logger.Trace($"Starting network manager using default IP Address.");
+                _manager.Start(Ports.LobbyScan);
+            }
+
+            _isRunning = true;
+            _thread = new Thread(Loop)
+            {
+                IsBackground = true,
+                Name = "OpenSAGE Network Manager"
+            };
+            _thread.Start();
         }
 
         public void Stop()
         {
-            LobbyBroadcastSession.Stop();
-            LobbyScanSession.Stop();
+            _manager.Stop();
+
+            _isRunning = false;
+            _thread.Join();
+            _thread = null;
         }
 
-        public static IPAddress GetBroadcastAddress(UnicastIPAddressInformation unicastAddress)
+        private void Loop()
         {
-            return GetBroadcastAddress(unicastAddress.Address, unicastAddress.IPv4Mask);
-        }
+            var writer = new NetDataWriter();
 
-        public static IPAddress GetBroadcastAddress(IPAddress address, IPAddress mask)
-        {
-            uint ipAddress = BitConverter.ToUInt32(address.GetAddressBytes(), 0);
-            uint ipMaskV4 = BitConverter.ToUInt32(mask.GetAddressBytes(), 0);
-            uint broadCastIpAddress = ipAddress | ~ipMaskV4;
-
-            return new IPAddress(BitConverter.GetBytes(broadCastIpAddress));
-        }
-
-        internal static UnicastIPAddressInformation GetLocalAdapter(IPAddress ipAddress)
-        {
-            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces()) // Iterate over each network interface
+            while (_isRunning)
             {
-                if (item.OperationalStatus == OperationalStatus.Up)
-                {   // Fetch the properties of this adapter
+                writer.Reset();
 
-                    IPInterfaceProperties adapterProperties = item.GetIPProperties();
-                    var relevantUnicast = adapterProperties.UnicastAddresses.Where(x => x.Address.Equals(ipAddress)).FirstOrDefault();
-                    
-                    if(relevantUnicast != null){
-                        return relevantUnicast;
-                    }
+                _processor.Write(writer, new LobbyBroadcastPacket()
+                {
+                    Username = Username,
+                    IsHosting = false
+                });
 
+                _manager.PollEvents();
+
+                _manager.SendBroadcast(writer, Ports.LobbyScan);
+
+                var removedCount = _players.RemoveAll(IsTimedOut);
+                if (removedCount > 0)
+                {
+                    Logger.Info($"Timeout: Removed {removedCount} players from lobby.");
                 }
+
+                Thread.Sleep(100);
             }
-            return null;
+
+            bool IsTimedOut(LobbyPlayer player) =>
+                (DateTime.Now - player.LastSeen).TotalSeconds >= 3.0;
         }
 
+        private void NetworkReceiveUnconnectedEvent(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
+            if (messageType == UnconnectedMessageType.Broadcast && remoteEndPoint.Port == Ports.LobbyScan)
+            {
+                _processor.ReadAllPackets(reader, remoteEndPoint);
+            }
+        }
+
+        private void LobbyBroadcastReceived(LobbyBroadcastPacket packet, IPEndPoint endPoint)
+        {
+            Logger.Trace($"Received {nameof(LobbyBroadcastPacket)} from { endPoint }.");
+
+            var player = _players.FirstOrDefault(p => p.EndPoint.Equals(endPoint));
+            if (player == null)
+            {
+                player = new LobbyPlayer()
+                {
+                    EndPoint = endPoint
+                };
+
+                _players.Add(player);
+            }
+
+            player.Username = packet.Username;
+            player.IsHosting = packet.IsHosting;
+            player.LastSeen = DateTime.Now;
+        }
     }
 }

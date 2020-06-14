@@ -35,11 +35,11 @@ namespace OpenSage.Mods.Generals.Gui
         {
             // Initialize player name
             var editPlayerName = (TextBox) window.Controls.FindControl(EditPlayerNamePrefix);
-            editPlayerName.Text = game.LobbyManager.Username;
+            // editPlayerName.Text = game.LobbyManager.Username;
 
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = game.LobbyManager.Unicast.Address.ToString();
+            // staticLocalIp.Text = game.LobbyManager.Unicast.Address.ToString();
         }
     }
 }
