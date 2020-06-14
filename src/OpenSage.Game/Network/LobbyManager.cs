@@ -22,6 +22,7 @@ namespace OpenSage.Network
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public IReadOnlyCollection<LobbyPlayer> Players => _players;
+        public string LocalAddress => NetUtils.GetLocalIp(LocalAddrType.IPv4);
 
         public LobbyManager(Game game)
         {

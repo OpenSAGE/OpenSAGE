@@ -230,10 +230,11 @@ namespace OpenSage.Gui.Wnd.Controls
 
         private void OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            _editBox.Text = SelectedIndex != -1
-                ? Items[SelectedIndex].ColumnData[0]
-                : null;
-            _editBox.TextColor = Items[SelectedIndex].TextColor;
+            if (SelectedIndex != -1)
+            {
+                _editBox.Text = Items[SelectedIndex].ColumnData[0];
+                _editBox.TextColor = Items[SelectedIndex].TextColor;
+            }
             IsDropDownOpen = false;
         }
 
