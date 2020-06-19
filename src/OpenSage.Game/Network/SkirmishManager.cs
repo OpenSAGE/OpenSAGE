@@ -26,6 +26,8 @@ namespace OpenSage.Network
             private CancellationTokenSource _cancelTokenSource;
             private CancellationToken _cancelToken;
 
+            public bool Connected { get { return _client.Connected; } }
+
             public SkirmishSlot Slot { get
                 {
                     return _manager._slots.Where(x => x.Client == this).First();
@@ -56,21 +58,43 @@ namespace OpenSage.Network
                         _cancelTokenSource = new CancellationTokenSource();
                         _cancelToken = _cancelTokenSource.Token;
                     }
-                    var msg = await Task.Run(() => Serializer.Deserialize<SkirmishProtocol.UpdateState>(stream), _cancelToken);
 
-                    logger.Info("Have new UpdateState message");
+                    if (!stream.DataAvailable)
+                    {
+                        try
+                        {
+                            await Task.Delay(1000, _cancelToken);
+                        }
+                        catch (TaskCanceledException tce)
+                        {
 
-                    var slot = Slot;
-                    slot.Type = msg.Slot.Type;
-                    slot.Team = msg.Slot.Team;
-                    slot.ColorIndex = msg.Slot.ColorIndex;
-                    slot.FactionIndex = msg.Slot.FactionIndex;
-                    slot.HumanName = msg.Slot.Name;
-                    slot.Ready = msg.Slot.Ready;
+                        }
+                        continue;
+                    }
 
-                    Slot.Updated = true;
+                    try
+                    {
+                        var msg = await Task.Run(() => Serializer.Deserialize<SkirmishProtocol.UpdateState>(stream), _cancelToken);
 
-                    _manager.Sync();
+                        logger.Info("Have new UpdateState message");
+
+                        var slot = Slot;
+                        slot.Type = msg.Slot.Type;
+                        slot.Team = msg.Slot.Team;
+                        slot.ColorIndex = msg.Slot.ColorIndex;
+                        slot.FactionIndex = msg.Slot.FactionIndex;
+                        slot.HumanName = msg.Slot.Name;
+                        slot.Ready = msg.Slot.Ready;
+
+                        Slot.Updated = true;
+
+                        _manager.Sync();
+                    }
+                    catch(ProtoBuf.ProtoException e)
+                    {
+                        logger.Error(e, $"Error while getting UpdateState message");
+                    }
+                    
                 }
 
             }
@@ -127,15 +151,19 @@ namespace OpenSage.Network
             public byte ColorIndex;
             public byte FactionIndex;
             public TeamType Team;
+            private bool _disabled = false;
             public bool Disabled
             {
                 get {
-                    return Disabled;
+                    return _disabled;
                 }
                 set
                 {
-                    Type = SlotType.Closed;
-                    Disabled = value;
+                    if (value)
+                    {
+                        Type = SlotType.Closed;
+                    }
+                    _disabled = value;
                 }
             }
 
@@ -196,6 +224,8 @@ namespace OpenSage.Network
             _serverConnection = new TcpClient();
             _serverConnection.Connect(endpoint.Address, Port);
 
+            ownSlot = new SkirmishSlot();
+
             Start();
 
             while (_running)
@@ -206,12 +236,31 @@ namespace OpenSage.Network
                     _cancelToken = _cancelTokenSource.Token;
                 }
 
-                var msg = await Task.Run(() => Serializer.Deserialize<SkirmishProtocol.SkirmishState>(_serverConnection.GetStream()), _cancelToken);
+
+                    await Task.Run(() => {
+
+                        try
+                        {
+                            var msg = Serializer.Deserialize<SkirmishProtocol.SkirmishState>(_serverConnection.GetStream());
+                            HandleState(msg);
+                        }
+                        catch (IOException ioe)
+                        {
+                            logger.Error(ioe);
+                            this.Stop();
+                        }
+                    }, _cancelToken);
+          
 
                 logger.Info("Have new Skirmish State");
 
             }
             _serverConnection.Close();
+        }
+
+        private void HandleState(SkirmishProtocol.SkirmishState msg)
+        {
+            throw new NotImplementedException();
         }
 
         public void Sync()
@@ -247,26 +296,37 @@ namespace OpenSage.Network
                     {
                         if (x.Client != null)
                         {
-                            x.Client.Send(data);
+                            if (x.Client.Connected)
+                            {
+                                x.Client.Send(data);
+                            }
+                            else
+                            {
+                                logger.Warn($"Client not connected: {x.Client}");
+                            }
                         }
                     });
                 }
             }
             else
             {
-                var selfPacket = new SkirmishProtocol.UpdateState();
 
-                var skirmishSlot = new SkirmishProtocol.SkirmishSlot();
-                skirmishSlot.ColorIndex = ownSlot.ColorIndex;
-                skirmishSlot.FactionIndex = ownSlot.FactionIndex;
-                skirmishSlot.Name = ownSlot.HumanName;
-                skirmishSlot.Ready = ownSlot.Ready;
-                skirmishSlot.Type = ownSlot.Type;
-                skirmishSlot.Team = ownSlot.Team;
-                selfPacket.Slot = skirmishSlot;
+                if(ownSlot != null)
+                {
+                    var selfPacket = new SkirmishProtocol.UpdateState();
 
+                    var skirmishSlot = new SkirmishProtocol.SkirmishSlot();
+                    skirmishSlot.ColorIndex = ownSlot.ColorIndex;
+                    skirmishSlot.FactionIndex = ownSlot.FactionIndex;
+                    skirmishSlot.Name = ownSlot.HumanName;
+                    skirmishSlot.Ready = ownSlot.Ready;
+                    skirmishSlot.Type = ownSlot.Type;
+                    skirmishSlot.Team = ownSlot.Team;
+                    selfPacket.Slot = skirmishSlot;
 
-                Serializer.Serialize(_serverConnection.GetStream(), selfPacket);
+                    Serializer.Serialize(_serverConnection.GetStream(), selfPacket);
+                }
+
             }
         }
 
@@ -278,6 +338,11 @@ namespace OpenSage.Network
             {
                 var slot = new SkirmishSlot();
                 slot.Type = SkirmishSlot.SlotType.Closed;
+                //TODO: remove this and base on map
+                if (a < 4)
+                {
+                    slot.Type = SkirmishSlot.SlotType.Open;
+                }
                 slot.id = a;
                 _slots.Add(slot);
             }
@@ -325,7 +390,7 @@ namespace OpenSage.Network
 
         private bool AddClient(SkirmishClient skirmishClient)
         {
-            var slot = _slots.Where(x => x.Type == SkirmishSlot.SlotType.Open).First();
+            var slot = _slots.Where(x => x.Type == SkirmishSlot.SlotType.Open).FirstOrDefault();
             if(slot == null)
             {
                 return false;
@@ -341,10 +406,16 @@ namespace OpenSage.Network
 
         }
 
+        public delegate void OnStopDelegate();
+
+        public OnStopDelegate OnStop;
+            
         public void Stop()
         {
             _running = false;
             _cancelTokenSource?.Cancel();
+
+            OnStop?.Invoke();
         }
     }
 }

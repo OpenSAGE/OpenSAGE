@@ -98,6 +98,9 @@ namespace OpenSage.Network
 
         private void ProcessReceive(UdpReceiveResult result)
         {
+
+            logger.Info($"Packet from {result.RemoteEndPoint}");
+
             byte[] receiveBytes = result.Buffer;
             string ascii = Encoding.UTF32.GetString(receiveBytes);
             using (var receiveStream = new MemoryStream(receiveBytes))

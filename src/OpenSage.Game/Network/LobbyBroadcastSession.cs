@@ -26,6 +26,8 @@ namespace OpenSage.Network
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
             _sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, false);
 
+            _sock.Bind(new IPEndPoint(lobbyManager.Unicast.Address, 0));
+
             _broadcastAddr = new IPEndPoint(LobbyManager.GetBroadcastAddress(lobbyManager.Unicast), Ports.LobbyScan);
             _running = false;
         }
