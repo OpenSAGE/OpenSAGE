@@ -237,19 +237,19 @@ namespace OpenSage.Network
                 }
 
 
-                    await Task.Run(() => {
+                await Task.Run(() => {
 
-                        try
-                        {
-                            var msg = Serializer.Deserialize<SkirmishProtocol.SkirmishState>(_serverConnection.GetStream());
-                            HandleState(msg);
-                        }
-                        catch (IOException ioe)
-                        {
-                            logger.Error(ioe);
-                            this.Stop();
-                        }
-                    }, _cancelToken);
+                    try
+                    {
+                        var msg = Serializer.Deserialize<SkirmishProtocol.SkirmishState>(_serverConnection.GetStream());
+                        HandleState(msg);
+                    }
+                    catch (IOException ioe)
+                    {
+                        logger.Error(ioe);
+                        this.Stop();
+                    }
+                }, _cancelToken);
           
 
                 logger.Info("Have new Skirmish State");
@@ -414,7 +414,6 @@ namespace OpenSage.Network
         {
             _running = false;
             _cancelTokenSource?.Cancel();
-
             OnStop?.Invoke();
         }
     }
