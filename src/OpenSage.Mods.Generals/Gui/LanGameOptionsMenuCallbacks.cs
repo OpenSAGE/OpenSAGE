@@ -30,8 +30,9 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
                                 context.Game.LobbyManager.Stop();
+
+                                //this should be called by the OnStop callback
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-                                // TODO: Go back to Single Player sub-menu
                                 break;
 
                             default:
@@ -50,6 +51,12 @@ namespace OpenSage.Mods.Generals.Gui
             // Clear chat field
             var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
+
+            game.SkirmishManager.OnStop += () =>
+            {
+                //TODO: somehow make this work
+                game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            };
         }
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
