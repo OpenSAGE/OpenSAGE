@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
@@ -81,7 +82,7 @@ namespace OpenSage.Gui
             }
 
             // Only works for uniform scale.
-            _currentScale = MathUtility.Sqrt(_currentTransform.M11 * _currentTransform.M11 + _currentTransform.M21 * _currentTransform.M21);
+            _currentScale = MathF.Sqrt(_currentTransform.M11 * _currentTransform.M11 + _currentTransform.M21 * _currentTransform.M21);
         }
 
         public void PushOpacity(float opacity)
@@ -213,7 +214,7 @@ namespace OpenSage.Gui
             thickness *= _currentScale;
 
             var length = Vector2.Distance(line.V0, line.V1);
-            var angle = MathUtility.Atan2(line.V1.Y - line.V0.Y, line.V1.X - line.V0.X);
+            var angle = MathF.Atan2(line.V1.Y - line.V0.Y, line.V1.X - line.V0.X);
 
             var origin = new Vector2(0, 0.5f);
             var scale = new Vector2(length, thickness);

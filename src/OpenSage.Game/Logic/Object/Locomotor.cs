@@ -90,7 +90,7 @@ namespace OpenSage.Logic.Object
             var deltaSpeed = currentAcceleration * deltaTime;
 
             var newSpeed = oldSpeed + deltaSpeed;
-            newSpeed = MathUtility.Clamp(newSpeed, 0.0f, GetSpeed());
+            newSpeed = Math.Clamp(newSpeed, 0.0f, GetSpeed());
 
             _gameObject.Speed = newSpeed;
 
@@ -115,7 +115,7 @@ namespace OpenSage.Logic.Object
                         var oldLift = _gameObject.Lift;
                         var lift = GetLift();
                         var newLift = oldLift + lift;
-                        newLift = MathUtility.Clamp(newLift, 0.0f, lift);
+                        newLift = Math.Clamp(newLift, 0.0f, lift);
                         _gameObject.Lift = newLift;
                         trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
                     }

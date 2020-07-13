@@ -98,9 +98,9 @@ namespace OpenSage
         {
             get
             {
-                var x = (float) Math.Atan2(Matrix.M32, Matrix.M33);
-                var y = (float) Math.Atan2(-Matrix.M31, Math.Sqrt(Math.Pow(Matrix.M32, 2) + Math.Pow(Matrix.M33, 2)));
-                var z = (float) Math.Atan2(Matrix.M21, Matrix.M11);
+                var x = MathF.Atan2(Matrix.M32, Matrix.M33);
+                var y = MathF.Atan2(-Matrix.M31, MathF.Sqrt(MathF.Pow(Matrix.M32, 2) + MathF.Pow(Matrix.M33, 2)));
+                var z = MathF.Atan2(Matrix.M21, Matrix.M11);
                 return new Vector3(x, y, z);
             }
         }

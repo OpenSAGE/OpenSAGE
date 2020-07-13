@@ -75,8 +75,8 @@ namespace OpenSage.Graphics.Cameras
 
             var yaw = gameData.CameraYaw;
             SetLookDirection(new Vector3(
-                MathUtility.Sin(yaw),
-                MathUtility.Cos(yaw),
+                MathF.Sin(yaw),
+                MathF.Cos(yaw),
                 0));
         }
 
@@ -152,7 +152,7 @@ namespace OpenSage.Graphics.Cameras
                 }
             }
 
-            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
 
             var pitch = MathUtility.Lerp(
                 0,
@@ -175,9 +175,9 @@ namespace OpenSage.Graphics.Cameras
             }
 
             var cameraToTerrainDirection = Vector3.Normalize(new Vector3(
-                MathUtility.Cos(yaw),
-                MathUtility.Sin(yaw),
-                MathUtility.Sin(clampedPitch)));
+                MathF.Cos(yaw),
+                MathF.Sin(yaw),
+                MathF.Sin(clampedPitch)));
 
             // Back up camera from terrain position.
             var toCameraRay = new Ray(_terrainPosition, -cameraToTerrainDirection);
@@ -194,9 +194,9 @@ namespace OpenSage.Graphics.Cameras
             // Pitch between CameraPitch and horizontal = Raise or lower target height.
 
             var lookDirection = new Vector3(
-                MathUtility.Cos(yaw),
-                MathUtility.Sin(yaw),
-                MathUtility.Sin(pitch));
+                MathF.Cos(yaw),
+                MathF.Sin(yaw),
+                MathF.Sin(pitch));
 
             var targetPosition = newPosition + lookDirection;
 
@@ -208,10 +208,10 @@ namespace OpenSage.Graphics.Cameras
 
         private void RotateCamera(float deltaX, float deltaY)
         {
-            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
             yaw -= deltaX * RotationSpeed;
-            _lookDirection.X = MathUtility.Cos(yaw);
-            _lookDirection.Y = MathUtility.Sin(yaw);
+            _lookDirection.X = MathF.Cos(yaw);
+            _lookDirection.Y = MathF.Sin(yaw);
 
             if (CanPlayerInputChangePitch)
             {
@@ -239,7 +239,7 @@ namespace OpenSage.Graphics.Cameras
 
             // Get "right" vector from look direction.
 
-            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
 
             var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
 

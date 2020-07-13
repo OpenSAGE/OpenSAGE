@@ -25,8 +25,8 @@ namespace OpenSage.Mathematics
         {
             var result = Vector2.Transform(new Vector2(point.X, point.Y), matrix);
             return new Point2D(
-                (int) Math.Round(result.X),
-                (int) Math.Round(result.Y));
+                (int) MathF.Round(result.X),
+                (int) MathF.Round(result.Y));
         }
 
         public Size ToSize()

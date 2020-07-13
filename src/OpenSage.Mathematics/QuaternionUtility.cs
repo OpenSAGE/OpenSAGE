@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -22,12 +23,12 @@ namespace OpenSage.Mathematics
         {
             // https://code.google.com/p/3d-editor-toolkit/source/browse/trunk/PureCpp/MathCore/Quaternion.cpp
 
-            var c1 = MathUtility.Cos(y / 2.0f);
-            var s1 = MathUtility.Sin(y / 2.0f);
-            var c2 = MathUtility.Cos(z / 2.0f);
-            var s2 = MathUtility.Sin(z / 2.0f);
-            var c3 = MathUtility.Cos(x / 2.0f);
-            var s3 = MathUtility.Sin(x / 2.0f);
+            var c1 = MathF.Cos(y / 2.0f);
+            var s1 = MathF.Sin(y / 2.0f);
+            var c2 = MathF.Cos(z / 2.0f);
+            var s2 = MathF.Sin(z / 2.0f);
+            var c3 = MathF.Cos(x / 2.0f);
+            var s3 = MathF.Sin(x / 2.0f);
             var c1c2 = c1 * c2;
             var s1s2 = s1 * s2;
 
@@ -57,21 +58,21 @@ namespace OpenSage.Mathematics
             var v = Vector3.Zero;
             if (test > 0.499f * unit) // singularity at north pole
             {
-                v.Y = 2.0f * MathUtility.Atan2(x, w);
+                v.Y = 2.0f * MathF.Atan2(x, w);
                 v.Z = MathUtility.PiOver2;
                 v.X = 0.0f;
             }
             else if (test < -0.499f * unit) // singularity at south pole
             {
-                v.Y = -2.0f * MathUtility.Atan2(x, w);
+                v.Y = -2.0f * MathF.Atan2(x, w);
                 v.Z = -MathUtility.PiOver2;
                 v.X = 0;
             }
             else
             {
-                v.Y = MathUtility.Atan2(2.0f * y * w - 2.0f * x * z, sqx - sqy - sqz + sqw);
-                v.Z = MathUtility.Asin(2.0f * test / unit);
-                v.X = MathUtility.Atan2(2.0f * x * w - 2.0f * y * z, -sqx + sqy - sqz + sqw);
+                v.Y = MathF.Atan2(2.0f * y * w - 2.0f * x * z, sqx - sqy - sqz + sqw);
+                v.Z = MathF.Asin(2.0f * test / unit);
+                v.X = MathF.Atan2(2.0f * x * w - 2.0f * y * z, -sqx + sqy - sqz + sqw);
             }
             return v;
         }

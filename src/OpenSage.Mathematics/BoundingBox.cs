@@ -132,7 +132,7 @@ namespace OpenSage.Mathematics
             var za = backward * box.Min.Z;
             var zb = backward * box.Max.Z;
 
-            var translation = Matrix4x4Utility.GetTranslation(matrix);
+            var translation = matrix.Translation;
 
             return new BoundingBox(
                 Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + translation,

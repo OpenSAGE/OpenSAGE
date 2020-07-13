@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using ImGuiNET;
 using OpenSage.Input;
@@ -55,8 +56,8 @@ namespace OpenSage.Diagnostics.Util
                     var pos = message.Value.MousePosition;
                     pos = new Point2D(pos.X - panelFrame.X, pos.Y - panelFrame.Y);
                     pos = new Point2D(
-                        MathUtility.Clamp(pos.X, 0, panelFrame.Width),
-                        MathUtility.Clamp(pos.Y, 0, panelFrame.Height));
+                        Math.Clamp(pos.X, 0, panelFrame.Width),
+                        Math.Clamp(pos.Y, 0, panelFrame.Height));
                     return pos;
                 }
 

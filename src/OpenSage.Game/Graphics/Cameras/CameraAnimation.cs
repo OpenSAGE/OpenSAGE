@@ -71,7 +71,7 @@ namespace OpenSage.Graphics.Cameras
             currentTimeFraction = Math.Min(currentTimeFraction, 1);
 
             var pos = currentTimeFraction * (_points.Count - 1);
-            var integralPart = (int) Math.Truncate(pos);
+            var integralPart = (int) MathF.Truncate(pos);
             var decimalPart = pos - integralPart;
 
             // TODO: Not sure how right this is

@@ -89,7 +89,7 @@ namespace OpenSage.Gui.DebugUI
             if (_mouseWorldPosition != null)
             {
                 var worldPos = _mouseWorldPosition.Value;
-                _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", Math.Round(worldPos.X, 3), Math.Round(worldPos.Y, 3), Math.Round(worldPos.Z, 3));
+                _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", MathF.Round(worldPos.X, 3), MathF.Round(worldPos.Y, 3), MathF.Round(worldPos.Z, 3));
                 _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int) worldPos.X / 10, (int) worldPos.Y / 10);
             }
         }

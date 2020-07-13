@@ -112,7 +112,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
                             sphereRadius = Math.Max(sphereRadius, dist);
                         }
 
-                        sphereRadius = (float) Math.Ceiling(sphereRadius * 16.0f) / 16.0f;
+                        sphereRadius = MathF.Ceiling(sphereRadius * 16.0f) / 16.0f;
 
                         maxExtents = new Vector3(sphereRadius);
                         minExtents = -maxExtents;
