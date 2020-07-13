@@ -76,6 +76,13 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
+                    case OrderType.StopMoving:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.AIUpdate.Stop();
+                        }
+                        break;
+
                     case OrderType.CreateUnit:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
