@@ -20,7 +20,7 @@ namespace OpenSage.Tests.Mathematics
         {
             var axis = Vector2.Zero;
             var point = new Vector2(30, 30);
-            var rotated = Vector2Utility.RotateAroundPoint(axis, point, MathUtility.Pi * 2);
+            var rotated = Vector2Utility.RotateAroundPoint(axis, point, MathUtility.TwoPi);
             VectorsEqual(point, rotated, 3);
         }
 
@@ -28,7 +28,7 @@ namespace OpenSage.Tests.Mathematics
         public void RotationAroundItselfIsIdentity()
         {
             var point = new Vector2(2, 2);
-            var rotated = Vector2Utility.RotateAroundPoint(point, point, MathUtility.Pi / 2);
+            var rotated = Vector2Utility.RotateAroundPoint(point, point, MathUtility.PiOver2);
             VectorsEqual(point, rotated, 3);
         }
 

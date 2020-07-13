@@ -56,7 +56,7 @@ namespace OpenSage.Mathematics
         {
             return new BoundingSphere(
                 Vector3.Transform(sphere.Center, matrix),
-                sphere.Radius * (MathUtility.Sqrt(
+                sphere.Radius * (MathF.Sqrt(
                     Math.Max(
                         ((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13),
                         Math.Max(
