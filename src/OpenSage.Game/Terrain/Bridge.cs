@@ -101,7 +101,7 @@ namespace OpenSage.Terrain
 
             var rotationAroundZ = QuaternionUtility.CreateRotation(Vector3.UnitX, Vector3.Normalize(endPosition - startPosition));
 
-            var rotationAroundY = Matrix4x4.CreateRotationY(-MathUtility.Atan((endPositionWithHeight.Z - startPositionWithHeight.Z) / horizontalDistance));
+            var rotationAroundY = Matrix4x4.CreateRotationY(-MathF.Atan((endPositionWithHeight.Z - startPositionWithHeight.Z) / horizontalDistance));
 
             var worldMatrix =
                 Matrix4x4.CreateScale(scaleX, 1, 1) *

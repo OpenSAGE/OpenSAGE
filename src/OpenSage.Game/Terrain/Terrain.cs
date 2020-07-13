@@ -494,7 +494,7 @@ namespace OpenSage.Terrain
 
         private static uint CalculateMipMapCount(uint width, uint height)
         {
-            return 1u + (uint) Math.Floor(Math.Log(Math.Max(width, height), 2));
+            return 1u + (uint) MathF.Floor(MathF.Log(Math.Max(width, height), 2));
         }
 
         public Vector3? Intersect(Ray ray)

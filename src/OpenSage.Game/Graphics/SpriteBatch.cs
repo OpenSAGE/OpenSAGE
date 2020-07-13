@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics.Shaders;
@@ -198,8 +199,8 @@ namespace OpenSage.Graphics
                 -origin.Y,
                 width,
                 height,
-                MathUtility.Sin(rotation),
-                MathUtility.Cos(rotation),
+                MathF.Sin(rotation),
+                MathF.Cos(rotation),
                 color,
                 texCoordTL,
                 texCoordBR,

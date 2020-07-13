@@ -107,8 +107,8 @@ namespace OpenSage.Gui
 
             var image = _textImagePool.Acquire(new ImageKey
             {
-                Width = (int) Math.Ceiling(size.Width),
-                Height = (int) Math.Ceiling(size.Height)
+                Width = (int) MathF.Ceiling(size.Width),
+                Height = (int) MathF.Ceiling(size.Height)
             });
 
             // Clear image to transparent.

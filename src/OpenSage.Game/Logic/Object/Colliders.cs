@@ -225,9 +225,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < sides; i++)
             {
-                // TODO: Replace this with single precision math using System.MathF?
-                var angle = 2 * Math.PI * i / sides;
-                var point = Transform.Translation + new Vector3((float) Math.Cos(angle), (float) Math.Sin(angle), 0) * radius;
+                var angle = 2 * MathF.PI * i / sides;
+                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * radius;
                 var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
 
                 // No line gets drawn on the first iteration

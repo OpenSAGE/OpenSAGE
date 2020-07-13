@@ -138,7 +138,7 @@ namespace OpenSage.Graphics.Cameras
         private float GetFieldOfView()
         {
             const int height = 24; // Height in mm of 35mm film.
-            return 2 * MathUtility.Atan(0.5f * height / _focalLength);
+            return 2 * MathF.Atan(0.5f * height / _focalLength);
         }
 
         /// <summary>

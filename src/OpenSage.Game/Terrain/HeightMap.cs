@@ -67,7 +67,7 @@ namespace OpenSage.Terrain
             var fFractionalP = p - nIntP0;
 
             // get coordinates for "other" side of quad
-            var nIntP1 = MathUtility.Clamp(nIntP0 + 1, 0, maxHeightmapScale - 1);
+            var nIntP1 = Math.Clamp(nIntP0 + 1, 0, maxHeightmapScale - 1);
 
             return (nIntP0, nIntP1, fFractionalP);
         }

@@ -12,13 +12,13 @@ namespace OpenSage.FileFormats.W3d
 
             for (var i = 0; i < 16; i++)
             {
-                result[i] = (float) Math.Pow(10, i - 8.0);
+                result[i] = MathF.Pow(10, i - 8.0f);
             }
 
             for (var i = 0; i < 240; i++)
             {
                 var num = i / 240.0f;
-                result[i + 16] = (float) (1.0 - Math.Sin(90.0 * num * Math.PI / 180.0));
+                result[i + 16] = 1.0f - MathF.Sin(90.0f * num * MathF.PI / 180.0f);
             }
 
             return result;

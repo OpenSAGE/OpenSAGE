@@ -248,7 +248,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             // TODO: Is this right?
             // How about IsOneShot?
-            return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
+            return (int) Template.BurstCount.High + (int) MathF.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
         private bool Update(in TimeInterval gameTime)

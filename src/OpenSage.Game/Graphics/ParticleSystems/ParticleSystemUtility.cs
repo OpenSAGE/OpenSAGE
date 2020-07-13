@@ -51,14 +51,14 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             float azimuth = GetRandomAngle();
             return new Vector2(
-                MathUtility.Cos(azimuth), 
-                MathUtility.Sin(azimuth));
+                MathF.Cos(azimuth), 
+                MathF.Sin(azimuth));
         }
 
         public static Vector3 GetRandomDirection3D()
         {
             float z = (2 * (float) Random.NextDouble()) - 1; // z is in the range [-1,1]
-            var planar = GetRandomDirection2D() * MathUtility.Sqrt(1 - z * z);
+            var planar = GetRandomDirection2D() * MathF.Sqrt(1 - z * z);
             return new Vector3(planar.X, planar.Y, z);
         }
     }

@@ -102,11 +102,11 @@ namespace OpenSage.Terrain.Roads
                     return RoadTextureType.XCrossing;
 
                 case 3:
-                    if (angles[2] < Math.PI * 0.9)
+                    if (angles[2] < MathF.PI * 0.9f)
                     {
                         return RoadTextureType.SymmetricYCrossing;
                     }
-                    else if (angles[1] - angles[0] < Math.PI * 0.25)
+                    else if (angles[1] - angles[0] < MathF.PI * 0.25f)
                     {
                         return RoadTextureType.TCrossing;
                     }

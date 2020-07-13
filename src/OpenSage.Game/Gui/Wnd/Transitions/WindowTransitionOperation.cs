@@ -73,7 +73,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
             var unclampedProgress = (float) (relativeTime.TotalSeconds / Duration.TotalSeconds);
 
-            var progress = MathUtility.Clamp(
+            var progress = Math.Clamp(
                 unclampedProgress,
                 0,
                 1);

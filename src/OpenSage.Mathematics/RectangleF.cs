@@ -85,19 +85,19 @@ namespace OpenSage.Mathematics
             scale = ratio;
 
             // Now we can get the new height and width
-            var newWidth = (int) Math.Round(rect.Width * ratio);
-            var newHeight = (int) Math.Round(rect.Height * ratio);
+            var newWidth = (int) MathF.Round(rect.Width * ratio);
+            var newHeight = (int) MathF.Round(rect.Height * ratio);
 
             newWidth = Math.Max(newWidth, 1);
             newHeight = Math.Max(newHeight, 1);
 
-            var newX = (int) Math.Round(rect.X * ratio);
-            var newY = (int) Math.Round(rect.Y * ratio);
+            var newX = (int) MathF.Round(rect.X * ratio);
+            var newY = (int) MathF.Round(rect.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0) + newY;
+            var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
+            var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
 
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
@@ -114,13 +114,13 @@ namespace OpenSage.Mathematics
             // Use whichever multiplier is smaller.
             var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-            var newX = (int) Math.Round(rect.X * ratio);
-            var newY = (int) Math.Round(rect.Y * ratio);
+            var newX = (int) MathF.Round(rect.X * ratio);
+            var newY = (int) MathF.Round(rect.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0) + newY;
+            var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
+            var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
 
             return
                 Matrix3x2.CreateScale(ratio) *
