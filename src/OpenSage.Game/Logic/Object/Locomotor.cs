@@ -1,12 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
+    /// <summary>
+    /// Locomotors control how an object moves towards a target position.
+    /// (Locomotors are not the only way an object can move; some behaviors
+    /// can do this too, without using a locomotor, for example DumbProjectileBehavior.)
+    ///
+    /// Locomotor "appearance" controls many aspects of their movement:
+    ///
+    /// - TREADS
+    ///   This is supposed to move like a tank with treads. The object turns while stationary,
+    ///   and moves only in a straight line.
+    ///
+    /// - WINGS
+    ///
+    /// - HOVER
+    ///
+    /// - THRUST
+    ///
+    /// - TWO_LEGS
+    ///
+    /// - FOUR_WHEELS
+    ///
+    /// Other Locomotor properties allow more fine-grained control:
+    ///
+    /// - ForwardAccelerationPitchFactor and LateralAccelerationRollFactor
+    ///   These control how much acceleration and cornering, respectively, will cause
+    ///   the chassis to pitch or roll.
+    /// </summary>
     internal sealed class Locomotor
     {
         private readonly GameObject _gameObject;

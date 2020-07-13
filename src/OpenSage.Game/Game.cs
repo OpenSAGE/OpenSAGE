@@ -33,7 +33,12 @@ namespace OpenSage
     public sealed class Game : DisposableBase
     {
         // TODO: These should be configurable at runtime with GameSpeed.
-        internal const double LogicUpdateInterval = 1000.0 / 5.0;
+
+        // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
+        // so as a temporary workaround, we simply tick the logic at 30fps.
+        //internal const double LogicUpdateInterval = 1000.0 / 5.0;
+        internal const double LogicUpdateInterval = 1000.0 / 30.0;
+
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
