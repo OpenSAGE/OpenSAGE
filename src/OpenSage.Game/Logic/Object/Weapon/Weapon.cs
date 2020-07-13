@@ -97,6 +97,11 @@ namespace OpenSage.Logic.Object
         public void LogicTick(TimeSpan currentTime)
         {
             _stateMachine.Update(currentTime);
+
+            if (CurrentTarget != null && CurrentTarget.IsDestroyed)
+            {
+                CurrentTarget = null;
+            }
         }
 
         public void Fire(TimeSpan currentTime)

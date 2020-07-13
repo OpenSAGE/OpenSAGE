@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
         public readonly Vector3? TargetGroundPosition;
         public readonly GameObject TargetObject;
 
+        public bool IsDestroyed => TargetType == WeaponTargetType.Object && TargetObject.Destroyed;
+
         public Vector3 TargetPosition => TargetType == WeaponTargetType.Position
             ? TargetGroundPosition.Value
             : TargetObject.Transform.Translation;
