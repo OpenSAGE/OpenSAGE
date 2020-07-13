@@ -5,8 +5,8 @@ namespace OpenSage.Mathematics
 {
     public static class MathUtility
     {
-        public static readonly float PiOver2 = MathF.PI / 2;
-        public static readonly float TwoPi = MathF.PI * 2;
+        public static readonly float PiOver2 = MathF.PI / 2.0f;
+        public static readonly float TwoPi = MathF.PI * 2.0f;
 
         public static int FloorToInt(float f) => (int) MathF.Floor(f);
 

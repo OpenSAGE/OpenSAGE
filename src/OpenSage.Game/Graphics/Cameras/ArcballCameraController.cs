@@ -12,8 +12,8 @@ namespace OpenSage.Graphics.Cameras
         private const float ZoomSpeed = 0.001f;
         private const float PanSpeed = 0.05f;
 
-        private static readonly float MinPitch = -MathUtility.Pi / 2.0f + 0.3f;
-        private static readonly float MaxPitch = MathUtility.Pi / 2.0f - 0.3f;
+        private static readonly float MinPitch = -MathUtility.PiOver2 + 0.3f;
+        private static readonly float MaxPitch = MathUtility.PiOver2 - 0.3f;
 
         private readonly Vector3 _target;
         private readonly float _radius;
@@ -33,7 +33,7 @@ namespace OpenSage.Graphics.Cameras
             _radius = radius;
 
             _yaw = 0;
-            _pitch = -MathUtility.Pi / 6.0f;
+            _pitch = -MathF.PI / 6.0f;
             _zoom = 1;
             _translation = Vector3.Zero;
         }
