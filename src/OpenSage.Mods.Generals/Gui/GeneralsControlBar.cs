@@ -284,6 +284,12 @@ namespace OpenSage.Mods.Generals.Gui
                                     var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
                                     order.AddIntegerArgument(upgrade.InternalId);
                                     break;
+
+                                case CommandType.Stop:
+                                    // TODO: Also stop construction?
+                                    order = CreateOrder(OrderType.StopMoving);
+                                    break;
+
                                 default:
                                     throw new NotImplementedException();
                             }
