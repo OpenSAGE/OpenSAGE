@@ -97,6 +97,9 @@ namespace OpenSage.Content
                 case Subsystem.Credits:
                     LoadFiles(@"Data\INI\Credits.ini");
                     break;
+                case Subsystem.Damage:
+                    LoadFiles(@"Data\INI\DamageFX.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -352,6 +355,9 @@ namespace OpenSage.Content
                     break;
                 case Subsystem.Credits:
                     yield return "Credits";
+                    yield break;
+                case Subsystem.Damage:
+                    yield return "TheDamageFXStore";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);

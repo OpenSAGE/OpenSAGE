@@ -70,5 +70,10 @@
         /// Things that need to be loaded in order to display the credits.
         /// </summary>
         Credits,
+
+        /// <summary>
+        /// Things that need to be loaded in order to do damage to objects.
+        /// </summary>
+        Damage,
     }
 }

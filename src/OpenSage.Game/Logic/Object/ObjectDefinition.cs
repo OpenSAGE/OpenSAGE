@@ -177,9 +177,9 @@ namespace OpenSage.Logic.Object
             { "SoundMoveStartDamaged", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
             { "SoundMoveLoop", (parser, x) => x.SoundMoveLoop = parser.ParseAssetReference() },
             { "SoundMoveLoopDamaged", (parser, x) => x.SoundMoveLoopDamaged = parser.ParseAssetReference() },
-            { "SoundOnDamaged", (parser, x) => x.SoundOnDamaged = parser.ParseAssetReference() },
-            { "SoundOnReallyDamaged", (parser, x) => x.SoundOnReallyDamaged = parser.ParseAssetReference() },
-            { "SoundDie", (parser, x) => x.SoundDie = parser.ParseAssetReference() },
+            { "SoundOnDamaged", (parser, x) => x.SoundOnDamaged = parser.ParseAudioEventReference() },
+            { "SoundOnReallyDamaged", (parser, x) => x.SoundOnReallyDamaged = parser.ParseAudioEventReference() },
+            { "SoundDie", (parser, x) => x.SoundDie = parser.ParseAudioEventReference() },
             { "SoundDieFire", (parser, x) => x.SoundDieFire = parser.ParseAssetReference() },
             { "SoundDieToxin", (parser, x) => x.SoundDieToxin = parser.ParseAssetReference() },
             { "SoundStealthOn", (parser, x) => x.SoundStealthOn = parser.ParseAssetReference() },
@@ -718,9 +718,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundMoveLoopDamaged { get; private set; }
 
-        public string SoundOnDamaged { get; private set; }
-        public string SoundOnReallyDamaged { get; private set; }
-        public string SoundDie { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundOnDamaged { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundOnReallyDamaged { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundDie { get; private set; }
         public string SoundDieFire { get; private set; }
         public string SoundDieToxin { get; private set; }
         public string SoundStealthOn { get; private set; }
