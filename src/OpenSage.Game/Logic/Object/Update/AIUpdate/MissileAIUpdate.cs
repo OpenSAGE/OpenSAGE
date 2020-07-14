@@ -48,7 +48,11 @@ namespace OpenSage.Logic.Object
                             AddTargetPoint(pointToReachBeforeTurning);
                         }
 
-                        AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
+                        // TODO: What to do if target doesn't exist anymore?
+                        if (context.GameObject.CurrentWeapon.CurrentTarget != null)
+                        {
+                            AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
+                        }
 
                         context.GameObject.Speed = _moduleData.InitialVelocity;
 
