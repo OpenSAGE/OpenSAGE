@@ -5,6 +5,22 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class SlowDeathBehavior : UpdateModule
+    {
+        private readonly SlowDeathBehaviorModuleData _moduleData;
+
+        internal SlowDeathBehavior(SlowDeathBehaviorModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        {
+            // TODO
+            context.GameObject.Destroy();
+        }
+    }
+
     public class SlowDeathBehaviorModuleData : UpdateModuleData
     {
         internal static SlowDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -76,6 +92,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool DoNotRandomizeMidpoint { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new SlowDeathBehavior(this);
+        }
     }
 
     public enum SlowDeathPhase
