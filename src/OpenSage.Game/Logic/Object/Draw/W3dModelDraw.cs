@@ -173,7 +173,7 @@ namespace OpenSage.Logic.Object
                 var numIntersectionBits = conditionState.ConditionFlags.CountIntersectionBits(flags);
 
                 // If there's no intersection never select this.
-                if (numIntersectionBits != numStateBits)
+                if (numIntersectionBits == 0)
                 {
                     continue;
                 }
