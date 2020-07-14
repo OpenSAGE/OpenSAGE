@@ -2,7 +2,6 @@
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics;
 using OpenSage.Gui.InGame;
 using OpenSage.Mathematics;
 
@@ -12,7 +11,7 @@ namespace OpenSage.Logic.Object
     {
         public void Create(ObjectCreationList list, BehaviorUpdateContext context)
         {
-            foreach (var item in list.Items)
+            foreach (var item in list.Nuggets)
             {
                 item.Execute(context);
             }
@@ -30,30 +29,30 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ObjectCreationList> FieldParseTable = new IniParseTable<ObjectCreationList>
         {
-            { "ApplyRandomForce", (parser, x) => x.Items.Add(ApplyRandomForceObjectCreationListItem.Parse(parser)) },
-            { "Attack", (parser, x) => x.Items.Add(AttackObjectCreationListItem.Parse(parser)) },
-            { "CreateDebris", (parser, x) => x.Items.Add(CreateDebrisObjectCreationListItem.Parse(parser)) },
-            { "CreateObject", (parser, x) => x.Items.Add(CreateObjectObjectCreationListItem.Parse(parser)) },
-            { "DeliverPayload", (parser, x) => x.Items.Add(DeliverPayloadObjectCreationListItem.Parse(parser)) },
-            { "FireWeapon", (parser, x) => x.Items.Add(FireWeaponObjectCreationListItem.Parse(parser)) }
+            { "ApplyRandomForce", (parser, x) => x.Nuggets.Add(ApplyRandomForceOCNugget.Parse(parser)) },
+            { "Attack", (parser, x) => x.Nuggets.Add(AttackOCNugget.Parse(parser)) },
+            { "CreateDebris", (parser, x) => x.Nuggets.Add(CreateDebrisOCNugget.Parse(parser)) },
+            { "CreateObject", (parser, x) => x.Nuggets.Add(CreateObjectOCNugget.Parse(parser)) },
+            { "DeliverPayload", (parser, x) => x.Nuggets.Add(DeliverPayloadOCNugget.Parse(parser)) },
+            { "FireWeapon", (parser, x) => x.Nuggets.Add(FireWeaponOCNugget.Parse(parser)) }
         };
 
-        public List<ObjectCreationListItem> Items { get; } = new List<ObjectCreationListItem>();
+        public List<OCNugget> Nuggets { get; } = new List<OCNugget>();
     }
 
-    public abstract class ObjectCreationListItem
+    public abstract class OCNugget
     {
         internal abstract void Execute(BehaviorUpdateContext context);
     }
 
-    public sealed class CreateDebrisObjectCreationListItem : ObjectCreationListItem
+    public sealed class CreateDebrisOCNugget : OCNugget
     {
-        internal static CreateDebrisObjectCreationListItem Parse(IniParser parser)
+        internal static CreateDebrisOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<CreateDebrisObjectCreationListItem> FieldParseTable = new IniParseTable<CreateDebrisObjectCreationListItem>
+        private static readonly IniParseTable<CreateDebrisOCNugget> FieldParseTable = new IniParseTable<CreateDebrisOCNugget>
         {
             { "ModelNames", (parser, x) => x.ModelNames = parser.ParseAssetReferenceArray() },
             { "AnimationSet", (parser, x) => x.AnimationSets.Add(parser.ParseAssetReferenceArray()) },
@@ -136,11 +135,11 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class CreateObjectObjectCreationListItem : ObjectCreationListItem
+    public sealed class CreateObjectOCNugget : OCNugget
     {
-        internal static CreateObjectObjectCreationListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CreateObjectOCNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
+        private static readonly IniParseTable<CreateObjectOCNugget> FieldParseTable = new IniParseTable<CreateObjectOCNugget>
         {
             { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseObjectReferenceArray() },
             { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
@@ -319,14 +318,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem
+    public sealed class ApplyRandomForceOCNugget : OCNugget
     {
-        internal static ApplyRandomForceObjectCreationListItem Parse(IniParser parser)
+        internal static ApplyRandomForceOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<ApplyRandomForceObjectCreationListItem> FieldParseTable = new IniParseTable<ApplyRandomForceObjectCreationListItem>
+        private static readonly IniParseTable<ApplyRandomForceOCNugget> FieldParseTable = new IniParseTable<ApplyRandomForceOCNugget>
         {
             { "MinForceMagnitude", (parser, x) => x.MinForceMagnitude = parser.ParseInteger() },
             { "MaxForceMagnitude", (parser, x) => x.MaxForceMagnitude = parser.ParseInteger() },
@@ -347,14 +346,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class FireWeaponObjectCreationListItem : ObjectCreationListItem
+    public sealed class FireWeaponOCNugget : OCNugget
     {
-        internal static FireWeaponObjectCreationListItem Parse(IniParser parser)
+        internal static FireWeaponOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<FireWeaponObjectCreationListItem> FieldParseTable = new IniParseTable<FireWeaponObjectCreationListItem>
+        private static readonly IniParseTable<FireWeaponOCNugget> FieldParseTable = new IniParseTable<FireWeaponOCNugget>
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() }
         };
@@ -367,14 +366,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class AttackObjectCreationListItem : ObjectCreationListItem
+    public sealed class AttackOCNugget : OCNugget
     {
-        internal static AttackObjectCreationListItem Parse(IniParser parser)
+        internal static AttackOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<AttackObjectCreationListItem> FieldParseTable = new IniParseTable<AttackObjectCreationListItem>
+        private static readonly IniParseTable<AttackOCNugget> FieldParseTable = new IniParseTable<AttackOCNugget>
         {
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "NumberOfShots", (parser, x) => x.NumberOfShots = parser.ParseInteger() },
@@ -393,14 +392,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class DeliverPayloadObjectCreationListItem : ObjectCreationListItem
+    public sealed class DeliverPayloadOCNugget : OCNugget
     {
-        internal static DeliverPayloadObjectCreationListItem Parse(IniParser parser)
+        internal static DeliverPayloadOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<DeliverPayloadObjectCreationListItem> FieldParseTable = new IniParseTable<DeliverPayloadObjectCreationListItem>
+        private static readonly IniParseTable<DeliverPayloadOCNugget> FieldParseTable = new IniParseTable<DeliverPayloadOCNugget>
         {
             { "Transport", (parser, x) => x.Transport = parser.ParseAssetReference() },
             { "FormationSize", (parser, x) => x.FormationSize = parser.ParseInteger() },
