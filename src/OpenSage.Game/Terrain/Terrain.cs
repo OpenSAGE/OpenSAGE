@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,10 +15,8 @@ using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -28,8 +25,6 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain : DisposableBase
     {
-        private static readonly IResampler MapTextureResampler = new Lanczos2Resampler();
-
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
 
@@ -402,8 +397,7 @@ namespace OpenSage.Terrain
                 {
                     if (tgaFile.Header.Width != largestTextureSize)
                     {
-                        tgaImage.Mutate(x => x
-                            .Resize((int) largestTextureSize, (int) largestTextureSize, MapTextureResampler));
+                        tgaImage.Mutate(x => x.Resize((int) largestTextureSize, (int) largestTextureSize));
                     }
 
                     var imageSharpTexture = new ImageSharpTexture(tgaImage);
@@ -464,7 +458,11 @@ namespace OpenSage.Terrain
             for (uint level = 0; level < texture.MipLevels; level++)
             {
                 var image = texture.Images[level];
-                fixed (void* pin = &MemoryMarshal.GetReference(image.GetPixelSpan()))
+                if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+                {
+                    throw new InvalidOperationException("Unable to get image pixelspan.");
+                }
+                fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
                 {
                     var map = gd.Map(staging, MapMode.Write, level);
                     var rowWidth = (uint) (image.Width * 4);

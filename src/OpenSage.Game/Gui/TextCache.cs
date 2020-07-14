@@ -6,9 +6,12 @@ using OpenSage.Utilities;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Veldrid;
+using Veldrid.ImageSharp;
+using SizeF = OpenSage.Mathematics.SizeF;
 
 namespace OpenSage.Gui
 {
@@ -111,29 +114,36 @@ namespace OpenSage.Gui
                 Height = (int) MathF.Ceiling(size.Height)
             });
 
-            // Clear image to transparent.
-            // TODO: Don't need to do this for a newly created image.
-            image.GetPixelSpan().Clear();
-
             image.Mutate(x =>
             {
-                var location = new SixLabors.Primitives.PointF(0, size.Height / 2.0f);
+                var location = new PointF(0, size.Height / 2.0f);
 
                 // TODO: Vertical centering is not working properly.
                 location.Y *= 0.8f;
 
                 var color = key.Color;
 
+                // Clear image to transparent.
+                // TODO: Don't need to do this for a newly created image.
+                x.Clear(Color.Transparent);
+
                 try
                 {
                     x.DrawText(
                         new TextGraphicsOptions
                         {
-                            WrapTextWidth = size.Width,
-                            HorizontalAlignment = key.Alignment == TextAlignment.Center
+                            GraphicsOptions = new GraphicsOptions
+                            {
+                                Antialias = true,
+                            },
+                            TextOptions = new TextOptions
+                            {
+                                WrapTextWidth = size.Width,
+                                HorizontalAlignment = key.Alignment == TextAlignment.Center
                                 ? HorizontalAlignment.Center
                                 : HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Center
+                                VerticalAlignment = VerticalAlignment.Center
+                            }
                         },
                         key.Text,
                         actualFont,
@@ -153,7 +163,11 @@ namespace OpenSage.Gui
             Texture texture;
 
             // Draw image to texture.
-            fixed (void* pin = &MemoryMarshal.GetReference(image.GetPixelSpan()))
+            if (!image.TryGetSinglePixelSpan(out Span<Bgra32> pixelSpan))
+            {
+                throw new InvalidOperationException("Unable to get image pixelspan.");
+            }
+            fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
             {
                 texture = _graphicsDevice.ResourceFactory.CreateTexture(
                     TextureDescription.Texture2D(
