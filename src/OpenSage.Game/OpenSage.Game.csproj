@@ -10,8 +10,8 @@
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
     <PackageReference Include="protobuf-net" Version="2.4.6" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0003" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0010" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
     <PackageReference Include="SharpAudio.Util" Version="$(SharpAudioVersion)" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
