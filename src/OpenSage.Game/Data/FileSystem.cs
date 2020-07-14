@@ -53,7 +53,7 @@ namespace OpenSage.Data
 
         private void AddBigArchive(string path)
         {
-            var archive = new BigArchive(path, BigArchiveMode.Read);
+            var archive = new BigArchive(path);
 
             _bigArchives.Add(archive);
 

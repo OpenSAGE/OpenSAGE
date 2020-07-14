@@ -219,7 +219,7 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 try
                 {
-                    _bigArchive = AddDisposable(new BigArchive(result.FileName));
+                    _bigArchive = AddDisposable(new BigArchive(result.FileName, BigArchiveMode.Update));
                 }
                 catch (Exception e)
                 {
