@@ -39,7 +39,7 @@
   
   <ItemGroup>
     <None Update="Data\Big\Assets\test.big">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

@@ -29,7 +29,7 @@ namespace OpenSage.FileFormats.Big
 
         public BigArchiveVersion Version { get; private set; }
 
-        public BigArchive(string filePath, BigArchiveMode mode = BigArchiveMode.Update)
+        public BigArchive(string filePath, BigArchiveMode mode = BigArchiveMode.Read)
         {
             FilePath = filePath;
             Mode = mode;
