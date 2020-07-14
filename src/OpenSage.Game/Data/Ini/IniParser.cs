@@ -468,6 +468,12 @@ namespace OpenSage.Data.Ini
         {
             var name = ParseAssetReference();
             return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
+        public LazyAssetReference<DamageFX> ParseDamageFXReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.DamageFXs.GetLazyAssetReferenceByName(name);
+        }
+
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()

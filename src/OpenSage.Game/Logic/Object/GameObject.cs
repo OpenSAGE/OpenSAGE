@@ -11,6 +11,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -85,6 +86,8 @@ namespace OpenSage.Logic.Object
         internal GameContext GameContext => _gameContext;
 
         private readonly GameObject _rallyPointMarker;
+
+        private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
 
         public readonly ObjectDefinition Definition;
 
@@ -216,6 +219,8 @@ namespace OpenSage.Logic.Object
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
+            ModelConditionFlags = new BitArray<ModelConditionFlag>();
+
             Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this));
 
             AIUpdate = AddDisposable(objectDefinition.AIUpdate?.CreateAIUpdate(this));
@@ -227,8 +232,6 @@ namespace OpenSage.Logic.Object
                 .Distinct()
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
-
-            ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
             IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
             CanAttack = Definition.KindOf?.Get(ObjectKinds.CanAttack) ?? false;
@@ -415,6 +418,51 @@ namespace OpenSage.Logic.Object
             return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
                    ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
                    ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed);
+        }
+
+        internal void UpdateDamageFlags(Fix64 healthPercentage)
+        {
+            // TODO: SoundOnDamaged
+            // TODO: SoundOnReallyDamaged
+            // TODO: SoundDie
+            // TODO: TransitionDamageFX
+
+            var oldDamageType = _bodyDamageType;
+
+            if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+                _bodyDamageType = BodyDamageType.ReallyDamaged;
+            }
+            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
+                _bodyDamageType = BodyDamageType.Damaged;
+            }
+            else
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+                _bodyDamageType = BodyDamageType.Pristine;
+            }
+
+            if (oldDamageType != _bodyDamageType)
+            {
+                var behaviorUpdateContext = new BehaviorUpdateContext(
+                    _gameContext,
+                    this,
+                    new TimeInterval()); // TODO
+
+                foreach (var behavior in BehaviorModules)
+                {
+                    behavior.OnDamageStateChanged(
+                        behaviorUpdateContext,
+                        oldDamageType,
+                        _bodyDamageType);
+                }
+            }
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)

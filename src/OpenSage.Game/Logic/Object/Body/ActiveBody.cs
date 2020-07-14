@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.FX;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 
@@ -20,23 +21,39 @@ namespace OpenSage.Logic.Object
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
 
-            Health = (Fix64) moduleData.InitialHealth;
+            SetHealth((Fix64) moduleData.InitialHealth);
+        }
+
+        private void SetHealth(Fix64 value)
+        {
+            Health = value;
+            GameObject.UpdateDamageFlags(HealthPercentage);
         }
 
         public override void SetInitialHealth(float multiplier)
         {
-            Health = (Fix64) (_moduleData.InitialHealth * multiplier);
+            SetHealth((Fix64) (_moduleData.InitialHealth * multiplier));
         }
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
+            var armorSet = GameObject.CurrentArmorSet;
+
             // Actual amount of damage depends on armor.
-            var armor = GameObject.CurrentArmorSet.Armor.Value;
+            var armor = armorSet.Armor.Value;
             var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
             var actualDamage = amount * (Fix64) ((float) damagePercent);
-            Health -= actualDamage;
+            SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
+            var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+            // TODO: MajorFX
+            var damageFX = damageFXGroup.MinorFX.Value;
+            damageFX.Execute(
+                new FXListExecutionContext(
+                    GameObject.Transform.Rotation,
+                    GameObject.Transform.Translation,
+                    GameObject.GameContext));
 
             if (Health <= Fix64.Zero)
             {

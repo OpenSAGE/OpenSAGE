@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
         internal virtual void Update(BehaviorUpdateContext context) { }
 
         internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType) { }
+
+        internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
     }
 
     internal sealed class BehaviorUpdateContext
