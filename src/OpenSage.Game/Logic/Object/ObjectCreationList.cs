@@ -1,11 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Gui.InGame;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    internal sealed class ObjectCreationListManager
+    {
+        public void Create(ObjectCreationList list, BehaviorUpdateContext context)
+        {
+            foreach (var item in list.Items)
+            {
+                item.Execute(context);
+            }
+        }
+    }
+
     public sealed class ObjectCreationList : BaseAsset
     {
         internal static ObjectCreationList Parse(IniParser parser)
@@ -30,7 +43,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class ObjectCreationListItem
     {
-
+        internal abstract void Execute(BehaviorUpdateContext context);
     }
 
     public sealed class CreateDebrisObjectCreationListItem : ObjectCreationListItem
@@ -100,6 +113,27 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int RollRate { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
+
+            debrisObject.Transform.Translation = context.GameObject.Transform.Translation + Offset;
+            debrisObject.Transform.Rotation = context.GameObject.Transform.Rotation;
+
+            // Model
+            var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.DrawModules[0];
+            // TODO
+            //var modelName = ModelNames[context.GameContext.Random.Next(ModelNames.Length)];
+            var modelName = ModelNames[0];
+            w3dDebrisDraw.SetModelName(modelName);
+
+            // Physics
+            var physicsBehavior = debrisObject.FindBehavior<PhysicsBehavior>();
+            physicsBehavior.Mass = Mass;
+
+            // TODO: Count, Disposition, DispositionIntensity
+        }
     }
 
     public sealed class CreateObjectObjectCreationListItem : ObjectCreationListItem
@@ -108,7 +142,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
         {
-            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseAssetReference() },
+            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseObjectReferenceArray() },
             { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "SpreadFormation", (parser, x) => x.SpreadFormation = parser.ParseBoolean() },
@@ -165,7 +199,7 @@ namespace OpenSage.Logic.Object
             { "WaypointSpawnPoints", (parser, x) => x.WaypointSpawnPoints = parser.ParseAssetReference() },
         };
 
-        public string ObjectNames { get; private set; }
+        public LazyAssetReference<ObjectDefinition>[] ObjectNames { get; private set; }
         public Vector3 Offset { get; private set; }
         public int Count { get; private set; }
         public bool SpreadFormation { get; private set; }
@@ -266,6 +300,23 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string WaypointSpawnPoints { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+
+            foreach (var objectName in ObjectNames)
+            {
+                var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
+                newGameObject.Transform.Translation = context.GameObject.Transform.Translation;
+                newGameObject.Transform.Rotation = context.GameObject.Transform.Rotation;
+
+                // TODO: Count
+                // TODO: Disposition
+                // TODO: DispositionIntensity
+                // TODO: Offset
+            }
+        }
     }
 
     public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem
@@ -289,6 +340,11 @@ namespace OpenSage.Logic.Object
         public float MinForcePitch { get; private set; }
         public float MaxForcePitch { get; private set; }
         public float SpinRate { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
     public sealed class FireWeaponObjectCreationListItem : ObjectCreationListItem
@@ -304,6 +360,11 @@ namespace OpenSage.Logic.Object
         };
 
         public string Weapon { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
     public sealed class AttackObjectCreationListItem : ObjectCreationListItem
@@ -325,6 +386,11 @@ namespace OpenSage.Logic.Object
         public int NumberOfShots { get; private set; }
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
     public sealed class DeliverPayloadObjectCreationListItem : ObjectCreationListItem
@@ -406,6 +472,11 @@ namespace OpenSage.Logic.Object
         public float WeaponConvergenceFactor { get; private set; }
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
     public enum ObjectDisposition

@@ -7,16 +7,19 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly PhysicsBehaviorModuleData _moduleData;
 
+        public float Mass { get; set; }
+
         internal PhysicsBehavior(GameObject gameObject, PhysicsBehaviorModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
+
+            Mass = moduleData.Mass;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             var gravity = context.GameContext.AssetLoadContext.AssetStore.GameData.Current.Gravity;
-            var mass = _moduleData.Mass;
 
             // TODO
         }
