@@ -310,6 +310,7 @@ namespace OpenSage
                 game.AssetStore.LoadContext,
                 game.Audio,
                 _particleSystemManager,
+                new ObjectCreationListManager(),
                 Terrain,
                 Navigation);
 

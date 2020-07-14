@@ -210,6 +210,20 @@ namespace OpenSage.Data.Ini
 
         public string ScanAssetReference(in IniToken token) => token.Text;
 
+        public LazyAssetReference<FXParticleSystemTemplate> ScanFXParticleSystemTemplateReference(in IniToken token)
+        {
+            var name = token.Text;
+            return _assetStore.FXParticleSystemTemplates.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<FXList> ScanFXListReference(in IniToken token)
+        {
+            var name = token.Text;
+            return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
+        }
+
+        public string ScanParticleSystemReference(in IniToken token) => token.Text;
+
         public string ParseAssetReference()
         {
             var token = GetNextTokenOptional();
@@ -467,13 +481,23 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<FXList> ParseFXListReference()
         {
             var name = ParseAssetReference();
-            return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
+            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.FXLists.GetLazyAssetReferenceByName(name)
+                : null;
+        }
+
         public LazyAssetReference<DamageFX> ParseDamageFXReference()
         {
             var name = ParseAssetReference();
             return _assetStore.DamageFXs.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<ObjectCreationList> ParseObjectCreationListReference()
+        {
+            var name = ParseAssetReference();
+            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ObjectCreationLists.GetLazyAssetReferenceByName(name)
+                : null;
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
