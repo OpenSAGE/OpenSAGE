@@ -131,6 +131,15 @@ namespace OpenSage.Logic.Object
             var physicsBehavior = debrisObject.FindBehavior<PhysicsBehavior>();
             physicsBehavior.Mass = Mass;
 
+            if (Disposition.Get(ObjectDisposition.SendItFlying))
+            {
+                physicsBehavior.AddForce(
+                    new Vector3(
+                        ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
+                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
+                        DispositionIntensity * 200));
+            }
+
             // TODO: Count, Disposition, DispositionIntensity
         }
     }

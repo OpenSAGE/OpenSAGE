@@ -221,7 +221,8 @@ namespace OpenSage.Logic.Object
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this));
+            // TODO: Don't create InactiveBody here, it should be done by inheriting from Default/Object.ini
+            Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this) ?? new InactiveBody(this));
 
             AIUpdate = AddDisposable(objectDefinition.AIUpdate?.CreateAIUpdate(this));
 

@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using System.Numerics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -6,6 +8,11 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameObject _gameObject;
         private readonly PhysicsBehaviorModuleData _moduleData;
+
+        // TODO: Don't know if this belongs here.
+        private Vector3 _velocity;
+
+        private Vector3 _cumulativeForces;
 
         public float Mass { get; set; }
 
@@ -19,9 +26,45 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            // Calculate force due to gravity.
             var gravity = context.GameContext.AssetLoadContext.AssetStore.GameData.Current.Gravity;
+            var gravityAcceleration = Mass * new Vector3(0, 0, gravity);
 
-            // TODO
+            var cumulativeAcceleration = _cumulativeForces / Mass;
+            _cumulativeForces = Vector3.Zero;
+
+            var acceleration = gravityAcceleration + cumulativeAcceleration;
+
+            // Integrate velocity.
+            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
+            _velocity += acceleration * deltaTime;
+
+            // Integrate position.
+            var newTranslation = context.GameObject.Transform.Translation + (_velocity * deltaTime);
+
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
+                newTranslation.X,
+                newTranslation.Y);
+
+            if (newTranslation.Z < terrainHeight)
+            {
+                newTranslation.Z = terrainHeight;
+
+                // TODO: Improve bouncing.
+                _velocity.Z = Math.Abs(_velocity.Z) * 0.9f;
+
+                if (_moduleData.KillWhenRestingOnGround && _velocity.Z < 0.1f)
+                {
+                    context.GameObject.Kill(DeathType.Normal);
+                }
+            }
+
+            context.GameObject.Transform.Translation = newTranslation;
+        }
+
+        public void AddForce(in Vector3 force)
+        {
+            _cumulativeForces += force;
         }
     }
 
