@@ -3,44 +3,25 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSetUpgrade : BehaviorModule
+    public sealed class WeaponSetUpgrade : UpgradeModule
     {
         private readonly GameObject _gameObject;
-        private readonly WeaponSetUpgradeModuleData _moduleData;
 
-        internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData)
+        internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData) : base(moduleData)
         {
             _gameObject = gameObject;
-            _moduleData = moduleData;
         }
 
-        internal override void Update(BehaviorUpdateContext context)
+        internal override void OnTrigger(BehaviorUpdateContext context, bool trigger)
         {
-            bool active = false;
-
-            foreach (var trigger in _moduleData.TriggeredBy)
-            {
-                var upgrade = _gameObject.Upgrades.FirstOrDefault(template => template.Name == trigger);
-
-                if (upgrade != null)
-                {
-                    active = true;
-                    if (_moduleData.RequiresAllTriggers == false)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    // Disable the trigger if one condition is not met
-                    active = false;
-                }
-            }
-
-            if (active)
+            if (trigger)
             {
                 var weaponSet = _gameObject.Definition.WeaponSets.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
                 _gameObject.SetWeaponSet(weaponSet);
+            }
+            else
+            {
+                _gameObject.SetDefaultWeapon();
             }
         }
     }
