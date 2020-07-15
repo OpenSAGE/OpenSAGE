@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
 
             if (mapObject.Properties.TryGetValue("objectName", out var objectName))
             {
-                gameObject.Name = (string)objectName.Value;
+                gameObject.Name = (string) objectName.Value;
             }
 
             if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
@@ -192,7 +192,7 @@ namespace OpenSage.Logic.Object
             Owner = owner;
             Parent = parent;
 
-            SetWeapon();
+            SetDefaultWeapon();
             Transform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();
@@ -583,10 +583,15 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetWeapon()
+        private void SetDefaultWeapon()
         {
             // TODO: we currently always pick the weapon without any conditions.
             var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
+            SetWeaponSet(weaponSet);
+        }
+
+        internal void SetWeaponSet(WeaponTemplateSet weaponSet)
+        {
             if (weaponSet != null)
             {
                 var aiUpdate = Definition.Behaviors.OfType<AIUpdateModuleData>().FirstOrDefault();
@@ -599,20 +604,7 @@ namespace OpenSage.Logic.Object
                     : weaponSetUpdateData.WeaponSlotTurrets[0];
 
                 var weaponTemplate = weaponSlotHardpoint.Weapons[0].Template.Value;
-
-                if (weaponTemplate != null)
-                {
-                    CurrentWeapon = new Weapon(
-                        this,
-                        weaponTemplate,
-                        0,
-                        WeaponSlot.Primary,
-                        _gameContext);
-                }
-                else
-                {
-                    CurrentWeapon = null;
-                }
+                SetWeapon(weaponTemplate);
             }
             else
             {
@@ -622,12 +614,19 @@ namespace OpenSage.Logic.Object
 
         internal void SetWeapon(WeaponTemplate weaponTemplate)
         {
-            CurrentWeapon = new Weapon(
+            if (weaponTemplate != null)
+            {
+                CurrentWeapon = new Weapon(
                 this,
                 weaponTemplate,
                 0,
                 WeaponSlot.Primary,
                 _gameContext);
+            }
+            else
+            {
+                CurrentWeapon = null;
+            }
         }
 
         public void Upgrade(UpgradeTemplate upgrade)
