@@ -1,7 +1,54 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Linq;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class UpgradeModule : BehaviorModule
+    {
+        internal bool _triggered;
+        internal bool _initial = true;
+        internal UpgradeModuleData _moduleData;
+
+        internal UpgradeModule(UpgradeModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _triggered = _moduleData.StartsActive;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            bool triggered = false;
+
+            foreach (var trigger in _moduleData.TriggeredBy)
+            {
+                var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == trigger);
+
+                if (upgrade != null)
+                {
+                    triggered = true;
+                    if (_moduleData.RequiresAllTriggers == false)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    // Disable the trigger if one or more condition is not met
+                    triggered = false;
+                }
+            }
+
+            if (triggered != _triggered)
+            {
+                _triggered = triggered;
+                OnTrigger(context, _triggered);
+            }
+        }
+
+        internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered) { }
+
+    }
+
     public abstract class UpgradeModuleData : BehaviorModuleData
     {
         internal static readonly IniParseTable<UpgradeModuleData> FieldParseTable = new IniParseTable<UpgradeModuleData>

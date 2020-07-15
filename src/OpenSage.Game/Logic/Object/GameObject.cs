@@ -583,7 +583,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetDefaultWeapon()
+        internal void SetDefaultWeapon()
         {
             // TODO: we currently always pick the weapon without any conditions.
             var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
