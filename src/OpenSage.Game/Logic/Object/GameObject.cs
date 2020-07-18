@@ -170,6 +170,9 @@ namespace OpenSage.Logic.Object
 
         public List<UpgradeTemplate> Upgrades { get; }
 
+        public int ExperienceValue { get; private set; }
+        internal float ExperienceMultiplier { get; set; }
+
         // TODO
         public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets[0];
 
@@ -246,6 +249,9 @@ namespace OpenSage.Logic.Object
             }
 
             Upgrades = new List<UpgradeTemplate>();
+
+            ExperienceMultiplier = 1.0f;
+            ExperienceValue = 0;
         }
 
         // TODO: This probably shouldn't be here.
@@ -689,6 +695,11 @@ namespace OpenSage.Logic.Object
         internal void Destroy()
         {
             Destroyed = true;
+        }
+
+        internal void GainExperience(int experience)
+        {
+            ExperienceValue = (int) (ExperienceMultiplier * experience);
         }
     }
 }
