@@ -7,9 +7,9 @@ namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
-        public Fix64 Health { get; protected set; }
+        public Fix64 Health { get; internal set; }
 
-        public abstract Fix64 MaxHealth { get; }
+        public abstract Fix64 MaxHealth { get; internal set; }
 
         public Fix64 HealthPercentage => Health / MaxHealth;
 
