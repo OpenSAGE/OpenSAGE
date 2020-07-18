@@ -173,6 +173,8 @@ namespace OpenSage.Logic.Object
         public int ExperienceValue { get; private set; }
         internal float ExperienceMultiplier { get; set; }
 
+        public int EnergyProduction { get; internal set; }
+
         // TODO
         public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets[0];
 
@@ -420,6 +422,8 @@ namespace OpenSage.Logic.Object
                     Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
                 }
             }
+
+            EnergyProduction += Definition.EnergyProduction;
         }
 
         public bool IsBeingConstructed()

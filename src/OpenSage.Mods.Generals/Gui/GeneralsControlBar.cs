@@ -75,6 +75,21 @@ namespace OpenSage.Mods.Generals.Gui
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
+        private void ApplyProgress(string name, string coordPrefix, float progress = 1.0f)
+        {
+            var control = FindControl(name);
+            if (control == null)
+                return;
+            var schemeType = _scheme.GetType();
+
+            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(_scheme);
+            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(_scheme);
+            var width = (int) (progress * (lr.X - ul.X));
+            lr = new Point2D(ul.X + width, lr.Y);
+
+            control.Bounds = Rectangle.FromCorners(ul - _window.Bounds.Location, lr - _window.Bounds.Location);
+        }
+
         public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
@@ -120,6 +135,9 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             _moneyDisplay.Text = $"$ {player.Money}";
+
+            float powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
+            ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
@@ -238,7 +256,21 @@ namespace OpenSage.Mods.Generals.Gui
 
                         var objectDefinition = commandButton.Object?.Value;
 
-                        buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                        switch (commandButton.Command)
+                        {
+                            // Disable the button when the unit is not producable
+                            case CommandType.DozerConstruct:
+                            case CommandType.UnitBuild:
+                                buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                                break;
+                            // Disable the button when the object already has it
+                            case CommandType.ObjectUpgrade:
+                                var upgradeName = commandButton.Upgrade;
+                                var queuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.FirstOrDefault(x => x.UpgradeDefinition?.Name == upgradeName);
+                                var objUpgrade = selectedUnit.Upgrades.FirstOrDefault(x => x.Name == upgradeName);
+                                buttonControl.Enabled = queuedUpgrade == null && objUpgrade == null;
+                                break;
+                        }
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
@@ -527,6 +559,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(scheme);
                 var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(scheme);
+
                 control.Bounds = Rectangle.FromCorners(ul - windowOrigin, lr - windowOrigin);
 
                 return control;
