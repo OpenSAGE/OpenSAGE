@@ -649,13 +649,37 @@ namespace OpenSage.Logic.Object
 
         internal void Die(DeathType deathType, TimeInterval time)
         {
-            // TODO: Figure out when / how to call `DeathBehavior`s.
-            // Need to use probability modifiers.
+            Logger.Info("Object dying " + deathType);
+
+            ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+            ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
 
             var behaviorUpdateContext = new BehaviorUpdateContext(
                 _gameContext,
                 this,
                 time);
+
+            // If there are multiple SlowDeathBehavior modules,
+            // we need to use ProbabilityModifier to choose between them.
+            var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
+                .Where(x => x.IsApplicable(deathType))
+                .ToList();
+            if (slowDeathBehaviors.Count > 1)
+            {
+                var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
+                var random = _gameContext.Random.Next(sumProbabilityModifiers);
+                var cumulative = 0;
+                foreach (var deathBehavior in slowDeathBehaviors)
+                {
+                    cumulative += deathBehavior.ProbabilityModifier;
+                    if (random < cumulative)
+                    {
+                        deathBehavior.OnDie(behaviorUpdateContext, deathType);
+                        return;
+                    }
+                }
+                throw new InvalidOperationException();
+            }
 
             foreach (var dieModule in BehaviorModules)
             {
