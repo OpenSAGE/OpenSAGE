@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
         protected readonly GameObject GameObject;
 
-        public override Fix64 MaxHealth { get; }
+        public override Fix64 MaxHealth { get; internal set; }
 
         internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
         {
