@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -365,6 +366,11 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS);
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
     }
 

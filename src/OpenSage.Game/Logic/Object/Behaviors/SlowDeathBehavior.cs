@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -110,6 +111,10 @@ namespace OpenSage.Logic.Object
                 context.GameObject.VerticalOffset -= (float)(_moduleData.SinkRate * context.Time.DeltaTime.TotalSeconds);
             }
         }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Phase", _phase?.ToString() ?? "<not dying>");
         }
     }
 
