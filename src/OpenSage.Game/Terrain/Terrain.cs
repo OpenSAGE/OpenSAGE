@@ -17,6 +17,7 @@ using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -397,7 +398,7 @@ namespace OpenSage.Terrain
                 {
                     if (tgaFile.Header.Width != largestTextureSize)
                     {
-                        tgaImage.Mutate(x => x.Resize((int) largestTextureSize, (int) largestTextureSize));
+                        tgaImage.Mutate(x => x.Resize((int) largestTextureSize, (int) largestTextureSize, LanczosResampler.Lanczos3));
                     }
 
                     var imageSharpTexture = new ImageSharpTexture(tgaImage);
