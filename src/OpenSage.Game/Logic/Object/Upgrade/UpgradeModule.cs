@@ -21,47 +21,53 @@ namespace OpenSage.Logic.Object
         {
             bool triggered = false;
 
-            foreach (var trigger in _moduleData.TriggeredBy)
+            if (_moduleData.TriggeredBy != null)
             {
-                var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == trigger);
-
-                if (upgrade != null)
+                foreach (var trigger in _moduleData.TriggeredBy)
                 {
-                    triggered = true;
-                    if (_moduleData.RequiresAllTriggers == false)
+                    var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == trigger);
+
+                    if (upgrade != null)
+                    {
+                        triggered = true;
+                        if (_moduleData.RequiresAllTriggers == false)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            //TODO:
+                        }
+                    }
+                    else if (_moduleData.RequiresAllTriggers == true)
                     {
                         break;
                     }
-                    else
-                    {
-                        //TODO:
-                    }
-                }
-                else if (_moduleData.RequiresAllTriggers == true)
-                {
-                    break;
                 }
             }
 
-            foreach(var conflict in _moduleData.ConflictsWith)
+            if (_moduleData.ConflictsWith != null)
             {
-                var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == conflict);
-
-                if (upgrade != null)
+                foreach (var conflict in _moduleData.ConflictsWith)
                 {
-                    if (_moduleData.RequiresAllConflictingTriggers == false)
+                    var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == conflict);
+
+                    if (upgrade != null)
                     {
-                        triggered = false;
+                        if (_moduleData.RequiresAllConflictingTriggers == false)
+                        {
+                            triggered = false;
+                            break;
+                        }
+                        else
+                        {
+                            //TODO:
+                        }
+                    }
+                    else if (_moduleData.RequiresAllConflictingTriggers == true)
+                    {
                         break;
                     }
-                    else
-                    {
-                        //TODO:
-                    }
-                }
-                else if(_moduleData.RequiresAllConflictingTriggers == true)
-                {
-                    break;
                 }
             }
 

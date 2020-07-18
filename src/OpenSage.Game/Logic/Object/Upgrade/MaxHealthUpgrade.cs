@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
                 {
                     case MaxHealthChangeType.PreserveRatio:
                         Fix64 ratio = _gameObject.Body.Health / _gameObject.Body.MaxHealth;
-                        _gameObject.Body.Health += ratio * (Fix64) maxHealthUpgrade.AddMaxHealth);
+                        _gameObject.Body.Health += ratio * (Fix64) maxHealthUpgrade.AddMaxHealth;
                         break;
                     case MaxHealthChangeType.AddCurrentHealthToo:
                         _gameObject.Body.Health += (Fix64) maxHealthUpgrade.AddMaxHealth;

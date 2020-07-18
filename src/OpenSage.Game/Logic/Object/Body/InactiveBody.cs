@@ -12,13 +12,17 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
         }
 
-        public override Fix64 MaxHealth => Fix64.Zero;
-
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
             // TODO
 
             _gameObject.Die(deathType, time);
+        }
+        
+        public override Fix64 MaxHealth
+        {
+            get => Fix64.Zero;
+            internal set { }
         }
     }
 
