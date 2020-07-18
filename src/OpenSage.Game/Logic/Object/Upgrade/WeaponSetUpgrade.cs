@@ -12,9 +12,9 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool trigger)
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
         {
-            if (trigger)
+            if (triggered)
             {
                 var weaponSet = _gameObject.Definition.WeaponSets.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
                 _gameObject.SetWeaponSet(weaponSet);

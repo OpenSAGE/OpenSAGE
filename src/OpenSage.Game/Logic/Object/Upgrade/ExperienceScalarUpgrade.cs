@@ -2,6 +2,24 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class ExperienceScalarUpgrade : UpgradeModule
+    {
+        private readonly GameObject _gameObject;
+        internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData) : base(moduleData)
+        {
+            _gameObject = gameObject;
+        }
+
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                var expScalarUpgrade = _moduleData as ExperienceScalarUpgradeModuleData;
+                _gameObject.ExperienceMultiplier += expScalarUpgrade.AddXPScalar;
+            }
+        }
+    }
+
     public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
     {
         internal static ExperienceScalarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -13,5 +31,10 @@ namespace OpenSage.Logic.Object
             });
 
         public float AddXPScalar { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject)
+        {
+            return new ExperienceScalarUpgrade(gameObject, this);
+        }
     }
 }
