@@ -479,7 +479,7 @@ namespace OpenSage
                     DrawBar(
                         healthBoxRect.Value,
                         new ColorRgbaF(0, 1, 0, 1),
-                        (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                        (float)gameObject.Body.HealthPercentage);
                 }
 
                 if (gameObject.ProductionUpdate != null)
