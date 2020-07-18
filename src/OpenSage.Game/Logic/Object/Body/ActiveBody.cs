@@ -35,8 +35,13 @@ namespace OpenSage.Logic.Object
             SetHealth((Fix64) (_moduleData.InitialHealth * multiplier));
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
+            if (Health <= Fix64.Zero)
+            {
+                return;
+            }
+
             var armorSet = GameObject.CurrentArmorSet;
 
             // Actual amount of damage depends on armor.
@@ -48,16 +53,19 @@ namespace OpenSage.Logic.Object
             // TODO: DamageFX
             var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
             // TODO: MajorFX
-            var damageFX = damageFXGroup.MinorFX.Value;
-            damageFX.Execute(
-                new FXListExecutionContext(
-                    GameObject.Transform.Rotation,
-                    GameObject.Transform.Translation,
-                    GameObject.GameContext));
+            var damageFX = damageFXGroup.MinorFX?.Value;
+            if (damageFX != null)
+            {
+                damageFX.Execute(
+                    new FXListExecutionContext(
+                        GameObject.Transform.Rotation,
+                        GameObject.Transform.Translation,
+                        GameObject.GameContext));
+            }
 
             if (Health <= Fix64.Zero)
             {
-                GameObject.Die(deathType);
+                GameObject.Die(deathType, time);
             }
         }
     }

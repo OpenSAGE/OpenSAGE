@@ -309,7 +309,7 @@ namespace OpenSage.Logic.Object
 
             //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
-                CurrentWeapon?.LogicTick(time.TotalTime);
+                CurrentWeapon?.LogicTick(time);
             }
 
             // TODO: Don't create this every time.
@@ -640,21 +640,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Kill(DeathType deathType)
+        internal void Kill(DeathType deathType, TimeInterval time)
         {
-            Body.DoDamage(DamageType.Unresistable, Body.Health, deathType);
+            Body.DoDamage(DamageType.Unresistable, Body.Health, deathType, time);
         }
 
-        internal void Die(DeathType deathType)
+        internal void Die(DeathType deathType, TimeInterval time)
         {
             // TODO: Figure out when / how to call `DeathBehavior`s.
             // Need to use probability modifiers.
 
-            // TODO: Don't create this every time.
             var behaviorUpdateContext = new BehaviorUpdateContext(
                 _gameContext,
                 this,
-                default);
+                time);
 
             foreach (var dieModule in BehaviorModules)
             {

@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
             // TODO: Don't think this is right.
             if (damageType == DamageType.Unresistable)
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
 
                 if (Health <= Fix64.Zero)
                 {
-                    GameObject.Die(deathType);
+                    GameObject.Die(deathType, time);
                 }
             }
         }
