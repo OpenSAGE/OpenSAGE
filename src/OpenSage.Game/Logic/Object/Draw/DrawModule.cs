@@ -31,6 +31,8 @@ namespace OpenSage.Logic.Object
         internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
+
+        internal virtual void DrawInspector() { }
     }
 
     public abstract class DrawModuleData : ModuleData

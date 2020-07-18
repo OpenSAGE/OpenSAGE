@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
@@ -200,6 +201,11 @@ namespace OpenSage.Logic.Object
             {
                 _productionQueue.RemoveAt(index);
             }
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("DoorState", _currentDoorState);
         }
     }
 

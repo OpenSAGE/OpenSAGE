@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Logic.Object
 {
@@ -65,6 +66,12 @@ namespace OpenSage.Logic.Object
         public void AddForce(in Vector3 force)
         {
             _cumulativeForces += force;
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Mass", Mass);
+            ImGuiUtility.PropertyRow("Velocity", _velocity);
         }
     }
 

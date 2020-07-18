@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using ImGuiNET;
 using OpenSage.Input;
@@ -84,6 +85,30 @@ namespace OpenSage.Diagnostics.Util
 
                 yield return translatedMessage;
             }
+        }
+
+        public static void BeginPropertyList()
+        {
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
+            ImGui.Columns(2);
+            ImGui.Separator();
+        }
+
+        public static void EndPropertyList()
+        {
+            ImGui.Columns(1);
+            ImGui.Separator();
+            ImGui.PopStyleVar();
+        }
+
+        public static void PropertyRow(string name, object value)
+        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(name);
+            ImGui.NextColumn();
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(value?.ToString() ?? "<null>");
+            ImGui.NextColumn();
         }
     }
 }

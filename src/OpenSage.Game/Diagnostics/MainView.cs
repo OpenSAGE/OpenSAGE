@@ -49,6 +49,7 @@ namespace OpenSage.Diagnostics
             AddView(new GameLoopView(context));
 			AddView(new LuaScriptConsole(context));
             AddView(new LogView(context));
+            AddView(new InspectorView(context));
         }
 
         private void DrawTimingControls()

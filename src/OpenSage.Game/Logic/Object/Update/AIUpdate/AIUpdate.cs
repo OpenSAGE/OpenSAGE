@@ -134,6 +134,11 @@ namespace OpenSage.Logic.Object
                 }
             }
         }
+
+        internal override void DrawInspector()
+        {
+            // TODO: Locomotor?
+        }
     }
 
     public class AIUpdateModuleData : UpdateModuleData
