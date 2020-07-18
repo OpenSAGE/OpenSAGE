@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Object
             _modelInstance.SetWorldMatrix(worldMatrix);
         }
 
-        internal override void Update(in TimeInterval time, GameObject gameObject)
+        internal override void Update(in TimeInterval time)
         {
             _modelInstance.Update(time);
         }
@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<W3dDebrisDrawModuleData> FieldParseTable = new IniParseTable<W3dDebrisDrawModuleData>();
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
             return new W3dDebrisDraw(context);
         }
