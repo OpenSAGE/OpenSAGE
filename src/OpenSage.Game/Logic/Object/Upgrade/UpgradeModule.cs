@@ -5,9 +5,11 @@ namespace OpenSage.Logic.Object
 {
     public abstract class UpgradeModule : BehaviorModule
     {
-        internal bool _triggered;
-        internal bool _initial = true;
-        internal UpgradeModuleData _moduleData;
+        protected bool _triggered;
+        private bool _initial = true;
+        protected UpgradeModuleData _moduleData;
+
+        internal bool Triggered => _triggered;
 
         internal UpgradeModule(UpgradeModuleData moduleData)
         {
@@ -71,14 +73,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered)
-        {
-            if(triggered)
-            {
-
-            }
-        }
-
+        internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered) { }
     }
 
     public abstract class UpgradeModuleData : BehaviorModuleData
