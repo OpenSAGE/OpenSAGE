@@ -10,18 +10,18 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
-        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameContext context)
-            : base(data, context)
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
+            : base(data, gameObject, context)
         {
             _data = data;
         }
 
-        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        internal override void Update(in TimeInterval gameTime)
         {
-            base.Update(gameTime, gameObject);
+            base.Update(gameTime);
 
             // TODO: Only do this if Locomotor has HasSuspension = true.
-            var roll = _data.TireRotationMultiplier * gameObject.Speed;
+            var roll = _data.TireRotationMultiplier * GameObject.Speed;
             var boneNames = new string[]
             {
                 _data.LeftFrontTireBone,
@@ -135,9 +135,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dTruckDraw(this, context);
+            return new W3dTruckDraw(this, gameObject, context);
         }
     }
 }

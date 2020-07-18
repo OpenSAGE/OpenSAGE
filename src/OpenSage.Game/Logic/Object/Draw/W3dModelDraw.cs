@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
@@ -18,6 +19,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
+
+        protected readonly GameObject GameObject;
 
         private readonly List<ModelConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
@@ -60,9 +63,11 @@ namespace OpenSage.Logic.Object
 
         internal W3dModelDraw(
             W3dModelDrawModuleData data,
+            GameObject gameObject,
             GameContext context)
         {
             _data = data;
+            GameObject = gameObject;
             _context = context;
 
             _conditionStates = new List<ModelConditionState>();
@@ -331,7 +336,7 @@ namespace OpenSage.Logic.Object
             return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        internal override void Update(in TimeInterval gameTime)
         {
             if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
             {
@@ -491,7 +496,7 @@ namespace OpenSage.Logic.Object
             { "MinLODRequired", (parser, x) => x.MinLodRequired = parser.ParseEnum<ModelLevelOfDetail>() },
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
-            { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
+            { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseTextureReference() },
             { "TrackMarksLeftBone", (parser, x) => x.TrackMarksLeftBone = parser.ParseAssetReference() },
             { "TrackMarksRightBone", (parser, x) => x.TrackMarksRightBone = parser.ParseAssetReference() },
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
@@ -526,7 +531,7 @@ namespace OpenSage.Logic.Object
         public List<string> ExtraPublicBones { get; } = new List<string>();
         public string AttachToBoneInAnotherModule { get; private set; }
 
-        public string TrackMarks { get; private set; }
+        public LazyAssetReference<TextureAsset> TrackMarks { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string TrackMarksLeftBone { get; private set; }
@@ -554,9 +559,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dModelDraw(this, context);
+            return new W3dModelDraw(this, gameObject, context);
         }
     }
 

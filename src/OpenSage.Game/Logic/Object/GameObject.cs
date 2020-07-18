@@ -198,7 +198,7 @@ namespace OpenSage.Logic.Object
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(gameContext));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(this, gameContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -496,7 +496,7 @@ namespace OpenSage.Logic.Object
             UpdateDrawModuleConditionStates();
             foreach (var drawModule in DrawModules)
             {
-                drawModule.Update(gameTime, this);
+                drawModule.Update(gameTime);
             }
 
             // This must be done after processing anything that might update this object's transform.
