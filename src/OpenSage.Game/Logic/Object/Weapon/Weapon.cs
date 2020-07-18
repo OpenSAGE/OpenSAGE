@@ -94,9 +94,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void LogicTick(TimeSpan currentTime)
+        public void LogicTick(TimeInterval time)
         {
-            _stateMachine.Update(currentTime);
+            _stateMachine.Update(time);
 
             if (CurrentTarget != null && CurrentTarget.IsDestroyed)
             {
@@ -104,9 +104,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void Fire(TimeSpan currentTime)
+        public void Fire(TimeInterval time)
         {
-            _stateMachine.Fire(currentTime);
+            _stateMachine.Fire(time);
         }
     }
 }

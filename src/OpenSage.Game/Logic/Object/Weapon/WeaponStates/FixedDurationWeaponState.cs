@@ -13,10 +13,10 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        protected override void OnEnterStateImpl(TimeSpan enterTime)
+        protected override void OnEnterStateImpl(TimeInterval time)
         {
             // TODO: Randomly pick value between Duration.Min and Duration.Max
-            _exitTime = enterTime + Duration.Min;
+            _exitTime = time.TotalTime + Duration.Min;
         }
 
         protected bool IsTimeToExitState(TimeSpan currentTime) =>

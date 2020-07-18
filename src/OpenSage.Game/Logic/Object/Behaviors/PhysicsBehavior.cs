@@ -55,7 +55,7 @@ namespace OpenSage.Logic.Object
 
                 if (_moduleData.KillWhenRestingOnGround && _velocity.Z < 0.1f)
                 {
-                    context.GameObject.Kill(DeathType.Normal);
+                    context.GameObject.Kill(DeathType.Normal, context.Time);
                 }
             }
 
