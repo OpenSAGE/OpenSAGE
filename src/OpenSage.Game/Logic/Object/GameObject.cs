@@ -105,6 +105,8 @@ namespace OpenSage.Logic.Object
 
         public readonly Collider Collider;
 
+        public float VerticalOffset;
+
         public Player Owner { get; private set; }
 
         private string _name;

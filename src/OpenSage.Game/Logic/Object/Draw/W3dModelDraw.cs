@@ -30,7 +30,6 @@ namespace OpenSage.Logic.Object
         private AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
-        private float _sinkFactor;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
@@ -333,11 +332,10 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(in TimeInterval gameTime, GameObject gameObject)
         {
-            if(_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
             {
-                //TODO: change the world matrix?
-                float progress = gameObject.BuildProgress;
-                _sinkFactor = (1.0f - progress) * gameObject.Collider.Height;
+                var progress = GameObject.BuildProgress;
+                GameObject.VerticalOffset = -((1.0f - progress) * GameObject.Collider.Height);
             }
 
             _activeModelDrawConditionState?.Update(gameTime);
@@ -345,9 +343,9 @@ namespace OpenSage.Logic.Object
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            if (GameObject.VerticalOffset != 0)
             {
-                var mat = worldMatrix * Matrix4x4.CreateTranslation(-Vector3.UnitZ * _sinkFactor);// // _sinkFactor;
+                var mat = worldMatrix * Matrix4x4.CreateTranslation(Vector3.UnitZ * GameObject.VerticalOffset);
                 _activeModelDrawConditionState?.SetWorldMatrix(mat);
             }
             else
