@@ -17,7 +17,6 @@ namespace OpenSage.Logic.Object
             if (triggered)
             {
                 var maxHealthUpgrade = _moduleData as MaxHealthUpgradeModuleData;
-                _gameObject.Body.MaxHealth += (Fix64) maxHealthUpgrade.AddMaxHealth;
 
                 switch (maxHealthUpgrade.ChangeType)
                 {
@@ -32,6 +31,8 @@ namespace OpenSage.Logic.Object
                         // Don't add any new health
                         break;
                 }
+
+                _gameObject.Body.MaxHealth += (Fix64) maxHealthUpgrade.AddMaxHealth;
             }
         }
     }
