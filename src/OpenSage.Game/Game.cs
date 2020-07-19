@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data;
@@ -32,6 +33,11 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
+        static Game()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+
         // TODO: These should be configurable at runtime with GameSpeed.
 
         // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
