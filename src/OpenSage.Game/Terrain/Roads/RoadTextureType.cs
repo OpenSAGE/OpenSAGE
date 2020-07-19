@@ -8,6 +8,7 @@
         TCrossing,
         XCrossing,
         SymmetricYCrossing,
-        AsymmetricYCrossing
+        AsymmetricYCrossing,
+        EndCap
     }
 }
