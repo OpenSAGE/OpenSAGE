@@ -448,6 +448,19 @@ namespace OpenSage.Data.Ini
             return _assetStore.Upgrades.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<UpgradeTemplate>[] ParseUpgradeReferenceArray()
+        {
+            var result = new List<LazyAssetReference<UpgradeTemplate>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                result.Add(_assetStore.Upgrades.GetLazyAssetReferenceByName(token.Value.Text));
+            }
+
+            return result.ToArray();
+        }
+
         public LazyAssetReference<MappedImage> ParseMappedImageReference()
         {
             var name = ParseAssetReference();
