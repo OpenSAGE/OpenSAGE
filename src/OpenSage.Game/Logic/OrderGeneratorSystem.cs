@@ -174,6 +174,20 @@ namespace OpenSage.Logic
             return Game.Scene3D.Terrain.Intersect(ray);
         }
 
+        public void StartSpecialPowerAtLocation(SpecialPower specialPower)
+        {
+            var gameData = Game.AssetStore.GameData.Current;
+
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
+        }
+
+        public void StartSpecialPowerAtObject(SpecialPower specialPower)
+        {
+            var gameData = Game.AssetStore.GameData.Current;
+
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
+        }
+
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)
         {
             if (!buildingDefinition.KindOf.Get(ObjectKinds.Structure))
