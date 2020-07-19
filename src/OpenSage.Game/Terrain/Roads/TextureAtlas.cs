@@ -89,7 +89,9 @@ namespace OpenSage.Terrain.Roads
                     halfRoadWidth,
                     RoadConstants.TightCurveRadius));
 
-            // TODO: End cap/join
+            _coordinates.Add(
+                RoadTextureType.EndCap,
+                TextureCoordinates.LeftTopRightBottom(0.146f, 0.697f, 0.238f, 0.961f));
         }
 
         /// <summary>
