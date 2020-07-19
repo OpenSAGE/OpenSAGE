@@ -224,17 +224,17 @@ namespace OpenSage.Graphics.ParticleSystems
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
         {
             numIndices = (uint) maxParticles * 2 * 3; // Two triangles per particle.
-            var indices = new ushort[numIndices]; 
+            var indices = new uint[numIndices]; 
             var indexCounter = 0;
-            for (ushort i = 0; i < maxParticles * 4; i += 4)
+            for (uint i = 0; i < maxParticles * 4; i += 4)
             {
-                indices[indexCounter++] = (ushort) (i + 0);
-                indices[indexCounter++] = (ushort) (i + 2);
-                indices[indexCounter++] = (ushort) (i + 1);
+                indices[indexCounter++] = (uint) (i + 0);
+                indices[indexCounter++] = (uint) (i + 2);
+                indices[indexCounter++] = (uint) (i + 1);
 
-                indices[indexCounter++] = (ushort) (i + 1);
-                indices[indexCounter++] = (ushort) (i + 2);
-                indices[indexCounter++] = (ushort) (i + 3);
+                indices[indexCounter++] = (uint) (i + 1);
+                indices[indexCounter++] = (uint) (i + 2);
+                indices[indexCounter++] = (uint) (i + 3);
             }
 
             var result = graphicsDevice.CreateStaticBuffer(

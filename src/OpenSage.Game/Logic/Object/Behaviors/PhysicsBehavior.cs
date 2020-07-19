@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _moduleData = moduleData;
 
-            Mass = moduleData.Mass;
+            Mass = moduleData.Mass ?? moduleData.GravityMult ?? 1.0f;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -97,7 +97,7 @@ namespace OpenSage.Logic.Object
             { "SecondHeight", (parser, x) => x.SecondHeight = parser.ParseInteger() }
         };
 
-        public float Mass { get; private set; }
+        public float? Mass { get; private set; }
         public float AerodynamicFriction { get; private set; }
         public float ForwardFriction { get; private set; }
         public float CenterOfMassOffset { get; private set; }
@@ -106,7 +106,7 @@ namespace OpenSage.Logic.Object
         public bool AllowCollideForce { get; private set; } = true;
 
         [AddedIn(SageGame.Bfme)]
-        public float GravityMult { get; private set; }
+        public float? GravityMult { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int ShockStandingTime { get; private set; }
