@@ -1,13 +1,13 @@
-﻿using System.Linq;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class UpgradeModule : BehaviorModule
     {
+        private readonly UpgradeModuleData _moduleData;
         protected bool _triggered;
         private bool _initial = true;
-        protected UpgradeModuleData _moduleData;
 
         internal bool Triggered => _triggered;
 
@@ -19,13 +19,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            bool triggered = false;
+            var triggered = false;
 
             if (_moduleData.TriggeredBy != null)
             {
                 foreach (var trigger in _moduleData.TriggeredBy)
                 {
-                    var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == trigger);
+                    var upgrade = trigger.Value;
 
                     if (upgrade != null)
                     {
@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var conflict in _moduleData.ConflictsWith)
                 {
-                    var upgrade = context.GameObject.Upgrades.FirstOrDefault(template => template.Name == conflict);
+                    var upgrade = conflict.Value;
 
                     if (upgrade != null)
                     {
@@ -86,8 +86,8 @@ namespace OpenSage.Logic.Object
     {
         internal static readonly IniParseTable<UpgradeModuleData> FieldParseTable = new IniParseTable<UpgradeModuleData>
         {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
-            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseUpgradeReferenceArray() },
+            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseUpgradeReferenceArray() },
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() },
             { "RequiresAllConflictingTriggers", (parser, x) => x.RequiresAllConflictingTriggers = parser.ParseBoolean() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
@@ -96,8 +96,8 @@ namespace OpenSage.Logic.Object
             { "ActiveDuringConstruction", (parser, x) => x.ActiveDuringConstruction = parser.ParseBoolean() },
         };
 
-        public string[] TriggeredBy { get; private set; }
-        public string[] ConflictsWith { get; private set; }
+        public LazyAssetReference<UpgradeTemplate>[] TriggeredBy { get; private set; }
+        public LazyAssetReference<UpgradeTemplate>[] ConflictsWith { get; private set; }
         public bool RequiresAllTriggers { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
