@@ -399,6 +399,6 @@ namespace OpenSage.Logic.Object
             { "WeaponSetUpgrade", WeaponSetUpgradeModuleData.Parse },
         };
 
-        internal virtual BehaviorModule CreateModule(GameObject gameObject) => null; // TODO: Make this abstract.
+        internal virtual BehaviorModule CreateModule(GameObject gameObject, GameContext context) => null; // TODO: Make this abstract.
     }
 }

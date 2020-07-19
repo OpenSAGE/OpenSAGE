@@ -190,7 +190,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool DoNotRandomizeMidpoint { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new SlowDeathBehavior(this);
         }

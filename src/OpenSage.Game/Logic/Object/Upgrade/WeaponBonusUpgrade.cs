@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<WeaponBonusUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<WeaponBonusUpgradeModuleData>());
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WeaponBonusUpgrade(this);
         }

@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<DestroyDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
             .Concat(new IniParseTable<DestroyDieModuleData>());
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new DestroyDie(gameObject, this);
         }

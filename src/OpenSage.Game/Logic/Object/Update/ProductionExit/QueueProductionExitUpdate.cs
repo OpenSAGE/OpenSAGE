@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool UseReturnToFormation { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new QueueProductionExitUpdate(this);
         }

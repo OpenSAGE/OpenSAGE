@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<PowerPlantUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<PowerPlantUpgradeModuleData>());
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new PowerPlantUpgrade(gameObject, this);
         }

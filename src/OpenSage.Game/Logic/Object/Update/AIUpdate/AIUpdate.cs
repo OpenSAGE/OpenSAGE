@@ -232,7 +232,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public int BurningDeathTime { get; private set; }
 
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject)
+        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             throw new InvalidOperationException();
         }

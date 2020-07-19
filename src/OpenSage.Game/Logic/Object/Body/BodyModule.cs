@@ -39,7 +39,7 @@ namespace OpenSage.Logic.Object
             { "UndeadBody", UndeadBodyModuleData.Parse },
         };
 
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject)
+        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             throw new InvalidOperationException();
         }
