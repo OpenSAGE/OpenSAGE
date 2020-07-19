@@ -78,7 +78,7 @@ namespace OpenSage.Terrain.Roads
             _coordinates.Add(
                 RoadTextureType.BroadCurve,
                 TextureCoordinates.Curve(
-                    0.5f,
+                    TileCenter(1),
                     halfRoadWidth,
                     RoadConstants.BroadCurveRadius));
 
@@ -148,7 +148,7 @@ namespace OpenSage.Terrain.Roads
             var angle = MathF.PI / 6f;
             var radius = radiusInHalfRoadWidths * halfRoadWidth;
             var cosine = MathF.Cos(angle / 2f);
-            var additionalRadius = radius * (1f - cosine) / cosine;
+            var additionalRadius = (radius + halfRoadWidth) * (1f - cosine) / cosine;
             var uStart = 0f;
 
             var center = new Vector2(uStart, v - radius);
