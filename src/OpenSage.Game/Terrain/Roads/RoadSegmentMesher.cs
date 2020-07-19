@@ -203,9 +203,9 @@ namespace OpenSage.Terrain.Roads
             {
                 indices.Add((ushort) (i + 0));
                 indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 2));
+                indices.Add((ushort) (i + 3));
 
-                indices.Add((ushort) (i + 1));
+                indices.Add((ushort) (i + 0));
                 indices.Add((ushort) (i + 2));
                 indices.Add((ushort) (i + 3));
             }
@@ -299,8 +299,8 @@ namespace OpenSage.Terrain.Roads
             var toCornerDirection = neighbor.To switch
             {
                 null => DirectionNormalNoZ,                          // if I have no neighbor, use my own normal
-                CrossingRoadSegment _ => neighborNormal,             // if my neighbor is an unflexible crossing, use its normal
-                _ => (DirectionNormalNoZ + neighborNormal) / 2,      // otherwise, meet in the middle
+                CrossingRoadSegment _ => neighborNormal,                         // if my neighbor is an unflexible crossing, use its normal
+                _ => Vector3.Normalize(DirectionNormalNoZ + neighborNormal) / 2, // otherwise, meet in the middle
             };
 
             // This shouldn't happen but sometimes does in broken maps (Heartland Shield for example).

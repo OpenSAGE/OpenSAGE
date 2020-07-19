@@ -156,7 +156,7 @@ namespace OpenSage.Terrain.Roads
 
             const float segmentAngle = MathF.PI / 6f;
             var cosine = MathF.Cos(segmentAngle / 2);
-            var additionalRadius = radius * (1f - cosine) / cosine;
+            var additionalRadius = (radius + halfRoadWidth) * (1f - cosine) / cosine;
             var overlapAngle = MathUtility.ToRadians(type == RoadTextureType.TightCurve ? 6f : 2f);
 
             var remainingAngle = curveAngle;
@@ -192,7 +192,6 @@ namespace OpenSage.Terrain.Roads
             CurvedRoadSegment CreateSegment(Vector3 centerLeft)
             {
                 var upDirection = Vector3.Normalize(center - centerLeft);
-
 
                 var topLeft = centerLeft + upDirection * halfRoadWidth;
                 var bottomLeft = centerLeft - upDirection * (halfRoadWidth + additionalRadius);

@@ -13,6 +13,13 @@ namespace OpenSage.Terrain.Roads
 
         public void AddSegment(RoadTemplate template, MapObject start, MapObject end)
         {
+            // ignore duplicate segments (e.g. in Alpine Assault)
+            if (Edges.Any(e => (e.Start.Position == start.Position && e.End.Position == end.Position) ||
+                               (e.End.Position == start.Position && e.Start.Position == end.Position)))
+            {
+                return;
+            }
+
             var startNode = GetOrCreateNode(start.Position);
             var endNode = GetOrCreateNode(end.Position);
 
