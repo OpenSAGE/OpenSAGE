@@ -52,7 +52,7 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<FXList> FX { get; private set; }
         public string OCL { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new InstantDeathBehavior(gameObject, this);
         }

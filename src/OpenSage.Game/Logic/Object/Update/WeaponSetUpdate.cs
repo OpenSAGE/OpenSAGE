@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
         public List<WeaponSlotTurretData> WeaponSlotTurrets { get; } = new List<WeaponSlotTurretData>();
         public List<WeaponSlotHierarchicalTurretData> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurretData>();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WeaponSetUpdate(gameObject, this);
         }

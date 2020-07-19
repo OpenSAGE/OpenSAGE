@@ -297,7 +297,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new ProductionUpdate(gameObject, this);
         }

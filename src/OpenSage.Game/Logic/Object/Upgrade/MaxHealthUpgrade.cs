@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
         public float AddMaxHealth { get; private set; }
         public MaxHealthChangeType ChangeType { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new MaxHealthUpgrade(gameObject, this);
         }

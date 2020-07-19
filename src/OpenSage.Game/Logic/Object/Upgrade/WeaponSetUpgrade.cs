@@ -43,7 +43,7 @@ namespace OpenSage.Logic.Object
 
         public WeaponSetConditions WeaponCondition { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WeaponSetUpgrade(gameObject, this);
         }

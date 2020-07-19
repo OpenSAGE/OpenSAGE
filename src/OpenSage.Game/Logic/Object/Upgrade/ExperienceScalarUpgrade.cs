@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
 
         public float AddXPScalar { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new ExperienceScalarUpgrade(gameObject, this);
         }
