@@ -307,19 +307,44 @@ namespace OpenSage.Mods.Generals.Gui
                                     break;
 
                                 case CommandType.ObjectUpgrade:
-                                    order = CreateOrder(OrderType.ObjectUprade);
-                                    //TODO: figure this out correctly
-                                    var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
-                                    var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
-                                    order.AddIntegerArgument(objId);
-                                    var name = commandButton.Upgrade;
-                                    var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
-                                    order.AddIntegerArgument(upgrade.InternalId);
+                                    {
+                                        order = CreateOrder(OrderType.ObjectUprade);
+                                        //TODO: figure this out correctly
+                                        var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
+                                        var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
+                                        order.AddIntegerArgument(objId);
+                                        var name = commandButton.Upgrade;
+                                        var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
+                                        order.AddIntegerArgument(upgrade.InternalId);
+                                    }
                                     break;
 
                                 case CommandType.Stop:
                                     // TODO: Also stop construction?
                                     order = CreateOrder(OrderType.StopMoving);
+                                    break;
+
+                                case CommandType.SpecialPower:
+                                    {
+                                        var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
+                                        var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
+                                                         || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
+                                                         || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+                                        var name = commandButton.SpecialPower;
+                                        var specialPower = context.Game.AssetStore.SpecialPowers.GetByName(name);
+                                        if(needsPos)
+                                        {
+                                            context.Game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
+                                        }
+                                        else if(needsObject)
+                                        {
+                                            context.Game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                        }
+                                        else
+                                        {
+                                            order = CreateOrder(OrderType.SpecialPower);
+                                        }
+                                    }
                                     break;
 
                                 default:

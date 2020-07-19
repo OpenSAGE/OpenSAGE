@@ -5,6 +5,9 @@
         Unknown27 = 27, // Something to do with end of game
         SetSelection = 1001,
         ClearSelection = 1003,
+        SpecialPower = 1040,
+        SpecialPowerAtLocation = 1041,
+        SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
         CreateUnit = 1047,
         BuildObject = 1049,

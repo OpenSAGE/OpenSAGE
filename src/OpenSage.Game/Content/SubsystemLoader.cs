@@ -100,6 +100,13 @@ namespace OpenSage.Content
                 case Subsystem.Damage:
                     LoadFiles(@"Data\INI\DamageFX.ini");
                     break;
+                case Subsystem.SpecialPower:
+                    LoadFiles(@"Data\INI\Default\SpecialPower.ini");
+                    LoadFiles(@"Data\INI\SpecialPower.ini");
+                    break;
+                case Subsystem.InGameUI:
+                    LoadFiles(@"Data\INI\InGameUI.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -358,6 +365,12 @@ namespace OpenSage.Content
                     yield break;
                 case Subsystem.Damage:
                     yield return "TheDamageFXStore";
+                    yield break;
+                case Subsystem.SpecialPower:
+                    yield return "TheSpecialPowerStore";
+                    yield break;
+                case Subsystem.InGameUI:
+                    yield return "InGameUI";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);

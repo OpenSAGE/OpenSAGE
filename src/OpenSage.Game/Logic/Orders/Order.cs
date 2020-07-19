@@ -183,5 +183,15 @@ namespace OpenSage.Logic.Orders
 
             return order;
         }
+
+        public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position)
+        {
+            var order = new Order(playerId, OrderType.SpecialPowerAtLocation);
+
+            order.AddIntegerArgument(specialPowerId);
+            order.AddPositionArgument(position);
+
+            return order;
+        }
     }
 }
