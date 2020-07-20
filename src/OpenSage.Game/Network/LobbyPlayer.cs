@@ -9,5 +9,6 @@ namespace OpenSage.Network
         public bool IsHosting { get; set; }
         public IPEndPoint EndPoint { get; set; }
         public DateTime LastSeen { get; set; }
+        public int ProcessId { get; internal set; }
     }
 }

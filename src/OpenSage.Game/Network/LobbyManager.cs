@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -61,7 +62,7 @@ namespace OpenSage.Network
             _thread = new Thread(Loop)
             {
                 IsBackground = true,
-                Name = "OpenSAGE Network Manager"
+                Name = "OpenSAGE Lobby Manager"
             };
             _thread.Start();
         }
@@ -78,6 +79,7 @@ namespace OpenSage.Network
         private void Loop()
         {
             var writer = new NetDataWriter();
+            var processId = Process.GetCurrentProcess().Id;
 
             while (_isRunning)
             {
@@ -85,8 +87,9 @@ namespace OpenSage.Network
 
                 _processor.Write(writer, new LobbyBroadcastPacket()
                 {
+                    ProcessId = processId,
                     Username = Username,
-                    IsHosting = false
+                    IsHosting = _game.SkirmishManager.IsHosting,
                 });
 
                 _manager.PollEvents();
@@ -118,12 +121,13 @@ namespace OpenSage.Network
         {
             Logger.Trace($"Received {nameof(LobbyBroadcastPacket)} from { endPoint }.");
 
-            var player = _players.FirstOrDefault(p => p.EndPoint.Equals(endPoint));
+            var player = _players.FirstOrDefault(p => p.EndPoint.Equals(endPoint) && p.ProcessId == packet.ProcessId);
             if (player == null)
             {
                 player = new LobbyPlayer()
                 {
-                    EndPoint = endPoint
+                    EndPoint = endPoint,
+                    ProcessId = packet.ProcessId
                 };
 
                 _players.Add(player);
