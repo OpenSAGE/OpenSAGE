@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace OpenSage.Mathematics
@@ -17,6 +18,8 @@ namespace OpenSage.Mathematics
 
         private static readonly Vector3 MaxVector3 = new Vector3(float.MaxValue);
         private static readonly Vector3 MinVector3 = new Vector3(float.MinValue);
+
+        public static BoundingBox CreateFromPoints(params Vector3[] points) => CreateFromPoints(points.AsEnumerable());
 
         public static BoundingBox CreateFromPoints(IEnumerable<Vector3> points)
         {
@@ -57,6 +60,16 @@ namespace OpenSage.Mathematics
         public Vector3 GetCenter()
         {
             return (Min + Max) / 2;
+        }
+
+        public bool Contains(in Vector3 position)
+        {
+            return position.X >= Min.X &&
+                   position.Y >= Min.Y &&
+                   position.Z >= Min.Z &&
+                   position.X <= Max.X &&
+                   position.Y <= Max.Y &&
+                   position.Z <= Max.Z;
         }
 
         public PlaneIntersectionType Intersects(in Plane plane)

@@ -24,6 +24,7 @@ namespace OpenSage.Terrain.Roads
             topology.AlignOrientation();
             var edgeSegments = BuildEdgeSegments(topology);
             InsertNodeSegments(topology, edgeSegments);
+            InsertEndCapSegments(topology, edgeSegments);
             var networks = BuildNetworks(topology, edgeSegments);
 
             return networks;
@@ -74,33 +75,11 @@ namespace OpenSage.Terrain.Roads
             {
                 foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template))
                 {
-                    var template = edgesPerTemplate.Key;
-                    // possible optimization: only compute angles if necessary?
+                    var template = edgesPerTemplate.Key;                    
                     var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate);
 
                     switch (edgesPerTemplate.Count())
                     {
-                        case 1:
-                            bool hasEndCap;
-                            var edge = node.Edges[0];
-
-                            // single edges without any connected edges can only have one end cap,
-                            // even when the flag is present at both nodes
-                            if (edge.Start.Edges.Count == 1 && edge.End.Edges.Count == 1 && edge.StartType.HasFlag(RoadType.EndCap) && edge.StartType.HasFlag(RoadType.EndCap))
-                            {
-                                hasEndCap = node.Position == edge.End.Position;
-                            }
-                            else
-                            {
-                                hasEndCap = node.Position == edge.Start.Position ? edge.StartType.HasFlag(RoadType.EndCap) : edge.EndType.HasFlag(RoadType.EndCap);
-                            }
-
-                            if (hasEndCap)
-                            {
-                                EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(node, edge), node.Position, template, edgeSegments);
-                            }
-
-                            break;
                         case 2:
                             CurvedRoadSegment.CreateCurve(incomingRoadData, node.Position, template, edgeSegments);
                             break;
@@ -108,6 +87,34 @@ namespace OpenSage.Terrain.Roads
                         case 4:
                             CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, template, edgeSegments);
                             break;
+                    }
+                }
+            }
+        }
+
+        private static void InsertEndCapSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        {
+            foreach (var node in topology.Nodes)
+            {
+                // check all edges without neighbors of the same template (where the node has only one edge)
+                foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template).Where(g => g.Count() == 1))
+                {
+                    bool hasEndCap;
+                    var edge = node.Edges[0];
+
+                    // single edges without any connected edges can only have one end cap, even when the flag is present at both nodes
+                    if (edge.Start.Edges.Count == 1 && edge.End.Edges.Count == 1 && edge.StartType.HasFlag(RoadType.EndCap) && edge.StartType.HasFlag(RoadType.EndCap))
+                    {
+                        hasEndCap = node.Position == edge.End.Position;
+                    }
+                    else
+                    {
+                        hasEndCap = node.Position == edge.Start.Position ? edge.StartType.HasFlag(RoadType.EndCap) : edge.EndType.HasFlag(RoadType.EndCap);
+                    }
+
+                    if (hasEndCap)
+                    {
+                        EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(node, edge), node.Position, edgesPerTemplate.Key, edgeSegments);
                     }
                 }
             }
