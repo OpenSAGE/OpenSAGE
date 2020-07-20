@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -79,8 +80,26 @@ namespace OpenSage.Terrain.Roads
 
                     switch (edgesPerTemplate.Count())
                     {
-                        // TODO support end caps
-                        case 1: // end point
+                        case 1:
+                            bool hasEndCap;
+                            var edge = node.Edges[0];
+
+                            // single edges without any connected edges can only have one end cap,
+                            // even when the flag is present at both nodes
+                            if (edge.Start.Edges.Count == 1 && edge.End.Edges.Count == 1 && edge.StartType.HasFlag(RoadType.EndCap) && edge.StartType.HasFlag(RoadType.EndCap))
+                            {
+                                hasEndCap = node.Position == edge.End.Position;
+                            }
+                            else
+                            {
+                                hasEndCap = node.Position == edge.Start.Position ? edge.StartType.HasFlag(RoadType.EndCap) : edge.EndType.HasFlag(RoadType.EndCap);
+                            }
+
+                            if (hasEndCap)
+                            {
+                                EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(node, edge), node.Position, template, edgeSegments);
+                            }
+
                             break;
                         case 2:
                             CurvedRoadSegment.CreateCurve(incomingRoadData, node.Position, template, edgeSegments);
@@ -101,20 +120,6 @@ namespace OpenSage.Terrain.Roads
                 return Array.Empty<IncomingRoadData>();
             }
 
-            IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
-            {
-                var isStart = incomingEdge.Start.Position == node.Position;
-                var targetNodePosition = isStart ? incomingEdge.End.Position : incomingEdge.Start.Position;
-                var roadVector = targetNodePosition - node.Position;
-                var direction = roadVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(roadVector);
-
-                return new IncomingRoadData(
-                    incomingEdge,
-                    targetNodePosition,
-                    direction,
-                    MathF.Atan2(direction.Y, direction.X));
-            }
-
             var incomingRoads = edges
                 .Select(e => GetIncomingRoadData(node, e))
                 .OrderBy(d => d.AngleToAxis)
@@ -130,6 +135,20 @@ namespace OpenSage.Terrain.Roads
             incomingRoads[0].AngleToPreviousEdge = 2 * MathF.PI + incomingRoads[0].AngleToAxis - incomingRoads[incomingRoads.Count - 1].AngleToAxis;
 
             return incomingRoads;
+        }
+
+        private static IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
+        {
+            var isStart = incomingEdge.Start.Position == node.Position;
+            var targetNodePosition = isStart ? incomingEdge.End.Position : incomingEdge.Start.Position;
+            var roadVector = targetNodePosition - node.Position;
+            var direction = roadVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(roadVector);
+
+            return new IncomingRoadData(
+                incomingEdge,
+                targetNodePosition,
+                direction,
+                MathF.Atan2(direction.Y, direction.X));
         }
 
         private static IList<RoadNetwork> BuildNetworks(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
