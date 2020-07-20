@@ -376,9 +376,12 @@ namespace OpenSage.Terrain.Roads
 
     internal sealed class EndCapRoadSegmentMesher : RoadSegmentMesher
     {
-        public EndCapRoadSegmentMesher(IRoadSegment segment, RoadTemplate template) :
+        private readonly float _joinAngle;
+
+        public EndCapRoadSegmentMesher(IRoadSegment segment, RoadTemplate template, float joinAngle) :
             base(segment, template)
         {
+            _joinAngle = joinAngle;
         }
 
         public override void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
@@ -386,7 +389,9 @@ namespace OpenSage.Terrain.Roads
             // this should probably consider RoadWidthInTexture, but it doesn't in the original engine
             var endCapWidthWhenNotJoiningOtherRoad = Template.RoadWidth * 1.064f;
 
-            var halfWidth = endCapWidthWhenNotJoiningOtherRoad / 2;
+            var actualWidth = endCapWidthWhenNotJoiningOtherRoad / MathF.Cos(_joinAngle);
+
+            var halfWidth = actualWidth / 2;
 
             var startWithZ = Segment.StartPosition.WithZ(heightMap.GetHeight(Segment.StartPosition.X, Segment.StartPosition.Y) + HeightBias);
             var endWithZ = Segment.EndPosition.WithZ(heightMap.GetHeight(Segment.EndPosition.X, Segment.EndPosition.Y) + HeightBias);
