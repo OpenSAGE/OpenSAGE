@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenSage.Network
+﻿namespace OpenSage.Network
 {
     public static class Ports
     {
-        public static int LobbyScan => 8086;
-        public static int LobbyChat => 8083;
+        public const int LobbyScan = 8086;
+        public const int LobbyChat = 8083;
+        public const int SkirmishHost = 8087;
+        public const int SkirmishClient = 8088;
     }
 }

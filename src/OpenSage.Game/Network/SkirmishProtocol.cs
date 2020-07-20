@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ProtoBuf;
-using static OpenSage.Network.SkirmishManager.SkirmishSlot;
+using static OpenSage.Network.SkirmishManager_old.SkirmishSlot;
 
 namespace OpenSage.Network
 {

@@ -29,7 +29,7 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
-                                context.Game.LobbyManager.Stop();
+                                context.Game.SkirmishManager.Quit();
 
                                 //this should be called by the OnStop callback
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
@@ -52,35 +52,41 @@ namespace OpenSage.Mods.Generals.Gui
             var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
-            game.SkirmishManager.OnStop += () =>
-            {
-                //TODO: somehow make this work
-                game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-            };
+            //game.SkirmishManager.OnStop += () =>
+            //{
+            //    //TODO: somehow make this work
+            //    game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            //};
         }
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
             //TODO: update manager state to slots
-            game.SkirmishManager.Slots.ForEach(slot =>
+            foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)           
             {
-                var colorCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.id}");
+                var colorCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
                 colorCombo.SelectedIndex = slot.ColorIndex;
 
-                var teamCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxTeam{slot.id}");
-                teamCombo.SelectedIndex = slot.id;
+                var teamCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxTeam{slot.Index}");
+                teamCombo.SelectedIndex = slot.Team;
 
-                var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayerTemplate{slot.id}");
+                var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayerTemplate{slot.Index}");
                 playerTemplateCombo.SelectedIndex = slot.FactionIndex;
 
-                var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.id}");
-                //playerCombo.Text = slot.HumanName;
-                playerCombo.SelectedIndex = (int) slot.Type;
+                var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
+                if (slot.State == Network.SkirmishSlotState.Human)
+                {
+                    playerCombo.Controls[0].Text = slot.PlayerName;
+                }
+                else
+                {
+                    playerCombo.Controls[0].Text = slot.State.ToString();
+                }
+                //playerCombo.SelectedIndex = (int) slot.;
 
-                var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.id}");
+                var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
                 buttonAccepted.Visible = slot.Ready;
-            });
-
+            };
         }
 
     }

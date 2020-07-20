@@ -27,7 +27,7 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             case "SkirmishGameOptionsMenu.wnd:ButtonBack":
                                 context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
-                                _game.SkirmishManager.Stop();
+                                _game.SkirmishManager.Quit();
                                 // TODO: Go back to Single Player sub-menu
                                 break;
                         }

@@ -36,24 +36,28 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
-                            //context.Game.LobbyManager.Hosting = true;
+                            context.Game.SkirmishManager.HostGame();
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
-                            //context.Game.SkirmishManager.Host();
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
 
                             var listBoxGames = (ListBox) control.Window.Controls.FindControl(ListBoxGamesPrefix);
+
+                            if (listBoxGames.SelectedIndex < 0)
+                            {
+                                return;
+                            }
+
                             var selectedItemIndex = listBoxGames.SelectedIndex;
                             var selectedItem = listBoxGames.Items[selectedItemIndex];
 
-                            var dataItem = (KeyValuePair<IPEndPoint, LobbyPlayer>) selectedItem.DataItem;
+                            var player = (LobbyPlayer)selectedItem.DataItem;
 
-                            var endpoint = dataItem.Key;
+                            logger.Info($"Requesting to join {player.EndPoint}");
 
-                            logger.Info($"Requesting to join {endpoint}");
+                            context.Game.SkirmishManager.JoinGame(player.EndPoint);
 
-                            context.Game.SkirmishManager.Join(endpoint);
-                            // TODO: Connect to the currently selected game
+                            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "LanLobbyMenu.wnd:ButtonDirectConnect":
                             context.WindowManager.SetWindow(@"Menus\NetworkDirectConnect.wnd");
