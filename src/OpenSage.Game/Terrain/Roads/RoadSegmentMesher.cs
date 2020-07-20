@@ -7,19 +7,10 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain.Roads
 {
-    internal class InsertPosition
-    {
-        public Vector3 Position { get; set; }
-        public Vector3 Normal { get; set; }
-        public float RelativeProgress { get; set; }
-        public float DistanceAlongRoad { get; set; }
-        public Vector3 TopPosition { get; set; }
-        public Vector3 BottomPosition { get; set; }
-    }
-
-
     internal abstract class RoadSegmentMesher
     {
+        protected const float HeightBias = 0.1f;
+
         protected RoadSegmentMesher(IRoadSegment segment, RoadTemplate template)
         {
             Segment = segment;
@@ -39,6 +30,39 @@ namespace OpenSage.Terrain.Roads
         protected Vector3 DirectionNormalNoZ { get; }
         protected TextureCoordinates TextureBounds { get; }
 
+        public abstract void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices);
+
+        protected void GenerateTriangles(int initialVertexCount, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
+        {
+            for (var i = initialVertexCount; i < vertices.Count - 2; i += 2)
+            {
+                indices.Add((ushort) (i + 0));
+                indices.Add((ushort) (i + 1));
+                indices.Add((ushort) (i + 3));
+
+                indices.Add((ushort) (i + 0));
+                indices.Add((ushort) (i + 2));
+                indices.Add((ushort) (i + 3));
+            }
+        }
+    }
+
+    internal abstract class TerrainAwareRoadSegmentMesher : RoadSegmentMesher
+    {
+        protected sealed class InsertPosition
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Normal { get; set; }
+            public float RelativeProgress { get; set; }
+            public float DistanceAlongRoad { get; set; }
+            public Vector3 TopPosition { get; set; }
+            public Vector3 BottomPosition { get; set; }
+        }
+
+        protected TerrainAwareRoadSegmentMesher(IRoadSegment segment, RoadTemplate template) : base(segment, template)
+        {
+        }
+
         // helper method used by crossings and straight roads
         protected (float midV, float vOffset) GetVFromAxisAlignedBoundingBox()
         {
@@ -54,16 +78,16 @@ namespace OpenSage.Terrain.Roads
         protected Vector3 GetNeighborNormal(RoadSegmentEndPoint neighbor, bool atEnd)
         {
             var neighborDirection = (atEnd ? -1 : 1) * neighbor?.IncomingDirection ?? Vector3.Zero;
-            return Vector3.Cross(Vector3.Normalize(neighborDirection.WithZ(0)), Vector3.UnitZ);            
+            return Vector3.Cross(Vector3.Normalize(neighborDirection.WithZ(0)), Vector3.UnitZ);
         }
 
-        public void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
+        public override void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
         {
             // let the derived classes do some initializations
             Prepare();
 
-            // remember which vercies were already there
-            var initialVertexCount = vertices.Count;            
+            // remember which vertices were already there
+            var initialVertexCount = vertices.Count;
 
             // for a given spot along rendering the road, generate the border vertices on both sides of the road
             void AddVertexPair(InsertPosition insertPos)
@@ -72,7 +96,7 @@ namespace OpenSage.Terrain.Roads
 
                 // let the derived classes do some decisions
                 var (uvTop, uvBottom) = GetTopBottomTextureCoordinates(insertPos.RelativeProgress, insertPos.DistanceAlongRoad);
-                
+
                 // add the border vertices                
                 vertices.Add(new RoadShaderResources.RoadVertex
                 {
@@ -89,16 +113,14 @@ namespace OpenSage.Terrain.Roads
             }
 
             var insertPositions = GenerateInsertPositions(heightMap);
-            foreach(var insertPosition in insertPositions)
+            foreach (var insertPosition in insertPositions)
             {
                 AddVertexPair(insertPosition);
             }
-            
+
             // generate triangles for the inserted vertices
             GenerateTriangles(initialVertexCount, vertices, indices);
         }
-
-
 
         protected virtual void Prepare() { }
         protected abstract Vector3 ToTopBorder(float relativeProgress);
@@ -157,7 +179,7 @@ namespace OpenSage.Terrain.Roads
 
             // get distance along road
             usefulPositions[0].DistanceAlongRoad = 0;
-            for (int i = 1; i<count; ++i)
+            for (int i = 1; i < count; ++i)
             {
                 var length = Vector3.Distance(usefulPositions[i].Position, usefulPositions[i - 1].Position);
                 usefulPositions[i].DistanceAlongRoad = usefulPositions[i - 1].DistanceAlongRoad + length;
@@ -186,8 +208,7 @@ namespace OpenSage.Terrain.Roads
             }
 
             // set z coordinate to the maximum z that was encountered along the cross section
-            const float heightBias = 0.1f;
-            maxHeight += heightBias;
+            maxHeight += HeightBias;
             pTop.Z = maxHeight;
             pBottom.Z = maxHeight;
             p.Position = p.Position.WithZ(maxHeight);
@@ -196,51 +217,9 @@ namespace OpenSage.Terrain.Roads
             p.TopPosition = pTop;
             p.BottomPosition = pBottom;
         }
-
-        private void GenerateTriangles(int initialVertexCount, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
-        {
-            for (var i = initialVertexCount; i < vertices.Count - 2; i += 2)
-            {
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 3));
-
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 2));
-                indices.Add((ushort) (i + 3));
-            }
-        }
     }
 
-    internal sealed class CrossingRoadSegmentMesher : RoadSegmentMesher
-    {
-        public CrossingRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
-            : base(segment, template)
-        {
-            HalfHeight = halfHeight;
-        }
-
-        private float HalfHeight { get; }
-
-        protected override Vector3 ToTopBorder(float relativeProgress)
-        {
-            return HalfHeight * DirectionNormalNoZ;
-        }
-
-        protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
-        {
-            var (v, vOffset) = GetVFromAxisAlignedBoundingBox();
-
-            //for crossing: texture should stretch to the base mesh -> interpolate the boundary values
-            var u = MathUtility.Lerp(TextureBounds.BottomLeft.X, TextureBounds.BottomRight.X, relativeProgress);
-            var uvTop = new Vector2(u, v + vOffset);
-            var uvBottom = new Vector2(u, v - vOffset);
-            return (uvTop, uvBottom);
-        }
-
-    }
-
-    internal abstract class SimpleRoadSegmentMesher : RoadSegmentMesher
+    internal abstract class SimpleRoadSegmentMesher : TerrainAwareRoadSegmentMesher
     {
         public SimpleRoadSegmentMesher(IRoadSegment segment, RoadTemplate template)
             : base(segment, template)
@@ -298,8 +277,9 @@ namespace OpenSage.Terrain.Roads
             var neighborNormal = GetNeighborNormal(neighbor, atEnd);
             var toCornerDirection = neighbor.To switch
             {
-                null => DirectionNormalNoZ,                          // if I have no neighbor, use my own normal
-                CrossingRoadSegment _ => neighborNormal,                         // if my neighbor is an unflexible crossing, use its normal
+                null => DirectionNormalNoZ,                                      // if I have no neighbor, use my own normal
+                CrossingRoadSegment _ => neighborNormal,                         // if my neighbor is an unflexible crossing
+                EndCapRoadSegment _ => neighborNormal,                           // or end cap, use its normal
                 _ => Vector3.Normalize(DirectionNormalNoZ + neighborNormal) / 2, // otherwise, meet in the middle
             };
 
@@ -326,7 +306,7 @@ namespace OpenSage.Terrain.Roads
         {
             var (v, vOffset) = GetVFromAxisAlignedBoundingBox();
 
-            // for roads: the road segment we are meshing may be much longer or shorter than the texture road length,
+            // for straight roads: the road segment we are meshing may be much longer or shorter than the texture road length,
             // so stretching the texture on each segment would look odd -> repeat it instead
             var u = distanceAlongRoad / TextureRoadLength;
 
@@ -337,7 +317,6 @@ namespace OpenSage.Terrain.Roads
             return (uvTop, uvBottom);
         }
     }
-
 
     internal sealed class CurvedRoadSegmentMesher : SimpleRoadSegmentMesher
     {
@@ -364,6 +343,83 @@ namespace OpenSage.Terrain.Roads
             var top = Vector2.Lerp(TextureBounds.TopLeft, TextureBounds.TopRight, relativeProgress);
             var bottom = Vector2.Lerp(TextureBounds.BottomLeft, TextureBounds.BottomRight, relativeProgress);
             return (top, bottom);
+        }
+    }
+
+    internal sealed class CrossingRoadSegmentMesher : TerrainAwareRoadSegmentMesher
+    {
+        public CrossingRoadSegmentMesher(IRoadSegment segment, float halfHeight, RoadTemplate template)
+            : base(segment, template)
+        {
+            HalfHeight = halfHeight;
+        }
+
+        private float HalfHeight { get; }
+
+        protected override Vector3 ToTopBorder(float relativeProgress)
+        {
+            return HalfHeight * DirectionNormalNoZ;
+        }
+
+        protected override (Vector2 top, Vector2 bottom) GetTopBottomTextureCoordinates(float relativeProgress, float distanceAlongRoad)
+        {
+            var (v, vOffset) = GetVFromAxisAlignedBoundingBox();
+
+            //for crossing: texture should stretch to the base mesh -> interpolate the boundary values
+            var u = MathUtility.Lerp(TextureBounds.BottomLeft.X, TextureBounds.BottomRight.X, relativeProgress);
+            var uvTop = new Vector2(u, v + vOffset);
+            var uvBottom = new Vector2(u, v - vOffset);
+            return (uvTop, uvBottom);
+        }
+
+    }
+
+    internal sealed class EndCapRoadSegmentMesher : RoadSegmentMesher
+    {
+        public EndCapRoadSegmentMesher(IRoadSegment segment, RoadTemplate template) :
+            base(segment, template)
+        {
+        }
+
+        public override void GenerateMesh(HeightMap heightMap, List<RoadShaderResources.RoadVertex> vertices, List<ushort> indices)
+        {
+            // this should probably consider RoadWidthInTexture, but it doesn't in the original engine
+            var endCapWidthWhenNotJoiningOtherRoad = Template.RoadWidth * 1.064f;
+
+            var halfWidth = endCapWidthWhenNotJoiningOtherRoad / 2;
+
+            var startWithZ = Segment.StartPosition.WithZ(heightMap.GetHeight(Segment.StartPosition.X, Segment.StartPosition.Y) + HeightBias);
+            var endWithZ = Segment.EndPosition.WithZ(heightMap.GetHeight(Segment.EndPosition.X, Segment.EndPosition.Y) + HeightBias);
+
+            vertices.Add(new RoadShaderResources.RoadVertex
+            {
+                Position = startWithZ + DirectionNormalNoZ * halfWidth,
+                Normal = Vector3.UnitZ,
+                UV = TextureBounds.TopRight
+            });
+
+            vertices.Add(new RoadShaderResources.RoadVertex
+            {
+                Position = startWithZ - DirectionNormalNoZ * halfWidth,
+                Normal = Vector3.UnitZ,
+                UV = TextureBounds.BottomRight
+            });
+
+            vertices.Add(new RoadShaderResources.RoadVertex
+            {
+                Position = endWithZ + DirectionNormalNoZ * halfWidth,
+                Normal = Vector3.UnitZ,
+                UV = TextureBounds.TopLeft
+            });
+
+            vertices.Add(new RoadShaderResources.RoadVertex
+            {
+                Position = endWithZ - DirectionNormalNoZ * halfWidth,
+                Normal = Vector3.UnitZ,
+                UV = TextureBounds.BottomLeft
+            });
+
+            GenerateTriangles(vertices.Count - 4, vertices, indices);
         }
     }
 }
