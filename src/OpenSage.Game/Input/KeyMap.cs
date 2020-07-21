@@ -17,7 +17,7 @@ namespace OpenSage.Input
                 case Key.Minus:
                     return '-';
                 case Key k when k >= Key.Number0 && k <= Key.Number9:
-                    return (k - Key.Number0).ToString()[0];
+                    return (char)('0' + (k - Key.Number0));
                 default:
                     return '\0';
             }      
