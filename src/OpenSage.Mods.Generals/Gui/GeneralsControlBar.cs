@@ -326,23 +326,30 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.SpecialPower:
                                     {
-                                        var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
-                                        var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
-                                                         || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
-                                                         || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
                                         var name = commandButton.SpecialPower;
                                         var specialPower = context.Game.AssetStore.SpecialPowers.GetByName(name);
-                                        if(needsPos)
+                                        if (commandButton.Options != null)
                                         {
-                                            context.Game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
-                                        }
-                                        else if(needsObject)
-                                        {
-                                            context.Game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                            var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
+                                            var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
+                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
+                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+
+                                            if (needsPos)
+                                            {
+                                                context.Game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
+                                            }
+                                            else if (needsObject)
+                                            {
+                                                context.Game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                            }
                                         }
                                         else
                                         {
                                             order = CreateOrder(OrderType.SpecialPower);
+                                            order.AddIntegerArgument(specialPower.InternalId);
+                                            order.AddIntegerArgument(0);
+                                            order.AddObjectIdArgument(0);
                                         }
                                     }
                                     break;

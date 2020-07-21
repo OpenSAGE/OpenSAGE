@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -186,6 +187,10 @@ namespace OpenSage.Logic.Orders
                             logger.Error(e, "Error while setting rallypoint");
                         }
                         break;
+                    case OrderType.SpecialPower:
+                    case OrderType.SpecialPowerAtLocation:
+                    case OrderType.SpecialPowerAtObject:
+                        throw new NotImplementedException();
 
                     case OrderType.Unknown27:
                         _game.EndGame();
