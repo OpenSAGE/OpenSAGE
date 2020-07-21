@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -19,6 +18,61 @@ namespace OpenSage.Data.Map
         public bool Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
+
+        internal void ReadFromSaveFile(BinaryReader reader)
+        {
+            var version = reader.ReadByte();
+
+            BuildingName = reader.ReadBytePrefixedAsciiString();
+            Name = reader.ReadBytePrefixedAsciiString();
+            Position = reader.ReadVector3();
+
+            var unknown1 = reader.ReadUInt32();
+            if (unknown1 != 0u)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown2 = reader.ReadUInt32();
+            if (unknown2 != 0u)
+            {
+                throw new InvalidDataException();
+            }
+
+            Angle = reader.ReadSingle();
+
+            var unknown3 = reader.ReadBooleanChecked();
+
+            var unknown4 = reader.ReadByte();
+            if (unknown4 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown5 = reader.ReadUInt32();
+            if (unknown5 != 0u)
+            {
+                throw new InvalidDataException();
+            }
+
+            StartingHealth = reader.ReadUInt32();
+
+            var unknown6 = reader.ReadBooleanChecked();
+            var unknown7 = reader.ReadBooleanChecked();
+            var unknown8 = reader.ReadBooleanChecked();
+            var unknown9 = reader.ReadBooleanChecked();
+            var unknown10 = reader.ReadUInt32();
+            var unknown11 = reader.ReadUInt32();
+
+            for (var i = 0; i < 51; i++)
+            {
+                var unknown12 = reader.ReadByte();
+                if (unknown12 != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)
         {
