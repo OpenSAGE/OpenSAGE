@@ -1,5 +1,7 @@
-﻿using OpenSage.Gui.Wnd;
+﻿using System.Net;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -8,6 +10,7 @@ namespace OpenSage.Mods.Generals.Gui
     {
         private const string StaticLocalIPPrefix = "NetworkDirectConnect.wnd:StaticLocalIP";
         private const string EditPlayerNamePrefix = "NetworkDirectConnect.wnd:EditPlayerName";
+        private const string ComboboxRemoteIPPrefix = "NetworkDirectConnect.wnd:ComboboxRemoteIP";
 
         public static void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -24,7 +27,12 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "NetworkDirectConnect.wnd:ButtonJoin":
+                            var comboboxRemoteIp = (ComboBox) control.Window.Controls.FindControl(ComboboxRemoteIPPrefix);
+                            var text = comboboxRemoteIp.Controls[0].Text;
                             // TODO: Connect to the currently selected game
+                            var endPoint = new IPEndPoint(IPAddress.Parse(text), Ports.SkirmishHost);
+                            context.Game.SkirmishManager.JoinGame(endPoint);
+                            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                     }
                     break;

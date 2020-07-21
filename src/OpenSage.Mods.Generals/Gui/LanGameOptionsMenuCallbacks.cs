@@ -49,7 +49,7 @@ namespace OpenSage.Mods.Generals.Gui
             GameOptions = new GameOptionsUtil(window, game, "Lan");
 
             // Clear chat field
-            var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
+            var textChat = (TextBox)window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
             //game.SkirmishManager.OnStop += () =>
@@ -62,18 +62,21 @@ namespace OpenSage.Mods.Generals.Gui
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
             //TODO: update manager state to slots
-            foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)           
+            foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
-                var colorCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
-                colorCombo.SelectedIndex = slot.ColorIndex;
+                var colorCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
+                if (colorCombo.SelectedIndex != slot.ColorIndex)
+                    colorCombo.SelectedIndex = slot.ColorIndex;
 
-                var teamCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxTeam{slot.Index}");
-                teamCombo.SelectedIndex = slot.Team;
+                var teamCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxTeam{slot.Index}");
+                if (teamCombo.SelectedIndex != slot.Team)
+                    teamCombo.SelectedIndex = slot.Team;
 
-                var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayerTemplate{slot.Index}");
-                playerTemplateCombo.SelectedIndex = slot.FactionIndex;
+                var playerTemplateCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayerTemplate{slot.Index}");
+                if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
+                    playerTemplateCombo.SelectedIndex = slot.FactionIndex;
 
-                var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
+                var playerCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
                 if (slot.State == Network.SkirmishSlotState.Human)
                 {
                     playerCombo.Controls[0].Text = slot.PlayerName;
@@ -84,8 +87,9 @@ namespace OpenSage.Mods.Generals.Gui
                 }
                 //playerCombo.SelectedIndex = (int) slot.;
 
-                var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
-                buttonAccepted.Visible = slot.Ready;
+                var buttonAccepted = (Button)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
+                if (buttonAccepted.Visible != slot.Ready)
+                    buttonAccepted.Visible = slot.Ready;
             };
         }
 
