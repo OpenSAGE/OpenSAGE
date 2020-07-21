@@ -10,12 +10,14 @@ namespace OpenSage.Input
             {
                 case Key k when k >= Key.A && k <= Key.Z:
                     return k.ToString().ToLower()[0];
+                case Key.Period:
+                    return '.';
                 case Key.Space:
                     return ' ';
                 case Key.Minus:
                     return '-';
                 case Key k when k >= Key.Number0 && k <= Key.Number9:
-                    return (char)(k - Key.Number0);
+                    return (k - Key.Number0).ToString()[0];
                 default:
                     return '\0';
             }      
