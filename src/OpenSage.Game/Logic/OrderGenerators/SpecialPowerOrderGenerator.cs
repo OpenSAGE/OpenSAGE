@@ -9,11 +9,19 @@ using OpenSage.Logic.Orders;
 
 namespace OpenSage.Logic.OrderGenerators
 {
+    public enum SpecialPowerTarget
+    {
+        Location,
+        AllyObject,
+        EnemyObject,
+        NeutralObject,
+    };
+
     public sealed class SpecialPowerOrderGenerator : IOrderGenerator, IDisposable
     {
         private readonly SpecialPower _specialPower;
-        private readonly int _definitionIndex;
         private readonly GameData _config;
+        private readonly SpecialPowerTarget _target;
         private readonly Scene3D _scene;
 
         private float _angle;
@@ -26,9 +34,11 @@ namespace OpenSage.Logic.OrderGenerators
            GameData config,
            Player player,
            GameContext gameContext,
+           SpecialPowerTarget target,
            Scene3D scene)
         {
             _specialPower = specialPower;
+            _target = target;
             _scene = scene;
             _config = config;
         }
@@ -49,8 +59,15 @@ namespace OpenSage.Logic.OrderGenerators
         {
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
-            var specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, _position);
-
+            Order specialPowerOrder = null;
+            if (_target == SpecialPowerTarget.Location)
+            {
+                specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, _position);
+            }
+            else
+            {
+                specialPowerOrder = Order.CreateSpecialPowerAtObject(playerIdx, _specialPower.InternalId);
+            }
             return OrderGeneratorResult.SuccessAndExit(new[] { specialPowerOrder });
         }
 

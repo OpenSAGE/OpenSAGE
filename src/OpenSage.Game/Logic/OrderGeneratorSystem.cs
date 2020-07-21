@@ -102,7 +102,7 @@ namespace OpenSage.Logic
                         order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, true);
                     }
                     else
-                    { 
+                    {
                         order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
                     }
                 }
@@ -178,14 +178,17 @@ namespace OpenSage.Logic
         {
             var gameData = Game.AssetStore.GameData.Current;
 
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D);
         }
 
         public void StartSpecialPowerAtObject(SpecialPower specialPower)
         {
             var gameData = Game.AssetStore.GameData.Current;
 
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
+            //TODO: pass the right target type
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D);
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)
