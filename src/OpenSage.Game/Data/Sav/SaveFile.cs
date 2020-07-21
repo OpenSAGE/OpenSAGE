@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -366,7 +367,29 @@ namespace OpenSage.Data.Sav
 
                                     var transform = reader.ReadMatrix4x3Transposed();
 
-                                    reader.ReadBytes(62);
+                                    var unknownBool = reader.ReadBooleanChecked();
+                                    var unknownBool2 = reader.ReadBooleanChecked();
+                                    if (unknownBool)
+                                    {
+                                        for (var j = 0; j < 9; j++)
+                                        {
+                                            reader.ReadSingle();
+                                        }
+                                        reader.ReadBytes(19);
+                                    }
+
+                                    reader.ReadBytes(56);
+
+                                    var unknownBool3 = reader.ReadBooleanChecked();
+                                    if (unknownBool3)
+                                    {
+                                        for (var j = 0; j < 19; j++)
+                                        {
+                                            reader.ReadSingle();
+                                        }
+                                    }
+
+                                    reader.ReadBytes(3);
 
                                     var numModules = reader.ReadUInt16();
                                     for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
@@ -379,7 +402,8 @@ namespace OpenSage.Data.Sav
                                     reader.ReadBytes(82);
                                 }
 
-                                //stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                                reader.ReadBytes(5);
+
                                 break;
                             }
 
