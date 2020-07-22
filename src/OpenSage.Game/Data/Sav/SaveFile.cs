@@ -23,6 +23,8 @@ namespace OpenSage.Data.Sav
                 var chunkHeaders = new List<SaveChunkHeader>();
                 var chunkHeader = SaveChunkHeader.Parse(reader);
 
+                MapFile map = null;
+
                 while (!chunkHeader.IsEof)
                 {
                     chunkHeaders.Add(chunkHeader);
@@ -68,7 +70,7 @@ namespace OpenSage.Data.Sav
 
                             var mapFileSize = reader.ReadUInt32();
                             var mapEnd = stream.Position + mapFileSize;
-                            var map = MapFile.FromStream(stream);
+                            map = MapFile.FromStream(stream);
 
                             // This seems to be aligned, so it's sometimes more than what we just read.
                             stream.Seek(mapEnd, SeekOrigin.Begin);
@@ -316,8 +318,18 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_SidesList":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-                            break;
+                            {
+                                var numSides = reader.ReadUInt32();
+                                for (var i = 0; i < numSides; i++)
+                                {
+                                    var something = reader.ReadBooleanChecked();
+                                    if (something)
+                                    {
+                                        reader.ReadBytes(5);
+                                    }
+                                }
+                                break;
+                            }
 
                         case "CHUNK_TacticalView":
                             {
@@ -408,19 +420,45 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_InGameUI":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                            reader.ReadBytes(15);
                             break;
 
                         case "CHUNK_Partition":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-                            break;
+                            {
+                                var partitionCellSize = reader.ReadSingle();
+                                var count = reader.ReadUInt32();
+                                for (var i = 0; i < count; i++)
+                                {
+                                    reader.ReadBytes(65);
+                                }
+                                var someOtherCount = reader.ReadUInt32();
+                                for (var i = 0; i < someOtherCount; i++)
+                                {
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadUInt16();
+                                    reader.ReadUInt32();
+                                }
+                                break;
+                            }
 
                         case "CHUNK_TerrainVisual":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                            reader.ReadBytes(6);
+                            for (var i = 0; i < map.HeightMapData.Area; i++)
+                            {
+                                var unknown = reader.ReadByte();
+                                if (unknown != 0x10)
+                                {
+                                    throw new InvalidDataException();
+                                }
+                            }
                             break;
 
                         case "CHUNK_GhostObject":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                            reader.ReadBytes(143);
                             break;
 
                         default:
