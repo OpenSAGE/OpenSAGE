@@ -602,7 +602,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
     internal readonly struct ParticleColorKeyframe : IParticleKeyframe
     {
-        public long Time { get; }
+        public uint Time { get; }
         public readonly Vector3 Color;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)
@@ -610,10 +610,16 @@ namespace OpenSage.Graphics.ParticleSystems
             Time = keyframe.Time;
             Color = keyframe.Color.ToVector3();
         }
+
+        public ParticleColorKeyframe(uint time, in Vector3 color)
+        {
+            Time = time;
+            Color = color;
+        }
     }
 
     internal interface IParticleKeyframe
     {
-        long Time { get; }
+        uint Time { get; }
     }
 }
