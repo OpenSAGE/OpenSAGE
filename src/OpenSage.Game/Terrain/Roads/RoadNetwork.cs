@@ -19,15 +19,23 @@ namespace OpenSage.Terrain.Roads
             _segments = new List<IRoadSegment>();
         }
 
-        public static IList<RoadNetwork> BuildNetworks(RoadTopology topology)
+        public static IEnumerable<RoadNetwork> BuildNetworks(RoadTopology topology, RoadTemplateList roadTemplateList)
         {
             topology.AlignOrientation();
             var edgeSegments = BuildEdgeSegments(topology);
             InsertNodeSegments(topology, edgeSegments);
-            InsertEndCapSegments(topology, edgeSegments);
+            InsertEndCapSegments(edgeSegments, roadTemplateList);
             var networks = BuildNetworks(topology, edgeSegments);
 
-            return networks;
+            // sort networks in the order specified by roadTemplateList
+            var sortedNetworks = roadTemplateList
+                .Join(
+                    networks,
+                    t => t.InstanceId,
+                    n => n.Template.InstanceId,
+                    (t, n) => n);                
+
+            return sortedNetworks;
         }
 
         private static IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> BuildEdgeSegments(RoadTopology topology)
@@ -92,30 +100,22 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static void InsertEndCapSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        private static void InsertEndCapSegments(IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments, RoadTemplateList roadTemplateList)
         {
-            foreach (var node in topology.Nodes)
+            foreach (var edge in edgeSegments.Reverse())
             {
-                // check all edges without neighbors of the same template (where the node has only one edge)
-                foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template).Where(g => g.Count() == 1))
+                // the end cap flag is only relevant when the edge is not connected to another edge on this end
+                bool hasEndCapAtStart = edge.Key.StartType.HasFlag(RoadType.EndCap) && edge.Value.Start.To == null;
+                bool hasEndCapAtEnd = edge.Key.EndType.HasFlag(RoadType.EndCap) && edge.Value.End.To == null;
+
+                // single edges without any connected edges can only have one end cap (at the end position), even when the flag is present at both nodes
+                if (hasEndCapAtEnd)
                 {
-                    bool hasEndCap;
-                    var edge = node.Edges[0];
-
-                    // single edges without any connected edges can only have one end cap, even when the flag is present at both nodes
-                    if (edge.Start.Edges.Count == 1 && edge.End.Edges.Count == 1 && edge.StartType.HasFlag(RoadType.EndCap) && edge.StartType.HasFlag(RoadType.EndCap))
-                    {
-                        hasEndCap = node.Position == edge.End.Position;
-                    }
-                    else
-                    {
-                        hasEndCap = node.Position == edge.Start.Position ? edge.StartType.HasFlag(RoadType.EndCap) : edge.EndType.HasFlag(RoadType.EndCap);
-                    }
-
-                    if (hasEndCap)
-                    {
-                        EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(node, edge), node.Position, edgesPerTemplate.Key, edgeSegments);
-                    }
+                    EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(edge.Key.End, edge.Key), edge.Value.EndPosition, edge.Key.Template, edgeSegments, roadTemplateList);
+                }
+                else if (hasEndCapAtStart)
+                {
+                    EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(edge.Key.Start, edge.Key), edge.Value.StartPosition, edge.Key.Template, edgeSegments, roadTemplateList);
                 }
             }
         }

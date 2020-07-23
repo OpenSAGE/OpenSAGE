@@ -34,24 +34,11 @@ namespace OpenSage.Terrain.Roads
 
             // An edge can only exist in one network.
 
-            // TODO: If a node stored in the map has > 4 edges, the extra edges
-            // are put into a separate network.
+            var roadTemplateList = new RoadTemplateList(loadContext.AssetStore.RoadTemplates);
 
-            var networks = RoadNetwork.BuildNetworks(topology);
+            var networks = RoadNetwork.BuildNetworks(topology, roadTemplateList);
 
-            // Roads of different types are rendered in reverse template order:
-            // the first template has the lowest z-index, the last one the highest.
-            // Since we don't know the index here we start with the templates,
-            // join them with the networks and reverse the result.
-            var sortedNetworks = loadContext.AssetStore.RoadTemplates
-                .Join(
-                    networks,
-                    t => t.InstanceId,
-                    n => n.Template.InstanceId,
-                    (t, n) => n)
-                .Reverse();
-
-            foreach (var network in sortedNetworks)
+            foreach (var network in networks)
             {
                 _roads.Add(AddDisposable(new Road(
                         loadContext,

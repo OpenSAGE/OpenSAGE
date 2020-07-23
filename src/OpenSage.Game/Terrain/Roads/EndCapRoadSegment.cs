@@ -8,27 +8,28 @@ namespace OpenSage.Terrain.Roads
 {
     internal sealed class EndCapRoadSegment : IRoadSegment
     {
-        internal class EndCapData
+        internal class EndCapInfo
         {
-            public EndCapData(float angle, in Vector3 incomingDirection, float? squaredNormalDistanceFromJoinedSegment)
+            public EndCapInfo(float angle, in Vector3 incomingDirection, RoadTemplate joinedTemplate, float? squaredNormalDistanceFromJoinedSegment)
             {
                 Angle = angle;
                 IncomingDirection = incomingDirection;
+                JoinedTemplate = joinedTemplate;
                 SquaredNormalDistanceFromJoinedSegment = squaredNormalDistanceFromJoinedSegment;
             }
 
             public float Angle { get; }
-            public Vector3 IncomingDirection { get; }         
+            public Vector3 IncomingDirection { get; }
+            public RoadTemplate JoinedTemplate { get; }
             public float? SquaredNormalDistanceFromJoinedSegment { get; }
-            public bool DoesJoinOtherSegment => SquaredNormalDistanceFromJoinedSegment.HasValue;
         }
 
-        public EndCapRoadSegment(RoadSegmentEndPoint endPoint, in Vector3 startPosition, in Vector3 endPosition, EndCapData data)
+        public EndCapRoadSegment(RoadSegmentEndPoint endPoint, in Vector3 startPosition, in Vector3 endPosition, EndCapInfo info)
         {
             EndPoint = endPoint;
             StartPosition = startPosition;
             EndPosition = endPosition;
-            Data = data;
+            Info = info;
         }
 
         public Vector3 StartPosition { get; }
@@ -49,18 +50,19 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        public EndCapData Data { get; }
+        public EndCapInfo Info { get; }
 
         public RoadSegmentMesher CreateMesher(RoadTemplate template)
         {
-            return new EndCapRoadSegmentMesher(this, template, Data.Angle);
+            return new EndCapRoadSegmentMesher(this, template, Info.Angle);
         }
 
         public static void CreateEndCap(
             IncomingRoadData incomingRoadData,
             Vector3 position,
             RoadTemplate template,
-            IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+            IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments,
+            RoadTemplateList roadTemplateList)
         {
             var incomingSegment = edgeSegments[incomingRoadData.TopologyEdge];
             var incomingEndPoint = incomingSegment.StartPosition == position ? incomingSegment.Start : incomingSegment.End;
@@ -72,20 +74,25 @@ namespace OpenSage.Terrain.Roads
                                             orderby result.SquaredNormalDistanceFromJoinedSegment
                                             select result;
 
-            var endCapData = joinableRoadSegmentAngles.FirstOrDefault() ?? new EndCapData(0f, incomingRoadData.OutDirection, null);
+            var endCapInfo = joinableRoadSegmentAngles.FirstOrDefault() ?? new EndCapInfo(0f, incomingRoadData.OutDirection, default, default);
+
+            if (endCapInfo.JoinedTemplate != null)
+            {
+                roadTemplateList.HandleRoadJoin(template, endCapInfo.JoinedTemplate);
+            }
 
             var endCapLength = template.RoadWidth * 3f / 8f;
             var overlapDistance = template.RoadWidth * 0.13f;
 
-            var startPosition = position + endCapData.IncomingDirection * overlapDistance;
-            var endPosition = startPosition - endCapData.IncomingDirection * endCapLength;
+            var startPosition = position + endCapInfo.IncomingDirection * overlapDistance;
+            var endPosition = startPosition - endCapInfo.IncomingDirection * endCapLength;
 
             var endPoint = new RoadSegmentEndPoint(position);
-            var endCap = new EndCapRoadSegment(endPoint, startPosition, endPosition, endCapData);
+            var endCap = new EndCapRoadSegment(endPoint, startPosition, endPosition, endCapInfo);
             endPoint.ConnectTo(incomingSegment, -incomingRoadData.OutDirection);
-            incomingEndPoint.ConnectTo(endCap, endCapData.IncomingDirection);
+            incomingEndPoint.ConnectTo(endCap, endCapInfo.IncomingDirection);
 
-            EndCapData CanJoin(StraightRoadSegment segment, RoadTemplate segmentTemplate)
+            EndCapInfo CanJoin(StraightRoadSegment segment, RoadTemplate segmentTemplate)
             {
                 var segmentVector = segment.EndPosition - segment.StartPosition;
                 var segmentDirection = Vector3.Normalize(segmentVector);
@@ -120,13 +127,13 @@ namespace OpenSage.Terrain.Roads
                 }
 
                 var angle = MathF.Asin(Vector3.Dot(incomingRoadData.OutDirection, segmentDirection));
-                if (MathF.Abs(angle) > MathF.PI / 4)
+                if (MathF.Abs(angle) > MathF.PI / 3)
                 {
                     return null;
                 }
 
                 var nearestPointOnSegment = segment.StartPosition + segmentDirection * signedDistanceFromStart;
-                return new EndCapData(angle, Vector3.Normalize(position - nearestPointOnSegment), squaredNormalDistance);
+                return new EndCapInfo(angle, Vector3.Normalize(position - nearestPointOnSegment), segmentTemplate, squaredNormalDistance);
             }
         }
     }
