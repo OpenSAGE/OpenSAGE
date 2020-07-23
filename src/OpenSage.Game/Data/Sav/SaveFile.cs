@@ -165,7 +165,7 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_Players":
                         {
-                            //var numPlayers = reader.ReadUInt32();
+                            var numPlayers = reader.ReadUInt32();
                             //var unknownBytes = reader.ReadBytes(47);
 
                             //var players = new PlayerState[numPlayers];
@@ -174,7 +174,7 @@ namespace OpenSage.Data.Sav
                             //    players[i] = PlayerState.Parse(reader);
                             //}
 
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                            stream.Seek(chunkHeader.DataLength - 4, SeekOrigin.Current);
                             break;
                         }
 
@@ -193,13 +193,15 @@ namespace OpenSage.Data.Sav
                                     });
                                 }
 
-                                reader.ReadByte(); // 5
-
-                                for (var objectIndex = 0; objectIndex < numGameObjects; objectIndex++)
+                                var numGameObjects2 = reader.ReadUInt32();
+                                for (var objectIndex = 0; objectIndex < numGameObjects2; objectIndex++)
                                 {
-                                    reader.ReadByte(); // 0 or 2
-                                    reader.ReadBooleanChecked(); // 1
-                                    reader.ReadBooleanChecked(); // 1
+                                    if (objectIndex > 0)
+                                    {
+                                        reader.ReadBooleanChecked(); // 0
+                                        reader.ReadBooleanChecked(); // 1
+                                        reader.ReadBooleanChecked(); // 1
+                                    }
 
                                     var objectID = reader.ReadUInt16();
 
@@ -215,7 +217,12 @@ namespace OpenSage.Data.Sav
 
                                     var transform = reader.ReadMatrix4x3Transposed();
 
-                                    var unknown8 = reader.ReadBytes(29);
+                                    var unknown8 = reader.ReadBytes(16);
+
+                                    var someString = reader.ReadBytePrefixedAsciiString(); // ChinaCommandCenter
+
+                                    var unknown8_1 = reader.ReadBytes(12);
+
                                     var unknown9 = reader.ReadSingle(); // 14
                                     var unknown10 = reader.ReadSingle(); // 12
                                     var unknown11 = reader.ReadSingle(); // 11
@@ -240,18 +247,18 @@ namespace OpenSage.Data.Sav
                                     reader.ReadBytes(16);
 
                                     var someCount = reader.ReadByte();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
                                     for (var i = 0; i < someCount; i++)
                                     {
-                                        reader.ReadUInt32();
+                                        var someString1 = reader.ReadBytePrefixedAsciiString(); // OuterPerimeter7, InnerPerimeter7
+                                        reader.ReadBooleanChecked();
+                                        reader.ReadBooleanChecked();
+                                        reader.ReadBooleanChecked();
                                     }
-                                    reader.ReadUInt32();
-                                    var someString1 = reader.ReadBytePrefixedAsciiString(); // OuterPerimeter7
-                                    reader.ReadBooleanChecked();
-                                    reader.ReadBooleanChecked();
-                                    reader.ReadBooleanChecked();
-                                    var someString2 = reader.ReadBytePrefixedAsciiString(); // InnerPerimeter7
-
-                                    reader.ReadBytes(24);
+                                    reader.ReadBytes(17);
 
                                     // Modules
                                     var numModules = reader.ReadUInt16();
@@ -280,11 +287,22 @@ namespace OpenSage.Data.Sav
                                         }
                                     }
 
-                                    reader.ReadBytes(21);
+                                    reader.ReadBytes(9);
+                                    var someCount2 = reader.ReadUInt32();
+                                    for (var i = 0; i < someCount2; i++)
+                                    {
+                                        var condition = reader.ReadBytePrefixedAsciiString();
+                                    }
+                                    reader.ReadBytes(8);
 
                                     var objectName = reader.ReadBytePrefixedAsciiString();
 
-                                    reader.ReadBytes(5);
+                                    reader.ReadBooleanChecked();
+                                    var someCount3 = reader.ReadUInt32();
+                                    for (var i = 0; i < someCount2; i++)
+                                    {
+                                        var condition = reader.ReadBytePrefixedAsciiString();
+                                    }
 
                                     // 5 possible weapons...
                                     for (var i = 0; i < 5; i++)
