@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Mathematics
+﻿using System.Globalization;
+
+namespace OpenSage.Mathematics
 {
     public readonly struct RandomVariable
     {
@@ -11,6 +13,11 @@
             Low = low;
             High = high;
             DistributionType = distributionType;
+        }
+
+        public override string ToString()
+        {
+            return $"{Low},{High} ({DistributionType})";
         }
     }
 

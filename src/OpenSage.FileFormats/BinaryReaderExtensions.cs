@@ -463,6 +463,18 @@ namespace OpenSage.FileFormats
             return new ColorRgba(r, g, b, a);
         }
 
+        public static RandomVariable ReadRandomVariable(this BinaryReader reader)
+        {
+            var distributionType = reader.ReadUInt32AsEnum<DistributionType>();
+            var low = reader.ReadSingle();
+            var high = reader.ReadSingle();
+
+            return new RandomVariable(
+                low,
+                high,
+                distributionType);
+        }
+
         public static uint Align(this BinaryReader reader, uint aligment)
         {
             var pos = reader.BaseStream.Position;

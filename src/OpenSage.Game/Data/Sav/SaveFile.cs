@@ -9,6 +9,7 @@ using System.Text;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
+using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Data.Sav
 {
@@ -196,7 +197,7 @@ namespace OpenSage.Data.Sav
 
                                 for (var objectIndex = 0; objectIndex < numGameObjects; objectIndex++)
                                 {
-                                    reader.ReadBooleanChecked(); // 0
+                                    reader.ReadByte(); // 0 or 2
                                     reader.ReadBooleanChecked(); // 1
                                     reader.ReadBooleanChecked(); // 1
 
@@ -226,10 +227,31 @@ namespace OpenSage.Data.Sav
                                     var unknown15 = reader.ReadBytes(29);
                                     var unknown16 = reader.ReadSingle(); // 360
                                     var unknown17 = reader.ReadSingle(); // 360
-                                    var unknown18 = reader.ReadBytes(86);
+                                    var unknown18 = reader.ReadBytes(84);
+
+                                    var numUpgrades = reader.ReadUInt16();
+                                    for (var i = 0; i < numUpgrades; i++)
+                                    {
+                                        var upgradeName = reader.ReadBytePrefixedAsciiString();
+                                    }
+
                                     var team = reader.ReadBytePrefixedAsciiString(); // teamPlyrAmerica
 
-                                    reader.ReadBytes(54);
+                                    reader.ReadBytes(16);
+
+                                    var someCount = reader.ReadByte();
+                                    for (var i = 0; i < someCount; i++)
+                                    {
+                                        reader.ReadUInt32();
+                                    }
+                                    reader.ReadUInt32();
+                                    var someString1 = reader.ReadBytePrefixedAsciiString(); // OuterPerimeter7
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadBooleanChecked();
+                                    var someString2 = reader.ReadBytePrefixedAsciiString(); // InnerPerimeter7
+
+                                    reader.ReadBytes(24);
 
                                     // Modules
                                     var numModules = reader.ReadUInt16();
@@ -293,21 +315,164 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_ParticleSystem":
-                        {
-                            var unknown = reader.ReadUInt32();
-                            var count = reader.ReadUInt32();
-                            for (var i = 0; i < count; i++)
                             {
-                                var name = reader.ReadBytePrefixedAsciiString();
-                                if (name != string.Empty)
+                                var unknown = reader.ReadUInt32();
+                                var count = reader.ReadUInt32();
+                                for (var i = 0; i < count; i++)
                                 {
-                                    var unknown2 = reader.ReadByte();
-
+                                    var name = reader.ReadBytePrefixedAsciiString();
+                                    if (name != string.Empty)
+                                    {
+                                        reader.ReadBytes(11);
+                                        var texture = reader.ReadBytePrefixedAsciiString();
+                                        var angleX = reader.ReadRandomVariable();
+                                        var angleY = reader.ReadRandomVariable();
+                                        var angleZ = reader.ReadRandomVariable();
+                                        var unknown1 = reader.ReadRandomVariable(); // Maybe AngularRateX, Y, Z, if same order as ini files
+                                        var unknown2 = reader.ReadRandomVariable();
+                                        var unknown3 = reader.ReadRandomVariable();
+                                        var angularDamping = reader.ReadRandomVariable();
+                                        var velocityDamping = reader.ReadRandomVariable();
+                                        var lifetime = reader.ReadRandomVariable();
+                                        var unknown4 = reader.ReadUInt32();
+                                        var size = reader.ReadRandomVariable();
+                                        var unknown5 = reader.ReadRandomVariable(); // Maybe StartSizeRate, if same order as ini files
+                                        var sizeRate = reader.ReadRandomVariable();
+                                        var sizeRateDamping = reader.ReadRandomVariable();
+                                        for (var j = 0; j < 8; j++)
+                                        {
+                                            var alphaKeyframe = RandomAlphaKeyframe.ReadFromSaveFile(reader);
+                                        }
+                                        for (var j = 0; j < 8; j++)
+                                        {
+                                            var colorKeyframe = RgbColorKeyframe.ReadFromSaveFile(reader);
+                                        }
+                                        var unknown6 = reader.ReadRandomVariable(); // Maybe ColorScale, if same order as ini files, but value doesn't match ini file
+                                        var burstDelay = reader.ReadRandomVariable();
+                                        var burstCount = reader.ReadRandomVariable();
+                                        var unknown7 = reader.ReadRandomVariable(); // Maybe InitialDelay, if same order as ini files
+                                        var unknown8 = reader.ReadVector3(); // Maybe DriftVelocity, if same order as ini files
+                                        var gravity = reader.ReadSingle();
+                                        var unknown9 = reader.ReadBytes(14);
+                                        var velocityType = reader.ReadUInt32AsEnum<ParticleVelocityType>();
+                                        var unknown10 = reader.ReadUInt32();
+                                        switch (velocityType)
+                                        {
+                                            case ParticleVelocityType.Ortho:
+                                                var velocityOrthoX = reader.ReadRandomVariable();
+                                                var velocityOrthoY = reader.ReadRandomVariable();
+                                                var velocityOrthoZ = reader.ReadRandomVariable();
+                                                break;
+                                            case ParticleVelocityType.Spherical:
+                                                var velocitySpherical = reader.ReadRandomVariable();
+                                                break;
+                                            case ParticleVelocityType.Cylindrical:
+                                                var velocityCylindricalRadial = reader.ReadRandomVariable();
+                                                var velocityCylindricalNormal = reader.ReadRandomVariable();
+                                                break;
+                                            case ParticleVelocityType.Outward:
+                                                var velocityOutward = reader.ReadRandomVariable();
+                                                var velocityOutwardOther = reader.ReadRandomVariable();
+                                                break;
+                                            default:
+                                                throw new NotImplementedException();
+                                        }
+                                        var volumeType = reader.ReadUInt32AsEnum<ParticleVolumeType>();
+                                        switch (volumeType)
+                                        {
+                                            case ParticleVolumeType.Sphere:
+                                                var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
+                                                break;
+                                            case ParticleVolumeType.Cylinder:
+                                                var volumeCylinderRadius = reader.ReadSingle();
+                                                var volumeCylinderLength = reader.ReadSingle();
+                                                break;
+                                            default:
+                                                throw new NotImplementedException();
+                                        }
+                                        var unknown11 = reader.ReadUInt32();
+                                        var windMotion = reader.ReadUInt32AsEnum<ParticleSystemWindMotion>();
+                                        var unknown12 = reader.ReadSingle();
+                                        var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
+                                        var windAngleChangeMin = reader.ReadSingle();
+                                        var windAngleChangeMax = reader.ReadSingle();
+                                        var unknown14 = reader.ReadSingle();
+                                        var windPingPongStartAngleMin = reader.ReadSingle();
+                                        var windPingPongStartAngleMax = reader.ReadSingle();
+                                        var unknown15 = reader.ReadSingle();
+                                        var windPingPongEndAngleMin = reader.ReadSingle();
+                                        var windPingPongEndAngleMax = reader.ReadSingle();
+                                        var unknown16 = reader.ReadBooleanChecked();
+                                        var unknown17 = reader.ReadUInt32();
+                                        var unknown18 = reader.ReadBytes(9);
+                                        var transform = reader.ReadMatrix4x3Transposed();
+                                        var unknown19 = reader.ReadBooleanChecked();
+                                        var transform2 = reader.ReadMatrix4x3Transposed();
+                                        var unknown20 = reader.ReadUInt32(); // Maybe _nextBurst
+                                        var unknown21 = reader.ReadUInt32();
+                                        var unknown22 = reader.ReadUInt32();
+                                        var unknown23 = reader.ReadUInt32();
+                                        var unknown24 = reader.ReadUInt32();
+                                        reader.ReadBytes(6);
+                                        for (var j = 0; j < 6; j++)
+                                        {
+                                            var unknown25 = reader.ReadSingle(); // All 1
+                                        }
+                                        reader.ReadBytes(33);
+                                        var numParticles = reader.ReadUInt32();
+                                        for (var j = 0; j < numParticles; j++)
+                                        {
+                                            var unknown26 = reader.ReadBooleanChecked();
+                                            var unknown27 = reader.ReadBooleanChecked();
+                                            var unknown28 = reader.ReadVector3();
+                                            var particlePosition = reader.ReadVector3();
+                                            var anotherPosition = reader.ReadVector3();
+                                            var particleVelocityDamping = reader.ReadSingle();
+                                            var unknown29 = reader.ReadSingle(); // 0
+                                            var unknown30 = reader.ReadSingle(); // 0
+                                            var unknown31 = reader.ReadSingle(); // 3.78, maybe AngleZ
+                                            var unknown32 = reader.ReadSingle(); // 0
+                                            var unknown33 = reader.ReadSingle(); // 0
+                                            var unknown34 = reader.ReadSingle(); // 0
+                                            var unknown34_ = reader.ReadSingle();
+                                            var unknown35 = reader.ReadSingle(); // 17.8
+                                            var unknown36 = reader.ReadSingle(); // 0.04
+                                            var particleSizeRateDamping = reader.ReadSingle();
+                                            for (var k = 0; k < 8; k++)
+                                            {
+                                                var alphaKeyframeAlpha = reader.ReadSingle();
+                                                var alphaKeyframeTime = reader.ReadUInt32();
+                                                var alphaKeyframe = new ParticleAlphaKeyframe(
+                                                    alphaKeyframeTime,
+                                                    alphaKeyframeAlpha);
+                                            }
+                                            for (var k = 0; k < 8; k++)
+                                            {
+                                                var colorKeyframeColor = reader.ReadColorRgbF();
+                                                var colorKeyframeTime = reader.ReadUInt32();
+                                                var colorKeyframe = new ParticleColorKeyframe(
+                                                    colorKeyframeTime,
+                                                    colorKeyframeColor.ToVector3());
+                                            }
+                                            var unknown37 = reader.ReadSingle();
+                                            var unknown38 = reader.ReadBooleanChecked();
+                                            var unknown39 = reader.ReadSingle();
+                                            reader.ReadBytes(28); // All 0
+                                            var unknown40 = reader.ReadUInt32(); // 49
+                                            var unknown41 = reader.ReadUInt32(); // 1176
+                                            var particleAlpha = reader.ReadSingle(); // 1.0
+                                            var unknown42 = reader.ReadUInt32(); // 0
+                                            var unknown43 = reader.ReadUInt32(); // 1
+                                            var unknown44 = reader.ReadVector3(); // (0.35, 0.35, 0.35)
+                                            reader.ReadBytes(12); // All 0
+                                            var unknown45 = reader.ReadUInt32(); // 1
+                                            reader.ReadBytes(8); // All 0
+                                        }
+                                    }
                                 }
-                            }
 
-                            break;
-                        }
+                                break;
+                            }
 
                         case "CHUNK_Radar":
                             stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
