@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -50,35 +49,7 @@ namespace OpenSage.Terrain.Roads
                 _orderedTemplates.Remove(subsequent);
                 _orderedTemplates.AddLast(subsequent);
             }
-        }
-
-        private void MoveToTop(RoadTemplate template, RoadTemplate originalTemplate = null)
-        {
-            if (template == originalTemplate)
-            {
-                return;
-            }
-
-            _orderedTemplates.Remove(template);
-            _orderedTemplates.AddLast(template);
-
-            foreach (var subsequent in GetSubsequentTemplates(template))
-            {
-                MoveToTop(subsequent, originalTemplate ?? template);
-            }
-        }
-
-        private IEnumerable<RoadTemplate> GetSubsequentTemplates(RoadTemplate template)
-        {
-            foreach (var subsequent in _subsequentTemplates[template])
-            {
-                yield return subsequent;
-                foreach (var transitive in GetSubsequentTemplates(subsequent))
-                {
-                    yield return transitive;
-                }
-            }
-        }
+        }        
 
         public IEnumerator<RoadTemplate> GetEnumerator() => _orderedTemplates.GetEnumerator();
 

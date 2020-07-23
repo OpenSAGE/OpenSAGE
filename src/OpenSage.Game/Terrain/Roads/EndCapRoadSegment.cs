@@ -127,13 +127,18 @@ namespace OpenSage.Terrain.Roads
                 }
 
                 var angle = MathF.Asin(Vector3.Dot(incomingRoadData.OutDirection, segmentDirection));
+
                 if (MathF.Abs(angle) > MathF.PI / 3)
                 {
-                    return null;
+                    // This check is not present in the original engine, but it prevents ugly glitches
+                    // (the end cap texture would be streched way too much).
+                    return new EndCapInfo(0f, incomingRoadData.OutDirection, segmentTemplate, squaredNormalDistance);
                 }
-
-                var nearestPointOnSegment = segment.StartPosition + segmentDirection * signedDistanceFromStart;
-                return new EndCapInfo(angle, Vector3.Normalize(position - nearestPointOnSegment), segmentTemplate, squaredNormalDistance);
+                else
+                {
+                    var nearestPointOnSegment = segment.StartPosition + segmentDirection * signedDistanceFromStart;
+                    return new EndCapInfo(angle, Vector3.Normalize(position - nearestPointOnSegment), segmentTemplate, squaredNormalDistance);
+                }
             }
         }
     }
