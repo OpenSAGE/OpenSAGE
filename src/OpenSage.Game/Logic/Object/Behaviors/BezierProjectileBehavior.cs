@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Bezier implementation.
-            if (!_gameObject.isProjectile)
+            if (!_gameObject.IsProjectile)
                 return;
 
             var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix);
