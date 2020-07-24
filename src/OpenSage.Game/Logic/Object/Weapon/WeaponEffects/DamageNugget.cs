@@ -115,13 +115,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Execute(WeaponEffectExecutionContext context)
         {
-            WeaponBonusUpgrade weaponBonus = context.Weapon.ParentGameObject.FindBehavior<WeaponBonusUpgrade>();
-            if(weaponBonus.Triggered)
-            {
-                //TODO: increase damage with context.Weapon.Template.WeaponBonuses
-            }
+            //WeaponBonusUpgrade weaponBonus = context.Weapon.ParentGameObject.FindBehavior<WeaponBonusUpgrade>();
+            //if(weaponBonus.Triggered)
+            //{
+            //    //TODO: increase damage with context.Weapon.Template.WeaponBonuses
+            //}
 
-            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType, context.Time);
+            //context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType, context.Time);
         }
     }
 }

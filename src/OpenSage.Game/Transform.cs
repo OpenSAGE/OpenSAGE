@@ -11,9 +11,14 @@ namespace OpenSage
             return new Transform(Vector3.Zero, Quaternion.Identity);
         }
 
+        private readonly Vector4 _lookDirBase = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+
         private Vector3 _translation;
         private Quaternion _rotation;
         private float _scale;
+
+        private Vector4 _lookDirection;
+        private bool _lookDirectionDirty;
 
         private Matrix4x4 _matrix;
         private bool _isMatrixDirty = true;
@@ -38,6 +43,7 @@ namespace OpenSage
             {
                 _rotation = value;
                 SetMatricesDirty();
+                LookDirection = Vector4.Transform(_lookDirBase, _rotation).ToVector3();
             }
         }
 
@@ -65,6 +71,8 @@ namespace OpenSage
             Rotation = rotation;
             Scale = scale;
         }
+
+        public Vector3 LookDirection { get; private set; }
 
         public Matrix4x4 Matrix
         {

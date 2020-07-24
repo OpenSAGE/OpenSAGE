@@ -119,11 +119,13 @@ namespace OpenSage.Logic.Object
         {
             if (_currentLocomotor != null && TargetPoints.Count > 0)
             {
-                _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap);
+                Vector3? nextPoint = null;
+                if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
+
+                var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
                 // this should be moved to LogicTick
-                var distance = Vector2.DistanceSquared(GameObject.Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
-                if (distance < 0.25f)
+                if (reachedPosition)
                 {
                     Logger.Debug($"Reached point {TargetPoints[0]}");
                     TargetPoints.RemoveAt(0);
