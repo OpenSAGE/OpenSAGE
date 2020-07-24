@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
 
-            SetHealth((Fix64) moduleData.InitialHealth);
+            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
         }
 
         private void SetHealth(Fix64 value)
@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
 
         public override void SetInitialHealth(float multiplier)
         {
-            SetHealth((Fix64) (_moduleData.InitialHealth * multiplier));
+            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
         }
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
@@ -102,7 +102,7 @@ namespace OpenSage.Logic.Object
         };
 
         public float MaxHealth { get; private set; }
-        public float InitialHealth { get; private set; }
+        public float? InitialHealth { get; private set; }
        
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }
