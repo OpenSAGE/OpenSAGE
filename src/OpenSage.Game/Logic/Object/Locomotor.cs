@@ -106,12 +106,15 @@ namespace OpenSage.Logic.Object
             // Distance is 2D
             //var deltaNext = nextPoint - transform.Translation;
             var distanceRemaining = delta.Vector2XY().Length();
+            var braking = GetLocomotorValue(x => x.Braking);
 
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
                     break;
                 default:
+                    if (nextPoint != null) braking = 0; // 
+
                     if (distanceRemaining < (GetTurnRadius() + 0.25f) && nextPoint != null)
                         // turn towards next point
                         return true;
@@ -122,7 +125,6 @@ namespace OpenSage.Logic.Object
 
             var damaged = _gameObject.IsDamaged;
 
-            var braking = GetLocomotorValue(x => x.Braking);
             var minimumBrakingDistance = braking > 0
                 ? (oldSpeed * oldSpeed) / braking
                 : 0;

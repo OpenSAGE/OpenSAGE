@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Navigation
 {
@@ -27,8 +28,8 @@ namespace OpenSage.Navigation
         {
             for (int i = nodes.Count - 1; i > 0; i--)
             {
-                int dirX = nodes[i].X - nodes[i - 1].X;
-                int dirY = nodes[i].Y - nodes[i - 1].Y;
+                int dirX = Math.Abs(nodes[i].X - nodes[i - 1].X);
+                int dirY = Math.Abs(nodes[i].Y - nodes[i - 1].Y);
 
                 if (dirX < 2 && dirY < 2) nodes.RemoveAt(i);
             }
