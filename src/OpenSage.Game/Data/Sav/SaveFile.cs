@@ -196,13 +196,6 @@ namespace OpenSage.Data.Sav
                                 var numGameObjects2 = reader.ReadUInt32();
                                 for (var objectIndex = 0; objectIndex < numGameObjects2; objectIndex++)
                                 {
-                                    if (objectIndex > 0)
-                                    {
-                                        reader.ReadBooleanChecked(); // 0
-                                        reader.ReadBooleanChecked(); // 1
-                                        reader.ReadBooleanChecked(); // 1
-                                    }
-
                                     var objectID = reader.ReadUInt16();
 
                                     var unknown3 = reader.ReadUInt32();
@@ -325,9 +318,43 @@ namespace OpenSage.Data.Sav
                                     {
                                         var specialPower = reader.ReadBytePrefixedAsciiString();
                                     }
+
+                                    reader.ReadBooleanChecked(); // 0
+                                    reader.ReadBooleanChecked(); // 1
+                                    reader.ReadBooleanChecked(); // 1
                                 }
 
-                                reader.ReadBytes(121);
+                                reader.ReadBytes(15);
+
+                                var someCount4 = reader.ReadUInt32();
+                                for (var i = 0; i < someCount4; i++)
+                                {
+                                    var maybeIndex = reader.ReadUInt32();
+                                    reader.ReadBooleanChecked(); // 1
+                                    var someCount5 = reader.ReadUInt32();
+                                    for (var j = 0; j < someCount5; j++)
+                                    {
+                                        reader.ReadUInt32();
+                                        reader.ReadUInt32();
+                                        reader.ReadUInt32();
+                                    }
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadSingle();
+                                    reader.ReadBooleanChecked();
+                                }
+
+                                reader.ReadUInt32(); // 1000
+                                reader.ReadUInt32(); // 0
+                                reader.ReadBooleanChecked(); // 0
+                                reader.ReadBooleanChecked(); // 1
+                                reader.ReadBooleanChecked(); // 1
+                                reader.ReadBooleanChecked(); // 1
+                                reader.ReadUInt32(); // 0xFFFFFFFF
+                                reader.ReadUInt32(); // 0
+                                reader.ReadBooleanChecked(); // 0
 
                                 break;
                             }
@@ -503,14 +530,15 @@ namespace OpenSage.Data.Sav
                         case "CHUNK_SidesList":
                             {
                                 var numSides = reader.ReadUInt32();
-                                for (var i = 0; i < numSides; i++)
-                                {
-                                    var something = reader.ReadBooleanChecked();
-                                    if (something)
-                                    {
-                                        reader.ReadBytes(5);
-                                    }
-                                }
+                                //for (var i = 0; i < numSides; i++)
+                                //{
+                                //    var something = reader.ReadBooleanChecked();
+                                //    if (something)
+                                //    {
+                                //        reader.ReadBytes(5);
+                                //    }
+                                //}
+                                stream.Seek(chunkHeader.DataLength - 4, SeekOrigin.Current);
                                 break;
                             }
 
@@ -535,21 +563,24 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_GameClient":
                             {
-                                var unknown = reader.ReadBytes(5);
-
-                                var numObjects = reader.ReadUInt32();
-
-                                for (var i = 0; i < numObjects; i++)
+                                var unknown1 = reader.ReadUInt32();
+                                var unknown2 = reader.ReadByte();
+                                var numGameObjects = reader.ReadUInt32();
+                                var gameObjects = new List<GameObjectState>();
+                                for (var i = 0; i < numGameObjects; i++)
                                 {
-                                    var objectName = reader.ReadBytePrefixedAsciiString();
-                                    var objectID = reader.ReadUInt16();
+                                    gameObjects.Add(new GameObjectState
+                                    {
+                                        Name = reader.ReadBytePrefixedAsciiString(),
+                                        Id = reader.ReadUInt16()
+                                    });
                                 }
 
-                                reader.ReadByte(); // 5
-
-                                for (var i = 0; i < numObjects; i++)
+                                var numGameObjects2 = reader.ReadUInt16(); // 5
+                                for (var i = 0; i < numGameObjects2; i++)
                                 {
-                                    reader.ReadBytes(17);
+                                    var objectID = reader.ReadUInt16();
+                                    reader.ReadBytes(14);
 
                                     var numModelConditionFlags = reader.ReadUInt32();
 
@@ -594,16 +625,43 @@ namespace OpenSage.Data.Sav
                                         reader.ReadBytes((int) moduleLengthInBytes);
                                     }
 
-                                    reader.ReadBytes(82);
+                                    var numClientUpdates = reader.ReadUInt16();
+                                    for (var moduleIndex = 0; moduleIndex < numClientUpdates; moduleIndex++)
+                                    {
+                                        var moduleTag = reader.ReadBytePrefixedAsciiString();
+                                        var moduleLengthInBytes = reader.ReadUInt32();
+                                        reader.ReadBytes((int) moduleLengthInBytes);
+                                    }
+
+                                    reader.ReadBytes(81);
                                 }
 
-                                reader.ReadBytes(5);
+                                reader.ReadUInt32();
 
                                 break;
                             }
 
                         case "CHUNK_InGameUI":
-                            reader.ReadBytes(15);
+                            {
+                                reader.ReadUInt32(); // 0
+                                reader.ReadBooleanChecked();
+                                reader.ReadBooleanChecked();
+                                reader.ReadBooleanChecked();
+                                reader.ReadUInt32(); // 0
+                                var something = reader.ReadUInt32();
+                                while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
+                                {
+                                    var someString1 = reader.ReadBytePrefixedAsciiString();
+                                    var someString2 = reader.ReadBytePrefixedAsciiString();
+                                    var unknown1 = reader.ReadUInt32();
+                                    var unknown2 = reader.ReadUInt32(); // 0xFFFFFFFF
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadBooleanChecked();
+
+                                    something = reader.ReadUInt32();
+                                }
+                            }
                             break;
 
                         case "CHUNK_Partition":
@@ -633,10 +691,6 @@ namespace OpenSage.Data.Sav
                             for (var i = 0; i < map.HeightMapData.Area; i++)
                             {
                                 var unknown = reader.ReadByte();
-                                if (unknown != 0x10)
-                                {
-                                    throw new InvalidDataException();
-                                }
                             }
                             break;
 
