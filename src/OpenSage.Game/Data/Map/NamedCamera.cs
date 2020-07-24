@@ -13,25 +13,17 @@ namespace OpenSage.Data.Map
 
         public Vector3 EulerAngles { get; private set; }
         public float Zoom { get; private set; }
+        public Vector2 Unknown { get; private set; }
 
         internal static NamedCamera Parse(BinaryReader reader)
         {
-            var lookAt = reader.ReadVector3();
-            var name = reader.ReadUInt16PrefixedAsciiString();
-            //var rotmat = reader.ReadMatrix3x2();
-
-            var eulerAngles = reader.ReadVector3();
-
-            var zoom = reader.ReadSingle();
-            var unknown2 = reader.ReadSingle();
-            var unknown3 = reader.ReadSingle();
-
             return new NamedCamera
             {
-                LookAtPoint = lookAt,
-                Name = name,
-                EulerAngles = eulerAngles,
-                Zoom = zoom
+                LookAtPoint = reader.ReadVector3(),
+                Name = reader.ReadUInt16PrefixedAsciiString(),
+                EulerAngles = reader.ReadVector3(),
+                Zoom = reader.ReadSingle(),
+                Unknown = reader.ReadVector2()
             };
         }
 
@@ -41,7 +33,7 @@ namespace OpenSage.Data.Map
             writer.WriteUInt16PrefixedAsciiString(Name);
             writer.Write(EulerAngles);
             writer.Write(Zoom);
-            writer.Write(Vector2.Zero);
+            writer.Write(Unknown);
         }
     }
 }
