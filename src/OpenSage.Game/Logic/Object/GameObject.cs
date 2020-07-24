@@ -133,7 +133,7 @@ namespace OpenSage.Logic.Object
         public Team Team { get; set; }
 
         public bool IsSelectable { get; private set; }
-        public bool isProjectile { get; private set; } = false;
+        public bool IsProjectile { get; private set; } = false;
         public bool CanAttack { get; private set; }
 
         public bool IsSelected { get; set; }
@@ -251,7 +251,7 @@ namespace OpenSage.Logic.Object
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
             }
 
-            if(Definition.KindOf?.Get(ObjectKinds.Projectile) ?? true)
+            if (Definition.KindOf?.Get(ObjectKinds.Projectile) ?? false)
             {
                 isProjectile = true;
             }
