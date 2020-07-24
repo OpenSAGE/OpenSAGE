@@ -55,7 +55,7 @@ namespace OpenSage.Scripting.Actions
             return ActionResult.Finished;
         }
 
-        
+
         public static ActionResult CameraModLookToward(ScriptAction action, ScriptExecutionContext context)
         {
             var waypointName = action.Arguments[0].StringValue;
@@ -71,9 +71,9 @@ namespace OpenSage.Scripting.Actions
             //Check if a named camera exists
             Vector3 targetPoint;
             var name = action.Arguments[0].StringValue;
-            if(context.Scene.Cameras.Exists(name))
+            if (context.Scene.Cameras.Exists(name))
             {
-                targetPoint = new Vector3(context.Scene.Cameras[name].LookAtPoint, 0.0f);
+                targetPoint = context.Scene.Cameras[name].LookAtPoint;
             }
             else
             {
@@ -122,7 +122,7 @@ namespace OpenSage.Scripting.Actions
             if (_animation == null)
             {
                 _animation = context.Scene.CameraController.StartAnimation(
-                    new[] {context.Scene.CameraController.TerrainPosition, _targetPoint},
+                    new[] { context.Scene.CameraController.TerrainPosition, _targetPoint },
                     context.UpdateTime.TotalTime,
                     _duration);
             }
