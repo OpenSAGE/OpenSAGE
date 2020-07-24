@@ -253,7 +253,7 @@ namespace OpenSage.Logic.Object
 
             if (Definition.KindOf?.Get(ObjectKinds.Projectile) ?? false)
             {
-                isProjectile = true;
+                IsProjectile = true;
             }
 
             Upgrades = new List<UpgradeTemplate>();
