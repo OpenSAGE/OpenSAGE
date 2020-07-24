@@ -133,6 +133,7 @@ namespace OpenSage.Logic.Object
         public Team Team { get; set; }
 
         public bool IsSelectable { get; private set; }
+        public bool isProjectile { get; private set; } = false;
         public bool CanAttack { get; private set; }
 
         public bool IsSelected { get; set; }
@@ -248,6 +249,11 @@ namespace OpenSage.Logic.Object
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
+            }
+
+            if(Definition.KindOf?.Get(ObjectKinds.Projectile) ?? true)
+            {
+                isProjectile = true;
             }
 
             Upgrades = new List<UpgradeTemplate>();
@@ -596,7 +602,7 @@ namespace OpenSage.Logic.Object
         internal void SetDefaultWeapon()
         {
             // TODO: we currently always pick the weapon without any conditions.
-            var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
+            var weaponSet = Definition.WeaponSets.Find(x => x.Conditions?.AnyBitSet == false);
             SetWeaponSet(weaponSet);
         }
 
