@@ -218,7 +218,7 @@ namespace OpenSage.Logic.Object
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
                 if (module != null)
                 {
-                    // TODO: This will never be null once we've implemented all the draw modules.
+                    // TODO: This will never be null once we've implemented all the behaviors.
                     behaviors.Add(module);
                 }
             }
