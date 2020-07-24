@@ -22,6 +22,8 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Bezier implementation.
+            if (!_gameObject.isProjectile)
+                return;
 
             var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix);
             var velocity = direction * context.GameObject.Speed;
