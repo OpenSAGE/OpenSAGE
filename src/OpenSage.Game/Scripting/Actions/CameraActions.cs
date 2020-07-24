@@ -73,7 +73,7 @@ namespace OpenSage.Scripting.Actions
             var name = action.Arguments[0].StringValue;
             if(context.Scene.Cameras.Exists(name))
             {
-                targetPoint = context.Scene.Cameras[name].LookAtPoint;
+                targetPoint = new Vector3(context.Scene.Cameras[name].LookAtPoint, 0.0f);
             }
             else
             {
