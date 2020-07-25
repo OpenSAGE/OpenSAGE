@@ -99,6 +99,23 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
+                    case OrderType.CancelUnit:
+                        {
+                            var queueIndex = order.Arguments[0].Value.Integer;
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                // Only units that can produce stuff should produce it
+                                var productionJob = unit?.ProductionUpdate.ProductionQueue[queueIndex];
+                                var objectDefinition = productionJob.ObjectDefinition;
+
+                                player.Money += (uint) objectDefinition.BuildCost;
+
+                                unit?.ProductionUpdate.CancelProduction(queueIndex);
+                            }
+                        }
+                        break;
+
                     case OrderType.Sell:
                         foreach (var unit in player.SelectedUnits)
                         {

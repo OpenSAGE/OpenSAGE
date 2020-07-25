@@ -156,6 +156,12 @@ namespace OpenSage.Logic.Object
             _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
             _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
             _producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
+
+            var parkingPlace = productionExit as ParkingPlaceBehaviour;
+            if (parkingPlace != null)
+            {
+                parkingPlace.ParkVehicle(_producedUnit);
+            }
         }
 
         private void MoveProducedObjectOut()
