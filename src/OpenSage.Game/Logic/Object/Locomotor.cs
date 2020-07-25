@@ -45,9 +45,9 @@ namespace OpenSage.Logic.Object
             _locomotorTemplate = locomotorSet.Locomotor.Value;
         }
 
-        public float GetTurnRadius()
+        public float GetPitchDamping()
         {
-            return _locomotorTemplate.FastTurnRadius;
+            return _locomotorTemplate.PitchDamping;
         }
 
         //TODO: check if the damaged values exists
@@ -113,9 +113,13 @@ namespace OpenSage.Logic.Object
                 case LocomotorAppearance.Treads:
                     break;
                 default:
-                    if (nextPoint != null) braking = 0; // 
+                    if (nextPoint != null) braking = 0; //
 
-                    if (distanceRemaining < (GetTurnRadius() + 0.25f) && nextPoint != null)
+                    // Calculate turn radius from speed & turnrate
+                    var circumference = 360.0f / GetTurnRate() * oldSpeed;
+                    var radius = circumference / MathUtility.TwoPi;
+
+                    if (distanceRemaining < (radius + 0.25f) && nextPoint != null)
                         // turn towards next point
                         return true;
                     break;
