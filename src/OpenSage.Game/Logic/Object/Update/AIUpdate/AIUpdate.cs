@@ -60,18 +60,7 @@ namespace OpenSage.Logic.Object
 
         internal void AddTargetPoint(in Vector3 targetPoint)
         {
-            if (GameObject.Definition.KindOf == null) return;
-
-            // TODO: Do we need to do this?
-            if (GameObject.Definition.KindOf.Get(ObjectKinds.Infantry)
-                || GameObject.Definition.KindOf.Get(ObjectKinds.Vehicle)
-                || GameObject.Definition.KindOf.Get(ObjectKinds.SmallMissile))
-            {
-                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : GameObject.Transform.Translation;
-                var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
-                TargetPoints.AddRange(path);
-                Logger.Debug("Set new target points: " + TargetPoints.Count);
-            }
+            TargetPoints.Add(targetPoint);
 
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
         }
@@ -79,6 +68,18 @@ namespace OpenSage.Logic.Object
         internal void SetTargetPoint(Vector3 targetPoint)
         {
             TargetPoints.Clear();
+
+            if (GameObject.Definition.KindOf == null) return;
+
+            if (GameObject.Definition.KindOf.Get(ObjectKinds.Infantry)
+                || GameObject.Definition.KindOf.Get(ObjectKinds.Vehicle)
+                || GameObject.Definition.KindOf.Get(ObjectKinds.SmallMissile))
+            {
+                var start = GameObject.Transform.Translation;
+                var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
+                TargetPoints.AddRange(path);
+                Logger.Debug("Set new target points: " + TargetPoints.Count);
+            }
 
             AddTargetPoint(targetPoint);
         }
