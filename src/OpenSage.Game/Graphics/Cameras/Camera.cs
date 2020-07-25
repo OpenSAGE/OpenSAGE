@@ -80,9 +80,11 @@ namespace OpenSage.Graphics.Cameras
 
         public Camera(Func<Viewport> getViewport)
         {
+
             _getViewport = getViewport;
             _viewport = getViewport();
 
+            View = Matrix4x4.Identity;
             BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
             _nearPlaneDistance = 4.0f;

@@ -696,10 +696,10 @@ namespace OpenSage
                         players[i].SelectUnits(new[] { startingBuilding });
                     }
 
-                    if (players[i].IsHuman)
-                    {
-                        localPlayerIndex = i;
-                    }
+                    //if (players[i].IsHuman)
+                    //{
+                    //    localPlayerIndex = i;
+                    //}
                 }
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
@@ -875,6 +875,30 @@ namespace OpenSage
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
             Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
             Scene3D?.LocalLogicTick(MapTime, tickT);
+
+            // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
+            if (SkirmishManager.SkirmishGame?.ReadyToStart == true)
+            {
+                SkirmishManager.SkirmishGame.ReadyToStart = false;
+                StartMultiPlayerGame(
+                    AssetStore.MapCaches.FirstOrDefault(m => m.IsMultiplayer).Name,
+                    SkirmishManager.Connection,
+                    (from s in SkirmishManager.SkirmishGame.Slots
+                     where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
+                     select new PlayerSetting(
+                         s.Index,
+                         GetPlayableSides().ElementAt(s.FactionIndex),
+                         AssetStore.MultiplayerColors.GetByIndex(s.ColorIndex).RgbColor,
+                         s.State switch
+                         {
+                             SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                             SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                             SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                             SkirmishSlotState.Human => PlayerOwner.Player,
+                             _ => PlayerOwner.None
+                         })).OfType<PlayerSetting?>().ToArray(),
+                    SkirmishManager.SkirmishGame.LocalSlot);
+            }
         }
 
         private void CheckGlobalHotkeys()

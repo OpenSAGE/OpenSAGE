@@ -4,8 +4,9 @@ using System.Text;
 
 namespace OpenSage.Network.Packets
 {
-    public class SkirmishStatusPacket
+    public class SkirmishSlotStatusPacket
     {
+        // TODO Map
         public SkirmishSlot[] Slots { get; set; }
     }
 }

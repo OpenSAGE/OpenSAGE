@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using OpenSage.Content;
+using OpenSage.Logic;
 using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
@@ -26,6 +29,8 @@ namespace OpenSage.Network
 
         public bool IsHosting { get; set; }
 
+        public IConnection Connection { get; private set; }
+
         public SkirmishManager(Game game)
         {
             _game = game;
@@ -42,23 +47,29 @@ namespace OpenSage.Network
             _processor = new NetPacketProcessor();
             _processor.RegisterNestedType(SkirmishSlot.Serialize, SkirmishSlot.Deserialize);
             _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
-            _processor.SubscribeReusable<SkirmishClientUpdatePacket, int>(SkirmishClientUpdatePacketReceived);
-            _processor.SubscribeReusable<SkirmishStatusPacket>(SkirmishStatusPacketReceived);
+            _processor.SubscribeReusable<SkirmishClientUpdatePacket, (IPEndPoint endPoint, int processId)>(SkirmishClientUpdatePacketReceived);
+            _processor.SubscribeReusable<SkirmishSlotStatusPacket>(SkirmishStatusPacketReceived);
+
+            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
+            _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
             _listener.ConnectionRequestEvent += request =>
             {
                 var nextFreeSlot = SkirmishGame.Slots.FirstOrDefault(s => s.State == SkirmishSlotState.Open);
                 if (nextFreeSlot != null)
                 {
+                    Logger.Trace($"Accepting connection from {request.RemoteEndPoint}");
+
                     var peer = request.Accept();
 
                     _processor.ReadPacket(request.Data, nextFreeSlot);
 
                     nextFreeSlot.State = SkirmishSlotState.Human;
-                    nextFreeSlot.PeerId = peer.Id;
+                    nextFreeSlot.EndPoint = peer.EndPoint;
                 }
                 else
                 {
+                    Logger.Trace($"Rejecting connection from {request.RemoteEndPoint}");
                     request.Reject();
                 }
             };         
@@ -68,32 +79,50 @@ namespace OpenSage.Network
                 var type = (PacketType) dataReader.GetByte();
                 switch (type)
                 {
-                    case PacketType.SkirmishStatus:
+                    case PacketType.SkirmishSlotStatus:
                         _processor.ReadPacket(dataReader);
                         break;
                     case PacketType.SkirmishClientUpdate:
                         _processor.ReadPacket(dataReader, fromPeer.Id);
                         break;
+                    case PacketType.SkirmishStartGame:
+                        Logger.Trace($"Received start game packet");
+
+                        CreateNetworkConnection();
+                        break;
                 }
             };
         }
 
-        private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, int peerId)
+        private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, (IPEndPoint endPoint, int processId) peer)
         {
-            var slot = SkirmishGame.Slots.FirstOrDefault(s => s.PeerId == peerId);
+            var slot = SkirmishGame.Slots.FirstOrDefault(s => s.EndPoint.Equals(peer.endPoint) && s.ProcessId == peer.processId);
             if (slot != null)
             {
                 slot.PlayerName = packet.PlayerName;
             }
         }
 
-        private void SkirmishStatusPacketReceived(SkirmishStatusPacket packet)
+        private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet)
         {
             SkirmishGame.Slots = packet.Slots;
+            if (SkirmishGame.LocalSlot < 0)
+            {
+                for (int i = 0; i < packet.Slots.Length; i++)
+                {
+                    if (packet.Slots[i].EndPoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4) &&
+                        packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
+                    {
+                        SkirmishGame.LocalSlot = i;
+                        break;
+                    }
+                }
+            }
         }
 
         private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
         {
+            slot.ProcessId = packet.ProcessId;
             slot.PlayerName = packet.PlayerName;
         }
 
@@ -120,12 +149,24 @@ namespace OpenSage.Network
             };
             _thread.Start();
 
-            SkirmishGame = new SkirmishGame(isHost: true);
-            var localSlot = SkirmishGame.Slots[0];
+            SkirmishGame = new SkirmishGame(isHost: true)
+            {
+                LocalSlot = 0
+            };
+
+            var localSlot = SkirmishGame.Slots[SkirmishGame.LocalSlot];
             localSlot.PlayerName = _game.LobbyManager.Username;
             localSlot.State = SkirmishSlotState.Human;
+            localSlot.EndPoint = NetUtils.MakeEndPoint(NetUtils.GetLocalIp(LocalAddrType.IPv4), Ports.SkirmishHost);
 
             IsHosting = true;
+        }
+
+        public void StartGame()
+        {
+            _manager.SendToAll(new[] { (byte) PacketType.SkirmishStartGame }, DeliveryMethod.ReliableUnordered);
+
+            CreateNetworkConnection();
         }
 
         public void JoinGame(IPEndPoint endPoint)
@@ -144,7 +185,11 @@ namespace OpenSage.Network
             Logger.Trace($"Joining game at {endPoint}");
 
             _writer.Reset();
-            _processor.Write(_writer, new SkirmishClientConnectPacket() { PlayerName = _game.LobbyManager.Username });
+            _processor.Write(_writer, new SkirmishClientConnectPacket()
+            {
+                PlayerName = _game.LobbyManager.Username,
+                ProcessId = Process.GetCurrentProcess().Id
+            });
 
             var server = _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
@@ -184,8 +229,8 @@ namespace OpenSage.Network
 
                 if (IsHosting)
                 {
-                    _writer.Put((byte) PacketType.SkirmishStatus);
-                    _processor.Write(_writer, new SkirmishStatusPacket()
+                    _writer.Put((byte) PacketType.SkirmishSlotStatus);
+                    _processor.Write(_writer, new SkirmishSlotStatusPacket()
                     {
                         Slots = SkirmishGame.Slots
                     });
@@ -195,6 +240,16 @@ namespace OpenSage.Network
 
                 Thread.Sleep(100);
             }
+        }
+
+        private async void CreateNetworkConnection()
+        {
+            var connection = new NetworkConnection();
+            await connection.InitializeAsync(_game);
+
+            Connection = connection;
+
+            SkirmishGame.ReadyToStart = true;
         }
     }
 }
