@@ -7,7 +7,7 @@ namespace OpenSage.Gui.DebugUI
     {
         private readonly DebugOverlay _overlay;
 
-        public override HandlingPriority Priority => HandlingPriority.UIPriority;
+        public override HandlingPriority Priority => HandlingPriority.DebugPriority;
 
         public DebugMessageHandler(DebugOverlay overlay)
         {
