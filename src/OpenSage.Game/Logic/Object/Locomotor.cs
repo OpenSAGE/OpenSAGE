@@ -47,7 +47,7 @@ namespace OpenSage.Logic.Object
 
         public float GetTurnRadius()
         {
-            return 500.0f; // _locomotorTemplate.FastTurnRadius;
+            return _locomotorTemplate.FastTurnRadius;
         }
 
         //TODO: check if the damaged values exists
@@ -165,7 +165,7 @@ namespace OpenSage.Logic.Object
                     trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
                     break;
                 case LocomotorAppearance.Treads:
-                    if (Math.Abs(targetYaw - yaw) > 0.04) //first fully rotate towards target point
+                    if (MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f)) //first fully rotate towards target point
                         distance = 0.0f;
                     break;
                 case LocomotorAppearance.FourWheels:
