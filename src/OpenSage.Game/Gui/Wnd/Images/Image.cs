@@ -57,7 +57,9 @@ namespace OpenSage.Gui.Wnd.Images
         {
             if (_texture == null)
             {
-                throw new InvalidOperationException();
+                // TODO: crashes in multiplayer mode
+                return;
+                // throw new InvalidOperationException();
             }
             drawingContext.DrawImage(_texture, null, destinationRect, grayscale: _grayscale);
         }

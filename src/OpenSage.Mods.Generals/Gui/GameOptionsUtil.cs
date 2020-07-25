@@ -93,17 +93,28 @@ namespace OpenSage.Mods.Generals.Gui
                             return true;
                         }
 
-                        if(_optionsPath.StartsWith("LanGame"))
+                        if (_optionsPath.StartsWith("LanGame"))
                         {
                             context.Game.HostSkirmishGame();
                         }
 
-                        context.Game.Scene2D.WndWindowManager.PopWindow();
-                        context.Game.StartMultiPlayerGame(
-                            CurrentMap.Name,
-                            new EchoConnection(),
-                            settings,
-                            0);
+                        if (context.Game.SkirmishManager.SkirmishGame != null)
+                        {
+                            if (context.Game.SkirmishManager.IsHosting)
+                            {
+                                context.Game.Scene2D.WndWindowManager.PopWindow();
+
+                                context.Game.SkirmishManager.StartGame();
+                            }
+                        }
+                        else
+                        {
+                            context.Game.StartMultiPlayerGame(
+                                CurrentMap.Name,
+                                new EchoConnection(),
+                                settings,
+                                0);
+                        }
                     }
                     else
                     {

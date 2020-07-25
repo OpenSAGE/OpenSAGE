@@ -1,4 +1,5 @@
-﻿using LiteNetLib.Utils;
+﻿using System.Net;
+using LiteNetLib.Utils;
 
 namespace OpenSage.Network
 {
@@ -30,11 +31,16 @@ namespace OpenSage.Network
         public byte FactionIndex { get; set; }
         public byte Team { get; set; }
         public bool Ready { get; set; }
-        public int PeerId { get; set; }
+        public IPEndPoint EndPoint { get; set; }
+
+        /// <summary>
+        /// We need this during development to be able to run two games on the same machine.
+        /// </summary>
+        public int ProcessId { get; set; }
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {
-            return new SkirmishSlot()
+            var slot = new SkirmishSlot()
             {
                 Index = reader.GetInt(),
                 State = (SkirmishSlotState) reader.GetByte(),
@@ -42,9 +48,16 @@ namespace OpenSage.Network
                 ColorIndex = reader.GetByte(),
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetByte(),
-                Ready = reader.GetBool(),
-                PeerId = reader.GetInt()
+                Ready = reader.GetBool()
             };
+
+            if (slot.State == SkirmishSlotState.Human)
+            {
+                slot.EndPoint = reader.GetNetEndPoint();
+                slot.ProcessId = reader.GetInt();
+            }
+
+            return slot;
         }
 
         public static void Serialize(NetDataWriter writer, SkirmishSlot slot)
@@ -56,7 +69,11 @@ namespace OpenSage.Network
             writer.Put(slot.FactionIndex);
             writer.Put(slot.Team);
             writer.Put(slot.Ready);
-            writer.Put(slot.PeerId);
+            if (slot.State == SkirmishSlotState.Human)
+            {
+                writer.Put(slot.EndPoint);
+                writer.Put(slot.ProcessId);
+            }
         }
     }
 }
