@@ -73,6 +73,11 @@ namespace OpenSage.Logic.Object
                 BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
             }
 
+            if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) ?? false)
+            {
+                gameObject._gameContext.Navigation.UpdateArea(gameObject, false);
+            }
+
             return gameObject;
         }
 
