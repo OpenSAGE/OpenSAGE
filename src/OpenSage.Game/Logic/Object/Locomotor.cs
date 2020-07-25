@@ -109,7 +109,6 @@ namespace OpenSage.Logic.Object
             var delta = targetPoint - transform.Translation;
 
             // Distance is 2D
-            //var deltaNext = nextPoint - transform.Translation;
             var distanceRemaining = delta.Vector2XY().Length();
             var braking = GetLocomotorValue(x => x.Braking);
 

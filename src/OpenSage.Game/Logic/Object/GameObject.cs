@@ -75,7 +75,7 @@ namespace OpenSage.Logic.Object
 
             if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) ?? false)
             {
-                gameObject._gameContext.Navigation.UpdateArea(gameObject, false);
+                gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
 
             return gameObject;
@@ -422,7 +422,7 @@ namespace OpenSage.Logic.Object
                 ConstructionStart = gameTime.TotalTime;
             }
 
-            _gameContext.Navigation.UpdateArea(this, false);
+            _gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 
         internal void FinishConstruction()

@@ -10,28 +10,29 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
+        private readonly Tuple<string, bool>[] _boneList;
+
         internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
             : base(data, gameObject, context)
         {
             _data = data;
+            _boneList = new Tuple<string, bool>[]
+               {
+                    Tuple.Create(_data.LeftFrontTireBone, true),
+                    Tuple.Create(_data.RightFrontTireBone, true),
+                    Tuple.Create(_data.LeftRearTireBone, false),
+                    Tuple.Create(_data.RightRearTireBone, false)
+               };
         }
 
         internal override void Update(in TimeInterval gameTime)
         {
             base.Update(gameTime);
 
-            // TODO: Only do this if Locomotor has HasSuspension = true.
-
             // Rotating wheels
             var roll = _data.TireRotationMultiplier * GameObject.Speed * gameTime.TotalTime.Milliseconds;
-            var boneList = new Tuple<string, bool>[]
-            {
-                Tuple.Create(_data.LeftFrontTireBone, true),
-                Tuple.Create(_data.RightFrontTireBone, true),
-                Tuple.Create(_data.LeftRearTireBone, false),
-                Tuple.Create(_data.RightRearTireBone, false)
-            };
-            foreach (var boneDef in boneList)
+          
+            foreach (var boneDef in _boneList)
             {
                 if (boneDef == null)
                 {

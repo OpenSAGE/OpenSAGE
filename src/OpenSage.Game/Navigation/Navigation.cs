@@ -9,7 +9,7 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        public readonly Graph _graph;
+        readonly Graph _graph;
         readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -32,7 +32,7 @@ namespace OpenSage.Navigation
             _heightMap = heightMap;
         }
 
-        public Vector2 GetNodePosition(Node node)
+        private Vector2 GetNodePosition(Node node)
         {
             var xyz =_heightMap.GetPosition(node.X, node.Y);
             return new Vector2(xyz.X, xyz.Y);
@@ -56,7 +56,7 @@ namespace OpenSage.Navigation
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            if (startNode == null || endNode == null /*|| !startNode.IsPassable*/ || !endNode.IsPassable)
+            if (startNode == null || endNode == null || !endNode.IsPassable)
             {
                 Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
                 yield break;
@@ -79,7 +79,7 @@ namespace OpenSage.Navigation
             }
         }
 
-        public void UpdateArea(GameObject gameObject, bool passable)
+        public void UpdateAreaPassability(GameObject gameObject, bool passable)
         {
             if (gameObject.Collider == null) return;
 
