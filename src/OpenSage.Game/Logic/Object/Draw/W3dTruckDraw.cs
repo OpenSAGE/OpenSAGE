@@ -45,8 +45,9 @@ namespace OpenSage.Logic.Object
                     yaw = GameObject.Yaw;
                 }
 
-                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase));
-                var boneInstance = ActiveModelInstance.ModelBoneInstances[bone.Index];
+                var bones = ActiveModelInstance.Model.BoneHierarchy.Bones.Where(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (bones.Count == 0) continue;
+                var boneInstance = ActiveModelInstance.ModelBoneInstances[bones[0].Index];
                 boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
                 boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
 
