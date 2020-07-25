@@ -23,13 +23,13 @@ namespace OpenSage.Logic.Object
             // TODO: Only do this if Locomotor has HasSuspension = true.
 
             // Rotating wheels
-            var roll = _data.TireRotationMultiplier * GameObject.Speed;
+            var roll = _data.TireRotationMultiplier * GameObject.Speed * gameTime.TotalTime.Milliseconds;
             var boneList = new Tuple<string, bool>[]
             {
-                Tuple.Create(_data.LeftFrontTireBone,true),
-                Tuple.Create(_data.RightFrontTireBone,true),
-                Tuple.Create(_data.LeftRearTireBone,false),
-                Tuple.Create(_data.RightRearTireBone,false)
+                Tuple.Create(_data.LeftFrontTireBone, true),
+                Tuple.Create(_data.RightFrontTireBone, true),
+                Tuple.Create(_data.LeftRearTireBone, false),
+                Tuple.Create(_data.RightRearTireBone, false)
             };
             foreach (var boneDef in boneList)
             {
@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object
 
                 var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase));
                 var boneInstance = ActiveModelInstance.ModelBoneInstances[bone.Index];
-                //boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, yaw);
+                boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
                 boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
 
             }
