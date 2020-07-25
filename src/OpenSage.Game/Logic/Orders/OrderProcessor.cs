@@ -93,7 +93,8 @@ namespace OpenSage.Logic.Orders
 
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.ProductionUpdate.QueueProduction(objectDefinition);
+                                // Only units that can produce stuff should produce it
+                                unit?.ProductionUpdate.QueueProduction(objectDefinition);
                             }
                         }
                         break;
