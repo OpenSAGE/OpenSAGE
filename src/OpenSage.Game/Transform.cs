@@ -17,9 +17,6 @@ namespace OpenSage
         private Quaternion _rotation;
         private float _scale;
 
-        private Vector4 _lookDirection;
-        private bool _lookDirectionDirty;
-
         private Matrix4x4 _matrix;
         private bool _isMatrixDirty = true;
 
