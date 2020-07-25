@@ -193,18 +193,24 @@ namespace OpenSage.Logic.Object
             }
 
             var pitch = 0.0f;
+            var roll = 0.0f;
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
                 case LocomotorAppearance.FourWheels:
-                    var normal = heightMap?.GetNormal(x, y) ?? Vector3.UnitZ;
-                    pitch = MathUtility.GetPitchFromDirection(normal);
+                    var normal = heightMap.GetNormal(x, y);
+
+                    var deltaX = normal.X;
+                    var deltaY = normal.Y;
+
+                    pitch = (float) Math.Asin(deltaX);
+                    roll = (float) Math.Asin(deltaY);
                     break;
                 default:
                     break;
             }
 
-            trans += new Vector3(moveDirection * distance, 0.0f);
+            trans += new Vector3(moveDirection * distance, roll);
             transform.Translation = trans;
 
             transform.Rotation = Quaternion.CreateFromYawPitchRoll(pitch, 0.0f, yaw);
