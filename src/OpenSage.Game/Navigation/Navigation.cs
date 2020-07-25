@@ -56,7 +56,7 @@ namespace OpenSage.Navigation
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            if (startNode == null || endNode == null || !startNode.IsPassable || !endNode.IsPassable)
+            if (startNode == null || endNode == null /*|| !startNode.IsPassable*/ || !endNode.IsPassable)
             {
                 Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
                 yield break;
@@ -95,7 +95,7 @@ namespace OpenSage.Navigation
                 for (var y = - 1; y < topRightNode.Y - bottomLeftNode.Y + 1; y++)
                 {
                     var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
-                    var position = new Vector2(aabb.Min.X + x, aabb.Min.Y + y);
+                    var position = GetNodePosition(node);
                     if (area.Contains(position))
                     {
                         node.Passability = passable ? Passability.Passable : Passability.Impassable;
