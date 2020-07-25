@@ -52,7 +52,8 @@ namespace OpenSage.Logic.Object
                 newTranslation.Z = terrainHeight;
 
                 // TODO: Improve bouncing.
-                _velocity.Z = Math.Abs(_velocity.Z) * 0.9f;
+                var damping = context.GameObject.AIUpdate?.CurrentLocomotor.GetPitchDamping() ?? 0.1f;
+                _velocity.Z = MathF.Abs(_velocity.Z) * (1.0f - damping);
 
                 if (_moduleData.KillWhenRestingOnGround && _velocity.Z < 0.1f)
                 {
