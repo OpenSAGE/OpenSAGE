@@ -5,7 +5,7 @@ namespace OpenSage.Navigation
 {
     public class Graph
     {
-        public readonly Node[,] _nodes;
+        readonly Node[,] _nodes;
 
         public int Width => _nodes.GetLength(0);
         public int Height => _nodes.GetLength(1);
