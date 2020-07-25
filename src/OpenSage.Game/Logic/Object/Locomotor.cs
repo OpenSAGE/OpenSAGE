@@ -58,6 +58,11 @@ namespace OpenSage.Logic.Object
                 : GetLocomotorValue(x => x.Acceleration);
         }
 
+        private float GetFrontWheelTurnAngle()
+        {
+            return GetLocomotorValue(x => x.FrontWheelTurnAngle);
+        }
+
         private float GetTurnRate()
         {
             return _gameObject.IsDamaged
@@ -162,6 +167,7 @@ namespace OpenSage.Logic.Object
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
             var yaw = currentYaw + newDelta;
+            _gameObject.Yaw = Math.Clamp(newDelta / deltaTime, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
 
             switch (_locomotorTemplate.Appearance)
             {
