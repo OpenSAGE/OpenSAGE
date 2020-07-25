@@ -516,11 +516,12 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
         {
             var result = new List<LazyAssetReference<Graphics.Animation.W3DAnimation>>();
-
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Value.Text));
+                var name = token.Value.Text;
+                if (!name.Contains('.')) name = ((ModelConditionState)Temp).Skeleton + "." + name;
+                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(name));
             }
 
             return result.ToArray();
