@@ -80,7 +80,7 @@ namespace OpenSage.Terrain
 
             if (x >= Width || y >= Height || x < 0 || y < 0)
             {
-                return new Vector3(0, 0, 1.0f);
+                return Vector3.UnitZ;
             }
 
             return Normals[(int)x, (int)y];
@@ -176,7 +176,7 @@ namespace OpenSage.Terrain
                     // vertices on heightmap boundaries do not have
                     // surrounding quads in some directions, so we just
                     // average in a normal vector that is axis aligned
-                    // with the y-axis.
+                    // with the z-axis.
                     if (m < 0 || n < 0 || m == Width - 1 || n == Height - 1)
                     {
                         avg += Vector3.UnitZ;
