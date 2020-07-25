@@ -274,7 +274,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
-                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
 
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
@@ -483,7 +483,10 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 queueButton.SystemCallback = (control, message, context) =>
                                 {
-                                    unit.ProductionUpdate.CancelProduction(posCopy);
+                                    var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                                    var order = new Order(playerIndex, OrderType.CancelUnit);
+                                    order.AddIntegerArgument(posCopy);
+                                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
                                 };
                             }
                         }

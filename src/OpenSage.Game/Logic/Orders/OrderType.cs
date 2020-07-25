@@ -10,6 +10,7 @@
         SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
         CreateUnit = 1047,
+        CancelUnit = 1048,
         BuildObject = 1049,
         Sell = 1052,
         DrawBoxSelection = 1058,
@@ -83,8 +84,6 @@
         ChooseGeneralPromotion = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
         ObjectUprade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593)
         Unknown1046 = 1046,
-
-        Unknown1048 = 1048,
 
         Unknown1050 = 1050,
         Unknown1051 = 1051,
