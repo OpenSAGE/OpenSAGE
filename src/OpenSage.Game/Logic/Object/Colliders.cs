@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class Collider
     {
-        protected readonly Transform Transform;
+        public readonly Transform Transform;
 
         protected Collider(Transform transform)
         {
@@ -36,6 +36,7 @@ namespace OpenSage.Logic.Object
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
 
         public abstract Rectangle GetBoundingRectangle(Camera camera);
+        public abstract TransformedRectangle GetBoundingArea();
         public abstract BoundingBox GetAxisAlignedBoundingBox();
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
 
@@ -97,6 +98,11 @@ namespace OpenSage.Logic.Object
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return camera.GetBoundingRectangle(worldBounds);
+        }
+
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
         }
 
         public override BoundingBox GetAxisAlignedBoundingBox()
@@ -187,6 +193,11 @@ namespace OpenSage.Logic.Object
             return new Rectangle(0, 0, 0, 0);
         }
 
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingSphere(_bounds, Transform.Translation);
+        }
+
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
             //TODO implement
@@ -228,6 +239,11 @@ namespace OpenSage.Logic.Object
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return camera.GetBoundingRectangle(worldBounds);
+        }
+
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
         }
 
         public override BoundingBox GetAxisAlignedBoundingBox()

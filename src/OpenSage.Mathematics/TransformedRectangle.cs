@@ -76,6 +76,12 @@ namespace OpenSage.Mathematics
             return true;
         }
 
+        public bool Contains(Vector2 point)
+        {
+            return TriangleUtility.IsPointInside(LowerLeft, UpperLeft, UpperRight, point)
+                || TriangleUtility.IsPointInside(LowerLeft, UpperRight, LowerRight, point);
+        }
+
         public static TransformedRectangle FromRectangle(in RectangleF rect, float angle = 0)
         {
             var upperLeft = new Vector2(rect.X, rect.Y);
@@ -103,6 +109,15 @@ namespace OpenSage.Mathematics
             var xyRectangle = new RectangleF(upperLeft, new SizeF(lengths.X, lengths.Y));
             var angle = transformRotation.Z;
             return FromRectangle(xyRectangle, angle);
+        }
+
+        public static TransformedRectangle FromBoundingSphere(
+            in BoundingSphere boundingSphere,
+            in Vector3 transformTranslation)
+        {
+            var upperLeft = boundingSphere.Center.Vector2XY() + new Vector2(transformTranslation.X, transformTranslation.Y);
+            var xyRectangle = new RectangleF(upperLeft, new SizeF(boundingSphere.Radius * 2, boundingSphere.Radius * 2));
+            return FromRectangle(xyRectangle, 0.0f);
         }
     }
 }

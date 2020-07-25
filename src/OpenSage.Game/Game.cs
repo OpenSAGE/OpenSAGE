@@ -668,6 +668,8 @@ namespace OpenSage
                         startingBuilding.Transform.Translation = playerStartPosition;
                         startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
 
+                        Scene3D.Navigation.UpdateArea(startingBuilding, false);
+
                         var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
                         var startingUnit0Position = playerStartPosition;
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;

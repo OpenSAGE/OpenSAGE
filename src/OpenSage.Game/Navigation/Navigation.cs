@@ -9,7 +9,7 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        readonly Graph _graph;
+        public readonly Graph _graph;
         readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -32,7 +32,7 @@ namespace OpenSage.Navigation
             _heightMap = heightMap;
         }
 
-        private Vector2 GetNodePosition(Node node)
+        public Vector2 GetNodePosition(Node node)
         {
             var xyz =_heightMap.GetPosition(node.X, node.Y);
             return new Vector2(xyz.X, xyz.Y);
@@ -81,21 +81,22 @@ namespace OpenSage.Navigation
 
         public void UpdateArea(GameObject gameObject, bool passable)
         {
+            if (gameObject.Collider == null) return;
+
             var aabb = gameObject.Collider.GetAxisAlignedBoundingBox();
-            var direction = new Vector3(0, 0, -1);
 
             var bottomLeftNode = GetClosestNode(aabb.Min);
             var topRightNode = GetClosestNode(aabb.Max);
 
-            for (var x = bottomLeftNode.X; x < topRightNode.X; x++)
+            var area = gameObject.Collider.GetBoundingArea();
+
+            for (var x = -1; x < topRightNode.X - bottomLeftNode.X + 1; x++)
             {
-                for (var y = bottomLeftNode.Y; y < topRightNode.Y; y++)
+                for (var y = - 1; y < topRightNode.Y - bottomLeftNode.Y + 1; y++)
                 {
-                    var node = _graph.GetNode(x, y);
-                    var position = new Vector3(x, y, 100);
-                    var ray = new Ray(position, direction);
-                    node.Passability = passable ? Passability.Passable : Passability.Impassable;
-                    if (gameObject.Collider.Intersects(ray, out var _))
+                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var position = new Vector2(aabb.Min.X + x, aabb.Min.Y + y);
+                    if (area.Contains(position))
                     {
                         node.Passability = passable ? Passability.Passable : Passability.Impassable;
                     }
