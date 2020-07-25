@@ -8,6 +8,7 @@
         OrderGeneratorPriority,
         UIPriority,
         BoxSelectionPriority,
-        MoveCameraPriority
+        MoveCameraPriority,
+        DebugPriority
     }
 }
