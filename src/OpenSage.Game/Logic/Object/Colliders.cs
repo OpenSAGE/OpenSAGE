@@ -36,6 +36,7 @@ namespace OpenSage.Logic.Object
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
 
         public abstract Rectangle GetBoundingRectangle(Camera camera);
+        public abstract BoundingBox GetAxisAlignedBoundingBox();
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
@@ -96,6 +97,11 @@ namespace OpenSage.Logic.Object
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return camera.GetBoundingRectangle(worldBounds);
+        }
+
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+             return BoundingBox.Transform(_bounds, Transform.Matrix);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
@@ -163,6 +169,16 @@ namespace OpenSage.Logic.Object
             return frustum.Intersects(worldBounds);
         }
 
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+            var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
+            var center = worldBounds.Center;
+            var radius = worldBounds.Radius;
+            var min = new Vector3(center.X - radius, center.Y - radius, center.Z - radius);
+            var max = new Vector3(center.X + radius, center.Y + radius, center.Z + radius);
+            return new BoundingBox(min, max);
+        }
+
         public override Rectangle GetBoundingRectangle(Camera camera)
         {
             // TODO: Implement this.
@@ -212,6 +228,11 @@ namespace OpenSage.Logic.Object
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return camera.GetBoundingRectangle(worldBounds);
+        }
+
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+            return BoundingBox.Transform(_bounds, Transform.Matrix);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)

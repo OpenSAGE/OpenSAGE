@@ -416,6 +416,8 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 ConstructionStart = gameTime.TotalTime;
             }
+
+            _gameContext.Navigation.UpdateArea(this, false);
         }
 
         internal void FinishConstruction()

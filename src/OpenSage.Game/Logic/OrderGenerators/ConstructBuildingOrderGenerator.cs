@@ -51,8 +51,10 @@ namespace OpenSage.Logic.OrderGenerators
                 buildingDefinition,
                 gameContext,
                 player,
-                null);
-            _previewObject.IsPlacementPreview = true;
+                null)
+            {
+                IsPlacementPreview = true
+            };
 
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();

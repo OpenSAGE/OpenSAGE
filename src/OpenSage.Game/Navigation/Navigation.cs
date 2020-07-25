@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Navigation
@@ -74,6 +76,30 @@ namespace OpenSage.Navigation
             {
                 var pos = GetNodePosition(node);
                 yield return new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y));
+            }
+        }
+
+        public void UpdateArea(GameObject gameObject, bool passable)
+        {
+            var aabb = gameObject.Collider.GetAxisAlignedBoundingBox();
+            var direction = new Vector3(0, 0, -1);
+
+            var bottomLeftNode = GetClosestNode(aabb.Min);
+            var topRightNode = GetClosestNode(aabb.Max);
+
+            for (var x = bottomLeftNode.X; x < topRightNode.X; x++)
+            {
+                for (var y = bottomLeftNode.Y; y < topRightNode.Y; y++)
+                {
+                    var node = _graph.GetNode(x, y);
+                    var position = new Vector3(x, y, 100);
+                    var ray = new Ray(position, direction);
+                    node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                    if (gameObject.Collider.Intersects(ray, out var _))
+                    {
+                        node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                    }
+                }
             }
         }
     }
