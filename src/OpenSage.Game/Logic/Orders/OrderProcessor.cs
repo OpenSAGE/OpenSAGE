@@ -33,8 +33,7 @@ namespace OpenSage.Logic.Orders
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
-                logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
-
+                logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
 
                 switch (order.OrderType)
                 {
