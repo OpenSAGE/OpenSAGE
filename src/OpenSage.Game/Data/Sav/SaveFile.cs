@@ -10,15 +10,74 @@ using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Logic;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Sav
 {
+    internal sealed class MarkdownWriter : IDisposable
+    {
+        private readonly StreamWriter _writer;
+
+        public MarkdownWriter(string filePath)
+        {
+            _writer = new StreamWriter(filePath);
+        }
+
+        public void AppendLine(string text)
+        {
+            _writer.WriteLine(text);
+        }
+
+        public void AppendBytes(byte[] bytes)
+        {
+            _writer.WriteLine("```");
+            for (var i = 0; i < bytes.Length; i += 16)
+            {
+                for (var j = i; j < Math.Min(i + 16, bytes.Length); j++)
+                {
+                    _writer.Write($"{bytes[j]:X2} ");
+                }
+                _writer.WriteLine();
+            }
+            _writer.WriteLine("```");
+        }
+
+        public void BeginTable()
+        {
+            _writer.WriteLine("<table>");
+        }
+
+        public void AppendTableRow(string name, object value)
+        {
+            var valueString = value switch
+            {
+                Matrix4x3 m => $"{m.M11} {m.M12} {m.M13}<br />{m.M21} {m.M22} {m.M23}<br />{m.M31} {m.M32} {m.M33}<br />{m.M41} {m.M42} {m.M43}",
+                _ => value.ToString()
+            };
+
+            _writer.WriteLine($"<tr><td><b>{name}</b></td><td>{valueString}</td></tr>");
+        }
+
+        public void EndTable()
+        {
+            _writer.WriteLine("</table>");
+        }
+
+        public void Dispose()
+        {
+            _writer.Dispose();
+        }
+    }
+
     public sealed class SaveFile
     {
         public IReadOnlyList<SaveChunkHeader> ChunkHeaders { get; private set; }
 
-        public static SaveFile FromStream(Stream stream)
+        public static SaveFile FromStream(Stream stream, string dumpFilePath)
         {
+            using var dumpWriter = new MarkdownWriter(dumpFilePath);
+
             using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
             {
                 var chunkHeaders = new List<SaveChunkHeader>();
@@ -32,32 +91,58 @@ namespace OpenSage.Data.Sav
 
                     var end = stream.Position + chunkHeader.DataLength;
 
+                    dumpWriter.AppendLine($"");
+                    dumpWriter.AppendLine($"# {chunkHeader.Name}");
+                    dumpWriter.AppendLine($"{chunkHeader.Length} bytes");
+
                     switch (chunkHeader.Name)
                     {
                         case "CHUNK_GameState":
-                        {
-                            var gameType = reader.ReadUInt32AsEnum<SaveGameType>();
-                            var mapPath = reader.ReadBytePrefixedAsciiString();
-                            var timeStamp = reader.ReadDateTime();
-                            var displayName = reader.ReadBytePrefixedUnicodeString();
-                            var mapFileName = reader.ReadBytePrefixedAsciiString();
-                            var side = reader.ReadBytePrefixedAsciiString();
-                            var missionIndex = reader.ReadUInt32();
-                            break;
-                        }
+                            {
+                                var gameType = reader.ReadUInt32AsEnum<SaveGameType>();
+                                var mapPath = reader.ReadBytePrefixedAsciiString();
+                                var timeStamp = reader.ReadDateTime();
+                                var displayName = reader.ReadBytePrefixedUnicodeString();
+                                var mapFileName = reader.ReadBytePrefixedAsciiString();
+                                var side = reader.ReadBytePrefixedAsciiString();
+                                var missionIndex = reader.ReadUInt32();
+
+                                dumpWriter.BeginTable();
+                                dumpWriter.AppendTableRow("GameType", gameType);
+                                dumpWriter.AppendTableRow("MapPath", mapPath);
+                                dumpWriter.AppendTableRow("Timestamp", timeStamp);
+                                dumpWriter.AppendTableRow("DisplayName", displayName);
+                                dumpWriter.AppendTableRow("MapFileName", mapFileName);
+                                dumpWriter.AppendTableRow("Side", side);
+                                dumpWriter.AppendTableRow("MissionIndex", missionIndex);
+                                dumpWriter.EndTable();
+
+                                break;
+                            }
 
                         case "CHUNK_Campaign":
-                        {
-                            var side = reader.ReadBytePrefixedAsciiString();
-                            var missionName = reader.ReadBytePrefixedAsciiString();
-                            var unknown = reader.ReadUInt32();
-                            var maybeDifficulty = reader.ReadUInt32();
-                            if (chunkHeader.Version >= 5)
                             {
-                                var unknown2 = reader.ReadBytes(5);
+                                var side = reader.ReadBytePrefixedAsciiString();
+                                var missionName = reader.ReadBytePrefixedAsciiString();
+                                var unknown = reader.ReadUInt32();
+                                var maybeDifficulty = reader.ReadUInt32();
+
+                                dumpWriter.BeginTable();
+                                dumpWriter.AppendTableRow("Side", side);
+                                dumpWriter.AppendTableRow("MissionName", missionName);
+                                dumpWriter.AppendTableRow("Unknown1", unknown);
+                                dumpWriter.AppendTableRow("Difficulty?", maybeDifficulty);
+
+                                if (chunkHeader.Version >= 5)
+                                {
+                                    var unknown2 = reader.ReadBytes(5);
+                                    dumpWriter.AppendTableRow("Unknown2", unknown2);
+                                }
+
+                                dumpWriter.EndTable();
+
+                                break;
                             }
-                            break;
-                        }
 
                         case "CHUNK_GameStateMap":
                         {
@@ -180,35 +265,60 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_GameLogic":
                             {
+                                dumpWriter.BeginTable();
+
                                 var unknown1 = reader.ReadUInt32();
                                 var unknown2 = reader.ReadByte();
+
+                                dumpWriter.BeginTable();
+                                dumpWriter.AppendTableRow("Unknown1", unknown1);
+                                dumpWriter.AppendTableRow("Unknown2", unknown2);
+                                dumpWriter.EndTable();
+
                                 var numGameObjects = reader.ReadUInt32();
+                                dumpWriter.AppendLine($"\n## {numGameObjects} Game Objects");
+
                                 var gameObjects = new List<GameObjectState>();
+                                dumpWriter.BeginTable();
                                 for (var i = 0; i < numGameObjects; i++)
                                 {
-                                    gameObjects.Add(new GameObjectState
+                                    var gameObjectState = new GameObjectState
                                     {
                                         Name = reader.ReadBytePrefixedAsciiString(),
                                         Id = reader.ReadUInt16()
-                                    });
+                                    };
+                                    gameObjects.Add(gameObjectState);
+                                    dumpWriter.AppendTableRow(gameObjectState.Id.ToString(), gameObjectState.Name);
                                 }
+                                dumpWriter.EndTable();
 
                                 var numGameObjects2 = reader.ReadUInt32();
+                                dumpWriter.AppendLine($"\n## {numGameObjects2} Game Objects");
                                 for (var objectIndex = 0; objectIndex < numGameObjects2; objectIndex++)
                                 {
                                     var objectID = reader.ReadUInt16();
+                                    dumpWriter.AppendLine($"\n### Object {objectID}");
+
+                                    dumpWriter.BeginTable();
 
                                     var unknown3 = reader.ReadUInt32();
+                                    dumpWriter.AppendTableRow("Unknown3", unknown3);
 
-                                    reader.ReadByte(); // 7
+                                    var unknown4 = reader.ReadByte(); // 7
+                                    dumpWriter.AppendTableRow("Unknown4", unknown4);
 
-                                    reader.ReadUInt16(); // Inverse of object ID??
+                                    var unknown5 = reader.ReadUInt16(); // Inverse of object ID??
+                                    dumpWriter.AppendTableRow("Unknown5", unknown5);
 
-                                    reader.ReadBooleanChecked(); // 0
-                                    reader.ReadBooleanChecked(); // 0
-                                    reader.ReadBooleanChecked(); // 1
+                                    var unknownBool1 = reader.ReadBooleanChecked(); // 0
+                                    dumpWriter.AppendTableRow("UnknownBool1", unknownBool1);
+                                    var unknownBool2 = reader.ReadBooleanChecked(); // 0
+                                    dumpWriter.AppendTableRow("UnknownBool2", unknownBool2);
+                                    var unknownBool3 = reader.ReadBooleanChecked(); // 1
+                                    dumpWriter.AppendTableRow("UnknownBool3", unknownBool3);
 
                                     var transform = reader.ReadMatrix4x3Transposed();
+                                    dumpWriter.AppendTableRow("Transform", transform);
 
                                     var unknown8 = reader.ReadBytes(16);
 
@@ -228,6 +338,8 @@ namespace OpenSage.Data.Sav
                                     var unknown16 = reader.ReadSingle(); // 360
                                     var unknown17 = reader.ReadSingle(); // 360
                                     var unknown18 = reader.ReadBytes(84);
+
+                                    dumpWriter.EndTable();
 
                                     var numUpgrades = reader.ReadUInt16();
                                     for (var i = 0; i < numUpgrades; i++)
@@ -255,10 +367,12 @@ namespace OpenSage.Data.Sav
 
                                     // Modules
                                     var numModules = reader.ReadUInt16();
+                                    dumpWriter.AppendLine($"\n#### {numModules} Modules");
                                     for (var i = 0; i < numModules; i++)
                                     {
                                         var moduleTag = reader.ReadBytePrefixedAsciiString();
                                         var moduleLengthInBytes = reader.ReadUInt32();
+                                        dumpWriter.AppendLine($"\n##### Module {moduleTag} ({moduleLengthInBytes} bytes)");
 
                                         // TODO: Per-module parsing
                                         //if (i == 5) // Body module, but only for first object
@@ -276,7 +390,9 @@ namespace OpenSage.Data.Sav
                                         //}
                                         //else
                                         {
-                                            reader.ReadBytes((int) moduleLengthInBytes);
+                                            var moduleBytes = reader.ReadBytes((int) moduleLengthInBytes);
+
+                                            dumpWriter.AppendBytes(moduleBytes);
                                         }
                                     }
 
