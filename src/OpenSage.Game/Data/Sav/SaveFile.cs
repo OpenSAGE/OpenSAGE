@@ -695,8 +695,54 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_GhostObject":
-                            reader.ReadBytes(143);
-                            break;
+                            {
+                                reader.ReadBooleanChecked();
+                                reader.ReadUInt32();
+                                var count = reader.ReadUInt16();
+                                for (var i = 0; i < count; i++)
+                                {
+                                    var someId = reader.ReadUInt32();
+                                    reader.ReadBooleanChecked(); // 1
+                                    reader.ReadBooleanChecked(); // 1
+                                    var someId2 = reader.ReadUInt32(); // Same as someId
+                                    reader.ReadUInt32();
+                                    reader.ReadByte();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadSingle();
+                                    reader.ReadBytes(14);
+                                    var otherCount = reader.ReadByte();
+                                    for (var j = 0; j < otherCount; j++)
+                                    {
+                                        var modelName = reader.ReadBytePrefixedAsciiString();
+                                        var someFloat = reader.ReadSingle();
+                                        var someInt = reader.ReadUInt32();
+                                        var someBool = reader.ReadBooleanChecked();
+                                        var modelTransform = reader.ReadMatrix4x3Transposed();
+                                        var numMeshes = reader.ReadUInt32();
+                                        for (var k = 0; k < numMeshes; k++)
+                                        {
+                                            var meshName = reader.ReadBytePrefixedAsciiString();
+                                            var meshBool = reader.ReadBooleanChecked();
+                                            var meshTransform = reader.ReadMatrix4x3Transposed();
+                                        }
+                                    }
+                                    reader.ReadBooleanChecked();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    reader.ReadUInt32();
+                                    var unknown = reader.ReadBooleanChecked();
+                                    if (unknown)
+                                    {
+                                        reader.ReadByte();
+                                        reader.ReadUInt32();
+                                    }
+                                }
+                                break;
+                            }
 
                         default:
                             throw new InvalidDataException($"Unknown chunk type '{chunkHeader.Name}'.");

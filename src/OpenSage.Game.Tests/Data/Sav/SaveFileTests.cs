@@ -27,13 +27,6 @@ namespace OpenSage.Tests.Data.Sav
             foreach (var file in Directory.GetFiles(RootFolder, "*.sav", SearchOption.AllDirectories))
             {
                 var relativePath = file.Substring(RootFolder.Length + 1);
-
-                if (relativePath.StartsWith("GeneralsSkirmish"))
-                {
-                    // Not working yet.
-                    continue;
-                }
-
                 yield return new object[] { relativePath };
             }
         }
