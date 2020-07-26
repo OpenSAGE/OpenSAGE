@@ -106,7 +106,12 @@ namespace OpenSage.Logic.Orders
                             foreach (var unit in player.SelectedUnits)
                             {
                                 // Only units that can produce stuff should produce it
-                                var productionJob = unit.ProductionUpdate?.ProductionQueue[queueIndex];
+                                if(unit.ProductionUpdate == null)
+                                {
+                                    continue;
+                                }
+
+                                var productionJob = unit.ProductionUpdate.ProductionQueue[queueIndex];
                                 var objectDefinition = productionJob.ObjectDefinition;
 
                                 player.Money += (uint) objectDefinition.BuildCost;
