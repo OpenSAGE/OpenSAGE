@@ -621,6 +621,13 @@ namespace OpenSage.Logic.Object
                 var aiUpdate = Definition.Behaviors.OfType<AIUpdateModuleData>().FirstOrDefault();
                 var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
 
+                // Happens for BFME structures
+                if(weaponSetUpdateData.WeaponSlotHardpoints.Count == 0 &&
+                   weaponSetUpdateData.WeaponSlotTurrets.Count == 0)
+                {
+                    return;
+                }
+
                 // TODO: This weapon selection is all wrong, and should be done in WeaponSetUpdate.
 
                 var weaponSlotHardpoint = weaponSetUpdateData.WeaponSlotHardpoints.Count > 0

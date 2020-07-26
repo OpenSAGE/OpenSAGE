@@ -31,8 +31,6 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public List<Vector3> TargetPoints { get; set; }
 
-        internal Locomotor CurrentLocomotor => _currentLocomotor;
-
         internal AIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
         {
             GameObject = gameObject;
