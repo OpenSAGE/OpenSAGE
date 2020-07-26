@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class Collider
     {
-        public readonly Transform Transform;
+        protected readonly Transform Transform;
 
         protected Collider(Transform transform)
         {
