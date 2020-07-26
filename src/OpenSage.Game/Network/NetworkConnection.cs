@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
@@ -73,7 +75,7 @@ namespace OpenSage.Network
             _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
-            {                
+            {
                 if (slot.State == SkirmishSlotState.Human && slot.Index > game.SkirmishManager.SkirmishGame.LocalSlot)
                 {
                     Logger.Trace($"Connecting to {slot.EndPoint.Address}:{Ports.SkirmishGame + slot.Index}");
@@ -118,13 +120,92 @@ namespace OpenSage.Network
 
         private Order ReadOrder(NetDataReader reader)
         {
-            return new Order(reader.GetInt(), (OrderType)reader.GetInt());
+            int playerIndex = reader.GetInt();
+            OrderType orderType = (OrderType) reader.GetInt();
+
+            var order = new Order(playerIndex, orderType);
+
+            byte argumentCount = reader.GetByte();
+
+            for (int i = 0; i < argumentCount; i++)
+            {
+                OrderArgumentType argumentType = (OrderArgumentType)reader.GetInt();
+
+                switch (argumentType)
+                {
+                    case OrderArgumentType.Integer:
+                        order.AddIntegerArgument(reader.GetInt());
+                        break;
+                    case OrderArgumentType.Float:
+                        order.AddFloatArgument(reader.GetFloat());
+                        break;
+                    case OrderArgumentType.Boolean:
+                        order.AddBooleanArgument(reader.GetBool());
+                        break;
+                    case OrderArgumentType.ObjectId:
+                        order.AddObjectIdArgument(reader.GetUInt());
+                        break;
+                    case OrderArgumentType.Position:
+                        order.AddPositionArgument(new Vector3(reader.GetFloat(), reader.GetFloat(), reader.GetFloat()));
+                        break;
+                    case OrderArgumentType.ScreenPosition:
+                        order.AddScreenPositionArgument(new Point2D(reader.GetInt(), reader.GetInt()));
+                        break;
+                    case OrderArgumentType.ScreenRectangle:
+                        order.AddScreenRectangleArgument(new Rectangle(reader.GetInt(), reader.GetInt(),
+                                                                       reader.GetInt(), reader.GetInt()));
+                        break;
+                    default:
+                        throw new NotImplementedException("We don't know the other argument types");
+                }
+            }
+
+            return order;
         }
 
         private void WriteOrder(NetDataWriter writer, Order order)
         {
             writer.Put(order.PlayerIndex);
-            writer.Put((int)order.OrderType);
+            writer.Put((int) order.OrderType);
+            writer.Put((byte) order.Arguments.Count);
+
+            foreach (var argument in order.Arguments)
+            {
+                writer.Put((int) argument.ArgumentType);
+
+                switch (argument.ArgumentType)
+                {
+                    case OrderArgumentType.Integer:
+                        writer.Put(argument.Value.Integer);
+                        break;
+                    case OrderArgumentType.Float:
+                        writer.Put(argument.Value.Float);
+                        break;
+                    case OrderArgumentType.Boolean:
+                        writer.Put(argument.Value.Boolean);
+                        break;
+                    case OrderArgumentType.ObjectId:
+                        writer.Put(argument.Value.ObjectId);
+                        break;
+                    case OrderArgumentType.Position:
+                        writer.Put(argument.Value.Position.X);
+                        writer.Put(argument.Value.Position.Y);
+                        writer.Put(argument.Value.Position.Z);
+                        break;
+                    case OrderArgumentType.ScreenPosition:
+                        writer.Put(argument.Value.ScreenPosition.X);
+                        writer.Put(argument.Value.ScreenPosition.Y);
+                        break;
+                    case OrderArgumentType.ScreenRectangle:
+                        writer.Put(argument.Value.ScreenRectangle.X);
+                        writer.Put(argument.Value.ScreenRectangle.Y);
+                        writer.Put(argument.Value.ScreenRectangle.Width);
+                        writer.Put(argument.Value.ScreenRectangle.Height);
+                        break;
+                    default:
+                        throw new NotImplementedException("We don't know the other argument types");
+                }
+            }
         }
 
         public void Dispose()
