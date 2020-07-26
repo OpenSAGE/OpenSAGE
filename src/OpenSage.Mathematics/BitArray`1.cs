@@ -70,6 +70,11 @@ namespace OpenSage.Mathematics
             return _data.And(other._data).NumBitsSet;
         }
 
+        public bool Intersects(BitArray<TEnum> other)
+        {
+            return CountIntersectionBits(other) > 0;
+        }
+
         public IEnumerable<TEnum> GetSetBits()
         {
             for (var i = 0; i < _data.Length; i++)
