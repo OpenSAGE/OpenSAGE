@@ -92,6 +92,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Bfme)]
         public SkyboxSettings SkyboxSettings { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public CastleTemplates CastleTemplates { get; private set; }
+
         public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
 
         public static Stream Decompress(Stream stream)
@@ -301,6 +304,10 @@ namespace OpenSage.Data.Map
                         result.SkyboxSettings = SkyboxSettings.Parse(reader, context);
                         break;
 
+                    case CastleTemplates.AssetName:
+                        result.CastleTemplates = CastleTemplates.Parse(reader, context);
+                        break;
+
                     default:
                         throw new NotImplementedException(assetName);
                 }
@@ -476,6 +483,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(CameraAnimationList.AssetName));
                 CameraAnimationList.WriteTo(writer);
+            }
+
+            if (CastleTemplates != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(CastleTemplates.AssetName));
+                CastleTemplates.WriteTo(writer);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));

@@ -1,9 +1,91 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Map;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class CastleBehaviorModule : BehaviorModule
+    {
+        GameObject _gameObject;
+        CastleBehaviorModuleData _moduleData;
+        bool _unpacked = false;
+
+        internal CastleBehaviorModule(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+        }
+
+        private void Unpack(GameContext context)
+        {
+            if (!_unpacked)
+            {
+                var castleEntry = FindCastle();
+
+                if (castleEntry != null)
+                {
+                    var basePath = $"bases\\{castleEntry.Camp}\\{castleEntry.Camp}.bse";
+
+                    var entry = context.AssetLoadContext.FileSystem.GetFile(basePath);
+                    var mapFile = MapFile.FromFileSystemEntry(entry);
+
+                    foreach (var mapObject in mapFile.ObjectsList.Objects)
+                    {
+                        var baseObject = GameObject.FromMapObject(
+                            mapObject,
+                            context.AssetLoadContext.AssetStore,
+                            context.GameObjects,
+                            _gameObject.Transform.Translation);
+
+                        AssignOwner(baseObject);
+                    }
+                }
+
+                _unpacked = true;
+            }
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            // TODO: Figure out the other unpack conditions
+            if (_moduleData.InstantUnpack)
+            {
+                Unpack(context.GameContext);
+            }
+        }
+
+        private void AssignOwner(GameObject gameObject)
+        {
+            if(_moduleData.FilterValidOwnedEntries.Matches(gameObject))
+            {
+                gameObject.Owner = _gameObject.Owner;
+                gameObject.Team = _gameObject.Team;
+            }
+        }
+
+        private CastleEntry FindCastle()
+        {
+            // Use the gameobject side
+            foreach (var entry in _moduleData.CastleToUnpackForFactions)
+            {
+                if (entry.FactionName == _gameObject.Definition.Side)
+                {
+                    return entry;
+                }
+            }
+
+            return null;
+        }
+
+        internal override void DrawInspector()
+        {
+            var entry = FindCastle();
+            ImGuiUtility.PropertyRow("Camp", entry.Camp);
+        }
+    }
+
     [AddedIn(SageGame.Bfme)]
     public class CastleBehaviorModuleData : BehaviorModuleData
     {
@@ -15,7 +97,7 @@ namespace OpenSage.Logic.Object
             { "UseTheNewCastleSystemInsteadOfTheClunkyBuildList", (parser, x) => x.UseTheNewCastleSystemInsteadOfTheClunkyBuildList = parser.ParseBoolean() },
             { "FilterValidOwnedEntries", (parser, x) => x.FilterValidOwnedEntries = ObjectFilter.Parse(parser) },
             { "UseSecondaryBuildList", (parser, x) => x.UseSecondaryBuildList = parser.ParseBoolean() },
-            { "CastleToUnpackForFaction", (parser, x) => x.CastleToUnpackForFactions.Add(Faction.Parse(parser)) },
+            { "CastleToUnpackForFaction", (parser, x) => x.CastleToUnpackForFactions.Add(CastleEntry.Parse(parser)) },
             { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseFloat() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseFloat() },
             { "ScanDistance", (parser, x) => x.ScanDistance = parser.ParseInteger() },
@@ -26,7 +108,7 @@ namespace OpenSage.Logic.Object
             { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
             { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
             { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
-            { "FactionDecal", (parser, x) => x.FactionDecals.Add(Faction.Parse(parser)) },
+            { "FactionDecal", (parser, x) => x.FactionDecals.Add(CastleEntry.Parse(parser)) },
             { "InstantUnpack", (parser, x) => x.InstantUnpack = parser.ParseBoolean() },
             { "KeepDeathKillsEverything", (parser, x) => x.KeepDeathKillsEverything = parser.ParseBoolean() },
             { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() },
@@ -34,11 +116,11 @@ namespace OpenSage.Logic.Object
             { "Summoned", (parser, x) => x.Summoned = parser.ParseBoolean() }
         };
 
-        public List<Side> SidesAllowed { get;} = new List<Side>();
+        public List<Side> SidesAllowed { get; } = new List<Side>();
         public bool UseTheNewCastleSystemInsteadOfTheClunkyBuildList { get; private set; }
         public ObjectFilter FilterValidOwnedEntries { get; private set; }
         public bool UseSecondaryBuildList { get; private set; }
-        public List<Faction> CastleToUnpackForFactions { get; } = new List<Faction>();
+        public List<CastleEntry> CastleToUnpackForFactions { get; } = new List<CastleEntry>();
         public float MaxCastleRadius { get; private set; }
         public float FadeTime { get; private set; }
         public int ScanDistance { get; private set; }
@@ -49,7 +131,7 @@ namespace OpenSage.Logic.Object
         public string CrewPrepareFX { get; private set; }
         public int CrewPrepareInterval { get; private set; }
         public bool DisableStructureRotation { get; private set; }
-        public List<Faction> FactionDecals { get; } = new List<Faction>();
+        public List<CastleEntry> FactionDecals { get; } = new List<CastleEntry>();
 
         [AddedIn(SageGame.Bfme2)]
         public bool InstantUnpack { get; private set; }
@@ -65,13 +147,18 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool Summoned { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CastleBehaviorModule(gameObject, context, this);
+        }
     }
 
-    public sealed class Faction
+    public sealed class CastleEntry
     {
-        internal static Faction Parse(IniParser parser)
+        internal static CastleEntry Parse(IniParser parser)
         {
-            var result = new Faction
+            var result = new CastleEntry
             {
                 FactionName = parser.ParseString(),
                 Camp = parser.ParseAssetReference(),

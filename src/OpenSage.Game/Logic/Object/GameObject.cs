@@ -21,10 +21,10 @@ namespace OpenSage.Logic.Object
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
-            IReadOnlyList<Team> teams,
             AssetStore assetStore,
             GameObjectCollection parent,
-            in Vector3 position)
+            in Vector3 position,
+            IReadOnlyList<Team> teams = null)
         {
             var gameObject = parent.Add(mapObject.TypeName);
 
@@ -48,16 +48,19 @@ namespace OpenSage.Logic.Object
                 gameObject.Name = (string) objectName.Value;
             }
 
-            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
+            if (teams != null)
             {
-                var name = (string) teamName.Value;
-                if (name.Contains('/'))
+                if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
                 {
-                    name = name.Split('/')[1];
+                    var name = (string) teamName.Value;
+                    if (name.Contains('/'))
+                    {
+                        name = name.Split('/')[1];
+                    }
+                    var team = teams.FirstOrDefault(t => t.Name == name);
+                    gameObject.Team = team;
+                    gameObject.Owner = team?.Owner;
                 }
-                var team = teams.FirstOrDefault(t => t.Name == name);
-                gameObject.Team = team;
-                gameObject.Owner = team?.Owner;
             }
 
             if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
@@ -107,7 +110,7 @@ namespace OpenSage.Logic.Object
 
         public float VerticalOffset;
 
-        public Player Owner { get; private set; }
+        public Player Owner { get; internal set; }
 
         private string _name;
 
