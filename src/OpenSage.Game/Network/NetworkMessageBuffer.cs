@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Network
 {
     public sealed class NetworkMessageBuffer : DisposableBase
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly Dictionary<uint, List<Order>> _frameOrders;
         private readonly List<Order> _localOrders;
         private readonly IConnection _connection;
@@ -27,10 +30,21 @@ namespace OpenSage.Network
 
         internal void Tick()
         {
+            _connection.Send(_netFrameNumber, _localOrders);
+
+            _localOrders.Clear();
+
             _connection.Receive(
                 _netFrameNumber,
                 (frame, order) =>
                 {
+                    if (frame < _netFrameNumber)
+                    {
+                        throw new InvalidOperationException("This should not be possible, Receive should block until all orders are available.");
+                    }
+
+                    Logger.Trace($"Storing order {order.OrderType} for frame {frame}");
+
                     if (!_frameOrders.TryGetValue(frame, out var orders))
                     {
                         _frameOrders.Add(frame, orders = new List<Order>());
@@ -38,14 +52,10 @@ namespace OpenSage.Network
                     orders.Add(order);
                 });
 
-            _connection.Send(_netFrameNumber, _localOrders);
-
-            _orderProcessor.Process(_localOrders);
-            _localOrders.Clear();
-
             if (_frameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
             {
                 _orderProcessor.Process(frameOrders);
+                _frameOrders.Remove(_netFrameNumber);
             }
 
             _netFrameNumber++;

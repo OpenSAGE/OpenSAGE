@@ -15,12 +15,15 @@ using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
 {
-    class NetworkConnection : IConnection
+    public sealed class NetworkConnection : EchoConnection
     {
+        private const int OrderSchedulingOffsetInFrames = 2;
+
         private EventBasedNetListener _listener;
         private NetManager _manager;
         private NetPacketProcessor _processor;
         private NetDataWriter _writer;
+        private Dictionary<uint, int> _receivedPacketsPerFrame = new Dictionary<uint, int>();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -32,6 +35,11 @@ namespace OpenSage.Network
                 ReuseAddress = true,
                 IPv6Enabled = false, // TODO: temporary
             };
+
+            if (Debugger.IsAttached)
+            {
+                _manager.DisconnectTimeout = 600000;
+            }
 
             _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
             _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
@@ -45,17 +53,25 @@ namespace OpenSage.Network
                 Logger.Trace($"Accept result: {peer}");
             };
 
+            _listener.NetworkReceiveEvent += (NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod) => _processor.ReadAllPackets(reader);
+
             _writer = new NetDataWriter();
             _processor = new NetPacketProcessor();
             _processor.RegisterNestedType<Order>(WriteOrder, ReadOrder);
-            _processor.SubscribeReusable<SkirmishOrderPacket, Action<uint, Order>>((packet, packetFn) =>
+            _processor.Subscribe<SkirmishOrderPacket>(packet =>
             {
-                foreach (var order in packet.Orders)
+                if (_receivedPacketsPerFrame.TryGetValue(packet.Frame, out int count))
                 {
-                    Logger.Trace($"Received order: {order.OrderType}");
-                    packetFn(packet.Frame, order);
+                    count++;
                 }
-            });
+                else
+                {
+                    _receivedPacketsPerFrame.Add(packet.Frame, 1);
+                }
+
+                StorePacket(packet);
+            },
+            () => new SkirmishOrderPacket());
         }
 
         public Task InitializeAsync(Game game)
@@ -93,24 +109,35 @@ namespace OpenSage.Network
             });
         }
 
-        public void Receive(uint frame, Action<uint, Order> packetFn)
+        public override void Receive(uint frame, Action<uint, Order> packetFn)
         {
-            _listener.NetworkReceiveEvent += ReceiveEvent;
             _manager.PollEvents();
-            _listener.NetworkReceiveEvent -= ReceiveEvent;
 
-            void ReceiveEvent(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+            if (frame < OrderSchedulingOffsetInFrames)
             {
-                _processor.ReadAllPackets(reader, packetFn);
+                return;
             }
+
+            while (!_receivedPacketsPerFrame.TryGetValue(frame, out var count) || count < _manager.ConnectedPeersCount)
+            {
+                _manager.PollEvents();
+            }
+
+            base.Receive(frame, packetFn);
+
+            _receivedPacketsPerFrame.Remove(frame);
         }
 
-        public void Send(uint frame, List<Order> orders)
+        public override void Send(uint frame, List<Order> orders)
         {
+            var scheduledFrame = frame + OrderSchedulingOffsetInFrames;
+
+            base.Send(scheduledFrame, orders);
+
             _writer.Reset();
             var packet = new SkirmishOrderPacket()
             {
-                Frame = frame,
+                Frame = scheduledFrame,
                 Orders = orders.ToArray() // TODO optimize
             };
 
@@ -208,7 +235,7 @@ namespace OpenSage.Network
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _manager.Stop();
         }
