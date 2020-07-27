@@ -5,7 +5,7 @@ using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PhysicsBehavior : BehaviorModule
+    public sealed class PhysicsBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly PhysicsBehaviorModuleData _moduleData;
