@@ -7,17 +7,18 @@ namespace OpenSage.Network
     public sealed class NetworkMessageBuffer : DisposableBase
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        private readonly Dictionary<uint, List<Order>> _frameOrders;
         private readonly List<Order> _localOrders;
         private readonly IConnection _connection;
         private readonly OrderProcessor _orderProcessor;
 
         private uint _netFrameNumber;
 
+        //TODO: use this for generating a replay file later on
+        public Dictionary<uint, List<Order>> FrameOrders { get; }
+
         public NetworkMessageBuffer(Game game, IConnection connection)
         {
-            _frameOrders = new Dictionary<uint, List<Order>>();
+            FrameOrders = new Dictionary<uint, List<Order>>();
             _localOrders = new List<Order>();
             _connection = connection;
             _orderProcessor = new OrderProcessor(game);
@@ -45,17 +46,16 @@ namespace OpenSage.Network
 
                     Logger.Trace($"Storing order {order.OrderType} for frame {frame}");
 
-                    if (!_frameOrders.TryGetValue(frame, out var orders))
+                    if (!FrameOrders.TryGetValue(frame, out var orders))
                     {
-                        _frameOrders.Add(frame, orders = new List<Order>());
+                        FrameOrders.Add(frame, orders = new List<Order>());
                     }
                     orders.Add(order);
                 });
 
-            if (_frameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
+            if (FrameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
             {
                 _orderProcessor.Process(frameOrders);
-                _frameOrders.Remove(_netFrameNumber);
             }
 
             _netFrameNumber++;
