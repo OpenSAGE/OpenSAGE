@@ -10,6 +10,7 @@ using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
+using OpenSage.Data.Sav;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
@@ -113,6 +114,11 @@ namespace OpenSage
         /// This is only false when the game is shutting down.
         /// </summary>
         public bool IsRunning { get; }
+
+        public void LoadSaveFile(FileSystemEntry entry)
+        {
+            SaveFile.Load(entry, this);
+        }
 
         public void LoadReplayFile(FileSystemEntry replayFileEntry)
         {

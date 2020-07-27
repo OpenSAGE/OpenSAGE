@@ -1,26 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Logic;
+using OpenSage.Network;
 
 namespace OpenSage.Data.Sav
 {
-    public sealed class SaveFile
+    public static class SaveFile
     {
-        public IReadOnlyList<SaveChunkHeader> ChunkHeaders { get; private set; }
+        public static GameState GetGameState(FileSystemEntry entry)
+        {
+            using (var stream = entry.Open())
+            using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
+            {
+                var chunkHeaders = new List<SaveChunkHeader>();
+                var chunkHeader = SaveChunkHeader.Parse(reader);
 
-        public static SaveFile FromStream(Stream stream, string dumpFilePath)
+                while (!chunkHeader.IsEof)
+                {
+                    chunkHeaders.Add(chunkHeader);
+
+                    if (chunkHeader.Name == "CHUNK_GameState")
+                    {
+                        return GameState.Parse(reader);
+                    }
+                }
+            }
+
+            throw new InvalidDataException();
+        }
+
+        public static void Load(FileSystemEntry entry, Game game)
+        {
+            using (var stream = entry.Open())
+            {
+                LoadFromStream(stream, game);
+            }
+        }
+
+        public static void LoadFromStream(Stream stream, Game game)
         {
             using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
             {
                 var chunkHeaders = new List<SaveChunkHeader>();
                 var chunkHeader = SaveChunkHeader.Parse(reader);
 
+                GameState gameState = null;
                 MapFile map = null;
 
                 while (!chunkHeader.IsEof)
@@ -33,13 +63,8 @@ namespace OpenSage.Data.Sav
                     {
                         case "CHUNK_GameState":
                             {
-                                var gameType = reader.ReadUInt32AsEnum<SaveGameType>();
-                                var mapPath = reader.ReadBytePrefixedAsciiString();
-                                var timeStamp = reader.ReadDateTime();
-                                var displayName = reader.ReadBytePrefixedUnicodeString();
-                                var mapFileName = reader.ReadBytePrefixedAsciiString();
-                                var side = reader.ReadBytePrefixedAsciiString();
-                                var missionIndex = reader.ReadUInt32();
+                                gameState = GameState.Parse(reader);
+                                // TODO: Start game after parsing players.
                                 break;
                             }
 
@@ -761,20 +786,7 @@ namespace OpenSage.Data.Sav
                 {
                     throw new InvalidDataException();
                 }
-
-                var chunkHeaderNames = string.Join(Environment.NewLine, chunkHeaders.Select(x => x.Name));
-
-                return new SaveFile
-                {
-                    ChunkHeaders = chunkHeaders
-                };
             }
-        }
-
-        private enum SaveGameType : uint
-        {
-            Skirmish,
-            SinglePlayer
         }
 
         private sealed class GameObjectState
@@ -908,5 +920,11 @@ namespace OpenSage.Data.Sav
                 Version = reader.ReadByte()
             };
         }
+    }
+
+    public enum SaveGameType : uint
+    {
+        Skirmish,
+        SinglePlayer
     }
 }
