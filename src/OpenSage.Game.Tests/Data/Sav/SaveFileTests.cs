@@ -16,9 +16,9 @@ namespace OpenSage.Tests.Data.Sav
         {
             var fullPath = Path.Combine(RootFolder, relativePath);
             using (var stream = File.OpenRead(fullPath))
-            { 
-                var saveFile = SaveFile.FromStream(stream, Path.ChangeExtension(fullPath, ".md"));
-                Assert.NotEmpty(saveFile.ChunkHeaders);
+            {
+                // TODO: Create game
+                SaveFile.LoadFromStream(stream, null);
             }
         }
 
