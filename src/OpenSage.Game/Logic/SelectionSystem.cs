@@ -156,9 +156,9 @@ namespace OpenSage.Logic
         private void MultiSelect()
         {
             var boxFrustum = GetSelectionFrustum(SelectionRect);
-            var selectedObjects = new List<GameObject>();
+            var selectedObjects = new List<uint>();
 
-            GameObject structure = null;
+            uint? structure = null;
 
             // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
@@ -176,28 +176,24 @@ namespace OpenSage.Logic
 
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
+                    var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
+
                     if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == false)
                     {
-                        selectedObjects.Add(gameObject);
+                        selectedObjects.Add(objectId);
                     }
                     else if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == true)
                     {
-                        structure ??= gameObject;
+                        structure ??= objectId;
                     }
                 }
             }
 
-            if (selectedObjects.Count == 0 && structure != null) selectedObjects = new List<GameObject> { structure };
+            if (selectedObjects.Count == 0 && structure.HasValue) selectedObjects.Add(structure.Value);
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
-
-            var selectedObjectIds = new List<uint>();
-            foreach (var obj in selectedObjects)
-            {
-                selectedObjectIds.Add((uint)Game.Scene3D.GameObjects.GetObjectId(obj));
-            }
-            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjects));
         }
 
 
