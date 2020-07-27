@@ -18,8 +18,9 @@ namespace OpenSage.Gui.Wnd.Images
         {
             var graphicsDevice = loadContext.GraphicsDevice;
 
-            var width = (uint) mappedImage.Coords.Width;
-            var height = (uint) mappedImage.Coords.Height;
+            var src = mappedImage.Coords;
+            var width = (uint) src.Width;
+            var height = (uint) src.Height;
 
             var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
@@ -28,7 +29,7 @@ namespace OpenSage.Gui.Wnd.Images
                     1,
                     1,
                     PixelFormat.R8_G8_B8_A8_UNorm,
-                    TextureUsage.Sampled | TextureUsage.RenderTarget));
+                    TextureUsage.Sampled));
 
             imageTexture.Name = "WndImage";
 
@@ -36,7 +37,6 @@ namespace OpenSage.Gui.Wnd.Images
 
             commandList.Begin();
 
-            var src = mappedImage.Coords;
             commandList.CopyTexture(
                 mappedImage.Texture.Value, (uint) src.Left, (uint) src.Top, 0, 0, 0,    // Source
                 imageTexture, 0, 0, 0, 0, 0, width, height, 1, 1);                      // Destination
