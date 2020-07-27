@@ -85,7 +85,6 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     playerCombo.Controls[0].Text = slot.State.ToString();
                 }
-                //playerCombo.SelectedIndex = (int) slot.;
 
                 var buttonAccepted = (Button)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
                 if (buttonAccepted.Visible != slot.Ready)

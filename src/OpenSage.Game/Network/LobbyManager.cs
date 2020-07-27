@@ -119,7 +119,6 @@ namespace OpenSage.Network
 
         private void LobbyBroadcastReceived(LobbyBroadcastPacket packet, IPEndPoint endPoint)
         {
-            // Logger.Trace($"Received {nameof(LobbyBroadcastPacket)} from { endPoint }.");
 
             var player = _players.FirstOrDefault(p => p.EndPoint.Equals(endPoint) && p.ProcessId == packet.ProcessId);
             if (player == null)
