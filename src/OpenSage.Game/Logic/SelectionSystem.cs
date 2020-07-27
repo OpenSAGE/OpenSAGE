@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Gui;
@@ -155,7 +156,7 @@ namespace OpenSage.Logic
         private void MultiSelect()
         {
             var boxFrustum = GetSelectionFrustum(SelectionRect);
-            var selectedObjectIds = new List<uint>();
+            var selectedObjects = new List<GameObject>();
 
             // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
@@ -173,19 +174,35 @@ namespace OpenSage.Logic
 
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
-                    var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
-                    selectedObjectIds.Add(objectId);
+                    selectedObjects.Add(gameObject);
                 }
             }
+
+
+            var units = selectedObjects.Where(x => x.Definition.KindOf?.Get(ObjectKinds.Structure) == false).ToList();
+            var structures = selectedObjects.Where(x => x.Definition.KindOf?.Get(ObjectKinds.Structure) == true).ToList();
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
 
-            if (selectedObjectIds.Count > 0)
+            if (units.Count > 0) selectedObjects = units;
+            else if (structures.Count > 0)
             {
+                structures.RemoveRange(1, structures.Count - 2);
+                selectedObjects = structures;
+            }
+
+            if (selectedObjects.Count > 0)
+            {
+                var selectedObjectIds = new List<uint>();
+                foreach (var obj in selectedObjects)
+                {
+                    selectedObjectIds.Add((uint)Game.Scene3D.GameObjects.GetObjectId(obj));
+                }
                 Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
             }
         }
+
 
         private static bool UseBoxSelection(Rectangle rect)
         {

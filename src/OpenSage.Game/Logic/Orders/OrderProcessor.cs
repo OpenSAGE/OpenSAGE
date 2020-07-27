@@ -19,7 +19,6 @@ namespace OpenSage.Logic.Orders
 
         public void Process(IEnumerable<Order> orders)
         {
-            
             foreach (var order in orders)
             {
                 Player player = null;
