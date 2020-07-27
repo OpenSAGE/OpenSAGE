@@ -191,11 +191,7 @@ namespace OpenSage.Network
                 ProcessId = Process.GetCurrentProcess().Id
             });
 
-            var server = _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
-
-            //_writer.Put((byte) PacketType.SkirmishClientUpdate);
-            //_processor.Write(_writer, new SkirmishClientUpdatePacket() { PlayerName = _game.LobbyManager.Username });
-            //server.Send(_writer, DeliveryMethod.ReliableOrdered);
+            _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
             SkirmishGame = new SkirmishGame(isHost: false);
 

@@ -695,11 +695,6 @@ namespace OpenSage
 
                         players[i].SelectUnits(new[] { startingBuilding });
                     }
-
-                    //if (players[i].IsHuman)
-                    //{
-                    //    localPlayerIndex = i;
-                    //}
                 }
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
@@ -877,26 +872,29 @@ namespace OpenSage
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
             // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
-            if (SkirmishManager.SkirmishGame?.ReadyToStart)
+            if (SkirmishManager.SkirmishGame?.ReadyToStart ?? false)
             {
                 SkirmishManager.SkirmishGame.ReadyToStart = false;
+
+                var playerSettings = (from s in SkirmishManager.SkirmishGame.Slots
+                                      where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
+                                      select new PlayerSetting(
+                                          s.Index,
+                                          GetPlayableSides().ElementAt(s.FactionIndex),
+                                          AssetStore.MultiplayerColors.GetByIndex(s.ColorIndex).RgbColor,
+                                          s.State switch
+                                          {
+                                              SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                                              SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                                              SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                                              SkirmishSlotState.Human => PlayerOwner.Player,
+                                              _ => PlayerOwner.None
+                                          })).OfType<PlayerSetting?>().ToArray();
+
                 StartMultiPlayerGame(
                     AssetStore.MapCaches.FirstOrDefault(m => m.IsMultiplayer).Name,
                     SkirmishManager.Connection,
-                    (from s in SkirmishManager.SkirmishGame.Slots
-                     where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
-                     select new PlayerSetting(
-                         s.Index,
-                         GetPlayableSides().ElementAt(s.FactionIndex),
-                         AssetStore.MultiplayerColors.GetByIndex(s.ColorIndex).RgbColor,
-                         s.State switch
-                         {
-                             SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
-                             SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
-                             SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
-                             SkirmishSlotState.Human => PlayerOwner.Player,
-                             _ => PlayerOwner.None
-                         })).OfType<PlayerSetting?>().ToArray(),
+                    playerSettings,
                     SkirmishManager.SkirmishGame.LocalSlot);
             }
         }
