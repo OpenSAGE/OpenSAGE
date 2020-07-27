@@ -45,6 +45,7 @@ namespace OpenSage.Diagnostics
             {
                 ImGuiUtility.BeginPropertyList();
                 ImGuiUtility.PropertyRow("DisplayName", gameObject.Definition.DisplayName);
+                ImGuiUtility.PropertyRow("Position", gameObject.Transform.Translation);
                 ImGuiUtility.PropertyRow("ModelConditionFlags", gameObject.ModelConditionFlags.DisplayName);
                 ImGuiUtility.PropertyRow("Speed", gameObject.Speed);
                 ImGuiUtility.PropertyRow("Lift", gameObject.Lift);
