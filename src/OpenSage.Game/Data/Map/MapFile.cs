@@ -87,13 +87,13 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Bfme2)]
         public CameraAnimationList CameraAnimationList { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public CastleTemplates CastleTemplates { get; private set; }
+
         public WaypointsList WaypointsList { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public SkyboxSettings SkyboxSettings { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public CastleTemplates CastleTemplates { get; private set; }
 
         public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
 
@@ -296,16 +296,16 @@ namespace OpenSage.Data.Map
                         result.CameraAnimationList = CameraAnimationList.Parse(reader, context);
                         break;
 
+                    case CastleTemplates.AssetName:
+                        result.CastleTemplates = CastleTemplates.Parse(reader, context);
+                        break;
+
                     case WaypointsList.AssetName:
                         result.WaypointsList = WaypointsList.Parse(reader, context);
                         break;
 
                     case SkyboxSettings.AssetName:
                         result.SkyboxSettings = SkyboxSettings.Parse(reader, context);
-                        break;
-
-                    case CastleTemplates.AssetName:
-                        result.CastleTemplates = CastleTemplates.Parse(reader, context);
                         break;
 
                     default:
@@ -488,7 +488,7 @@ namespace OpenSage.Data.Map
             if (CastleTemplates != null)
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(CastleTemplates.AssetName));
-                CastleTemplates.WriteTo(writer);
+                CastleTemplates.WriteTo(writer, assetNames);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));

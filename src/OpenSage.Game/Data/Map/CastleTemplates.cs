@@ -7,30 +7,57 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "CastleTemplates";
 
+        public AssetPropertyKey PropertyKey { get; private set; }
+
         public CastleTemplate[] Templates { get; private set; }
+
+        public CastlePerimeter Perimeter { get; private set; }
 
         internal static CastleTemplates Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
-                var numTemplates = reader.ReadByte();
+                var propertyKey = AssetPropertyKey.Parse(reader, context);
 
-                //TODO: figure out
-                var missing = context.CurrentEndPosition - reader.BaseStream.Position;
-                reader.ReadBytes((int)missing);
+                var count = reader.ReadUInt32();
+                var result = new CastleTemplate[count];
+
+                for (var i = 0; i < count; i++)
+                {
+                    result[i] = CastleTemplate.Parse(reader, version);
+                }
+
+                CastlePerimeter perimeter = null;
+                if (version >= 2)
+                {
+                    perimeter = CastlePerimeter.Parse(reader, version);
+                }
 
                 return new CastleTemplates
                 {
-                    Templates = new CastleTemplate[numTemplates]
+                    PropertyKey = propertyKey,
+                    Templates = result,
+                    Perimeter = perimeter
                 };
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Templates.Length);
+                PropertyKey.WriteTo(writer, assetNames);
+
+                writer.Write((uint)Templates.Length);
+                for (var i = 0; i < Templates.Length; i++)
+                {
+                    Templates[i].WriteTo(writer, Version);
+                }
+
+                if (Version >= 2)
+                {
+                    Perimeter.WriteTo(writer, Version);
+                }
             });
         }
     }
