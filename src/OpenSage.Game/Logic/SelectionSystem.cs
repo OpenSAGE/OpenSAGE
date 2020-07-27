@@ -158,6 +158,8 @@ namespace OpenSage.Logic
             var boxFrustum = GetSelectionFrustum(SelectionRect);
             var selectedObjects = new List<GameObject>();
 
+            GameObject structure = null;
+
             // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
@@ -174,33 +176,28 @@ namespace OpenSage.Logic
 
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
-                    selectedObjects.Add(gameObject);
+                    if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == false)
+                    {
+                        selectedObjects.Add(gameObject);
+                    }
+                    else if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == true)
+                    {
+                        structure ??= gameObject;
+                    }
                 }
             }
 
-
-            var units = selectedObjects.Where(x => x.Definition.KindOf?.Get(ObjectKinds.Structure) == false).ToList();
-            var structures = selectedObjects.Where(x => x.Definition.KindOf?.Get(ObjectKinds.Structure) == true).ToList();
+            if (selectedObjects.Count == 0 && structure != null) selectedObjects = new List<GameObject> { structure };
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
 
-            if (units.Count > 0) selectedObjects = units;
-            else if (structures.Count > 0)
+            var selectedObjectIds = new List<uint>();
+            foreach (var obj in selectedObjects)
             {
-                structures.RemoveRange(1, structures.Count - 2);
-                selectedObjects = structures;
+                selectedObjectIds.Add((uint)Game.Scene3D.GameObjects.GetObjectId(obj));
             }
-
-            if (selectedObjects.Count > 0)
-            {
-                var selectedObjectIds = new List<uint>();
-                foreach (var obj in selectedObjects)
-                {
-                    selectedObjectIds.Add((uint)Game.Scene3D.GameObjects.GetObjectId(obj));
-                }
-                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
-            }
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
         }
 
 
