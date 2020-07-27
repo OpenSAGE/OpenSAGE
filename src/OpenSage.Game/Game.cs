@@ -877,7 +877,7 @@ namespace OpenSage
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
             // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
-            if (SkirmishManager.SkirmishGame?.ReadyToStart == true)
+            if (SkirmishManager.SkirmishGame?.ReadyToStart)
             {
                 SkirmishManager.SkirmishGame.ReadyToStart = false;
                 StartMultiPlayerGame(
