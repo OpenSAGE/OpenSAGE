@@ -52,9 +52,8 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            // Only vehicles can topple things.
-            // TODO: Is this right?
-            if (!collidingObject.Definition.KindOf.Get(ObjectKinds.Vehicle))
+            // Only things with a CrusherLevel greater than our CrushableLevel, can topple us.
+            if (collidingObject.Definition.CrusherLevel <= context.GameObject.Definition.CrushableLevel)
             {
                 return;
             }
@@ -77,6 +76,9 @@ namespace OpenSage.Logic.Object
             }
 
             _state = ToppleState.Toppling;
+
+            // TODO: Is this the right time to do this?
+            context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
         }
 
         private void CreateStump(BehaviorUpdateContext context)
