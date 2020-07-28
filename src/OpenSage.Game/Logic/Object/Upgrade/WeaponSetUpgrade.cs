@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
         {
             if (triggered)
             {
-                var weaponSet = _gameObject.Definition.WeaponSets.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
+                var weaponSet = _gameObject.Definition.WeaponSets.Values.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
                 _gameObject.SetWeaponSet(weaponSet);
             }
             else

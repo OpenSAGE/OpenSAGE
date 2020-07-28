@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
             { "DamageFX", (parser, x) => x.DamageFX = parser.ParseDamageFXReference() },
         };
 
-        public BitArray<ArmorSetCondition> Conditions { get; private set; }
+        public BitArray<ArmorSetCondition> Conditions { get; private set; } = new BitArray<ArmorSetCondition>();
         public LazyAssetReference<ArmorTemplate> Armor { get; private set; }
         public LazyAssetReference<DamageFX> DamageFX { get; private set; }
     }
