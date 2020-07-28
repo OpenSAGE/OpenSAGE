@@ -11,15 +11,13 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[ObjectDefinition:{Name}]")]
-    public class ObjectDefinition : BaseInheritableAsset
+    public class ObjectDefinition : BaseAsset
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
             // This will be null if the thing we're parsing *is* the DefaultThingTemplate
             var defaultThingTemplate = parser.GetDefaultThingTemplate();
-            var resultObject = defaultThingTemplate != null
-                ? (ObjectDefinition)defaultThingTemplate.DeepClone()
-                : null;
+            var resultObject = defaultThingTemplate?.CloneForImplicitInheritance();
 
             return parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("GameObject", name),
@@ -31,12 +29,11 @@ namespace OpenSage.Logic.Object
         {
             var name = parser.ParseIdentifier();
 
-            var reskinOf = parser.ParseAssetReference();
+            var reskinClone = parser.ParseObjectReference().Value.CloneForExplicitInheritance();
 
-            var result = parser.ParseBlock(FieldParseTable);
+            var result = parser.ParseBlock(FieldParseTable, resultObject: reskinClone);
 
             result.SetNameAndInstanceId("GameObject", name);
-            result.InheritFrom = reskinOf;
 
             return result;
         }
@@ -241,7 +238,7 @@ namespace OpenSage.Logic.Object
                 }
             },
 
-            { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
+            { "Draw", (parser, x) => { var draw = DrawModuleData.ParseDrawModule(parser); x.Draws[draw.Tag] = draw; } },
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
             { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
@@ -804,7 +801,7 @@ namespace OpenSage.Logic.Object
         // Engineering
         public AIUpdateModuleData AIUpdate { get; private set; }
         public List<BehaviorModuleData> Behaviors { get; internal set; } = new List<BehaviorModuleData>();
-        public List<DrawModuleData> Draws { get; internal set; } = new List<DrawModuleData>();
+        public Dictionary<string, DrawModuleData> Draws { get; internal set; } = new Dictionary<string, DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; internal set; } = new List<ClientUpdateModuleData>();
 
@@ -1170,17 +1167,17 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public string EvaEventDetectedOwner { get; private set; }
 
-        internal override BaseAsset DeepClone()
+        internal ObjectDefinition CloneForImplicitInheritance()
         {
-            var result = (ObjectDefinition)base.DeepClone();
+            var result = (ObjectDefinition) MemberwiseClone();
 
             // TODO: Clone any other lists.
 
+            result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
-
-            result.Body = null;
+            result.Geometry = result.Geometry.Clone();
             result.Behaviors = new List<BehaviorModuleData>();
-            result.Draws = new List<DrawModuleData>();
+            result.Draws = new Dictionary<string, DrawModuleData>(); // TODO: Is this right?
             result.ClientUpdates = new List<ClientUpdateModuleData>();
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
@@ -1191,6 +1188,24 @@ namespace OpenSage.Logic.Object
             }
 
             result.InheritableModules.Clear();
+
+            return result;
+        }
+
+        internal ObjectDefinition CloneForExplicitInheritance()
+        {
+            var result = (ObjectDefinition) MemberwiseClone();
+
+            // TODO: Clone any other lists.
+
+            result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
+            result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
+            result.Geometry = result.Geometry.Clone();
+            result.Behaviors = new List<BehaviorModuleData>(result.Behaviors);
+            result.Draws = new Dictionary<string, DrawModuleData>(result.Draws);
+            result.ClientUpdates = new List<ClientUpdateModuleData>(result.ClientUpdates);
+            result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
+            result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
 
             return result;
         }
@@ -1354,6 +1369,8 @@ namespace OpenSage.Logic.Object
         public Vector2 RotationAnchorOffset { get; set; }
         public bool IsActive { get; set; }
         public float FrontAngle { get; set; }
+
+        public Geometry Clone() => (Geometry) MemberwiseClone();
     }
 
     [AddedIn(SageGame.Bfme)]
