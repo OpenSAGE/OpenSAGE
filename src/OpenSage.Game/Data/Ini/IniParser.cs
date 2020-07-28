@@ -568,6 +568,11 @@ namespace OpenSage.Data.Ini
             return result.ToArray();
         }
 
+        public ObjectDefinition GetDefaultThingTemplate()
+        {
+            return _assetStore.ObjectDefinitions.GetByName("DefaultThingTemplate");
+        }
+
         public LazyAssetReference<ObjectDefinition> ParseObjectReference()
         {
             var name = ParseAssetReference();
@@ -796,10 +801,11 @@ namespace OpenSage.Data.Ini
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider,
-            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null,
+            T resultObject = null)
             where T : class, new()
         {
-            var result = new T();
+            var result = resultObject ?? new T();
 
             var name = GetNextToken();
 

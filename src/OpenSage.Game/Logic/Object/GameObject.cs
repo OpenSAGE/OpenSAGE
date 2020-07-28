@@ -186,7 +186,7 @@ namespace OpenSage.Logic.Object
         public int EnergyProduction { get; internal set; }
 
         // TODO
-        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets[0];
+        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -613,7 +613,7 @@ namespace OpenSage.Logic.Object
         internal void SetDefaultWeapon()
         {
             // TODO: we currently always pick the weapon without any conditions.
-            var weaponSet = Definition.WeaponSets.Find(x => x.Conditions?.AnyBitSet == false);
+            var weaponSet = Definition.WeaponSets.Values.FirstOrDefault(x => x.Conditions?.AnyBitSet == false);
             SetWeaponSet(weaponSet);
         }
 

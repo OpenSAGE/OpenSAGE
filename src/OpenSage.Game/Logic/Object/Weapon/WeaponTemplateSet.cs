@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             { "DefaultWeaponChoiceCritera", (parser, x) => x.DefaultWeaponChoiceCriteria = parser.ParseEnum<WeaponChoiceCriteria>() }
         };
 
-        public BitArray<WeaponSetConditions> Conditions { get; private set; }
+        public BitArray<WeaponSetConditions> Conditions { get; private set; } = new BitArray<WeaponSetConditions>();
         public Dictionary<WeaponSlot, WeaponSetSlot> Slots { get; } = new Dictionary<WeaponSlot, WeaponSetSlot>();
         public bool ShareWeaponReloadTime { get; private set; }
         public bool WeaponLockSharedAcrossSets { get; private set; }

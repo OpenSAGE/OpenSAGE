@@ -15,9 +15,16 @@ namespace OpenSage.Logic.Object
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
+            // This will be null if the thing we're parsing *is* the DefaultThingTemplate
+            var defaultThingTemplate = parser.GetDefaultThingTemplate();
+            var resultObject = defaultThingTemplate != null
+                ? (ObjectDefinition)defaultThingTemplate.DeepClone()
+                : null;
+
             return parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("GameObject", name),
-                FieldParseTable);
+                FieldParseTable,
+                resultObject: resultObject);
         }
 
         internal static ObjectDefinition ParseReskin(IniParser parser)
@@ -66,8 +73,8 @@ namespace OpenSage.Logic.Object
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
-            { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponTemplateSet.Parse(parser)) },
-            { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorTemplateSet.Parse(parser)) },
+            { "WeaponSet", (parser, x) => { var wts = WeaponTemplateSet.Parse(parser); x.WeaponSets[wts.Conditions] = wts; } },
+            { "ArmorSet", (parser, x) => { var ams = ArmorTemplateSet.Parse(parser); x.ArmorSets[ams.Conditions] = ams; } },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
@@ -421,8 +428,8 @@ namespace OpenSage.Logic.Object
         public bool IsForbidden { get; private set; }
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
-        public List<WeaponTemplateSet> WeaponSets { get; } = new List<WeaponTemplateSet>();
-        public List<ArmorTemplateSet> ArmorSets { get; } = new List<ArmorTemplateSet>();
+        public Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet> WeaponSets { get; internal set; } = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>();
+        public Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet> ArmorSets { get; internal set; } = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>();
         public LazyAssetReference<CommandSet> CommandSet { get; private set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
@@ -796,10 +803,10 @@ namespace OpenSage.Logic.Object
 
         // Engineering
         public AIUpdateModuleData AIUpdate { get; private set; }
-        public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
-        public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
+        public List<BehaviorModuleData> Behaviors { get; internal set; } = new List<BehaviorModuleData>();
+        public List<DrawModuleData> Draws { get; internal set; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
-        public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
+        public List<ClientUpdateModuleData> ClientUpdates { get; internal set; } = new List<ClientUpdateModuleData>();
 
         [AddedIn(SageGame.Bfme)]
         public List<LocomotorSet> LocomotorSets { get; } = new List<LocomotorSet>();
@@ -1162,6 +1169,31 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string EvaEventDetectedOwner { get; private set; }
+
+        internal override BaseAsset DeepClone()
+        {
+            var result = (ObjectDefinition)base.DeepClone();
+
+            // TODO: Clone any other lists.
+
+            result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
+
+            result.Body = null;
+            result.Behaviors = new List<BehaviorModuleData>();
+            result.Draws = new List<DrawModuleData>();
+            result.ClientUpdates = new List<ClientUpdateModuleData>();
+            result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
+            result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
+
+            foreach (var inheritableModule in result.InheritableModules)
+            {
+                result.Behaviors.Add(inheritableModule.Module);
+            }
+
+            result.InheritableModules.Clear();
+
+            return result;
+        }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
