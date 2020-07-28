@@ -211,7 +211,7 @@ namespace OpenSage.Logic.Object
             Transform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();
-            foreach (var drawData in objectDefinition.Draws)
+            foreach (var drawData in objectDefinition.Draws.Values)
             {
                 var drawModule = AddDisposable(drawData.CreateDrawModule(this, gameContext));
                 if (drawModule != null)

@@ -841,10 +841,11 @@ namespace OpenSage.Data.Ini
         }
 
         public T ParseBlock<T>(
-           IIniFieldParserProvider<T> fieldParserProvider)
+           IIniFieldParserProvider<T> fieldParserProvider,
+           T resultObject = null)
            where T : class, new()
         {
-            var result = new T();
+            var result = resultObject ?? new T();
 
             ParseBlockContent(result, fieldParserProvider);
 
