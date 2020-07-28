@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
@@ -12,6 +13,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    [AddedIn(SageGame.Bfme)]
     public sealed class W3dFloorDraw : DrawModule
     {
         private readonly GameObject _gameObject;
@@ -26,14 +28,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _gameContext = context;
             _moduleData = moduleData;
-            SetModelName(_moduleData.ModelName);
-        }
-
-        public void SetModelName(string modelName)
-        {
-            var model = _gameContext.AssetLoadContext.AssetStore.Models.GetByName(modelName);
-            _modelInstance = AddDisposable(model.CreateInstance(_gameContext.AssetLoadContext));
-            _modelInstance.Update(TimeInterval.Zero);
+            _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
         }
 
         internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
@@ -86,7 +81,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<W3dFloorDrawModuleData> FieldParseTable = new IniParseTable<W3dFloorDrawModuleData>
         {
-            { "ModelName", (parser, x) => x.ModelName = parser.ParseAssetReference() },
+            { "ModelName", (parser, x) => x.Model = parser.ParseModelReference() },
             { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
             { "StartHidden", (parser, x) => x.StartHidden = parser.ParseBoolean() },
             { "ForceToBack", (parser, x) => x.ForceToBack = parser.ParseBoolean() },
@@ -95,7 +90,7 @@ namespace OpenSage.Logic.Object
             { "WeatherTexture", (parser, x) => x.WeatherTexture = WeatherTexture.Parse(parser) }
         };
 
-        public string ModelName { get; private set; }
+        public LazyAssetReference<Model> Model { get; private set; }
         public bool StaticModelLODMode { get; private set; }
         public bool StartHidden { get; private set; }
         public bool ForceToBack { get; private set; }
