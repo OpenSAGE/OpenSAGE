@@ -969,7 +969,11 @@ namespace OpenSage.Data.Ini
                         macroExpansionToken = resolved;
                     }
 
-                    _dataContext.Defines.Add(macroName.ToUpper(), macroExpansionToken.Value);
+                    if (!_dataContext.Defines.TryAdd(macroName.ToUpper(), macroExpansionToken.Value))
+                    {
+                        // OVerwrite the existing macro. This is necessary for BFME2 RotWk
+                        _dataContext.Defines[macroName.ToUpper()] = macroExpansionToken.Value;
+                    }
                 }
                 else if (fieldName == "#include")
                 {
