@@ -30,16 +30,22 @@ namespace OpenSage.Logic.Object
 
                     var entry = context.AssetLoadContext.FileSystem.GetFile(basePath);
                     var mapFile = MapFile.FromFileSystemEntry(entry);
+                    int index = 0;
 
-                    foreach (var mapObject in mapFile.ObjectsList.Objects)
+                    foreach (var castleTemplate in mapFile.CastleTemplates.Templates)
                     {
+                        var mapObject = mapFile.ObjectsList.Objects[index];
+
                         var baseObject = GameObject.FromMapObject(
                             mapObject,
                             context.AssetLoadContext.AssetStore,
                             context.GameObjects,
-                            _gameObject.Transform.Translation);
+                            //TODO: have to figure out how to calculate the transform for the subojects correctly
+                            _gameObject.Transform.Translation + castleTemplate.Offset,
+                            castleTemplate.Angle - _gameObject.Transform.EulerAngles.Z);
 
                         AssignOwner(baseObject);
+                        index++;
                     }
                 }
 
@@ -58,7 +64,7 @@ namespace OpenSage.Logic.Object
 
         private void AssignOwner(GameObject gameObject)
         {
-            if(_moduleData.FilterValidOwnedEntries.Matches(gameObject))
+            if (_moduleData.FilterValidOwnedEntries.Matches(gameObject))
             {
                 gameObject.Owner = _gameObject.Owner;
                 gameObject.Team = _gameObject.Team;
@@ -83,6 +89,7 @@ namespace OpenSage.Logic.Object
         {
             var entry = FindCastle();
             ImGuiUtility.PropertyRow("Camp", entry.Camp);
+            ImGuiUtility.PropertyRow("Unpacked", _unpacked);
         }
     }
 

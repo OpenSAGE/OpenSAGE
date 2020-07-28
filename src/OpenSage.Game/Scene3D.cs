@@ -181,7 +181,7 @@ namespace OpenSage
                             default:
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, position, teams);
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, position, null, teams);
 
                                 break;
                         }
