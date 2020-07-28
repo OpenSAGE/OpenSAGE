@@ -281,10 +281,7 @@ namespace OpenSage.Network
                 slot.id = a;
                 _slots.Add(slot);
             }
-            
         }
-
-        
 
         public async void Host()
         {

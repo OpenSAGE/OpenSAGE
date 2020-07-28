@@ -19,11 +19,13 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
+
         internal static GameObject FromMapObject(
             MapObject mapObject,
             AssetStore assetStore,
             GameObjectCollection parent,
             in Vector3 position,
+            in float? overwriteAngle = 0.0f,
             IReadOnlyList<Team> teams = null)
         {
             var gameObject = parent.Add(mapObject.TypeName);
@@ -69,7 +71,7 @@ namespace OpenSage.Logic.Object
             }
 
             gameObject.Transform.Translation = position;
-            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
+            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
 
             if (gameObject.Definition.IsBridge)
             {
@@ -625,7 +627,7 @@ namespace OpenSage.Logic.Object
                 var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
 
                 // Happens for BFME structures
-                if(weaponSetUpdateData.WeaponSlotHardpoints.Count == 0 &&
+                if (weaponSetUpdateData.WeaponSlotHardpoints.Count == 0 &&
                    weaponSetUpdateData.WeaponSlotTurrets.Count == 0)
                 {
                     return;
