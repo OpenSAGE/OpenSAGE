@@ -349,6 +349,58 @@ namespace OpenSage.Logic.Object
             {
                 behavior.Update(behaviorUpdateContext);
             }
+
+            // TODO: No idea if this is the right place to do this.
+            //DetectCollisions(behaviorUpdateContext);
+        }
+
+        private void DetectCollisions(BehaviorUpdateContext context)
+        {
+            if (Collider == null)
+            {
+                return;
+            }
+
+            if (Definition.KindOf.Get(ObjectKinds.Immobile))
+            {
+                return;
+            }
+
+            var thisBoundingArea = Collider.GetBoundingArea();
+
+            // TODO: Use a quadtree.
+            foreach (var otherGameObject in _gameContext.GameObjects.Items)
+            {
+                if (this == otherGameObject)
+                {
+                    continue;
+                }
+
+                if (otherGameObject.Collider == null)
+                {
+                    continue;
+                }
+
+                var otherBoundingArea = otherGameObject.Collider.GetBoundingArea();
+                if (thisBoundingArea.Intersects(otherBoundingArea))
+                {
+                    // TODO: This will result in duplicate pairs of collisions.
+                    // We should instead do collision detect for unique pairs of objects.
+                    DoCollide(context, otherGameObject);
+                    otherGameObject.DoCollide(context, this);
+
+                    // TODO: Do we only care about the first collision?
+                    break;
+                }
+            }
+        }
+
+        private void DoCollide(BehaviorUpdateContext context, GameObject collidingObject)
+        {
+            foreach (var behavior in BehaviorModules)
+            {
+                behavior.OnCollide(context, collidingObject);
+            }
         }
 
         private void HandleConstruction(in TimeInterval gameTime)
