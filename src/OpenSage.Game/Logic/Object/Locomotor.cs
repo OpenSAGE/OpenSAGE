@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using NLog.Targets;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -105,7 +106,6 @@ namespace OpenSage.Logic.Object
 
             var oldSpeed = _gameObject.Speed;
 
-            // When we get to minimum braking distance, start braking.
             var delta = targetPoint - transform.Translation;
 
             // Distance is 2D
@@ -138,6 +138,7 @@ namespace OpenSage.Logic.Object
                 : 0;
 
             // Are we braking or accelerating?
+            // TODO: calculate this distance depending on the remaining path or insert a 'breaking'- point
             var accelerating = distanceRemaining > minimumBrakingDistance;
             var currentAcceleration = accelerating
                 ? GetAcceleration()
@@ -169,10 +170,19 @@ namespace OpenSage.Logic.Object
 
             _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
 
+            var pitch = 0.0f;
+            var roll = 0.0f;
+            var height = heightMap.GetHeight(x, y);
+
             switch (_locomotorTemplate.Appearance)
             {
+                case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Thrust:
-                    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
+                    var targetZ = targetPoint.Z;
+                    if (nextPoint != null) targetZ = height + _locomotorTemplate.PreferredHeight;
+                    var deltaZ = (distance / distanceRemaining) * (targetZ - trans.Z);
+                    trans.Z += deltaZ;
+                    pitch = deltaZ;
                     break;
                 case LocomotorAppearance.Treads:
                     if (MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f)) //first fully rotate towards target point
@@ -200,8 +210,6 @@ namespace OpenSage.Logic.Object
                 trans.Z += _locomotorTemplate.PreferredHeight;
             }
 
-            var pitch = 0.0f;
-            var roll = 0.0f;
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
