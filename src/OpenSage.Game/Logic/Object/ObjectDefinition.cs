@@ -819,7 +819,7 @@ namespace OpenSage.Logic.Object
         public List<ClientUpdateModuleData> ClientUpdates { get; internal set; } = new List<ClientUpdateModuleData>();
 
         [AddedIn(SageGame.Bfme)]
-        public List<LocomotorSet> LocomotorSets { get; } = new List<LocomotorSet>();
+        public List<LocomotorSet> LocomotorSets { get; internal set; } = new List<LocomotorSet>();
 
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
@@ -1219,6 +1219,7 @@ namespace OpenSage.Logic.Object
             result.ClientUpdates = new List<ClientUpdateModuleData>(result.ClientUpdates);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
+            result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
 
             return result;
         }
