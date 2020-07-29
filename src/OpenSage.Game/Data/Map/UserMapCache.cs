@@ -181,12 +181,12 @@ namespace OpenSage.Data.Map
                     {
                         // check "normal" objects
                         var definition = assetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
-                        if (definition?.KindOf?.Get(ObjectKinds.SupplySourceOnPreview) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.SupplySourceOnPreview))
                         {
                             mapCache.SupplyPositions.Add(mapObject.Position);
                         }
 
-                        if (definition?.KindOf?.Get(ObjectKinds.TechBuilding) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.TechBuilding))
                         {
                             mapCache.TechPositions.Add(mapObject.Position);
                         }

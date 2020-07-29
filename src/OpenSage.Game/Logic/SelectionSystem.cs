@@ -178,11 +178,11 @@ namespace OpenSage.Logic
                 {
                     var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
 
-                    if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == false)
+                    if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == false)
                     {
                         selectedObjects.Add(objectId);
                     }
-                    else if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) == true)
+                    else if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == true)
                     {
                         structure ??= objectId;
                     }

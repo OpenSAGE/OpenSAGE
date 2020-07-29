@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
                 BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
             }
 
-            if (gameObject.Definition.KindOf?.Get(ObjectKinds.Structure) ?? false)
+            if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))
             {
                 gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
@@ -251,16 +251,16 @@ namespace OpenSage.Logic.Object
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
 
-            IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
-            CanAttack = Definition.KindOf?.Get(ObjectKinds.CanAttack) ?? false;
+            IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
+            CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
 
-            if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
+            if (Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
             }
 
-            if (Definition.KindOf?.Get(ObjectKinds.Projectile) ?? false)
+            if (Definition.KindOf.Get(ObjectKinds.Projectile))
             {
                 IsProjectile = true;
             }
