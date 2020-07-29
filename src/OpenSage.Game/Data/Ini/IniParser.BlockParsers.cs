@@ -56,7 +56,7 @@ namespace OpenSage.Data.Ini
             { "Bridge", (parser, assetStore) => assetStore.BridgeTemplates.Add(BridgeTemplate.Parse(parser)) },
             { "Campaign", (parser, assetStore) => assetStore.CampaignTemplates.Add(CampaignTemplate.Parse(parser)) },
             { "ChallengeGenerals", (parser, assetStore) => ChallengeGenerals.Parse(parser, assetStore.ChallengeGenerals.Current) },
-            { "ChildObject", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ChildObject.Parse(parser)) },
+            { "ChildObject", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ObjectDefinition.ParseChildObject(parser)) },
             { "CloudEffect", (parser, assetStore) => assetStore.Environment.Current.CloudEffect = CloudEffect.Parse(parser) },
             { "CommandButton", (parser, assetStore) => assetStore.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, assetStore) => assetStore.CommandMaps.Add(CommandMap.Parse(parser)) },

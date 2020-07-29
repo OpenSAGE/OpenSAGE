@@ -38,6 +38,19 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
+        internal static ObjectDefinition ParseChildObject(IniParser parser)
+        {
+            var name = parser.ParseIdentifier();
+
+            var parentClone = parser.ParseObjectReference().Value.CloneForExplicitInheritance();
+
+            var result = parser.ParseBlock(FieldParseTable, resultObject: parentClone);
+
+            result.SetNameAndInstanceId("GameObject", name);
+
+            return result;
+        }
+
         internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
         {
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
@@ -774,7 +787,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundCrushing { get; private set; }
 
-        public UnitSpecificSounds UnitSpecificSounds { get; private set; }
+        public UnitSpecificSounds UnitSpecificSounds { get; private set; } = new UnitSpecificSounds();
         public UnitSpecificAssets UnitSpecificFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -832,7 +845,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public Geometry Geometry { get; private set; }
+        public Geometry Geometry { get; private set; } = new Geometry();
 
         [AddedIn(SageGame.Bfme)]
         public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();
@@ -1274,27 +1287,6 @@ namespace OpenSage.Logic.Object
 
         private static new readonly IniParseTable<AddModule> FieldParseTable = ObjectDefinition.FieldParseTable
             .Concat(new IniParseTable<AddModule>());
-    }
-
-    public sealed class ChildObject : ObjectDefinition
-    {
-        internal static new ChildObject Parse(IniParser parser)
-        {
-            var childName = parser.GetNextToken();
-            var parentName = parser.GetNextToken();
-
-            var result = parser.ParseBlock(FieldParseTable);
-
-            result.SetNameAndInstanceId("GameObject", childName.Text);
-            result.ChildOf = parentName.Text;
-
-            return result;
-        }
-
-        private static new readonly IniParseTable<ChildObject> FieldParseTable = ObjectDefinition.FieldParseTable
-            .Concat(new IniParseTable<ChildObject>());
-
-        public string ChildOf { get; private set; }
     }
 
     public sealed class ReplaceModule
