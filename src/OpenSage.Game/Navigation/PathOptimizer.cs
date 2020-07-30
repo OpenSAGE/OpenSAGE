@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace OpenSage.Navigation
 {
@@ -9,13 +10,13 @@ namespace OpenSage.Navigation
 
         public static void RemoveRedundantNodes(List<Node> nodes)
         {
-            int prevDirX = 0;
-            int prevDirY = 0;
+            var prevDirX = 0;
+            var prevDirY = 0;
 
-            for (int i = nodes.Count - 1; i > 0; i--)
+            for (var i = nodes.Count - 1; i > 0; i--)
             {
-                int dirX = nodes[i].X - nodes[i - 1].X;
-                int dirY = nodes[i].Y - nodes[i - 1].Y;
+                var dirX = nodes[i].X - nodes[i - 1].X;
+                var dirY = nodes[i].Y - nodes[i - 1].Y;
 
                 if (dirX == prevDirX && dirY == prevDirY)
                 {
