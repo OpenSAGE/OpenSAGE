@@ -7,6 +7,7 @@ using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 
 namespace OpenSage.Data.Sav
@@ -84,58 +85,72 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_GameStateMap":
-                        {
-                            var mapPath1 = reader.ReadBytePrefixedAsciiString();
-                            var mapPath2 = reader.ReadBytePrefixedAsciiString();
-                            var unknown = reader.ReadUInt32();
-                            if (unknown != 0u && unknown != 2u)
                             {
-                                throw new InvalidDataException();
-                            }
-
-                            var mapFileSize = reader.ReadUInt32();
-                            var mapEnd = stream.Position + mapFileSize;
-                            map = MapFile.FromStream(stream);
-
-                            // This seems to be aligned, so it's sometimes more than what we just read.
-                            stream.Seek(mapEnd, SeekOrigin.Begin);
-
-                            var unknown2 = reader.ReadUInt32(); // 586
-                            var unknown3 = reader.ReadUInt32(); // 3220
-
-                            if (unknown == 2u)
-                            {
-                                var unknown4 = reader.ReadUInt32(); // 2
-                                var unknown5 = reader.ReadUInt32(); // 25600 (160^2)
-                                var unknown6 = reader.ReadBooleanChecked();
-                                var unknown7 = reader.ReadBooleanChecked();
-                                var unknown8 = reader.ReadBooleanChecked();
-                                var unknown9 = reader.ReadBooleanChecked();
-                                var unknown10 = reader.ReadUInt32(); // 0
-
-                                var numPlayers = reader.ReadUInt32(); // 8
-                                var unknown11 = reader.ReadUInt32(); // 5
-
-                                var players = new GameStateMapPlayer[numPlayers];
-                                for (var i = 0; i < numPlayers; i++)
-                                {
-                                    players[i] = GameStateMapPlayer.Parse(reader);
-                                }
-
-                                var mapPath3 = reader.ReadBytePrefixedAsciiString();
-                                var mapFileCrc = reader.ReadUInt32();
-                                var mapFileSize2 = reader.ReadUInt32();
-                                if (mapFileSize != mapFileSize2)
+                                var mapPath1 = reader.ReadBytePrefixedAsciiString();
+                                var mapPath2 = reader.ReadBytePrefixedAsciiString();
+                                var unknown = reader.ReadUInt32();
+                                if (unknown != 0u && unknown != 2u)
                                 {
                                     throw new InvalidDataException();
                                 }
 
-                                var unknown12 = reader.ReadUInt32();
-                                var unknown13 = reader.ReadUInt32();
-                            }
+                                var mapFileSize = reader.ReadUInt32();
+                                var mapEnd = stream.Position + mapFileSize;
+                                map = MapFile.FromStream(stream);
 
-                            break;
-                        }
+                                game.StartGame( // TODO: Do this after parsing players.
+                                    mapPath2.Replace("userdata\\", ""),
+                                    new EchoConnection(), // TODO
+                                    new PlayerSetting?[]
+                                    {
+                                        new PlayerSetting(
+                                            null,
+                                            game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), // TODO
+                                            new ColorRgb(0, 0, 255))
+                                    },
+                                    0, // TODO
+                                    false,
+                                    map); // TODO
+
+                                // This seems to be aligned, so it's sometimes more than what we just read.
+                                stream.Seek(mapEnd, SeekOrigin.Begin);
+
+                                var unknown2 = reader.ReadUInt32(); // 586
+                                var unknown3 = reader.ReadUInt32(); // 3220
+
+                                if (unknown == 2u)
+                                {
+                                    var unknown4 = reader.ReadUInt32(); // 2
+                                    var unknown5 = reader.ReadUInt32(); // 25600 (160^2)
+                                    var unknown6 = reader.ReadBooleanChecked();
+                                    var unknown7 = reader.ReadBooleanChecked();
+                                    var unknown8 = reader.ReadBooleanChecked();
+                                    var unknown9 = reader.ReadBooleanChecked();
+                                    var unknown10 = reader.ReadUInt32(); // 0
+
+                                    var numPlayers = reader.ReadUInt32(); // 8
+                                    var unknown11 = reader.ReadUInt32(); // 5
+
+                                    var players = new GameStateMapPlayer[numPlayers];
+                                    for (var i = 0; i < numPlayers; i++)
+                                    {
+                                        players[i] = GameStateMapPlayer.Parse(reader);
+                                    }
+
+                                    var mapPath3 = reader.ReadBytePrefixedAsciiString();
+                                    var mapFileCrc = reader.ReadUInt32();
+                                    var mapFileSize2 = reader.ReadUInt32();
+                                    if (mapFileSize != mapFileSize2)
+                                    {
+                                        throw new InvalidDataException();
+                                    }
+
+                                    var unknown12 = reader.ReadUInt32();
+                                    var unknown13 = reader.ReadUInt32();
+                                }
+
+                                break;
+                            }
 
                         case "CHUNK_TerrainLogic":
                         {
@@ -207,22 +222,22 @@ namespace OpenSage.Data.Sav
                                 var unknown1 = reader.ReadUInt32();
                                 var unknown2 = reader.ReadByte();
 
-                                var numGameObjects = reader.ReadUInt32();
-                                var gameObjects = new List<GameObjectState>();
-                                for (var i = 0; i < numGameObjects; i++)
+                                var numGameObjectDefinitions = reader.ReadUInt32();
+                                var gameObjectDefinitionLookup = new Dictionary<ushort, string>();
+                                for (var i = 0; i < numGameObjectDefinitions; i++)
                                 {
-                                    var gameObjectState = new GameObjectState
-                                    {
-                                        Name = reader.ReadBytePrefixedAsciiString(),
-                                        Id = reader.ReadUInt16()
-                                    };
-                                    gameObjects.Add(gameObjectState);
+                                    var definitionName = reader.ReadBytePrefixedAsciiString();
+                                    var definitionId = reader.ReadUInt16();
+
+                                    gameObjectDefinitionLookup.Add(definitionId, definitionName);
                                 }
 
-                                var numGameObjects2 = reader.ReadUInt32();
-                                for (var objectIndex = 0; objectIndex < numGameObjects2; objectIndex++)
+                                var numGameObjects = reader.ReadUInt32();
+                                for (var objectIndex = 0; objectIndex < numGameObjects; objectIndex++)
                                 {
-                                    var objectID = reader.ReadUInt16();
+                                    var definitionId = reader.ReadUInt16();
+
+                                    var gameObject = game.Scene3D.GameObjects.Add(gameObjectDefinitionLookup[definitionId]);
 
                                     var unknown3 = reader.ReadUInt32();
                                     var unknown4 = reader.ReadByte(); // 7
@@ -233,6 +248,7 @@ namespace OpenSage.Data.Sav
                                     var unknownBool3 = reader.ReadBooleanChecked(); // 1
 
                                     var transform = reader.ReadMatrix4x3Transposed();
+                                    gameObject.Transform.Matrix = transform.ToMatrix4x4();
 
                                     var unknown8 = reader.ReadBytes(16);
 
@@ -251,12 +267,22 @@ namespace OpenSage.Data.Sav
                                     var unknown15 = reader.ReadBytes(29);
                                     var unknown16 = reader.ReadSingle(); // 360
                                     var unknown17 = reader.ReadSingle(); // 360
-                                    var unknown18 = reader.ReadBytes(84);
+                                    var unknown18 = reader.ReadBytes(5);
+
+                                    var disabledCount = reader.ReadUInt32();
+                                    for (var i = 0; i < disabledCount; i++)
+                                    {
+                                        var disabledType = reader.ReadBytePrefixedAsciiString();
+                                    }
+
+                                    var unknown18_1 = reader.ReadBytes(75);
 
                                     var numUpgrades = reader.ReadUInt16();
                                     for (var i = 0; i < numUpgrades; i++)
                                     {
                                         var upgradeName = reader.ReadBytePrefixedAsciiString();
+                                        var upgrade = game.AssetStore.Upgrades.GetByName(upgradeName);
+                                        gameObject.Upgrades.Add(upgrade);
                                     }
 
                                     var team = reader.ReadBytePrefixedAsciiString(); // teamPlyrAmerica
@@ -286,24 +312,9 @@ namespace OpenSage.Data.Sav
                                         var moduleTag = reader.ReadBytePrefixedAsciiString();
                                         var moduleLengthInBytes = reader.ReadUInt32();
 
-                                        // TODO: Per-module parsing
-                                        //if (i == 5) // Body module, but only for first object
-                                        //{
-                                        //    for (var j = 0; j < 6; j++)
-                                        //    {
-                                        //        reader.ReadBooleanChecked();
-                                        //    }
-                                        //    reader.ReadSingle(); // 1.0f
-                                        //    var maxHealth = reader.ReadSingle(); // 1000.0f
-                                        //    var currentHealth = reader.ReadSingle(); // 1000.0f (or this is maxHealth)
-                                        //    reader.ReadSingle(); // 1000.0f
-                                        //    reader.ReadSingle(); // 1000.0f
-                                        //    reader.ReadBytes(65);
-                                        //}
-                                        //else
-                                        {
-                                            var moduleBytes = reader.ReadBytes((int) moduleLengthInBytes);
-                                        }
+                                        var module = gameObject.GetModuleByTag(moduleTag);
+
+                                        module.Load(reader, (int) moduleLengthInBytes);
                                     }
 
                                     reader.ReadBytes(9);

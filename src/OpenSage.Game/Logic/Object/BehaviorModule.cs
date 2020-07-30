@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -15,6 +16,12 @@ namespace OpenSage.Logic.Object
         internal virtual void OnCollide(BehaviorUpdateContext context, GameObject collidingObject) { }
 
         internal virtual void DrawInspector() { }
+
+        // TODO: Make this abstract and remove length parameter.
+        internal virtual void Load(BinaryReader reader, int lengthInBytes)
+        {
+            reader.ReadBytes(lengthInBytes);
+        }
     }
 
     internal sealed class BehaviorUpdateContext

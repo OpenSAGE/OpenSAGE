@@ -865,7 +865,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string ExperienceScalarTable { get; private set; }
 
-        public List<InheritableModule> InheritableModules { get; } = new List<InheritableModule>();
+        public List<InheritableModule> InheritableModules { get; private set; } = new List<InheritableModule>();
         public List<OverrideableByLikeKind> OverrideableByLikeKinds { get; } = new List<OverrideableByLikeKind>();
 
         // Map.ini module modifications
@@ -1187,7 +1187,7 @@ namespace OpenSage.Logic.Object
                 result.Behaviors.Add(inheritableModule.Module);
             }
 
-            result.InheritableModules.Clear();
+            result.InheritableModules = null;
 
             return result;
         }
