@@ -10,6 +10,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
@@ -95,6 +96,8 @@ namespace OpenSage.Logic.Object
         {
             ModelConditionFlags.CopyFrom(newFlags);
         }
+
+        private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
 
         private readonly GameContext _gameContext;
 
@@ -208,6 +211,8 @@ namespace OpenSage.Logic.Object
                 throw new ArgumentNullException(nameof(objectDefinition));
             }
 
+            _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
+
             _gameContext = gameContext;
 
             Definition = objectDefinition;
@@ -230,13 +235,34 @@ namespace OpenSage.Logic.Object
             DrawModules = drawModules;
 
             var behaviors = new List<BehaviorModule>();
+
+            void AddBehavior(string tag, BehaviorModule behavior)
+            {
+                behaviors.Add(behavior);
+                _tagToModuleLookup.Add(tag, behavior);
+            }
+
+            AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Maybe KindOf = CAN_ATTACK ?
+            AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Probably only those with weapons.
+            AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Probably only those with weapons.
+            AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
+
             foreach (var behaviorData in objectDefinition.Behaviors)
             {
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
                 if (module != null)
                 {
                     // TODO: This will never be null once we've implemented all the behaviors.
-                    behaviors.Add(module);
+                    AddBehavior(behaviorData.Tag, module);
                 }
             }
             BehaviorModules = behaviors;
@@ -245,10 +271,14 @@ namespace OpenSage.Logic.Object
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            // TODO: Don't create InactiveBody here, it should be done by inheriting from Default/Object.ini
-            Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this) ?? new InactiveBody(this));
+            Body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
+            _tagToModuleLookup.Add(objectDefinition.Body.Tag, Body);
 
-            AIUpdate = AddDisposable(objectDefinition.AIUpdate?.CreateAIUpdate(this));
+            if (objectDefinition.AIUpdate != null)
+            {
+                AIUpdate = AddDisposable(objectDefinition.AIUpdate.CreateAIUpdate(this));
+                _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
+            }
 
             Collider = Collider.Create(objectDefinition, Transform);
 
@@ -356,54 +386,37 @@ namespace OpenSage.Logic.Object
             {
                 behavior.Update(behaviorUpdateContext);
             }
-
-            // TODO: No idea if this is the right place to do this.
-            //DetectCollisions(behaviorUpdateContext);
         }
 
-        private void DetectCollisions(BehaviorUpdateContext context)
+        internal bool Intersects(GameObject other)
         {
-            if (Collider == null)
+            if (Collider == null || other.Collider == null)
             {
-                return;
+                return false;
             }
 
-            if (Definition.KindOf.Get(ObjectKinds.Immobile))
+            if (Definition.KindOf.Get(ObjectKinds.Immobile)
+                && other.Definition.KindOf.Get(ObjectKinds.Immobile))
             {
-                return;
+                return false;
             }
+
+            // TODO: Use more accurate collider/collider intersection.
 
             var thisBoundingArea = Collider.GetBoundingArea();
+            var otherBoundingArea = other.Collider.GetBoundingArea();
 
-            // TODO: Use a quadtree.
-            foreach (var otherGameObject in _gameContext.GameObjects.Items)
-            {
-                if (this == otherGameObject)
-                {
-                    continue;
-                }
-
-                if (otherGameObject.Collider == null)
-                {
-                    continue;
-                }
-
-                var otherBoundingArea = otherGameObject.Collider.GetBoundingArea();
-                if (thisBoundingArea.Intersects(otherBoundingArea))
-                {
-                    // TODO: This will result in duplicate pairs of collisions.
-                    // We should instead do collision detect for unique pairs of objects.
-                    DoCollide(context, otherGameObject);
-                    otherGameObject.DoCollide(context, this);
-
-                    // TODO: Do we only care about the first collision?
-                    break;
-                }
-            }
+            return thisBoundingArea.Intersects(otherBoundingArea);
         }
 
-        private void DoCollide(BehaviorUpdateContext context, GameObject collidingObject)
+        internal void DoCollide(GameObject collidingObject, in TimeInterval time)
         {
+            // TODO: Don't create this every time.
+            var context = new BehaviorUpdateContext(
+                _gameContext,
+                this,
+                time);
+
             foreach (var behavior in BehaviorModules)
             {
                 behavior.OnCollide(context, collidingObject);
@@ -787,6 +800,11 @@ namespace OpenSage.Logic.Object
         internal void GainExperience(int experience)
         {
             ExperienceValue = (int) (ExperienceMultiplier * experience);
+        }
+
+        internal BehaviorModule GetModuleByTag(string tag)
+        {
+            return _tagToModuleLookup[tag];
         }
     }
 }

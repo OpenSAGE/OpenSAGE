@@ -2,6 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
+    public class SpecialPowerModule : BehaviorModule
+    {
+
+    }
+
     public class SpecialPowerModuleData : BehaviorModuleData
     {
         internal static SpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

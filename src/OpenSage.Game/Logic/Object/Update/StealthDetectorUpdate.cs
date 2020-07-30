@@ -2,6 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class StealthDetectorUpdate : UpdateModule
+    {
+        // TODO
+    }
+
     /// <summary>
     /// Display MESSAGE:StealthDiscovered when triggered.
     /// </summary>
@@ -56,5 +61,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string RequiredUpgrade { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new StealthDetectorUpdate();
+        }
     }
 }

@@ -3,6 +3,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class SpecialAbilityUpdate : UpdateModule
+    {
+        // TODO
+    }
+
     /// <summary>
     /// Allows the use of PACKING and UNPACKING condition states.
     /// </summary>
@@ -155,5 +160,10 @@ namespace OpenSage.Logic.Object
         public int TriggerModelConditionDuration { get; private set; }
 
         public int FreezeAfterTriggerDuration { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SpecialAbilityUpdate();
+        }
     }
 }

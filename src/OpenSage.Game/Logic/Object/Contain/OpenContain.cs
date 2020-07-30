@@ -3,6 +3,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class OpenContainModule : UpdateModule
+    {
+
+    }
+
     public abstract class OpenContainModuleData : UpdateModuleData
     {
         internal static readonly IniParseTable<OpenContainModuleData> FieldParseTable = new IniParseTable<OpenContainModuleData>

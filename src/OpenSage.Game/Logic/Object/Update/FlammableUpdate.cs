@@ -2,6 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class FlammableUpdate : UpdateModule
+    {
+        // TODO
+    }
+
     /// <summary>
     /// Allows the use of the AFLAME, SMOLDERING, and BURNED condition states.
     /// </summary>
@@ -99,5 +104,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public DamageType DamageType { get; internal set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new FlammableUpdate();
+        }
     }
 }

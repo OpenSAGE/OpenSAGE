@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Mathematics;
@@ -67,6 +68,22 @@ namespace OpenSage.Logic.Object
             {
                 GameObject.Die(deathType, time);
             }
+        }
+
+        internal override void Load(BinaryReader reader, int lengthInBytes)
+        {
+            base.Load(reader, lengthInBytes);
+
+            //    for (var j = 0; j < 6; j++)
+            //    {
+            //        reader.ReadBooleanChecked();
+            //    }
+            //    reader.ReadSingle(); // 1.0f
+            //    var maxHealth = reader.ReadSingle(); // 1000.0f
+            //    var currentHealth = reader.ReadSingle(); // 1000.0f (or this is maxHealth)
+            //    reader.ReadSingle(); // 1000.0f
+            //    reader.ReadSingle(); // 1000.0f
+            //    reader.ReadBytes(65);
         }
     }
 
