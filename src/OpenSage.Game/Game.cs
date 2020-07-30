@@ -584,12 +584,13 @@ namespace OpenSage
 
         }
 
-        private void StartGame(
+        internal void StartGame(
             string mapFileName,
             IConnection connection,
             PlayerSetting?[] playerSettings,
             int localPlayerIndex,
-            bool isMultiPlayer)
+            bool isMultiPlayer,
+            MapFile mapFile = null)
         {
             // TODO: Loading screen.
             while (Scene2D.WndWindowManager.OpenWindowCount > 0)
@@ -602,7 +603,9 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D = LoadMap(mapFileName);
+            Scene3D = mapFile != null
+                ? new Scene3D(this, mapFile, Environment.TickCount)
+                : LoadMap(mapFileName);
 
             if (Scene3D == null)
             {

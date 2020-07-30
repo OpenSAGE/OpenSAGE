@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data;
 using OpenSage.Data.Sav;
+using OpenSage.Mods.Generals;
+using Veldrid;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Sav
@@ -14,12 +17,21 @@ namespace OpenSage.Tests.Data.Sav
         [MemberData(nameof(GetSaveFiles))]
         public void CanLoadSaveFiles(string relativePath)
         {
-            var fullPath = Path.Combine(RootFolder, relativePath);
-            using (var stream = File.OpenRead(fullPath))
+            var rootFolder = InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGenerals);
+            var installation = new GameInstallation(new GeneralsDefinition(), rootFolder);
+
+            Platform.Start();
+
+            using (var game = new Game(installation, GraphicsBackend.Direct3D11))
             {
-                // TODO: Create game
-                SaveFile.LoadFromStream(stream, null);
+                var fullPath = Path.Combine(RootFolder, relativePath);
+                using (var stream = File.OpenRead(fullPath))
+                {
+                    SaveFile.LoadFromStream(stream, game);
+                }
             }
+
+            Platform.Stop();
         }
 
         public static IEnumerable<object[]> GetSaveFiles()

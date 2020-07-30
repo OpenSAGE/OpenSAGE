@@ -85,6 +85,29 @@ namespace OpenSage
                 }
                 return _matrix;
             }
+
+            internal set
+            {
+                _matrix = value;
+
+                if (!Matrix4x4.Decompose(
+                    value,
+                    out var scale,
+                    out var rotation,
+                    out var translation))
+                {
+                    throw new InvalidOperationException();
+                }
+
+                // We assume uniform scale.
+
+                Scale = scale.Z;
+                Rotation = rotation;
+                Translation = translation;
+
+                _isMatrixDirty = false;
+                _isMatrixInverseDirty = true;
+            }
         }
 
         public Matrix4x4 MatrixInverse
