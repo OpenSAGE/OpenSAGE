@@ -2,6 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class PoisonedBehavior : UpdateModule
+    {
+        // TODO
+    }
+
     public sealed class PoisonedBehaviorModuleData : UpdateModuleData
     {
         internal static PoisonedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -21,5 +26,10 @@ namespace OpenSage.Logic.Object
         /// Amount of time to continue being damaged after last hit by poison damage.
         /// </summary>
         public int PoisonDuration { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new PoisonedBehavior();
+        }
     }
 }

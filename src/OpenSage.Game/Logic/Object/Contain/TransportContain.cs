@@ -4,6 +4,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class TransportContain : OpenContainModule
+    {
+        // TODO
+    }
+
     /// <summary>
     /// Requires ExitStartN and ExitEndN bones defined unless overridden by <see cref="ExitBone"/>.
     /// Allows the use of SoundEnter And SoundExit UnitSpecificSounds.
@@ -165,6 +170,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public ModelConditionFlag ConditionForEntry { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new TransportContain();
+        }
     }
 
     public sealed class PassengerBonePrefix

@@ -2,6 +2,16 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class AutoHealBehavior : UpgradeModule
+    {
+        public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+
+        // TODO
+    }
+
     public sealed class AutoHealBehaviorModuleData : UpgradeModuleData
     {
         internal static AutoHealBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -71,5 +81,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool HealOnlyIfNotUnderAttack { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new AutoHealBehavior(this);
+        }
     }
 }

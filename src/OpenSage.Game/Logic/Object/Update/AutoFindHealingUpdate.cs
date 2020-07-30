@@ -2,6 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class AutoFindHealingUpdate : UpdateModule
+    {
+        // TODO
+    }
+
     /// <summary>
     /// Searches for a nearby healing station. AI only.
     /// </summary>
@@ -21,5 +26,10 @@ namespace OpenSage.Logic.Object
         public int ScanRange { get; private set; }
         public float NeverHeal { get; private set; }
         public float AlwaysHeal { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new AutoFindHealingUpdate();
+        }
     }
 }
