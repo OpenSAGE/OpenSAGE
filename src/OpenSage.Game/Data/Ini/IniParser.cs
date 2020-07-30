@@ -11,6 +11,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -440,6 +441,18 @@ namespace OpenSage.Data.Ini
         {
             var name = ParseAssetReference();
             return _assetStore.CommandSets.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<SpecialPower> ParseSpecialPowerReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.SpecialPowers.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<CrateData> ParseCrateReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.CrateDatas.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<UpgradeTemplate> ParseUpgradeReference()

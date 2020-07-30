@@ -265,10 +265,10 @@ namespace OpenSage.Mods.Generals.Gui
                                 break;
                             // Disable the button when the object already has it
                             case CommandType.ObjectUpgrade:
-                                var upgradeName = commandButton.Upgrade;
-                                var queuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.FirstOrDefault(x => x.UpgradeDefinition?.Name == upgradeName);
-                                var objUpgrade = selectedUnit.Upgrades.FirstOrDefault(x => x.Name == upgradeName);
-                                buttonControl.Enabled = queuedUpgrade == null && objUpgrade == null;
+                                var upgrade = commandButton.Upgrade.Value;
+                                var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+                                var hasUpgrade = selectedUnit.Upgrades.Contains(upgrade);
+                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade;
                                 break;
                         }
 
@@ -313,8 +313,7 @@ namespace OpenSage.Mods.Generals.Gui
                                         var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
                                         var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
                                         order.AddIntegerArgument(objId);
-                                        var name = commandButton.Upgrade;
-                                        var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
+                                        var upgrade = commandButton.Upgrade.Value;
                                         order.AddIntegerArgument(upgrade.InternalId);
                                     }
                                     break;
@@ -326,8 +325,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 case CommandType.SpecialPower:
                                     {
-                                        var name = commandButton.SpecialPower;
-                                        var specialPower = context.Game.AssetStore.SpecialPowers.GetByName(name);
+                                        var specialPower = commandButton.SpecialPower.Value;
                                         if (commandButton.Options != null)
                                         {
                                             var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
