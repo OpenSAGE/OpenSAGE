@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 
@@ -11,8 +12,6 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
         private GameObject[] _parkingSlots;
-
-        private int _currentSlot;
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
@@ -63,13 +62,6 @@ namespace OpenSage.Logic.Object
         //RunwayEnd1
         //HeliPark01
 
-        public void ParkVehicle(GameObject gameObject)
-        {
-            var freeSlot = NextFreeSlot();
-            //TODO: when there are no slots don't produce the plane anymore
-            _parkingSlots[freeSlot] = gameObject;
-        }
-
         public Vector3 GetUnitCreatePoint()
         {
             var freeSlot = NextFreeSlot();
@@ -85,11 +77,19 @@ namespace OpenSage.Logic.Object
             return bone.Transform.Translation;
         }
 
+        public void ParkVehicle(GameObject gameObject)
+        {
+            var freeSlot = NextFreeSlot();
+            //TODO: when there are no slots don't produce the plane anymore
+            _parkingSlots[freeSlot] = gameObject;
+            gameObject.Garrison = _gameObject;
+            gameObject.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, true);
+        }
+
         public Vector3? GetNaturalRallyPoint()
         {
             throw new InvalidOperationException("no game object provided");
         }
-
 
         public Vector3? GetNaturalRallyPoint(GameObject gameObject)
         {
@@ -105,6 +105,43 @@ namespace OpenSage.Logic.Object
             }
 
             return bone.Transform.Translation;
+        }
+
+        // TODO: this is not quite correct yet, but the original behaviour is quite random
+        public List<Vector3> GetUnparkingPath(GameObject gameObject)
+        {
+            var result = new List<Vector3>();
+            var slot = GetCorrespondingSlot(gameObject);
+            var runway = slot % 2 + 1;
+            var hangar = slot / 2 + 1;
+
+            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PREP{hangar}");
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find start point bone");
+            }
+            result.Add(bone.Transform.Translation);
+
+            (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find start point bone");
+            }
+            result.Add(bone.Transform.Translation);
+
+            (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find start point bone");
+            }
+            result.Add(bone.Transform.Translation);
+
+            return result;
+        }
+
+        public void Unpark(GameObject gameObject)
+        {
+            gameObject
         }
     }
 

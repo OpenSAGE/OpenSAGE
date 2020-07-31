@@ -52,6 +52,7 @@ namespace OpenSage.Logic.Object
                 locomotor = (locomotorSet != null)
                     ? new Locomotor(GameObject, locomotorSet)
                     : null;
+                if (locomotor != null) _locomotors[type] = locomotor;
             }
 
             _currentLocomotor = locomotor;

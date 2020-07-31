@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using NLog.Targets;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -11,6 +12,8 @@ namespace OpenSage.Logic.Object
             : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+
+            SetLocomotor(LocomotorSetType.Taxiing);
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -23,14 +26,15 @@ namespace OpenSage.Logic.Object
             var z = trans.Z;
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(x, y);
-            var height = z - terrainHeight;
 
-            if (height < _moduleData.MinHeight)
+            for (var i = 0; i < TargetPoints.Count; i++)
             {
-                trans.Z = terrainHeight + _moduleData.MinHeight;
+                var targetPoint = TargetPoints[i];
+                if ((targetPoint.Z - terrainHeight) < _moduleData.MinHeight)
+                {
+                    targetPoint.Z = terrainHeight + _moduleData.MinHeight;
+                }
             }
-
-            transform.Translation = trans;
 
             base.Update(context);
         }
