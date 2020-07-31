@@ -3,6 +3,40 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class JetAIUpdate : AIUpdate
+    {
+        private readonly JetAIUpdateModuleData _moduleData;
+
+        internal JetAIUpdate(GameObject gameObject, JetAIUpdateModuleData moduleData)
+            : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            var transform = GameObject.Transform;
+            var trans = transform.Translation;
+
+            var x = trans.X;
+            var y = trans.Y;
+            var z = trans.Z;
+
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(x, y);
+            var height = z - terrainHeight;
+
+            if (height < _moduleData.MinHeight)
+            {
+                trans.Z = terrainHeight + _moduleData.MinHeight;
+            }
+
+            transform.Translation = trans;
+
+            base.Update(context);
+        }
+    }
+
+
     /// <summary>
     /// Allows the use of VoiceLowFuel and Afterburner within UnitSpecificSounds section of the object.
     /// Requires Kindof = AIRCRAFT.
@@ -53,5 +87,10 @@ namespace OpenSage.Logic.Object
         public LocomotorSetType ReturnForAmmoLocomotorType { get; private set; }
         public int ParkingOffset { get; private set; }
         public int ReturnToBaseIdleTime { get; private set; }
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new JetAIUpdate(gameObject, this);
+        }
     }
 }

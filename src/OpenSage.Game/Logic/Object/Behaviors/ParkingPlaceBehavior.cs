@@ -12,6 +12,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _gameContext;
         private GameObject[] _parkingSlots;
 
+        private int _currentSlot;
+
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
             _moduleData = moduleData;
@@ -20,9 +22,9 @@ namespace OpenSage.Logic.Object
             _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
         }
 
-        private int NextFreeSlot()
+        public int NextFreeSlot()
         {
-            for (int index = 0; index < _parkingSlots.Length; index++)
+            for (var index = 0; index < _parkingSlots.Length; index++)
             {
                 if (_parkingSlots[index] == null)
                 {
@@ -33,18 +35,46 @@ namespace OpenSage.Logic.Object
             return -1;
         }
 
+        private int GetCorrespondingSlot(GameObject gameObject)
+        {
+            for (var index = 0; index < _parkingSlots.Length; index++)
+            {
+                if (_parkingSlots[index] == gameObject)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        //Runway1Prking1
+        //Runway1Parking2
+        //Runway2Parking1
+        //Runway2Parking2
+        //Runway1Park1Han
+        //Runway1Park2Han
+        //Runway2Park1Han
+        //Runway2Park2Han
+
+        //Runway1Prep1
+        //Runway1Prep2
+        //RunwayStart1
+        //RunwayEnd1
+        //HeliPark01
+
         public void ParkVehicle(GameObject gameObject)
         {
-            int freeSlot = NextFreeSlot();
+            var freeSlot = NextFreeSlot();
             //TODO: when there are no slots don't produce the plane anymore
             _parkingSlots[freeSlot] = gameObject;
         }
 
         public Vector3 GetUnitCreatePoint()
         {
-            int freeSlot = NextFreeSlot();
-            int runway = freeSlot % 2 + 1;
-            int hangar = freeSlot / 2 + 1;
+            var freeSlot = NextFreeSlot();
+            var runway = freeSlot % 2 + 1;
+            var hangar = freeSlot / 2 + 1;
             var (modelInstance, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
 
             if (bone == null)
@@ -57,8 +87,17 @@ namespace OpenSage.Logic.Object
 
         public Vector3? GetNaturalRallyPoint()
         {
-            int start = _gameContext.Random.Next(1, _moduleData.NumCols);
-            var (modelInstance, bone) = _gameObject.FindBone($"RUNWAYSTART{start}");
+            throw new InvalidOperationException("no game object provided");
+        }
+
+
+        public Vector3? GetNaturalRallyPoint(GameObject gameObject)
+        {
+
+            var slot = GetCorrespondingSlot(gameObject);
+            var runway = slot % 2 + 1;
+            var hangar = slot / 2 + 1;
+            var (modelInstance, bone) = _gameObject.FindBone($"RUNWAY{runway}PARKING{hangar}");
 
             if (bone == null)
             {
