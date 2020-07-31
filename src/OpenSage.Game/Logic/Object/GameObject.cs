@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
             MapObject mapObject,
             AssetStore assetStore,
             GameObjectCollection parent,
-            in Vector3 position,
+            HeightMap heightMap,
             in float? overwriteAngle = 0.0f,
             IReadOnlyList<Team> teams = null)
         {
@@ -70,8 +70,18 @@ namespace OpenSage.Logic.Object
                 gameObject.IsSelectable = (bool) selectable.Value;
             }
 
-            gameObject.Transform.Translation = position;
-            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
+            var rotationAnchorOffset = new Vector2();
+            var geometry = gameObject.Definition.Geometry;
+            if (geometry != null)
+            {
+                rotationAnchorOffset = geometry.RotationAnchorOffset;
+            }
+
+            var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
+            var offset = Vector4.Transform(new Vector4(rotationAnchorOffset.X, rotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
+            var position = mapObject.Position + offset.ToVector3();
+            gameObject.Transform.Translation = new Vector3(position.X, position.Y, heightMap.GetHeight(position.X, position.Y));
+            gameObject.Transform.Rotation = rotation;
 
             if (gameObject.Definition.IsBridge)
             {

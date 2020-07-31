@@ -36,15 +36,15 @@ namespace OpenSage.Logic.Object
                     {
                         var mapObject = mapFile.ObjectsList.Objects[index];
 
-                        var baseObject = GameObject.FromMapObject(
-                            mapObject,
-                            context.AssetLoadContext.AssetStore,
-                            context.GameObjects,
-                            //TODO: have to figure out how to calculate the transform for the subojects correctly
-                            _gameObject.Transform.Translation + castleTemplate.Offset,
-                            castleTemplate.Angle - _gameObject.Transform.EulerAngles.Z);
+                        //var baseObject = GameObject.FromMapObject(
+                        //    mapObject,
+                        //    context.AssetLoadContext.AssetStore,
+                        //    context.GameObjects,
+                        //    //TODO: have to figure out how to calculate the transform for the subojects correctly
+                        //    _gameObject.Transform.Translation + castleTemplate.Offset,
+                        //    castleTemplate.Angle - _gameObject.Transform.EulerAngles.Z);
 
-                        AssignOwner(baseObject);
+                        //AssignOwner(baseObject);
                         index++;
                     }
                 }

@@ -266,7 +266,7 @@ namespace OpenSage.Logic.Object
             { "DisplayColor", (parser, x) => x.DisplayColor = parser.ParseColorRgb() },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
 
-            { "Geometry", (parser, x) => x.Geometry =  new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+            { "Geometry", (parser, x) => x.Geometry = new Geometry(parser.ParseEnum<ObjectGeometry>()) },
             { "AdditionalGeometry", (parser, x) => x.AdditionalGeometries.Add(new Geometry(parser.ParseEnum<ObjectGeometry>())) },
 
             { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
@@ -837,10 +837,10 @@ namespace OpenSage.Logic.Object
         {
             get
             {
-                if (AdditionalGeometries.Count > 0)
-                {
-                    return AdditionalGeometries[AdditionalGeometries.Count - 1];
-                }
+                //if (AdditionalGeometries.Count > 0)
+                //{
+                //    return AdditionalGeometries[AdditionalGeometries.Count - 1];
+                //}
                 return Geometry ?? new Geometry();
             }
         }
@@ -1194,6 +1194,7 @@ namespace OpenSage.Logic.Object
             result.ClientUpdates = new List<ClientUpdateModuleData>();
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
+            result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
 
             foreach (var inheritableModule in result.InheritableModules)
             {

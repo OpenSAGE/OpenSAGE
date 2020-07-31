@@ -167,8 +167,6 @@ namespace OpenSage
             {
                 var mapObject = mapObjects[i];
 
-                var position = mapObject.Position;
-
                 switch (mapObject.RoadType & RoadType.PrimaryType)
                 {
                     case RoadType.None:
@@ -179,9 +177,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                position.Z += heightMap.GetHeight(position.X, position.Y);
-
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, position, null, teams);
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, null, teams);
 
                                 break;
                         }

@@ -239,6 +239,7 @@ namespace OpenSage.Graphics
                 {
                     case W3dShaderMaterialPropertyType.Texture:
                         var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue);
+                        if (texture == null) continue;
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 

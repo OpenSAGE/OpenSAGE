@@ -3,6 +3,29 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
+    public sealed class LevelUpUpgrade : UpgradeModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly LevelUpUpgradeModuleData _moduleData;
+
+        internal LevelUpUpgrade(GameObject gameObject, LevelUpUpgradeModuleData moduleData)
+            : base(moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                //_gameObject.Se
+            }
+        }
+    }
+
+
+    [AddedIn(SageGame.Bfme)]
     public sealed class LevelUpUpgradeModuleData : UpgradeModuleData
     {
         internal static LevelUpUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
