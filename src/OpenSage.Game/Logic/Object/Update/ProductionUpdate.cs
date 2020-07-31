@@ -227,11 +227,10 @@ namespace OpenSage.Logic.Object
             var productionExit = _gameObject.FindBehavior<IProductionExit>();
 
             Vector3? naturalRallyPoint;
-            var is_parked = false;
-            if (productionExit is ParkingPlaceBehaviour parkingPlace)
+
+            if (productionExit is ParkingPlaceBehaviour parkingPlaceBehaviour)
             {
-                naturalRallyPoint = parkingPlace.GetNaturalRallyPoint(_producedUnit);
-                is_parked = true;
+                naturalRallyPoint = parkingPlaceBehaviour.GetNaturalRallyPoint(_producedUnit);
             }
             else
             {
@@ -244,7 +243,7 @@ namespace OpenSage.Logic.Object
             }
 
             // Then go to the rally point if it exists
-            if (!is_parked && _gameObject.RallyPoint.HasValue)
+            if (_gameObject.RallyPoint.HasValue && !_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Garrisoned))
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
