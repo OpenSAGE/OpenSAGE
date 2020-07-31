@@ -87,11 +87,9 @@ namespace OpenSage.Data.Ini
 
             if (entry != null)
             {
-                using (var stream = entry.Open())
-                using (var reader = new StreamReader(stream, encoding))
-                {
-                    source = reader.ReadToEnd();
-                }
+                using var stream = entry.Open();
+                using var reader = new StreamReader(stream, encoding);
+                source = reader.ReadToEnd();
             }
             else
             {
@@ -156,7 +154,7 @@ namespace OpenSage.Data.Ini
 
         private static List<byte> ReadEncodedText(string encoded)
         {
-            int ConvertHexNibble(char c)
+            static int ConvertHexNibble(char c)
             {
                 if (c >= '0' && c <= '9')
                 {
@@ -1034,3 +1032,4 @@ namespace OpenSage.Data.Ini
         }
     }
 }
+

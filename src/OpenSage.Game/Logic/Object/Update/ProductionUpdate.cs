@@ -22,6 +22,8 @@ namespace OpenSage.Logic.Object
 
         private GameObject _producedUnit;
 
+        private int doorIndex;
+
         private enum DoorState
         {
             Closed,
@@ -55,8 +57,11 @@ namespace OpenSage.Logic.Object
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
                     _currentDoorState = DoorState.Open;
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, true);
+
+                    GetDoorConditionFlags(out var doorOpening, out var doorWaitingOpen, out var _);
+                   
+                    _gameObject.ModelConditionFlags.Set(doorOpening, false);
+                    _gameObject.ModelConditionFlags.Set(doorWaitingOpen, true);
                     MoveProducedObjectOut();
                 }
 
@@ -76,7 +81,10 @@ namespace OpenSage.Logic.Object
                             Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
                             _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
                             _currentDoorState = DoorState.Opening;
-                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
+
+                            SetCurrentDoorIndex();
+                            GetDoorConditionFlags(out var doorOpening, out var _, out var _);
+                            _gameObject.ModelConditionFlags.Set(doorOpening, true);
 
                             ProduceObject(front);
                         }
@@ -103,8 +111,9 @@ namespace OpenSage.Logic.Object
                         Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
                         _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
                         _currentDoorState = DoorState.Closing;
-                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingOpen, false);
-                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
+                        GetDoorConditionFlags(out var _, out var doorWaitingOpen, out var doorClosing);
+                        _gameObject.ModelConditionFlags.Set(doorWaitingOpen, false);
+                        _gameObject.ModelConditionFlags.Set(doorClosing, true);
                         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
                     }
                     break;
@@ -114,11 +123,54 @@ namespace OpenSage.Logic.Object
                     {
                         Logger.Info($"Door closed");
                         _currentDoorState = DoorState.Closed;
-                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
+                        GetDoorConditionFlags(out var _, out var _, out var doorClosing);
+                        _gameObject.ModelConditionFlags.Set(doorClosing, false);
                     }
                     break;
             }
         }
+
+        private void SetCurrentDoorIndex()
+        {
+            var productionExit = _gameObject.FindBehavior<IProductionExit>();
+            if (productionExit is ParkingPlaceBehaviour parkingPlace)
+            {
+                doorIndex = parkingPlace.NextFreeSlot();
+            }
+        }
+
+        private void GetDoorConditionFlags(out ModelConditionFlag opening, out ModelConditionFlag waitingOpen, out ModelConditionFlag closing)
+        {
+            opening = ModelConditionFlag.Door1Opening;
+            waitingOpen = ModelConditionFlag.Door1WaitingOpen;
+            closing = ModelConditionFlag.Door1Closing;
+
+            var productionExit = _gameObject.FindBehavior<IProductionExit>();
+
+            if (!(productionExit is ParkingPlaceBehaviour)) return;
+
+            switch (doorIndex)
+            {
+                case 0:
+                    break;
+                case 1:
+                    opening = ModelConditionFlag.Door2Opening;
+                    waitingOpen = ModelConditionFlag.Door2WaitingOpen;
+                    closing = ModelConditionFlag.Door2Closing;
+                    break;
+                case 2:
+                    opening = ModelConditionFlag.Door3Opening;
+                    waitingOpen = ModelConditionFlag.Door3WaitingOpen;
+                    closing = ModelConditionFlag.Door3Closing;
+                    break;
+                case 3:
+                    opening = ModelConditionFlag.Door4Opening;
+                    waitingOpen = ModelConditionFlag.Door4WaitingOpen;
+                    closing = ModelConditionFlag.Door4Closing;
+                    break;
+            }
+        }
+
 
         private void ProduceObject(ProductionJob job)
         {
@@ -148,7 +200,6 @@ namespace OpenSage.Logic.Object
         private void ProduceObject(ObjectDefinition objectDefinition)
         {
             var productionExit = _gameObject.FindBehavior<IProductionExit>();
-
             if (productionExit == null)
             {
                 // If there's no IProductionExit behavior on this object, don't emit anything.
@@ -159,8 +210,7 @@ namespace OpenSage.Logic.Object
             _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
             _producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
 
-            var parkingPlace = productionExit as ParkingPlaceBehaviour;
-            if (parkingPlace != null)
+            if (productionExit is ParkingPlaceBehaviour parkingPlace)
             {
                 parkingPlace.ParkVehicle(_producedUnit);
             }
@@ -173,17 +223,28 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            // First go to the natural rally point
             var productionExit = _gameObject.FindBehavior<IProductionExit>();
 
-            // First go to the natural rally point
-            var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
+            Vector3? naturalRallyPoint;
+            var is_parked = false;
+            if (productionExit is ParkingPlaceBehaviour parkingPlace)
+            {
+                naturalRallyPoint = parkingPlace.GetNaturalRallyPoint(_producedUnit);
+                is_parked = true;
+            }
+            else
+            {
+                naturalRallyPoint = productionExit.GetNaturalRallyPoint();
+            }
+
             if (naturalRallyPoint.HasValue)
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
-            if (_gameObject.RallyPoint.HasValue)
+            if (!is_parked && _gameObject.RallyPoint.HasValue)
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
