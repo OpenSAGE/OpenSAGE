@@ -266,8 +266,8 @@ namespace OpenSage.Logic.Object
             { "DisplayColor", (parser, x) => x.DisplayColor = parser.ParseColorRgb() },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
 
-            { "Geometry", (parser, x) => x.Geometry = new Geometry(parser.ParseEnum<ObjectGeometry>()) },
-            { "AdditionalGeometry", (parser, x) => x.AdditionalGeometries.Add(new Geometry(parser.ParseEnum<ObjectGeometry>())) },
+            { "Geometry", (parser, x) => x.ParseGeometry(parser) },
+            { "AdditionalGeometry", (parser, x) => x.ParseAdditionalGeometry(parser) },
 
             { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
             { "GeometryMajorRadius", (parser, x) => x.CurrentGeometry.MajorRadius = parser.ParseFloat() },
@@ -279,7 +279,7 @@ namespace OpenSage.Logic.Object
             { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
             { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
 
-            { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
+            { "GeometryOther", (parser, x) => x.ParseOtherGeometry(parser) },
 
             { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(ContactPoint.Parse(parser)) },
 
@@ -833,18 +833,6 @@ namespace OpenSage.Logic.Object
         public ColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
 
-        private Geometry CurrentGeometry
-        {
-            get
-            {
-                //if (AdditionalGeometries.Count > 0)
-                //{
-                //    return AdditionalGeometries[AdditionalGeometries.Count - 1];
-                //}
-                return Geometry ?? new Geometry();
-            }
-        }
-
         public Geometry Geometry { get; private set; } = new Geometry();
 
         [AddedIn(SageGame.Bfme)]
@@ -1223,6 +1211,28 @@ namespace OpenSage.Logic.Object
             result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
 
             return result;
+        }
+
+        private Geometry CurrentGeometry { get; set; }
+
+        internal void ParseGeometry(IniParser parser)
+        {
+            Geometry = new Geometry(parser.ParseEnum<ObjectGeometry>());
+            CurrentGeometry = Geometry;
+        }
+
+        internal void ParseAdditionalGeometry(IniParser parser)
+        {
+            var geometry = new Geometry(parser.ParseEnum<ObjectGeometry>());
+            AdditionalGeometries.Add(geometry);
+            CurrentGeometry = geometry;
+        }
+
+        internal void ParseOtherGeometry(IniParser parser)
+        {
+            var geometry = Geometry.Parse(parser);
+            OtherGeometries.Add(geometry);
+            CurrentGeometry = geometry;
         }
     }
 
