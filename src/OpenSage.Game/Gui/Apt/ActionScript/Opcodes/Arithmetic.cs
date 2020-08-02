@@ -85,6 +85,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Pop two values from stack, convert them to float and then divide them. Result on stack
+    /// </summary>
+    public sealed class Modulo : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Modulo;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Pop a value from stack, increments it and pushes it back
     /// </summary>
     public sealed class Increment : InstructionBase
@@ -93,7 +106,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var num = context.Stack.Pop().ResolveRegister(context).ToInteger();
+            context.Stack.Push(Value.FromInteger(num++));
         }
     }
 

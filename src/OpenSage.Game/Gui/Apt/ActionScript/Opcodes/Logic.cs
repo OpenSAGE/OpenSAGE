@@ -44,8 +44,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         //Should work according to ECMA-262 Section 11.8.5
         public override void Execute(ActionContext context)
         {
-            var arg1 = context.Stack.Pop().ToFloat();
-            var arg2 = context.Stack.Pop().ToFloat();
+            var arg1 = context.Stack.Pop().ResolveRegister(context).ToFloat();
+            var arg2 = context.Stack.Pop().ResolveRegister(context).ToFloat();
 
             if (double.IsNaN(arg1) || double.IsNaN(arg2))
             {
