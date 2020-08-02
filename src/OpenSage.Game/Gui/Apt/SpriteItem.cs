@@ -33,6 +33,8 @@ namespace OpenSage.Gui.Apt
 
         public DisplayList Content { get; private set; }
 
+        public int CurrentFrame => (int)_currentFrame;
+
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) character;
@@ -326,6 +328,7 @@ namespace OpenSage.Gui.Apt
 
             Content.AddItem(po.Depth, displayItem);
         }
+
 
         public override void RunActions(TimeInterval gt)
         {

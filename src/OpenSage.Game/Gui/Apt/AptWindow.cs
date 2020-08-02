@@ -5,7 +5,6 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
-using SixLabors.ImageSharp.Drawing;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
@@ -33,6 +32,7 @@ namespace OpenSage.Gui.Apt
         public AptWindowManager Manager { get; set; }
         internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
+        public AptContext Context => _context;
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
