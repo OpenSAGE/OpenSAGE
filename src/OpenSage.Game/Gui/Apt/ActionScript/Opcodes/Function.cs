@@ -22,6 +22,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return args;
         }
 
+        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+        {
+            if (funcVal.Type != ValueType.Undefined)
+            {
+                var func = funcVal.ToFunction();
+                var ret = vm.Execute(func, args, scope);
+            }
+            else
+            {
+                logger.Warn($"Function val is wrong is wrong type: {funcVal}");
+            }
+        }
+
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
         {
             if (funcVal.Type != ValueType.Undefined)

@@ -21,6 +21,11 @@ namespace OpenSage.Mods.Bfme2.Gui
 
         }
 
+        public static void OnAptInGameSideCommandBarFadeInComplete(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
         public static void SetBackground(string param, ActionContext context, AptWindow window, Game game)
         {
 

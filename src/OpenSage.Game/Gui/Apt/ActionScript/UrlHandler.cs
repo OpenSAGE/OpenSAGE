@@ -30,8 +30,10 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                 var targetSprite = targetObject.Item as SpriteItem;
                 var aptFile = movieHandler(url);
+                var oldName = targetSprite.Name;
 
                 targetSprite.Create(aptFile.Movie, targetSprite.Context, targetSprite.Parent);
+                targetSprite.Name = oldName;
             }
         }
     }
