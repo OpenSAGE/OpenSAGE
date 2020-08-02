@@ -275,7 +275,7 @@ namespace OpenSage.Logic.Object
             { "GeometryHeight", (parser, x) => x.CurrentGeometry.Height = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
             { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParseVector3() },
-            { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParseVector2() },
+            { "GeometryRotationAnchorOffset", (parser, x) => x.RotationAnchorOffset = parser.ParseVector2() },
             { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
             { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
 
@@ -835,6 +835,8 @@ namespace OpenSage.Logic.Object
 
         public Geometry Geometry { get; private set; } = new Geometry();
 
+        public Vector2 RotationAnchorOffset { get; set; }
+
         [AddedIn(SageGame.Bfme)]
         public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();
 
@@ -1370,7 +1372,6 @@ namespace OpenSage.Logic.Object
         public float MinorRadius { get; set; }
         public int OffsetX { get; set; }
         public Vector3 Offset { get; set; }
-        public Vector2 RotationAnchorOffset { get; set; }
         public bool IsActive { get; set; }
         public float FrontAngle { get; set; }
 

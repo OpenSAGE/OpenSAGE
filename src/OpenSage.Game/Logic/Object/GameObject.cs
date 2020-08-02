@@ -70,17 +70,12 @@ namespace OpenSage.Logic.Object
                 gameObject.IsSelectable = (bool) selectable.Value;
             }
 
-            var rotationAnchorOffset = new Vector2();
-            var geometry = gameObject.Definition.Geometry;
-            if (geometry != null)
-            {
-                rotationAnchorOffset = geometry.RotationAnchorOffset;
-            }
-
+            // TODO: handle "align to terrain" property
             var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
-            var offset = Vector4.Transform(new Vector4(rotationAnchorOffset.X, rotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
-            var position = mapObject.Position + offset.ToVector3();
-            gameObject.Transform.Translation = new Vector3(position.X, position.Y, heightMap.GetHeight(position.X, position.Y));
+            var rotationOffset = Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
+            var position = mapObject.Position + rotationOffset.ToVector3();
+            var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
+            gameObject.Transform.Translation = new Vector3(position.X, position.Y, height);
             gameObject.Transform.Rotation = rotation;
 
             if (gameObject.Definition.IsBridge)
