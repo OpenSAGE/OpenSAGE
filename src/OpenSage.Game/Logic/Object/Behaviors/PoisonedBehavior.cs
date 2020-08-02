@@ -1,39 +1,7 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PoisonedBehaviorModule : BehaviorModule
-    {
-        GameObject _gameObject;
-        PoisonedBehaviorModuleData _moduleData;
-        private TimeSpan _lastUpdate;
-
-        internal PoisonedBehaviorModule(GameObject gameObject, GameContext context, PoisonedBehaviorModuleData moduleData)
-        {
-            _moduleData = moduleData;
-            _gameObject = gameObject;
-        }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            var currentTime = context.Time.TotalTime;
-
-            if (_lastUpdate == null)
-            {
-                _lastUpdate = currentTime;
-                return;
-            }
-
-            if ((currentTime - _lastUpdate).TotalMilliseconds > _moduleData.PoisonDamageInterval)
-            {
-                // what is the poison damage?
-                // is there a poison nugget / weapon?
-                _lastUpdate = currentTime;
-            }
-        }
-    }
-
     public sealed class PoisonedBehaviorModuleData : UpdateModuleData
     {
         internal static PoisonedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

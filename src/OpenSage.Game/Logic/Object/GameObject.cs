@@ -23,12 +23,12 @@ namespace OpenSage.Logic.Object
         internal static GameObject FromMapObject(
             MapObject mapObject,
             AssetStore assetStore,
-            GameObjectCollection parent,
+            GameObjectCollection gameObjects,
             HeightMap heightMap,
             in float? overwriteAngle = 0.0f,
             IReadOnlyList<Team> teams = null)
         {
-            var gameObject = parent.Add(mapObject.TypeName);
+            var gameObject = gameObjects.Add(mapObject.TypeName);
 
             // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
             if (gameObject == null)
@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Object
 
             if (gameObject.Definition.IsBridge)
             {
-                BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
+                BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
             }
 
             if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))

@@ -163,16 +163,16 @@ namespace OpenSage.Logic
             // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                //if (!gameObject.IsSelectable || gameObject.Collider == null)
-                //{
-                //    continue;
-                //}
+                if (!gameObject.IsSelectable || gameObject.Collider == null)
+                {
+                    continue;
+                }
 
-                ////only allow own objects to be drag selected
-                //if (gameObject.Owner != Game.Scene3D.LocalPlayer)
-                //{
-                //    continue;
-                //}
+                //only allow own objects to be drag selected
+                if (gameObject.Owner != Game.Scene3D.LocalPlayer)
+                {
+                    continue;
+                }
 
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {

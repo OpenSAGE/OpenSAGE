@@ -178,7 +178,6 @@ namespace OpenSage
 
                             default:
                                 GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, null, teams);
-
                                 break;
                         }
                         break;
