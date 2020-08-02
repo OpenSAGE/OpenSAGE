@@ -28,6 +28,11 @@ namespace OpenSage.Gui.Apt
                                      a.GeometryTranslation + b.GeometryTranslation);
         }
 
+        public void Scale(float x, float y)
+        {
+            GeometryRotation = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryRotation);
+        }
+
         public ItemTransform WithColorTransform(in ColorRgbaF color)
         {
             return new ItemTransform(color,

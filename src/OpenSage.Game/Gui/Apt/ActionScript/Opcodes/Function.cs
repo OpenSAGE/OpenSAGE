@@ -133,6 +133,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = nRegisters,
+                Constants = new List<Value>(context.Scope.Constants),
                 Flags = flags,
                 IsNewVersion = true
             };

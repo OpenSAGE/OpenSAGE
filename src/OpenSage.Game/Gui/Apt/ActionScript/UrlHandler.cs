@@ -1,13 +1,14 @@
-﻿namespace OpenSage.Gui.Apt.ActionScript
+﻿using System.IO;
+
+namespace OpenSage.Gui.Apt.ActionScript
 {
     /// <summary>
     /// Url handler
     /// </summary>
     public static class UrlHandler
     {
-
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        public static void Handle(VM.HandleCommand handler, ActionContext context, string url, string target)
+        public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ActionContext context, string url, string target)
         {
             logger.Debug($"[URL] URL: {url} Target: {target}");
 
@@ -15,7 +16,22 @@
             {
                 var command = url.Replace("FSCommand:", "");
 
-                handler(context, command, target);
+                cmdHandler(context, command, target);
+            }
+            else
+            {
+                //DO STUFF
+                var targetObject = context.Scope.Variables[target].ToObject();
+
+                if(!(targetObject.Item is SpriteItem))
+                {
+                    logger.Error("[URL] Target must be a sprite!");
+                }
+
+                var targetSprite = targetObject.Item as SpriteItem;
+                var aptFile = movieHandler(url);
+
+                targetSprite.Create(aptFile.Movie, targetSprite.Context, targetSprite.Parent);
             }
         }
     }

@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using SixLabors.ImageSharp.Drawing;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
@@ -57,6 +59,8 @@ namespace OpenSage.Gui.Apt
 
             _context.Root = Root;
             _context.Avm.CommandHandler = HandleCommand;
+            _context.Avm.VariableHandler = HandleVariable;
+            _context.Avm.MovieHandler = HandleMovie;
 
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
@@ -108,6 +112,37 @@ namespace OpenSage.Gui.Apt
         internal void HandleCommand(ActionContext context, string cmd, string param)
         {
             _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
+        }
+
+        internal Value HandleVariable(string variable)
+        {
+            //Mostly no idea what those mean, but they are all booleans
+            switch (variable)
+            {
+                case "InGame":
+                    return Value.FromBoolean(_game.InGame);
+                case "InBetaDemo":
+                    return Value.FromBoolean(false);
+                case "InDreamMachineDemo":
+                    return Value.FromBoolean(false);
+                case "PalantirMinLOD":
+                    return Value.FromBoolean(false);
+                case "MinLOD":
+                    return Value.FromBoolean(false);
+                case "DoTrace":
+                    return Value.FromBoolean(true);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        internal AptFile HandleMovie(string movie)
+        {
+            var aptFileName = System.IO.Path.ChangeExtension(movie, ".apt");
+            var entry = ContentManager.FileSystem.GetFile(aptFileName);
+            var aptFile = AptFile.FromFileSystemEntry(entry);
+
+            return aptFile;
         }
 
         public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);

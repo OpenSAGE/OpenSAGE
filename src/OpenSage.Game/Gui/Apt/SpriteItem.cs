@@ -211,7 +211,7 @@ namespace OpenSage.Gui.Apt
                     }
                     else
                     {
-                        throw new InvalidOperationException("BackgroundColor can only be set from root!");
+                        //throw new InvalidOperationException("BackgroundColor can only be set from root!");
                     }
                     break;
                 default:
@@ -293,12 +293,13 @@ namespace OpenSage.Gui.Apt
 
             DisplayItem displayItem;
             if (character is Playable)
-                displayItem = new SpriteItem() { Transform = itemTransform };
+                displayItem = new SpriteItem();
             else if (character is Button)
-                displayItem = new ButtonItem() { Transform = itemTransform };
+                displayItem = new ButtonItem();
             else
-                displayItem = new RenderItem() { Transform = itemTransform };
+                displayItem = new RenderItem();
 
+            displayItem.Transform = itemTransform;
             displayItem.Create(character, Context, this);
 
             //add this object as an AS property
@@ -316,7 +317,8 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject);
+                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject,
+                                                Character.Container.Constants.Entries);
                         }
                     }
                 }
@@ -330,7 +332,8 @@ namespace OpenSage.Gui.Apt
             //execute all actions now
             foreach (var action in _actionList)
             {
-                Context.Avm.Execute(action.Instructions, ScriptObject);
+                Context.Avm.Execute(action.Instructions, ScriptObject,
+                        ScriptObject.Item.Character.Container.Constants.Entries);
             }
             _actionList.Clear();
 

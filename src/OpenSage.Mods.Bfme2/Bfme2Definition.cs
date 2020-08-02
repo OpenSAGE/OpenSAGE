@@ -29,7 +29,7 @@ namespace OpenSage.Mods.Bfme2
         public string Identifier { get; } = "bfme2";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
-        public IControlBarSource ControlBar { get; }
+        public IControlBarSource ControlBar { get; } = new AptControlBarSource();
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {

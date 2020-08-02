@@ -115,6 +115,11 @@ namespace OpenSage
         /// </summary>
         public bool IsRunning { get; }
 
+        /// <summary>
+        /// Are we currently in a skirmish game?
+        /// </summary>
+        public bool InGame { get; private set; } = false;
+
         public void LoadSaveFile(FileSystemEntry entry)
         {
             SaveFile.Load(entry, this);
@@ -592,6 +597,8 @@ namespace OpenSage
             bool isMultiPlayer,
             MapFile mapFile = null)
         {
+            InGame = true;
+
             // TODO: Loading screen.
             while (Scene2D.WndWindowManager.OpenWindowCount > 0)
             {

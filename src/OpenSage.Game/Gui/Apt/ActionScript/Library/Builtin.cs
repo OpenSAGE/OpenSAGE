@@ -20,7 +20,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             // list of builtin objects and their corresponding constructors
             BuiltinClasses = new Dictionary<string, Func<Value[], Value>>
             {
-                ["Color"] = args => Value.FromObject(new Color())
+                ["Color"] = args => Value.FromObject(new ASColor()),
+                ["Array"] = args => Value.FromObject(new ASArray(args))
             };
 
             // list of builtin variables

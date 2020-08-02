@@ -1,9 +1,14 @@
-﻿using System;
-
-namespace OpenSage.Gui.Apt.ActionScript
+﻿namespace OpenSage.Gui.Apt.ActionScript
 {
     public sealed class ExternObject : ObjectContext
     {
+        private VM _vm;
+
+        public ExternObject(VM vm)
+        {
+            _vm = vm;
+        }
+
         /// <summary>
         /// Get an engine variable
         /// </summary>
@@ -11,24 +16,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public override Value GetMember(string name)
         {
-            //Mostly no idea what those mean, but they are all booleans
-            switch (name)
-            {
-                case "InGame":
-                    return Value.FromBoolean(false);
-                case "InBetaDemo":
-                    return Value.FromBoolean(false);
-                case "InDreamMachineDemo":
-                    return Value.FromBoolean(false);
-                case "PalantirMinLOD":
-                    return Value.FromBoolean(false);
-                case "MinLOD":
-                    return Value.FromBoolean(false);
-                case "DoTrace":
-                    return Value.FromBoolean(true);
-                default:
-                    throw new NotImplementedException();
-            }
+            return _vm.VariableHandler(name);    
         }
     }
 }

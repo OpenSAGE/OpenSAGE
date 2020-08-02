@@ -49,7 +49,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             Value result;
             
-            var entry = context.Scope.Item.Character.Container.Constants.Entries[_number];
+            var entry = context.Constants[_number];
             switch (entry.Type)
             {
                 case ConstantEntryType.String:

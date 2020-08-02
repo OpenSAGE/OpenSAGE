@@ -50,7 +50,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var p = context.Stack.Pop();
             var obj = p.ResolveRegister(context).ToObject();
 
-
             if (obj.IsBuiltInVariable(memberName))
             {
                 obj.SetBuiltInVariable(memberName, valueVal);
@@ -148,7 +147,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var member = context.Stack.Pop();
-            var obj = context.Stack.Pop().ToObject();
+            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
 
             context.Stack.Push(obj.GetMember(member.ResolveRegister(context).ToString()));
         }

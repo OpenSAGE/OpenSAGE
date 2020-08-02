@@ -200,6 +200,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         case InstructionType.Return:
                             instruction = new Return();
                             break;
+                        case InstructionType.Modulo:
+                            instruction = new Modulo();
+                            break;
                         case InstructionType.NewObject:
                             instruction = new NewObject();
                             break;
@@ -399,7 +402,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             break;
                         case InstructionType.GotoFrame2:
                             instruction = new GotoFrame2();
-                            parameters.Add(Value.FromInteger(reader.ReadByte()));
+                            parameters.Add(Value.FromInteger(reader.ReadInt32()));
                             break;
                         case InstructionType.EA_PushString:
                             instruction = new PushString();
