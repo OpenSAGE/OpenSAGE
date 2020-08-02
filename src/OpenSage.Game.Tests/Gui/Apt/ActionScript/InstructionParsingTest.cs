@@ -3,6 +3,8 @@ using static System.Text.Encoding;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using System.Collections.Generic;
+using OpenSage.Data.Apt;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -113,7 +115,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
 
             var context = new ObjectContext(new SpriteItem());
             var vm = new VM();
-            vm.Execute(collection, context);
+            vm.Execute(collection, context, new List<ConstantEntry>());
             // Assert that during execution of instructions, the right value is set
             Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
         }
