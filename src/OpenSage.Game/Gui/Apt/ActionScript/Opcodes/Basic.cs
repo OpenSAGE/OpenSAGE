@@ -156,7 +156,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Stack.Pop().ResolveRegister(context);
+            context.Stack.Push(Value.FromString(val.ToString()));
         }
     }
 

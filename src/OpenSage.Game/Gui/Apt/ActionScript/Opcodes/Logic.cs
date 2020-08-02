@@ -26,8 +26,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
+            var a = context.Stack.Pop().ResolveRegister(context);
+            var b = context.Stack.Pop().ResolveRegister(context);
             bool eq = a.Equals(b);
             context.Stack.Push(Value.FromBoolean(eq));
 

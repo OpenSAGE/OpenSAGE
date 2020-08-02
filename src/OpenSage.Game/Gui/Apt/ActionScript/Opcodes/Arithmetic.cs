@@ -107,7 +107,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var num = context.Stack.Pop().ResolveRegister(context).ToInteger();
-            context.Stack.Push(Value.FromInteger(num++));
+            context.Stack.Push(Value.FromInteger(++num));
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Data.Apt;
 using OpenSage.FileFormats;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -153,6 +154,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 logger.Error("Cannot create object from undefined!");
                 return null;
+            }
+
+            if( Type == ValueType.String)
+            {
+                return new ASString(_string);
             }
 
             if (Type != ValueType.Object)
