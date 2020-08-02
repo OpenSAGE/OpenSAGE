@@ -11,5 +11,20 @@ namespace OpenSage.Mods.Bfme2.Gui
         {
 
         }
+
+        public static void OnHeroSelectLoaded(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void OnHelpBoxLoaded(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void OnPlanningModeUILoaded(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
     }
 }

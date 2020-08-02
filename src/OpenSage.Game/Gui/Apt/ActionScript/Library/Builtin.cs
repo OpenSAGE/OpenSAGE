@@ -27,11 +27,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             // list of builtin variables
             BuiltinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>
             {
+                // Globals
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
                 ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
-                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
+                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject),
+                // Object specifc
                 ["_parent"] = GetParent,
-                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject)
+                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
+                ["_x"] = ctx => Value.FromFloat(ctx.Item.Transform.GeometryTranslation.X),
+                ["_y"] = ctx => Value.FromFloat(ctx.Item.Transform.GeometryTranslation.Y),
             };
 
             // list of builtin variables - set

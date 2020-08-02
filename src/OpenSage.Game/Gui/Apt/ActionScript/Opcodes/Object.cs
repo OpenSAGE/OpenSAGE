@@ -18,9 +18,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var member = context.Scope.Constants[id].ToString();
 
             //pop the object
-            var objectVal = context.Stack.Pop();
-
-            var obj = objectVal.ResolveRegister(context).ToObject();
+            var objectVal = context.Stack.Pop().ResolveRegister(context);
+            var obj = objectVal.ToObject();
 
             if (obj != null)
             {

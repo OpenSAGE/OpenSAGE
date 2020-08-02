@@ -3,46 +3,38 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    class ASArray : ObjectContext
+    class ASString : ObjectContext
     {
-        private readonly Dictionary<string, Action<Value[]>> _builtinFunctions;
+        private readonly Dictionary<string, Func<Value[], Value>> _builtinFunctions;
         private readonly Dictionary<string, Func<Value>> _builtinVariablesGet;
 
-        List<Value> _values;
+        string _value;
 
-        public ASArray(Value[] args)
+        public ASString(string value)
         {
-            _values = new List<Value>(args);
+            _value = value;
 
             //list of builtin functions
-            _builtinFunctions = new Dictionary<string, Action<Value[]>>
+            _builtinFunctions = new Dictionary<string, Func<Value[], Value>>
             {
+                ["substr"] = (Value[] args) => args.Length == 1 ? Value.FromString(_value.Substring(args[0].ToInteger()))
+                                                                : Value.FromString(_value.Substring(args[0].ToInteger(), args[1].ToInteger()))
             };
 
             // list of builtin variables
             _builtinVariablesGet = new Dictionary<string, Func<Value>>
             {
-                ["length"] = () => Value.FromInteger(_values.Count)
+                ["length"] = () => Value.FromInteger(_value.Length)
             };
         }
 
         public override bool IsBuiltInVariable(string name)
         {
-            if (int.TryParse(name, out int index))
-            {
-                return index < _values.Count;
-            }
-
             return _builtinVariablesGet.ContainsKey(name);
         }
 
         public override Value GetBuiltInVariable(string name)
         {
-            if (int.TryParse(name, out int index))
-            {
-                return _values[index];
-            }
-
             return _builtinVariablesGet[name]();
         }
 
@@ -58,7 +50,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
         public override void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
-            _builtinFunctions[name](args);
+            Value result = _builtinFunctions[name](args);
+            if(result.Type != ValueType.Undefined)
+            {
+                actx.Stack.Push(result);
+            }
         }
     }
 }

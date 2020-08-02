@@ -324,7 +324,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var strVal = context.Stack.Pop().ResolveRegister(context).ToString();
+            context.Stack.Push(Value.FromInteger(int.Parse(strVal)));
         }
     }
 }

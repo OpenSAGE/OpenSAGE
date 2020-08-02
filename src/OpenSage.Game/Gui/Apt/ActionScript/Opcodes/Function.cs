@@ -296,7 +296,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var funcName = context.Stack.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, context.Global, context);
+            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
         }
     }
 
