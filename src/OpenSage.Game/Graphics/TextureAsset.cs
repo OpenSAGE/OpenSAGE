@@ -47,6 +47,6 @@ namespace OpenSage.Graphics
             Texture = AddDisposable(texture);
         }
 
-        public static implicit operator Texture(TextureAsset asset) => asset.Texture;
+        public static implicit operator Texture(TextureAsset asset) => asset?.Texture;
     }
 }

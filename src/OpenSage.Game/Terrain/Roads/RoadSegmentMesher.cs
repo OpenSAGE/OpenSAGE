@@ -139,7 +139,7 @@ namespace OpenSage.Terrain.Roads
 
             // generate candidate positions for cutting the road segment
             var positionCandidates = new List<InsertPosition>();
-            for (int i = 0; i <= sectionCount; ++i)
+            for (var i = 0; i <= sectionCount; ++i)
             {
                 var relativeProgress = (float) i / (float) sectionCount;
                 var position = startWithZ + relativeProgress * segmentVector;
@@ -191,14 +191,14 @@ namespace OpenSage.Terrain.Roads
         private void UpdateHeights(InsertPosition p, HeightMap heightMap)
         {
             var mid = p.Position;
-            var toBorder = ToTopBorder(p.RelativeProgress);
+            var toBorder = ToTopBorder(MathF.Min(p.RelativeProgress, 0.1f));
 
             // find relevant height of points along this cross section of the road
             var sections = Math.Max(1, (int) (toBorder.Length() / 10));
             var maxHeight = heightMap.GetUpperHeight(mid.X, mid.Y);
             var pTop = p.Position;
             var pBottom = p.Position;
-            for (int i = 1; i <= sections; ++i)
+            for (var i = 1; i <= sections; ++i)
             {
                 var scaledVector = (float) i / sections * toBorder;
                 pTop = mid + scaledVector;
