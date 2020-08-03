@@ -23,12 +23,12 @@ namespace OpenSage.Logic.Object
         internal static GameObject FromMapObject(
             MapObject mapObject,
             AssetStore assetStore,
-            GameObjectCollection parent,
-            in Vector3 position,
+            GameObjectCollection gameObjects,
+            HeightMap heightMap,
             in float? overwriteAngle = 0.0f,
             IReadOnlyList<Team> teams = null)
         {
-            var gameObject = parent.Add(mapObject.TypeName);
+            var gameObject = gameObjects.Add(mapObject.TypeName);
 
             // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
             if (gameObject == null)
@@ -70,12 +70,17 @@ namespace OpenSage.Logic.Object
                 gameObject.IsSelectable = (bool) selectable.Value;
             }
 
-            gameObject.Transform.Translation = position;
-            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
+            // TODO: handle "align to terrain" property
+            var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
+            var rotationOffset = Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
+            var position = mapObject.Position + rotationOffset.ToVector3();
+            var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
+            gameObject.Transform.Translation = new Vector3(position.X, position.Y, height);
+            gameObject.Transform.Rotation = rotation;
 
             if (gameObject.Definition.IsBridge)
             {
-                BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
+                BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
             }
 
             if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))

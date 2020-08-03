@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Diagnostics.Util;
-using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -30,22 +33,28 @@ namespace OpenSage.Logic.Object
 
                     var entry = context.AssetLoadContext.FileSystem.GetFile(basePath);
                     var mapFile = MapFile.FromFileSystemEntry(entry);
-                    int index = 0;
+                    var mapObjects = mapFile.ObjectsList.Objects.ToList();
 
                     foreach (var castleTemplate in mapFile.CastleTemplates.Templates)
                     {
-                        var mapObject = mapFile.ObjectsList.Objects[index];
+                        var mapObject = mapObjects.Find(x => x.TypeName == castleTemplate.TemplateName);
+
+                        var defaultAngle = (float)Math.PI; // fortresses/castles face EAST by default
+                        var viewAngle = MathUtility.ToRadians(_gameObject.Definition.PlacementViewAngle);
+
+                        var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, defaultAngle + viewAngle)).ToVector3();
+
+                        var angle = defaultAngle + viewAngle + castleTemplate.Angle;
+                        mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + offset;
 
                         var baseObject = GameObject.FromMapObject(
                             mapObject,
                             context.AssetLoadContext.AssetStore,
                             context.GameObjects,
-                            //TODO: have to figure out how to calculate the transform for the subojects correctly
-                            _gameObject.Transform.Translation + castleTemplate.Offset,
-                            castleTemplate.Angle - _gameObject.Transform.EulerAngles.Z);
+                            context.Terrain.HeightMap,
+                            angle);
 
                         AssignOwner(baseObject);
-                        index++;
                     }
                 }
 

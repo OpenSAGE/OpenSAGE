@@ -5,11 +5,7 @@ using System.Text;
 using OpenSage.FileFormats.RefPack;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
-using System.Numerics;
-using OpenSage.Scripting;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Collections.Generic;
+
 
 namespace OpenSage.Data.Map
 {
