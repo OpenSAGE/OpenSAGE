@@ -48,10 +48,12 @@ namespace OpenSage.Content.Loaders
                 w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
             }
             var animation = W3DAnimation.FromW3dFile(w3dFile);
-            if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new NotSupportedException();
-            }
+
+            // BFME2 map 'EVILRivendell' -> EUARWEN_SKL_EUARWEN_IDLB != RUEwnHrHrs_SKL.EUArwen_IDLB
+            //if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    throw new NotSupportedException();
+            //}
 
             return animation;
         }

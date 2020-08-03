@@ -72,8 +72,6 @@ namespace OpenSage.FileFormats
 
         public static string ReadNullTerminatedAsciiString(this BinaryReader reader)
         {
-            var sb = new StringBuilder();
-
             var bytes = new List<byte>();
             byte b;
             while ((b = reader.ReadByte()) != '\0')

@@ -88,6 +88,9 @@ namespace OpenSage.Navigation
             var bottomLeftNode = GetClosestNode(aabb.Min);
             var topRightNode = GetClosestNode(aabb.Max);
 
+            //sometimes map objects are places outside the actual map....
+            if (bottomLeftNode == null || topRightNode == null) return;
+
             var area = gameObject.Collider.GetBoundingArea();
 
             for (var x = -1; x < topRightNode.X - bottomLeftNode.X + 1; x++)
