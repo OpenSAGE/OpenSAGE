@@ -94,9 +94,9 @@ namespace OpenSage.Navigation
 
             var area = gameObject.Collider.GetBoundingArea();
 
-            for (var x = -1; x < topRightNode.X - bottomLeftNode.X + 1; x++)
+            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
             {
-                for (var y = - 1; y < topRightNode.Y - bottomLeftNode.Y + 1; y++)
+                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
                 {
                     var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
                     var position = GetNodePosition(node);
