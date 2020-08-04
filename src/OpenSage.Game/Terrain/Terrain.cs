@@ -73,7 +73,7 @@ namespace OpenSage.Terrain
                 {
                     MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
                     MapSize = new Vector2(mapFile.HeightMapData.Width, mapFile.HeightMapData.Height) * HeightMap.HorizontalScale,
-                    IsMacroTextureStretched = false // TODO: This must be one of the EnvironmentData unknown values.
+                    IsMacroTextureStretched = mapFile.EnvironmentData?.IsMacroTextureStretched ?? false
                 },
                 BufferUsage.UniformBuffer));
 

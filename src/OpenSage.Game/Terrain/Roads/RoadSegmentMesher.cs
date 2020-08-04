@@ -191,7 +191,7 @@ namespace OpenSage.Terrain.Roads
         private void UpdateHeights(InsertPosition p, HeightMap heightMap)
         {
             var mid = p.Position;
-            var toBorder = ToTopBorder(MathF.Min(p.RelativeProgress, 0.1f));
+            var toBorder = ToTopBorder(p.RelativeProgress);
 
             // find relevant height of points along this cross section of the road
             var sections = Math.Max(1, (int) (toBorder.Length() / 10));
