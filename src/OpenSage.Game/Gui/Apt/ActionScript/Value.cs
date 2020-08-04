@@ -32,6 +32,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         private Function _function;
         private Value[] _array;
 
+        public bool IsNumericType()
+        {
+            return Type == ValueType.Float || Type == ValueType.Integer;
+        }
+
         public Value ResolveRegister(ActionContext context)
         {
             if (Type != ValueType.Register)
@@ -294,6 +299,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.Object:
                     result = b._object == _object;
+                    break;
+                case ValueType.Integer:
+                    result = b._number == _number;
                     break;
                 default:
                     throw new NotImplementedException();

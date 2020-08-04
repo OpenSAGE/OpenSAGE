@@ -7,6 +7,7 @@ namespace OpenSage.Mods.Bfme2.Gui
     static class AptPalantir
     {
         public static bool Initialized { get; set; } = false;
+        public static int ButtonsInitialized { get; set; } = 0;
 
         // Called after the initialization has been performed
         public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
