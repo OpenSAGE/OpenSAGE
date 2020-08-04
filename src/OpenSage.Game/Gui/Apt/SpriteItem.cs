@@ -20,8 +20,7 @@ namespace OpenSage.Gui.Apt
         private Playable _sprite;
         private uint _currentFrame;
         private TimeInterval _lastUpdate;
-        private PlayState _state;
-        private Dictionary<string, uint> _frameLabels;
+
         public delegate void ColorDelegate(ColorRgbaF color);
 
         /// <summary>
@@ -35,13 +34,16 @@ namespace OpenSage.Gui.Apt
 
         public int CurrentFrame => (int)_currentFrame;
 
+        public Dictionary<string, uint> FrameLabels { get; private set; }
+        public PlayState State { get; private set; }
+
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) character;
             _currentFrame = 0;
             _actionList = new List<Action>();
-            _frameLabels = new Dictionary<string, uint>();
-            _state = PlayState.PLAYING;
+            FrameLabels = new Dictionary<string, uint>();
+            State = PlayState.PLAYING;
 
             Name = "";
             Visible = true;
@@ -59,7 +61,7 @@ namespace OpenSage.Gui.Apt
                     switch (item)
                     {
                         case FrameLabel fl:
-                            _frameLabels[fl.Name] = fl.FrameId;
+                            FrameLabels[fl.Name] = fl.FrameId;
                             break;
                     }
 
@@ -114,12 +116,12 @@ namespace OpenSage.Gui.Apt
 
         public void Stop()
         {
-            _state = PlayState.STOPPED;
+            State = PlayState.STOPPED;
         }
 
         public void Play()
         {
-            _state = PlayState.PLAYING;
+            State = PlayState.PLAYING;
         }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -127,9 +129,9 @@ namespace OpenSage.Gui.Apt
         public void Goto(string label)
         {
             logger.Info($"Goto: {label}");
-            if (_frameLabels.ContainsKey(label))
+            if (FrameLabels.ContainsKey(label))
             {
-                _currentFrame = _frameLabels[label];
+                _currentFrame = FrameLabels[label];
             }
             else
             {
@@ -164,7 +166,7 @@ namespace OpenSage.Gui.Apt
                 return true;
             }
 
-            if (_state != PlayState.PLAYING)
+            if (State != PlayState.PLAYING)
                 return false;
 
             if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)

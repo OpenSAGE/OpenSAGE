@@ -34,8 +34,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 // Object specifc
                 ["_parent"] = GetParent,
                 ["_name"] = ctx => Value.FromString(ctx.Item.Name),
-                ["_x"] = ctx => Value.FromFloat(ctx.Item.Transform.GeometryTranslation.X),
-                ["_y"] = ctx => Value.FromFloat(ctx.Item.Transform.GeometryTranslation.Y),
+                ["_x"] = GetX,
+                ["_y"] = GetY,
                 ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem)ctx.Item).CurrentFrame),
             };
 
@@ -110,6 +110,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public static Value GetBuiltInClass(string name, Value[] args)
         {
             return BuiltinClasses[name](args);
+        }
+
+        private static Value GetX(ObjectContext ctx)
+        {
+            return Value.FromFloat(ctx.Item.Transform.GeometryTranslation.X);
+        }
+
+        private static Value GetY(ObjectContext ctx)
+        {
+            return Value.FromFloat(ctx.Item.Transform.GeometryTranslation.Y);
         }
 
         private static Value GetParent(ObjectContext ctx)

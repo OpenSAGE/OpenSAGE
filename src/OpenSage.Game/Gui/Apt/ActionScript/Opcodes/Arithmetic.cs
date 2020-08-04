@@ -47,7 +47,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var a = va.ResolveRegister(context);
             var b = vb.ResolveRegister(context);
 
-            if (a.Type == ValueType.Integer && b.Type == ValueType.Integer)
+            if (a.IsNumericType() && b.IsNumericType())
             {
                 context.Stack.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
             }

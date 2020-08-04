@@ -12,6 +12,7 @@ namespace OpenSage.Mods.Bfme2
     {
         Game _game;
         AptWindow _window;
+        SpriteItem _root;
 
         public AptControlBar(Game game)
         {
@@ -21,31 +22,54 @@ namespace OpenSage.Mods.Bfme2
         public void AddToScene(Scene2D scene2D)
         {
             _window = _game.LoadAptWindow("Palantir.apt");
+            _root = _window.Root;
 
             _game.Scene2D.AptWindowManager.PushWindow(_window);
         }
 
-        static bool shown = false;
+        private bool _commandbarVisible = false;
+        private bool _commandInterfaceVisible = false;
 
         public void Update(Player player)
         {
-            if (AptPalantir.Initialized)
+            if (AptPalantir.Initialized && AptPalantir.ButtonsInitialized == 12)
             {
-                if (player.SelectedUnits.Count >= 0 && !shown)
+                if (!_commandInterfaceVisible)
                 {
-                    var commandBar = _window.Root.GetNamedItem("SideCommandBar");
-                    var func = commandBar.ScriptObject.GetMember("FadeIn");
-
-                    if (func.Type != ValueType.Undefined)
+                    var showCommandInterface = _root.ScriptObject.GetMember("ShowCommandInterface");
+                    if (showCommandInterface.Type != ValueType.Undefined)
                     {
                         List<Value> emptyArgs = new List<Value>();
-                        FunctionCommon.ExecuteFunction(func, emptyArgs.ToArray(), commandBar.ScriptObject, _window.Context.Avm);
-                        shown = true;
+                        FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
+                        _commandInterfaceVisible = true;
                     }
                 }
-                else
-                {
 
+                var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
+
+                if (player.SelectedUnits.Count > 0 && !_commandbarVisible)
+                {
+                    var fadeIn = sideCommandBar.Item.ScriptObject.GetMember("FadeIn");
+
+                    if (fadeIn.Type != ValueType.Undefined)
+                    {
+                        List<Value> emptyArgs = new List<Value>();
+                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                        _commandbarVisible = true;
+                    }
+                }
+                else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
+                {
+                    var fadeOut = sideCommandBar.Item.ScriptObject.GetMember("FadeOut");
+
+                    if (fadeOut.Type != ValueType.Undefined)
+                    {
+                        List<Value> emptyArgs = new List<Value>();
+                        FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                        _commandbarVisible = true;
+                    }
+
+                    _commandbarVisible = false;
                 }
             }
         }
