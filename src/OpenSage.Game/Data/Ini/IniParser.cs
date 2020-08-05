@@ -954,6 +954,8 @@ namespace OpenSage.Data.Ini
 
         public void ParseFile()
         {
+            if (SageGame == SageGame.Bfme2Rotwk && CurrentPosition.File.EndsWith("credits.ini")) return;
+
             while (!_tokenReader.EndOfFile)
             {
                 _tokenReader.GoToNextLine();
@@ -978,7 +980,7 @@ namespace OpenSage.Data.Ini
 
                     if (!_dataContext.Defines.TryAdd(macroName.ToUpper(), macroExpansionToken.Value))
                     {
-                        // OVerwrite the existing macro. This is necessary for BFME2 RotWk
+                        // Overwrite the existing macro. This is necessary for BFME2 RotWk
                         _dataContext.Defines[macroName.ToUpper()] = macroExpansionToken.Value;
                     }
                 }
