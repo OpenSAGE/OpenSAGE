@@ -23,7 +23,7 @@ namespace OpenSage.Mods.Bfme2.Gui
             logger.Info($"InGame commandbar button frame loaded:{param}");
             var button = context.Scope.GetMember("Button").ToObject();
             var createContent = button.GetMember("CreateContent");
-            AptPalantir.ButtonsInitialized++;
+            AptPalantir.SideButtonsInitialized++;
         }
 
         public static void OnAptInGameSideCommandBarFadeOutComplete(string param, ActionContext context, AptWindow window, Game game)

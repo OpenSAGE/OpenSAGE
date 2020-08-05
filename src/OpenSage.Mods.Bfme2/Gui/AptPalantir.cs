@@ -7,12 +7,12 @@ namespace OpenSage.Mods.Bfme2.Gui
     static class AptPalantir
     {
         public static bool Initialized { get; private set; } = false;
-        public static int ButtonsInitialized { get; private set; } = 0;
+        public static int SideButtonsInitialized { get; internal set; } = 0;
 
         public static void Reset()
         {
             Initialized = false;
-            ButtonsInitialized = 0;
+            SideButtonsInitialized = 0;
         }
 
         // Called after the initialization has been performed

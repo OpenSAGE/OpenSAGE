@@ -32,47 +32,60 @@ namespace OpenSage.Mods.Bfme2
         private bool _commandbarVisible = false;
         private bool _commandInterfaceVisible = false;
 
+        private void InitializePalantir(Player player)
+        {
+            if (!_commandInterfaceVisible)
+            {
+                var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
+                if (showCommandInterface.Type != ValueType.Undefined)
+                {
+                    bool good = System.Array.Exists(player.Template.IntrinsicSciences, s => s == "SCIENCE_GOOD");
+                    List<Value> emptyArgs = new List<Value>();
+                    emptyArgs.Add(Value.FromString(good ? "_good" : "_evil"));
+                    FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
+                    _commandInterfaceVisible = true;
+                }
+            }
+        }
+
+        private void UpdateSideCommandbar(Player player)
+        {
+            var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
+
+            if (player.SelectedUnits.Count > 0 && !_commandbarVisible)
+            {
+                var fadeIn = sideCommandBar.Item.ScriptObject.GetMember("FadeIn");
+
+                if (fadeIn.Type != ValueType.Undefined)
+                {
+                    List<Value> emptyArgs = new List<Value>();
+                    FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                    _commandbarVisible = true;
+                }
+            }
+            else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
+            {
+                var fadeOut = sideCommandBar.Item.ScriptObject.GetMember("FadeOut");
+
+                if (fadeOut.Type != ValueType.Undefined)
+                {
+                    List<Value> emptyArgs = new List<Value>();
+                    FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                    _commandbarVisible = true;
+                }
+
+                _commandbarVisible = false;
+            }
+        }
+
         public void Update(Player player)
         {
-            if (AptPalantir.Initialized && AptPalantir.ButtonsInitialized == 12)
+            if (AptPalantir.Initialized)
             {
-                if (!_commandInterfaceVisible)
+                InitializePalantir(player);
+                if (AptPalantir.SideButtonsInitialized == 12)
                 {
-                    var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
-                    if (showCommandInterface.Type != ValueType.Undefined)
-                    {
-                        List<Value> emptyArgs = new List<Value>();
-                        emptyArgs.Add(Value.FromString("_evil"));
-                        FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
-                        _commandInterfaceVisible = true;
-                    }
-                }
-
-                var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
-
-                if (player.SelectedUnits.Count > 0 && !_commandbarVisible)
-                {
-                    var fadeIn = sideCommandBar.Item.ScriptObject.GetMember("FadeIn");
-
-                    if (fadeIn.Type != ValueType.Undefined)
-                    {
-                        List<Value> emptyArgs = new List<Value>();
-                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
-                        _commandbarVisible = true;
-                    }
-                }
-                else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
-                {
-                    var fadeOut = sideCommandBar.Item.ScriptObject.GetMember("FadeOut");
-
-                    if (fadeOut.Type != ValueType.Undefined)
-                    {
-                        List<Value> emptyArgs = new List<Value>();
-                        FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
-                        _commandbarVisible = true;
-                    }
-
-                    _commandbarVisible = false;
+                    UpdateSideCommandbar(player);
                 }
             }
         }
