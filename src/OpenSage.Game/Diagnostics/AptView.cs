@@ -61,31 +61,60 @@ namespace OpenSage.Diagnostics
                 ImGui.BeginChild("ScriptObject");
                 if (_selectedItem != null)
                 {
-                    if(_selectedItem is SpriteItem)
-                    {
-                        var spriteItem = _selectedItem as SpriteItem;
-                        ImGuiUtility.BeginPropertyList();
-                        ImGuiUtility.PropertyRow("CurrentFrame", spriteItem.CurrentFrame);
-                        ImGuiUtility.PropertyRow("State", spriteItem.State);
-                        ImGuiUtility.EndPropertyList();
+                    ImGuiUtility.BeginPropertyList();
+                    ImGuiUtility.PropertyRow("Type", _selectedItem.Character.GetType());
+                    ImGuiUtility.EndPropertyList();
 
-                        if (ImGui.CollapsingHeader("FrameLabels", ImGuiTreeNodeFlags.DefaultOpen))
-                        {
+                    switch(_selectedItem)
+                    {
+                        case SpriteItem si:
                             ImGuiUtility.BeginPropertyList();
-                            foreach (var frameLabels in spriteItem.FrameLabels)
-                            {
-                                ImGuiUtility.PropertyRow(frameLabels.Key, frameLabels.Value);
-                            }
+                            // CurrentFrame shows the next frame that should be played
+                            ImGuiUtility.PropertyRow("CurrentFrame", si.CurrentFrame - 1);
+                            ImGuiUtility.PropertyRow("State", si.State);
                             ImGuiUtility.EndPropertyList();
-                        }
+
+                            if (ImGui.CollapsingHeader("FrameLabels", ImGuiTreeNodeFlags.DefaultOpen))
+                            {
+                                ImGuiUtility.BeginPropertyList();
+                                foreach (var frameLabels in si.FrameLabels)
+                                {
+                                    ImGuiUtility.PropertyRow(frameLabels.Key, frameLabels.Value);
+                                }
+                                ImGuiUtility.EndPropertyList();
+                            }
+                            break;
+                        case RenderItem ri:
+                            if(_selectedItem.Character is Text)
+                            {
+                                var text = _selectedItem.Character as Text;
+                                ImGuiUtility.BeginPropertyList();
+                                ImGuiUtility.PropertyRow("Content", text.Content);
+                                ImGuiUtility.PropertyRow("InitialValue", text.Value);
+                                ImGuiUtility.PropertyRow("Color", text.Color.ToString());
+                                ImGuiUtility.PropertyRow("Multiline", text.Multiline);
+                                ImGuiUtility.PropertyRow("Wordwrap", text.WordWrap);
+                                ImGuiUtility.EndPropertyList();
+                            }
+                            else if (_selectedItem.Character is Shape)
+                            {
+                                var shape = _selectedItem.Character as Shape;
+                                ImGuiUtility.BeginPropertyList();
+                                ImGuiUtility.PropertyRow("GeometryID", shape.Geometry);
+                                ImGuiUtility.EndPropertyList();
+                            }
+                            break;
                     }
 
                     if (ImGui.CollapsingHeader("Variables", ImGuiTreeNodeFlags.DefaultOpen))
                     {
                         ImGuiUtility.BeginPropertyList();
-                        foreach (var variable in _selectedItem.ScriptObject?.Variables)
+                        if (_selectedItem.ScriptObject != null)
                         {
-                            ImGuiUtility.PropertyRow(variable.Key, CreateObject(variable.Value));
+                            foreach (var variable in _selectedItem.ScriptObject.Variables)
+                            {
+                                ImGuiUtility.PropertyRow(variable.Key, CreateObject(variable.Value));
+                            }
                         }
                         ImGuiUtility.EndPropertyList();
                     }
@@ -94,9 +123,12 @@ namespace OpenSage.Diagnostics
                     {
                         ImGuiUtility.BeginPropertyList();
                         int index = 0;
-                        foreach (var variable in _selectedItem.ScriptObject?.Constants)
+                        if (_selectedItem.ScriptObject != null)
                         {
-                            ImGuiUtility.PropertyRow($"{index++}", CreateObject(variable));
+                            foreach (var variable in _selectedItem.ScriptObject?.Constants)
+                            {
+                                ImGuiUtility.PropertyRow($"{index++}", CreateObject(variable));
+                            }
                         }
                         ImGuiUtility.EndPropertyList();
                     }
@@ -109,7 +141,7 @@ namespace OpenSage.Diagnostics
         {
             var treeNodeFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick;
 
-            if (!(item is SpriteItem) || ((SpriteItem) item).Content.Items.Count == 0)
+            if (!(item is SpriteItem))
             {
                 treeNodeFlags = ImGuiTreeNodeFlags.Leaf;
             }

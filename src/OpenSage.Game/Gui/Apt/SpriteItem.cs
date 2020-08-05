@@ -12,6 +12,7 @@ namespace OpenSage.Gui.Apt
     public enum PlayState
     {
         PLAYING,
+        PENDING_STOPPED,
         STOPPED
     }
 
@@ -100,11 +101,18 @@ namespace OpenSage.Gui.Apt
                     }
                 }
 
-                _currentFrame++;
+                if (State == PlayState.PLAYING)
+                {
+                    NextFrame();
 
-                //reset to the start, we are looping by default
-                if (_currentFrame >= _sprite.Frames.Count)
-                    _currentFrame = 0;
+                    //reset to the start, we are looping by default
+                    if (_currentFrame >= _sprite.Frames.Count)
+                        _currentFrame = 0;
+                }
+                else if (State == PlayState.PENDING_STOPPED)
+                {
+                    State = PlayState.STOPPED;
+                }
             }
 
             //update all subItems
@@ -114,9 +122,9 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Stop()
+        public void Stop(bool pending = false)
         {
-            State = PlayState.STOPPED;
+            State = pending ? PlayState.PENDING_STOPPED : PlayState.STOPPED;
         }
 
         public void Play()
@@ -166,7 +174,7 @@ namespace OpenSage.Gui.Apt
                 return true;
             }
 
-            if (State != PlayState.PLAYING)
+            if (State == PlayState.STOPPED)
                 return false;
 
             if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)

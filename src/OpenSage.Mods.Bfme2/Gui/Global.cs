@@ -8,7 +8,6 @@ namespace OpenSage.Mods.Bfme2.Gui
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-
         public static void OnAptInGameSpellBookLoaded(string param, ActionContext context, AptWindow window, Game game)
         {
             logger.Info("InGame spellbook loaded!");
