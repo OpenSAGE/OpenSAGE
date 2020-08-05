@@ -28,6 +28,10 @@ namespace OpenSage.Gui.Apt
             if (!Visible)
                 return;
 
+            //TODO: add clipping
+            if (ClipDepth.HasValue)
+                return;
+
             var cTransform = pTransform * Transform;
 
             switch (Character)

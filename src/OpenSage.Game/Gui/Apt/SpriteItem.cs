@@ -193,7 +193,7 @@ namespace OpenSage.Gui.Apt
                 case PlaceObject po:
                     //place a new display item
                     if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
-                       !po.Flags.HasFlag(PlaceObjectFlags.Move) && !po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
+                       !po.Flags.HasFlag(PlaceObjectFlags.Move))
                     {
                         PlaceItem(po);
                     }
@@ -334,6 +334,11 @@ namespace OpenSage.Gui.Apt
                         }
                     }
                 }
+            }
+
+            if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
+            {
+                displayItem.ClipDepth = po.ClipDepth;
             }
 
             Content.AddItem(po.Depth, displayItem);

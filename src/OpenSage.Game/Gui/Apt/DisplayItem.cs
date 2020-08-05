@@ -55,6 +55,7 @@ namespace OpenSage.Gui.Apt
         public ObjectContext ScriptObject { get; protected set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
+        public int? ClipDepth { get; set; }
 
         /// <summary>
         /// Create a new DisplayItem
