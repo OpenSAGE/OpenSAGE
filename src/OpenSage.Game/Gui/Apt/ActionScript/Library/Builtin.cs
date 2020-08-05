@@ -36,7 +36,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["_name"] = ctx => Value.FromString(ctx.Item.Name),
                 ["_x"] = GetX,
                 ["_y"] = GetY,
-                ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem)ctx.Item).CurrentFrame),
+                ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem) ctx.Item).CurrentFrame),
             };
 
             // list of builtin variables - set
@@ -200,7 +200,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
         private static void LoadMovie(ActionContext actionContext, ObjectContext ctx, Value[] args)
         {
-            var url = Path.ChangeExtension(args[0].ToString(),".apt");
+            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
             var window = actionContext.Apt.Window.Manager.Game.LoadAptWindow(url);
 
             actionContext.Apt.Window.Manager.QueryPush(window);

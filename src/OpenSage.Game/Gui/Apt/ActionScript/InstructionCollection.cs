@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using static System.Text.Encoding;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using static System.Text.Encoding;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -17,7 +17,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public int FurthestBranchDestination;
 
         // Current Position (at the time of call) relative to StartPosition
-        public int CurrentPosition => (int)(InputStream.Position);
+        public int CurrentPosition => (int) (InputStream.Position);
 
         private Stream InputStream;
         private long previousPosition;
@@ -30,14 +30,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             InputStream = input;
             previousPosition = InputStream.Position;
 
-            StartPosition = (int)instructionStartPosition;
+            StartPosition = (int) instructionStartPosition;
             InputStream.Seek(StartPosition, SeekOrigin.Begin);
             FurthestBranchDestination = StartPosition;
         }
 
         public void Dispose()
         {
-            if(!disposed)
+            if (!disposed)
             {
                 disposed = true;
                 InputStream.Seek(previousPosition, SeekOrigin.Begin);
@@ -335,9 +335,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                                 }, nParams);
 
                                 parameters.Add(Value.FromString(name));
-                                parameters.Add(Value.FromInteger((int)nParams));
-                                parameters.Add(Value.FromInteger((int)nRegisters));
-                                parameters.Add(Value.FromInteger((int)flags));
+                                parameters.Add(Value.FromInteger((int) nParams));
+                                parameters.Add(Value.FromInteger((int) nRegisters));
+                                parameters.Add(Value.FromInteger((int) flags));
                                 foreach (var param in paramList)
                                 {
                                     parameters.Add(Value.FromInteger(param.Register));

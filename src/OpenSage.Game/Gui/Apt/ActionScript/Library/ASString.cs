@@ -51,7 +51,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public override void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
             Value result = _builtinFunctions[name](args);
-            if(result.Type != ValueType.Undefined)
+            if (result.Type != ValueType.Undefined)
             {
                 actx.Stack.Push(result);
             }

@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt
 
         public DisplayList Content { get; private set; }
 
-        public int CurrentFrame => (int)_currentFrame;
+        public int CurrentFrame => (int) _currentFrame;
 
         public Dictionary<string, uint> FrameLabels { get; private set; }
         public PlayState State { get; private set; }

@@ -16,7 +16,7 @@
         /// <returns></returns>
         public override Value GetMember(string name)
         {
-            return _vm.VariableHandler(name);    
+            return _vm.VariableHandler(name);
         }
     }
 }

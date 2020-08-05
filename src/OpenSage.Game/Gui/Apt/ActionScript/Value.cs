@@ -54,7 +54,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 throw new InvalidOperationException();
 
             Value result;
-            
+
             var entry = context.Constants[_number];
             switch (entry.Type)
             {
@@ -161,7 +161,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return null;
             }
 
-            if( Type == ValueType.String)
+            if (Type == ValueType.String)
             {
                 return new ASString(_string);
             }
@@ -177,12 +177,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             double floatNumber = ToFloat();
 
-            if(double.IsNaN(floatNumber))
+            if (double.IsNaN(floatNumber))
             {
                 return 0;
             }
 
-            return Math.Sign(floatNumber) * (int)Math.Abs(floatNumber);
+            return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
         }
 
         public bool ToBoolean()

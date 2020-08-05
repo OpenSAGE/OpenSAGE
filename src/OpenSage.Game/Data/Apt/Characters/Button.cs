@@ -29,7 +29,7 @@ namespace OpenSage.Data.Apt.Characters
         public ColorRgbaF Color;
         public Vector4 Unknown;
 
-        public ButtonRecord(ButtonRecordFlags flags,uint reserved, uint character, int depth, Matrix2x2 rotscale,
+        public ButtonRecord(ButtonRecordFlags flags, uint reserved, uint character, int depth, Matrix2x2 rotscale,
             Vector2 translation, ColorRgbaF color, Vector4 unknown)
         {
             Flags = flags;

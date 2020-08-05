@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 //DO STUFF
                 var targetObject = context.Scope.Variables[target].ToObject();
 
-                if(!(targetObject.Item is SpriteItem))
+                if (!(targetObject.Item is SpriteItem))
                 {
                     logger.Error("[URL] Target must be a sprite!");
                 }
