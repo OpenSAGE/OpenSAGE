@@ -26,13 +26,13 @@ namespace OpenSage.Data.Apt.Characters
             reader.BaseStream.Seek(glyphOffset, SeekOrigin.Begin);
 
             font.Glyphs = new List<uint>();
-            for (int i=0;i<glyphCount;++i)
+            for (int i = 0; i < glyphCount; ++i)
             {
-                font.Glyphs.Add(reader.ReadUInt32()); 
+                font.Glyphs.Add(reader.ReadUInt32());
             }
 
             reader.BaseStream.Seek(currentPos, SeekOrigin.Begin);
-           
+
 
             return font;
         }

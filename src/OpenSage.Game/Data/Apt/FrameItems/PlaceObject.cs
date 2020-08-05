@@ -35,12 +35,12 @@ namespace OpenSage.Data.Apt.FrameItems
     public sealed class ClipEvent
     {
         public ClipEventFlags Flags { get; private set; }
-        public Byte KeyCode { get; private set;  }
+        public Byte KeyCode { get; private set; }
         public InstructionCollection Instructions { get; private set; }
 
         public static ClipEvent Parse(BinaryReader reader)
         {
-            var ev = new ClipEvent();           
+            var ev = new ClipEvent();
             ev.Flags = reader.ReadUInt24AsEnum<ClipEventFlags>();
             ev.KeyCode = reader.ReadByte();
             var offsetToNext = reader.ReadUInt32();
@@ -75,7 +75,7 @@ namespace OpenSage.Data.Apt.FrameItems
         public float Ratio { get; private set; }
         public string Name { get; private set; }
         public int ClipDepth { get; private set; }
-        public List<ClipEvent> ClipEvents{ get; private set; }
+        public List<ClipEvent> ClipEvents { get; private set; }
 
         public static PlaceObject Parse(BinaryReader reader)
         {
@@ -123,7 +123,7 @@ namespace OpenSage.Data.Apt.FrameItems
             if (placeobject.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
             {
                 var poaOffset = reader.ReadUInt32();
-                if (poaOffset!=0)
+                if (poaOffset != 0)
                 {
                     var oldOffset = reader.BaseStream.Position;
                     reader.BaseStream.Seek(poaOffset, SeekOrigin.Begin);

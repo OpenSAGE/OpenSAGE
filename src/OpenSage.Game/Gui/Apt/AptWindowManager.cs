@@ -66,7 +66,7 @@ namespace OpenSage.Gui.Apt
             {
                 WindowStack.Clear();
                 PushWindow(_newWindow);
-                 _newWindow = null;
+                _newWindow = null;
             }
 
             foreach (var window in WindowStack)

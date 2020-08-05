@@ -109,7 +109,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the value
             var variableName = context.Stack.Pop();
             Value variable = Value.Undefined();
-            if(context.Scope.Variables.ContainsKey(variableName.ToString()))
+            if (context.Scope.Variables.ContainsKey(variableName.ToString()))
             {
                 variable = context.Scope.Variables[variableName.ToString()];
             }
@@ -218,7 +218,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var memberVal = context.Stack.Pop().ToString();
             var objectVal = context.Stack.Pop().ToObject();
 
-            objectVal.Variables[memberVal] = Parameters[0];        
+            objectVal.Variables[memberVal] = Parameters[0];
         }
     }
 
@@ -241,7 +241,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 args[i] = context.Stack.Pop();
             }
 
-            var obj = context.ConstructObject(name,args);
+            var obj = context.ConstructObject(name, args);
             context.Stack.Push(obj);
         }
     }
@@ -285,7 +285,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     result = Value.FromString("number");
                     break;
                 case ValueType.Object:
-                    if(val.ToObject().Item.Character is Movie)
+                    if (val.ToObject().Item.Character is Movie)
                         result = Value.FromString("movieclip");
                     else
                         result = Value.FromString("object");
