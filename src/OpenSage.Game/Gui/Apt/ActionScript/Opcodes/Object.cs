@@ -130,9 +130,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the value
             var valueVal = context.Stack.Pop();
             //pop the member name
-            var memberVal = context.Stack.Pop();
+            var memberName = context.Stack.Pop().ToString();
 
-            context.Scope.Variables[memberVal.ToString()] = valueVal;
+            if (context.CheckLocal(memberName))
+            {
+                context.Locals[memberName] = valueVal;
+            }
+            else
+            {
+                context.Scope.Variables[memberName] = valueVal;
+            }
         }
     }
 

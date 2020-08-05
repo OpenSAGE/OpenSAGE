@@ -178,7 +178,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     throw new InvalidOperationException("Can only jump to labels or frame numbers");
                 }
 
-                si.Stop();
+                si.Stop(true);
             }
             else
             {

@@ -39,6 +39,11 @@ namespace OpenSage.Mathematics
             return hex;
         }
 
+        public override string ToString()
+        {
+            return $"({R},{G},{B},{A})";
+        }
+
         public static ColorRgba FromHex(in ColorRgba original, string hexString)
         {
             var hexVal = Convert.ToUInt32(hexString, 16);

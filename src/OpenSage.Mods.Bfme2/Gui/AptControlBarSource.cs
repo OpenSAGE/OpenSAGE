@@ -21,6 +21,8 @@ namespace OpenSage.Mods.Bfme2
 
         public void AddToScene(Scene2D scene2D)
         {
+            AptPalantir.Reset();
+
             _window = _game.LoadAptWindow("Palantir.apt");
             _root = _window.Root;
 
@@ -36,10 +38,11 @@ namespace OpenSage.Mods.Bfme2
             {
                 if (!_commandInterfaceVisible)
                 {
-                    var showCommandInterface = _root.ScriptObject.GetMember("ShowCommandInterface");
+                    var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
                     if (showCommandInterface.Type != ValueType.Undefined)
                     {
                         List<Value> emptyArgs = new List<Value>();
+                        emptyArgs.Add(Value.FromString("_evil"));
                         FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
                         _commandInterfaceVisible = true;
                     }
