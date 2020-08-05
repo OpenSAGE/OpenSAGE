@@ -248,22 +248,18 @@ namespace OpenSage.Content.Translation
                 FileSystemEntry file;
                 if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
                 {
-                    using (var stream = file.Open())
-                    {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
-                    }
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
 
                     return;
                 }
 
                 if (!((file = fileSystem.GetFile($"{path}.str")) is null))
                 {
-                    using (var stream = file.Open())
-                    {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new StrTranslationProvider(stream, language));
-                    }
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new StrTranslationProvider(stream, language));
 
                     return;
                 }

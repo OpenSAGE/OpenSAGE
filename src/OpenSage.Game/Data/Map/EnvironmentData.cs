@@ -36,14 +36,10 @@ namespace OpenSage.Data.Map
                 if (version < 5)
                 {
                     result.IsMacroTextureStretched = reader.ReadBooleanChecked();
-                    result.IsMacroTextureStretched = true;
                 }
 
-                var length = reader.ReadUInt16();
-                result.MacroTexture = BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes(length));
-
-                var length2 = reader.ReadUInt16();
-                result.CloudTexture = BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes(length2));
+                result.MacroTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.CloudTexture = reader.ReadUInt16PrefixedAsciiString();
 
                 if (version >= 4)
                 {

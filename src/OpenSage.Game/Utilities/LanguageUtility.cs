@@ -8,7 +8,7 @@ namespace OpenSage.Utilities
 {
     public static class LanguageUtility
     {
-        private const string DefaultLanguage = "english";
+        private const string DefaultLanguage = "en-US";
 
         /// <summary>
         /// Detect the language for the current installation

@@ -78,6 +78,7 @@ namespace OpenSage.Logic.Object
             var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
             gameObject.Transform.Translation = new Vector3(position.X, position.Y, height);
             gameObject.Transform.Rotation = rotation;
+            gameObject.Transform.Scale = gameObject.Definition.Scale;
 
             if (gameObject.Definition.IsBridge)
             {
@@ -221,6 +222,7 @@ namespace OpenSage.Logic.Object
 
             SetDefaultWeapon();
             Transform = Transform.CreateIdentity();
+            Transform.Scale = objectDefinition.Scale;
 
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws.Values)
