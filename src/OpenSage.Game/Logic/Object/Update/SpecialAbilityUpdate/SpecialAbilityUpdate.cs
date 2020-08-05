@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -6,6 +8,19 @@ namespace OpenSage.Logic.Object
     public class SpecialAbilityUpdate : UpdateModule
     {
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(49);
+        }
     }
 
     /// <summary>

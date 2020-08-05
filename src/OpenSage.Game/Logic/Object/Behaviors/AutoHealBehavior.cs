@@ -1,15 +1,31 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class AutoHealBehavior : UpgradeModule
+    // It looks from the .sav files that this actually inherits from UpdateModule,
+    // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
+    public sealed class AutoHealBehavior : UpdateModule
     {
-        public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
-            : base(moduleData)
+        public AutoHealBehavior()
         {
         }
 
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(11);
+        }
     }
 
     public sealed class AutoHealBehaviorModuleData : UpgradeModuleData
@@ -84,7 +100,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoHealBehavior(this);
+            return new AutoHealBehavior();
         }
     }
 }

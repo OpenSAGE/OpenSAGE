@@ -54,8 +54,14 @@ namespace OpenSage.Content
                 TranslationManager = Translation.TranslationManager.Instance;
                 Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
-                TranslationManager.LanguageChanged +=
-                    (sender, e) => throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
+
+                void OnLanguageChanged(object sender, EventArgs e)
+                {
+                    throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
+                }
+
+                TranslationManager.LanguageChanged += OnLanguageChanged;
+                AddDisposeAction(() => TranslationManager.LanguageChanged -= OnLanguageChanged);
 
                 IniDataContext = new IniDataContext();
 

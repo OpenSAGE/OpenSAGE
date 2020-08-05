@@ -428,7 +428,7 @@ namespace OpenSage.Data.Ini
 
         public string ParseFileName() => ParseIdentifier();
 
-        public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseInteger());
+        public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
         public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()

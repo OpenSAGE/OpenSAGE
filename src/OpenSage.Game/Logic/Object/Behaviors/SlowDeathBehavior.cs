@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -115,6 +117,23 @@ namespace OpenSage.Logic.Object
         internal override void DrawInspector()
         {
             ImGuiUtility.PropertyRow("Phase", _phase?.ToString() ?? "<not dying>");
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(12);
+
+            var unknown2 = reader.ReadSingle();
+
+            var unknown3 = reader.ReadUInt32();
         }
     }
 

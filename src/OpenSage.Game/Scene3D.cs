@@ -364,6 +364,32 @@ namespace OpenSage
                 var gameObject = GameObjects.Items[index];
                 gameObject.LogicTick(frame, time);
             }
+
+            //DetectCollisions(time);
+        }
+
+        private void DetectCollisions(in TimeInterval time)
+        {
+            // TODO: Use Quadtree.
+
+            var numCollisions = 0;
+
+            for (var i = 0; i < GameObjects.Items.Count; i++)
+            {
+                for (var j = i + 1; j < GameObjects.Items.Count; j++)
+                {
+                    var gameObject1 = GameObjects.Items[i];
+                    var gameObject2 = GameObjects.Items[j];
+
+                    if (gameObject1.Intersects(gameObject2))
+                    {
+                        gameObject1.DoCollide(gameObject2, time);
+                        gameObject2.DoCollide(gameObject1, time);
+
+                        numCollisions++;
+                    }
+                }
+            }
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT)

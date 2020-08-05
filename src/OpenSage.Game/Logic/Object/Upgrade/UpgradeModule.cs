@@ -1,5 +1,7 @@
-﻿using OpenSage.Content;
+﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -80,6 +82,20 @@ namespace OpenSage.Logic.Object
         }
 
         internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered) { }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknownByte1 = reader.ReadByte();
+            var unknownByte2 = reader.ReadByte();
+        }
     }
 
     public abstract class UpgradeModuleData : BehaviorModuleData

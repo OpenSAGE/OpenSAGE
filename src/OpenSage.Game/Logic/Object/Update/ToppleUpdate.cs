@@ -1,5 +1,10 @@
-﻿using OpenSage.Content;
+﻿using System;
+using System.IO;
+using System.Numerics;
+using System.Text;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -9,45 +14,53 @@ namespace OpenSage.Logic.Object
     {
         private readonly ToppleUpdateModuleData _moduleData;
 
-        private ToppleState _state;
+        private ToppleState _toppleState;
+        private Vector3 _toppleDirection;
+        private float _toppleSpeed;
         private float _toppleAngle;
 
         internal ToppleUpdate(ToppleUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
 
-            _state = ToppleState.NotToppled;
+            _toppleState = ToppleState.NotToppled;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            switch (_state)
+            switch (_toppleState)
             {
                 case ToppleState.Toppling:
-                    _toppleAngle += 0.01f * (float)context.Time.DeltaTime.TotalSeconds;
-                    if (_toppleAngle > MathUtility.PiOver2)
                     {
-                        // TODO: Bouncing
-                        _state = ToppleState.Toppled;
-                        KillObject(context);
+                        // TODO: InitialAccelPercent
+                        var deltaAngle = 0.3f * (float) context.Time.DeltaTime.TotalSeconds;
+                        _toppleAngle += deltaAngle;
+                        context.GameObject.Transform.Rotation *= Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0);
+                        if (_toppleAngle > MathUtility.PiOver2)
+                        {
+                            _toppleAngle = MathUtility.PiOver2;
+                            if (_moduleData.BounceVelocityPercent.IsZero)
+                            {
+                                _toppleState = ToppleState.Toppled;
+                                KillObject(context);
+                            }
+                            else
+                            {
+                                _moduleData.BounceFX?.Value.Execute(context);
+                                //_toppleState = ToppleState.Bouncing1Up;
+                                // TODO
+                            }
+                        }
+                        // TODO
+                        break;
                     }
-                    // TODO
-                    break;
-
-                case ToppleState.Bouncing:
-                    // TODO
-                    // TODO: BounceFX
-                    // TODO: BounceVelocityPercent
-                    break;
             }
-
-            // TODO: InitialAccelPercent
         }
 
         internal override void OnCollide(BehaviorUpdateContext context, GameObject collidingObject)
         {
             // If we've already started toppling, don't do anything.
-            if (_state != ToppleState.NotToppled)
+            if (_toppleState != ToppleState.NotToppled)
             {
                 return;
             }
@@ -75,7 +88,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _state = ToppleState.Toppling;
+            _toppleState = ToppleState.Toppling;
 
             // TODO: Is this the right time to do this?
             context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
@@ -99,12 +112,56 @@ namespace OpenSage.Logic.Object
             context.GameObject.Kill(DeathType.Toppled, context.Time);
         }
 
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadByte();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            _toppleSpeed = reader.ReadSingle();
+            _toppleDirection = reader.ReadVector3();
+
+            var unknownUint2 = reader.ReadUInt32();
+            if (unknownUint2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            _toppleState = reader.ReadUInt32AsEnum<ToppleState>();
+
+            _toppleAngle = reader.ReadSingle();
+            var unknownFloat6 = reader.ReadSingle();
+
+            var unknownUint4 = reader.ReadUInt32();
+            if (unknownUint4 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownUint5 = reader.ReadUInt32();
+            if (unknownUint5 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool6 = reader.ReadBooleanChecked();
+            if (unknownBool6)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownUint6 = reader.ReadUInt32();
+        }
+
         private enum ToppleState
         {
-            NotToppled,
-            Toppling,
-            Bouncing,
-            Toppled,
+            NotToppled = 0,
+            Toppling   = 1,
+            Toppled    = 2,
         }
     }
 
@@ -129,7 +186,7 @@ namespace OpenSage.Logic.Object
         public bool KillWhenStartToppling { get; private set; }
         public bool ToppleLeftOrRightOnly { get; private set; }
         public bool ReorientToppledRubble { get; private set; }
-        public Percentage BounceVelocityPercent { get; private set; } = new Percentage(0.2f);
+        public Percentage BounceVelocityPercent { get; private set; } = new Percentage(0.3f);
         public Percentage InitialAccelPercent { get; private set; } = new Percentage(0.01f);
         public LazyAssetReference<ObjectDefinition> StumpName { get; private set; }
 

@@ -1,4 +1,7 @@
-﻿namespace OpenSage.Logic.Object.Helpers
+﻿using System.IO;
+using OpenSage.FileFormats;
+
+namespace OpenSage.Logic.Object.Helpers
 {
     // I found, in .sav files, modules called ModuleTag_SMCHelper.
     // Searching in the RA3 SDK, I found ObjectSMCHelper, with the comment
@@ -8,5 +11,16 @@
     internal sealed class ObjectSpecialModelConditionHelper : ObjectHelperModule
     {
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
     }
 }

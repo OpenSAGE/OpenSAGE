@@ -7,6 +7,7 @@ using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -219,7 +220,7 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_GameLogic":
                             {
-                                var unknown1 = reader.ReadUInt32();
+                                var unknown1 = reader.ReadUInt32(); // Maybe some kind of frame counter
                                 var unknown2 = reader.ReadByte();
 
                                 var numGameObjectDefinitions = reader.ReadUInt32();
@@ -312,9 +313,23 @@ namespace OpenSage.Data.Sav
                                         var moduleTag = reader.ReadBytePrefixedAsciiString();
                                         var moduleLengthInBytes = reader.ReadUInt32();
 
+                                        var moduleStart = reader.BaseStream.Position;
+                                        var moduleEnd = moduleStart + moduleLengthInBytes;
+
                                         var module = gameObject.GetModuleByTag(moduleTag);
 
-                                        module.Load(reader, (int) moduleLengthInBytes);
+                                        if (module.GetType() == typeof(AIUpdate))
+                                        {
+                                            File.WriteAllBytes("AIUpdate " + gameState.DisplayName, reader.ReadBytes((int) moduleLengthInBytes));
+                                            reader.BaseStream.Seek(moduleStart, SeekOrigin.Begin);
+                                        }
+
+                                        module.Load(reader);
+
+                                        if (reader.BaseStream.Position != moduleEnd)
+                                        {
+                                            throw new InvalidDataException($"Error parsing module '{moduleTag}' (type {module.GetType().Name}, started at {moduleStart:X8}) in object with definition {gameObject.Definition.Name}. Expected stream to be at position {moduleEnd:X8} but was at {reader.BaseStream.Position:X8}.");
+                                        }
                                     }
 
                                     reader.ReadBytes(9);
@@ -581,13 +596,8 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_TacticalView":
                             {
-                                var unknown1 = reader.ReadUInt32();
-                                if (unknown1 != 0)
-                                {
-                                    throw new InvalidDataException();
-                                }
-
-                                var position = reader.ReadVector2();
+                                var cameraAngle = reader.ReadSingle();
+                                var cameraPosition = reader.ReadVector2();
 
                                 var unknown2 = reader.ReadUInt32();
                                 if (unknown2 != 0)
@@ -600,7 +610,7 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_GameClient":
                             {
-                                var unknown1 = reader.ReadUInt32();
+                                var unknown1 = reader.ReadUInt32(); // Maybe some kind of frame counter
                                 var unknown2 = reader.ReadByte();
                                 var numGameObjects = reader.ReadUInt32();
                                 var gameObjects = new List<GameObjectState>();

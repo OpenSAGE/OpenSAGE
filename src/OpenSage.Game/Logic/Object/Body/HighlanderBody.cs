@@ -3,7 +3,7 @@ using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
-    public class HighlanderBody : ActiveBody
+    public sealed class HighlanderBody : ActiveBody
     {
         internal HighlanderBody(GameObject gameObject, HighlanderBodyModuleData moduleData)
             : base(gameObject, moduleData)

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -141,6 +142,61 @@ namespace OpenSage.Logic.Object
         internal override void DrawInspector()
         {
             // TODO: Locomotor?
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 4)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(50);
+
+            var unknown2 = reader.ReadSingle();
+
+            var unknown3 = reader.ReadBytes(16);
+
+            var unknown4 = reader.ReadSingle();
+
+            var unknown5 = reader.ReadUInt32();
+            var unknown6 = reader.ReadUInt32();
+            var unknown7 = reader.ReadUInt32();
+            var unknown8 = reader.ReadUInt32();
+
+            var unknown9 = reader.ReadBytes(31);
+
+            var unknown10 = reader.ReadInt32();
+
+            var unknown11 = reader.ReadBytes(103);
+
+            var locomotorTemplate = reader.ReadBytePrefixedAsciiString();
+
+            var unknown12 = reader.ReadByte();
+            var unknown13 = reader.ReadUInt32();
+
+            var position = reader.ReadVector3();
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown14 = reader.ReadSingle();
+            }
+
+            var unknown15 = reader.ReadBytes(8);
+
+            for (var i = 0; i < 3; i++)
+            {
+                var unknown16 = reader.ReadSingle();
+            }
+
+            var unknown17 = reader.ReadBytes(5);
+
+            var locomotorTemplate2 = reader.ReadBytePrefixedAsciiString();
+
+            var unknown18 = reader.ReadBytes(36);
         }
     }
 

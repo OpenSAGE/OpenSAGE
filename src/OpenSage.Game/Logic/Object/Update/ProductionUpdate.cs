@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
@@ -212,6 +214,19 @@ namespace OpenSage.Logic.Object
         internal override void DrawInspector()
         {
             ImGuiUtility.PropertyRow("DoorState", _currentDoorState);
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(89);
         }
     }
 

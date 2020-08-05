@@ -839,8 +839,9 @@ namespace OpenSage.FileFormats
             {
                 return null;
             }
-
         }
+
+        public static byte ReadVersion(this BinaryReader reader) => reader.ReadByte();
     }
 
     public enum ColorRgbaPixelOrder
