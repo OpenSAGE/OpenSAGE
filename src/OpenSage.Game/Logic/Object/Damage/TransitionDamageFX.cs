@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
@@ -49,6 +51,19 @@ namespace OpenSage.Logic.Object
             }
 
             // TODO: FXLists
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(192);
         }
     }
 

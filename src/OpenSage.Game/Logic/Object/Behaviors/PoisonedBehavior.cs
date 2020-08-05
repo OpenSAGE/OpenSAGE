@@ -1,10 +1,25 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class PoisonedBehavior : UpdateModule
     {
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(16);
+        }
     }
 
     public sealed class PoisonedBehaviorModuleData : UpdateModuleData

@@ -1,12 +1,14 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class BezierProjectileBehavior : BehaviorModule
+    public class BezierProjectileBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly BezierProjectileBehaviorData _moduleData;
@@ -99,10 +101,32 @@ namespace OpenSage.Logic.Object
                 context.GameObject.Die(DeathType.Detonated, context.Time);
             }
         }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(12);
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown2 = reader.ReadSingle();
+            }
+
+            var weaponThatFiredThis = reader.ReadBytePrefixedAsciiString();
+
+            var unknown3 = reader.ReadUInt32();
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public class BezierProjectileBehaviorData : BehaviorModuleData
+    public class BezierProjectileBehaviorData : UpdateModuleData
     {
         internal static BezierProjectileBehaviorData Parse(IniParser parser) => parser.ParseBlock(BezierProjectileFieldParseTable);
 

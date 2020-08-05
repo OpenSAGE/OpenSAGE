@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -17,10 +19,30 @@ namespace OpenSage.Logic.Object
 
         internal virtual void DrawInspector() { }
 
-        // TODO: Make this abstract and remove length parameter.
-        internal virtual void Load(BinaryReader reader, int lengthInBytes)
+        internal virtual void Load(BinaryReader reader)
         {
-            reader.ReadBytes(lengthInBytes);
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            // The following version numbers are probably from 2 extra base classes in the inheritance hierarchy.
+            // Since we don't have that at the moment, just read them here.
+
+            var extraVersion1 = reader.ReadVersion();
+            if (extraVersion1 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var extraVersion2 = reader.ReadVersion();
+            if (extraVersion2 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            //reader.ReadBytes(lengthInBytes - 5);
         }
     }
 

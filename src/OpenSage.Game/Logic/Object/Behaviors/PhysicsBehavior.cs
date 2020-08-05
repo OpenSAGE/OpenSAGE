@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -72,6 +74,29 @@ namespace OpenSage.Logic.Object
         {
             ImGuiUtility.PropertyRow("Mass", Mass);
             ImGuiUtility.PropertyRow("Velocity", _velocity);
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(52);
+
+            var unknown2 = reader.ReadUInt32();
+
+            var unknown3 = reader.ReadUInt32();
+
+            var unknown4 = reader.ReadSingle();
+
+            var unknown5 = reader.ReadBytes(20);
+
+            var unknown6 = reader.ReadSingle();
         }
     }
 

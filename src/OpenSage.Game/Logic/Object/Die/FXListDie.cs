@@ -1,5 +1,7 @@
-﻿using OpenSage.Content;
+﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
@@ -19,6 +21,17 @@ namespace OpenSage.Logic.Object
                 context.GameObject.Transform.Rotation,
                 context.GameObject.Transform.Translation,
                 context.GameContext));
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
         }
     }
 

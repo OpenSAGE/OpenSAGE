@@ -1,10 +1,23 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class SpecialAbilityModule : SpecialPowerModule
     {
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
     }
 
     public sealed class SpecialAbilityModuleData : SpecialPowerModuleData

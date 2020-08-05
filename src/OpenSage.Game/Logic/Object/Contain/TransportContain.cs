@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -7,6 +9,58 @@ namespace OpenSage.Logic.Object
     public class TransportContain : OpenContainModule
     {
         // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var numObjectsInside = reader.ReadUInt32();
+            for (var i = 0; i < numObjectsInside; i++)
+            {
+                var objectId = reader.ReadUInt32();
+            }
+
+            var unknown1 = reader.ReadBytes(6);
+
+            var unknown2 = reader.ReadBytes(13);
+
+            var statusCount = reader.ReadUInt32();
+            for (var i = 0; i < statusCount; i++)
+            {
+                var someStatus = reader.ReadBytePrefixedAsciiString(); // "LOADED"
+            }
+
+            // Where does the 32 come from?
+            for (var i = 0; i < 32; i++)
+            {
+                var someTransform = reader.ReadMatrix4x3Transposed();
+            }
+
+            var unknown3 = reader.ReadInt32(); // -1
+
+            var numObjectsInside2 = reader.ReadUInt32();
+            var capacity = reader.ReadUInt32(); // Maybe
+
+            var unknown4 = reader.ReadBytes(14);
+
+            var unknownCount = reader.ReadUInt16();
+            for (var i = 0; i < unknownCount; i++)
+            {
+                var unknown5 = reader.ReadUInt32();
+                var unknown6 = reader.ReadUInt32();
+            }
+
+            var unknown7 = reader.ReadUInt32();
+            var unknown8 = reader.ReadUInt32();
+
+            var unknown9 = reader.ReadBytes(5);
+        }
     }
 
     /// <summary>

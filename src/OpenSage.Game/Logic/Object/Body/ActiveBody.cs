@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
@@ -70,20 +71,38 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader, int lengthInBytes)
+        internal override void Load(BinaryReader reader)
         {
-            base.Load(reader, lengthInBytes);
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
 
-            //    for (var j = 0; j < 6; j++)
-            //    {
-            //        reader.ReadBooleanChecked();
-            //    }
-            //    reader.ReadSingle(); // 1.0f
-            //    var maxHealth = reader.ReadSingle(); // 1000.0f
-            //    var currentHealth = reader.ReadSingle(); // 1000.0f (or this is maxHealth)
-            //    reader.ReadSingle(); // 1000.0f
-            //    reader.ReadSingle(); // 1000.0f
-            //    reader.ReadBytes(65);
+            base.Load(reader);
+
+            var unknownFloat = reader.ReadSingle();
+            if (unknownFloat != 1.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var maxHealth = reader.ReadSingle(); // 1000.0f
+            var currentHealth = reader.ReadSingle(); // 1000.0f (or this is maxHealth)
+
+            var currentHealth2 = reader.ReadSingle();
+            if (currentHealth != currentHealth2)
+            {
+                throw new InvalidDataException();
+            }
+
+            var currentHealth3 = reader.ReadSingle();
+            if (currentHealth != currentHealth3)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown = reader.ReadBytes(61);
         }
     }
 
