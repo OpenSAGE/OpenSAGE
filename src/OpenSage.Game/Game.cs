@@ -72,6 +72,9 @@ namespace OpenSage
 
         public SkirmishManager SkirmishManager { get; }
 
+        //TODO: this will be part of SkirmishManager after merging litenetlib PR
+        public MapCache CurrentMap { get; private set; }
+
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
@@ -715,6 +718,8 @@ namespace OpenSage
 
             // Scripts should be enabled in all games, even replays
             Scripting.Active = true;
+
+            CurrentMap = mapCache;
         }
 
         public void StartCampaign(string side)

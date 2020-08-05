@@ -1,4 +1,5 @@
-﻿using OpenSage.Content.Translation;
+﻿using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
@@ -45,7 +46,8 @@ namespace OpenSage.Gui.Apt
                     }
 
                     //localize our content
-                    t.Content = t.Content.Replace("$", "APT:");
+                    t.Content = t.Content.Replace("$", "APT:"); // All string values begin with $
+                    t.Content = t.Content.Split('&').First();   // Query strings after ampersand
                     t.Content = t.Content.Translate();
 
                     renderer.RenderText(dc, Context, t, cTransform);

@@ -21,6 +21,11 @@ namespace OpenSage.Mods.Bfme2.Gui
             Initialized = true;
         }
 
+        public static void OnBttnOptions(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
         public static void OnHeroSelectLoaded(string param, ActionContext context, AptWindow window, Game game)
         {
 
