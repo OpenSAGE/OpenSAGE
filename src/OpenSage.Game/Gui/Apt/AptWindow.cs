@@ -15,6 +15,7 @@ namespace OpenSage.Gui.Apt
         private readonly AptContext _context;
         private readonly Game _game;
         private readonly AptCallbackResolver _resolver;
+        private readonly AptRenderingContext _renderingContext;
         private Vector2 _movieSize;
         private Vector2 _destinationSize;
 
@@ -26,7 +27,6 @@ namespace OpenSage.Gui.Apt
 
         public AptFile AptFile { get; }
         public string Name => AptFile.MovieName;
-        public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
         public ContentManager ContentManager { get; }
         public AptWindowManager Manager { get; set; }
@@ -65,7 +65,7 @@ namespace OpenSage.Gui.Apt
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
 
-            Renderer = new AptRenderer(this, contentManager);
+            _renderingContext = AddDisposable(new AptRenderingContext(this, contentManager, game.GraphicsLoadContext, _context));
 
             _resolver = new AptCallbackResolver(game);
         }
@@ -94,7 +94,8 @@ namespace OpenSage.Gui.Apt
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            var fullSizeRect = new Rectangle(0, 0, (int) _destinationSize.X, (int) _destinationSize.Y);
+            var destinationSize = new Size((int) _destinationSize.X, (int) _destinationSize.Y);
+            var fullSizeRect = new Rectangle(Point2D.Zero, destinationSize);
 
             if (BackgroundImage != null)
             {
@@ -104,9 +105,13 @@ namespace OpenSage.Gui.Apt
             //The background color, which is set by the APT. Should be the clear color?
             //drawingContext.FillRectangle(fullsizeRect, _backgroundColor);
 
-            var transform = ItemTransform.None;
+            _renderingContext.SetWindowSize(destinationSize);
+            _renderingContext.SetDrawingContext(drawingContext);
+            _renderingContext.PushTransform(ItemTransform.None);
 
-            Root.Render(Renderer, transform, drawingContext);
+            Root.Render(_renderingContext);
+
+            _renderingContext.PopTransform();
         }
 
         internal void HandleCommand(ActionContext context, string cmd, string param)

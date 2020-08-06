@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 using Veldrid;
@@ -14,7 +13,6 @@ namespace OpenSage.Gui
     public sealed class DrawingContext2D : DisposableBase
     {
         private readonly ContentManager _contentManager;
-        private readonly GraphicsDevice _graphicsDevice;
         private readonly Texture _solidWhiteTexture;
 
         private readonly SpriteBatch _spriteBatch;
@@ -28,6 +26,8 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
+        private Texture _alphaMask;
+
         internal DrawingContext2D(
             ContentManager contentManager,
             GraphicsLoadContext loadContext,
@@ -35,7 +35,6 @@ namespace OpenSage.Gui
             in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
-            _graphicsDevice = loadContext.GraphicsDevice;
 
             _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
 
@@ -104,6 +103,11 @@ namespace OpenSage.Gui
             {
                 _currentOpacity *= opacity;
             }
+        }
+
+        public void SetAlphaMask(Texture alphaMask)
+        {
+            _alphaMask = alphaMask;
         }
 
         public void DrawImage(
@@ -226,7 +230,8 @@ namespace OpenSage.Gui
                 angle,
                 origin,
                 scale,
-                GetModifiedColorWithCurrentOpacity(strokeColor));
+                GetModifiedColorWithCurrentOpacity(strokeColor),
+                alphaMask: _alphaMask);
         }
 
         public void FillTriangle(in Triangle2D triangle, in ColorRgbaF fillColor)
@@ -237,7 +242,8 @@ namespace OpenSage.Gui
                 _solidWhiteTexture,
                 new Triangle2D(new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0)),
                 Triangle2D.Transform(triangle, _currentTransform),
-                modifiedFillColor);
+                modifiedFillColor,
+                alphaMask: _alphaMask);
         }
 
         public void FillTriangle(Texture texture, in Triangle2D sourceTriangle, in Triangle2D triangle, in ColorRgbaF tintColor)
@@ -246,7 +252,8 @@ namespace OpenSage.Gui
                 texture,
                 sourceTriangle,
                 Triangle2D.Transform(triangle, _currentTransform),
-                GetModifiedColorWithCurrentOpacity(tintColor));
+                GetModifiedColorWithCurrentOpacity(tintColor),
+                alphaMask: _alphaMask);
         }
 
         public void FillRectangle(in Rectangle rect, in ColorRgbaF fillColor)

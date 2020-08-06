@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
+using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using Veldrid;
 using Action = OpenSage.Data.Apt.FrameItems.Action;
 
 namespace OpenSage.Gui.Apt
@@ -65,24 +67,40 @@ namespace OpenSage.Gui.Apt
                             FrameLabels[fl.Name] = fl.FrameId;
                             break;
                     }
-
                 }
             }
         }
 
-        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        protected override void RenderImpl(AptRenderingContext renderingContext)
         {
             if (!Visible)
                 return;
 
             //calculate the transform for this element
-            var cTransform = pTransform * Transform;
+            renderingContext.PushTransform(Transform);
+
+            var clipMask = (Texture) null;
+            var clipDepth = 0;
 
             //render all subItems
-            foreach (var item in Content.Items.Values)
+            foreach (var (depth, item) in Content.Items)
             {
-                item.Render(renderer, cTransform, dc);
+                item.Render(renderingContext);
+
+                if (depth > clipDepth && clipMask != null)
+                {
+                    renderingContext.SetClipMask(null);
+                    clipDepth = 0;
+                }
+
+                if (item.ClipDepth != null)
+                {
+                    renderingContext.SetClipMask(item.ClipMask);
+                    clipDepth = item.ClipDepth.Value;
+                }
             }
+
+            renderingContext.PopTransform();
         }
 
         public override void Update(TimeInterval gt)
@@ -339,6 +357,9 @@ namespace OpenSage.Gui.Apt
             if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
             {
                 displayItem.ClipDepth = po.ClipDepth;
+
+                // TODO: Need to dispose this.
+                displayItem.ClipMask = new RenderTarget(Context.Window.ContentManager.GraphicsDevice);
             }
 
             Content.AddItem(po.Depth, displayItem);
