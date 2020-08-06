@@ -49,11 +49,10 @@ namespace OpenSage.Content.Loaders
             }
             var animation = W3DAnimation.FromW3dFile(w3dFile);
 
-            // BFME2 map 'EVILRivendell' -> EUARWEN_SKL_EUARWEN_IDLB != RUEwnHrHrs_SKL.EUArwen_IDLB
-            //if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
-            //{
-            //    throw new NotSupportedException();
-            //}
+            if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.Warn("animation name '" + animation.Name + "' does not match '" + key + "'");
+            }
 
             return animation;
         }
