@@ -1,5 +1,7 @@
 #version 450
 
+#extension GL_EXT_samplerless_texture_functions : enable
+
 #define FILL_METHOD_NORMAL     0
 #define FILL_METHOD_RADIAL_360 1
 
@@ -16,6 +18,8 @@ layout(set = 0, binding = 1) uniform SpriteConstants
 layout(set = 1, binding = 0) uniform sampler Sampler;
 
 layout(set = 2, binding = 0) uniform texture2D Texture;
+
+layout(set = 3, binding = 0) uniform texture2D AlphaMask;
 
 layout(location = 0) in vec2 in_UV;
 layout(location = 1) in vec4 in_Color;
@@ -67,6 +71,16 @@ void main()
         float gray = 0.299 * textureColor.r + 0.587 * textureColor.g + 0.114 * textureColor.b;
         textureColor = vec4(gray, gray, gray, textureColor.w);
     }
+
+    // Currently we always sample from the alpha mask,
+    // falling back to a default one if there isn't a real one.
+    ivec2 alphaMaskSize = textureSize(AlphaMask, 0);
+    vec4 fragCoord = gl_FragCoord;
+    vec2 alphaMaskUV = vec2(
+        fragCoord.x / alphaMaskSize.x,
+        fragCoord.y / alphaMaskSize.y);
+    vec4 alphaMaskColor = texture(sampler2D(AlphaMask, Sampler), alphaMaskUV);
+    textureColor.a *= alphaMaskColor.a;
 
     out_Color = textureColor;
 }

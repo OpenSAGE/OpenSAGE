@@ -63,6 +63,7 @@ namespace OpenSage.Diagnostics
                 {
                     ImGuiUtility.BeginPropertyList();
                     ImGuiUtility.PropertyRow("Type", _selectedItem.Character.GetType());
+                    ImGuiUtility.PropertyRow("ClipDepth", _selectedItem.ClipDepth);
                     ImGuiUtility.EndPropertyList();
 
                     switch(_selectedItem)

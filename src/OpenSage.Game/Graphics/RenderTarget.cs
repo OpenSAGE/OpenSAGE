@@ -5,6 +5,10 @@ namespace OpenSage.Graphics
 {
     internal sealed class RenderTarget : DisposableBase
     {
+        public static readonly OutputDescription OutputDescription = new OutputDescription(
+            null,
+            new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
+
         private readonly GraphicsDevice _graphicsDevice;
 
         private Size _size;

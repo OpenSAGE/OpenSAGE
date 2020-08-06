@@ -1,18 +1,61 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    public sealed class AptRenderer
+    public sealed class AptRenderingContext : DisposableBase
     {
-        public AptWindow Window { get; }
         private readonly ContentManager _contentManager;
+        private readonly AptContext _aptContext;
+        private readonly GraphicsLoadContext _graphicsLoadContext;
+        private readonly Stack<ItemTransform> _transformStack;
 
-        private void CalculateTransform(ref ItemTransform transform, AptContext context)
+        private DrawingContext2D _drawingContext;
+
+        private readonly DrawingContext2D _clipMaskDrawingContext;
+        private readonly CommandList _commandList;
+
+        private DrawingContext2D _activeDrawingContext;
+
+        public AptWindow Window { get; }
+
+        public Size WindowSize { get; private set; }
+
+        public ItemTransform CurrentTransform => _transformStack.Peek();
+
+        internal AptRenderingContext(
+            AptWindow window,
+            ContentManager contentManager,
+            GraphicsLoadContext graphicsLoadContext,
+            AptContext aptContext)
+        {
+            _contentManager = contentManager;
+            _aptContext = aptContext;
+            _graphicsLoadContext = graphicsLoadContext;
+
+            Window = window;
+
+            _transformStack = new Stack<ItemTransform>();
+
+            _clipMaskDrawingContext = AddDisposable(
+                new DrawingContext2D(
+                    contentManager,
+                    graphicsLoadContext,
+                    BlendStateDescription.SingleAlphaBlend,
+                    RenderTarget.OutputDescription));
+
+            _commandList = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateCommandList());
+        }
+
+        private void CalculateTransform(ref ItemTransform transform)
         {
             if (Window == null)
             {
@@ -25,19 +68,68 @@ namespace OpenSage.Gui.Apt
             transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
         }
 
-        public AptRenderer(AptWindow window, ContentManager contentManager)
+        internal void SetRenderTarget(RenderTarget renderTarget)
         {
-            _contentManager = contentManager;
-            Window = window;
+            if (renderTarget != null)
+            {
+                _commandList.Begin();
+
+                _commandList.SetFramebuffer(renderTarget.Framebuffer);
+                _commandList.ClearColorTarget(0, new RgbaFloat(0, 0, 0, 0));
+
+                _clipMaskDrawingContext.Begin(
+                    _commandList,
+                    _graphicsLoadContext.StandardGraphicsResources.LinearClampSampler,
+                    new SizeF(renderTarget.ColorTarget.Width, renderTarget.ColorTarget.Height));
+
+                _activeDrawingContext = _clipMaskDrawingContext;
+            }
+            else
+            {
+                _clipMaskDrawingContext.End();
+
+                _commandList.End();
+
+                _contentManager.GraphicsDevice.SubmitCommands(_commandList);
+
+                _activeDrawingContext = _drawingContext;
+            }
         }
 
-        public void RenderText(DrawingContext2D drawingContext, AptContext context,
-            Text text, ItemTransform transform)
+        public void SetDrawingContext(DrawingContext2D drawingContext)
+        {
+            _drawingContext = drawingContext;
+            _activeDrawingContext = drawingContext;
+        }
+
+        public void PushTransform(in ItemTransform transform)
+        {
+            var newTransform = _transformStack.Count > 0
+                ? _transformStack.Peek() * transform
+                : transform;
+
+            _transformStack.Push(newTransform);
+        }
+
+        public void PopTransform()
+        {
+            _transformStack.Pop();
+        }
+
+        // TODO
+        internal void SetClipMask(RenderTarget renderTarget)
+        {
+            _drawingContext.SetAlphaMask(renderTarget?.ColorTarget);
+        }
+
+        public void RenderText(Text text)
         {
             var font = _contentManager.FontManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
-            CalculateTransform(ref transform, context);
 
-            drawingContext.DrawText(
+            var transform = _transformStack.Peek();
+            CalculateTransform(ref transform);
+
+            _drawingContext.DrawText(
                 text.Content,
                 font,
                 TextAlignment.Center,
@@ -45,10 +137,10 @@ namespace OpenSage.Gui.Apt
                 RectangleF.Transform(text.Bounds, transform.GeometryRotation));
         }
 
-        public void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
-            Geometry shape, ItemTransform transform, Texture solidTexture)
+        public void RenderGeometry(Geometry shape, Texture solidTexture)
         {
-            CalculateTransform(ref transform, context);
+            var transform = _transformStack.Peek();
+            CalculateTransform(ref transform);
             var matrix = transform.GeometryRotation;
 
             foreach (var e in shape.Entries)
@@ -60,7 +152,7 @@ namespace OpenSage.Gui.Apt
                             var color = l.Color.ToColorRgbaF() * transform.ColorTransform;
                             foreach (var line in l.Lines)
                             {
-                                drawingContext.DrawLine(
+                                _activeDrawingContext.DrawLine(
                                     Line2D.Transform(line, matrix),
                                     l.Thickness,
                                     color);
@@ -75,7 +167,7 @@ namespace OpenSage.Gui.Apt
                             {
                                 if (solidTexture == null)
                                 {
-                                    drawingContext.FillTriangle(
+                                    _activeDrawingContext.FillTriangle(
                                         Triangle2D.Transform(tri, matrix),
                                         color);
                                 }
@@ -89,7 +181,7 @@ namespace OpenSage.Gui.Apt
                                                                   new Vector2(tri.V2.X / 100.0f * solidTexture.Width,
                                                                               tri.V2.Y / 100.0f * solidTexture.Height));
 
-                                    drawingContext.FillTriangle(
+                                    _activeDrawingContext.FillTriangle(
                                         solidTexture,
                                         coordTri,
                                         destTri,
@@ -116,9 +208,9 @@ namespace OpenSage.Gui.Apt
                                 //if (assignment is RectangleAssignment)
                                 //    throw new NotImplementedException();
 
-                                var tex = context.GetTexture(tt.Image, shape);
+                                var tex = _aptContext.GetTexture(tt.Image, shape);
 
-                                drawingContext.FillTriangle(
+                                _activeDrawingContext.FillTriangle(
                                     tex,
                                     Triangle2D.Transform(tri, coordinatesTransform),
                                     Triangle2D.Transform(tri, matrix),
@@ -128,6 +220,11 @@ namespace OpenSage.Gui.Apt
                         }
                 }
             }
+        }
+
+        public void SetWindowSize(Size windowSize)
+        {
+            WindowSize = windowSize;
         }
     }
 }

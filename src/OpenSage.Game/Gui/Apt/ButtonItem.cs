@@ -122,13 +122,14 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        protected override void RenderImpl(AptRenderingContext renderingContext)
         {
-            var button = Character as Button;
-            _curTransform = pTransform * Transform;
-            _curTransform.GeometryTranslation *= renderer.Window.GetScaling();
-            _curTransform.GeometryRotation.M11 *= renderer.Window.GetScaling().X;
-            _curTransform.GeometryRotation.M22 *= renderer.Window.GetScaling().Y;
+            _curTransform = renderingContext.CurrentTransform * Transform;
+
+            var windowScaling = renderingContext.Window.GetScaling();
+            _curTransform.GeometryTranslation *= windowScaling;
+            _curTransform.GeometryRotation.M11 *= windowScaling.X;
+            _curTransform.GeometryRotation.M22 *= windowScaling.Y;
         }
 
         public override void RunActions(TimeInterval gt)

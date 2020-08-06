@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -57,6 +59,8 @@ namespace OpenSage.Gui.Apt
         public bool Visible { get; set; }
         public int? ClipDepth { get; set; }
 
+        internal RenderTarget ClipMask { get; set; }
+
         /// <summary>
         /// Create a new DisplayItem
         /// </summary>
@@ -70,7 +74,23 @@ namespace OpenSage.Gui.Apt
 
         public virtual void Update(TimeInterval gt) { }
 
-        public virtual void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc) { }
+        public void Render(AptRenderingContext renderingContext)
+        {
+            if (ClipDepth.HasValue)
+            {
+                ClipMask.EnsureSize(renderingContext.WindowSize);
+                renderingContext.SetRenderTarget(ClipMask);
+            }
+
+            RenderImpl(renderingContext);
+
+            if (ClipDepth.HasValue)
+            {
+                renderingContext.SetRenderTarget(null);
+            }
+        }
+
+        protected virtual void RenderImpl(AptRenderingContext renderingContext) { }
 
         public virtual void RunActions(TimeInterval gt) { }
 

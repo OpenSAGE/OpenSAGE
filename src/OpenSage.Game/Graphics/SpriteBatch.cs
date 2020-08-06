@@ -13,6 +13,7 @@ namespace OpenSage.Graphics
     public sealed class SpriteBatch : DisposableBase
     {
         private readonly SpriteShaderResources _spriteShaderResources;
+        private readonly Texture _solidWhiteTexture;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Pipeline _pipeline;
         private readonly ConstantBuffer<SpriteShaderResources.MaterialConstantsVS> _materialConstantsVSBuffer;
@@ -35,6 +36,7 @@ namespace OpenSage.Graphics
             in OutputDescription outputDescription)
         {
             _spriteShaderResources = loadContext.ShaderResources.Sprite;
+            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
             _graphicsDevice = loadContext.GraphicsDevice;
 
             _pipeline = loadContext.ShaderResources.Sprite.GetCachedPipeline(
@@ -143,11 +145,13 @@ namespace OpenSage.Graphics
             in bool flipped = false,
             SpriteFillMethod fillMethod = SpriteFillMethod.Normal,
             float fillAmount = 0.0f,
-            bool grayscale = false)
+            bool grayscale = false,
+            Texture alphaMask = null)
         {
             ref var batchItem = ref CreateBatchItem();
 
             batchItem.Texture = image;
+            batchItem.AlphaMask = alphaMask;
 
             var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
@@ -176,11 +180,13 @@ namespace OpenSage.Graphics
             Vector2 origin,
             in Vector2 scale,
             in ColorRgbaF color,
-            in bool flipped = false)
+            in bool flipped = false,
+            Texture alphaMask = null)
         {
             ref var batchItem = ref CreateBatchItem();
 
             batchItem.Texture = image;
+            batchItem.AlphaMask = alphaMask;
 
             var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
@@ -212,11 +218,13 @@ namespace OpenSage.Graphics
             in Triangle2D sourceTriangle,
             in Triangle2D destinationTriangle,
             in ColorRgbaF tintColor,
-            in bool flipped = false)
+            in bool flipped = false,
+            Texture alphaMask = null)
         {
             ref var batchItem = ref CreateBatchItem();
 
             batchItem.Texture = texture;
+            batchItem.AlphaMask = alphaMask;
 
             var textureCoordinates = GetTriangleUV(sourceTriangle, texture, flipped);
 
@@ -262,6 +270,9 @@ namespace OpenSage.Graphics
                 var textureResourceSet = GetTextureResourceSet(batchItem.Texture);
                 _commandList.SetGraphicsResourceSet(2, textureResourceSet);
 
+                var alphaMaskResourceSet = GetAlphaMaskResourceSet(batchItem.AlphaMask ?? _solidWhiteTexture);
+                _commandList.SetGraphicsResourceSet(3, alphaMaskResourceSet);
+
                 _commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
 
                 var indexCount = batchItem.ItemType == SpriteBatchItemType.Quad ? 6u : 3u;
@@ -280,9 +291,21 @@ namespace OpenSage.Graphics
             return result;
         }
 
+        private ResourceSet GetAlphaMaskResourceSet(Texture alphaMask)
+        {
+            // TODO: Clear not-recently-used textures from the cache.
+            if (!_textureResourceSets.TryGetValue(alphaMask, out var result))
+            {
+                result = AddDisposable(_spriteShaderResources.CreateAlphaMaskResourceSet(alphaMask));
+                _textureResourceSets.Add(alphaMask, result);
+            }
+            return result;
+        }
+
         private struct SpriteBatchItem
         {
             public Texture Texture;
+            public Texture AlphaMask;
 
             public SpriteBatchItemType ItemType;
 

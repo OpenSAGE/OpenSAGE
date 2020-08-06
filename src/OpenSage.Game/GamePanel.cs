@@ -11,9 +11,7 @@ namespace OpenSage
 
         public Framebuffer Framebuffer => _renderTarget.Framebuffer;
 
-        public OutputDescription OutputDescription { get; } = new OutputDescription(
-            null,
-            new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
+        public OutputDescription OutputDescription { get; } = RenderTarget.OutputDescription;
 
         public event EventHandler ClientSizeChanged;
 
