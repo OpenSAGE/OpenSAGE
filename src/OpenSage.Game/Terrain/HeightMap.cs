@@ -107,6 +107,13 @@ namespace OpenSage.Terrain
             return result;
         }
 
+        public Vector2 GetHeightMapPosition(in Vector3 worldPosition)
+        {
+            return
+                ((worldPosition / HorizontalScale) + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0))
+                .Vector2XY();
+        }
+
         public Vector3[,] Normals { get; }
 
         public HeightMap(HeightMapData heightMapData)

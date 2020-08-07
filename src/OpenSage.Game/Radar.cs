@@ -102,7 +102,7 @@ namespace OpenSage
                 DrawRadarItem(item, drawingContext, objectTransform);
             }
 
-            //DrawCameraFrustum(drawingContext, objectTransform);
+            DrawCameraFrustum(drawingContext, objectTransform);
         }
 
         private void DrawRadarItem(
@@ -135,13 +135,7 @@ namespace OpenSage
 
         private Vector2? WorldToRadarSpace(in Vector3 worldPosition, in Matrix3x2 miniMapTransform)
         {
-            var tilePosition = _scene.Terrain.HeightMap.GetTilePosition(worldPosition);
-            if (tilePosition == null)
-            {
-                return null;
-            }
-
-            var position2D = new Vector2(tilePosition.Value.X, tilePosition.Value.Y);
+            var position2D = _scene.Terrain.HeightMap.GetHeightMapPosition(worldPosition);
 
             // Invert y.
             position2D.Y = _scene.Terrain.HeightMap.Height - position2D.Y;
@@ -160,7 +154,34 @@ namespace OpenSage
 
         private void DrawCameraFrustum(DrawingContext2D drawingContext, Matrix3x2 miniMapTransform)
         {
+            // Create rays from camera position through each corner of the near plane.
             var frustumCorners = _scene.Camera.BoundingFrustum.Corners;
+            var cameraPosition = _scene.Camera.Position;
+
+            var groundPlane = new Plane(Vector3.UnitZ, 0);
+
+            Vector3? GetGroundIntersectionPoint(int index)
+            {
+                var ray = new Ray(cameraPosition, Vector3.Normalize(frustumCorners[index] - cameraPosition));
+
+                var distance = ray.Intersects(groundPlane);
+                if (distance == null)
+                {
+                    return null;
+                }
+
+                return ray.Position + ray.Direction * distance.Value;
+            }
+
+            var terrain0 = GetGroundIntersectionPoint(0);
+            var terrain1 = GetGroundIntersectionPoint(1);
+            var terrain2 = GetGroundIntersectionPoint(2);
+            var terrain3 = GetGroundIntersectionPoint(3);
+
+            if (terrain0 == null || terrain1 == null || terrain2 == null || terrain3 == null)
+            {
+                return;
+            }
 
             void DrawFrustumLine(in Vector3 v0, in Vector3 v1)
             {
@@ -178,8 +199,10 @@ namespace OpenSage
                     new ColorRgbaF(1, 1, 0, 1));
             }
 
-            //DrawFrustumLine(frustumCorners[0], frustumCorners[4]);
-            //DrawFrustumLine(frustumCorners[0], frustumCorners[1]);
+            DrawFrustumLine(terrain0.Value, terrain1.Value);
+            DrawFrustumLine(terrain1.Value, terrain2.Value);
+            DrawFrustumLine(terrain2.Value, terrain3.Value);
+            DrawFrustumLine(terrain3.Value, terrain0.Value);
         }
 
         internal void Load(BinaryReader reader)
