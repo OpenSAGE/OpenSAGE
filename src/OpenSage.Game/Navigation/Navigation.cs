@@ -71,6 +71,7 @@ namespace OpenSage.Navigation
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
+            PathOptimizer.SmoothPath(route, _graph);
 
             foreach (var node in route)
             {
