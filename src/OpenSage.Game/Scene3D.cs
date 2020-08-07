@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -51,6 +52,8 @@ namespace OpenSage
 
         public readonly MapFile MapFile;
 
+        public readonly MapCache MapCache;
+
         public readonly Terrain.Terrain Terrain;
         public bool ShowTerrain { get; set; } = true;
 
@@ -93,8 +96,10 @@ namespace OpenSage
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
-        internal Scene3D(Game game, MapFile mapFile, int randomSeed)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile)
+        public readonly Radar Radar;
+
+        internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             var contentManager = game.ContentManager;
 
@@ -253,7 +258,7 @@ namespace OpenSage
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null)
+            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             _players = new List<Player>();
             _teams = new List<Team>();
@@ -272,7 +277,7 @@ namespace OpenSage
             CameraController = cameraController;
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile)
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
             Camera = new Camera(getViewport);
 
@@ -290,6 +295,20 @@ namespace OpenSage
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 
+            if (mapPath != null)
+            {
+                var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
+                if (mapCache == null)
+                {
+                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(game.UserDataFolder, mapPath).ToLower());
+                }
+                if (mapCache == null)
+                {
+                    throw new Exception($"Failed to load MapCache \"{mapPath}\"");
+                }
+                MapCache = mapCache;
+            }
+
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
@@ -301,13 +320,16 @@ namespace OpenSage
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
 
+            Radar = new Radar(this, game.AssetStore, MapCache);
+
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
                 _particleSystemManager,
                 new ObjectCreationListManager(),
                 Terrain,
-                Navigation);
+                Navigation,
+                Radar);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(

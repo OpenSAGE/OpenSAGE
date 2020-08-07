@@ -87,17 +87,12 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var maxHealth = reader.ReadSingle(); // 1000.0f
-            var currentHealth = reader.ReadSingle(); // 1000.0f (or this is maxHealth)
+            var currentHealth1 = reader.ReadSingle(); // These two values
+            var currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
 
-            var currentHealth2 = reader.ReadSingle();
-            if (currentHealth != currentHealth2)
-            {
-                throw new InvalidDataException();
-            }
-
-            var currentHealth3 = reader.ReadSingle();
-            if (currentHealth != currentHealth3)
+            var maxHealth1 = reader.ReadSingle();
+            var maxHealth2 = reader.ReadSingle();
+            if (maxHealth1 != maxHealth2)
             {
                 throw new InvalidDataException();
             }

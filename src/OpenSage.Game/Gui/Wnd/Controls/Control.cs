@@ -212,6 +212,20 @@ namespace OpenSage.Gui.Wnd.Controls
             DrawCallback = DefaultDraw;
         }
 
+        public virtual Rectangle RectangleToWindow(in Rectangle rectangle)
+        {
+            var result = rectangle;
+
+            var parent = Parent;
+            while (parent != null)
+            {
+                result = result.WithLocation(new Point2D(result.X + Bounds.X, result.Y + Bounds.Y));
+                parent = parent.Parent;
+            }
+
+            return result;
+        }
+
         public virtual Point2D PointToClient(in Point2D point)
         {
             Point2D result;

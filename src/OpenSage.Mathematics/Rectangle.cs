@@ -70,6 +70,11 @@ namespace OpenSage.Mathematics
                 && point.Y <= Bottom;
         }
 
+        public Rectangle WithLocation(in Point2D location)
+        {
+            return new Rectangle(location, Size);
+        }
+
         public RectangleF ToRectangleF()
         {
             return new RectangleF(X, Y, Width, Height);

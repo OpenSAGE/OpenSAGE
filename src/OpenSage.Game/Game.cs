@@ -569,7 +569,7 @@ namespace OpenSage
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile, Environment.TickCount);
+            return new Scene3D(this, mapFile, mapPath, Environment.TickCount);
         }
 
         public Window LoadWindow(string wndFileName)
@@ -613,23 +613,12 @@ namespace OpenSage
             }
 
             Scene3D = mapFile != null
-                ? new Scene3D(this, mapFile, Environment.TickCount)
+                ? new Scene3D(this, mapFile, mapFileName, Environment.TickCount)
                 : LoadMap(mapFileName);
 
             if (Scene3D == null)
             {
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
-            }
-
-            var mapCache = AssetStore.MapCaches.GetByName(mapFileName.ToLower());
-            if (mapCache == null)
-            {
-                mapCache = AssetStore.MapCaches.GetByName(Path.Combine(UserDataFolder, mapFileName).ToLower());
-            }
-
-            if (mapCache == null)
-            {
-                throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
             }
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
@@ -638,8 +627,8 @@ namespace OpenSage
             {
                 var players = new Player[playerSettings.Length + 1];
 
-                var availablePositions = new List<int>(mapCache.NumPlayers);
-                for (var a = 1; a <= mapCache.NumPlayers; a++)
+                var availablePositions = new List<int>(Scene3D.MapCache.NumPlayers);
+                for (var a = 1; a <= Scene3D.MapCache.NumPlayers; a++)
                 {
                     availablePositions.Add(a);
                 }
@@ -716,7 +705,7 @@ namespace OpenSage
             // Scripts should be enabled in all games, even replays
             Scripting.Active = true;
 
-            CurrentMap = mapCache;
+            CurrentMap = Scene3D.MapCache;
         }
 
         public void StartCampaign(string side)

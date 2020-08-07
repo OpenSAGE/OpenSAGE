@@ -624,9 +624,6 @@ namespace OpenSage.Mods.Generals.Gui
             // Textures are set by ControlBar
             ApplyBounds("ButtonLarge", "MinMax");
 
-            // TODO: Hide left HUD until we implement the minimap.
-            FindControl("LeftHUD").Hide();
-
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;
             rightHud.BackgroundColor = ColorRgbaF.Transparent;

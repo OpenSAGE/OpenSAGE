@@ -14,6 +14,7 @@ namespace OpenSage
         public readonly ObjectCreationListManager ObjectCreationLists;
         public readonly Terrain.Terrain Terrain;
         public readonly Navigation.Navigation Navigation;
+        public readonly Radar Radar;
 
         public readonly Random Random = new Random();
 
@@ -26,7 +27,8 @@ namespace OpenSage
             ParticleSystemManager particleSystems,
             ObjectCreationListManager objectCreationLists,
             Terrain.Terrain terrain,
-            Navigation.Navigation navigation)
+            Navigation.Navigation navigation,
+            Radar radar)
         {
             AssetLoadContext = assetLoadContext;
             AudioSystem = audioSystem;
@@ -34,6 +36,7 @@ namespace OpenSage
             ObjectCreationLists = objectCreationLists;
             Terrain = terrain;
             Navigation = navigation;
+            Radar = radar;
         }
     }
 }

@@ -316,20 +316,15 @@ namespace OpenSage.Data.Sav
                                         var moduleStart = reader.BaseStream.Position;
                                         var moduleEnd = moduleStart + moduleLengthInBytes;
 
-                                        var module = gameObject.GetModuleByTag(moduleTag);
+                                        reader.ReadBytes((int) moduleLengthInBytes);
 
-                                        if (module.GetType() == typeof(AIUpdate))
-                                        {
-                                            File.WriteAllBytes("AIUpdate " + gameState.DisplayName, reader.ReadBytes((int) moduleLengthInBytes));
-                                            reader.BaseStream.Seek(moduleStart, SeekOrigin.Begin);
-                                        }
+                                        //var module = gameObject.GetModuleByTag(moduleTag);
+                                        //module.Load(reader);
 
-                                        module.Load(reader);
-
-                                        if (reader.BaseStream.Position != moduleEnd)
-                                        {
-                                            throw new InvalidDataException($"Error parsing module '{moduleTag}' (type {module.GetType().Name}, started at {moduleStart:X8}) in object with definition {gameObject.Definition.Name}. Expected stream to be at position {moduleEnd:X8} but was at {reader.BaseStream.Position:X8}.");
-                                        }
+                                        //if (reader.BaseStream.Position != moduleEnd)
+                                        //{
+                                        //    throw new InvalidDataException($"Error parsing module '{moduleTag}' (type {module.GetType().Name}, started at {moduleStart:X8}) in object with definition {gameObject.Definition.Name}. Expected stream to be at position {moduleEnd:X8} but was at {reader.BaseStream.Position:X8}.");
+                                        //}
                                     }
 
                                     reader.ReadBytes(9);
@@ -572,8 +567,10 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_Radar":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-                            break;
+                            {
+                                game.Scene3D.Radar.Load(reader);
+                                break;
+                            }
 
                         case "CHUNK_ScriptEngine":
                             stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
