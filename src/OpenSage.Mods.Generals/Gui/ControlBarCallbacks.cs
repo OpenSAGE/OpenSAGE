@@ -29,5 +29,12 @@ namespace OpenSage.Mods.Generals.Gui
                     break;
             }
         }
+
+        public static void W3DLeftHUDDraw(Control control, DrawingContext2D drawingContext)
+        {
+            control.Window.Game.Scene3D.Radar.Draw(
+                drawingContext,
+                control.ClientRectangle);
+        }
     }
 }

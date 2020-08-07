@@ -91,7 +91,7 @@ namespace OpenSage.Terrain
             (y - _heightMapData.BorderWidth) * HorizontalScale,
             GetHeight(x, y));
 
-        public (int X, int Y)? GetTilePosition(Vector3 worldPosition)
+        public (int X, int Y)? GetTilePosition(in Vector3 worldPosition)
         {
             var tilePosition = (worldPosition / HorizontalScale) 
                 + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0);
