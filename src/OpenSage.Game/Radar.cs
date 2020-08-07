@@ -48,6 +48,34 @@ namespace OpenSage
             // TODO: Fog of war / shroud
         }
 
+        public Vector3 RadarToWorldSpace(Point2D mousePosition, in Mathematics.Rectangle destinationRectangle)
+        {
+            var miniMapTransform = RectangleF.CalculateTransformForRectangleFittingAspectRatio(
+                new RectangleF(0, 0, _miniMapTexture.Width, _miniMapTexture.Height),
+                new SizeF(_miniMapTexture.Width, _miniMapTexture.Height),
+                destinationRectangle.Size);
+
+            Matrix3x2.Invert(miniMapTransform, out var miniMapTransformInverse);
+
+            // Transform by inverse of miniMapTransform
+            var position2D = Vector2.Transform(
+                mousePosition.ToVector2(),
+                miniMapTransformInverse);
+
+            // Divide by minimap texture size.
+            position2D.X /= _miniMapTexture.Width;
+            position2D.Y /= _miniMapTexture.Height;
+
+            // Multiply position by map size.
+            position2D.X *= _scene.Terrain.HeightMap.Width;
+            position2D.Y *= _scene.Terrain.HeightMap.Height;
+
+            // Invert y.
+            position2D.Y = _scene.Terrain.HeightMap.Height - position2D.Y;
+
+            return _scene.Terrain.HeightMap.GetPosition((int) position2D.X, (int) position2D.Y);
+        }
+
         public void AddGameObject(GameObject gameObject)
         {
             switch (gameObject.Definition.RadarPriority)
@@ -192,6 +220,8 @@ namespace OpenSage
                 {
                     return;
                 }
+
+                // TODO: Clip lines to destination rectangle.
 
                 drawingContext.DrawLine(
                     new Line2D(v0Radar.Value, v1Radar.Value),
