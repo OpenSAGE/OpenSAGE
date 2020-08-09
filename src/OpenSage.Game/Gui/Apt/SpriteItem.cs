@@ -100,6 +100,11 @@ namespace OpenSage.Gui.Apt
                 }
             }
 
+            // In case the clipMask wans't cleared inside the loop
+            if (clipDepth > 0)
+            {
+                renderingContext.SetClipMask(null);
+            }
             renderingContext.PopTransform();
         }
 

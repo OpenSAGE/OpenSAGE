@@ -11,7 +11,7 @@ namespace OpenSage.Diagnostics
     {
         public override string DisplayName { get; } = "APT Windows";
         private DisplayItem _selectedItem;
-
+        private int? _currentClipDepth;
 
         public AptView(DiagnosticViewContext context)
             : base(context)
@@ -66,7 +66,7 @@ namespace OpenSage.Diagnostics
                     ImGuiUtility.PropertyRow("ClipDepth", _selectedItem.ClipDepth);
                     ImGuiUtility.EndPropertyList();
 
-                    switch(_selectedItem)
+                    switch (_selectedItem)
                     {
                         case SpriteItem si:
                             ImGuiUtility.BeginPropertyList();
@@ -86,7 +86,7 @@ namespace OpenSage.Diagnostics
                             }
                             break;
                         case RenderItem ri:
-                            if(_selectedItem.Character is Text)
+                            if (_selectedItem.Character is Text)
                             {
                                 var text = _selectedItem.Character as Text;
                                 ImGuiUtility.BeginPropertyList();
@@ -142,6 +142,16 @@ namespace OpenSage.Diagnostics
         {
             var treeNodeFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick;
 
+            if (_currentClipDepth.HasValue && (depth > _currentClipDepth.Value))
+            {
+                _currentClipDepth = null;
+            }
+
+            if (item.ClipDepth.HasValue)
+            {
+                _currentClipDepth = item.ClipDepth;
+            }
+
             if (!(item is SpriteItem))
             {
                 treeNodeFlags = ImGuiTreeNodeFlags.Leaf;
@@ -152,7 +162,22 @@ namespace OpenSage.Diagnostics
                 treeNodeFlags |= ImGuiTreeNodeFlags.Selected;
             }
 
+            if(item.ClipDepth.HasValue)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.5f, 1.0f, 0.5f, 1.0f));
+            }
+            else if (_currentClipDepth.HasValue)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+            }
+
             var opened = ImGui.TreeNodeEx($"[{depth}] {item.Name}", treeNodeFlags);
+
+            if (_currentClipDepth.HasValue)
+            {
+                ImGui.PopStyleColor();
+            }
+
             ImGuiUtility.DisplayTooltipOnHover("MovieClip: " + item.Character.Container.MovieName);
 
             if (ImGuiNative.igIsItemClicked(0) > 0)
