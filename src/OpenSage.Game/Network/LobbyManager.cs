@@ -34,7 +34,7 @@ namespace OpenSage.Network
             {
                 BroadcastReceiveEnabled = true,
                 ReuseAddress = true,
-                IPv6Enabled = false, // TODO: temporary
+                IPv6Enabled = IPv6Mode.Disabled, // TODO: temporary
             };
 
             _processor = new NetPacketProcessor();

@@ -18,7 +18,7 @@ namespace OpenSage.Network
             StorePacket(new SkirmishOrderPacket
             {
                 Frame = frame,
-                Orders = orders.ToArray()
+                Orders = orders
             });
         }
 
@@ -26,9 +26,9 @@ namespace OpenSage.Network
         {
             _receivedPackets.Add(packet);
 
-            if (packet.Orders.Length > 0)
+            if (packet.Orders.Count > 0)
             {
-                Logger.Trace($"Storing packet for frame {packet.Frame} with {packet.Orders.Length} orders, count is {_receivedPackets.Count}");
+                Logger.Trace($"Storing packet for frame {packet.Frame} with {packet.Orders.Count} orders, count is {_receivedPackets.Count}");
             }
         }
 
@@ -42,7 +42,7 @@ namespace OpenSage.Network
 
             foreach (var packet in _receivedPackets)
             {
-                if (packet.Orders.Length > 0)
+                if (packet.Orders.Count > 0)
                 {
                     Logger.Trace($"  Processing received packet scheduled for frame {packet.Frame} in frame {frame}");
                 }
