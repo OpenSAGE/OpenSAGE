@@ -54,9 +54,9 @@ namespace OpenSage.Tools.BigTool
 
         static bool ValidateInputFiles(Options opts)
         {
-            if(opts.List || opts.Update || opts.Delete )
+            if (opts.List || opts.Update || opts.Delete )
             {
-                if(!File.Exists(opts.ArchiveName))
+                if (!File.Exists(opts.ArchiveName))
                 {
                     Console.WriteLine("Specified archive does not exist ({0})", opts.ArchiveName);
                     return false;
@@ -80,7 +80,7 @@ namespace OpenSage.Tools.BigTool
 
         static bool ValidateOptions(Options opts)
         {
-            if(!opts.List && !opts.Extract && !opts.Files.Any())
+            if (!opts.List && !opts.Extract && !opts.Files.Any())
             {
                 Console.WriteLine("Must pass any files as arguments");
                 return false;
@@ -115,7 +115,7 @@ namespace OpenSage.Tools.BigTool
                     Console.WriteLine("deleting: {0}", entryName);
                     entry.Delete();
                 }
-                catch(InvalidOperationException e)
+                catch (InvalidOperationException e)
                 {
                     Console.WriteLine(e.Message + ": " + entryName);
                 }
@@ -138,7 +138,7 @@ namespace OpenSage.Tools.BigTool
         {
             BigArchiveEntry entry = null;
 
-            if(!update)
+            if (!update)
             {
                 Console.WriteLine("adding: {0}", filepath);
                 entry = archive.CreateEntry(filepath);
@@ -210,7 +210,7 @@ namespace OpenSage.Tools.BigTool
                 using (var entryStream = entry.Open())
                 {
                     var dirName = Path.GetDirectoryName(entry.FullName);
-                    if(!string.IsNullOrEmpty(dirName))
+                    if (!string.IsNullOrEmpty(dirName))
                     {
                         Directory.CreateDirectory(dirName);
                     }
@@ -226,7 +226,7 @@ namespace OpenSage.Tools.BigTool
 
         static void RunOptions(Options opts)
         {
-            if(!ValidateOptions(opts))
+            if (!ValidateOptions(opts))
             {
                 return;
             }
@@ -236,25 +236,25 @@ namespace OpenSage.Tools.BigTool
                 return;
             }
 
-            if(opts.List)
+            if (opts.List)
             {
                 ListMode(opts);
                 return;
             }
 
-            if(opts.Delete)
+            if (opts.Delete)
             {
                 DeleteMode(opts);
                 return;
             }
 
-            if(opts.Update)
+            if (opts.Update)
             {
                 UpdateMode(opts);
                 return;
             }
 
-            if(opts.Extract)
+            if (opts.Extract)
             {
                 ExtractMode(opts);
                 return;
