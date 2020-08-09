@@ -48,7 +48,7 @@ namespace OpenSage.FileFormats.Big
                 fileShare));
 
             // Read if the archive already exists
-            if(_stream.Length > 0 &&  mode != BigArchiveMode.Create)
+            if (mode != BigArchiveMode.Create)
             {
                 Read();
             }
@@ -260,7 +260,6 @@ namespace OpenSage.FileFormats.Big
                     WriteFileTable(writer, dataStart);
                     WriteFileContent(writer);
                     _stream.Position = 0;
-                    var c = Encoding.ASCII.GetString(outArchive.ToArray());
                     _stream.SetLength(archiveSize);
                     outArchive.WriteTo(_stream);
                     _stream.Flush();
