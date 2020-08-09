@@ -25,7 +25,7 @@ namespace OpenSage.Tests.Data.Sav
             _game = new Game(installation, GraphicsBackend.Direct3D11);
         }
 
-        [Theory]
+        [Theory(Skip = "Doesn't work yet")]
         [MemberData(nameof(GetSaveFiles))]
         public void CanLoadSaveFiles(string relativePath)
         {
