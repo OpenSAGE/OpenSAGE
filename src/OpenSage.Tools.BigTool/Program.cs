@@ -54,7 +54,7 @@ namespace OpenSage.Tools.BigTool
 
         static bool ValidateInputFiles(Options opts)
         {
-            if (opts.List || opts.Update || opts.Delete )
+            if (opts.List || opts.Update || opts.Delete)
             {
                 if (!File.Exists(opts.ArchiveName))
                 {
@@ -91,7 +91,7 @@ namespace OpenSage.Tools.BigTool
 
         static void ListMode(Options opts)
         {
-            var archive = new BigArchive(opts.ArchiveName,BigArchiveMode.Read);
+            var archive = new BigArchive(opts.ArchiveName, BigArchiveMode.Read);
             Console.WriteLine("Archive: " + Path.GetFileName(archive.FilePath));
 
             var table = new ConsoleTable("Length", "Name");
@@ -160,7 +160,7 @@ namespace OpenSage.Tools.BigTool
             using (var entryStream = entry.Open())
             {
                 using (var fileStream = File.OpenRead(filepath))
-                {    
+                {
                     fileStream.CopyTo(entryStream);
                 }
             }
