@@ -339,7 +339,7 @@ namespace OpenSage.Data.Sav
 
                                     reader.ReadBooleanChecked();
                                     var someCount3 = reader.ReadUInt32();
-                                    for (var i = 0; i < someCount2; i++)
+                                    for (var i = 0; i < someCount3; i++)
                                     {
                                         var condition = reader.ReadBytePrefixedAsciiString();
                                     }
@@ -472,6 +472,12 @@ namespace OpenSage.Data.Sav
                                         var volumeType = reader.ReadUInt32AsEnum<ParticleVolumeType>();
                                         switch (volumeType)
                                         {
+                                            case ParticleVolumeType.Point:
+                                                break;
+                                            case ParticleVolumeType.Line:
+                                                var lineStartPoint = reader.ReadVector3();
+                                                var lineEndPoint = reader.ReadVector3();
+                                                break;
                                             case ParticleVolumeType.Sphere:
                                                 var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
                                                 break;
