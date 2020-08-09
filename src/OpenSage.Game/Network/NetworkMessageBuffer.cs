@@ -7,10 +7,11 @@ namespace OpenSage.Network
     public sealed class NetworkMessageBuffer : DisposableBase
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private readonly List<Order> _localOrders;
+
         private readonly IConnection _connection;
         private readonly OrderProcessor _orderProcessor;
 
+        private List<Order> _localOrders;
         private uint _netFrameNumber;
 
         //TODO: use this for generating a replay file later on
@@ -33,7 +34,9 @@ namespace OpenSage.Network
         {
             _connection.Send(_netFrameNumber, _localOrders);
 
-            _localOrders.Clear();
+            // create a new list instead of clearing, otherwise
+            // we would need to copy the list in _connection.Send
+            _localOrders = new List<Order>();
 
             _connection.Receive(
                 _netFrameNumber,

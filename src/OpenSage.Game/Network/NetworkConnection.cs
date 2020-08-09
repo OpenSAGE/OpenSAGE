@@ -33,7 +33,7 @@ namespace OpenSage.Network
             _manager = new NetManager(_listener)
             {
                 ReuseAddress = true,
-                IPv6Enabled = false, // TODO: temporary
+                IPv6Enabled = IPv6Mode.Disabled, // TODO: temporary
             };
 
             if (Debugger.IsAttached)
@@ -46,7 +46,7 @@ namespace OpenSage.Network
 
             _listener.ConnectionRequestEvent += request =>
             {
-                Logger.Trace($"Accepting connection from {request.RemoteEndPoint} ({request.Type})");
+                Logger.Trace($"Accepting connection from {request.RemoteEndPoint}");
 
                 var peer = request.Accept();
 
@@ -56,7 +56,7 @@ namespace OpenSage.Network
             _listener.NetworkReceiveEvent += (NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod) => _processor.ReadAllPackets(reader);
 
             _writer = new NetDataWriter();
-            _processor = new NetPacketProcessor();
+            _processor = new NetPacketProcessor();            
             _processor.RegisterNestedType<Order>(WriteOrder, ReadOrder);
             _processor.Subscribe<SkirmishOrderPacket>(packet =>
             {
@@ -138,7 +138,7 @@ namespace OpenSage.Network
             var packet = new SkirmishOrderPacket()
             {
                 Frame = scheduledFrame,
-                Orders = orders.ToArray() // TODO optimize
+                Orders = orders
             };
 
             _processor.Write(_writer, packet);

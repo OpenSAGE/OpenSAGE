@@ -39,7 +39,7 @@ namespace OpenSage.Network
             _manager = new NetManager(_listener)
             {
                 ReuseAddress = true,
-                IPv6Enabled = false, // TODO: temporary
+                IPv6Enabled = IPv6Mode.Disabled, // TODO: temporary
             };
 
             _writer = new NetDataWriter();

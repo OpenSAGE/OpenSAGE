@@ -6,6 +6,6 @@ namespace OpenSage.Network.Packets
     public class SkirmishOrderPacket
     {
         public uint Frame { get; set; }
-        public Order[] Orders { get; set; }
+        public List<Order> Orders { get; set; }
     }
 }
