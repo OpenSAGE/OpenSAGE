@@ -195,11 +195,6 @@ namespace OpenSage
             _closing = true;
         }
 
-        public void SetCursor(Cursor cursor)
-        {
-            // TODO
-        }
-
         public bool PumpEvents()
         {
             CurrentInputSnapshot = _window.PumpEvents();
