@@ -954,6 +954,7 @@ namespace OpenSage.Data.Ini
 
         public void ParseFile()
         {
+            // the 'credits.ini' of ROTWK has a commented out starting block -> invalid
             if (SageGame == SageGame.Bfme2Rotwk && CurrentPosition.File.EndsWith("credits.ini")) return;
 
             while (!_tokenReader.EndOfFile)
