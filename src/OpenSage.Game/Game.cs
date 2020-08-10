@@ -52,12 +52,11 @@ namespace OpenSage
         private readonly FileSystem _userDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
-        private readonly Dictionary<string, Cursor> _cachedCursors;
-        private Cursor _currentCursor;
-
         private readonly DeveloperModeView _developerModeView;
 
         private readonly TextureCopier _textureCopier;
+
+        internal readonly CursorManager Cursors;
 
         internal GraphicsLoadContext GraphicsLoadContext { get; }
         public AssetStore AssetStore { get; }
@@ -397,8 +396,6 @@ namespace OpenSage
                 _renderTimer = AddDisposable(new DeltaTimer());
                 _renderTimer.Start();
 
-                _cachedCursors = new Dictionary<string, Cursor>();
-
                 _wndCallbackResolver = new WndCallbackResolver();
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
@@ -457,7 +454,8 @@ namespace OpenSage
 
                 GameSystems.ForEach(gs => gs.Initialize());
 
-                SetCursor("Arrow");
+                Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager));
+                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
 
                 var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
 
@@ -498,52 +496,6 @@ namespace OpenSage
             Scene2D.AptWindowManager.OnViewportSizeChanged(newSize);
 
             Scene3D?.Camera.OnViewportSizeChanged();
-        }
-
-        // Needed by Data Viewer.
-        public void SetCursor(Cursor cursor)
-        {
-            _currentCursor = cursor;
-
-            Panel.SetCursor(cursor);
-        }
-
-        public void SetCursor(string cursorName)
-        {
-            if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
-            {
-                var mouseCursor = AssetStore.MouseCursors.GetByName(cursorName);
-                if (mouseCursor == null)
-                {
-                    return;
-                }
-
-                var cursorFileName = mouseCursor.Image;
-                if (string.IsNullOrEmpty(Path.GetExtension(cursorFileName)))
-                {
-                    cursorFileName += ".ani";
-                }
-
-                string cursorDirectory;
-                switch (SageGame)
-                {
-                    case SageGame.Cnc3:
-                    case SageGame.Cnc3KanesWrath:
-                        // TODO: Get version number dynamically.
-                        cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
-                        break;
-
-                    default:
-                        cursorDirectory = Path.Combine("Data", "Cursors");
-                        break;
-                }
-
-                var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
-
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorFilePath));
-            }
-
-            SetCursor(cursor);
         }
 
         public void ShowMainMenu()
@@ -897,6 +849,8 @@ namespace OpenSage
                     playerSettings,
                     SkirmishManager.SkirmishGame.LocalSlot);
             }
+
+            Cursors.Update(RenderTime);
         }
 
         private void CheckGlobalHotkeys()

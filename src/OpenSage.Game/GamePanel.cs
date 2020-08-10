@@ -21,11 +21,6 @@ namespace OpenSage
 
         public Rectangle ClientBounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
 
-        public void SetCursor(Cursor cursor)
-        {
-            // TODO
-        }
-
         internal GamePanel(GraphicsDevice graphicsDevice)
         {
             _renderTarget = AddDisposable(new RenderTarget(graphicsDevice));
