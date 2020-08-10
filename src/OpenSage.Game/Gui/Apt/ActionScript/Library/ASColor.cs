@@ -1,37 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    public sealed class ASColor : ObjectContext
+    internal sealed class ASColor : BuiltinClass
     {
         private ColorRgba _color = ColorRgba.White;
-        private readonly Dictionary<string, Action<ObjectContext, Value[]>> _builtinFunctions;
 
-        public ASColor()
+        public ASColor() : base()
         {
             //list of builtin functions
-            _builtinFunctions = new Dictionary<string, Action<ObjectContext, Value[]>>
-            {
-                ["setRGB"] = (ObjectContext ctx, Value[] args) => { _color = ColorRgba.FromHex(_color, args.First().ToString()); }
-            };
+            _builtinFunctions.Add("setRGB", setRGB);
         }
 
-        public override bool IsBuiltInFunction(string name)
+        private Value setRGB(Value[] args)
         {
-            if (_builtinFunctions.ContainsKey(name))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public override void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
-        {
-            _builtinFunctions[name](this, args);
+            _color = ColorRgba.FromHex(_color, args.First().ToString());
+            return Value.Undefined();
         }
     }
 }
