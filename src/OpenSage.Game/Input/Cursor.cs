@@ -31,23 +31,27 @@ namespace OpenSage.Input
 
                 fixed (byte* pixelsPtr = pixels)
                 {
-                    _surfaces[i] = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
+                    var surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
                         pixelsPtr,
                         width,
                         height,
                         32,
                         width * 4,
                         Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+
+                    AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(surface));
+
+                    _surfaces[i] = surface;
                 }
 
-                AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(_surfaces[i]));
-
-                _cursors[i] = Sdl2Interop.SDL_CreateColorCursor(
+                var cursor = Sdl2Interop.SDL_CreateColorCursor(
                     _surfaces[i],
                     (int) _aniFile.HotspotX,
                     (int) _aniFile.HotspotY);
 
-                AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(_cursors[i]));
+                AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(cursor));
+
+                _cursors[i] = cursor;
             }
         }
 
