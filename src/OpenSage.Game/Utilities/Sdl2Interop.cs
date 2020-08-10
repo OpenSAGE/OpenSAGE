@@ -41,6 +41,30 @@ namespace OpenSage.Utilities
 
         public static void SDL_FreeSurface(SDL_Surface Sdl2Surface) => FreeSurfaceImpl(Sdl2Surface);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int SDL_GetWindowDisplayIndex_Delegate(SDL_Window Sdl2Window);
+
+        private static readonly SDL_GetWindowDisplayIndex_Delegate GetWindowDisplayIndexImpl = Sdl2Native.LoadFunction<SDL_GetWindowDisplayIndex_Delegate>("SDL_GetWindowDisplayIndex");
+
+        public static int SDL_GetWindowDisplayIndex(SDL_Window Sdl2Window) => GetWindowDisplayIndexImpl(Sdl2Window);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate int SDL_GetDisplayDPI_Delegate(int displayIndex, float* ddpi, float* hdpi, float* vdpi);
+
+        private static readonly SDL_GetDisplayDPI_Delegate GetDisplayDPIImpl = Sdl2Native.LoadFunction<SDL_GetDisplayDPI_Delegate>("SDL_GetDisplayDPI");
+
+        public static unsafe void SDL_GetDisplayDPI(int displayIndex, float* ddpi, float* hdpi, float* vdpi) => GetDisplayDPIImpl(displayIndex, ddpi, hdpi, vdpi);
+
+        public static unsafe float GetDisplayScale(int displayIndex)
+        {
+            float hdpi;
+            SDL_GetDisplayDPI(displayIndex, null, &hdpi, null);
+
+            var defaultDpi = PlatformUtility.GetDefaultDpi();
+
+            return hdpi / defaultDpi;
+        }
+
         public struct SDL_Cursor
         {
             public readonly IntPtr NativePointer;

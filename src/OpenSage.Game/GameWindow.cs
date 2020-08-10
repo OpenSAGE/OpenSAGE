@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Input;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -69,7 +70,16 @@ namespace OpenSage
 
             var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
 
-            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, windowState, title);
+            // Get display scale for primary monitor.
+            var displayScale = Sdl2Interop.GetDisplayScale(0);
+
+            var windowCreateInfo = new WindowCreateInfo(
+                (int)(displayScale * x),
+                (int)(displayScale * y),
+                (int)(displayScale * width),
+                (int)(displayScale * height),
+                windowState,
+                title);
 
             var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();
 

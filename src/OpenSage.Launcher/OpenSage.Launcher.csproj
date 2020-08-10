@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;ubuntu-x64</RuntimeIdentifiers>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
   </PropertyGroup>
   
   <ItemGroup>
