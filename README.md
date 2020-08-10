@@ -3,7 +3,7 @@
 
 [![Build Status](https://github.com/OpenSage/OpenSage/workflows/CI/badge.svg)](https://github.com/OpenSAGE/OpenSAGE/actions)
 [![Discord Chat](https://img.shields.io/discord/398393968234332161.svg?logo=discord)](https://discord.gg/G2FhZUT)
-[![codecov](https://codecov.io/gh/OpenSAGE/OpenSAGE/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenSAGE/OpenSAGE)
+<!---[![codecov](https://codecov.io/gh/OpenSAGE/OpenSAGE/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenSAGE/OpenSAGE)--->
 
 **OpenSAGE**: a free, open source re-implementation of [SAGE](https://en.wikipedia.org/wiki/SAGE_(game_engine)), the 3D 
 real time strategy (RTS) engine used in Command & Conquer™: Generals and other 
@@ -16,44 +16,20 @@ planned for macOS at a later date.
 
 ## Work in progress
 
-This project is in the *very* early stages. There is still a long way to go before there's anything playable. 
-The initial focus is on understanding the data formats used in Command & Conquer: Generals and Zero Hour.
+This project is currently able to load and display most dataformats used in SAGE.
+While working on multiple games in parallel the game in focus is Command & Conquer: Generals and Zero Hour.
+The current focus is to *play* a game from start to finish.
 
-Here's a rough roadmap:
-
-### Parse data files
-
-* [x] `.map`
-* [x] `.w3d`
-* [x] `.wak`
-* [x] `.wnd`
-* [x] `.csf`
-* [x] `.ini`
-* [x] `.ani`
-* [x] `.dds`
-* [x] `.tga`
-* [x] `.const`
-* [x] `.apt`
-* [x] `.wav`
-* [x] `.mp3`
-
-### Rendering
-
-* [x] Render 3D models loaded from `.w3d`, including animations
-* [ ] Render maps loaded from `.map` (in progress)
-* [ ] Render particle systems (in progress)
-* [ ] Render GUI loaded from `.wnd` (in progress)
-
-### Game logic
-
-* [ ] Scripting engine (in progress)
-* [ ] APT virtual machine (in progress)
+Here's a rough roadmap how to get there:
+* [X] modified A* pathfinding
 * [ ] AI - Path finding, base building, fighting
 * [ ] Physics engine
-* [ ] Weapons
-* [ ] Locomotors
+* [ ] Weapons (in progress)
+* [ ] Locomotors (in progress)
+* [ ] Specialpowers
+* [ ] Object behaviors (in progress)
 * [ ] Input (keyboard, mouse)
-* [ ] Network play
+* [X] Network play (LAN only so far)
 * [ ] Much more...
 
 ### Platforms
