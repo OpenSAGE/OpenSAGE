@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
+using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Input
 {
@@ -9,13 +10,15 @@ namespace OpenSage.Input
         private readonly Dictionary<string, Cursor> _cachedCursors;
         private Cursor _currentCursor;
 
+        private readonly GameWindow _window;
         private readonly AssetStore _assetStore;
         private readonly ContentManager _contentManager;
 
-        public CursorManager(AssetStore assetStore, ContentManager contentManager)
+        public CursorManager(GameWindow window, AssetStore assetStore, ContentManager contentManager)
         {
             _cachedCursors = new Dictionary<string, Cursor>();
 
+            _window = window;
             _assetStore = assetStore;
             _contentManager = contentManager;
         }
@@ -53,7 +56,7 @@ namespace OpenSage.Input
                 var cursorFilePath = Path.Combine(cursorDirectory, cursorFileName);
                 var cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry));
+                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window));
             }
 
             if (_currentCursor == cursor)

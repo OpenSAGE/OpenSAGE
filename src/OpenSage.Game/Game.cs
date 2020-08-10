@@ -454,7 +454,7 @@ namespace OpenSage
 
                 GameSystems.ForEach(gs => gs.Initialize());
 
-                Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager));
+                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
                 Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
 
                 var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
