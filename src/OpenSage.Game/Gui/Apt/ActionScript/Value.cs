@@ -43,7 +43,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return this;
 
             if (context.Registers.Length - 1 < _number)
-                return Value.FromInteger(_number);
+                return FromInteger(_number);
 
             return context.Registers[_number];
         }
@@ -51,7 +51,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Value ResolveConstant(ActionContext context)
         {
             if (Type != ValueType.Constant)
-                throw new InvalidOperationException();
+                return this;
 
             Value result;
 

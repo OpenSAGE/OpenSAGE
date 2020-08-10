@@ -28,6 +28,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionBase GetInstruction()
         {
+            if (_index < 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
             if (_index - 1 > _instructions.Count)
             {
                 throw new IndexOutOfRangeException();

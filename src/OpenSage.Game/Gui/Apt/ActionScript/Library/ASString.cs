@@ -48,12 +48,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return false;
         }
 
-        public override void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
+        public override void CallBuiltInFunction(ActionContext context, string name, Value[] args)
         {
             Value result = _builtinFunctions[name](args);
             if (result.Type != ValueType.Undefined)
             {
-                actx.Stack.Push(result);
+                context.Push(result);
             }
         }
     }

@@ -75,7 +75,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             bool play = Convert.ToBoolean(Parameters[0].ToInteger() & 0x01);
-            var frame = context.Stack.Pop();
+            var frame = context.Pop();
 
             if (context.Scope.Item is SpriteItem si)
             {

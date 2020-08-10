@@ -198,37 +198,37 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             }
         }
 
-        private static void LoadMovie(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        private static void LoadMovie(ActionContext context, ObjectContext ctx, Value[] args)
         {
             var url = Path.ChangeExtension(args[0].ToString(), ".apt");
-            var window = actionContext.Apt.Window.Manager.Game.LoadAptWindow(url);
+            var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
 
-            actionContext.Apt.Window.Manager.QueryPush(window);
+            context.Apt.Window.Manager.QueryPush(window);
         }
 
-        private static void SetInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        private static void SetInterval(ActionContext context, ObjectContext ctx, Value[] args)
         {
-            var vm = actionContext.Apt.Avm;
-            var name = actionContext.Stack.Pop().ToString();
+            var vm = context.Apt.Avm;
+            var name = context.Pop().ToString();
 
             vm.CreateInterval(name, args[1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
 
             ctx.Variables[name] = Value.FromString(name);
         }
 
-        private static void ClearInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        private static void ClearInterval(ActionContext context, ObjectContext ctx, Value[] args)
         {
-            var vm = actionContext.Apt.Avm;
+            var vm = context.Apt.Avm;
             var name = args[0].ToString();
 
             vm.ClearInterval(name);
             ctx.Variables.Remove(name);
         }
 
-        private static void BoolFunc(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        private static void BoolFunc(ActionContext context, ObjectContext ctx, Value[] args)
         {
             var result = Value.FromBoolean(args[0].ToBoolean());
-            actionContext.Stack.Push(result);
+            context.Push(result);
         }
     }
 }
