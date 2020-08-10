@@ -13,8 +13,7 @@ vec2 GetCloudUV(
     // TODO: Wasteful to do a whole matrix-multiply here when we only need xy.
     vec2 lightSpacePos = (cloudShadowMatrix * vec4(worldPosition, 1)).xy;
 
-    vec2 cloudTextureScale = vec2(1 / 1320.0f, 1 / 1320.0f); // TODO: Read this from Weather.ini
-    //vec2 cloudTextureScale = vec2(1 / 660.0f, 1 / 660.0f); // TODO: Read this from Weather.ini
+    vec2 cloudTextureScale = vec2(1 / 660.0f, 1 / 660.0f); // TODO: Read this from Weather.ini
     vec2 offset = fract(timeInSeconds * vec2(-0.012f, -0.018f)); // TODO: Read this from Weather.ini
 
     return (lightSpacePos * cloudTextureScale) + offset;
