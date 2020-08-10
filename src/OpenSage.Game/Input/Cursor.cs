@@ -15,7 +15,7 @@ namespace OpenSage.Input
         private int _currentSequenceIndex;
         private TimeSpan _nextFrameTime;
 
-        public unsafe Cursor(FileSystemEntry entry)
+        public unsafe Cursor(FileSystemEntry entry, GameWindow window)
         {
             _aniFile = AniFile.FromFileSystemEntry(entry);
 
@@ -24,6 +24,8 @@ namespace OpenSage.Input
 
             _surfaces = new Sdl2Interop.SDL_Surface[_aniFile.Images.Length];
             _cursors = new Sdl2Interop.SDL_Cursor[_aniFile.Images.Length];
+
+            var windowScale = window.WindowScale;
 
             for (var i = 0; i < _aniFile.Images.Length; i++)
             {
@@ -38,6 +40,29 @@ namespace OpenSage.Input
                         32,
                         width * 4,
                         Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+
+                    if (windowScale != 1.0f)
+                    {
+                        var scaledWidth = (int) (windowScale * width);
+                        var scaledHeight = (int) (windowScale * height);
+
+                        var scaledSurface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormat(
+                            0,
+                            scaledWidth,
+                            scaledHeight,
+                            32,
+                            Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+
+                        Sdl2Interop.SDL_BlitScaled(
+                            surface,
+                            new Sdl2Interop.SDL_Rect(0, 0, width, height),
+                            scaledSurface,
+                            new Sdl2Interop.SDL_Rect(0, 0, scaledWidth, scaledHeight));
+
+                        Sdl2Interop.SDL_FreeSurface(surface);
+
+                        surface = scaledSurface;
+                    }
 
                     AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(surface));
 

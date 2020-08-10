@@ -42,6 +42,8 @@ namespace OpenSage
             set => _window.CursorVisible = value;
         }
 
+        public float WindowScale { get; private set; }
+
         public InputSnapshot CurrentInputSnapshot { get; private set; }
 
         public Queue<InputMessage> MessageQueue { get; } = new Queue<InputMessage>();
@@ -71,13 +73,15 @@ namespace OpenSage
             var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
 
             // Get display scale for primary monitor.
-            var displayScale = Sdl2Interop.GetDisplayScale(0);
+            // TODO: Track moving window to a different display,
+            // which may change the scale.
+            WindowScale = Sdl2Interop.GetDisplayScale(0);
 
             var windowCreateInfo = new WindowCreateInfo(
-                (int)(displayScale * x),
-                (int)(displayScale * y),
-                (int)(displayScale * width),
-                (int)(displayScale * height),
+                (int)(WindowScale * x),
+                (int)(WindowScale * y),
+                (int)(WindowScale * width),
+                (int)(WindowScale * height),
                 windowState,
                 title);
 

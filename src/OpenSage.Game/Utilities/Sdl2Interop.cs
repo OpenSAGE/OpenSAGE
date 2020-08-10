@@ -35,11 +35,26 @@ namespace OpenSage.Utilities
         public static unsafe SDL_Surface SDL_CreateRGBSurfaceWithFormatFrom(void* pixels, int width, int height, int depth, int pitch, SDL_PixelFormat format) => CreateRGBSurfaceWithFormatFromImpl(pixels, width, height, depth, pitch, format);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate SDL_Surface SDL_CreateRGBSurfaceWithFormat_Delegate(uint flags, int width, int height, int depth, SDL_PixelFormat format);
+
+        private static readonly SDL_CreateRGBSurfaceWithFormat_Delegate CreateRGBSurfaceWithFormatImpl = Sdl2Native.LoadFunction<SDL_CreateRGBSurfaceWithFormat_Delegate>("SDL_CreateRGBSurfaceWithFormat");
+
+        public static unsafe SDL_Surface SDL_CreateRGBSurfaceWithFormat(uint flags, int width, int height, int depth, SDL_PixelFormat format) => CreateRGBSurfaceWithFormatImpl(flags, width, height, depth, format);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_FreeSurface_Delegate(SDL_Surface Sdl2Surface);
 
         private static readonly SDL_FreeSurface_Delegate FreeSurfaceImpl = Sdl2Native.LoadFunction<SDL_FreeSurface_Delegate>("SDL_FreeSurface");
 
         public static void SDL_FreeSurface(SDL_Surface Sdl2Surface) => FreeSurfaceImpl(Sdl2Surface);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int SDL_BlitScaled_Delegate(SDL_Surface src, SDL_Rect srcRect, SDL_Surface dst, SDL_Rect dstRect);
+
+        // According to the SDL docs, we should use SDL_BlitScaled, but that function isn't found by Sdl2Native.LoadFunction.
+        private static readonly SDL_BlitScaled_Delegate BlitScaledImpl = Sdl2Native.LoadFunction<SDL_BlitScaled_Delegate>("SDL_LowerBlitScaled");
+
+        public static void SDL_BlitScaled(SDL_Surface src, SDL_Rect srcRect, SDL_Surface dst, SDL_Rect dstRect) => BlitScaledImpl(src, srcRect, dst, dstRect);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetWindowDisplayIndex_Delegate(SDL_Window Sdl2Window);
@@ -94,6 +109,22 @@ namespace OpenSage.Utilities
         public enum SDL_PixelFormat
         {
             SDL_PIXELFORMAT_ABGR8888 = 376840196,
+        }
+
+        public struct SDL_Rect
+        {
+            public int X;
+            public int Y;
+            public int W;
+            public int H;
+
+            public SDL_Rect(int x, int y, int w, int h)
+            {
+                X = x;
+                Y = y;
+                W = w;
+                H = h;
+            }
         }
     }
 }
