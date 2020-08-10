@@ -131,7 +131,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr.Execute(context);
 
                 if (context.Return)
-                    return context.Stack.Pop().ResolveRegister(context);
+                    return context.Pop();
 
                 if (stream.IsFinished())
                     break;

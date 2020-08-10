@@ -10,7 +10,7 @@
 
         public override void Execute(ActionContext context)
         {
-            var cond = context.Stack.Pop().ToBoolean();
+            var cond = context.Pop().ToBoolean();
 
             //when the condition is true make the stream jump
             if (cond)

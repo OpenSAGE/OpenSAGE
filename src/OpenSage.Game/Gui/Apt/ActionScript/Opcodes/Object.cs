@@ -18,16 +18,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var member = context.Scope.Constants[id].ToString();
 
             //pop the object
-            var objectVal = context.Stack.Pop().ResolveRegister(context);
+            var objectVal = context.Pop();
             var obj = objectVal.ToObject();
 
             if (obj != null)
             {
-                context.Stack.Push(obj.GetMember(member));
+                context.Push(obj.GetMember(member));
             }
             else
             {
-                context.Stack.Push(Value.Undefined());
+                context.Push(Value.Undefined());
             }
         }
     }
@@ -42,12 +42,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var valueVal = context.Stack.Pop().ResolveRegister(context);
+            var valueVal = context.Pop();
             //pop the member name
-            var memberName = context.Stack.Pop().ResolveRegister(context).ToString();
+            var memberName = context.Pop().ToString();
             //pop the object
-            var p = context.Stack.Pop();
-            var obj = p.ResolveRegister(context).ToObject();
+            var p = context.Pop();
+            var obj = p.ToObject();
 
             if (obj.IsBuiltInVariable(memberName))
             {
@@ -78,7 +78,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             if (result == null)
                 throw new InvalidOperationException();
 
-            context.Stack.Push(result);
+            context.Push(result);
         }
     }
 
@@ -92,7 +92,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var name = context.Stack.Pop().ToString();
+            var name = context.Pop().ToString();
             context.Scope.Variables[name] = Parameters[0];
         }
     }
@@ -107,14 +107,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var variableName = context.Stack.Pop();
+            var variableName = context.Pop();
             Value variable = Value.Undefined();
             if (context.Scope.Variables.ContainsKey(variableName.ToString()))
             {
                 variable = context.Scope.Variables[variableName.ToString()];
             }
 
-            context.Stack.Push(variable);
+            context.Push(variable);
         }
     }
 
@@ -128,9 +128,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var valueVal = context.Stack.Pop();
+            var valueVal = context.Pop();
             //pop the member name
-            var memberName = context.Stack.Pop().ToString();
+            var memberName = context.Pop().ToString();
 
             if (context.CheckLocal(memberName))
             {
@@ -152,10 +152,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var member = context.Stack.Pop();
-            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
+            var member = context.Pop();
+            var obj = context.Pop().ToObject();
 
-            context.Stack.Push(obj.GetMember(member.ResolveRegister(context).ToString()));
+            context.Push(obj.GetMember(member.ToString()));
         }
     }
 
@@ -168,11 +168,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var property = context.Stack.Pop().ToEnum<PropertyType>();
-            var target = context.GetTarget(context.Stack.Pop().ToString());
+            var property = context.Pop().ToEnum<PropertyType>();
+            var target = context.GetTarget(context.Pop().ToString());
 
             var prop = target.ToObject().GetProperty(property);
-            context.Stack.Push(prop);
+            context.Push(prop);
         }
     }
 
@@ -185,9 +185,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var value = context.Stack.Pop();
-            var property = context.Stack.Pop().ToEnum<PropertyType>();
-            var target = context.GetTarget(context.Stack.Pop().ToString());
+            var value = context.Pop();
+            var property = context.Pop().ToEnum<PropertyType>();
+            var target = context.GetTarget(context.Pop().ToString());
 
             target.ToObject().SetProperty(property, value);
         }
@@ -207,11 +207,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var memberVal = Parameters[0];
 
             //pop the object
-            var objectVal = context.Stack.Pop();
+            var objectVal = context.Pop();
 
             var valueVal = objectVal.ToObject().GetMember(memberVal.ToString());
 
-            context.Stack.Push(valueVal);
+            context.Push(valueVal);
         }
     }
 
@@ -222,8 +222,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var memberVal = context.Stack.Pop().ToString();
-            var objectVal = context.Stack.Pop().ToObject();
+            var memberVal = context.Pop().ToString();
+            var objectVal = context.Pop().ToObject();
 
             objectVal.Variables[memberVal] = Parameters[0];
         }
@@ -238,18 +238,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var name = context.Stack.Pop().ToString();
-            var nArgs = context.Stack.Pop().ToInteger();
+            var name = context.Pop().ToString();
+            var nArgs = context.Pop().ToInteger();
 
             Value[] args = new Value[nArgs];
 
             for (int i = 0; i < nArgs; ++i)
             {
-                args[i] = context.Stack.Pop();
+                args[i] = context.Pop();
             }
 
             var obj = context.ConstructObject(name, args);
-            context.Stack.Push(obj);
+            context.Push(obj);
         }
     }
 
@@ -275,7 +275,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var val = context.Stack.Pop();
+            var val = context.Pop();
             Value result = null;
 
             switch (val.Type)
@@ -307,7 +307,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     throw new InvalidOperationException();
             }
 
-            context.Stack.Push(result);
+            context.Push(result);
         }
     }
 }

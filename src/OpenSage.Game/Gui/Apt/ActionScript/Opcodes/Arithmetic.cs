@@ -24,10 +24,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
+            var a = context.Pop();
+            var b = context.Pop();
 
-            context.Stack.Push(Value.FromFloat(b.ToFloat() - a.ToFloat()));
+            context.Push(Value.FromFloat(b.ToFloat() - a.ToFloat()));
         }
     }
 
@@ -41,19 +41,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //Pop two values
-            var va = context.Stack.Pop();
-            var vb = context.Stack.Pop();
-
-            var a = va.ResolveRegister(context);
-            var b = vb.ResolveRegister(context);
+            var a = context.Pop();
+            var b = context.Pop();
 
             if (a.IsNumericType() && b.IsNumericType())
             {
-                context.Stack.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
+                context.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
             }
             else
             {
-                context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
+                context.Push(Value.FromString(b.ToString() + a.ToString()));
             }
         }
     }
@@ -106,8 +103,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var num = context.Stack.Pop().ResolveRegister(context).ToInteger();
-            context.Stack.Push(Value.FromInteger(++num));
+            var num = context.Pop().ToInteger();
+            context.Push(Value.FromInteger(++num));
         }
     }
 

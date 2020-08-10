@@ -11,12 +11,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public static Value[] GetArgumentsFromStack(ActionContext context)
         {
-            var argCount = context.Stack.Pop().ToInteger();
+            var argCount = context.Pop().ToInteger();
 
             var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args[i] = context.Stack.Pop().ResolveRegister(context);
+                args[i] = context.Pop();
             }
 
             return args;
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 var ret = vm.Execute(func, args, scope);
 
                 if (ret != null)
-                    context.Stack.Push(ret);
+                    context.Push(ret);
             }
             else
             {
@@ -111,7 +111,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 context.Scope.Variables[name] = funcVal;
             //anonymous function/lambda function
             else
-                context.Stack.Push(funcVal);
+                context.Push(funcVal);
         }
     }
 
@@ -157,7 +157,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 context.Scope.Variables[name] = funcVal;
             //anonymous function/lambda function
             else
-                context.Stack.Push(funcVal);
+                context.Push(funcVal);
         }
     }
 
@@ -184,12 +184,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var funcName = context.Stack.Pop().ToString();
+            var funcName = context.Pop().ToString();
 
             // If funcname is defined we need get the function from an object
             if (funcName.Length > 0)
             {
-                var obj = context.Stack.Pop().ToObject();
+                var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
 
                 FunctionCommon.ExecuteFunction(funcName, args, obj, context);
@@ -197,7 +197,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             // Else the function is on the stack
             else
             {
-                var funcVal = context.Stack.Pop();
+                var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
 
                 FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
@@ -214,12 +214,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var funcName = context.Stack.Pop().ToString();
+            var funcName = context.Pop().ToString();
 
             // If funcname is defined we need get the function from an object
             if (funcName.Length > 0)
             {
-                var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
+                var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
 
                 FunctionCommon.ExecuteFunction(funcName, args, obj, context);
@@ -227,7 +227,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             // Else the function is on the stack
             else
             {
-                var funcVal = context.Stack.Pop().ResolveRegister(context);
+                var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
 
                 FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
@@ -247,7 +247,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             var funcName = context.Scope.Constants[id].ToString();
-            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
+            var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
@@ -266,12 +266,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             var funcName = context.Scope.Constants[id].ToString();
-            var argCount = context.Stack.Pop().ToInteger();
+            var argCount = context.Pop().ToInteger();
 
             var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args[i] = context.Stack.Pop();
+                args[i] = context.Pop();
             }
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
@@ -306,7 +306,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var funcName = context.Stack.Pop().ToString();
+            var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
@@ -339,13 +339,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             var funcName = context.Scope.Constants[id].ToString();
-            var obj = context.Stack.Pop().ToObject();
+            var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
 
-            var result = context.Stack.Pop();
-            var varName = context.Stack.Pop();
+            var result = context.Pop();
+            var varName = context.Pop();
             context.Locals[varName.ToString()] = result;
         }
     }
@@ -359,7 +359,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var funcName = context.Stack.Pop().ToString();
+            var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
