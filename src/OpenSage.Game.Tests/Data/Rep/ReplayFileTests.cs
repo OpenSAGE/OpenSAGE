@@ -107,8 +107,8 @@ namespace OpenSage.Tests.Data.Rep
             var replayFile = LoadReplayFile();
 
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
-            Assert.Equal(1839, replayFile.Header.NumTimecodes);
-            Assert.Equal(1998, replayFile.Chunks.Count);
+            Assert.Equal(1095, replayFile.Header.NumTimecodes);
+            Assert.Equal(1170, replayFile.Chunks.Count);
 
             WriteOrders(replayFile);
         }
