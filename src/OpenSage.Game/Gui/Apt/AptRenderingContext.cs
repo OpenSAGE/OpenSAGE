@@ -96,6 +96,11 @@ namespace OpenSage.Gui.Apt
             }
         }
 
+        public DrawingContext2D GetActiveDrawingContext()
+        {
+            return _activeDrawingContext;
+        }
+
         public void SetDrawingContext(DrawingContext2D drawingContext)
         {
             _drawingContext = drawingContext;
@@ -135,6 +140,22 @@ namespace OpenSage.Gui.Apt
                 TextAlignment.Center,
                 text.Color.ToColorRgbaF() * transform.ColorTransform,
                 RectangleF.Transform(text.Bounds, transform.GeometryRotation));
+        }
+
+        public Matrix3x2 GetCurrentTransformMatrix()
+        {
+            var transform = _transformStack.Peek();
+            CalculateTransform(ref transform);
+            return transform.GeometryRotation;
+        }
+
+        public RectangleF GetBoundingBox(Geometry geom)
+        {
+            var transform = _transformStack.Peek();
+            CalculateTransform(ref transform);
+            var matrix = transform.GeometryRotation;
+
+            return RectangleF.Transform(geom.BoundingBox, matrix);
         }
 
         public void RenderGeometry(Geometry shape, Texture solidTexture)

@@ -33,6 +33,14 @@ namespace OpenSage.Mathematics
             Height = size.Height;
         }
 
+        public Rectangle(in RectangleF rect)
+        {
+            X = (int)Math.Round(rect.X);
+            Y = (int) Math.Round(rect.Y);
+            Width = (int) Math.Round(rect.Width);
+            Height = (int) Math.Round(rect.Height);
+        }
+
         public bool Intersects(in Rectangle value)
         {
             return value.Left < Right &&
