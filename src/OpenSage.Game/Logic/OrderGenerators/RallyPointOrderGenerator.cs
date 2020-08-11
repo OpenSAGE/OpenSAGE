@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Logic.OrderGenerators
@@ -22,23 +23,24 @@ namespace OpenSage.Logic.OrderGenerators
         {
         }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene)
+        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
             var objectIds = scene.GameObjects.GetObjectIds(scene.LocalPlayer.SelectedUnits);
             var order = Order.CreateSetRallyPointOrder(playerId, objectIds, _position);
 
-            // TODO: Also send an order to builder to start building.
-            return OrderGeneratorResult.SuccessAndExit(new[] { order });
+            return OrderGeneratorResult.SuccessAndContinue(new[] { order });
         }
 
-        public void UpdatePosition(Vector3 position)
+        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-            _position = position;
+            _position = worldPosition;
         }
 
         public void UpdateDrag(Vector3 position)
         {
         }
+
+        public string GetCursor(KeyModifiers keyModifiers) => "SetRallyPoint";
     }
 }

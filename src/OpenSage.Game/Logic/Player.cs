@@ -61,7 +61,7 @@ namespace OpenSage.Logic
             _enemies = new HashSet<Player>();
         }
 
-        public void SelectUnits(IEnumerable<GameObject> units, bool additive = false)
+        internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)
         {
             if (additive)
             {

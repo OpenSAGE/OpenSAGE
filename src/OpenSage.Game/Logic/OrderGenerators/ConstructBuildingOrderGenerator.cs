@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
@@ -72,7 +73,7 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject.BuildRenderList(renderList, camera, gameTime);
         }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene)
+        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             // TODO: Probably not right way to get dozer object.
             var dozer = scene.LocalPlayer.SelectedUnits.First();
@@ -135,9 +136,9 @@ namespace OpenSage.Logic.OrderGenerators
             return true;
         }
 
-        public void UpdatePosition(Vector3 position)
+        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-            _position = position;
+            _position = worldPosition;
 
             UpdatePreviewObjectPosition();
             UpdateValidity();
@@ -167,6 +168,9 @@ namespace OpenSage.Logic.OrderGenerators
         {
             _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
+
+        // Use radial cursor.
+        public string GetCursor(KeyModifiers keyModifiers) => null;
 
         public void Dispose()
         {

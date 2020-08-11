@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 
@@ -55,7 +56,7 @@ namespace OpenSage.Logic.OrderGenerators
             // throw new NotImplementedException();
         }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene)
+        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
@@ -75,9 +76,12 @@ namespace OpenSage.Logic.OrderGenerators
         {
         }
 
-        public void UpdatePosition(Vector3 position)
+        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-            _position = position;
+            _position = worldPosition;
         }
+
+        // Use radial cursor.
+        public string GetCursor(KeyModifiers keyModifiers) => null;
     }
 }
