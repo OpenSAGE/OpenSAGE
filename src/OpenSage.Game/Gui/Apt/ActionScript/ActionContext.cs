@@ -20,7 +20,6 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private Stack<Value> _stack;
 
-
         public ActionContext(int numRegisters = 0)
         {
             _stack = new Stack<Value>();

@@ -156,7 +156,7 @@ namespace OpenSage
             // TODO: Use RadarPriority to decide what gets shown when there are multiple
             // things in the same radar position.
 
-            var gameObject = _scene.GameObjects.GetObjectById((int)item.ObjectId);
+            var gameObject = _scene.GameObjects.GetObjectById((int) item.ObjectId);
             var gameObjectPosition = gameObject.Transform.Translation;
 
             var radarPosition = WorldToRadarSpace(gameObjectPosition, miniMapTransform);

@@ -46,7 +46,7 @@ namespace OpenSage.Mods.Bfme2
                 var radar = _root.ScriptObject.GetMember("Radar").ToObject();
                 var radarClipValue = radar.GetMember("RadarClip");
 
-                if(radarClipValue.Type == ValueType.Undefined)
+                if (radarClipValue.Type == ValueType.Undefined)
                 {
                     return;
                 }
@@ -61,7 +61,7 @@ namespace OpenSage.Mods.Bfme2
                 };
 
                 // This shape is used to render the overlay
-                var radarChild = ((SpriteItem)radar.Item).Content.Items[1] as SpriteItem;
+                var radarChild = ((SpriteItem) radar.Item).Content.Items[1] as SpriteItem;
                 shape = radarChild.Content.Items[1] as RenderItem;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom) =>
                 {
