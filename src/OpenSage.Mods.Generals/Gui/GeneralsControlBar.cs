@@ -264,6 +264,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
                                 break;
                             // Disable the button when the object already has it
+                            case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
@@ -483,9 +484,18 @@ namespace OpenSage.Mods.Generals.Gui
                                 queueButton.SystemCallback = (control, message, context) =>
                                 {
                                     var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
-                                    var order = new Order(playerIndex, OrderType.CancelUnit);
-                                    order.AddIntegerArgument(posCopy);
-                                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    if (job.Type == ProductionJobType.Unit)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUnit);
+                                        order.AddIntegerArgument(posCopy);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
+                                    else if (job.Type == ProductionJobType.Upgrade)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUpgrade);
+                                        order.AddIntegerArgument(job.UpgradeDefinition.InternalId);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
                                 };
                             }
                         }

@@ -60,6 +60,7 @@ namespace OpenSage.Logic
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
+            Upgrades = new List<UpgradeTemplate>();
         }
 
         internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)

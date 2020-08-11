@@ -486,6 +486,18 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool UpgradeAvailable(UpgradeTemplate upgrade)
+        {
+            if(upgrade.Type == UpgradeType.Player)
+            {
+                return Owner.Upgrades.Contains(upgrade);
+            }
+            else
+            {
+                return Upgrades.Contains(upgrade);
+            }
+        }
+
         internal void StartConstruction(in TimeInterval gameTime)
         {
             if (Definition.KindOf == null) return;

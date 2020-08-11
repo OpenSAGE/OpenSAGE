@@ -95,6 +95,18 @@ namespace OpenSage.Tests.Data.Rep
             var replayFile = LoadReplayFile();
 
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1256, replayFile.Header.NumTimecodes);
+            Assert.Equal(1376, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_008_TrainInfantryCancel()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
             Assert.Equal(1839, replayFile.Header.NumTimecodes);
             Assert.Equal(1998, replayFile.Chunks.Count);
 

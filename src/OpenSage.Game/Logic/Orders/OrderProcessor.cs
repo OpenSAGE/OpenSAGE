@@ -75,6 +75,16 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
+                    case OrderType.CancelUpgrade:
+                        {
+                            var upgradeDefinitionId = order.Arguments[0].Value.Integer;
+                            var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
+
+                            player.Money += (uint) upgradeDefinition.BuildCost;
+                            //TODO: how to cancel this? There must be some global definition where upgrades are queud
+                        }
+                        break;
+
                     case OrderType.StopMoving:
                         foreach (var unit in player.SelectedUnits)
                         {
@@ -143,7 +153,7 @@ namespace OpenSage.Logic.Orders
 
                             _game.Selection.SetSelectedObjects(player, objectIds);
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
                             logger.Error(e, "Error while setting selection");
                         }
