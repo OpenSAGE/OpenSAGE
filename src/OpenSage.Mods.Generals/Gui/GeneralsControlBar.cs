@@ -268,7 +268,7 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
-                                var hasUpgrade = selectedUnit.Upgrades.Contains(upgrade);
+                                var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
                                 buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade;
                                 break;
                         }
