@@ -6,11 +6,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class PowerPlantUpgrade : UpgradeModule
     {
-        private readonly GameObject _gameObject;
-
-        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData) : base(moduleData)
+        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData) : base(gameObject, moduleData)
         {
-            _gameObject = gameObject;
         }
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)

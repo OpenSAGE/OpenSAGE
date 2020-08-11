@@ -5,13 +5,11 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MaxHealthUpgrade : UpgradeModule
     {
-        private readonly GameObject _gameObject;
         private readonly MaxHealthUpgradeModuleData _moduleData;
 
         internal MaxHealthUpgrade(GameObject gameObject, MaxHealthUpgradeModuleData moduleData)
-            : base(moduleData)
+            : base(gameObject, moduleData)
         {
-            _gameObject = gameObject;
             _moduleData = moduleData;
         }
 
@@ -22,7 +20,7 @@ namespace OpenSage.Logic.Object
                 switch (_moduleData.ChangeType)
                 {
                     case MaxHealthChangeType.PreserveRatio:
-                        Fix64 ratio = _gameObject.Body.Health / _gameObject.Body.MaxHealth;
+                        var ratio = _gameObject.Body.Health / _gameObject.Body.MaxHealth;
                         _gameObject.Body.Health += ratio * (Fix64) _moduleData.AddMaxHealth;
                         break;
                     case MaxHealthChangeType.AddCurrentHealthToo:

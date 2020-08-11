@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
@@ -7,14 +8,16 @@ namespace OpenSage.Logic.Object
 {
     public abstract class UpgradeModule : BehaviorModule
     {
+        protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;
         protected bool _triggered;
         private bool _initial = true;
 
         internal bool Triggered => _triggered;
 
-        internal UpgradeModule(UpgradeModuleData moduleData)
+        internal UpgradeModule(GameObject gameObject, UpgradeModuleData moduleData)
         {
+            _gameObject = gameObject;
             _moduleData = moduleData;
             _triggered = _moduleData.StartsActive;
         }
@@ -27,48 +30,69 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var trigger in _moduleData.TriggeredBy)
                 {
+                    triggered = false;
+
                     var upgrade = trigger.Value;
 
                     if (upgrade != null)
                     {
-                        triggered = true;
-                        if (_moduleData.RequiresAllTriggers == false)
+                        if (upgrade.Type == UpgradeType.Object)
                         {
-                            break;
+                            triggered = _gameObject.Upgrades.Contains(upgrade);
                         }
                         else
                         {
-                            //TODO:
+                            triggered = _gameObject.Owner.Upgrades.Contains(upgrade);
                         }
                     }
-                    else if (_moduleData.RequiresAllTriggers == true)
+
+                    if (triggered && _moduleData.RequiresAllTriggers == false)
+                    {
+                        break;
+                    }
+
+                    if (!triggered && _moduleData.RequiresAllTriggers)
                     {
                         break;
                     }
                 }
             }
 
+            var conflictCount = 0;
+
             if (_moduleData.ConflictsWith != null)
             {
                 foreach (var conflict in _moduleData.ConflictsWith)
                 {
                     var upgrade = conflict.Value;
+                    var hasUpgrade = false;
 
                     if (upgrade != null)
                     {
-                        if (_moduleData.RequiresAllConflictingTriggers == false)
+                        if (upgrade.Type == UpgradeType.Object)
                         {
-                            triggered = false;
-                            break;
+                            hasUpgrade = _gameObject.Upgrades.Contains(upgrade);
                         }
                         else
                         {
-                            //TODO:
+                            hasUpgrade = _gameObject.Owner.Upgrades.Contains(upgrade);
                         }
                     }
-                    else if (_moduleData.RequiresAllConflictingTriggers == true)
+
+                    if (hasUpgrade)
                     {
-                        break;
+                        if (_moduleData.RequiresAllConflictingTriggers)
+                        {
+                            conflictCount++;
+                            if (conflictCount == _moduleData.ConflictsWith.Count())
+                            {
+                                triggered = false;
+                            }
+                        }
+                        else
+                        {
+                            triggered = false;
+                        }
                     }
                 }
             }

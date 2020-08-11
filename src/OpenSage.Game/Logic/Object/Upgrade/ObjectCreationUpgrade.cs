@@ -8,8 +8,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ObjectCreationUpgrade : UpgradeModule
     {
-        internal ObjectCreationUpgrade(ObjectCreationUpgradeModuleData moduleData)
-            : base(moduleData)
+        internal ObjectCreationUpgrade(GameObject gameObject, ObjectCreationUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
 
@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ObjectCreationUpgrade(this);
+            return new ObjectCreationUpgrade(gameObject, this);
         }
     }
 }

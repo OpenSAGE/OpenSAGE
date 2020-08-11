@@ -7,11 +7,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class WeaponSetUpgrade : UpgradeModule
     {
-        private readonly GameObject _gameObject;
-
-        internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData) : base(moduleData)
+        internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData) : base(gameObject, moduleData)
         {
-            _gameObject = gameObject;
         }
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
