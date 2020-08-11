@@ -488,6 +488,8 @@ namespace OpenSage.Logic.Object
 
         public bool UpgradeAvailable(UpgradeTemplate upgrade)
         {
+            if (upgrade == null) return false;
+
             if(upgrade.Type == UpgradeType.Player)
             {
                 return Owner.Upgrades.Contains(upgrade);

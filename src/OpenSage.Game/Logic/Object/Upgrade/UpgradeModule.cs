@@ -30,21 +30,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var trigger in _moduleData.TriggeredBy)
                 {
-                    triggered = false;
-
-                    var upgrade = trigger.Value;
-
-                    if (upgrade != null)
-                    {
-                        if (upgrade.Type == UpgradeType.Object)
-                        {
-                            triggered = _gameObject.Upgrades.Contains(upgrade);
-                        }
-                        else
-                        {
-                            triggered = _gameObject.Owner.Upgrades.Contains(upgrade);
-                        }
-                    }
+                    triggered = _gameObject.UpgradeAvailable(trigger.Value);
 
                     if (triggered && _moduleData.RequiresAllTriggers == false)
                     {
@@ -64,20 +50,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var conflict in _moduleData.ConflictsWith)
                 {
-                    var upgrade = conflict.Value;
-                    var hasUpgrade = false;
-
-                    if (upgrade != null)
-                    {
-                        if (upgrade.Type == UpgradeType.Object)
-                        {
-                            hasUpgrade = _gameObject.Upgrades.Contains(upgrade);
-                        }
-                        else
-                        {
-                            hasUpgrade = _gameObject.Owner.Upgrades.Contains(upgrade);
-                        }
-                    }
+                    var hasUpgrade = _gameObject.UpgradeAvailable(conflict.Value);
 
                     if (hasUpgrade)
                     {
