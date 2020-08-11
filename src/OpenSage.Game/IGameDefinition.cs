@@ -1,4 +1,5 @@
 ﻿﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
@@ -14,6 +15,7 @@ namespace OpenSage
 
         bool LauncherImagePrefixLang { get; }
         string LauncherImagePath { get; }
+        string LauncherExecutable { get; }
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
@@ -24,5 +26,7 @@ namespace OpenSage
         string Identifier { get; }
 
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
+
+        bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
     }
 }

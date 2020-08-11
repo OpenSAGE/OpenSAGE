@@ -31,5 +31,7 @@ namespace OpenSage.Mods.Cnc4
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc4Definition Instance { get; } = new Cnc4Definition();
+
+        public string LauncherExecutable => "CNC4.exe";
     }
 }

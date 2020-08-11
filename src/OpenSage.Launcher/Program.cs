@@ -49,6 +49,9 @@ namespace OpenSage.Launcher
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
             public string ReplayFile { get; set; }
 
+            [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
+            public string GamePath { get; set; }
+
             [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
             public string LanIPAddress { get; set; } = "";
         }
@@ -69,11 +72,36 @@ namespace OpenSage.Launcher
         {
             logger.Info("Starting...");
 
-            var definition = GameDefinition.FromGame(opts.Game);
+            var DetectedGame = opts.Game;
+            var GameFolder = opts.GamePath;
+            var UseLocators = true;
 
-            var installation = GameInstallation
-                .FindAll(new[] { definition })
-                .FirstOrDefault();
+            if (GameFolder == null)
+            {
+                GameFolder = Environment.CurrentDirectory;
+            }
+
+            foreach (var gameDef in GameDefinition.All)
+            {
+                if (gameDef.Probe(GameFolder))
+                {
+                    DetectedGame = gameDef.Game;
+                    UseLocators = false;
+                }
+            }
+
+            var definition = GameDefinition.FromGame(DetectedGame);
+            GameInstallation installation;
+            if (UseLocators)
+            {
+                installation = GameInstallation
+                    .FindAll(new[] { definition })
+                    .FirstOrDefault();
+            }
+            else
+            {
+                installation = new GameInstallation(definition, GameFolder);
+            }
 
             if (installation == null)
             {
