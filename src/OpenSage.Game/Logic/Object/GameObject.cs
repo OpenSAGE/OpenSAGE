@@ -739,13 +739,18 @@ namespace OpenSage.Logic.Object
 
         public void Upgrade(UpgradeTemplate upgrade)
         {
-            if (upgrade.AcademyClassify == AcademyType.Superpower)
+            // TODO: do something 
+            if (upgrade.Type == UpgradeType.Object)
             {
                 Upgrades.Add(upgrade);
             }
+            else if(upgrade.Type == UpgradeType.Player)
+            {
+               Owner.Upgrades.Add(upgrade);
+            }
             else
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException("This should not happen");
             }
         }
 

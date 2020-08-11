@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
-                    case OrderType.ObjectUprade:
+                    case OrderType.BeginUpgrade:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;

@@ -306,9 +306,10 @@ namespace OpenSage.Mods.Generals.Gui
                                     context.Game.OrderGenerator.SetRallyPoint();
                                     break;
 
+                                case CommandType.PlayerUpgrade:
                                 case CommandType.ObjectUpgrade:
                                     {
-                                        order = CreateOrder(OrderType.ObjectUprade);
+                                        order = CreateOrder(OrderType.BeginUpgrade);
                                         //TODO: figure this out correctly
                                         var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
                                         var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
