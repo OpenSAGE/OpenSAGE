@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
@@ -24,13 +23,15 @@ namespace OpenSage.Logic.Object
 
         }
 
-        internal abstract void Update(in TimeInterval time, GameObject gameObject);
+        internal abstract void Update(in TimeInterval time);
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
         internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
+
+        internal virtual void DrawInspector() { }
     }
 
     public abstract class DrawModuleData : ModuleData
@@ -69,6 +70,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(GameContext context) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(GameObject gameObject, GameContext context) => null; // TODO: Make this abstract.
     }
 }

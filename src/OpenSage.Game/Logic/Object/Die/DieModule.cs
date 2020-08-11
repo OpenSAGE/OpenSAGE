@@ -1,8 +1,24 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class DieModule : BehaviorModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     public abstract class DieModuleData : BehaviorModuleData
     {
         internal static readonly IniParseTable<DieModuleData> FieldParseTable = new IniParseTable<DieModuleData>

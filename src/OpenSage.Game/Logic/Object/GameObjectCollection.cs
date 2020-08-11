@@ -47,21 +47,18 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
         {
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this, _navigation));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this));
+
             _items.Add(gameObject);
+
+            _gameContext.Radar.AddGameObject(gameObject);
+
             return gameObject;
         }
 
         public GameObject Add(ObjectDefinition objectDefinition)
         {
             return Add(objectDefinition, _civilianPlayer);
-        }
-
-        public GameObject Add(GameObject gameObject)
-        {
-            AddDisposable(gameObject);
-            _items.Add(gameObject);
-            return gameObject;
         }
 
         // TODO: This is probably not how real SAGE works.

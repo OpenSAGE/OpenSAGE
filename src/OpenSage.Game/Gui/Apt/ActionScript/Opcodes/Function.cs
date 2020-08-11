@@ -16,10 +16,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args[i] = context.Stack.Pop();
+                args[i] = context.Stack.Pop().ResolveRegister(context);
             }
 
             return args;
+        }
+
+        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+        {
+            if (funcVal.Type != ValueType.Undefined)
+            {
+                var func = funcVal.ToFunction();
+                var ret = vm.Execute(func, args, scope);
+            }
+            else
+            {
+                logger.Warn($"Function val is wrong is wrong type: {funcVal}");
+            }
         }
 
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
@@ -133,6 +146,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = nRegisters,
+                Constants = new List<Value>(context.Scope.Constants),
                 Flags = flags,
                 IsNewVersion = true
             };
@@ -292,7 +306,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var funcName = context.Stack.Pop().ToString();
+            var args = FunctionCommon.GetArgumentsFromStack(context);
+
+            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
         }
     }
 
@@ -326,6 +343,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+
+            var result = context.Stack.Pop();
+            var varName = context.Stack.Pop();
+            context.Locals[varName.ToString()] = result;
         }
     }
 

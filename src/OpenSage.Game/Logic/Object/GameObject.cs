@@ -10,7 +10,9 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
@@ -18,14 +20,16 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
+
         internal static GameObject FromMapObject(
             MapObject mapObject,
-            IReadOnlyList<Team> teams,
             AssetStore assetStore,
-            GameObjectCollection parent,
-            in Vector3 position)
+            GameObjectCollection gameObjects,
+            HeightMap heightMap,
+            in float? overwriteAngle = 0.0f,
+            IReadOnlyList<Team> teams = null)
         {
-            var gameObject = parent.Add(mapObject.TypeName);
+            var gameObject = gameObjects.Add(mapObject.TypeName);
 
             // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
             if (gameObject == null)
@@ -44,19 +48,22 @@ namespace OpenSage.Logic.Object
 
             if (mapObject.Properties.TryGetValue("objectName", out var objectName))
             {
-                gameObject.Name = (string)objectName.Value;
+                gameObject.Name = (string) objectName.Value;
             }
 
-            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
+            if (teams != null)
             {
-                var name = (string) teamName.Value;
-                if (name.Contains('/'))
+                if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
                 {
-                    name = name.Split('/')[1];
+                    var name = (string) teamName.Value;
+                    if (name.Contains('/'))
+                    {
+                        name = name.Split('/')[1];
+                    }
+                    var team = teams.FirstOrDefault(t => t.Name == name);
+                    gameObject.Team = team;
+                    gameObject.Owner = team?.Owner;
                 }
-                var team = teams.FirstOrDefault(t => t.Name == name);
-                gameObject.Team = team;
-                gameObject.Owner = team?.Owner;
             }
 
             if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
@@ -64,12 +71,23 @@ namespace OpenSage.Logic.Object
                 gameObject.IsSelectable = (bool) selectable.Value;
             }
 
-            gameObject.Transform.Translation = position;
-            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
+            // TODO: handle "align to terrain" property
+            var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
+            var rotationOffset = Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
+            var position = mapObject.Position + rotationOffset.ToVector3();
+            var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
+            gameObject.Transform.Translation = new Vector3(position.X, position.Y, height);
+            gameObject.Transform.Rotation = rotation;
+            gameObject.Transform.Scale = gameObject.Definition.Scale;
 
             if (gameObject.Definition.IsBridge)
             {
-                BridgeTowers.CreateForLandmarkBridge(assetStore, parent, gameObject, mapObject);
+                BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
+            }
+
+            if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
 
             return gameObject;
@@ -80,8 +98,15 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.CopyFrom(newFlags);
         }
 
+        private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
+
         private readonly GameContext _gameContext;
+
+        internal GameContext GameContext => _gameContext;
+
         private readonly GameObject _rallyPointMarker;
+
+        private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
 
         public readonly ObjectDefinition Definition;
 
@@ -99,7 +124,9 @@ namespace OpenSage.Logic.Object
 
         public readonly Collider Collider;
 
-        public Player Owner { get; private set; }
+        public float VerticalOffset;
+
+        public Player Owner { get; internal set; }
 
         private string _name;
 
@@ -125,41 +152,33 @@ namespace OpenSage.Logic.Object
         public Team Team { get; set; }
 
         public bool IsSelectable { get; private set; }
+        public bool IsProjectile { get; private set; } = false;
+        public bool CanAttack { get; private set; }
 
         public bool IsSelected { get; set; }
         public Vector3? RallyPoint { get; set; }
 
-        private Locomotor CurrentLocomotor { get; set; }
         internal Weapon CurrentWeapon { get; private set; }
-
-        /// <summary>
-        /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
-        /// </summary>
-        public List<Vector3> TargetPoints { get; set; }
-
-        /// <summary>
-        /// An enumerator of the waypoints if the unit is currently following a waypoint path.
-        /// The path (as in pathfinding) to the next waypoint can contain multiple <see cref="TargetPoints"/>.
-        /// </summary>
-        private IEnumerator<Vector3> _waypointEnumerator;
-
-        public bool IsFollowingWaypoints() => _waypointEnumerator != null;
 
         private TimeSpan ConstructionStart { get; set; }
 
         public float BuildProgress { get; set; }
 
-        private Navigation.Navigation Navigation { get; set; }
-
         public bool Destroyed { get; set; }
 
-        public bool Damaged { get; set; }
+        public bool IsDamaged
+        {
+            get
+            {
+                var healthPercentage = (float) Body.HealthPercentage;
+                var damagedThreshold = _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
+                return healthPercentage <= damagedThreshold;
+            }
+        }
 
         public float Speed { get; set; }
+        public float Yaw { get; set; }
         public float Lift { get; set; }
-
-        // This and Speed probably shouldn't both exist.
-        public Vector3 Velocity { get; set; }
 
         public bool IsPlacementPreview { get; set; }
 
@@ -167,12 +186,18 @@ namespace OpenSage.Logic.Object
 
         public GameObjectCollection Parent { get; private set; }
 
+        public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
         public List<UpgradeTemplate> Upgrades { get; }
 
+        public int ExperienceValue { get; private set; }
+        internal float ExperienceMultiplier { get; set; }
+
+        public int EnergyProduction { get; internal set; }
+
         // TODO
-        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets[0];
+        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -180,29 +205,29 @@ namespace OpenSage.Logic.Object
             ObjectDefinition objectDefinition,
             GameContext gameContext,
             Player owner,
-            GameObjectCollection parent,
-            Navigation.Navigation navigation)
+            GameObjectCollection parent)
         {
             if (objectDefinition == null)
             {
                 throw new ArgumentNullException(nameof(objectDefinition));
             }
 
+            _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
+
             _gameContext = gameContext;
 
             Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
-            Navigation = navigation;
 
-            SetLocomotor();
-            SetWeapon();
+            SetDefaultWeapon();
             Transform = Transform.CreateIdentity();
+            Transform.Scale = objectDefinition.Scale;
 
             var drawModules = new List<DrawModule>();
-            foreach (var drawData in objectDefinition.Draws)
+            foreach (var drawData in objectDefinition.Draws.Values)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(gameContext));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(this, gameContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -212,20 +237,50 @@ namespace OpenSage.Logic.Object
             DrawModules = drawModules;
 
             var behaviors = new List<BehaviorModule>();
+
+            void AddBehavior(string tag, BehaviorModule behavior)
+            {
+                behaviors.Add(behavior);
+                _tagToModuleLookup.Add(tag, behavior);
+            }
+
+            AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Maybe KindOf = CAN_ATTACK ?
+            AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Probably only those with weapons.
+            AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper());
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            // Probably only those with weapons.
+            AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
+
             foreach (var behaviorData in objectDefinition.Behaviors)
             {
-                var module = AddDisposable(behaviorData.CreateModule(this));
+                var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
                 if (module != null)
                 {
-                    // TODO: This will never be null once we've implemented all the draw modules.
-                    behaviors.Add(module);
+                    // TODO: This will never be null once we've implemented all the behaviors.
+                    AddBehavior(behaviorData.Tag, module);
                 }
             }
             BehaviorModules = behaviors;
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
-            Body = AddDisposable(objectDefinition.Body?.CreateBodyModule(this));
+            ModelConditionFlags = new BitArray<ModelConditionFlag>();
+
+            Body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
+            _tagToModuleLookup.Add(objectDefinition.Body.Tag, Body);
+
+            if (objectDefinition.AIUpdate != null)
+            {
+                AIUpdate = AddDisposable(objectDefinition.AIUpdate.CreateAIUpdate(this));
+                _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
+            }
 
             Collider = Collider.Create(objectDefinition, Transform);
 
@@ -235,18 +290,24 @@ namespace OpenSage.Logic.Object
                 .OrderBy(x => x.NumBitsSet)
                 .ToList();
 
-            ModelConditionFlags = new BitArray<ModelConditionFlag>();
+            IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
+            CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
 
-            IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
-            TargetPoints = new List<Vector3>();
-
-            if (Definition.KindOf?.Get(ObjectKinds.AutoRallyPoint) ?? false)
+            if (Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent, navigation));
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
+            }
+
+            if (Definition.KindOf.Get(ObjectKinds.Projectile))
+            {
+                IsProjectile = true;
             }
 
             Upgrades = new List<UpgradeTemplate>();
+
+            ExperienceMultiplier = 1.0f;
+            ExperienceValue = 0;
         }
 
         // TODO: This probably shouldn't be here.
@@ -312,7 +373,7 @@ namespace OpenSage.Logic.Object
 
             //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
-                CurrentWeapon?.LogicTick(time.TotalTime);
+                CurrentWeapon?.LogicTick(time);
             }
 
             // TODO: Don't create this every time.
@@ -321,9 +382,46 @@ namespace OpenSage.Logic.Object
                 this,
                 time);
 
+            AIUpdate?.Update(behaviorUpdateContext);
+
             foreach (var behavior in BehaviorModules)
             {
                 behavior.Update(behaviorUpdateContext);
+            }
+        }
+
+        internal bool Intersects(GameObject other)
+        {
+            if (Collider == null || other.Collider == null)
+            {
+                return false;
+            }
+
+            if (Definition.KindOf.Get(ObjectKinds.Immobile)
+                && other.Definition.KindOf.Get(ObjectKinds.Immobile))
+            {
+                return false;
+            }
+
+            // TODO: Use more accurate collider/collider intersection.
+
+            var thisBoundingArea = Collider.GetBoundingArea();
+            var otherBoundingArea = other.Collider.GetBoundingArea();
+
+            return thisBoundingArea.Intersects(otherBoundingArea);
+        }
+
+        internal void DoCollide(GameObject collidingObject, in TimeInterval time)
+        {
+            // TODO: Don't create this every time.
+            var context = new BehaviorUpdateContext(
+                _gameContext,
+                this,
+                time);
+
+            foreach (var behavior in BehaviorModules)
+            {
+                behavior.OnCollide(context, collidingObject);
             }
         }
 
@@ -354,6 +452,12 @@ namespace OpenSage.Logic.Object
             return BehaviorModules.OfType<T>().FirstOrDefault();
         }
 
+        internal IEnumerable<T> FindBehaviors<T>()
+        {
+            // TODO: Cache this?
+            return BehaviorModules.OfType<T>();
+        }
+
         internal void Spawn(ObjectDefinition objectDefinition)
         {
             var productionExit = FindBehavior<IProductionExit>();
@@ -370,56 +474,16 @@ namespace OpenSage.Logic.Object
 
             // First go to the natural rally point
             var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
-            if (naturalRallyPoint != null)
+            if (naturalRallyPoint.HasValue)
             {
-                spawnedUnit.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
+                spawnedUnit.AIUpdate.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
             if (RallyPoint.HasValue)
             {
-                spawnedUnit.AddTargetPoint(RallyPoint.Value);
+                spawnedUnit.AIUpdate.AddTargetPoint(RallyPoint.Value);
             }
-        }
-
-        internal void AddTargetPoint(Vector3 targetPoint)
-        {
-            if (Definition.KindOf == null) return;
-
-            if (Definition.KindOf.Get(ObjectKinds.Infantry)
-                || Definition.KindOf.Get(ObjectKinds.Vehicle))
-            {
-                var start = TargetPoints.Count > 0 ? TargetPoints.Last() : Transform.Translation;
-                var path = Navigation.CalculatePath(start, targetPoint);
-                TargetPoints.AddRange(path);
-                Logger.Debug("Set new target points: " + TargetPoints.Count);
-            }
-
-            ModelConditionFlags.SetAll(false);
-            ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
-        }
-
-        internal void SetTargetPoint(Vector3 targetPoint)
-        {
-            TargetPoints.Clear();
-
-            AddTargetPoint(targetPoint);
-        }
-
-        internal void FollowWaypoints(IEnumerable<Vector3> waypoints)
-        {
-            TargetPoints.Clear();
-            _waypointEnumerator = waypoints.GetEnumerator();
-            MoveToNextWaypointOrStop();
-        }
-
-        internal void Stop()
-        {
-            ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
-            _waypointEnumerator?.Dispose();
-            _waypointEnumerator = null;
-            TargetPoints.Clear();
-            Speed = 0;
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -434,6 +498,8 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 ConstructionStart = gameTime.TotalTime;
             }
+
+            _gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 
         internal void FinishConstruction()
@@ -447,6 +513,8 @@ namespace OpenSage.Logic.Object
                     Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
                 }
             }
+
+            EnergyProduction += Definition.EnergyProduction;
         }
 
         public bool IsBeingConstructed()
@@ -456,6 +524,51 @@ namespace OpenSage.Logic.Object
                    ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed);
         }
 
+        internal void UpdateDamageFlags(Fix64 healthPercentage)
+        {
+            // TODO: SoundOnDamaged
+            // TODO: SoundOnReallyDamaged
+            // TODO: SoundDie
+            // TODO: TransitionDamageFX
+
+            var oldDamageType = _bodyDamageType;
+
+            if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+                _bodyDamageType = BodyDamageType.ReallyDamaged;
+            }
+            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
+                _bodyDamageType = BodyDamageType.Damaged;
+            }
+            else
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+                _bodyDamageType = BodyDamageType.Pristine;
+            }
+
+            if (oldDamageType != _bodyDamageType)
+            {
+                var behaviorUpdateContext = new BehaviorUpdateContext(
+                    _gameContext,
+                    this,
+                    new TimeInterval()); // TODO
+
+                foreach (var behavior in BehaviorModules)
+                {
+                    behavior.OnDamageStateChanged(
+                        behaviorUpdateContext,
+                        oldDamageType,
+                        _bodyDamageType);
+                }
+            }
+        }
+
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             if (Destroyed)
@@ -463,47 +576,9 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
-
-            // Check if the unit is currently moving
-            if (ModelConditionFlags.Get(ModelConditionFlag.Moving) && TargetPoints.Count > 0)
-            {
-                CurrentLocomotor.LocalLogicTick(gameTime, TargetPoints, heightMap);
-
-                // this should be moved to LogicTick
-                var distance = Vector2.DistanceSquared(Transform.Translation.Vector2XY(), TargetPoints[0].Vector2XY());
-                if (distance < 0.25f)
-                {
-                    Logger.Debug($"Reached point {TargetPoints[0]}");
-                    TargetPoints.RemoveAt(0);
-                    if (TargetPoints.Count == 0)
-                    {
-                        MoveToNextWaypointOrStop();
-                    }
-                }
-            }
-
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
-        }
-
-        /// <summary>
-        /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
-        /// </summary>
-        /// <remarks>
-        /// It might be necessary to select a path randomly (if there are branches), so this method should only
-        /// be called from <see cref="LogicTick"/>.</remarks>
-        private void MoveToNextWaypointOrStop()
-        {
-            if (_waypointEnumerator != null && _waypointEnumerator.MoveNext())
-            {
-                AddTargetPoint(_waypointEnumerator.Current);
-            }
-            else
-            {
-                Stop();
-            }
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -522,7 +597,7 @@ namespace OpenSage.Logic.Object
             UpdateDrawModuleConditionStates();
             foreach (var drawModule in DrawModules)
             {
-                drawModule.Update(gameTime, this);
+                drawModule.Update(gameTime);
             }
 
             // This must be done after processing anything that might update this object's transform.
@@ -589,6 +664,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        //TODO: make sure to play the correct voice event (e.g. VoiceMoveGroup etc.)
         public void OnLocalMove(AudioSystem gameAudio)
         {
             var audioEvent = Definition.VoiceMove?.Value;
@@ -598,22 +674,36 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetLocomotor()
+        //TODO: use the target to figure out which sound triggers
+        public void OnLocalAttack(AudioSystem gameAudio)
         {
-            var locomotorSet = Definition.LocomotorSets.Find(x => x.Condition == LocomotorSetCondition.Normal);
-            CurrentLocomotor = (locomotorSet != null)
-                ? new Locomotor(this, locomotorSet)
-                : null;
+            var audioEvent = Definition.VoiceAttack?.Value;
+            if (audioEvent != null)
+            {
+                gameAudio.PlayAudioEvent(audioEvent);
+            }
         }
 
-        private void SetWeapon()
+        internal void SetDefaultWeapon()
         {
             // TODO: we currently always pick the weapon without any conditions.
-            var weaponSet = Definition.WeaponSets.Find(x => x.Conditions.AnyBitSet == false);
+            var weaponSet = Definition.WeaponSets.Values.FirstOrDefault(x => x.Conditions?.AnyBitSet == false);
+            SetWeaponSet(weaponSet);
+        }
+
+        internal void SetWeaponSet(WeaponTemplateSet weaponSet)
+        {
             if (weaponSet != null)
             {
                 var aiUpdate = Definition.Behaviors.OfType<AIUpdateModuleData>().FirstOrDefault();
                 var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
+
+                // Happens for BFME structures
+                if (weaponSetUpdateData.WeaponSlotHardpoints.Count == 0 &&
+                   weaponSetUpdateData.WeaponSlotTurrets.Count == 0)
+                {
+                    return;
+                }
 
                 // TODO: This weapon selection is all wrong, and should be done in WeaponSetUpdate.
 
@@ -622,20 +712,7 @@ namespace OpenSage.Logic.Object
                     : weaponSetUpdateData.WeaponSlotTurrets[0];
 
                 var weaponTemplate = weaponSlotHardpoint.Weapons[0].Template.Value;
-
-                if (weaponTemplate != null)
-                {
-                    CurrentWeapon = new Weapon(
-                        this,
-                        weaponTemplate,
-                        0,
-                        WeaponSlot.Primary,
-                        _gameContext);
-                }
-                else
-                {
-                    CurrentWeapon = null;
-                }
+                SetWeapon(weaponTemplate);
             }
             else
             {
@@ -645,12 +722,19 @@ namespace OpenSage.Logic.Object
 
         internal void SetWeapon(WeaponTemplate weaponTemplate)
         {
-            CurrentWeapon = new Weapon(
+            if (weaponTemplate != null)
+            {
+                CurrentWeapon = new Weapon(
                 this,
                 weaponTemplate,
                 0,
                 WeaponSlot.Primary,
                 _gameContext);
+            }
+            else
+            {
+                CurrentWeapon = null;
+            }
         }
 
         public void Upgrade(UpgradeTemplate upgrade)
@@ -663,6 +747,66 @@ namespace OpenSage.Logic.Object
             {
                 throw new NotImplementedException();
             }
+        }
+
+        internal void Kill(DeathType deathType, TimeInterval time)
+        {
+            Body.DoDamage(DamageType.Unresistable, Body.Health, deathType, time);
+        }
+
+        internal void Die(DeathType deathType, TimeInterval time)
+        {
+            Logger.Info("Object dying " + deathType);
+
+            ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+            ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+
+            var behaviorUpdateContext = new BehaviorUpdateContext(
+                _gameContext,
+                this,
+                time);
+
+            // If there are multiple SlowDeathBehavior modules,
+            // we need to use ProbabilityModifier to choose between them.
+            var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
+                .Where(x => x.IsApplicable(deathType))
+                .ToList();
+            if (slowDeathBehaviors.Count > 1)
+            {
+                var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
+                var random = _gameContext.Random.Next(sumProbabilityModifiers);
+                var cumulative = 0;
+                foreach (var deathBehavior in slowDeathBehaviors)
+                {
+                    cumulative += deathBehavior.ProbabilityModifier;
+                    if (random < cumulative)
+                    {
+                        deathBehavior.OnDie(behaviorUpdateContext, deathType);
+                        return;
+                    }
+                }
+                throw new InvalidOperationException();
+            }
+
+            foreach (var dieModule in BehaviorModules)
+            {
+                dieModule.OnDie(behaviorUpdateContext, deathType);
+            }
+        }
+
+        internal void Destroy()
+        {
+            Destroyed = true;
+        }
+
+        internal void GainExperience(int experience)
+        {
+            ExperienceValue = (int) (ExperienceMultiplier * experience);
+        }
+
+        internal BehaviorModule GetModuleByTag(string tag)
+        {
+            return _tagToModuleLookup[tag];
         }
     }
 }

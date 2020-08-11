@@ -21,7 +21,7 @@ namespace OpenSage.Gui.ControlBar
             { "Options", (parser, x) => x.Options = parser.ParseEnumBitArray<CommandButtonOption>() },
             { "CursorName", (parser, x) => x.CursorName = parser.ParseAssetReference() },
             { "InvalidCursorName", (parser, x) => x.InvalidCursorName = parser.ParseAssetReference() },
-            { "SpecialPower", (parser, x) => x.SpecialPower = parser.ParseAssetReference() },
+            { "SpecialPower", (parser, x) => x.SpecialPower = parser.ParseSpecialPowerReference() },
             { "TextLabel", (parser, x) => x.TextLabel = parser.ParseLocalizedStringKey() },
             { "ConflictingLabel", (parser, x) => x.ConflictingLabel = parser.ParseLocalizedStringKey() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
@@ -34,7 +34,7 @@ namespace OpenSage.Gui.ControlBar
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "UnitSpecificSound2", (parser, x) => x.UnitSpecificSound2 = parser.ParseAssetReference() },
-            { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
+            { "Upgrade", (parser, x) => x.Upgrade = parser.ParseUpgradeReference() },
             { "InPalantir", (parser, x) => x.InPalantir = parser.ParseBoolean() },
             { "DoubleClick", (parser, x) => x.DoubleClick = parser.ParseBoolean() },
             { "AutoAbility", (parser, x) => x.AutoAbility = parser.ParseBoolean() },
@@ -73,8 +73,8 @@ namespace OpenSage.Gui.ControlBar
         };
 
         public CommandType Command { get; private set; }
-        public string SpecialPower { get; private set; }
-        public string Upgrade { get; private set; }
+        public LazyAssetReference<SpecialPower> SpecialPower { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
         public string[] Science { get; private set; }
         public BitArray<CommandButtonOption> Options { get; private set; }
         public string TextLabel { get; private set; }

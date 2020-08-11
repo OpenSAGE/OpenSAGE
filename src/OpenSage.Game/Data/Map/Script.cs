@@ -97,7 +97,7 @@ namespace OpenSage.Data.Map
                     }
                 }
 
-                if (version >= 4)
+                if (version >= 3)
                 {
                     result.ActionsFireSequentially = reader.ReadBooleanChecked();
 
@@ -108,7 +108,10 @@ namespace OpenSage.Data.Map
                     result.SequentialTargetType = reader.ReadByteAsEnum<SequentialScriptTarget>();
 
                     result.SequentialTargetName = reader.ReadUInt16PrefixedAsciiString();
+                }
 
+                if (version >= 4)
+                {
                     result.Unknown = reader.ReadUInt16PrefixedAsciiString();
                     if (result.Unknown != "ALL" && result.Unknown != "Planning" && result.Unknown != "X")
                     {
@@ -190,13 +193,17 @@ namespace OpenSage.Data.Map
                     }
                 }
 
-                if (Version >= 4)
+                if (Version >= 3)
                 {
                     writer.Write(ActionsFireSequentially);
                     writer.Write(LoopActions);
                     writer.Write(LoopCount);
                     writer.Write((byte) SequentialTargetType);
                     writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
+                }
+
+                if (Version >= 4)
+                {
                     writer.WriteUInt16PrefixedAsciiString(Unknown);
                 }
 

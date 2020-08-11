@@ -13,6 +13,8 @@ namespace OpenSage.Mathematics
         private readonly Vector3[] _corners = new Vector3[CornerCount];
         private readonly Plane[] _planes = new Plane[PlaneCount];
 
+        public Vector3[] Corners => _corners;
+
         public Matrix4x4 Matrix
         {
             get => _matrix;

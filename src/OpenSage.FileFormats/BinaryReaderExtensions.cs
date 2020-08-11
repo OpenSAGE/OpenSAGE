@@ -72,8 +72,6 @@ namespace OpenSage.FileFormats
 
         public static string ReadNullTerminatedAsciiString(this BinaryReader reader)
         {
-            var sb = new StringBuilder();
-
             var bytes = new List<byte>();
             byte b;
             while ((b = reader.ReadByte()) != '\0')
@@ -380,6 +378,30 @@ namespace OpenSage.FileFormats
                 reader.ReadSingle());
         }
 
+        public static Matrix4x3 ReadMatrix4x3Transposed(this BinaryReader reader)
+        {
+            var m11 = reader.ReadSingle();
+            var m21 = reader.ReadSingle();
+            var m31 = reader.ReadSingle();
+            var m41 = reader.ReadSingle();
+
+            var m12 = reader.ReadSingle();
+            var m22 = reader.ReadSingle();
+            var m32 = reader.ReadSingle();
+            var m42 = reader.ReadSingle();
+
+            var m13 = reader.ReadSingle();
+            var m23 = reader.ReadSingle();
+            var m33 = reader.ReadSingle();
+            var m43 = reader.ReadSingle();
+
+            return new Matrix4x3(
+                m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33,
+                m41, m42, m43);
+        }
+
         public static ColorRgbaF ReadColorRgbaF(this BinaryReader reader)
         {
             return new ColorRgbaF(
@@ -437,6 +459,18 @@ namespace OpenSage.FileFormats
             }
 
             return new ColorRgba(r, g, b, a);
+        }
+
+        public static RandomVariable ReadRandomVariable(this BinaryReader reader)
+        {
+            var distributionType = reader.ReadUInt32AsEnum<DistributionType>();
+            var low = reader.ReadSingle();
+            var high = reader.ReadSingle();
+
+            return new RandomVariable(
+                low,
+                high,
+                distributionType);
         }
 
         public static uint Align(this BinaryReader reader, uint aligment)
@@ -737,6 +771,22 @@ namespace OpenSage.FileFormats
             return TimeSpan.FromSeconds(reader.ReadSingle());
         }
 
+        public static DateTime ReadDateTime(this BinaryReader reader)
+        {
+            var year = reader.ReadUInt16();
+            var month = reader.ReadUInt16();
+            var day = reader.ReadUInt16();
+            _ = reader.ReadUInt16AsEnum<DayOfWeek>();
+            var hour = reader.ReadUInt16();
+            var minutes = reader.ReadUInt16();
+            var seconds = reader.ReadUInt16();
+            var milliseconds = reader.ReadUInt16();
+
+            return new DateTime(
+                year, month, day,
+                hour, minutes, seconds, milliseconds);
+        }
+
         public static Percentage ReadPercentage(this BinaryReader reader)
         {
             return new Percentage(reader.ReadSingle());
@@ -787,8 +837,9 @@ namespace OpenSage.FileFormats
             {
                 return null;
             }
-
         }
+
+        public static byte ReadVersion(this BinaryReader reader) => reader.ReadByte();
     }
 
     public enum ColorRgbaPixelOrder

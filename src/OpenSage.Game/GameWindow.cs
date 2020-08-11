@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Input;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -41,6 +42,8 @@ namespace OpenSage
             set => _window.CursorVisible = value;
         }
 
+        public float WindowScale { get; private set; }
+
         public InputSnapshot CurrentInputSnapshot { get; private set; }
 
         public Queue<InputMessage> MessageQueue { get; } = new Queue<InputMessage>();
@@ -63,12 +66,24 @@ namespace OpenSage
             var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, null, true, ResourceBindingModel.Improved)
             {
                 SwapchainSrgbFormat = false,
-                PreferStandardClipSpaceYDirection = true
+                PreferStandardClipSpaceYDirection = true,
+                PreferDepthRangeZeroToOne = true
             };
 
             var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
 
-            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, windowState, title);
+            // Get display scale for primary monitor.
+            // TODO: Track moving window to a different display,
+            // which may change the scale.
+            WindowScale = Sdl2Interop.GetDisplayScale(0);
+
+            var windowCreateInfo = new WindowCreateInfo(
+                (int)(WindowScale * x),
+                (int)(WindowScale * y),
+                (int)(WindowScale * width),
+                (int)(WindowScale * height),
+                windowState,
+                title);
 
             var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();
 
@@ -110,13 +125,13 @@ namespace OpenSage
 
         private void HandleKeyDown(KeyEvent evt)
         {
-            var message = InputMessage.CreateKeyDown(evt.Key);
+            var message = InputMessage.CreateKeyDown(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
         private void HandleKeyUp(KeyEvent evt)
         {
-            var message = InputMessage.CreateKeyUp(evt.Key);
+            var message = InputMessage.CreateKeyUp(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
@@ -192,11 +207,6 @@ namespace OpenSage
         public void Close()
         {
             _closing = true;
-        }
-
-        public void SetCursor(Cursor cursor)
-        {
-            // TODO
         }
 
         public bool PumpEvents()

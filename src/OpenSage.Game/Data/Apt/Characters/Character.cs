@@ -87,7 +87,7 @@ namespace OpenSage.Data.Apt.Characters
                     throw new NotImplementedException();
             }
 
-            if(character!=null)
+            if (character != null)
                 character.Container = container;
 
             return character;

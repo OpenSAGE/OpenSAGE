@@ -70,5 +70,20 @@
         /// Things that need to be loaded in order to display the credits.
         /// </summary>
         Credits,
+
+        /// <summary>
+        /// Things that need to be loaded in order to do damage to objects.
+        /// </summary>
+        Damage,
+
+        /// <summary>
+        /// Things that need to be loaded in order to trigger special powers.
+        /// </summary>
+        SpecialPower,
+
+        /// <summary>
+        /// Things that need to be loaded in order for the IngameUI to work.
+        /// </summary>
+        InGameUI,
     }
 }

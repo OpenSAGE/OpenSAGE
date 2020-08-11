@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -7,8 +8,8 @@ namespace OpenSage.Mathematics
         // https://stackoverflow.com/a/2259502/486974
         public static Vector2 RotateAroundPoint(Vector2 axis, Vector2 point, float angle)
         {
-            var sin = MathUtility.Sin(angle);
-            var cos = MathUtility.Cos(angle);
+            var sin = MathF.Sin(angle);
+            var cos = MathF.Cos(angle);
 
             point -= axis;
             var rotated = new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y  * cos);

@@ -23,7 +23,19 @@ namespace OpenSage.Logic
         public uint Money { get; set; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
-        public uint Energy { get; set; }
+        public int GetEnergy(GameObjectCollection allGameObjects)
+        {
+            int energy = 0;
+            foreach (var gameObject in allGameObjects.Items)
+            {
+                if (gameObject.Owner != this)
+                {
+                    continue;
+                }
+                energy += gameObject.EnergyProduction;
+            }
+            return energy;
+        }
 
         public ColorRgb Color { get; }
 

@@ -10,34 +10,47 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
-        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameContext context)
-            : base(data, context)
+        private readonly Tuple<string, bool>[] _boneList;
+
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
+            : base(data, gameObject, context)
         {
             _data = data;
+            _boneList = new Tuple<string, bool>[]
+               {
+                    Tuple.Create(_data.LeftFrontTireBone, true),
+                    Tuple.Create(_data.RightFrontTireBone, true),
+                    Tuple.Create(_data.LeftRearTireBone, false),
+                    Tuple.Create(_data.RightRearTireBone, false)
+               };
         }
 
-        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        internal override void Update(in TimeInterval gameTime)
         {
-            base.Update(gameTime, gameObject);
+            base.Update(gameTime);
 
-            // TODO: Only do this if Locomotor has HasSuspension = true.
-            var roll = _data.TireRotationMultiplier * gameObject.Speed;
-            var boneNames = new string[]
+            // Rotating wheels
+            var roll = _data.TireRotationMultiplier * GameObject.Speed * gameTime.TotalTime.Milliseconds;
+          
+            foreach (var boneDef in _boneList)
             {
-                _data.LeftFrontTireBone,
-                _data.RightFrontTireBone,
-                _data.LeftRearTireBone,
-                _data.RightRearTireBone,
-            };
-            foreach (var boneName in boneNames)
-            {
-                if (boneName == null)
+                if (boneDef == null)
                 {
                     continue;
                 }
 
-                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase));
-                ActiveModelInstance.ModelBoneInstances[bone.Index].AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
+                float yaw = 0.0f;
+                if(boneDef.Item2)
+                {
+                    yaw = GameObject.Yaw;
+                }
+
+                var bones = ActiveModelInstance.Model.BoneHierarchy.Bones.Where(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (bones.Count == 0) continue;
+                var boneInstance = ActiveModelInstance.ModelBoneInstances[bones[0].Index];
+                boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
+                boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
+
             }
         }
     }
@@ -135,9 +148,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dTruckDraw(this, context);
+            return new W3dTruckDraw(this, gameObject, context);
         }
     }
 }

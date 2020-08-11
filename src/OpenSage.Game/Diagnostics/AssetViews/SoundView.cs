@@ -1,6 +1,5 @@
 ﻿using ImGuiNET;
 using OpenSage.Audio;
-using OpenSage.Data;
 using SharpAudio.Util;
 
 namespace OpenSage.Diagnostics.AssetViews

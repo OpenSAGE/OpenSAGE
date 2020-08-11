@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
         public readonly Vector3? TargetGroundPosition;
         public readonly GameObject TargetObject;
 
+        public bool IsDestroyed => TargetType == WeaponTargetType.Object && TargetObject.Destroyed;
+
         public Vector3 TargetPosition => TargetType == WeaponTargetType.Position
             ? TargetGroundPosition.Value
             : TargetObject.Transform.Translation;
@@ -25,11 +27,11 @@ namespace OpenSage.Logic.Object
             TargetObject = targetObject;
         }
 
-        public void DoDamage(DamageType damageType, Fix64 amount)
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
             if (TargetType == WeaponTargetType.Object)
             {
-                TargetObject.Body.DoDamage(damageType, amount);
+                TargetObject.Body.DoDamage(damageType, amount, deathType, time);
             }
         }
     }

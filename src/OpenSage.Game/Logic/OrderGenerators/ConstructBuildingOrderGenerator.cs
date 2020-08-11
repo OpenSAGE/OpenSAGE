@@ -51,9 +51,10 @@ namespace OpenSage.Logic.OrderGenerators
                 buildingDefinition,
                 gameContext,
                 player,
-                null,
-                null);
-            _previewObject.IsPlacementPreview = true;
+                null)
+            {
+                IsPlacementPreview = true
+            };
 
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();
@@ -78,7 +79,7 @@ namespace OpenSage.Logic.OrderGenerators
 
             if (!IsValidPosition())
             {
-                scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceNoBuild"]?.Value);
+                scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?["VoiceNoBuild"]?.Value);
 
                 // TODO: Display correct message:
                 // - GUI:CantBuildRestrictedTerrain
@@ -97,7 +98,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
 
-            scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceCreate"]?.Value);
+            scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?["VoiceCreate"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);

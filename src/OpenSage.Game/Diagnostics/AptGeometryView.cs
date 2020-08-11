@@ -74,6 +74,7 @@ namespace OpenSage.Diagnostics
                 _shapeRenderer = new ShapeRenderer(
                     geometry,
                     Context.Game.ContentManager,
+                    Context.Game.GraphicsLoadContext,
                     Context.Game.AssetStore,
                     Context.SelectedAptWindow.AptFile.ImageMap,
                     Context.SelectedAptWindow.AptFile.MovieName);
@@ -98,20 +99,21 @@ namespace OpenSage.Diagnostics
         {
             private readonly Geometry _shape;
             private readonly AptContext _context;
-            private readonly AptRenderer _renderer;
+            private readonly AptRenderingContext _renderingContext;
 
             private float _scale;
 
             public ShapeRenderer(
                 Geometry shape,
                 ContentManager contentManager,
+                GraphicsLoadContext graphicsLoadContext,
                 AssetStore assetStore,
                 ImageMap map,
                 string movieName)
             {
                 _shape = shape;
                 _context = new AptContext(map, movieName, assetStore);
-                _renderer = new AptRenderer(null, contentManager);
+                _renderingContext = new AptRenderingContext(null, contentManager, graphicsLoadContext, _context);
             }
 
             public void Update(GraphicsDevice gd, in Size windowSize)
@@ -136,12 +138,12 @@ namespace OpenSage.Diagnostics
                     Matrix3x2.CreateScale(_scale, _scale),
                     translation);
 
-                _renderer.RenderGeometry(
-                    drawingContext,
-                    _context,
-                    _shape,
-                    itemTransform,
-                    null);
+                _renderingContext.SetDrawingContext(drawingContext);
+                _renderingContext.PushTransform(itemTransform);
+
+                _renderingContext.RenderGeometry(_shape, null);
+
+                _renderingContext.PopTransform();
             }
         }
     }

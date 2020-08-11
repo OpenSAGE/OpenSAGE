@@ -21,9 +21,9 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlagUtility.GetFiringOrReloadingFlag(weaponIndex)
             };
 
-        protected override void OnEnterStateImpl(TimeSpan enterTime)
+        protected override void OnEnterStateImpl(TimeInterval time)
         {
-            base.OnEnterStateImpl(enterTime);
+            base.OnEnterStateImpl(time);
 
             if (Context.Weapon.UsesClip)
             {
@@ -31,9 +31,9 @@ namespace OpenSage.Logic.Object
             }
 
             Context.GameContext.AudioSystem.PlayAudioEvent(
-                Context.Weapon.Template.FireSound.Value);
+                Context.Weapon.Template.FireSound?.Value);
 
-            var weaponEffectExecutionContext = new WeaponEffectExecutionContext(Context.Weapon, Context.GameContext);
+            var weaponEffectExecutionContext = new WeaponEffectExecutionContext(Context.Weapon, Context.GameContext, time);
             foreach (var nugget in Context.Weapon.Template.Nuggets)
             {
                 nugget.Execute(weaponEffectExecutionContext);

@@ -24,7 +24,7 @@ namespace OpenSage.Data.Ani
             {
                 case 4:
                 case 8:
-                    numColorTableEntries = (int) Math.Pow(2, infoHeader.BitCount);
+                    numColorTableEntries = (int) MathF.Pow(2, infoHeader.BitCount);
                     break;
 
                 case 24:

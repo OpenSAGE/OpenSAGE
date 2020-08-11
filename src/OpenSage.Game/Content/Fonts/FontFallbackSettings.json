@@ -1,0 +1,26 @@
+﻿{
+  "DefaultSettings": {
+    "DefaultFallbacks": [
+      "Arial Unicode MS",
+      "Arial"
+    ],
+    "SpecificFontFallbacks": {
+      "Courier": [ "Courier New" ]
+    }
+  },
+  "FontFallbacksByLanguages": {
+    "Chinese": {
+      "DefaultFallbacks": [
+        "Microsoft JhengHei",
+        "Microsoft YaHei",
+        "SimHei",
+        "MingLiU-ExtB",
+        "MingLiU",
+        "STZhongsong"
+      ],
+      "SpecificFontFallbacks": {
+        "細明體": [ "MingLiU-ExtB", "MingLiU", "STZhongsong" ]
+      }
+    }
+  }
+}

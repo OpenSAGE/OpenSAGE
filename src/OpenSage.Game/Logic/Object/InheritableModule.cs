@@ -14,6 +14,6 @@ namespace OpenSage.Logic.Object
             { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
         };
 
-        public ModuleData Module { get; private set; }
+        public BehaviorModuleData Module { get; private set; }
     }
 }

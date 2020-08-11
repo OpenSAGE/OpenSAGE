@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Data.Apt;
 using OpenSage.FileFormats;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -31,6 +32,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         private Function _function;
         private Value[] _array;
 
+        public bool IsNumericType()
+        {
+            return Type == ValueType.Float || Type == ValueType.Integer;
+        }
+
         public Value ResolveRegister(ActionContext context)
         {
             if (Type != ValueType.Register)
@@ -49,14 +55,14 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             Value result;
 
-            var entry = context.Apt.Constants.Entries[_number];
+            var entry = context.Constants[_number];
             switch (entry.Type)
             {
                 case ConstantEntryType.String:
-                    result = Value.FromString((string) entry.Value);
+                    result = FromString((string) entry.Value);
                     break;
                 case ConstantEntryType.Register:
-                    result = Value.FromRegister((uint) entry.Value);
+                    result = FromRegister((uint) entry.Value);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -129,7 +135,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
-        public static Value FromFloat(float num)
+        public static Value FromFloat(double num)
         {
             var v = new Value();
             v.Type = ValueType.Float;
@@ -155,24 +161,28 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return null;
             }
 
+            if (Type == ValueType.String)
+            {
+                return new ASString(_string);
+            }
+
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
 
             return _object;
         }
 
+        // Follow ECMA specification 9.4: https://www.ecma-international.org/ecma-262/5.1/#sec-9.4
         public int ToInteger()
         {
-            if (Type == ValueType.Undefined ||
-                Type == ValueType.String)
+            double floatNumber = ToFloat();
+
+            if (double.IsNaN(floatNumber))
             {
                 return 0;
             }
 
-            if (Type != ValueType.Integer && Type != ValueType.Constant)
-                throw new InvalidOperationException();
-
-            return _number;
+            return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
         }
 
         public bool ToBoolean()
@@ -236,6 +246,26 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
+        // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3
+        public double ToFloat()
+        {
+            switch (Type)
+            {
+                case ValueType.Constant:
+                case ValueType.Short:
+                case ValueType.Integer:
+                    return _number;
+                case ValueType.Float:
+                    return _decimal;
+                case ValueType.Undefined:
+                    return float.NaN;
+                case ValueType.Boolean:
+                    return _boolean ? 1.0 : 0.0;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public TEnum ToEnum<TEnum>() where TEnum : struct
         {
             if (Type != ValueType.Integer)
@@ -266,6 +296,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.Boolean:
                     result = b._boolean == _boolean;
+                    break;
+                case ValueType.Object:
+                    result = b._object == _object;
+                    break;
+                case ValueType.Integer:
+                    result = b._number == _number;
                     break;
                 default:
                     throw new NotImplementedException();

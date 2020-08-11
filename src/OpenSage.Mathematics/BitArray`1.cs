@@ -11,7 +11,8 @@ namespace OpenSage.Mathematics
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 
-        public BitArray() {
+        public BitArray()
+        {
             var maxBits = Enum.GetValues(typeof(TEnum)).Length;
             if (maxBits >= 512)
             {
@@ -32,6 +33,15 @@ namespace OpenSage.Mathematics
             for (var i = 0; i < bitArray.Length; i++)
             {
                 _data.Set(i, bitArray[i]);
+            }
+        }
+
+        public BitArray(BitArray<TEnum> bitArray)
+            : this()
+        {
+            for (var i = 0; i < _data.Length; i++)
+            {
+                _data.Set(i, bitArray._data.Get(i));
             }
         }
 
@@ -68,6 +78,11 @@ namespace OpenSage.Mathematics
         public int CountIntersectionBits(BitArray<TEnum> other)
         {
             return _data.And(other._data).NumBitsSet;
+        }
+
+        public bool Intersects(BitArray<TEnum> other)
+        {
+            return CountIntersectionBits(other) > 0;
         }
 
         public IEnumerable<TEnum> GetSetBits()

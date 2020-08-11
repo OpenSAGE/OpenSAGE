@@ -70,7 +70,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class GotoFrame2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.GotoFrame2;
-        public override uint Size => 1;
+        public override uint Size => 4;
 
         public override void Execute(ActionContext context)
         {

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
+using OpenSage.FX;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 
@@ -7,35 +10,94 @@ namespace OpenSage.Logic.Object
 {
     public class ActiveBody : BodyModule
     {
-        private readonly GameObject _gameObject;
         private readonly ActiveBodyModuleData _moduleData;
 
-        public override Fix64 MaxHealth { get; }
+        protected readonly GameObject GameObject;
+
+        public override Fix64 MaxHealth { get; internal set; }
 
         internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
         {
-            _gameObject = gameObject;
+            GameObject = gameObject;
             _moduleData = moduleData;
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
 
-            Health = (Fix64) moduleData.InitialHealth;
+            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
+        }
+
+        private void SetHealth(Fix64 value)
+        {
+            Health = value;
+            GameObject.UpdateDamageFlags(HealthPercentage);
         }
 
         public override void SetInitialHealth(float multiplier)
         {
-            Health = (Fix64) (_moduleData.InitialHealth * multiplier);
+            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
+            if (Health <= Fix64.Zero)
+            {
+                return;
+            }
+
+            var armorSet = GameObject.CurrentArmorSet;
+
             // Actual amount of damage depends on armor.
-            var armor = _gameObject.CurrentArmorSet.Armor.Value;
-            var damagePercent = armor.GetDamagePercent(damageType);
+            var armor = armorSet.Armor.Value;
+            var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
             var actualDamage = amount * (Fix64) ((float) damagePercent);
-            Health -= actualDamage;
+            SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
+            var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+            // TODO: MajorFX
+            var damageFX = damageFXGroup.MinorFX?.Value;
+            if (damageFX != null)
+            {
+                damageFX.Execute(
+                    new FXListExecutionContext(
+                        GameObject.Transform.Rotation,
+                        GameObject.Transform.Translation,
+                        GameObject.GameContext));
+            }
+
+            if (Health <= Fix64.Zero)
+            {
+                GameObject.Die(deathType, time);
+            }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknownFloat = reader.ReadSingle();
+            if (unknownFloat != 1.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var currentHealth1 = reader.ReadSingle(); // These two values
+            var currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
+
+            var maxHealth1 = reader.ReadSingle();
+            var maxHealth2 = reader.ReadSingle();
+            if (maxHealth1 != maxHealth2)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown = reader.ReadBytes(61);
         }
     }
 
@@ -71,7 +133,7 @@ namespace OpenSage.Logic.Object
         };
 
         public float MaxHealth { get; private set; }
-        public float InitialHealth { get; private set; }
+        public float? InitialHealth { get; private set; }
        
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }

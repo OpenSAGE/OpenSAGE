@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using ImGuiNET;
 using OpenSage.Input;
@@ -55,8 +57,8 @@ namespace OpenSage.Diagnostics.Util
                     var pos = message.Value.MousePosition;
                     pos = new Point2D(pos.X - panelFrame.X, pos.Y - panelFrame.Y);
                     pos = new Point2D(
-                        MathUtility.Clamp(pos.X, 0, panelFrame.Width),
-                        MathUtility.Clamp(pos.Y, 0, panelFrame.Height));
+                        Math.Clamp(pos.X, 0, panelFrame.Width),
+                        Math.Clamp(pos.Y, 0, panelFrame.Height));
                     return pos;
                 }
 
@@ -83,6 +85,30 @@ namespace OpenSage.Diagnostics.Util
 
                 yield return translatedMessage;
             }
+        }
+
+        public static void BeginPropertyList()
+        {
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
+            ImGui.Columns(2);
+            ImGui.Separator();
+        }
+
+        public static void EndPropertyList()
+        {
+            ImGui.Columns(1);
+            ImGui.Separator();
+            ImGui.PopStyleVar();
+        }
+
+        public static void PropertyRow(string name, object value)
+        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(name);
+            ImGui.NextColumn();
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(value?.ToString() ?? "<null>");
+            ImGui.NextColumn();
         }
     }
 }

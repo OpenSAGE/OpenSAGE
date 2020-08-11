@@ -75,12 +75,16 @@ namespace OpenSage.Graphics.Cameras
         public Matrix4x4 ViewProjection { get; private set; }
 
         public Vector3 Position { get; private set; }
+        public Vector3 Target { get; private set; }
+        public Vector3 Up { get; private set; }
 
         public Camera(Func<Viewport> getViewport)
         {
+
             _getViewport = getViewport;
             _viewport = getViewport();
 
+            View = Matrix4x4.Identity;
             BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
             _nearPlaneDistance = 4.0f;
@@ -89,11 +93,25 @@ namespace OpenSage.Graphics.Cameras
             UpdateProjection();
         }
 
+        public void SetMirrorX(float pivot)
+        {
+            // Used for rendering reflection without stencil clipping
+            var position = Position - new Vector3(0, 0, 2 * (Position.Z - pivot));
+            var target = Target - new Vector3(0, 0, 2 * (Target.Z - pivot));
+            var up = Up - new Vector3(0, 0, 2 * Up.Z);
+
+            SetLookAt(position, target, up);
+            ViewProjection *= Matrix4x4.CreateScale(-1, 1, 1);
+            BoundingFrustum.Matrix = ViewProjection;
+        }
+
         public void SetLookAt(in Vector3 cameraPosition, in Vector3 cameraTarget, in Vector3 up)
         {
             View = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, up);
             _world = Matrix4x4Utility.Invert(View);
             Position = cameraPosition;
+            Target = cameraTarget;
+            Up = up;
 
             UpdateViewProjection();
         }
@@ -122,7 +140,7 @@ namespace OpenSage.Graphics.Cameras
         private float GetFieldOfView()
         {
             const int height = 24; // Height in mm of 35mm film.
-            return 2 * MathUtility.Atan(0.5f * height / _focalLength);
+            return 2 * MathF.Atan(0.5f * height / _focalLength);
         }
 
         /// <summary>

@@ -8,10 +8,10 @@ namespace OpenSage.Mathematics
         public static Vector4 Round(in Vector4 value)
         {
             return new Vector4(
-                (float) Math.Round(value.X),
-                (float) Math.Round(value.Y),
-                (float) Math.Round(value.Z),
-                (float) Math.Round(value.W));
+                MathF.Round(value.X),
+                MathF.Round(value.Y),
+                MathF.Round(value.Z),
+                MathF.Round(value.W));
         }
 
         public static Vector3 ToVector3(this in Vector4 value)

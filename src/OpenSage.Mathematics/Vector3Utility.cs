@@ -1,14 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
     public static class Vector3Utility
     {
-        public static Vector3 Lerp(in Vector3 x, in Vector3 y, float s)
-        {
-            return x + s * (y - x);
-        }
-
         //  From https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
         public static Vector3 Slerp(in Vector3 start, in Vector3 end, float percent)
         {
@@ -17,15 +13,15 @@ namespace OpenSage.Mathematics
             // Clamp it to be in the range of Acos()
             // This may be unnecessary, but floating point
             // precision can be a fickle mistress.
-            dot = MathUtility.Clamp(dot, -1.0f, 1.0f);
+            dot = Math.Clamp(dot, -1.0f, 1.0f);
             // Acos(dot) returns the angle between start and end,
             // And multiplying that by percent returns the angle between
             // start and the final result.
-            float theta = MathUtility.Acos(dot) * percent;
+            float theta = MathF.Acos(dot) * percent;
             Vector3 RelativeVec = end - start * dot;
             RelativeVec = Vector3.Normalize(RelativeVec);     // Orthonormal basis
                                          // The final result.
-            return ((start * MathUtility.Cos(theta)) + (RelativeVec * MathUtility.Sin(theta)));
+            return ((start * MathF.Cos(theta)) + (RelativeVec * MathF.Sin(theta)));
         }
 
         public static Vector3 WithX(this Vector3 vector, float x)

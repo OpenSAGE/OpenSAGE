@@ -1,19 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
-        public Fix64 Health { get; protected set; }
+        public Fix64 Health { get; internal set; }
 
-        public abstract Fix64 MaxHealth { get; }
+        public abstract Fix64 MaxHealth { get; internal set; }
+
+        public Fix64 HealthPercentage => Health / MaxHealth;
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
     }
 
     public abstract class BodyModuleData : BehaviorModuleData
@@ -37,7 +52,7 @@ namespace OpenSage.Logic.Object
             { "UndeadBody", UndeadBodyModuleData.Parse },
         };
 
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject)
+        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             throw new InvalidOperationException();
         }

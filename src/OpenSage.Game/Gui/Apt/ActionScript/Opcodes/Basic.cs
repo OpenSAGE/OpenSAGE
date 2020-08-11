@@ -156,7 +156,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Stack.Pop().ResolveRegister(context);
+            context.Stack.Push(Value.FromString(val.ToString()));
         }
     }
 
@@ -170,9 +171,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var obj = context.Stack.Pop();
-
-            throw new NotImplementedException();
+            var obj = context.Stack.Pop().ToObject();
+            context.Stack.Push(Value.FromObject(null));
+            // Not sure if this is correct
+            foreach (var slot in obj.Variables.Keys)
+            {
+                context.Stack.Push(Value.FromString(slot));
+            }
         }
     }
 

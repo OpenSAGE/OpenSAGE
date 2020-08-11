@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Navigation
@@ -54,7 +56,7 @@ namespace OpenSage.Navigation
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            if (startNode == null || endNode == null || !startNode.IsPassable || !endNode.IsPassable)
+            if (startNode == null || endNode == null || !endNode.IsPassable)
             {
                 Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
                 yield break;
@@ -69,11 +71,40 @@ namespace OpenSage.Navigation
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
+            PathOptimizer.SmoothPath(route, _graph);
 
             foreach (var node in route)
             {
                 var pos = GetNodePosition(node);
                 yield return new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y));
+            }
+        }
+
+        public void UpdateAreaPassability(GameObject gameObject, bool passable)
+        {
+            if (gameObject.Collider == null) return;
+
+            var aabb = gameObject.Collider.GetAxisAlignedBoundingBox();
+
+            var bottomLeftNode = GetClosestNode(aabb.Min);
+            var topRightNode = GetClosestNode(aabb.Max);
+
+            //sometimes map objects are places outside the actual map....
+            if (bottomLeftNode == null || topRightNode == null) return;
+
+            var area = gameObject.Collider.GetBoundingArea();
+
+            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
+            {
+                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
+                {
+                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var position = GetNodePosition(node);
+                    if (area.Contains(position))
+                    {
+                        node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                    }
+                }
             }
         }
     }

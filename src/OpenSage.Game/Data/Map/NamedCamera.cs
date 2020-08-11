@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
@@ -9,8 +11,9 @@ namespace OpenSage.Data.Map
         public Vector3 LookAtPoint { get; private set; }
         public string Name { get; private set; }
 
-        public Vector3 Unknown1 { get; private set; }
-        public Vector3 Unknown2 { get; private set; }
+        public Vector3 EulerAngles { get; private set; }
+        public float Zoom { get; private set; }
+        public Vector2 Unknown { get; private set; }
 
         internal static NamedCamera Parse(BinaryReader reader)
         {
@@ -18,9 +21,9 @@ namespace OpenSage.Data.Map
             {
                 LookAtPoint = reader.ReadVector3(),
                 Name = reader.ReadUInt16PrefixedAsciiString(),
-
-                Unknown1 = reader.ReadVector3(),
-                Unknown2 = reader.ReadVector3()
+                EulerAngles = reader.ReadVector3(),
+                Zoom = reader.ReadSingle(),
+                Unknown = reader.ReadVector2()
             };
         }
 
@@ -28,9 +31,9 @@ namespace OpenSage.Data.Map
         {
             writer.Write(LookAtPoint);
             writer.WriteUInt16PrefixedAsciiString(Name);
-
-            writer.Write(Unknown1);
-            writer.Write(Unknown2);
+            writer.Write(EulerAngles);
+            writer.Write(Zoom);
+            writer.Write(Unknown);
         }
     }
 }

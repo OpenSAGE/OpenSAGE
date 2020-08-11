@@ -67,7 +67,7 @@ namespace OpenSage.Terrain
             var fFractionalP = p - nIntP0;
 
             // get coordinates for "other" side of quad
-            var nIntP1 = MathUtility.Clamp(nIntP0 + 1, 0, maxHeightmapScale - 1);
+            var nIntP1 = Math.Clamp(nIntP0 + 1, 0, maxHeightmapScale - 1);
 
             return (nIntP0, nIntP1, fFractionalP);
         }
@@ -80,7 +80,7 @@ namespace OpenSage.Terrain
 
             if (x >= Width || y >= Height || x < 0 || y < 0)
             {
-                return new Vector3(0, 0, 1.0f);
+                return Vector3.UnitZ;
             }
 
             return Normals[(int)x, (int)y];
@@ -91,7 +91,7 @@ namespace OpenSage.Terrain
             (y - _heightMapData.BorderWidth) * HorizontalScale,
             GetHeight(x, y));
 
-        public (int X, int Y)? GetTilePosition(Vector3 worldPosition)
+        public (int X, int Y)? GetTilePosition(in Vector3 worldPosition)
         {
             var tilePosition = (worldPosition / HorizontalScale) 
                 + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0);
@@ -105,6 +105,13 @@ namespace OpenSage.Terrain
             }
 
             return result;
+        }
+
+        public Vector2 GetHeightMapPosition(in Vector3 worldPosition)
+        {
+            return
+                ((worldPosition / HorizontalScale) + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0))
+                .Vector2XY();
         }
 
         public Vector3[,] Normals { get; }
@@ -176,7 +183,7 @@ namespace OpenSage.Terrain
                     // vertices on heightmap boundaries do not have
                     // surrounding quads in some directions, so we just
                     // average in a normal vector that is axis aligned
-                    // with the y-axis.
+                    // with the z-axis.
                     if (m < 0 || n < 0 || m == Width - 1 || n == Height - 1)
                     {
                         avg += Vector3.UnitZ;

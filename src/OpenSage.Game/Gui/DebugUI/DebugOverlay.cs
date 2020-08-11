@@ -89,7 +89,7 @@ namespace OpenSage.Gui.DebugUI
             if (_mouseWorldPosition != null)
             {
                 var worldPos = _mouseWorldPosition.Value;
-                _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", Math.Round(worldPos.X, 3), Math.Round(worldPos.Y, 3), Math.Round(worldPos.Z, 3));
+                _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", MathF.Round(worldPos.X, 3), MathF.Round(worldPos.Y, 3), MathF.Round(worldPos.Z, 3));
                 _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int) worldPos.X / 10, (int) worldPos.Y / 10);
             }
         }
@@ -116,22 +116,23 @@ namespace OpenSage.Gui.DebugUI
                         gameObject.Collider?.DebugDraw(context, camera);
                     }
 
-                    if(gameObject.TargetPoints != null)
+                    var targetPoints = gameObject.AIUpdate?.TargetPoints;
+                    if (targetPoints != null)
                     {
-                        //Draw line to the first target point
-                        if (gameObject.TargetPoints.Count > 0)
+                        // Draw line to the first target point
+                        if (targetPoints.Count > 0)
                         {
                             var p1 = gameObject.Transform.Translation;
-                            var p2 = gameObject.TargetPoints[0];
+                            var p2 = targetPoints[0];
                             var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
                             var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
                             context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
                         }
 
-                        for (int i=1;i<gameObject.TargetPoints.Count;i++)
+                        for (var i = 1; i < targetPoints.Count;i++)
                         {
-                            var p1 = gameObject.TargetPoints[i - 1];
-                            var p2 = gameObject.TargetPoints[i];
+                            var p1 = targetPoints[i - 1];
+                            var p2 = targetPoints[i];
                             var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
                             var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();
                             context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
@@ -147,6 +148,20 @@ namespace OpenSage.Gui.DebugUI
                     road.DebugDraw(context, camera);
                 }
             }
+
+
+            // display impassable area
+            //foreach(var node in _scene3D.Navigation._graph._nodes)
+            //{
+            //    if (!node.IsPassable)
+            //    {
+            //        var xy = _scene3D.Navigation.GetNodePosition(node);
+            //        var xyz = camera.WorldToScreenPoint(new Vector3(xy, _scene3D.Terrain.HeightMap.GetHeight(xy.X, xy.Y)));
+            //        var pos = xyz.Vector2XY();
+            //        if (pos.X < 0.0 || pos.Y < 0.0 || pos.X > 1920 || pos.Y > 1080) continue;
+            //        context.DrawRectangle(new RectangleF(xyz.Vector2XY(), new SizeF(10.0f)), ColorRgbaF.Red, 10.0f);
+            //    }
+            //}
 
             context.DrawText(_debugStringBuilder.ToString(), _debugFont, TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 10, 400, 80));
 

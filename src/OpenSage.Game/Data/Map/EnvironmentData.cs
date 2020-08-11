@@ -10,7 +10,7 @@ namespace OpenSage.Data.Map
         public float WaterMaxAlphaDepth { get; private set; }
         public float DeepWaterAlpha { get; private set; }
 
-        public bool Unknown { get; private set; }
+        public bool IsMacroTextureStretched { get; private set; }
 
         public string MacroTexture { get; private set; }
         public string CloudTexture { get; private set; }
@@ -35,7 +35,7 @@ namespace OpenSage.Data.Map
 
                 if (version < 5)
                 {
-                    result.Unknown = reader.ReadBooleanChecked();
+                    result.IsMacroTextureStretched = reader.ReadBooleanChecked();
                 }
 
                 result.MacroTexture = reader.ReadUInt16PrefixedAsciiString();
@@ -68,7 +68,7 @@ namespace OpenSage.Data.Map
 
                 if (Version < 5)
                 {
-                    writer.Write(Unknown);
+                    writer.Write(IsMacroTextureStretched);
                 }
 
                 writer.WriteUInt16PrefixedAsciiString(MacroTexture);

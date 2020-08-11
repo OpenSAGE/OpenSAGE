@@ -1,11 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.InGame;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    internal sealed class ObjectCreationListManager
+    {
+        public void Create(ObjectCreationList list, BehaviorUpdateContext context)
+        {
+            foreach (var item in list.Nuggets)
+            {
+                item.Execute(context);
+            }
+        }
+    }
+
     public sealed class ObjectCreationList : BaseAsset
     {
         internal static ObjectCreationList Parse(IniParser parser)
@@ -17,30 +29,30 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ObjectCreationList> FieldParseTable = new IniParseTable<ObjectCreationList>
         {
-            { "ApplyRandomForce", (parser, x) => x.Items.Add(ApplyRandomForceObjectCreationListItem.Parse(parser)) },
-            { "Attack", (parser, x) => x.Items.Add(AttackObjectCreationListItem.Parse(parser)) },
-            { "CreateDebris", (parser, x) => x.Items.Add(CreateDebrisObjectCreationListItem.Parse(parser)) },
-            { "CreateObject", (parser, x) => x.Items.Add(CreateObjectObjectCreationListItem.Parse(parser)) },
-            { "DeliverPayload", (parser, x) => x.Items.Add(DeliverPayloadObjectCreationListItem.Parse(parser)) },
-            { "FireWeapon", (parser, x) => x.Items.Add(FireWeaponObjectCreationListItem.Parse(parser)) }
+            { "ApplyRandomForce", (parser, x) => x.Nuggets.Add(ApplyRandomForceOCNugget.Parse(parser)) },
+            { "Attack", (parser, x) => x.Nuggets.Add(AttackOCNugget.Parse(parser)) },
+            { "CreateDebris", (parser, x) => x.Nuggets.Add(CreateDebrisOCNugget.Parse(parser)) },
+            { "CreateObject", (parser, x) => x.Nuggets.Add(CreateObjectOCNugget.Parse(parser)) },
+            { "DeliverPayload", (parser, x) => x.Nuggets.Add(DeliverPayloadOCNugget.Parse(parser)) },
+            { "FireWeapon", (parser, x) => x.Nuggets.Add(FireWeaponOCNugget.Parse(parser)) }
         };
 
-        public List<ObjectCreationListItem> Items { get; } = new List<ObjectCreationListItem>();
+        public List<OCNugget> Nuggets { get; } = new List<OCNugget>();
     }
 
-    public abstract class ObjectCreationListItem
+    public abstract class OCNugget
     {
-
+        internal abstract void Execute(BehaviorUpdateContext context);
     }
 
-    public sealed class CreateDebrisObjectCreationListItem : ObjectCreationListItem
+    public sealed class CreateDebrisOCNugget : OCNugget
     {
-        internal static CreateDebrisObjectCreationListItem Parse(IniParser parser)
+        internal static CreateDebrisOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<CreateDebrisObjectCreationListItem> FieldParseTable = new IniParseTable<CreateDebrisObjectCreationListItem>
+        private static readonly IniParseTable<CreateDebrisOCNugget> FieldParseTable = new IniParseTable<CreateDebrisOCNugget>
         {
             { "ModelNames", (parser, x) => x.ModelNames = parser.ParseAssetReferenceArray() },
             { "AnimationSet", (parser, x) => x.AnimationSets.Add(parser.ParseAssetReferenceArray()) },
@@ -100,15 +112,45 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int RollRate { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
+
+            debrisObject.Transform.Translation = context.GameObject.Transform.Translation + Offset;
+            debrisObject.Transform.Rotation = context.GameObject.Transform.Rotation;
+
+            // Model
+            var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.DrawModules[0];
+            // TODO
+            //var modelName = ModelNames[context.GameContext.Random.Next(ModelNames.Length)];
+            var modelName = ModelNames[0];
+            w3dDebrisDraw.SetModelName(modelName);
+
+            // Physics
+            var physicsBehavior = debrisObject.FindBehavior<PhysicsBehavior>();
+            physicsBehavior.Mass = Mass;
+
+            if (Disposition.Get(ObjectDisposition.SendItFlying))
+            {
+                physicsBehavior.AddForce(
+                    new Vector3(
+                        ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
+                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
+                        DispositionIntensity * 200));
+            }
+
+            // TODO: Count, Disposition, DispositionIntensity
+        }
     }
 
-    public sealed class CreateObjectObjectCreationListItem : ObjectCreationListItem
+    public sealed class CreateObjectOCNugget : OCNugget
     {
-        internal static CreateObjectObjectCreationListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CreateObjectOCNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
+        private static readonly IniParseTable<CreateObjectOCNugget> FieldParseTable = new IniParseTable<CreateObjectOCNugget>
         {
-            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseAssetReference() },
+            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseObjectReferenceArray() },
             { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "SpreadFormation", (parser, x) => x.SpreadFormation = parser.ParseBoolean() },
@@ -165,7 +207,7 @@ namespace OpenSage.Logic.Object
             { "WaypointSpawnPoints", (parser, x) => x.WaypointSpawnPoints = parser.ParseAssetReference() },
         };
 
-        public string ObjectNames { get; private set; }
+        public LazyAssetReference<ObjectDefinition>[] ObjectNames { get; private set; }
         public Vector3 Offset { get; private set; }
         public int Count { get; private set; }
         public bool SpreadFormation { get; private set; }
@@ -266,16 +308,33 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string WaypointSpawnPoints { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+
+            foreach (var objectName in ObjectNames)
+            {
+                var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
+                newGameObject.Transform.Translation = context.GameObject.Transform.Translation;
+                newGameObject.Transform.Rotation = context.GameObject.Transform.Rotation;
+
+                // TODO: Count
+                // TODO: Disposition
+                // TODO: DispositionIntensity
+                // TODO: Offset
+            }
+        }
     }
 
-    public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem
+    public sealed class ApplyRandomForceOCNugget : OCNugget
     {
-        internal static ApplyRandomForceObjectCreationListItem Parse(IniParser parser)
+        internal static ApplyRandomForceOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<ApplyRandomForceObjectCreationListItem> FieldParseTable = new IniParseTable<ApplyRandomForceObjectCreationListItem>
+        private static readonly IniParseTable<ApplyRandomForceOCNugget> FieldParseTable = new IniParseTable<ApplyRandomForceOCNugget>
         {
             { "MinForceMagnitude", (parser, x) => x.MinForceMagnitude = parser.ParseInteger() },
             { "MaxForceMagnitude", (parser, x) => x.MaxForceMagnitude = parser.ParseInteger() },
@@ -289,31 +348,41 @@ namespace OpenSage.Logic.Object
         public float MinForcePitch { get; private set; }
         public float MaxForcePitch { get; private set; }
         public float SpinRate { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
-    public sealed class FireWeaponObjectCreationListItem : ObjectCreationListItem
+    public sealed class FireWeaponOCNugget : OCNugget
     {
-        internal static FireWeaponObjectCreationListItem Parse(IniParser parser)
+        internal static FireWeaponOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<FireWeaponObjectCreationListItem> FieldParseTable = new IniParseTable<FireWeaponObjectCreationListItem>
+        private static readonly IniParseTable<FireWeaponOCNugget> FieldParseTable = new IniParseTable<FireWeaponOCNugget>
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() }
         };
 
         public string Weapon { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
-    public sealed class AttackObjectCreationListItem : ObjectCreationListItem
+    public sealed class AttackOCNugget : OCNugget
     {
-        internal static AttackObjectCreationListItem Parse(IniParser parser)
+        internal static AttackOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<AttackObjectCreationListItem> FieldParseTable = new IniParseTable<AttackObjectCreationListItem>
+        private static readonly IniParseTable<AttackOCNugget> FieldParseTable = new IniParseTable<AttackOCNugget>
         {
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "NumberOfShots", (parser, x) => x.NumberOfShots = parser.ParseInteger() },
@@ -325,16 +394,21 @@ namespace OpenSage.Logic.Object
         public int NumberOfShots { get; private set; }
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
-    public sealed class DeliverPayloadObjectCreationListItem : ObjectCreationListItem
+    public sealed class DeliverPayloadOCNugget : OCNugget
     {
-        internal static DeliverPayloadObjectCreationListItem Parse(IniParser parser)
+        internal static DeliverPayloadOCNugget Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<DeliverPayloadObjectCreationListItem> FieldParseTable = new IniParseTable<DeliverPayloadObjectCreationListItem>
+        private static readonly IniParseTable<DeliverPayloadOCNugget> FieldParseTable = new IniParseTable<DeliverPayloadOCNugget>
         {
             { "Transport", (parser, x) => x.Transport = parser.ParseAssetReference() },
             { "FormationSize", (parser, x) => x.FormationSize = parser.ParseInteger() },
@@ -406,6 +480,11 @@ namespace OpenSage.Logic.Object
         public float WeaponConvergenceFactor { get; private set; }
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            // TODO
+        }
     }
 
     public enum ObjectDisposition

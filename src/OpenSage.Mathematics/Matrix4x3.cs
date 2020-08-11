@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace OpenSage.Mathematics
 {
@@ -40,6 +41,15 @@ namespace OpenSage.Mathematics
             M41 = m41;
             M42 = m42;
             M43 = m43;
+        }
+
+        public Matrix4x4 ToMatrix4x4()
+        {
+            return new Matrix4x4(
+                M11, M12, M13, 0,
+                M21, M22, M23, 0,
+                M31, M32, M33, 0,
+                M41, M42, M43, 1);
         }
     }
 }

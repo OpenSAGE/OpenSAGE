@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -16,14 +17,22 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ObjectContext GlobalObject { get; }
         public ObjectContext ExternObject { get; }
 
+        // Delegate to call a function inside the engine
         public delegate void HandleCommand(ActionContext context, string command, string param);
-
         public HandleCommand CommandHandler;
+
+        // Delegate to retrieve an internal variable from the engine
+        public delegate Value HandleExternVariable(string variable);
+        public HandleExternVariable VariableHandler;
+
+        // Delegate to load another movie
+        public delegate AptFile HandleExternalMovie(string movie);
+        public HandleExternalMovie MovieHandler;
 
         public VM()
         {
             GlobalObject = new ObjectContext();
-            ExternObject = new ExternObject();
+            ExternObject = new ExternObject(this);
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
         }
 
@@ -75,7 +84,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Global = GlobalObject,
                 Scope = localScope,
                 Apt = scope.Item.Context,
-                Stream = stream
+                Stream = stream,
+                Constants = scope.Item.Character.Container.Constants.Entries
             };
 
             //parameters in the old version are just stored as local variables
@@ -121,7 +131,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr.Execute(context);
 
                 if (context.Return)
-                    return context.Stack.Pop();
+                    return context.Stack.Pop().ResolveRegister(context);
 
                 if (stream.IsFinished())
                     break;
@@ -129,33 +139,36 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr = stream.GetInstruction();
             }
 
-            return null;
+            return Value.Undefined();
         }
 
-        public void Execute(InstructionCollection code, ObjectContext scope)
+        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
         {
             var stream = new InstructionStream(code);
-
             var instr = stream.GetInstruction();
-            var context = new ActionContext()
+            var context = new ActionContext(4)
             {
                 Global = GlobalObject,
                 Scope = scope,
                 Apt = scope.Item.Context,
-                Stream = stream
+                Stream = stream,
+                Constants = consts,
             };
+
+            InstructionBase prev = null;
 
             while (instr.Type != InstructionType.End)
             {
                 instr.Execute(context);
 
+                prev = instr;
                 instr = stream.GetInstruction();
             }
         }
 
         public void Handle(ActionContext context, string url, string target)
         {
-            UrlHandler.Handle(CommandHandler, context, url, target);
+            UrlHandler.Handle(CommandHandler, MovieHandler, context, url, target);
         }
     }
 }

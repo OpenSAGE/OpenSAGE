@@ -286,6 +286,24 @@ namespace OpenSage.FileFormats
             }
         }
 
+        public static void WriteNullTerminatedString(this BinaryWriter writer, in string content)
+        {
+            foreach(var b in Encoding.UTF8.GetBytes(content))
+            {
+                writer.Write(b);
+            }
+
+            writer.Write('\0');
+        }
+
+        public static void WriteBigEndianUInt32(this BinaryWriter writer, uint num)
+        {
+            var array = BitConverter.GetBytes(num);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(array);
+            writer.Write(array);
+        }
+
         public static void Write(this BinaryWriter writer, in Line2D line)
         {
             writer.Write(line.V0);

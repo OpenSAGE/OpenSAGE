@@ -45,12 +45,12 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<MorphCondition> FieldParseTable = new IniParseTable<MorphCondition>
         {
             { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
-            { "Locomotor", (parser, x) => x.Locomotor = parser.ParseEnum<LocomotorSetCondition>() },
+            { "Locomotor", (parser, x) => x.Locomotor = parser.ParseEnum<LocomotorSetType>() },
             { "ModelState", (parser, x) => x.ModelStates = parser.ParseEnumBitArray<ModelConditionFlag>(parser.ParseString()) }
         };
 
         public string UnitType { get; private set; }
-        public LocomotorSetCondition Locomotor { get; private set; }
+        public LocomotorSetType Locomotor { get; private set; }
         public BitArray<ModelConditionFlag> ModelStates { get; private set; }
     }
 }

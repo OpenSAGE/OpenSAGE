@@ -97,6 +97,16 @@ namespace OpenSage.Content
                 case Subsystem.Credits:
                     LoadFiles(@"Data\INI\Credits.ini");
                     break;
+                case Subsystem.Damage:
+                    LoadFiles(@"Data\INI\DamageFX.ini");
+                    break;
+                case Subsystem.SpecialPower:
+                    LoadFiles(@"Data\INI\Default\SpecialPower.ini");
+                    LoadFiles(@"Data\INI\SpecialPower.ini");
+                    break;
+                case Subsystem.InGameUI:
+                    LoadFiles(@"Data\INI\InGameUI.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -148,6 +158,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             _contentManager.LoadIniFile(@"Data\INI\Mouse.ini");
                             _contentManager.LoadIniFile(@"Data\INI\Water.ini");
+                            _contentManager.LoadIniFile(@"Data\INI\WaterTextures.ini");
                             _contentManager.LoadIniFile(@"Maps\MapCache.ini");
                             break;
 
@@ -351,6 +362,15 @@ namespace OpenSage.Content
                     break;
                 case Subsystem.Credits:
                     yield return "Credits";
+                    yield break;
+                case Subsystem.Damage:
+                    yield return "TheDamageFXStore";
+                    yield break;
+                case Subsystem.SpecialPower:
+                    yield return "TheSpecialPowerStore";
+                    yield break;
+                case Subsystem.InGameUI:
+                    yield return "InGameUI";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);

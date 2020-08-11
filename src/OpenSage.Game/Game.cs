@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
+using OpenSage.Data.Sav;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -31,20 +34,29 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
+        static Game()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+
         // TODO: These should be configurable at runtime with GameSpeed.
-        internal const double LogicUpdateInterval = 1000.0 / 5.0;
+
+        // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
+        // so as a temporary workaround, we simply tick the logic at 30fps.
+        //internal const double LogicUpdateInterval = 1000.0 / 5.0;
+        internal const double LogicUpdateInterval = 1000.0 / 30.0;
+
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
         private readonly FileSystem _userDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
-        private readonly Dictionary<string, Cursor> _cachedCursors;
-        private Cursor _currentCursor;
-
         private readonly DeveloperModeView _developerModeView;
 
         private readonly TextureCopier _textureCopier;
+
+        internal readonly CursorManager Cursors;
 
         internal GraphicsLoadContext GraphicsLoadContext { get; }
         public AssetStore AssetStore { get; }
@@ -55,6 +67,12 @@ namespace OpenSage
 
         public InputMessageBuffer InputMessageBuffer { get; }
         
+        public SkirmishManager SkirmishManager { get; }
+
+        //TODO: this will be part of SkirmishManager after merging litenetlib PR
+        public MapCache CurrentMap { get; private set; }
+        public LobbyManager LobbyManager { get; }
+
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
@@ -97,6 +115,16 @@ namespace OpenSage
         /// This is only false when the game is shutting down.
         /// </summary>
         public bool IsRunning { get; }
+
+        /// <summary>
+        /// Are we currently in a skirmish game?
+        /// </summary>
+        public bool InGame { get; private set; } = false;
+
+        public void LoadSaveFile(FileSystemEntry entry)
+        {
+            SaveFile.Load(entry, this);
+        }
 
         public void LoadReplayFile(FileSystemEntry replayFileEntry)
         {
@@ -368,8 +396,6 @@ namespace OpenSage
                 _renderTimer = AddDisposable(new DeltaTimer());
                 _renderTimer.Start();
 
-                _cachedCursors = new Dictionary<string, Cursor>();
-
                 _wndCallbackResolver = new WndCallbackResolver();
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
@@ -428,7 +454,8 @@ namespace OpenSage
 
                 GameSystems.ForEach(gs => gs.Initialize());
 
-                SetCursor("Arrow");
+                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
+                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
 
                 var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
 
@@ -444,6 +471,9 @@ namespace OpenSage
                 LauncherImage = LoadLauncherImage();
 
                 _mapTimer.Reset();
+
+                LobbyManager = new LobbyManager(this);
+                SkirmishManager = new SkirmishManager(this);                
 
                 IsRunning = true;
                 IsLogicRunning = true;
@@ -466,52 +496,6 @@ namespace OpenSage
             Scene2D.AptWindowManager.OnViewportSizeChanged(newSize);
 
             Scene3D?.Camera.OnViewportSizeChanged();
-        }
-
-        // Needed by Data Viewer.
-        public void SetCursor(Cursor cursor)
-        {
-            _currentCursor = cursor;
-
-            Panel.SetCursor(cursor);
-        }
-
-        public void SetCursor(string cursorName)
-        {
-            if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
-            {
-                var mouseCursor = AssetStore.MouseCursors.GetByName(cursorName);
-                if (mouseCursor == null)
-                {
-                    return;
-                }
-
-                var cursorFileName = mouseCursor.Image;
-                if (string.IsNullOrEmpty(Path.GetExtension(cursorFileName)))
-                {
-                    cursorFileName += ".ani";
-                }
-
-                string cursorDirectory;
-                switch (SageGame)
-                {
-                    case SageGame.Cnc3:
-                    case SageGame.Cnc3KanesWrath:
-                        // TODO: Get version number dynamically.
-                        cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
-                        break;
-
-                    default:
-                        cursorDirectory = Path.Combine("Data", "Cursors");
-                        break;
-                }
-
-                var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
-
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorFilePath));
-            }
-
-            SetCursor(cursor);
         }
 
         public void ShowMainMenu()
@@ -537,7 +521,7 @@ namespace OpenSage
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile, Environment.TickCount);
+            return new Scene3D(this, mapFile, mapPath, Environment.TickCount);
         }
 
         public Window LoadWindow(string wndFileName)
@@ -556,15 +540,19 @@ namespace OpenSage
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
             var aptFile = AptFile.FromFileSystemEntry(entry);
             return new AptWindow(this, ContentManager, aptFile);
+
         }
 
-        private void StartGame(
+        internal void StartGame(
             string mapFileName,
             IConnection connection,
             PlayerSetting?[] playerSettings,
             int localPlayerIndex,
-            bool isMultiPlayer)
+            bool isMultiPlayer,
+            MapFile mapFile = null)
         {
+            InGame = true;
+
             // TODO: Loading screen.
             while (Scene2D.WndWindowManager.OpenWindowCount > 0)
             {
@@ -576,22 +564,13 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D = LoadMap(mapFileName);
+            Scene3D = mapFile != null
+                ? new Scene3D(this, mapFile, mapFileName, Environment.TickCount)
+                : LoadMap(mapFileName);
 
             if (Scene3D == null)
             {
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
-            }
-
-            var mapCache = AssetStore.MapCaches.GetByName(mapFileName.ToLower());
-            if (mapCache == null)
-            {
-                mapCache = AssetStore.MapCaches.GetByName(Path.Combine(UserDataFolder, mapFileName).ToLower());
-            }
-
-            if (mapCache == null)
-            {
-                throw new Exception($"Failed to load MapCache \"{mapFileName}\"");
             }
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
@@ -600,8 +579,8 @@ namespace OpenSage
             {
                 var players = new Player[playerSettings.Length + 1];
 
-                var availablePositions = new List<int>(mapCache.NumPlayers);
-                for (var a = 1; a <= mapCache.NumPlayers; a++)
+                var availablePositions = new List<int>(Scene3D.MapCache.NumPlayers);
+                for (var a = 1; a <= Scene3D.MapCache.NumPlayers; a++)
                 {
                     availablePositions.Add(a);
                 }
@@ -648,17 +627,14 @@ namespace OpenSage
                         startingBuilding.Transform.Translation = playerStartPosition;
                         startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
 
+                        Scene3D.Navigation.UpdateAreaPassability(startingBuilding, false);
+
                         var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
                         var startingUnit0Position = playerStartPosition;
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
 
                         players[i].SelectUnits(new[] { startingBuilding });
-                    }
-
-                    if (players[i].IsHuman)
-                    {
-                        localPlayerIndex = i;
                     }
                 }
 
@@ -680,6 +656,8 @@ namespace OpenSage
 
             // Scripts should be enabled in all games, even replays
             Scripting.Active = true;
+
+            CurrentMap = Scene3D.MapCache;
         }
 
         public void StartCampaign(string side)
@@ -690,6 +668,11 @@ namespace OpenSage
             var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
 
             StartSinglePlayerGame(firstMission.Map);
+        }
+
+        public void HostSkirmishGame()
+        {
+
         }
 
         public void StartMultiPlayerGame(
@@ -828,6 +811,35 @@ namespace OpenSage
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
             Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
             Scene3D?.LocalLogicTick(MapTime, tickT);
+
+            // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
+            if (SkirmishManager.SkirmishGame?.ReadyToStart ?? false)
+            {
+                SkirmishManager.SkirmishGame.ReadyToStart = false;
+
+                var playerSettings = (from s in SkirmishManager.SkirmishGame.Slots
+                                      where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
+                                      select new PlayerSetting(
+                                          s.Index,
+                                          GetPlayableSides().ElementAt(s.FactionIndex),
+                                          AssetStore.MultiplayerColors.GetByIndex(s.ColorIndex).RgbColor,
+                                          s.State switch
+                                          {
+                                              SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                                              SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                                              SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                                              SkirmishSlotState.Human => PlayerOwner.Player,
+                                              _ => PlayerOwner.None
+                                          })).OfType<PlayerSetting?>().ToArray();
+
+                StartMultiPlayerGame(
+                    AssetStore.MapCaches.FirstOrDefault(m => m.IsMultiplayer).Name,
+                    SkirmishManager.Connection,
+                    playerSettings,
+                    SkirmishManager.SkirmishGame.LocalSlot);
+            }
+
+            Cursors.Update(RenderTime);
         }
 
         private void CheckGlobalHotkeys()
@@ -847,6 +859,12 @@ namespace OpenSage
                 DeveloperModeEnabled = !DeveloperModeEnabled;
             }
 
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Comma))
+            {
+                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
+            }
+
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
             {
                 Window.Fullscreen = !Window.Fullscreen;
@@ -863,7 +881,9 @@ namespace OpenSage
             }
 
             // TODO: What is the order?
-            Scene3D?.LogicTick(frame, MapTime);
+            // TODO: Calculate time correctly.
+            var timeInterval = new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
+            Scene3D?.LogicTick(frame, timeInterval);
 
             CurrentFrame += 1;
         }

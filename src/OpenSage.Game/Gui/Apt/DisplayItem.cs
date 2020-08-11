@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -28,6 +30,11 @@ namespace OpenSage.Gui.Apt
                                      a.GeometryTranslation + b.GeometryTranslation);
         }
 
+        public void Scale(float x, float y)
+        {
+            GeometryRotation = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryRotation);
+        }
+
         public ItemTransform WithColorTransform(in ColorRgbaF color)
         {
             return new ItemTransform(color,
@@ -50,6 +57,9 @@ namespace OpenSage.Gui.Apt
         public ObjectContext ScriptObject { get; protected set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
+        public int? ClipDepth { get; set; }
+
+        internal RenderTarget ClipMask { get; set; }
 
         /// <summary>
         /// Create a new DisplayItem
@@ -64,7 +74,23 @@ namespace OpenSage.Gui.Apt
 
         public virtual void Update(TimeInterval gt) { }
 
-        public virtual void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc) { }
+        public void Render(AptRenderingContext renderingContext)
+        {
+            if (ClipDepth.HasValue)
+            {
+                ClipMask.EnsureSize(renderingContext.WindowSize);
+                renderingContext.SetRenderTarget(ClipMask);
+            }
+
+            RenderImpl(renderingContext);
+
+            if (ClipDepth.HasValue)
+            {
+                renderingContext.SetRenderTarget(null);
+            }
+        }
+
+        protected virtual void RenderImpl(AptRenderingContext renderingContext) { }
 
         public virtual void RunActions(TimeInterval gt) { }
 

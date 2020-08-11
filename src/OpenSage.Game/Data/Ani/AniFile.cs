@@ -17,6 +17,9 @@ namespace OpenSage.Data.Ani
         public uint IconWidth { get; private set; }
         public uint IconHeight { get; private set; }
 
+        public uint HotspotX { get; private set; }
+        public uint HotspotY { get; private set; }
+
         public RateChunkContent Rates { get; private set; }
         public SequenceChunkContent Sequence { get; private set; }
 
@@ -71,6 +74,9 @@ namespace OpenSage.Data.Ani
                                     {
                                         result.IconWidth = iconDirEntry.Width;
                                         result.IconHeight = iconDirEntry.Height;
+
+                                        result.HotspotX = iconDirEntry.HotspotX;
+                                        result.HotspotY = iconDirEntry.HotspotY;
                                     }
                                     else
                                     {
@@ -82,12 +88,27 @@ namespace OpenSage.Data.Ani
 
                                     var icon = iconChunkContent.Images[0];
 
-                                    result.Images[iconIndex] = new AniCursorImage
+                                    var pixels = new byte[result.IconWidth * result.IconHeight * 4];
+
+                                    var index = 0;
+                                    for (var y = 0; y < result.IconHeight; y++)
                                     {
-                                        ColorTable = icon.ColorTable,
-                                        XorMask = icon.XorMask,
-                                        AndMask = icon.AndMask
-                                    };
+                                        for (var x = 0; x < result.IconWidth; x++)
+                                        {
+                                            var pixelIndex = (y * result.IconWidth) + x;
+
+                                            var isTransparent = icon.AndMask.Pixels[pixelIndex] == 1;
+
+                                            var color = icon.ColorTable.Entries[icon.XorMask.Pixels[pixelIndex]];
+
+                                            pixels[index++] = color.Blue;
+                                            pixels[index++] = color.Green;
+                                            pixels[index++] = color.Red;
+                                            pixels[index++] = isTransparent ? (byte) 0 : (byte) 255;
+                                        }
+                                    }
+
+                                    result.Images[iconIndex] = new AniCursorImage(pixels);
 
                                     iconIndex++;
                                 }
@@ -137,12 +158,5 @@ namespace OpenSage.Data.Ani
 
             return null;
         }
-    }
-
-    public sealed class AniCursorImage
-    {
-        public BmpColorTable ColorTable { get; internal set; }
-        public BmpRasterData XorMask { get; internal set; }
-        public BmpRasterData AndMask { get; internal set; }
     }
 }

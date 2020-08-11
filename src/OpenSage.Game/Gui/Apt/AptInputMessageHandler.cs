@@ -53,14 +53,14 @@ namespace OpenSage.Gui.Apt
                 case InputMessageType.MouseRightButtonUp:
                     break;
                 case InputMessageType.MouseMove:
-                    if(_windowManager.HandleInput(message.Value.MousePosition, false))
+                    if (_windowManager.HandleInput(message.Value.MousePosition, false))
                     {
                         return InputMessageResult.Handled;
                     }
                     break;
                 case InputMessageType.MouseWheel:
                     break;
-            }          
+            }
 
             return InputMessageResult.NotHandled;
         }

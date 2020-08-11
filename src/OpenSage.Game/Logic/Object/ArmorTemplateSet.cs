@@ -15,11 +15,11 @@ namespace OpenSage.Logic.Object
         {
             { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumBitArray<ArmorSetCondition>() },
             { "Armor", (parser, x) => x.Armor = parser.ParseArmorTemplateReference() },
-            { "DamageFX", (parser, x) => x.DamageFX = parser.ParseAssetReference() },
+            { "DamageFX", (parser, x) => x.DamageFX = parser.ParseDamageFXReference() },
         };
 
-        public BitArray<ArmorSetCondition> Conditions { get; private set; }
+        public BitArray<ArmorSetCondition> Conditions { get; private set; } = new BitArray<ArmorSetCondition>();
         public LazyAssetReference<ArmorTemplate> Armor { get; private set; }
-        public string DamageFX { get; private set; }
+        public LazyAssetReference<DamageFX> DamageFX { get; private set; }
     }
 }

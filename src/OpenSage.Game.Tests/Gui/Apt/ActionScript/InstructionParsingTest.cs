@@ -1,10 +1,12 @@
-﻿using System.IO;
-using static System.Text.Encoding;
+﻿using System.Collections.Generic;
+using System.IO;
+using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using Xunit;
 using Xunit.Abstractions;
+using static System.Text.Encoding;
 
 namespace OpenSage.Tests.Gui.Apt.ActionScript
 {
@@ -14,13 +16,13 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
         {
             while (writer.BaseStream.Position % 4 != 0)
             {
-                writer.Write((byte)0);
+                writer.Write((byte) 0);
             }
         }
 
         public static void WriteSimpleInstruction(this BinaryWriter writer, InstructionType type, int? argument = null)
         {
-            writer.Write((byte)type);
+            writer.Write((byte) type);
             if (argument.HasValue)
             {
                 if (InstructionAlignment.IsAligned(type))
@@ -34,7 +36,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
         public static int WriteNullTerminatedString(this BinaryWriter writer, string value)
         {
             writer.Align();
-            var position = (int)writer.BaseStream.Position;
+            var position = (int) writer.BaseStream.Position;
             writer.Write(UTF8.GetBytes(value + '\0'));
             return position;
         }
@@ -61,7 +63,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
                 var rightValuePosition = instructionWriter.WriteNullTerminatedString(rightValue);
 
                 instructionWriter.Align();
-                var instructionOffset = (uint)instructionStream.Position;
+                var instructionOffset = (uint) instructionStream.Position;
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushOne);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushZero);
                 instructionWriter.WriteSimpleInstruction(InstructionType.Add2);
@@ -85,7 +87,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
                 // pathological case
                 instructionWriter.WriteSimpleInstruction(InstructionType.BranchIfTrue, -79);
 
-                var instructionOffsetPosition = (int)instructionStream.Position;
+                var instructionOffsetPosition = (int) instructionStream.Position;
                 instructionWriter.Write(instructionOffset);
                 instructionWriter.Write(afterInstructionPosition);
                 instructionWriter.Write("DummyData");
@@ -113,7 +115,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
 
             var context = new ObjectContext(new SpriteItem());
             var vm = new VM();
-            vm.Execute(collection, context);
+            vm.Execute(collection, context, new List<ConstantEntry>());
             // Assert that during execution of instructions, the right value is set
             Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
         }

@@ -1,20 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Network
 {
     public sealed class NetworkMessageBuffer : DisposableBase
     {
-        private readonly Dictionary<uint, List<Order>> _frameOrders;
-        private readonly List<Order> _localOrders;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IConnection _connection;
         private readonly OrderProcessor _orderProcessor;
 
+        private List<Order> _localOrders;
         private uint _netFrameNumber;
+
+        //TODO: use this for generating a replay file later on
+        public Dictionary<uint, List<Order>> FrameOrders { get; }
 
         public NetworkMessageBuffer(Game game, IConnection connection)
         {
-            _frameOrders = new Dictionary<uint, List<Order>>();
+            FrameOrders = new Dictionary<uint, List<Order>>();
             _localOrders = new List<Order>();
             _connection = connection;
             _orderProcessor = new OrderProcessor(game);
@@ -27,23 +32,31 @@ namespace OpenSage.Network
 
         internal void Tick()
         {
+            _connection.Send(_netFrameNumber, _localOrders);
+
+            // create a new list instead of clearing, otherwise
+            // we would need to copy the list in _connection.Send
+            _localOrders = new List<Order>();
+
             _connection.Receive(
                 _netFrameNumber,
                 (frame, order) =>
                 {
-                    if (!_frameOrders.TryGetValue(frame, out var orders))
+                    if (frame < _netFrameNumber)
                     {
-                        _frameOrders.Add(frame, orders = new List<Order>());
+                        throw new InvalidOperationException("This should not be possible, Receive should block until all orders are available.");
+                    }
+
+                    Logger.Trace($"Storing order {order.OrderType} for frame {frame}");
+
+                    if (!FrameOrders.TryGetValue(frame, out var orders))
+                    {
+                        FrameOrders.Add(frame, orders = new List<Order>());
                     }
                     orders.Add(order);
                 });
 
-            _connection.Send(_netFrameNumber, _localOrders);
-
-            _orderProcessor.Process(_localOrders);
-            _localOrders.Clear();
-
-            if (_frameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
+            if (FrameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
             {
                 _orderProcessor.Process(frameOrders);
             }

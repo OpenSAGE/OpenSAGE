@@ -56,7 +56,7 @@ namespace OpenSage.Logic.Object
 
         public string SpawnPointBoneName { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new SpawnPointProductionExitUpdate(gameObject, this);
         }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Content.Translation;
+﻿using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
@@ -22,20 +23,20 @@ namespace OpenSage.Gui.Apt
             IsHovered = false;
         }
 
-        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        protected override void RenderImpl(AptRenderingContext renderingContext)
         {
             if (!Visible)
                 return;
 
-            var cTransform = pTransform * Transform;
+            renderingContext.PushTransform(Transform);
 
             switch (Character)
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-
-                    renderer.RenderGeometry(dc, Context, geometry, cTransform, Texture);
+                    renderingContext.RenderGeometry(geometry, Texture);
                     break;
+
                 case Text t:
                     if (t.Value.Length > 0)
                     {
@@ -45,12 +46,15 @@ namespace OpenSage.Gui.Apt
                     }
 
                     //localize our content
-                    t.Content = t.Content.Replace("$", "APT:");
+                    t.Content = t.Content.Replace("$", "APT:"); // All string values begin with $
+                    t.Content = t.Content.Split('&').First();   // Query strings after ampersand
                     t.Content = t.Content.Translate();
 
-                    renderer.RenderText(dc, Context, t, cTransform);
+                    renderingContext.RenderText(t);
                     break;
             }
+
+            renderingContext.PopTransform();
         }
     }
 }

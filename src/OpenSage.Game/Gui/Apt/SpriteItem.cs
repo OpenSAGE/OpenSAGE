@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
+using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using Veldrid;
 using Action = OpenSage.Data.Apt.FrameItems.Action;
 
 namespace OpenSage.Gui.Apt
@@ -12,6 +14,7 @@ namespace OpenSage.Gui.Apt
     public enum PlayState
     {
         PLAYING,
+        PENDING_STOPPED,
         STOPPED
     }
 
@@ -20,8 +23,7 @@ namespace OpenSage.Gui.Apt
         private Playable _sprite;
         private uint _currentFrame;
         private TimeInterval _lastUpdate;
-        private PlayState _state;
-        private Dictionary<string, uint> _frameLabels;
+
         public delegate void ColorDelegate(ColorRgbaF color);
 
         /// <summary>
@@ -33,13 +35,18 @@ namespace OpenSage.Gui.Apt
 
         public DisplayList Content { get; private set; }
 
+        public int CurrentFrame => (int) _currentFrame;
+
+        public Dictionary<string, uint> FrameLabels { get; private set; }
+        public PlayState State { get; private set; }
+
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) character;
             _currentFrame = 0;
             _actionList = new List<Action>();
-            _frameLabels = new Dictionary<string, uint>();
-            _state = PlayState.PLAYING;
+            FrameLabels = new Dictionary<string, uint>();
+            State = PlayState.PLAYING;
 
             Name = "";
             Visible = true;
@@ -57,27 +64,48 @@ namespace OpenSage.Gui.Apt
                     switch (item)
                     {
                         case FrameLabel fl:
-                            _frameLabels[fl.Name] = fl.FrameId;
+                            FrameLabels[fl.Name] = fl.FrameId;
                             break;
                     }
-
                 }
             }
         }
 
-        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        protected override void RenderImpl(AptRenderingContext renderingContext)
         {
             if (!Visible)
                 return;
 
             //calculate the transform for this element
-            var cTransform = pTransform * Transform;
+            renderingContext.PushTransform(Transform);
+
+            var clipMask = (Texture) null;
+            var clipDepth = 0;
 
             //render all subItems
-            foreach (var item in Content.Items.Values)
+            foreach (var (depth, item) in Content.Items)
             {
-                item.Render(renderer, cTransform, dc);
+                item.Render(renderingContext);
+
+                if (depth > clipDepth && clipMask != null)
+                {
+                    renderingContext.SetClipMask(null);
+                    clipDepth = 0;
+                }
+
+                if (item.ClipDepth != null)
+                {
+                    renderingContext.SetClipMask(item.ClipMask);
+                    clipDepth = item.ClipDepth.Value;
+                }
             }
+
+            // In case the clipMask wans't cleared inside the loop
+            if (clipDepth > 0)
+            {
+                renderingContext.SetClipMask(null);
+            }
+            renderingContext.PopTransform();
         }
 
         public override void Update(TimeInterval gt)
@@ -96,11 +124,18 @@ namespace OpenSage.Gui.Apt
                     }
                 }
 
-                _currentFrame++;
+                if (State == PlayState.PLAYING)
+                {
+                    NextFrame();
 
-                //reset to the start, we are looping by default
-                if (_currentFrame >= _sprite.Frames.Count)
-                    _currentFrame = 0;
+                    //reset to the start, we are looping by default
+                    if (_currentFrame >= _sprite.Frames.Count)
+                        _currentFrame = 0;
+                }
+                else if (State == PlayState.PENDING_STOPPED)
+                {
+                    State = PlayState.STOPPED;
+                }
             }
 
             //update all subItems
@@ -110,14 +145,14 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Stop()
+        public void Stop(bool pending = false)
         {
-            _state = PlayState.STOPPED;
+            State = pending ? PlayState.PENDING_STOPPED : PlayState.STOPPED;
         }
 
         public void Play()
         {
-            _state = PlayState.PLAYING;
+            State = PlayState.PLAYING;
         }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -125,9 +160,9 @@ namespace OpenSage.Gui.Apt
         public void Goto(string label)
         {
             logger.Info($"Goto: {label}");
-            if (_frameLabels.ContainsKey(label))
+            if (FrameLabels.ContainsKey(label))
             {
-                _currentFrame = _frameLabels[label];
+                _currentFrame = FrameLabels[label];
             }
             else
             {
@@ -162,7 +197,7 @@ namespace OpenSage.Gui.Apt
                 return true;
             }
 
-            if (_state != PlayState.PLAYING)
+            if (State == PlayState.STOPPED)
                 return false;
 
             if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)
@@ -181,7 +216,7 @@ namespace OpenSage.Gui.Apt
                 case PlaceObject po:
                     //place a new display item
                     if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
-                       !po.Flags.HasFlag(PlaceObjectFlags.Move) && !po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
+                       !po.Flags.HasFlag(PlaceObjectFlags.Move))
                     {
                         PlaceItem(po);
                     }
@@ -211,7 +246,7 @@ namespace OpenSage.Gui.Apt
                     }
                     else
                     {
-                        throw new InvalidOperationException("BackgroundColor can only be set from root!");
+                        //throw new InvalidOperationException("BackgroundColor can only be set from root!");
                     }
                     break;
                 default:
@@ -293,12 +328,13 @@ namespace OpenSage.Gui.Apt
 
             DisplayItem displayItem;
             if (character is Playable)
-                displayItem = new SpriteItem() { Transform = itemTransform };
+                displayItem = new SpriteItem();
             else if (character is Button)
-                displayItem = new ButtonItem() { Transform = itemTransform };
+                displayItem = new ButtonItem();
             else
-                displayItem = new RenderItem() { Transform = itemTransform };
+                displayItem = new RenderItem();
 
+            displayItem.Transform = itemTransform;
             displayItem.Create(character, Context, this);
 
             //add this object as an AS property
@@ -316,21 +352,32 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject);
+                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject,
+                                                Character.Container.Constants.Entries);
                         }
                     }
                 }
             }
 
+            if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
+            {
+                displayItem.ClipDepth = po.ClipDepth;
+
+                // TODO: Need to dispose this.
+                displayItem.ClipMask = new RenderTarget(Context.Window.ContentManager.GraphicsDevice);
+            }
+
             Content.AddItem(po.Depth, displayItem);
         }
+
 
         public override void RunActions(TimeInterval gt)
         {
             //execute all actions now
             foreach (var action in _actionList)
             {
-                Context.Avm.Execute(action.Instructions, ScriptObject);
+                Context.Avm.Execute(action.Instructions, ScriptObject,
+                        ScriptObject.Item.Character.Container.Constants.Entries);
             }
             _actionList.Clear();
 

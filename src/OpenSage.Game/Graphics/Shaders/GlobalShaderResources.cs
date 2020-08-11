@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -71,6 +72,7 @@ namespace OpenSage.Graphics.Shaders
         public struct GlobalConstantsVS
         {
             public Matrix4x4 ViewProjection;
+            public Vector4 ClippingPlane;
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
@@ -195,6 +197,26 @@ namespace OpenSage.Graphics.Shaders
                 value3 = (numValues > 2) ? values[2] : default;
                 value4 = (numValues > 3) ? values[3] : default;
             }
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
+        public struct WaterConstantsPS
+        {
+            public const int SizeInBytes = 16 * 4;
+
+            public Vector2 UVOffset;
+
+            public float FarPlaneDistance;
+            public float NearPlaneDistance;
+
+            public uint IsRenderReflection;
+            public uint IsRenderRefraction;
+
+            public float TransparentWaterMinOpacity;
+            public float TransparentWaterDepth;
+            // Figure out when how to use those correctly
+            public ColorRgbaF DiffuseColor;
+            public ColorRgbaF TransparentDiffuseColor;
         }
     }
 }

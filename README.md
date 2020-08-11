@@ -75,7 +75,7 @@ Here's a rough roadmap:
   You can purchase [Command & Conquer: The Ultimate Collection through Origin](https://www.origin.com/twn/en-us/store/command-and-conquer/command-and-conquer-the-ultimate-collection/ultimate-collection).
 * This is a blackbox re-implementation project. The code in this project was written based on reading data files, 
   and observing the game running. In some cases (for example refpack decompression) the code was written based on specs available on the Internet.
-  I believe puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
+  I believe this puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
 * If you want to contribute to this repository, your contribution must be either your own original code, or open source code with a
   clear acknowledgement of its origin. No code that was acquired through reverse engineering executable binaries will be accepted.
 * No assets from the original games are included in this repo.

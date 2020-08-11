@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Audio;
-using OpenSage.Content.Loaders;
 
 namespace OpenSage.Logic.Object
 {
@@ -90,10 +88,10 @@ namespace OpenSage.Logic.Object
                 { WeaponState.Reloading, new ReloadingWeaponState(context) }
             };
 
-            TransitionToState(WeaponState.Inactive, TimeSpan.Zero);
+            TransitionToState(WeaponState.Inactive, TimeInterval.Zero);
         }
 
-        public void TransitionToState(WeaponState state, TimeSpan currentTime)
+        public void TransitionToState(WeaponState state, TimeInterval time)
         {
             Logger.Info($"Weapon {_context.Weapon.Template.Name} on game object {_context.GameObject.Name} transitioning to state {state}");
 
@@ -101,25 +99,30 @@ namespace OpenSage.Logic.Object
 
             _currentState = _states[state];
 
-            _currentState.OnEnterState(currentTime);
+            _currentState.OnEnterState(time);
         }
 
-        public void Update(TimeSpan currentTime)
+        public void Update(TimeInterval time)
         {
             while (true)
             {
                 // TODO: Fix timing. Need to use actual time that previous state ended.
-                var nextState = _currentState.GetNextState(currentTime);
+                var nextState = _currentState.GetNextState(time.TotalTime);
 
                 if (nextState != null)
                 {
-                    TransitionToState(nextState.Value, currentTime);
+                    TransitionToState(nextState.Value, time);
                 }
                 else
                 {
                     break;
                 }
             }
+        }
+
+        public void Fire(TimeInterval time)
+        {
+            TransitionToState(WeaponState.Firing, time);
         }
     }
 

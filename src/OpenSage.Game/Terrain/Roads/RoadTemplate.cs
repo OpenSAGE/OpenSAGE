@@ -20,8 +20,22 @@ namespace OpenSage.Terrain.Roads
             { "RoadWidthInTexture", (parser, x) => x.RoadWidthInTexture = parser.ParseFloat() }
         };
 
+        public RoadTemplate()
+        {
+        }
+
+        /// <summary>
+        /// Used in unit tests.
+        /// </summary>
+        internal RoadTemplate(string name)
+        {
+            SetNameAndInstanceId(nameof(RoadTemplate), name);
+        }
+
         public LazyAssetReference<TextureAsset> Texture { get; private set; }
         public float RoadWidth { get; private set; }
         public float RoadWidthInTexture { get; private set; }
+
+        public override string ToString() => FullName;        
     }
 }

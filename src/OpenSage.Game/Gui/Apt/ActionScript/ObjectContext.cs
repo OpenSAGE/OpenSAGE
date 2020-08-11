@@ -55,9 +55,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            if (Builtin.IsBuiltInVariable(name))
+            if (IsBuiltInVariable(name))
             {
-                return Builtin.GetBuiltInVariable(name, this);
+                return GetBuiltInVariable(name);
             }
 
             if (Variables.TryGetValue(name, out var result))
@@ -139,7 +139,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Value ResolveValue(string value, ObjectContext ctx)
         {
             var path = value.Split('.');
-            var obj = this;
+            var obj = ctx.GetParent();
             var member = path.Last();
 
             for (var i = 0; i < path.Length - 1; i++)
@@ -183,6 +183,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case PropertyType.Name:
                     result = Value.FromString(Item.Name);
                     break;
+                case PropertyType.X:
+                    result = Value.FromFloat(Item.Transform.GeometryTranslation.X);
+                    break;
+                case PropertyType.Y:
+                    result = Value.FromFloat(Item.Transform.GeometryTranslation.Y);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -196,6 +202,12 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 case PropertyType.Visible:
                     Item.Visible = val.ToBoolean();
+                    break;
+                case PropertyType.XScale:
+                    Item.Transform.Scale((float) val.ToFloat(), 0.0f);
+                    break;
+                case PropertyType.YScale:
+                    Item.Transform.Scale(0.0f, (float) val.ToFloat());
                     break;
                 default:
                     throw new NotImplementedException();

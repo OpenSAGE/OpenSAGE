@@ -1,8 +1,31 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Logic.Object.Damage;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class FlammableUpdate : UpdateModule
+    {
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(18);
+
+            var unknown2 = reader.ReadUInt32();
+
+            var unknown3 = reader.ReadUInt16();
+        }
+    }
+
     /// <summary>
     /// Allows the use of the AFLAME, SMOLDERING, and BURNED condition states.
     /// </summary>
@@ -100,5 +123,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public DamageType DamageType { get; internal set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new FlammableUpdate();
+        }
     }
 }

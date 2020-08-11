@@ -36,6 +36,8 @@ namespace OpenSage.Logic.Object
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
 
         public abstract Rectangle GetBoundingRectangle(Camera camera);
+        public abstract TransformedRectangle GetBoundingArea();
+        public abstract BoundingBox GetAxisAlignedBoundingBox();
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
@@ -96,6 +98,16 @@ namespace OpenSage.Logic.Object
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return camera.GetBoundingRectangle(worldBounds);
+        }
+
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
+        }
+
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+             return BoundingBox.Transform(_bounds, Transform.Matrix);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
@@ -163,12 +175,27 @@ namespace OpenSage.Logic.Object
             return frustum.Intersects(worldBounds);
         }
 
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+            var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
+            var center = worldBounds.Center;
+            var radius = worldBounds.Radius;
+            var min = new Vector3(center.X - radius, center.Y - radius, center.Z - radius);
+            var max = new Vector3(center.X + radius, center.Y + radius, center.Z + radius);
+            return new BoundingBox(min, max);
+        }
+
         public override Rectangle GetBoundingRectangle(Camera camera)
         {
             // TODO: Implement this.
             // Or don't, since Generals has only 4 spherical selectable objects,
             // and all of them are debug objects.
             return new Rectangle(0, 0, 0, 0);
+        }
+
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingSphere(_bounds, Transform.Translation);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
@@ -214,6 +241,16 @@ namespace OpenSage.Logic.Object
             return camera.GetBoundingRectangle(worldBounds);
         }
 
+        public override TransformedRectangle GetBoundingArea()
+        {
+            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
+        }
+
+        public override BoundingBox GetAxisAlignedBoundingBox()
+        {
+            return BoundingBox.Transform(_bounds, Transform.Matrix);
+        }
+
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
             const int sides = 8;
@@ -225,9 +262,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < sides; i++)
             {
-                // TODO: Replace this with single precision math using System.MathF?
-                var angle = 2 * Math.PI * i / sides;
-                var point = Transform.Translation + new Vector3((float) Math.Cos(angle), (float) Math.Sin(angle), 0) * radius;
+                var angle = 2 * MathF.PI * i / sides;
+                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * radius;
                 var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
 
                 // No line gets drawn on the first iteration

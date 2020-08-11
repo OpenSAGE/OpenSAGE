@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -18,6 +20,8 @@ namespace OpenSage.Logic.Object
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
 
+        protected readonly GameObject GameObject;
+
         private readonly List<ModelConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
 
@@ -30,7 +34,6 @@ namespace OpenSage.Logic.Object
         private AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
-        private float _sinkFactor;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
@@ -60,9 +63,11 @@ namespace OpenSage.Logic.Object
 
         internal W3dModelDraw(
             W3dModelDrawModuleData data,
+            GameObject gameObject,
             GameContext context)
         {
             _data = data;
+            GameObject = gameObject;
             _context = context;
 
             _conditionStates = new List<ModelConditionState>();
@@ -173,7 +178,7 @@ namespace OpenSage.Logic.Object
                 var numIntersectionBits = conditionState.ConditionFlags.CountIntersectionBits(flags);
 
                 // If there's no intersection never select this.
-                if (numIntersectionBits != numStateBits)
+                if (numIntersectionBits == 0)
                 {
                     continue;
                 }
@@ -331,13 +336,12 @@ namespace OpenSage.Logic.Object
             return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        internal override void Update(in TimeInterval gameTime)
         {
-            if(_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
             {
-                //TODO: change the world matrix?
-                float progress = gameObject.BuildProgress;
-                _sinkFactor = (1.0f - progress) * gameObject.Collider.Height;
+                var progress = GameObject.BuildProgress;
+                GameObject.VerticalOffset = -((1.0f - progress) * GameObject.Collider.Height);
             }
 
             _activeModelDrawConditionState?.Update(gameTime);
@@ -345,9 +349,9 @@ namespace OpenSage.Logic.Object
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+            if (GameObject.VerticalOffset != 0)
             {
-                var mat = worldMatrix * Matrix4x4.CreateTranslation(-Vector3.UnitZ * _sinkFactor);// // _sinkFactor;
+                var mat = worldMatrix * Matrix4x4.CreateTranslation(Vector3.UnitZ * GameObject.VerticalOffset);
                 _activeModelDrawConditionState?.SetWorldMatrix(mat);
             }
             else
@@ -367,6 +371,11 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS);
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
     }
 
@@ -487,7 +496,7 @@ namespace OpenSage.Logic.Object
             { "MinLODRequired", (parser, x) => x.MinLodRequired = parser.ParseEnum<ModelLevelOfDetail>() },
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
-            { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
+            { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseTextureReference() },
             { "TrackMarksLeftBone", (parser, x) => x.TrackMarksLeftBone = parser.ParseAssetReference() },
             { "TrackMarksRightBone", (parser, x) => x.TrackMarksRightBone = parser.ParseAssetReference() },
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
@@ -522,7 +531,7 @@ namespace OpenSage.Logic.Object
         public List<string> ExtraPublicBones { get; } = new List<string>();
         public string AttachToBoneInAnotherModule { get; private set; }
 
-        public string TrackMarks { get; private set; }
+        public LazyAssetReference<TextureAsset> TrackMarks { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string TrackMarksLeftBone { get; private set; }
@@ -550,9 +559,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dModelDraw(this, context);
+            return new W3dModelDraw(this, gameObject, context);
         }
     }
 

@@ -1,7 +1,30 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
+    {
+        internal UnpauseSpecialPowerUpgrade(UnpauseSpecialPowerUpgradeModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
     {
         internal static UnpauseSpecialPowerUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -17,5 +40,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool ObeyRechageOnTrigger { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new UnpauseSpecialPowerUpgrade(this);
+        }
     }
 }

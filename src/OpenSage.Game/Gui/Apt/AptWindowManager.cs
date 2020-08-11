@@ -6,18 +6,19 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptWindowManager
     {
-        private readonly Game _game;
         private AptInputMessageHandler _inputHandler;
         private AptWindow _newWindow;
+        private AptWindow _pushWindow;
 
         internal Stack<AptWindow> WindowStack { get; }
         public int OpenWindowCount => WindowStack.Count;
+        public Game Game { get; }
 
 
         public AptWindowManager(Game game)
         {
-            _game = game;
-            _inputHandler = new AptInputMessageHandler(this, _game);
+            Game = game;
+            _inputHandler = new AptInputMessageHandler(this, Game);
 
             WindowStack = new Stack<AptWindow>();
 
@@ -26,9 +27,10 @@ namespace OpenSage.Gui.Apt
 
         public void PushWindow(AptWindow window)
         {
-            CreateSizeDependentResources(window, _game.Panel.ClientBounds.Size);
+            CreateSizeDependentResources(window, Game.Panel.ClientBounds.Size);
 
             window.InputHandler = _inputHandler;
+            window.Manager = this;
 
             WindowStack.Push(window);
         }
@@ -49,21 +51,27 @@ namespace OpenSage.Gui.Apt
 
         private void CreateSizeDependentResources(AptWindow window, in Size newSize)
         {
-            window.Layout(_game.GraphicsDevice, newSize);
+            window.Layout(Game.GraphicsDevice, newSize);
         }
 
         internal void Update(in TimeInterval gameTime)
         {
+            if (_pushWindow != null)
+            {
+                PushWindow(_pushWindow);
+                _pushWindow = null;
+            }
+
             if (_newWindow != null)
             {
                 WindowStack.Clear();
                 PushWindow(_newWindow);
-                 _newWindow = null;
+                _newWindow = null;
             }
 
             foreach (var window in WindowStack)
             {
-                window.Update(gameTime, _game.GraphicsDevice);
+                window.Update(gameTime, Game.GraphicsDevice);
             }
         }
 
@@ -92,6 +100,11 @@ namespace OpenSage.Gui.Apt
         public void QueryTransition(AptWindow newWindow)
         {
             _newWindow = newWindow;
+        }
+
+        public void QueryPush(AptWindow pushWindow)
+        {
+            _pushWindow = pushWindow;
         }
     }
 }

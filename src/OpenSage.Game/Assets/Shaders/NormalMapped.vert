@@ -47,6 +47,8 @@ void main()
         _GlobalConstantsVS.ViewProjection,
         _GlobalLightingConstantsVS.CloudShadowMatrix,
         _GlobalConstantsShared.TimeInSeconds);
+        
+    gl_ClipDistance[0] = CalculateClippingPlane(out_WorldPosition, _GlobalConstantsVS.ClippingPlane);
 
     out_UV0 = in_UV0;
 

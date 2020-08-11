@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
@@ -19,17 +20,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             // list of builtin objects and their corresponding constructors
             BuiltinClasses = new Dictionary<string, Func<Value[], Value>>
             {
-                ["Color"] = args => Value.FromObject(new Color())
+                ["Color"] = args => Value.FromObject(new ASColor()),
+                ["Array"] = args => Value.FromObject(new ASArray(args))
             };
 
             // list of builtin variables
             BuiltinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>
             {
+                // Globals
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
                 ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
-                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
+                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject),
+                // Object specifc
                 ["_parent"] = GetParent,
-                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject)
+                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
+                ["_x"] = GetX,
+                ["_y"] = GetY,
+                ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem) ctx.Item).CurrentFrame),
             };
 
             // list of builtin variables - set
@@ -63,7 +70,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
                 ["stop"] = (actx, ctx, args) => Stop(ctx),
                 ["clearInterval"] = ClearInterval,
-                ["setInterval"] = SetInterval
+                ["setInterval"] = SetInterval,
+                ["loadMovie"] = LoadMovie,
+                // Global constructors / functions
+                ["Boolean"] = BoolFunc
             };
         }
 
@@ -100,6 +110,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public static Value GetBuiltInClass(string name, Value[] args)
         {
             return BuiltinClasses[name](args);
+        }
+
+        private static Value GetX(ObjectContext ctx)
+        {
+            return Value.FromFloat(ctx.Item.Transform.GeometryTranslation.X);
+        }
+
+        private static Value GetY(ObjectContext ctx)
+        {
+            return Value.FromFloat(ctx.Item.Transform.GeometryTranslation.Y);
         }
 
         private static Value GetParent(ObjectContext ctx)
@@ -158,7 +178,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     throw new InvalidOperationException("Can only jump to labels or frame numbers");
                 }
 
-                si.Stop();
+                si.Stop(true);
             }
             else
             {
@@ -178,6 +198,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             }
         }
 
+        private static void LoadMovie(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        {
+            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
+            var window = actionContext.Apt.Window.Manager.Game.LoadAptWindow(url);
+
+            actionContext.Apt.Window.Manager.QueryPush(window);
+        }
+
         private static void SetInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
         {
             var vm = actionContext.Apt.Avm;
@@ -195,6 +223,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
             vm.ClearInterval(name);
             ctx.Variables.Remove(name);
+        }
+
+        private static void BoolFunc(ActionContext actionContext, ObjectContext ctx, Value[] args)
+        {
+            var result = Value.FromBoolean(args[0].ToBoolean());
+            actionContext.Stack.Push(result);
         }
     }
 }

@@ -159,6 +159,10 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.SetWindow(@"Menus\ReplayMenu.wnd");
                             break;
 
+                        case "MainMenu.wnd:ButtonLoadGame":
+                            context.WindowManager.SetWindow(@"Menus\SaveLoad.wnd");
+                            break;
+
                         case "MainMenu.wnd:ButtonOptions":
                             context.WindowManager.PushWindow(@"Menus\OptionsMenu.wnd");
                             break;

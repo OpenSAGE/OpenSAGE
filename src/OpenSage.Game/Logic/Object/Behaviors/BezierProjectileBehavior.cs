@@ -1,53 +1,136 @@
-﻿using OpenSage.Content;
+﻿using System.IO;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class BezierProjectileBehavior : BehaviorModule
+    public class BezierProjectileBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly BezierProjectileBehaviorData _moduleData;
 
-        internal FXList GroundHitFX { get; set; }
+        internal FXList DetonationFX { get; set; }
 
         internal BezierProjectileBehavior(GameObject gameObject, BezierProjectileBehaviorData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
-
-            GroundHitFX = moduleData.GroundHitFX?.Value;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Bezier implementation.
+            if (!_gameObject.IsProjectile)
+                return;
 
-            var transform = _gameObject.Transform;
+            var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix);
+            var velocity = direction * context.GameObject.Speed;
 
-            transform.Translation += _gameObject.Velocity * ((float)Game.LogicUpdateInterval / 1000.0f);
+            _gameObject.Transform.Translation += velocity * ((float)Game.LogicUpdateInterval / 1000.0f);
 
-            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(transform.Translation.X, transform.Translation.Y);
-            if (transform.Translation.Z < terrainHeight)
+            CheckForHit(
+                context,
+                _moduleData.DetonateCallsKill,
+                DetonationFX ?? _moduleData.GroundHitFX?.Value);
+        }
+
+        internal static void CheckForHit(
+            BehaviorUpdateContext context,
+            bool detonateCallsKill,
+            FXList groundHitFX)
+        {
+            var transform = context.GameObject.Transform;
+
+            // Did we hit an object?
+            // TODO
+
+            if (DidHitGround(context))
             {
-                // TODO: Destroy this object properly.
-                context.GameObject.Destroyed = true;
-
-                GroundHitFX.Execute(new FXListExecutionContext(
-                    transform.Rotation,
-                    transform.Translation,
-                    context.GameContext));
+                // TODO: Interpolate to find actual point we hit the ground?
+                Detonate(context, new WeaponTarget(transform.Translation), detonateCallsKill, groundHitFX);
             }
+        }
+
+        private static bool DidHitGround(BehaviorUpdateContext context)
+        {
+            var transform = context.GameObject.Transform;
+
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
+                transform.Translation.X,
+                transform.Translation.Y);
+
+            return transform.Translation.Z <= terrainHeight;
+        }
+
+        private static void Detonate(
+            BehaviorUpdateContext context,
+            WeaponTarget target,
+            bool detonateCallsKill,
+            FXList groundHitFX)
+        {
+            var transform = context.GameObject.Transform;
+
+            // TODO: Should this ever be null?
+            if (context.GameObject.CurrentWeapon != null)
+            {
+                context.GameObject.CurrentWeapon.SetTarget(target);
+                context.GameObject.CurrentWeapon.Fire(context.Time);
+            }
+
+            if (target.TargetType == WeaponTargetType.Position)
+            {
+                if (groundHitFX != null)
+                {
+                    groundHitFX.Execute(new FXListExecutionContext(
+                        transform.Rotation,
+                        transform.Translation,
+                        context.GameContext));
+                }
+            }
+
+            if (detonateCallsKill)
+            {
+                context.GameObject.Kill(DeathType.Detonated, context.Time);
+            }
+            else
+            {
+                context.GameObject.Die(DeathType.Detonated, context.Time);
+            }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(12);
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown2 = reader.ReadSingle();
+            }
+
+            var weaponThatFiredThis = reader.ReadBytePrefixedAsciiString();
+
+            var unknown3 = reader.ReadUInt32();
         }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class BezierProjectileBehaviorData : BehaviorModuleData
+    public class BezierProjectileBehaviorData : UpdateModuleData
     {
-        internal static BezierProjectileBehaviorData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BezierProjectileBehaviorData Parse(IniParser parser) => parser.ParseBlock(BezierProjectileFieldParseTable);
 
-        internal static readonly IniParseTable<BezierProjectileBehaviorData> FieldParseTable = new IniParseTable<BezierProjectileBehaviorData>
+        internal static readonly IniParseTable<BezierProjectileBehaviorData> BezierProjectileFieldParseTable = new IniParseTable<BezierProjectileBehaviorData>
         {
             { "FirstHeight", (parser, x) => x.FirstHeight = parser.ParseInteger() },
             { "SecondHeight", (parser, x) => x.SecondHeight = parser.ParseInteger() },
@@ -125,7 +208,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool PreLandingEmotionAffectsAllies { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new BezierProjectileBehavior(gameObject, this);
         }

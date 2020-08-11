@@ -6,6 +6,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -31,10 +32,12 @@ namespace OpenSage.Logic
         public OrderGeneratorSystem(Game game) : base(game) { }
 
         private Vector3? _worldPosition;
+        private GameObject _worldObject;
 
         public void UpdatePosition(Vector2 mousePosition)
         {
             _worldPosition = GetTerrainPosition(mousePosition);
+            _worldObject = Game.Selection.FindClosestObject(mousePosition);
 
             if (_worldPosition.HasValue && ActiveGenerator != null)
             {
@@ -50,27 +53,6 @@ namespace OpenSage.Logic
             {
                 ActiveGenerator.UpdateDrag(worldPosition.Value);
             }
-        }
-
-        private bool StructuresSelected()
-        {
-            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
-            {
-                return false;
-            }
-
-            bool result = true;
-
-            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
-            {
-                if (!unit.Definition.KindOf.Get(ObjectKinds.Structure))
-                {
-                    result = false;
-                    break;
-                }
-            }
-
-            return result;
         }
 
         public void OnRightClick(bool ctrlDown)
@@ -105,24 +87,42 @@ namespace OpenSage.Logic
             }
             else
             {
+                // We choose the sound based on the most-recently-selected unit.
+                var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
+
                 // TODO: Use ini files for this, don't hardcode it.
                 if (ctrlDown)
                 {
                     // TODO: Check whether clicked point is an object, or empty ground.
-                    //var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
-                    //unit.OnLocalMove(Game.Audio);
+                    unit.OnLocalAttack(Game.Audio);
+                    if (_worldObject != null)
+                    {
+                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
 
-                    order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, true);
+                    }
+                    else
+                    {
+                        order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                    }
                 }
                 else
                 {
-                    // TODO: Check whether at least one of the selected units can actually be moved.
+                    // TODO: should only work on enemy objects
+                    if (_worldObject != null)
+                    {
+                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
 
-                    // We choose the sound based on the most-recently-selected unit.
-                    var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
-                    unit.OnLocalMove(Game.Audio);
+                        unit.OnLocalAttack(Game.Audio);
+                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, false);
+                    }
+                    else
+                    {
+                        // TODO: Check whether at least one of the selected units can actually be moved.
 
-                    order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                        unit.OnLocalMove(Game.Audio);
+                        order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
+                    }
                 }
             }
 
@@ -172,6 +172,23 @@ namespace OpenSage.Logic
         {
             var ray = Game.Scene3D.Camera.ScreenPointToRay(mousePosition);
             return Game.Scene3D.Terrain.Intersect(ray);
+        }
+
+        public void StartSpecialPowerAtLocation(SpecialPower specialPower)
+        {
+            var gameData = Game.AssetStore.GameData.Current;
+
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D);
+        }
+
+        public void StartSpecialPowerAtObject(SpecialPower specialPower)
+        {
+            var gameData = Game.AssetStore.GameData.Current;
+
+            //TODO: pass the right target type
+            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D);
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)

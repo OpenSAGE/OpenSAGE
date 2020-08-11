@@ -40,7 +40,14 @@ namespace OpenSage.Content.Translation
                 switch (language.ToLower())
                 {
                     case "german":
+                    case "german2":
                         cultureString = "de-DE";
+                        break;
+                    // Special case for Generals: 
+                    // Generals does not distinct between Simplified Chinese (chinese_s) / Traditional Chinese (chinese_t)
+                    // It just assumes it's traditional
+                    case "chinese":
+                        cultureString = "zh-Hant";
                         break;
                     case "english":
                     default:
@@ -241,22 +248,18 @@ namespace OpenSage.Content.Translation
                 FileSystemEntry file;
                 if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
                 {
-                    using (var stream = file.Open())
-                    {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
-                    }
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
 
                     return;
                 }
 
                 if (!((file = fileSystem.GetFile($"{path}.str")) is null))
                 {
-                    using (var stream = file.Open())
-                    {
-                        Instance.SetCultureFromLanguage(language);
-                        Instance.RegisterProvider(new StrTranslationProvider(stream, language));
-                    }
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(language);
+                    Instance.RegisterProvider(new StrTranslationProvider(stream, language));
 
                     return;
                 }

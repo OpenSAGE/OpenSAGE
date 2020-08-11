@@ -17,14 +17,20 @@ namespace OpenSage.Logic.Object
         public Dictionary<string, string> Assets { get; } = new Dictionary<string, string>();
     }
 
-    public sealed class UnitSpecificSounds
+    public sealed class UnitSpecificSounds : Dictionary<string, LazyAssetReference<BaseAudioEventInfo>>
     {
         internal static UnitSpecificSounds Parse(IniParser parser)
         {
             return parser.ParseBlock(new IniArbitraryFieldParserProvider<UnitSpecificSounds>(
-                (x, name) => x.Assets[name] = parser.ParseAudioEventReference()));
+                (x, name) => x[name] = parser.ParseAudioEventReference()));
         }
 
-        public Dictionary<string, LazyAssetReference<BaseAudioEventInfo>> Assets { get; } = new Dictionary<string, LazyAssetReference<BaseAudioEventInfo>>();
+        public UnitSpecificSounds() { }
+
+        public UnitSpecificSounds(IEnumerable<KeyValuePair<string, LazyAssetReference<BaseAudioEventInfo>>> collection)
+            : base(collection)
+        {
+
+        }
     }
 }

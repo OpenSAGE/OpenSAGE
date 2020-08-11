@@ -18,9 +18,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var member = context.Scope.Constants[id].ToString();
 
             //pop the object
-            var objectVal = context.Stack.Pop();
-
-            var obj = objectVal.ResolveRegister(context).ToObject();
+            var objectVal = context.Stack.Pop().ResolveRegister(context);
+            var obj = objectVal.ToObject();
 
             if (obj != null)
             {
@@ -47,8 +46,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the member name
             var memberName = context.Stack.Pop().ResolveRegister(context).ToString();
             //pop the object
-            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
-
+            var p = context.Stack.Pop();
+            var obj = p.ResolveRegister(context).ToObject();
 
             if (obj.IsBuiltInVariable(memberName))
             {
@@ -109,7 +108,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             //pop the value
             var variableName = context.Stack.Pop();
-            var variable = context.Scope.Variables[variableName.ToString()];
+            Value variable = Value.Undefined();
+            if (context.Scope.Variables.ContainsKey(variableName.ToString()))
+            {
+                variable = context.Scope.Variables[variableName.ToString()];
+            }
+
             context.Stack.Push(variable);
         }
     }
@@ -126,9 +130,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the value
             var valueVal = context.Stack.Pop();
             //pop the member name
-            var memberVal = context.Stack.Pop();
+            var memberName = context.Stack.Pop().ToString();
 
-            context.Scope.Variables[memberVal.ToString()] = valueVal;
+            if (context.CheckLocal(memberName))
+            {
+                context.Locals[memberName] = valueVal;
+            }
+            else
+            {
+                context.Scope.Variables[memberName] = valueVal;
+            }
         }
     }
 
@@ -142,7 +153,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var member = context.Stack.Pop();
-            var obj = context.Stack.Pop().ToObject();
+            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
 
             context.Stack.Push(obj.GetMember(member.ResolveRegister(context).ToString()));
         }
@@ -214,7 +225,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var memberVal = context.Stack.Pop().ToString();
             var objectVal = context.Stack.Pop().ToObject();
 
-            objectVal.Variables[memberVal] = Parameters[0];        
+            objectVal.Variables[memberVal] = Parameters[0];
         }
     }
 
@@ -237,7 +248,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 args[i] = context.Stack.Pop();
             }
 
-            var obj = context.ConstructObject(name,args);
+            var obj = context.ConstructObject(name, args);
             context.Stack.Push(obj);
         }
     }
@@ -281,7 +292,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     result = Value.FromString("number");
                     break;
                 case ValueType.Object:
-                    if(val.ToObject().Item.Character is Movie)
+                    if (val.ToObject().Item.Character is Movie)
                         result = Value.FromString("movieclip");
                     else
                         result = Value.FromString("object");

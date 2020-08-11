@@ -65,7 +65,7 @@ namespace OpenSage.Mathematics
                 return false;
             }
 
-            var h = (float) Math.Sqrt(rSquared - aSquared);
+            var h = MathF.Sqrt(rSquared - aSquared);
             var i = a - h * Direction;
 
             // Intersection point. Could be useful?

@@ -13,6 +13,13 @@ namespace OpenSage.Terrain.Roads
 
         public void AddSegment(RoadTemplate template, MapObject start, MapObject end)
         {
+            // ignore duplicate segments (e.g. in Alpine Assault)
+            if (Edges.Any(e => (e.Start.Position == start.Position && e.End.Position == end.Position) ||
+                               (e.End.Position == start.Position && e.Start.Position == end.Position)))
+            {
+                return;
+            }
+
             var startNode = GetOrCreateNode(start.Position);
             var endNode = GetOrCreateNode(end.Position);
 
@@ -175,13 +182,27 @@ namespace OpenSage.Terrain.Roads
             Start = End;
             End = temp;
 
-            // This is actually a bug in the original engine:
-            // We should swap StartType and EndType as well,
-            // but then we couldn't recreate the original behavior.
+            // swap the end cap flag as well (but not the corner type)
+            var startHadEndCap = StartType.HasFlag(RoadType.EndCap);
+            var endHadEndCap = EndType.HasFlag(RoadType.EndCap);
 
-            // var tempType = StartType;
-            // StartType = EndType;
-            // EndType = tempType;
+            if (endHadEndCap)
+            {
+                StartType |= RoadType.EndCap;
+            }
+            else
+            {
+                StartType &= ~RoadType.EndCap;
+            }
+
+            if (startHadEndCap)
+            {
+                EndType |= RoadType.EndCap;
+            }
+            else
+            {
+                EndType &= ~RoadType.EndCap;
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "Object";
 
-        public Vector3 Position { get; private set; }
+        public Vector3 Position { get; set; }
 
         /// <summary>
         /// Angle of the object in radians.

@@ -59,7 +59,22 @@ namespace OpenSage.Logic.Object
                     }
                 }
             },
-            { "ProjectileObject", (parser, x) => x.Nuggets.Add(new ProjectileNugget { IsConvertedFromLegacyData = true, ParentWeaponTemplate = x, ProjectileTemplate = parser.ParseObjectReference() }) },
+            {
+                "ProjectileObject",
+                (parser, x) =>
+                {
+                    var projectileTemplate = parser.ParseObjectReference();
+                    if (projectileTemplate != null)
+                    {
+                        x.Nuggets.Add(new ProjectileNugget
+                        {
+                            IsConvertedFromLegacyData = true,
+                            ParentWeaponTemplate = x,
+                            ProjectileTemplate = projectileTemplate
+                        });
+                    }
+                }
+            },
             { "ShockWaveAmount", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveAmount = parser.ParseFloat() },
             { "ShockWaveRadius", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.EnsureMetaImpactNugget().ShockWaveTaperOff = parser.ParseFloat() },

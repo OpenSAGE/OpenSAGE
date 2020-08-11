@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Mathematics
+﻿using System.Numerics;
+
+namespace OpenSage.Mathematics
 {
     public readonly struct ColorRgbF
     {
@@ -11,6 +13,11 @@
             R = r;
             G = g;
             B = b;
+        }
+
+        public Vector3 ToVector3()
+        {
+            return new Vector3(R, G, B);
         }
     }
 }

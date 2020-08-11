@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Just does damage.
     /// </summary>
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public class DamageNugget : WeaponEffectNugget
     {
         internal static DamageNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -36,6 +36,8 @@ namespace OpenSage.Logic.Object
                 { "ForceKillObjectFilter", (parser, x) => x.ForceKillObjectFilter = ObjectFilter.Parse(parser) },
                 { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() },
                 { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
+                { "LostLeadershipUselessAgainst", (parser, x) => x.LostLeadershipUselessAgainst = parser.ParseEnum<ObjectKinds>() }
+
             });
 
         /// <summary>
@@ -78,6 +80,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public bool AcceptDamageAdd { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public ObjectKinds LostLeadershipUselessAgainst { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public Percentage FlankingBonus { get; private set; }
 
@@ -110,7 +115,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Execute(WeaponEffectExecutionContext context)
         {
-            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage);
+            WeaponBonusUpgrade weaponBonus = context.Weapon.ParentGameObject.FindBehavior<WeaponBonusUpgrade>();
+            if (weaponBonus.Triggered)
+            {
+                //TODO: increase damage with context.Weapon.Template.WeaponBonuses
+            }
+
+            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType, context.Time);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -10,6 +11,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Input;
@@ -50,6 +52,8 @@ namespace OpenSage
 
         public readonly MapFile MapFile;
 
+        public readonly MapCache MapCache;
+
         public readonly Terrain.Terrain Terrain;
         public bool ShowTerrain { get; set; } = true;
 
@@ -73,6 +77,8 @@ namespace OpenSage
 
         public readonly ShadowSettings Shadows = new ShadowSettings();
 
+        public WaterSettings Waters { get; } = new WaterSettings();
+
         private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;
 
@@ -90,8 +96,10 @@ namespace OpenSage
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
-        internal Scene3D(Game game, MapFile mapFile, int randomSeed)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile)
+        public readonly Radar Radar;
+
+        internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             var contentManager = game.ContentManager;
 
@@ -164,8 +172,6 @@ namespace OpenSage
             {
                 var mapObject = mapObjects[i];
 
-                var position = mapObject.Position;
-
                 switch (mapObject.RoadType & RoadType.PrimaryType)
                 {
                     case RoadType.None:
@@ -176,10 +182,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                position.Z += heightMap.GetHeight(position.X, position.Y);
-
-                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, GameObjects, position);
-
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, null, teams);
                                 break;
                         }
                         break;
@@ -255,7 +258,7 @@ namespace OpenSage
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null)
+            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             _players = new List<Player>();
             _teams = new List<Team>();
@@ -274,7 +277,7 @@ namespace OpenSage
             CameraController = cameraController;
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile)
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
             Camera = new Camera(getViewport);
 
@@ -292,6 +295,20 @@ namespace OpenSage
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 
+            if (mapPath != null)
+            {
+                var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
+                if (mapCache == null)
+                {
+                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(game.UserDataFolder, mapPath).ToLower());
+                }
+                if (mapCache == null)
+                {
+                    throw new Exception($"Failed to load MapCache \"{mapPath}\"");
+                }
+                MapCache = mapCache;
+            }
+
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
@@ -303,11 +320,16 @@ namespace OpenSage
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
 
+            Radar = new Radar(this, game.AssetStore, MapCache);
+
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
                 _particleSystemManager,
-                Terrain);
+                new ObjectCreationListManager(),
+                Terrain,
+                Navigation,
+                Radar);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(
@@ -363,6 +385,32 @@ namespace OpenSage
             {
                 var gameObject = GameObjects.Items[index];
                 gameObject.LogicTick(frame, time);
+            }
+
+            //DetectCollisions(time);
+        }
+
+        private void DetectCollisions(in TimeInterval time)
+        {
+            // TODO: Use Quadtree.
+
+            var numCollisions = 0;
+
+            for (var i = 0; i < GameObjects.Items.Count; i++)
+            {
+                for (var j = i + 1; j < GameObjects.Items.Count; j++)
+                {
+                    var gameObject1 = GameObjects.Items[i];
+                    var gameObject2 = GameObjects.Items[j];
+
+                    if (gameObject1.Intersects(gameObject2))
+                    {
+                        gameObject1.DoCollide(gameObject2, time);
+                        gameObject2.DoCollide(gameObject1, time);
+
+                        numCollisions++;
+                    }
+                }
             }
         }
 
@@ -433,6 +481,11 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
+                if (gameObject.Definition.Geometry is null)
+                {
+                    return;
+                }
+
                 var geometrySize = gameObject.Definition.Geometry.MajorRadius;
 
                 // Not sure if this is what IsSmall is actually for.
@@ -463,10 +516,14 @@ namespace OpenSage
                     drawingContext.DrawRectangle(rect, borderColor, 1);
                 }
 
-                DrawBar(
-                    healthBoxRect.Value,
-                    new ColorRgbaF(0, 1, 0, 1),
-                    (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                // TODO: Not sure what to draw for InactiveBody?
+                if (gameObject.Body is ActiveBody)
+                {
+                    DrawBar(
+                        healthBoxRect.Value,
+                        new ColorRgbaF(0, 1, 0, 1),
+                        (float)gameObject.Body.HealthPercentage);
+                }
 
                 if (gameObject.ProductionUpdate != null)
                 {

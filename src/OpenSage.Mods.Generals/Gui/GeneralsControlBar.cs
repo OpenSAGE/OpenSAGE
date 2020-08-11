@@ -75,6 +75,21 @@ namespace OpenSage.Mods.Generals.Gui
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
+        private void ApplyProgress(string name, string coordPrefix, float progress = 1.0f)
+        {
+            var control = FindControl(name);
+            if (control == null)
+                return;
+            var schemeType = _scheme.GetType();
+
+            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(_scheme);
+            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(_scheme);
+            var width = (int) (progress * (lr.X - ul.X));
+            lr = new Point2D(ul.X + width, lr.Y);
+
+            control.Bounds = Rectangle.FromCorners(ul - _window.Bounds.Location, lr - _window.Bounds.Location);
+        }
+
         public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
@@ -120,6 +135,9 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             _moneyDisplay.Text = $"$ {player.Money}";
+
+            float powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
+            ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
@@ -238,11 +256,25 @@ namespace OpenSage.Mods.Generals.Gui
 
                         var objectDefinition = commandButton.Object?.Value;
 
-                        buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                        switch (commandButton.Command)
+                        {
+                            // Disable the button when the unit is not producable
+                            case CommandType.DozerConstruct:
+                            case CommandType.UnitBuild:
+                                buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                                break;
+                            // Disable the button when the object already has it
+                            case CommandType.ObjectUpgrade:
+                                var upgrade = commandButton.Upgrade.Value;
+                                var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+                                var hasUpgrade = selectedUnit.Upgrades.Contains(upgrade);
+                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade;
+                                break;
+                        }
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
-                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
 
                             var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
@@ -275,15 +307,51 @@ namespace OpenSage.Mods.Generals.Gui
                                     break;
 
                                 case CommandType.ObjectUpgrade:
-                                    order = CreateOrder(OrderType.ObjectUprade);
-                                    //TODO: figure this out correctly
-                                    var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
-                                    var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
-                                    order.AddIntegerArgument(objId);
-                                    var name = commandButton.Upgrade;
-                                    var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
-                                    order.AddIntegerArgument(upgrade.InternalId);
+                                    {
+                                        order = CreateOrder(OrderType.ObjectUprade);
+                                        //TODO: figure this out correctly
+                                        var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
+                                        var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
+                                        order.AddIntegerArgument(objId);
+                                        var upgrade = commandButton.Upgrade.Value;
+                                        order.AddIntegerArgument(upgrade.InternalId);
+                                    }
                                     break;
+
+                                case CommandType.Stop:
+                                    // TODO: Also stop construction?
+                                    order = CreateOrder(OrderType.StopMoving);
+                                    break;
+
+                                case CommandType.SpecialPower:
+                                    {
+                                        var specialPower = commandButton.SpecialPower.Value;
+                                        if (commandButton.Options != null)
+                                        {
+                                            var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
+                                            var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
+                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
+                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+
+                                            if (needsPos)
+                                            {
+                                                context.Game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
+                                            }
+                                            else if (needsObject)
+                                            {
+                                                context.Game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            order = CreateOrder(OrderType.SpecialPower);
+                                            order.AddIntegerArgument(specialPower.InternalId);
+                                            order.AddIntegerArgument(0);
+                                            order.AddObjectIdArgument(0);
+                                        }
+                                    }
+                                    break;
+
                                 default:
                                     throw new NotImplementedException();
                             }
@@ -413,7 +481,10 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 queueButton.SystemCallback = (control, message, context) =>
                                 {
-                                    unit.ProductionUpdate.CancelProduction(posCopy);
+                                    var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                                    var order = new Order(playerIndex, OrderType.CancelUnit);
+                                    order.AddIntegerArgument(posCopy);
+                                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
                                 };
                             }
                         }
@@ -521,6 +592,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(scheme);
                 var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(scheme);
+
                 control.Bounds = Rectangle.FromCorners(ul - windowOrigin, lr - windowOrigin);
 
                 return control;
@@ -551,9 +623,6 @@ namespace OpenSage.Mods.Generals.Gui
             ApplyButtonScheme("ButtonGeneral", "General", "GeneralButton");
             // Textures are set by ControlBar
             ApplyBounds("ButtonLarge", "MinMax");
-
-            // TODO: Hide left HUD until we implement the minimap.
-            FindControl("LeftHUD").Hide();
 
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;

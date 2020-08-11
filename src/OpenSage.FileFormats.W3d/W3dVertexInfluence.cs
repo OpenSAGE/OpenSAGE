@@ -24,8 +24,8 @@ namespace OpenSage.FileFormats.W3d
                 BoneWeight1 = reader.ReadUInt16()
             };
 
-            //sometimes both weights are 0 and sometimes weight0 is 100
-            if (result.BoneWeight0 == 0)
+            //sometimes both weights are 0
+            if (result.BoneWeight0 == 0 && result.BoneWeight1 == 0)
             {
                 result.BoneWeight0 = 100;
             }

@@ -76,9 +76,11 @@ namespace OpenSage.Graphics.Shaders
 
         public void UpdateGlobalConstantBuffers(
             CommandList commandList,
-            in Matrix4x4 viewProjection)
+            in Matrix4x4 viewProjection,
+            in Vector4 clippingPlane)
         {
             _globalConstantBufferVS.Value.ViewProjection = viewProjection;
+            _globalConstantBufferVS.Value.ClippingPlane = clippingPlane;
             _globalConstantBufferVS.Update(commandList);
         }
 

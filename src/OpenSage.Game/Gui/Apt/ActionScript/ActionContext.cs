@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -16,6 +17,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Dictionary<string, Value> Params { get; set; }
         public Dictionary<string, Value> Locals { get; set; }
         public bool Return { get; set; }
+        public List<ConstantEntry> Constants { get; set; }
 
         public ActionContext(int numRegisters = 0)
         {
@@ -23,6 +25,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             Registers = new Value[numRegisters];
             Params = new Dictionary<string, Value>();
             Locals = new Dictionary<string, Value>();
+            Constants = new List<ConstantEntry>();
             Return = false;
         }
 

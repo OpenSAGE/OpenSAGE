@@ -1,5 +1,4 @@
 ﻿using OpenSage.Data.Ini;
-using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object

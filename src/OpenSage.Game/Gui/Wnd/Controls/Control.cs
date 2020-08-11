@@ -116,7 +116,23 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected virtual void OnSizeChanged(in Size newSize) { }
 
-        public string Text { get; set; }
+        public delegate void OnTextChangedHandler(object sender, string Text);
+        public event OnTextChangedHandler OnTextChanged;
+
+        private string _text = string.Empty;
+
+        public string Text {
+            get {
+                return _text;
+            }
+            set {
+                if (value != _text)
+                {
+                    _text = value;
+                    OnTextChanged?.Invoke(this, value);
+                }
+            }
+        }
 
         public virtual Font Font { get; set; }
 
@@ -194,6 +210,20 @@ namespace OpenSage.Gui.Wnd.Controls
             SystemCallback = (control, message, context) => Parent?.SystemCallback(control, message, context);
             InputCallback = DefaultInput;
             DrawCallback = DefaultDraw;
+        }
+
+        public virtual Rectangle RectangleToWindow(in Rectangle rectangle)
+        {
+            var result = rectangle;
+
+            var parent = Parent;
+            while (parent != null)
+            {
+                result = result.WithLocation(new Point2D(result.X + Bounds.X, result.Y + Bounds.Y));
+                parent = parent.Parent;
+            }
+
+            return result;
         }
 
         public virtual Point2D PointToClient(in Point2D point)

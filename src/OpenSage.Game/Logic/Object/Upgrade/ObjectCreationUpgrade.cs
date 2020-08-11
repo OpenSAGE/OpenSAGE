@@ -1,8 +1,32 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class ObjectCreationUpgrade : UpgradeModule
+    {
+        internal ObjectCreationUpgrade(ObjectCreationUpgradeModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Allows an object to create/spawn a new object via upgrades.
     /// </summary>
@@ -13,7 +37,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<ObjectCreationUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<ObjectCreationUpgradeModuleData>
             {
-                { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseAssetReference() },
+                { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseObjectCreationListReference() },
                 { "Delay", (parser, x) => x.Delay = parser.ParseFloat() },
                 { "RemoveUpgrade", (parser, x) => x.RemoveUpgrade = parser.ParseAssetReference() },
                 { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() },
@@ -25,7 +49,7 @@ namespace OpenSage.Logic.Object
                 { "UseBuildingProduction", (parser, x) => x.UseBuildingProduction = parser.ParseBoolean() }
             });
 
-        public string UpgradeObject { get; private set; }
+        public LazyAssetReference<ObjectCreationList> UpgradeObject { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float Delay { get; private set; }
@@ -53,5 +77,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool UseBuildingProduction { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new ObjectCreationUpgrade(this);
+        }
     }
 }

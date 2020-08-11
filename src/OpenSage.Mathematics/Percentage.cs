@@ -4,6 +4,8 @@
     {
         private readonly float _value;
 
+        public bool IsZero => _value == 0;
+
         public Percentage(float value)
         {
             _value = value;

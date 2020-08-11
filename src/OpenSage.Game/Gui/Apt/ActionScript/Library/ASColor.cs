@@ -5,12 +5,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    public sealed class Color : ObjectContext
+    public sealed class ASColor : ObjectContext
     {
         private ColorRgba _color = ColorRgba.White;
         private readonly Dictionary<string, Action<ObjectContext, Value[]>> _builtinFunctions;
 
-        public Color()
+        public ASColor()
         {
             //list of builtin functions
             _builtinFunctions = new Dictionary<string, Action<ObjectContext, Value[]>>

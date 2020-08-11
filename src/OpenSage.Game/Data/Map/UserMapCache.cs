@@ -78,6 +78,13 @@ namespace OpenSage.Data.Map
 
             var fullMapCacheIniPath = Path.Combine(_contentManager.UserDataFileSystem.RootDirectory, MapCacheIniPath);
 
+            // Create the full path, user directory should already exist from the content manager but
+            // maps folder may not
+            var mapsPath = Path.GetDirectoryName(fullMapCacheIniPath);
+
+            if (!Directory.Exists(mapsPath))
+                Directory.CreateDirectory(mapsPath);
+
             GenerateMapCacheIniFile(fullMapCacheIniPath, mapCacheEntries);
 
             mapCacheIniEntry = new FileSystemEntry(
@@ -174,12 +181,12 @@ namespace OpenSage.Data.Map
                     {
                         // check "normal" objects
                         var definition = assetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
-                        if (definition?.KindOf?.Get(ObjectKinds.SupplySourceOnPreview) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.SupplySourceOnPreview))
                         {
                             mapCache.SupplyPositions.Add(mapObject.Position);
                         }
 
-                        if (definition?.KindOf?.Get(ObjectKinds.TechBuilding) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.TechBuilding))
                         {
                             mapCache.TechPositions.Add(mapObject.Position);
                         }

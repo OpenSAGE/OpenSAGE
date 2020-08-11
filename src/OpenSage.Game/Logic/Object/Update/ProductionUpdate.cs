@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
@@ -155,6 +158,12 @@ namespace OpenSage.Logic.Object
             _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
             _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
             _producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
+
+            var parkingPlace = productionExit as ParkingPlaceBehaviour;
+            if (parkingPlace != null)
+            {
+                parkingPlace.ParkVehicle(_producedUnit);
+            }
         }
 
         private void MoveProducedObjectOut()
@@ -168,15 +177,15 @@ namespace OpenSage.Logic.Object
 
             // First go to the natural rally point
             var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
-            if (naturalRallyPoint != null)
+            if (naturalRallyPoint.HasValue)
             {
-                _producedUnit.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
             if (_gameObject.RallyPoint.HasValue)
             {
-                _producedUnit.AddTargetPoint(_gameObject.RallyPoint.Value);
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
             _producedUnit = null;
@@ -200,6 +209,24 @@ namespace OpenSage.Logic.Object
             {
                 _productionQueue.RemoveAt(index);
             }
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("DoorState", _currentDoorState);
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(89);
         }
     }
 
@@ -291,7 +318,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new ProductionUpdate(gameObject, this);
         }

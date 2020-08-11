@@ -70,10 +70,10 @@ namespace OpenSage.Utilities
                 return DefaultLanguage;
             }
 
-            var posibleFiles = Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories).Where(i =>
+            var possibleFiles = Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories).Where(i =>
                 (string.IsNullOrEmpty(filePrefix) || Path.GetFileName(i).Contains(filePrefix)) &&
                 (string.IsNullOrEmpty(fileSuffix) || Path.GetFileName(i).EndsWith(fileSuffix)));
-            foreach (var file in posibleFiles)
+            foreach (var file in possibleFiles)
             {
                 MatchCollection mc = Regex.Matches(file, $"(?<={filePrefix})(.*)(?={fileSuffix})");
                 if (mc.Count > 0 && !string.IsNullOrEmpty(mc[0].Value))

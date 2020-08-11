@@ -9,9 +9,11 @@ namespace OpenSage.FileFormats.Big
         private readonly BigArchive _archive;
         private readonly uint _offset;
         private bool _locked;
+        private bool _write;
 
         public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
         {
+            _write = false;
             _entry = entry;
             _archive = entry.Archive;
             _offset = offset;
@@ -22,19 +24,32 @@ namespace OpenSage.FileFormats.Big
 
         public override void Flush()
         {
-            throw new NotSupportedException();
+            if (_write)
+            {
+                _entry.Length = (uint) this.Length;
+            }
+            _archive.WriteToDisk();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
-            if (count > (Length - Position))
+            int result = 0;
+            if (_write == false)
             {
-                count = (int) (Length - Position);
-            }
+                _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
+                if (count > (Length - Position))
+                {
+                    count = (int) (Length - Position);
+                }
 
-            var result = _archive.Stream.Read(buffer, offset, count);
-            Position += result;
+                result = _archive.Stream.Read(buffer, offset, count);
+                Position += result;
+            }
+            else
+            {
+                result = _entry.OutstandingWriteStream.Read(buffer, offset, count);
+                Position += result;
+            }
 
             return result;
         }
@@ -62,23 +77,40 @@ namespace OpenSage.FileFormats.Big
             return Position;
         }
 
+        private void EnsureWriteMode()
+        {
+            if (_write == false)
+            {
+                _entry.OutstandingWriteStream = new MemoryStream();
+                CopyTo(_entry.OutstandingWriteStream);
+                _write = true;
+            }
+        }
+
         public override void SetLength(long value)
         {
-            throw new NotSupportedException();
+            EnsureWriteMode();
+
+            _entry.OnDisk = false;
+            _entry.OutstandingWriteStream.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException();
+            EnsureWriteMode();
+
+            _entry.OnDisk = false;
+            _entry.OutstandingWriteStream.Position = Position;
+            _entry.OutstandingWriteStream.Write(buffer, offset, count);
         }
 
         public override bool CanRead => _archive.Stream.CanRead;
 
         public override bool CanSeek => _archive.Stream.CanSeek;
 
-        public override bool CanWrite => false;
+        public override bool CanWrite => true;
 
-        public override long Length => _entry.Length;
+        public override long Length => _write ? _entry.OutstandingWriteStream.Length : _entry.Length;
 
         public override long Position { get; set; }
 
@@ -88,8 +120,10 @@ namespace OpenSage.FileFormats.Big
             {
                 _archive.ReleaseLock();
                 _locked = false;
+                _entry.CurrentlyOpenForWrite = false;
             }
 
+            Flush();
             base.Close();
         }
     }

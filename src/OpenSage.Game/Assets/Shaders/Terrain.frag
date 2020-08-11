@@ -51,13 +51,15 @@ layout(std430, set = 4, binding = 3) readonly buffer TextureDetails
 
 layout(set = 4, binding = 4) uniform texture2DArray Textures;
 layout(set = 4, binding = 5) uniform texture2D MacroTexture;
-layout(set = 4, binding = 6) uniform sampler Sampler;
+layout(set = 4, binding = 6) uniform texture2D CausticsTexture;
+layout(set = 4, binding = 7) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
 layout(location = 2) in vec2 in_UV;
 layout(location = 3) in vec2 in_CloudUV;
 layout(location = 4) in float in_ViewSpaceDepth;
+layout(location = 5) in vec4 in_ClippingPlane;
 
 in vec4 gl_FragCoord;
 
@@ -223,6 +225,26 @@ vec2 GetMacroTextureUV(vec3 worldPosition)
     }
 }
 
+float CalculateCausticsDepthFactor(vec3 position, vec4 plane)
+{
+    if (plane.x != 0 || plane.y != 0 || plane.z != 0 || plane.w != 0)
+    {
+        float res = dot(vec4(position, 1), plane);
+        return clamp(9.0f/res, 0.0f, 0.5f);
+    }
+    return 0;
+}
+
+vec3 DoCausticsRendering(vec3 textureColor, vec3 blendColor)
+{
+    vec2 causticsUV = vec2(in_WorldPosition.x / 32, in_WorldPosition.y / 32);
+    vec4 causticsColor = texture(sampler2D(CausticsTexture, Sampler), causticsUV);
+    vec3 outputColor = blendColor + causticsColor.xyz;
+    float depthFactor = CalculateCausticsDepthFactor(in_WorldPosition, in_ClippingPlane);
+    outputColor = textureColor + (outputColor * depthFactor);
+    return outputColor;
+}
+
 void main()
 {
     float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
@@ -259,6 +281,8 @@ void main()
 
     vec2 macroTextureUV = GetMacroTextureUV(in_WorldPosition);
     vec3 macroTextureColor = texture(sampler2D(MacroTexture, Sampler), macroTextureUV).xyz;
+
+    textureColor = DoCausticsRendering(textureColor, diffuseColor);
 
     out_Color = vec4(
         diffuseColor * textureColor * cloudColor * macroTextureColor,

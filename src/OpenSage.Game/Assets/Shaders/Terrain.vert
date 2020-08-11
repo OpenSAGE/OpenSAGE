@@ -18,9 +18,13 @@ layout(location = 1) out vec3 out_WorldNormal;
 layout(location = 2) out vec2 out_UV;
 layout(location = 3) out vec2 out_CloudUV;
 layout(location = 4) out float out_ViewSpaceDepth;
+layout(location = 5) out vec4 out_ClippingPlane;
 
 void main()
 {
+    gl_ClipDistance[0] = CalculateClippingPlane(in_Position, _GlobalConstantsVS.ClippingPlane);
+    out_ClippingPlane = _GlobalConstantsVS.ClippingPlane;
+
     out_WorldPosition = in_Position;
 
     gl_Position = _GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);

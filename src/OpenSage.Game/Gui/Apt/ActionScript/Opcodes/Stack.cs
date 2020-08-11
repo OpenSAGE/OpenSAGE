@@ -26,7 +26,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Parameters[0]);
         }
     }
 
@@ -240,7 +240,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             // TODO: check if this is correct
             var name = context.Stack.Pop();
-            context.Scope.Variables.Add(name.ToString(), Value.FromInteger(0));
+            context.Scope.Variables[name.ToString()] = Value.FromInteger(0);
         }
     }
 
@@ -253,7 +253,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Stack.Push(Value.FromObject(context.Global));
+            context.Stack.Push(Value.FromObject(context.Apt.Avm.ExternObject));
         }
     }
 
@@ -324,7 +324,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var strVal = context.Stack.Pop().ResolveRegister(context).ToString();
+            context.Stack.Push(Value.FromInteger(int.Parse(strVal)));
         }
     }
 }

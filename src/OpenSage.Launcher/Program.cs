@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Net;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -49,10 +51,15 @@ namespace OpenSage.Launcher
 
             [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
             public string GamePath { get; set; }
+
+            [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
+            public string LanIPAddress { get; set; } = "";
         }
 
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             Target.Register<Core.InternalLogger>("OpenSage");
 
             Parser.Default.ParseArguments<Options>(args)
@@ -131,6 +138,14 @@ namespace OpenSage.Launcher
                 UseRenderDoc = opts.RenderDoc,
                 LoadShellMap = !opts.NoShellmap,
             };
+
+            if(opts.LanIPAddress != ""){
+                try {
+                    config.LanIpAddress = IPAddress.Parse(opts.LanIPAddress);
+                }catch(FormatException){
+                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
+                }
+            }
 
             logger.Debug($"Have configuration");
 

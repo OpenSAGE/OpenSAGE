@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
@@ -14,6 +15,7 @@ namespace OpenSage.Gui.Apt
         private readonly AptContext _context;
         private readonly Game _game;
         private readonly AptCallbackResolver _resolver;
+        private readonly AptRenderingContext _renderingContext;
         private Vector2 _movieSize;
         private Vector2 _destinationSize;
 
@@ -25,11 +27,12 @@ namespace OpenSage.Gui.Apt
 
         public AptFile AptFile { get; }
         public string Name => AptFile.MovieName;
-        public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
         public ContentManager ContentManager { get; }
+        public AptWindowManager Manager { get; set; }
         internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
+        public AptContext Context => _context;
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
@@ -56,11 +59,13 @@ namespace OpenSage.Gui.Apt
 
             _context.Root = Root;
             _context.Avm.CommandHandler = HandleCommand;
+            _context.Avm.VariableHandler = HandleVariable;
+            _context.Avm.MovieHandler = HandleMovie;
 
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
 
-            Renderer = new AptRenderer(this, contentManager);
+            _renderingContext = AddDisposable(new AptRenderingContext(this, contentManager, game.GraphicsLoadContext, _context));
 
             _resolver = new AptCallbackResolver(game);
         }
@@ -89,7 +94,8 @@ namespace OpenSage.Gui.Apt
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            var fullSizeRect = new Rectangle(0, 0, (int) _destinationSize.X, (int) _destinationSize.Y);
+            var destinationSize = new Size((int) _destinationSize.X, (int) _destinationSize.Y);
+            var fullSizeRect = new Rectangle(Point2D.Zero, destinationSize);
 
             if (BackgroundImage != null)
             {
@@ -99,14 +105,49 @@ namespace OpenSage.Gui.Apt
             //The background color, which is set by the APT. Should be the clear color?
             //drawingContext.FillRectangle(fullsizeRect, _backgroundColor);
 
-            var transform = ItemTransform.None;
+            _renderingContext.SetWindowSize(destinationSize);
+            _renderingContext.SetDrawingContext(drawingContext);
+            _renderingContext.PushTransform(ItemTransform.None);
 
-            Root.Render(Renderer, transform, drawingContext);
+            Root.Render(_renderingContext);
+
+            _renderingContext.PopTransform();
         }
 
         internal void HandleCommand(ActionContext context, string cmd, string param)
         {
             _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
+        }
+
+        internal Value HandleVariable(string variable)
+        {
+            //Mostly no idea what those mean, but they are all booleans
+            switch (variable)
+            {
+                case "InGame":
+                    return Value.FromBoolean(_game.InGame);
+                case "InBetaDemo":
+                    return Value.FromBoolean(false);
+                case "InDreamMachineDemo":
+                    return Value.FromBoolean(false);
+                case "PalantirMinLOD":
+                    return Value.FromBoolean(false);
+                case "MinLOD":
+                    return Value.FromBoolean(false);
+                case "DoTrace":
+                    return Value.FromBoolean(true);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        internal AptFile HandleMovie(string movie)
+        {
+            var aptFileName = System.IO.Path.ChangeExtension(movie, ".apt");
+            var entry = ContentManager.FileSystem.GetFile(aptFileName);
+            var aptFile = AptFile.FromFileSystemEntry(entry);
+
+            return aptFile;
         }
 
         public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);

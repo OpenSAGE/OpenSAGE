@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -18,7 +19,6 @@ namespace OpenSage.Logic.Orders
 
         public void Process(IEnumerable<Order> orders)
         {
-            
             foreach (var order in orders)
             {
                 Player player = null;
@@ -33,8 +33,7 @@ namespace OpenSage.Logic.Orders
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
-                logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
-
+                logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
 
                 switch (order.OrderType)
                 {
@@ -44,7 +43,7 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.SetTargetPoint(targetPosition);
+                                unit.AIUpdate?.SetTargetPoint(targetPosition);
                             }
                         }
                         break;
@@ -76,6 +75,13 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
+                    case OrderType.StopMoving:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.AIUpdate.Stop();
+                        }
+                        break;
+
                     case OrderType.CreateUnit:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
@@ -85,7 +91,30 @@ namespace OpenSage.Logic.Orders
 
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.ProductionUpdate.QueueProduction(objectDefinition);
+                                // Only units that can produce stuff should produce it
+                                unit.ProductionUpdate?.QueueProduction(objectDefinition);
+                            }
+                        }
+                        break;
+
+                    case OrderType.CancelUnit:
+                        {
+                            var queueIndex = order.Arguments[0].Value.Integer;
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                // Only units that can produce stuff should produce it
+                                if(unit.ProductionUpdate == null)
+                                {
+                                    continue;
+                                }
+
+                                var productionJob = unit.ProductionUpdate.ProductionQueue[queueIndex];
+                                var objectDefinition = productionJob.ObjectDefinition;
+
+                                player.Money += (uint) objectDefinition.BuildCost;
+
+                                unit.ProductionUpdate?.CancelProduction(queueIndex);
                             }
                         }
                         break;
@@ -125,12 +154,31 @@ namespace OpenSage.Logic.Orders
                         _game.Selection.ClearSelectedObjects(player);
                         break;
 
-                    case OrderType.AttackGround:
+                    case OrderType.AttackObject:
+                    case OrderType.ForceAttackObject:
+                        {
+                            var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                }
+                            }
+                        }
+                        break;
+
+                    case OrderType.ForceAttackGround:
                         {
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                if (unit.CanAttack)
+                                {
+                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                }
                             }
                         }
                         break;
@@ -160,6 +208,10 @@ namespace OpenSage.Logic.Orders
                             logger.Error(e, "Error while setting rallypoint");
                         }
                         break;
+                    case OrderType.SpecialPower:
+                    case OrderType.SpecialPowerAtLocation:
+                    case OrderType.SpecialPowerAtObject:
+                        throw new NotImplementedException();
 
                     case OrderType.Unknown27:
                         _game.EndGame();

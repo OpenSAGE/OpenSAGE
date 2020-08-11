@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,7 +15,6 @@ using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
@@ -28,8 +26,6 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain : DisposableBase
     {
-        private static readonly IResampler MapTextureResampler = new Lanczos2Resampler();
-
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
 
@@ -40,6 +36,12 @@ namespace OpenSage.Terrain
         public IReadOnlyList<TerrainPatch> Patches { get; }
 
         public ResourceSet CloudResourceSet { get; }
+
+        private float _causticsIndex;
+        private DeltaTimer _deltaTimer;
+
+        private List<Texture> _causticsTextureList;
+        private readonly uint _numOfCausticsAnimation = 32;
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
@@ -71,25 +73,45 @@ namespace OpenSage.Terrain
                 {
                     MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
                     MapSize = new Vector2(mapFile.HeightMapData.Width, mapFile.HeightMapData.Height) * HeightMap.HorizontalScale,
-                    IsMacroTextureStretched = false // TODO: This must be one of the EnvironmentData unknown values.
+                    IsMacroTextureStretched = mapFile.EnvironmentData?.IsMacroTextureStretched ?? false
                 },
                 BufferUsage.UniformBuffer));
 
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
+            BuildCausticsTextureArray(loadContext.AssetStore);
+            Func<ResourceSet> causticsRenderer = () =>
+            {
+                UpdateTimer();
+                var casuticsTexture = GetCausticsTexture();
+
+                var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+                    materialConstantsBuffer,
+                    tileDataTexture,
+                    cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                    textureDetailsBuffer,
+                    textureArray,
+                    macroTexture,
+                    casuticsTexture));
+                return materialResourceSet;
+            };
+
+            var casuticsTexture = loadContext.StandardGraphicsResources.SolidBlackTexture;
             var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 materialConstantsBuffer,
                 tileDataTexture,
                 cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
                 textureDetailsBuffer,
                 textureArray,
-                macroTexture));
+                macroTexture,
+                casuticsTexture));
 
             Patches = CreatePatches(
                 loadContext.GraphicsDevice,
                 HeightMap,
                 indexBufferCache,
-                materialResourceSet);
+                materialResourceSet,
+                causticsRenderer);
 
             var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
@@ -107,11 +129,48 @@ namespace OpenSage.Terrain
             _pipeline = terrainPipeline;
         }
 
+        private void UpdateTimer()
+        {
+            if (_deltaTimer == null)
+            {
+                _deltaTimer = new DeltaTimer();
+                _deltaTimer.Start();
+            }
+            else
+            {
+                _deltaTimer.Update();
+            }
+        }
+
+        private Texture GetCausticsTexture()
+        {
+            var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.TotalSeconds;
+            _causticsIndex += 10f * deltaTime;
+            if (_causticsIndex >= _numOfCausticsAnimation)
+                _causticsIndex = 0;
+            return _causticsTextureList[(int) _causticsIndex];
+        }
+
+        private void BuildCausticsTextureArray(AssetStore assetStore)
+        {
+            _causticsTextureList = new List<Texture>();
+            var baseTextureName = "causts";
+            var textureFormat = ".tga";
+
+            for (int i = 0; i < _numOfCausticsAnimation; i++)
+            {
+                var numString = i < 10 ? ("0" + i.ToString()) : i.ToString();
+                var texture = assetStore.Textures.GetByName(baseTextureName + numString + textureFormat);
+                _causticsTextureList.Add(texture);
+            }
+        }
+
         private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet)
+            ResourceSet materialResourceSet,
+            Func<ResourceSet> causticsRendererCallback)
         {
             const int numTilesPerPatch = PatchSize - 1;
 
@@ -149,7 +208,8 @@ namespace OpenSage.Terrain
                         patchBounds,
                         graphicsDevice,
                         indexBufferCache,
-                        materialResourceSet)));
+                        materialResourceSet,
+                        causticsRendererCallback)));
                 }
             }
 
@@ -338,8 +398,7 @@ namespace OpenSage.Terrain
                 {
                     if (tgaFile.Header.Width != largestTextureSize)
                     {
-                        tgaImage.Mutate(x => x
-                            .Resize((int) largestTextureSize, (int) largestTextureSize, MapTextureResampler));
+                        tgaImage.Mutate(x => x.Resize((int) largestTextureSize, (int) largestTextureSize, LanczosResampler.Lanczos3));
                     }
 
                     var imageSharpTexture = new ImageSharpTexture(tgaImage);
@@ -400,7 +459,11 @@ namespace OpenSage.Terrain
             for (uint level = 0; level < texture.MipLevels; level++)
             {
                 var image = texture.Images[level];
-                fixed (void* pin = &MemoryMarshal.GetReference(image.GetPixelSpan()))
+                if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+                {
+                    throw new InvalidOperationException("Unable to get image pixelspan.");
+                }
+                fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
                 {
                     var map = gd.Map(staging, MapMode.Write, level);
                     var rowWidth = (uint) (image.Width * 4);
@@ -430,7 +493,7 @@ namespace OpenSage.Terrain
 
         private static uint CalculateMipMapCount(uint width, uint height)
         {
-            return 1u + (uint) Math.Floor(Math.Log(Math.Max(width, height), 2));
+            return 1u + (uint) MathF.Floor(MathF.Log(Math.Max(width, height), 2));
         }
 
         public Vector3? Intersect(Ray ray)

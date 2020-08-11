@@ -5,12 +5,18 @@
         Unknown27 = 27, // Something to do with end of game
         SetSelection = 1001,
         ClearSelection = 1003,
+        SpecialPower = 1040,
+        SpecialPowerAtLocation = 1041,
+        SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
         CreateUnit = 1047,
+        CancelUnit = 1048,
         BuildObject = 1049,
         Sell = 1052,
         DrawBoxSelection = 1058,
-        AttackGround = 1061,
+        AttackObject = 1059,
+        ForceAttackObject = 1060,
+        ForceAttackGround = 1061,
         MoveTo = 1068,
         ToggleOvercharge = 1078,
         SetCameraPosition = 1092,
@@ -79,8 +85,6 @@
         ObjectUprade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593)
         Unknown1046 = 1046,
 
-        Unknown1048 = 1048,
-
         Unknown1050 = 1050,
         Unknown1051 = 1051,
 
@@ -90,8 +94,6 @@
         Unknown1056 = 1056,
         Unknown1057 = 1057,
 
-        Unknown1059 = 1059,
-        Unknown1060 = 1060,
         Unknown1062 = 1062,
         Unknown1063 = 1063,
         Unknown1064 = 1064,

@@ -12,6 +12,12 @@ namespace OpenSage.Graphics.Animation
 
             var animations = new W3DAnimation[w3dAnimations.Count + w3dCompressedAnimations.Count];
 
+            if (animations.Length == 0)
+            {
+                // sometimes w3d files are referenced inside animation states that do not contain any animation chunks
+                return null;
+            }
+
             if (animations.Length != 1)
             {
                 throw new NotSupportedException();
