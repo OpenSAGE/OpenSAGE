@@ -6,6 +6,7 @@ using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
+using OpenSage.Logic.OrderGenerators;
 
 namespace OpenSage.Logic
 {
@@ -92,14 +93,39 @@ namespace OpenSage.Logic
             Status = SelectionStatus.NotSelecting;
         }
 
-        public void SetSelectedObjects(Player player, GameObject[] objects)
+        public void SetSelectedObjects(Player player, GameObject[] objects, bool playAudio = true)
         {
             player.SelectUnits(objects);
 
             if (player == Game.Scene3D.LocalPlayer)
             {
-                objects[0].OnLocalSelect(Game.Audio);
+                if (CanSetRallyPoint(objects))
+                {
+                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator();
+                }
+                else
+                {
+                    Game.OrderGenerator.ActiveGenerator = new UnitOrderGenerator(Game);
+                }
+
+                if (playAudio)
+                {
+                    objects[0].OnLocalSelect(Game.Audio);
+                }
             }
+        }
+
+        private bool CanSetRallyPoint(GameObject[] objects)
+        {
+            foreach (var unit in objects)
+            {
+                if (unit.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void SetRallyPointForSelectedObjects(Player player, GameObject[] objects, Vector3 rallyPoint)
@@ -108,6 +134,11 @@ namespace OpenSage.Logic
             {
                 obj.RallyPoint = rallyPoint;
             }
+        }
+
+        public void ClearSelectedObjectsForLocalPlayer()
+        {
+            ClearSelectedObjects(Game.Scene3D.LocalPlayer);
         }
 
         public void ClearSelectedObjects(Player player)

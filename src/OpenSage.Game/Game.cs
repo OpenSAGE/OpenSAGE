@@ -634,7 +634,7 @@ namespace OpenSage
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.Transform.Translation = startingUnit0Position;
 
-                        players[i].SelectUnits(new[] { startingBuilding });
+                        Selection.SetSelectedObjects(players[i], new[] { startingBuilding }, playAudio: false);
                     }
                 }
 

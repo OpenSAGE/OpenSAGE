@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Logic.OrderGenerators
@@ -29,6 +30,10 @@ namespace OpenSage.Logic.OrderGenerators
             }
         }
 
+        public sealed class InapplicableResult : OrderGeneratorResult
+        {
+        }
+
         public sealed class FailureResult : OrderGeneratorResult
         {
             // TODO: Handle localisation / use an enum instead?
@@ -50,6 +55,8 @@ namespace OpenSage.Logic.OrderGenerators
         /// </summary>
         public static OrderGeneratorResult SuccessAndExit(IEnumerable<Order> orders) => new Success(orders, true);
 
+        public static OrderGeneratorResult Inapplicable() => new InapplicableResult();
+
         /// <summary>
         /// Notifies about an error while trying to issue the order (e.g not enough space for a building).
         /// Doesn't change the OrderGenerator.
@@ -64,12 +71,12 @@ namespace OpenSage.Logic.OrderGenerators
         // TODO: Should we use some other way of rendering, via Scene3D?
         void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime);
 
-        OrderGeneratorResult TryActivate(Scene3D scene);
+        OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers);
 
-        void UpdatePosition(Vector3 position);
+        void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition);
 
         void UpdateDrag(Vector3 position);
 
-        // TODO: Add cursor handling
+        string GetCursor(KeyModifiers keyModifiers);
     }
 }

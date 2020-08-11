@@ -428,6 +428,11 @@ namespace OpenSage
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
             DebugOverlay.Update(gameTime);
+
+            if (_orderGeneratorInputHandler != null)
+            {
+                _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
+            }
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)

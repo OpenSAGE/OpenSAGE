@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
-using OpenSage.Logic.Orders;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -19,6 +17,10 @@ namespace OpenSage.Logic
             get => _activeGenerator;
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
                 if (_activeGenerator is IDisposable disposable)
                 {
                     disposable.Dispose();
@@ -27,21 +29,21 @@ namespace OpenSage.Logic
             }
         }
 
-        public bool HasActiveOrderGenerator => ActiveGenerator != null;
-
-        public OrderGeneratorSystem(Game game) : base(game) { }
+        public OrderGeneratorSystem(Game game)
+            : base(game)
+        {
+            _activeGenerator = new UnitOrderGenerator(game);
+        }
 
         private Vector3? _worldPosition;
-        private GameObject _worldObject;
 
         public void UpdatePosition(Vector2 mousePosition)
         {
             _worldPosition = GetTerrainPosition(mousePosition);
-            _worldObject = Game.Selection.FindClosestObject(mousePosition);
 
             if (_worldPosition.HasValue && ActiveGenerator != null)
             {
-                ActiveGenerator.UpdatePosition(_worldPosition.Value);
+                ActiveGenerator.UpdatePosition(mousePosition, _worldPosition.Value);
             }
         }
 
@@ -55,91 +57,14 @@ namespace OpenSage.Logic
             }
         }
 
-        public void OnRightClick(bool ctrlDown)
+        public bool TryActivate(KeyModifiers keyModifiers)
         {
             if (!_worldPosition.HasValue)
             {
-                return;
+                return false;
             }
 
-            if (Game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
-            {
-                return;
-            }
-
-            var canSetRallyPoint = false;
-            foreach (var unit in Game.Scene3D.LocalPlayer.SelectedUnits)
-            {
-                if (unit.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
-                {
-                    canSetRallyPoint = true;
-                    break;
-                }
-            }
-
-            Order order = null;
-
-            if (canSetRallyPoint)
-            {
-                var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
-                var objectIds = Game.Scene3D.GameObjects.GetObjectIds(Game.Scene3D.LocalPlayer.SelectedUnits);
-                order = Order.CreateSetRallyPointOrder(playerId, objectIds, _worldPosition.Value);
-            }
-            else
-            {
-                // We choose the sound based on the most-recently-selected unit.
-                var unit = Game.Scene3D.LocalPlayer.SelectedUnits.Last();
-
-                // TODO: Use ini files for this, don't hardcode it.
-                if (ctrlDown)
-                {
-                    // TODO: Check whether clicked point is an object, or empty ground.
-                    unit.OnLocalAttack(Game.Audio);
-                    if (_worldObject != null)
-                    {
-                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
-
-                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, true);
-                    }
-                    else
-                    {
-                        order = Order.CreateAttackGround(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
-                    }
-                }
-                else
-                {
-                    // TODO: should only work on enemy objects
-                    if (_worldObject != null)
-                    {
-                        var objectId = Game.Scene3D.GameObjects.GetObjectId(_worldObject);
-
-                        unit.OnLocalAttack(Game.Audio);
-                        order = Order.CreateAttackObject(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), (uint) objectId, false);
-                    }
-                    else
-                    {
-                        // TODO: Check whether at least one of the selected units can actually be moved.
-
-                        unit.OnLocalMove(Game.Audio);
-                        order = Order.CreateMoveOrder(Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer), _worldPosition.Value);
-                    }
-                }
-            }
-
-            if (order != null)
-            {
-                Game.NetworkMessageBuffer.AddLocalOrder(order);
-            }
-        }
-
-        public void OnActivate()
-        {
-            if (!_worldPosition.HasValue || ActiveGenerator == null)
-            {
-                return;
-            }
-
-            var result = ActiveGenerator.TryActivate(Game.Scene3D);
+            var result = ActiveGenerator.TryActivate(Game.Scene3D, keyModifiers);
 
             switch (result)
             {
@@ -152,14 +77,35 @@ namespace OpenSage.Logic
 
                         if (success.Exit)
                         {
-                            ActiveGenerator = null;
+                            ActiveGenerator = new UnitOrderGenerator(Game);
                         }
 
-                        break;
+                        return true;
                     }
+
+                case OrderGeneratorResult.InapplicableResult _:
+                    return false;
+
                 case OrderGeneratorResult.FailureResult _:
                     // TODO: Show error message in HUD
-                    break;
+                    return true;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        public void Update(in TimeInterval time, KeyModifiers keyModifiers)
+        {
+            var cursor = ActiveGenerator.GetCursor(keyModifiers);
+            if (cursor != null)
+            {
+                Game.Window.IsMouseVisible = true;
+                Game.Cursors.SetCursor(cursor, time);
+            }
+            else
+            {
+                Game.Window.IsMouseVisible = false;
             }
         }
 
@@ -215,24 +161,14 @@ namespace OpenSage.Logic
             ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
         }
 
-        public void StartConstructUnit(ObjectDefinition unitDefinition)
-        {
-            // TODO: Handle ONLY_BY_AI
-            // TODO: Copy default settings from DefaultThingTemplate
-
-            // TODO: Check that the building can build that unit.
-            // TODO: Check that the unit has been unlocked.
-            // TODO: Check that the building isn't building something else right now?
-
-            var gameData = Game.AssetStore.GameData.Current;
-            var definitionIndex = unitDefinition.InternalId;
-
-            ActiveGenerator = new TrainUnitOrderGenerator(unitDefinition, definitionIndex, gameData);
-        }
-
         public void SetRallyPoint()
         {
             ActiveGenerator = new RallyPointOrderGenerator();
+        }
+
+        public void CancelOrderGenerator()
+        {
+            ActiveGenerator = new UnitOrderGenerator(Game);
         }
     }
 }
