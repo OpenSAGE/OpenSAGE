@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
@@ -39,6 +40,11 @@ namespace OpenSage.Mods.Generals
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
             return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
+        }
+
+        public bool Probe(string directory)
+        {
+            return File.Exists(Path.Combine(directory, LauncherExecutable)) && File.Exists(Path.Combine(directory, "INIZH.big"));
         }
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();

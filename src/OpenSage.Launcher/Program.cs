@@ -76,8 +76,7 @@ namespace OpenSage.Launcher
 
             foreach (var gameDef in GameDefinition.All)
             {
-                //TODO: think about a smart solution for generals ZH
-                if (File.Exists(Path.Combine(GameFolder, gameDef.LauncherExecutable)))
+                if (gameDef.Probe(GameFolder))
                 {
                     DetectedGame = gameDef.Game;
                     UseLocators = false;
@@ -85,7 +84,7 @@ namespace OpenSage.Launcher
             }
 
             var definition = GameDefinition.FromGame(DetectedGame);
-            GameInstallation installation = null;
+            GameInstallation installation;
             if (UseLocators)
             {
                 installation = GameInstallation

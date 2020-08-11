@@ -38,6 +38,6 @@ namespace OpenSage.Mods.Bfme2
 
         public static Bfme2Definition Instance { get; } = new Bfme2Definition();
 
-        public string LauncherExecutable => "lotrbfme.exe";
+        public string LauncherExecutable => "lotrbfme2.exe";
     }
 }
