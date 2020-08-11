@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
@@ -11,6 +12,9 @@ namespace OpenSage.Gui.Apt
         public Texture Texture { get; set; }
 
         private bool IsHovered { get; set; }
+
+        public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry);
+        public CustomRenderCallback RenderCallback;
 
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
@@ -34,7 +38,14 @@ namespace OpenSage.Gui.Apt
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-                    renderingContext.RenderGeometry(geometry, Texture);
+                    if (RenderCallback != null)
+                    {
+                        RenderCallback(renderingContext, geometry);
+                    }
+                    else
+                    {
+                        renderingContext.RenderGeometry(geometry, Texture);
+                    }
                     break;
 
                 case Text t:

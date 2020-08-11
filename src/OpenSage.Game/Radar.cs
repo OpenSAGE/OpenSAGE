@@ -123,19 +123,29 @@ namespace OpenSage
                 new SizeF(_miniMapTexture.Width, _miniMapTexture.Height),
                 destinationRectangle.Size);
 
-            drawingContext.DrawImage(_miniMapTexture, null, fittedRectangle);
+            DrawRadarMinimap(drawingContext, fittedRectangle);
 
             var objectTransform = RectangleF.CalculateTransformForRectangleFittingAspectRatio(
                 new RectangleF(0, 0, _miniMapTexture.Width, _miniMapTexture.Height),
                 new SizeF(_miniMapTexture.Width, _miniMapTexture.Height),
                 destinationRectangle.Size);
 
+            DrawRadarOverlay(drawingContext, objectTransform);
+        }
+
+        public void DrawRadarMinimap(DrawingContext2D drawingContext, in Mathematics.Rectangle rectangle)
+        {
+            drawingContext.DrawImage(_miniMapTexture, null, rectangle);
+        }
+
+        public void DrawRadarOverlay(DrawingContext2D drawingContext, in Matrix3x2 transform)
+        {
             foreach (var item in _visibleItems)
             {
-                DrawRadarItem(item, drawingContext, objectTransform);
+                DrawRadarItem(item, drawingContext, transform);
             }
 
-            DrawCameraFrustum(drawingContext, objectTransform);
+            DrawCameraFrustum(drawingContext, transform);
         }
 
         private void DrawRadarItem(
