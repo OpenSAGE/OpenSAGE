@@ -8,12 +8,30 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ObjectCreationUpgrade : UpgradeModule
     {
+        private readonly ObjectCreationUpgradeModuleData _moduleData;
+
         internal ObjectCreationUpgrade(GameObject gameObject, ObjectCreationUpgradeModuleData moduleData)
             : base(gameObject, moduleData)
         {
+            _moduleData = moduleData;
         }
 
-        // TODO
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
+                {
+                    item.Execute(context);
+                }
+
+                foreach (var upgrade in _moduleData.ConflictsWith)
+                {
+                    if (upgrade == null) continue; 
+                    _gameObject.InvalidUpgrades.Add(upgrade.Value);
+                }
+            }
+        }
 
         internal override void Load(BinaryReader reader)
         {

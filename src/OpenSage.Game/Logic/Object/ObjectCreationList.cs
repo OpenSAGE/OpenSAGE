@@ -322,7 +322,9 @@ namespace OpenSage.Logic.Object
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
+                // TODO: IgnorePrimaryObstacle
                 // TODO: Offset
+                newGameObject.Transform.Translation += Offset;
             }
         }
     }

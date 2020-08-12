@@ -190,6 +190,7 @@ namespace OpenSage.Logic.Object
         public ProductionUpdate ProductionUpdate { get; }
 
         public List<UpgradeTemplate> Upgrades { get; }
+        public List<UpgradeTemplate> InvalidUpgrades { get; }
 
         public int ExperienceValue { get; private set; }
         internal float ExperienceMultiplier { get; set; }
@@ -305,6 +306,7 @@ namespace OpenSage.Logic.Object
             }
 
             Upgrades = new List<UpgradeTemplate>();
+            InvalidUpgrades = new List<UpgradeTemplate>();
 
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
@@ -497,6 +499,20 @@ namespace OpenSage.Logic.Object
             else
             {
                 return Upgrades.Contains(upgrade);
+            }
+        }
+
+        public bool InvalidUpgradeAvailable(UpgradeTemplate upgrade)
+        {
+            if (upgrade == null) return false;
+
+            if (upgrade.Type == UpgradeType.Player)
+            {
+                return false; // TODO: player invalid upgrades?
+            }
+            else
+            {
+                return InvalidUpgrades.Contains(upgrade);
             }
         }
 

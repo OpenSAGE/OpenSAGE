@@ -269,7 +269,9 @@ namespace OpenSage.Mods.Generals.Gui
                                 var upgrade = commandButton.Upgrade.Value;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
                                 var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
-                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade;
+                                var upgradeIsInvalid = selectedUnit.InvalidUpgradeAvailable(upgrade);
+
+                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
                                 break;
                         }
 
@@ -426,6 +428,9 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
+
+                if (unit.Definition.CommandSet == null) return;
+
                 var commandSet = unit.Definition.CommandSet.Value;
 
                 // TODO: Only do this when command set changes.
