@@ -19,11 +19,13 @@ namespace OpenSage.Graphics.Shaders
         public readonly TerrainShaderResources Terrain;
         public readonly WaterShaderResources Water;
 
-        public ShaderResourceManager(GraphicsDevice graphicsDevice, Texture solidWhiteTexture)
+        public ShaderResourceManager(
+            GraphicsDevice graphicsDevice,
+            StandardGraphicsResources standardGraphicsResources)
         {
             using (GameTrace.TraceDurationEvent("ShaderResourceManager()"))
             {
-                Global = AddDisposable(new GlobalShaderResources(graphicsDevice, solidWhiteTexture));
+                Global = AddDisposable(new GlobalShaderResources(graphicsDevice, standardGraphicsResources.SolidWhiteTexture));
                 Mesh = AddDisposable(new MeshShaderResources(graphicsDevice));
 
                 FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
@@ -31,7 +33,7 @@ namespace OpenSage.Graphics.Shaders
                 Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global));
                 Road = AddDisposable(new RoadShaderResources(graphicsDevice, Global));
                 Sprite = AddDisposable(new SpriteShaderResources(graphicsDevice));
-                Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global));
+                Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global, standardGraphicsResources.Aniso4xClampSampler));
                 Water = AddDisposable(new WaterShaderResources(graphicsDevice, Global));
 
                 _shaderMaterialResources = new Dictionary<string, ShaderMaterialShaderResources>

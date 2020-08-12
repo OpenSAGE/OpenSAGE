@@ -433,6 +433,8 @@ namespace OpenSage
             {
                 _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
             }
+
+            Terrain?.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)

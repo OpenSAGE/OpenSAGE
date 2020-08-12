@@ -92,6 +92,7 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.Credits);
                         SubsystemLoader.Load(Subsystem.Damage);
                         SubsystemLoader.Load(Subsystem.SpecialPower);
+                        SubsystemLoader.Load(Subsystem.InGameUI);
                         break;
 
                     case SageGame.Cnc3:

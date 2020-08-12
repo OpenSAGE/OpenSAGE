@@ -29,6 +29,7 @@ namespace OpenSage.Terrain
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache,
             ResourceSet materialResourceSet,
+            ResourceSet radiusCursorDecalsResourceSet,
             Func<ResourceSet> causticsRendererCallback)
         {
             Bounds = patchBounds;
@@ -63,6 +64,7 @@ namespace OpenSage.Terrain
                 {
                     cl.SetGraphicsResourceSet(4, materialResourceSet);
                 }
+                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
