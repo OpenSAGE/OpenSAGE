@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
