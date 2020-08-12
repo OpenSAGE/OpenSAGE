@@ -171,9 +171,9 @@ namespace OpenSage.Logic.Object
 
             switch (_locomotorTemplate.Appearance)
             {
-                case LocomotorAppearance.Thrust:
-                    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
-                    break;
+                //case LocomotorAppearance.Thrust:
+                //    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
+                //    break;
                 case LocomotorAppearance.Treads:
                     if (MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f)) //first fully rotate towards target point
                         distance = 0.0f;
