@@ -125,7 +125,7 @@ namespace OpenSage.Logic
             var gameData = Game.AssetStore.GameData.Current;
 
             ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D);
+                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D, Game.MapTime);
         }
 
         public void StartSpecialPowerAtObject(SpecialPower specialPower)
@@ -134,7 +134,7 @@ namespace OpenSage.Logic
 
             //TODO: pass the right target type
             ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D);
+                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D, Game.MapTime);
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)

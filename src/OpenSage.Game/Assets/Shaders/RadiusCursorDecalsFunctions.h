@@ -12,11 +12,9 @@ vec3 GetRadiusCursorDecalColor(vec3 worldPosition)
         // RadiusCursorDecal decal = _RadiusCursorDecals[i];
 
         uint decalTextureIndex = _RadiusCursorDecals[i].DecalTextureIndex;
-
         vec2 decalBottomLeftPosition = _RadiusCursorDecals[i].BottomLeftCornerPosition;
         float decalDiameter = _RadiusCursorDecals[i].Diameter;
-
-        // TODO: Opacity
+        float decalOpacity = _RadiusCursorDecals[i].Opacity;
 
         float decalU = (worldPosition.x - decalBottomLeftPosition.x) / decalDiameter;
         float decalV = (worldPosition.y - decalBottomLeftPosition.y) / decalDiameter;
@@ -27,7 +25,7 @@ vec3 GetRadiusCursorDecalColor(vec3 worldPosition)
             sampler2DArray(RadiusCursorDecalTextures, RadiusCursorDecalSampler),
             vec3(decalUV, decalTextureIndex));
 
-        result += decalColor.xyz * decalColor.a;
+        result += decalColor.xyz * decalColor.a * decalOpacity;
     }
 
     return result;
