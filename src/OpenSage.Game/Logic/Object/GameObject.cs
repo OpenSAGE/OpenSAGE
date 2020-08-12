@@ -20,7 +20,6 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
-
         internal static GameObject FromMapObject(
             MapObject mapObject,
             AssetStore assetStore,

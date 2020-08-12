@@ -170,9 +170,9 @@ namespace OpenSage.Logic.Object
 
             switch (_locomotorTemplate.Appearance)
             {
-                case LocomotorAppearance.Thrust:
-                    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
-                    break;
+                //case LocomotorAppearance.Thrust:
+                //    trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
+                //    break;
                 case LocomotorAppearance.Treads:
                     if (MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f)) //first fully rotate towards target point
                         distance = 0.0f;
@@ -186,13 +186,14 @@ namespace OpenSage.Logic.Object
                     var height = heightMap.GetHeight(x, y);
                     if (!_locomotorTemplate.StickToGround)
                     {
-                        var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
-                        var oldLift = _gameObject.Lift;
-                        var lift = GetLift();
-                        var newLift = oldLift + lift;
-                        newLift = Math.Clamp(newLift, 0.0f, lift);
-                        _gameObject.Lift = newLift;
-                        trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+                        //    var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
+                        //    var oldLift = _gameObject.Lift;
+                        //    var lift = GetLift();
+                        //    var newLift = oldLift + lift;
+                        //    newLift = Math.Clamp(newLift, 0.0f, lift);
+                        //    _gameObject.Lift = newLift;
+                        //    trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+                        trans.Z = height + _locomotorTemplate.PreferredHeight;
                     }
                     else
                     {

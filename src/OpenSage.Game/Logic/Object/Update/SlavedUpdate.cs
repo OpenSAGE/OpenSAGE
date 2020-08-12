@@ -3,6 +3,39 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public class SlavedUpdateModule : UpdateModule
+    {
+        private readonly SlavedUpdateModuleData _moduleData;
+        protected readonly GameObject _gameObject;
+
+        public GameObject Master;
+
+        internal SlavedUpdateModule(GameObject gameObject, SlavedUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+            var offsetToMaster = Master.Transform.Translation - _gameObject.Transform.Translation;
+            var distanceToMaster = offsetToMaster.Length();
+
+            if (_gameObject.AIUpdate.TargetPoints.Count == 0
+                && distanceToMaster > (masterIsMoving ? _moduleData.ScoutRange : _moduleData.GuardMaxRange))
+            {
+                _gameObject.AIUpdate.AddTargetPoint(Master.Transform.Translation);
+            }
+
+            //hack
+            if (_gameObject.Body.Health < _gameObject.Body.MaxHealth)
+            {
+                _gameObject.Body.Health = _gameObject.Body.MaxHealth;
+            }
+        }
+    }
+
     public sealed class SlavedUpdateModuleData : UpdateModuleData
     {
         internal static SlavedUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -37,16 +70,27 @@ namespace OpenSage.Logic.Object
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() }
         };
 
+        // How far away from master I'm allowed when master is idle (doesn't wander)
         public float GuardMaxRange { get; private set; }
+        // How far away I'm allowed to wander from master while guarding.
         public float GuardWanderRange { get; private set; }
+        // How far away from master I'm allowed when master is attacking a target.
         public int AttackRange { get; private set; }
+        // How far I'm allowed to wander from target.
         public int AttackWanderRange { get; private set; }
+        // How far away from master I'm allowed when master is moving.
         public int ScoutRange { get; private set; }
+        // How far I'm allowed to wander from scout point.
         public int ScoutWanderRange { get; private set; }
+        // How far I can zip around while repair (only moves when he stops welding)
         public int RepairRange { get; private set; }
+        // My minimum repair hover altitude.
         public float RepairMinAltitude { get; private set; }
+        // My maximum repair hover altitude.
         public float RepairMaxAltitude { get; private set; }
+        // How many health points can I repair per second.
         public float RepairRatePerSecond { get; private set; }
+        // How low should my master's health be (in %) before I should prioritize repairing.
         public int RepairWhenBelowHealthPercent { get; private set; }
         public int RepairMinReadyTime { get; private set; }
         public int RepairMaxReadyTime { get; private set; }
@@ -54,7 +98,8 @@ namespace OpenSage.Logic.Object
         public int RepairMaxWeldTime { get; private set; }
         public string RepairWeldingSys { get; private set; }
         public string RepairWeldingFXBone { get; private set; }
-        public int DistToTargetToGrantRangeBonus { get; private set; }
+        // How close I have to be to the master's target in order to grant master a range bonus.
+        public int DistToTargetToGrantRangeBonus { get; private set; } 
         public bool StayOnSameLayerAsMaster { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
@@ -77,5 +122,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int FadeTime { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SlavedUpdateModule(gameObject, this);
+        }
     }
 }
