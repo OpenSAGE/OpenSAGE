@@ -38,7 +38,8 @@ namespace OpenSage.Logic.OrderGenerators
            Player player,
            GameContext gameContext,
            SpecialPowerTarget target,
-           Scene3D scene)
+           Scene3D scene,
+           in TimeInterval time)
         {
             _specialPower = specialPower;
             _target = target;
@@ -48,11 +49,13 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Improve this check.
             var radiusCursors = _scene.GameContext.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;
             var radiusCursorName = _specialPower.Type.ToString();
-            if (radiusCursors.ContainsKey(radiusCursorName))
+            if (radiusCursors.TryGetValue(radiusCursorName, out var radiusCursor))
             {
                 _decalHandle = scene.Terrain.RadiusCursorDecals.AddDecal(
                     radiusCursorName,
-                    _specialPower.RadiusCursorRadius);
+                    radiusCursor.DecalTemplate,
+                    _specialPower.RadiusCursorRadius,
+                    time);
             }
         }
 

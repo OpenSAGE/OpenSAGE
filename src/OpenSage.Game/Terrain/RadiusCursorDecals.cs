@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Gui.InGame;
 using Veldrid;
 
 namespace OpenSage.Terrain
@@ -56,6 +57,9 @@ namespace OpenSage.Terrain
         private Texture CreateTextureArray(AssetStore assetStore, GraphicsDevice graphicsDevice)
         {
             var textures = new List<Texture>();
+
+            // TODO: Radius cursors don't only come from InGameUI. They can also come from other sources
+            // like ObjectCreationList.DeliverPayload.DeliveryDecal.
 
             var largestTextureSize = uint.MinValue;
             foreach (var radiusCursor in assetStore.InGameUI.Current.RadiusCursors)
@@ -143,20 +147,43 @@ namespace OpenSage.Terrain
 
         public void Update(in TimeInterval time)
         {
-            // TODO: Animate opacity.
-
             _decalConstantBuffer.Value.NumRadiusCursorDecals = (uint)_decalsStorage.Count;
             _decalConstantBuffer.Update(_graphicsDevice);
 
             for (var i = 0; i < _decalsStorage.Count; i++)
             {
-                _decals[i] = _decalsStorage[i].Decal;
+                var handle = _decalsStorage[i];
+
+                var opacityDelta = (float)(handle.OpacityDeltaPerMillisecond * time.DeltaTime.TotalMilliseconds);
+                if (time.TotalTime > handle.NextOpacityDirectionChange)
+                {
+                    handle.IsOpacityIncreasing = !handle.IsOpacityIncreasing;
+                    handle.NextOpacityDirectionChange = time.TotalTime + handle.Template.OpacityThrobTime / 2f;
+                }
+                if (handle.IsOpacityIncreasing)
+                {
+                    handle.Decal.Opacity += opacityDelta;
+                    if (handle.Decal.Opacity > 1)
+                    {
+                        int j = 0;
+                    }
+                }
+                else
+                {
+                    handle.Decal.Opacity -= opacityDelta;
+                }
+
+                _decals[i] = handle.Decal;
             }
 
             _graphicsDevice.UpdateBuffer(DecalsBuffer, 0, _decals);
         }
 
-        public DecalHandle AddDecal(string radiusCursorName, float radius)
+        public DecalHandle AddDecal(
+            string radiusCursorName,
+            RadiusDecalTemplate template,
+            float radius,
+            in TimeInterval time)
         {
             if (_decalsStorage.Count == MaxDecals)
             {
@@ -170,8 +197,12 @@ namespace OpenSage.Terrain
                 {
                     DecalTextureIndex = _nameToTextureIndex[radiusCursorName],
                     Diameter = radius * 2,
-                    Opacity = 1.0f,
-                }
+                    Opacity = (float) template.OpacityMin,
+                },
+                Template = template,
+                IsOpacityIncreasing = true,
+                OpacityDeltaPerMillisecond = (float)(((float)template.OpacityMax - (float)template.OpacityMin) / template.OpacityThrobTime.TotalMilliseconds),
+                NextOpacityDirectionChange = time.TotalTime + template.OpacityThrobTime / 2f,
             });
 
             return result;
@@ -192,5 +223,9 @@ namespace OpenSage.Terrain
     internal sealed class DecalHandle
     {
         public RadiusCursorDecal Decal;
+        public RadiusDecalTemplate Template;
+        public bool IsOpacityIncreasing;
+        public float OpacityDeltaPerMillisecond;
+        public TimeSpan NextOpacityDirectionChange;
     }
 }
