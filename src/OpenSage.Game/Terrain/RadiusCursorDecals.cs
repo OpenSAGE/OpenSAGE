@@ -12,7 +12,7 @@ namespace OpenSage.Terrain
     {
         private readonly GraphicsDevice _graphicsDevice;
 
-        private readonly ConstantBuffer<TerrainShaderResources.RadiusCursorDecalConstants> _decalConstantBuffer;
+        private readonly ConstantBuffer<RadiusCursorDecalShaderResources.RadiusCursorDecalConstants> _decalConstantBuffer;
 
         private readonly Dictionary<string, uint> _nameToTextureIndex;
 
@@ -31,7 +31,7 @@ namespace OpenSage.Terrain
         {
             _graphicsDevice = graphicsDevice;
 
-            _decalConstantBuffer = AddDisposable(new ConstantBuffer<TerrainShaderResources.RadiusCursorDecalConstants>(
+            _decalConstantBuffer = AddDisposable(new ConstantBuffer<RadiusCursorDecalShaderResources.RadiusCursorDecalConstants>(
                 graphicsDevice,
                 "RadiusCursorDecalConstants"));
 

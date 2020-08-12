@@ -110,7 +110,7 @@ namespace OpenSage.Terrain
                 macroTexture,
                 casuticsTexture));
 
-            var radiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateRadiusCursorDecalsResourceSet(
+            var radiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.RadiusCursor.CreateRadiusCursorDecalsResourceSet(
                 RadiusCursorDecals.TextureArray,
                 RadiusCursorDecals.DecalConstants,
                 RadiusCursorDecals.DecalsBuffer));

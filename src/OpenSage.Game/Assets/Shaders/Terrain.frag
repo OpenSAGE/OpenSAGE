@@ -6,6 +6,7 @@
 #include "Lighting.h"
 #include "Cloud.h"
 #include "Shadows.h"
+#include "RadiusCursorDecals.h"
 
 MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
 
@@ -54,28 +55,9 @@ layout(set = 4, binding = 5) uniform texture2D MacroTexture;
 layout(set = 4, binding = 6) uniform texture2D CausticsTexture; // TODO: Change this to texture2DArray.
 layout(set = 4, binding = 7) uniform sampler Sampler;
 
-layout(set = 5, binding = 0) uniform texture2DArray RadiusCursorDecalTextures;
-layout(set = 5, binding = 1) uniform sampler RadiusCursorDecalSampler;
+MAKE_RADIUS_CURSOR_DECAL_RESOURCES(5)
 
-struct RadiusCursorDecal
-{
-    vec2 BottomLeftCornerPosition;
-    float Diameter;
-    uint DecalTextureIndex;
-    vec3 _Padding;
-    float Opacity;
-};
-
-layout(set = 5, binding = 2) uniform RadiusCursorDecalConstants
-{
-    vec3 _Padding;
-    uint NumRadiusCursorDecals;
-} _RadiusCursorDecalConstants;
-
-layout(std430, set = 5, binding = 3) readonly buffer RadiusCursorDecals
-{
-    RadiusCursorDecal _RadiusCursorDecals[];
-};
+#include "RadiusCursorDecalsFunctions.h"
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -266,37 +248,6 @@ vec3 DoCausticsRendering(vec3 textureColor, vec3 blendColor)
     float depthFactor = CalculateCausticsDepthFactor(in_WorldPosition, in_ClippingPlane);
     outputColor = textureColor + (outputColor * depthFactor);
     return outputColor;
-}
-
-vec3 GetRadiusCursorDecalColor(vec3 worldPosition)
-{
-    vec3 result = vec3(0, 0, 0);
-
-    for (int i = 0; i < _RadiusCursorDecalConstants.NumRadiusCursorDecals; i++)
-    {
-        // Can't do this because SPIRV-Cross doesn't support it yet:
-        // RadiusCursorDecal decal = _RadiusCursorDecals[i];
-
-        uint decalTextureIndex = _RadiusCursorDecals[i].DecalTextureIndex;
-
-        vec2 decalBottomLeftPosition = _RadiusCursorDecals[i].BottomLeftCornerPosition;
-        float decalDiameter = _RadiusCursorDecals[i].Diameter;
-
-        // TODO: Opacity
-
-        float decalU = (worldPosition.x - decalBottomLeftPosition.x) / decalDiameter;
-        float decalV = (worldPosition.y - decalBottomLeftPosition.y) / decalDiameter;
-
-        vec2 decalUV = vec2(decalU, 1 - decalV);
-
-        vec4 decalColor = texture(
-            sampler2DArray(RadiusCursorDecalTextures, RadiusCursorDecalSampler),
-            vec3(decalUV, decalTextureIndex));
-
-        result += decalColor.xyz * decalColor.a;
-    }
-
-    return result;
 }
 
 void main()
