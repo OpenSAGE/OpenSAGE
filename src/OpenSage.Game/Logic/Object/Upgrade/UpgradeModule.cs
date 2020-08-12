@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
@@ -72,6 +73,11 @@ namespace OpenSage.Logic.Object
 
             var unknownByte1 = reader.ReadByte();
             var unknownByte2 = reader.ReadByte();
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Triggered", _triggered);
         }
     }
 
