@@ -45,6 +45,8 @@ namespace OpenSage.Terrain
 
         internal readonly RadiusCursorDecals RadiusCursorDecals;
 
+        internal readonly ResourceSet RadiusCursorDecalsResourceSet;
+
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
             HeightMap = new HeightMap(mapFile.HeightMapData);
@@ -110,7 +112,7 @@ namespace OpenSage.Terrain
                 macroTexture,
                 casuticsTexture));
 
-            var radiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.RadiusCursor.CreateRadiusCursorDecalsResourceSet(
+            RadiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.RadiusCursor.CreateRadiusCursorDecalsResourceSet(
                 RadiusCursorDecals.TextureArray,
                 RadiusCursorDecals.DecalConstants,
                 RadiusCursorDecals.DecalsBuffer));
@@ -120,7 +122,7 @@ namespace OpenSage.Terrain
                 HeightMap,
                 indexBufferCache,
                 materialResourceSet,
-                radiusCursorDecalsResourceSet,
+                RadiusCursorDecalsResourceSet,
                 causticsRenderer);
 
             var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
+using Veldrid;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -15,7 +16,11 @@ namespace OpenSage.Terrain.Roads
             _roads = new List<Road>();
         }
 
-        internal RoadCollection(RoadTopology topology, AssetLoadContext loadContext, HeightMap heightMap)
+        internal RoadCollection(
+            RoadTopology topology,
+            AssetLoadContext loadContext,
+            HeightMap heightMap,
+            ResourceSet radiusCursorDecalsResourceSet)
             : this()
         {
             // The map stores road segments with no connectivity:
@@ -43,7 +48,8 @@ namespace OpenSage.Terrain.Roads
                 _roads.Add(AddDisposable(new Road(
                         loadContext,
                         heightMap,
-                        network)));
+                        network,
+                        radiusCursorDecalsResourceSet)));
             }
         }
 
