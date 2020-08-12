@@ -245,7 +245,7 @@ namespace OpenSage
             }
 
             cameras = new CameraCollection(namedCameras?.Cameras);
-            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
+            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap, Terrain.RadiusCursorDecalsResourceSet));
             waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
             bridges = bridgesList.ToArray();
         }

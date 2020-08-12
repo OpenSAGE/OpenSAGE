@@ -34,7 +34,8 @@ namespace OpenSage.Terrain.Roads
         internal Road(
             AssetLoadContext loadContext,
             HeightMap heightMap,
-            RoadNetwork network)
+            RoadNetwork network,
+            ResourceSet radiusCursorDecalsResourceSet)
         {
             var vertices = new List<RoadShaderResources.RoadVertex>();
             var indices = new List<ushort>();
@@ -66,6 +67,7 @@ namespace OpenSage.Terrain.Roads
             _beforeRender = (cl, context) =>
             {
                 cl.SetGraphicsResourceSet(4, _resourceSet);
+                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
 

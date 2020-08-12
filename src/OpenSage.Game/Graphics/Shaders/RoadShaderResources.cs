@@ -13,7 +13,8 @@ namespace OpenSage.Graphics.Shaders
 
         public RoadShaderResources(
             GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources)
+            GlobalShaderResources globalShaderResources,
+            RadiusCursorDecalShaderResources radiusCursorDecalShaderResources)
             : base(
                 graphicsDevice,
                 "Road",
@@ -31,7 +32,8 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources.GlobalLightingConstantsResourceLayout,
                 globalShaderResources.GlobalCloudResourceLayout,
                 globalShaderResources.GlobalShadowResourceLayout,
-                _materialResourceLayout
+                _materialResourceLayout,
+                radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
             };
 
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
