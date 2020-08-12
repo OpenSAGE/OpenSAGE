@@ -7,25 +7,20 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class TerrainShaderResources : ShaderResourcesBase
     {
-        private readonly Sampler _aniso4xClampSampler;
-
         private readonly ResourceLayout _materialResourceLayout;
-        private readonly ResourceLayout _radiusCursorDecalsResourceLayout;
 
         public readonly Pipeline Pipeline;
 
         public TerrainShaderResources(
             GraphicsDevice graphicsDevice,
             GlobalShaderResources globalShaderResources,
-            Sampler aniso4xClampSampler)
+            RadiusCursorDecalShaderResources radiusCursorDecalShaderResources)
             : base(
                 graphicsDevice,
                 "Terrain",
                 new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
                 TerrainVertex.VertexDescriptor)
         {
-            _aniso4xClampSampler = aniso4xClampSampler;
-
             _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("TerrainMaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
@@ -37,13 +32,6 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("CausticsTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
-            _radiusCursorDecalsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("RadiusCursorDecalTextures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RadiusCursorDecalSampler", ResourceKind.Sampler, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RadiusCursorDecalConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RadiusCursorDecals", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment))));
-
             var resourceLayouts = new[]
             {
                 globalShaderResources.GlobalConstantsResourceLayout,
@@ -51,7 +39,7 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources.GlobalCloudResourceLayout,
                 globalShaderResources.GlobalShadowResourceLayout,
                 _materialResourceLayout,
-                _radiusCursorDecalsResourceLayout,
+                radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
             };
 
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
@@ -87,20 +75,6 @@ namespace OpenSage.Graphics.Shaders
                     GraphicsDevice.Aniso4xSampler));
         }
 
-        public ResourceSet CreateRadiusCursorDecalsResourceSet(
-            Texture radiusCursorDecalTextureArray,
-            DeviceBuffer radiusCursorDecalConstants,
-            DeviceBuffer radiusCursorDecalsBuffer)
-        {
-            return GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    _radiusCursorDecalsResourceLayout,
-                    radiusCursorDecalTextureArray,
-                    _aniso4xClampSampler,
-                    radiusCursorDecalConstants,
-                    radiusCursorDecalsBuffer));
-        }
-
         [StructLayout(LayoutKind.Explicit, Size = 32)]
         public struct TerrainMaterialConstants
         {
@@ -131,12 +105,6 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 BottomRightUV;
             public Vector2 TopRightUV;
             public Vector2 TopLeftUV;
-        }
-
-        public struct RadiusCursorDecalConstants
-        {
-            public Vector3 _Padding;
-            public uint NumRadiusCursorDecals;
         }
 
         [StructLayout(LayoutKind.Sequential)]
