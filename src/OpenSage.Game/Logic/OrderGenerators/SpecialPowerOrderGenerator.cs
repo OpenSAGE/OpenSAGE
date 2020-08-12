@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
+using OpenSage.Terrain;
 
 namespace OpenSage.Logic.OrderGenerators
 {
@@ -25,6 +25,8 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly SpecialPowerTarget _target;
         private readonly Scene3D _scene;
 
+        private readonly DecalHandle _decalHandle;
+
         private float _angle;
         private Vector3 _position;
 
@@ -42,19 +44,19 @@ namespace OpenSage.Logic.OrderGenerators
             _target = target;
             _scene = scene;
             _config = config;
+
+            // TODO: Improve this check.
+            var radiusCursors = _scene.GameContext.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;
+            var radiusCursorName = _specialPower.Type.ToString();
+            if (radiusCursors.ContainsKey(radiusCursorName))
+            {
+                _decalHandle = scene.Terrain.RadiusCursorDecals.AddDecal(
+                    radiusCursorName,
+                    _specialPower.RadiusCursorRadius);
+            }
         }
 
-        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
-        {
-            // TODO:
-            // throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            // TODO:
-            // throw new NotImplementedException();
-        }
+        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime) { }
 
         public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
@@ -79,9 +81,21 @@ namespace OpenSage.Logic.OrderGenerators
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
             _position = worldPosition;
+
+            if (_decalHandle != null)
+            {
+                _scene.Terrain.RadiusCursorDecals.SetDecalPosition(_decalHandle, worldPosition.Vector2XY());
+            }
         }
 
-        // Use radial cursor.
-        public string GetCursor(KeyModifiers keyModifiers) => null;
+        public string GetCursor(KeyModifiers keyModifiers) => "Target";
+
+        public void Dispose()
+        {
+            if (_decalHandle != null)
+            {
+                _scene.Terrain.RadiusCursorDecals.RemoveDecal(_decalHandle);
+            }
+        }
     }
 }

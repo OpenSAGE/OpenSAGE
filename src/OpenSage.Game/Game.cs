@@ -399,7 +399,7 @@ namespace OpenSage
                 _wndCallbackResolver = new WndCallbackResolver();
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
-                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources.SolidWhiteTexture));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources));
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
 
                 AssetStore = new AssetStore(

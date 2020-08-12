@@ -43,6 +43,8 @@ namespace OpenSage.Terrain
         private List<Texture> _causticsTextureList;
         private readonly uint _numOfCausticsAnimation = 32;
 
+        internal readonly RadiusCursorDecals RadiusCursorDecals;
+
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
             HeightMap = new HeightMap(mapFile.HeightMapData);
@@ -79,6 +81,8 @@ namespace OpenSage.Terrain
 
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
+            RadiusCursorDecals = AddDisposable(new RadiusCursorDecals(loadContext.AssetStore, loadContext.GraphicsDevice));
+
             BuildCausticsTextureArray(loadContext.AssetStore);
             Func<ResourceSet> causticsRenderer = () =>
             {
@@ -106,11 +110,17 @@ namespace OpenSage.Terrain
                 macroTexture,
                 casuticsTexture));
 
+            var radiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateRadiusCursorDecalsResourceSet(
+                RadiusCursorDecals.TextureArray,
+                RadiusCursorDecals.DecalConstants,
+                RadiusCursorDecals.DecalsBuffer));
+
             Patches = CreatePatches(
                 loadContext.GraphicsDevice,
                 HeightMap,
                 indexBufferCache,
                 materialResourceSet,
+                radiusCursorDecalsResourceSet,
                 causticsRenderer);
 
             var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
@@ -170,6 +180,7 @@ namespace OpenSage.Terrain
             HeightMap heightMap,
             TerrainPatchIndexBufferCache indexBufferCache,
             ResourceSet materialResourceSet,
+            ResourceSet radiusCursorDecalsResourceSet,
             Func<ResourceSet> causticsRendererCallback)
         {
             const int numTilesPerPatch = PatchSize - 1;
@@ -209,6 +220,7 @@ namespace OpenSage.Terrain
                         graphicsDevice,
                         indexBufferCache,
                         materialResourceSet,
+                        radiusCursorDecalsResourceSet,
                         causticsRendererCallback)));
                 }
             }
@@ -511,6 +523,11 @@ namespace OpenSage.Terrain
             }
 
             return ray.Position + (ray.Direction * closestIntersection.Value);
+        }
+
+        internal void Update(in TimeInterval time)
+        {
+            RadiusCursorDecals.Update(time);
         }
 
         internal void BuildRenderList(RenderList renderList)
