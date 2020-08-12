@@ -81,7 +81,8 @@ namespace OpenSage.Logic.Orders
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
 
                             player.Money += (uint) upgradeDefinition.BuildCost;
-                            //TODO: how to cancel this? There must be some global definition where upgrades are queud
+                            // since this is a building and only one at a time can be selected
+                            player.SelectedUnits.First().ProductionUpdate.CancelUpgrade(upgradeDefinition);
                         }
                         break;
 
@@ -174,7 +175,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
                                 }
                             }
                         }

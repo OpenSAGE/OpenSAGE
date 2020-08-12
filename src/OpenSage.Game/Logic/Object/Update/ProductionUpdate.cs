@@ -197,18 +197,31 @@ namespace OpenSage.Logic.Object
             _productionQueue.Add(job);
         }
 
-        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
-        {
-            var job = new ProductionJob(upgradeDefinition);
-            _productionQueue.Add(job);
-        }
-
         public void CancelProduction(int index)
         {
             if (index < _productionQueue.Count)
             {
                 _productionQueue.RemoveAt(index);
             }
+        }
+
+        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            var job = new ProductionJob(upgradeDefinition);
+            _productionQueue.Add(job);
+        }
+
+        internal void CancelUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            var index = -1;
+            for (var i = 0; i < _productionQueue.Count; i++)
+            {
+                if (_productionQueue[i].UpgradeDefinition == upgradeDefinition) index = i;
+            }
+
+            if (index < 0 || index > _productionQueue.Count) return;
+
+            _productionQueue.RemoveAt(index);
         }
 
         internal override void DrawInspector()

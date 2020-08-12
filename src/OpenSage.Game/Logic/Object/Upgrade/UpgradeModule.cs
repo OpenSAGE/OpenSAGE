@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
@@ -22,53 +21,34 @@ namespace OpenSage.Logic.Object
             _triggered = _moduleData.StartsActive;
         }
 
+        private bool AnyUpgradeAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        {
+            if (upgrades == null) return true;
+
+            foreach (var trigger in upgrades)
+            {
+                if (_gameObject.UpgradeAvailable(trigger.Value)) return true;
+            }
+            return false;
+        }
+
+        private bool AllUpgradesAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        {
+            if (upgrades == null) return true;
+
+            foreach (var trigger in upgrades)
+            {
+                if (_gameObject.UpgradeAvailable(trigger.Value) == false) return false;
+            }
+            return true;
+        }
+
         internal override void Update(BehaviorUpdateContext context)
         {
-            var triggered = false;
+            var triggered = _moduleData.RequiresAllTriggers ? AllUpgradesAvailable(_moduleData.TriggeredBy) : AnyUpgradeAvailable(_moduleData.TriggeredBy);
+            var conflicts = _moduleData.RequiresAllConflictingTriggers ? !AllUpgradesAvailable(_moduleData.ConflictsWith) : !AnyUpgradeAvailable(_moduleData.ConflictsWith);
+            if (conflicts) triggered = false;
 
-            if (_moduleData.TriggeredBy != null)
-            {
-                foreach (var trigger in _moduleData.TriggeredBy)
-                {
-                    triggered = _gameObject.UpgradeAvailable(trigger.Value);
-
-                    if (triggered && _moduleData.RequiresAllTriggers == false)
-                    {
-                        break;
-                    }
-
-                    if (!triggered && _moduleData.RequiresAllTriggers)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            var conflictCount = 0;
-
-            if (_moduleData.ConflictsWith != null)
-            {
-                foreach (var conflict in _moduleData.ConflictsWith)
-                {
-                    var hasUpgrade = _gameObject.UpgradeAvailable(conflict.Value);
-
-                    if (hasUpgrade)
-                    {
-                        if (_moduleData.RequiresAllConflictingTriggers)
-                        {
-                            conflictCount++;
-                            if (conflictCount == _moduleData.ConflictsWith.Count())
-                            {
-                                triggered = false;
-                            }
-                        }
-                        else
-                        {
-                            triggered = false;
-                        }
-                    }
-                }
-            }
 
             if (triggered != _triggered || _initial)
             {
