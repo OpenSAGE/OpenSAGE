@@ -1,5 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,23 +13,112 @@ namespace OpenSage.Logic.Object
 
         public GameObject Master;
 
+        private bool _isWelding;
+
+        private double _weldUntil;
+
+        private FXParticleSystemTemplate _particleTemplate;
+
         internal SlavedUpdateModule(GameObject gameObject, SlavedUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _isWelding = false;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+            var masterHealthPercent = Master.Body.Health / Master.Body.MaxHealth;
+
             var offsetToMaster = Master.Transform.Translation - _gameObject.Transform.Translation;
             var distanceToMaster = offsetToMaster.Length();
 
-            if (_gameObject.AIUpdate.TargetPoints.Count == 0
-                && distanceToMaster > (masterIsMoving ? _moduleData.ScoutRange : _moduleData.GuardMaxRange))
+            // repair master
+            if (!masterIsMoving && true) //masterHealthPercent < (Fix64)_moduleData.RepairWhenBelowHealthPercent)
             {
-                _gameObject.AIUpdate.AddTargetPoint(Master.Transform.Translation);
+                // TODO: what are 'RepairMinReadyTime' and 'RepairMaxReadyTime' for?
+                var isMoving = _gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+                if (!isMoving)
+                {
+                    if (!_isWelding)
+                    {
+                        _isWelding = true;
+
+                        // TODO: create FX from template
+                        var (modelInstance, bone) = _gameObject.FindBone(_moduleData.RepairWeldingFXBone);
+                        //var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
+                        _particleTemplate ??= context.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(_moduleData.RepairWeldingSys);
+
+                        //_moduleData.RepairWeldingSys.Value.Execute(new FXListExecutionContext(
+                        //    Quaternion.Identity,
+                        //    transform.Translation,
+                        //    context.GameContext));
+
+                        var weldDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxWeldTime - _moduleData.RepairMinWeldTime) + _moduleData.RepairMinWeldTime);
+                        _weldUntil = context.Time.TotalTime.TotalMilliseconds + weldDuration;
+                    }
+
+                    if (context.Time.TotalTime.TotalMilliseconds > _weldUntil)
+                    {
+                        _isWelding = false;
+
+                        // zip around
+                        var range = (float) (context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
+                        var height = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
+                        var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
+
+                        var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
+                        _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation + offset);
+                    }
+                }
+
+                Master.Body.Health += (Fix64)(_moduleData.RepairRatePerSecond * context.Time.DeltaTime.TotalSeconds);
             }
+            else if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+            {
+                // stay near target
+                var target = _gameObject.CurrentWeapon.CurrentTarget.TargetObject;
+
+                if (target != null)
+                {
+                    var offsetToTarget = target.Transform.Translation - _gameObject.Transform.Translation;
+                    var distanceToTarget = offsetToTarget.Length();
+
+                    if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToTarget > _moduleData.AttackWanderRange)
+                    {
+                        _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                    }
+                }
+            }
+            else
+            {
+                // stay near master
+                var maxRange = _moduleData.GuardMaxRange;
+                if (masterIsMoving)
+                {
+                    maxRange = _moduleData.ScoutRange;
+                }
+                else if (Master.ModelConditionFlags.Get(ModelConditionFlag.Guarding))
+                {
+                    maxRange = _moduleData.GuardWanderRange;
+                }
+                else if (Master.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+                {
+                    maxRange = _moduleData.AttackRange;
+                }
+
+                if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToMaster > maxRange)
+                {
+                    _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                }
+            }
+
+            // TODO
+            //if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
+            //{
+            //    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
+            //}
         }
     }
 

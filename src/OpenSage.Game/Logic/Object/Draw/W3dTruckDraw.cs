@@ -39,7 +39,7 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                float yaw = 0.0f;
+                var yaw = 0.0f;
                 if(boneDef.Item2)
                 {
                     yaw = GameObject.SteeringWheelsYaw;
