@@ -122,8 +122,8 @@ namespace OpenSage.Logic.Object
             if (_currentLocomotor != null && TargetPoints.Count > 0)
             {
                 Vector3? nextPoint = null;
-                if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
 
+                if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
 
                 var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
