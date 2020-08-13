@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
@@ -10,12 +11,21 @@ namespace OpenSage.Logic.Object
     {
         private readonly SlavedUpdateModuleData _moduleData;
         protected readonly GameObject _gameObject;
-
         public GameObject Master;
 
-        private bool _isWelding;
+        private double _waitUntil;
+        private RepairStatus _repairStatus;
 
-        private double _weldUntil;
+        private enum RepairStatus
+        {
+            INITIAL,
+            GOING_TO_MASTER,
+            READY,
+            ZIP_AROUND,
+            IN_TRANSITION,
+            WELDING,
+            DONE
+        }
 
         private FXParticleSystemTemplate _particleTemplate;
 
@@ -23,7 +33,6 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
-            _isWelding = false;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -32,48 +41,85 @@ namespace OpenSage.Logic.Object
             var masterHealthPercent = Master.Body.Health / Master.Body.MaxHealth;
 
             var offsetToMaster = Master.Transform.Translation - _gameObject.Transform.Translation;
-            var distanceToMaster = offsetToMaster.Length();
+            var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
-            // repair master
-            if (!masterIsMoving && true) //masterHealthPercent < (Fix64)_moduleData.RepairWhenBelowHealthPercent)
+            if (!masterIsMoving && (masterHealthPercent < (Fix64) (_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
             {
-                // TODO: what are 'RepairMinReadyTime' and 'RepairMaxReadyTime' for?
+                // repair master
                 var isMoving = _gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-                if (!isMoving)
+
+                switch (_repairStatus)
                 {
-                    if (!_isWelding)
-                    {
-                        _isWelding = true;
+                    case RepairStatus.INITIAL:
+                        // go to master
+                        if (distanceToMaster > 1.0)
+                        {
+                            _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                            _repairStatus = RepairStatus.GOING_TO_MASTER;
+                        }
 
-                        // TODO: create FX from template
-                        var (modelInstance, bone) = _gameObject.FindBone(_moduleData.RepairWeldingFXBone);
-                        //var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
-                        _particleTemplate ??= context.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(_moduleData.RepairWeldingSys);
+                        _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Panic);
+                        break;
+                    case RepairStatus.GOING_TO_MASTER:
+                        if (!isMoving)
+                        {
+                            _repairStatus = RepairStatus.READY;
+                            var readyDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxReadyTime - _moduleData.RepairMinReadyTime) + _moduleData.RepairMinReadyTime);
+                            _waitUntil = context.Time.TotalTime.TotalMilliseconds + readyDuration;
+                        }
+                        break;
+                    case RepairStatus.READY:
+                        if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                        {
+                            var range = (float) (context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
+                            var height = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
+                            var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
 
-                        //_moduleData.RepairWeldingSys.Value.Execute(new FXListExecutionContext(
-                        //    Quaternion.Identity,
-                        //    transform.Translation,
-                        //    context.GameContext));
+                            var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
+                            _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation + offset);
+                            _repairStatus = RepairStatus.IN_TRANSITION;
+                        }
+                        break;
+                    case RepairStatus.IN_TRANSITION:
+                        if (!isMoving)
+                        {
+                            var (modelInstance, bone) = _gameObject.FindBone(_moduleData.RepairWeldingFXBone);
+                            var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
+                            _particleTemplate ??= context.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(_moduleData.RepairWeldingSys);
 
-                        var weldDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxWeldTime - _moduleData.RepairMinWeldTime) + _moduleData.RepairMinWeldTime);
-                        _weldUntil = context.Time.TotalTime.TotalMilliseconds + weldDuration;
-                    }
+                            var particleSystem = context.GameContext.ParticleSystems.Create(
+                                _particleTemplate,
+                                transform);
 
-                    if (context.Time.TotalTime.TotalMilliseconds > _weldUntil)
-                    {
-                        _isWelding = false;
+                            particleSystem.Activate();
 
-                        // zip around
-                        var range = (float) (context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
-                        var height = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
-                        var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
-
-                        var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                        _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation + offset);
-                    }
+                            var weldDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxWeldTime - _moduleData.RepairMinWeldTime) + _moduleData.RepairMinWeldTime);
+                            _waitUntil = context.Time.TotalTime.TotalMilliseconds + weldDuration;
+                            _repairStatus = RepairStatus.WELDING;
+                        }
+                        break;
+                    case RepairStatus.WELDING:
+                        if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                        {
+                            _repairStatus = RepairStatus.READY;
+                        }
+                        break;
                 }
 
-                Master.Body.Health += (Fix64)(_moduleData.RepairRatePerSecond * context.Time.DeltaTime.TotalSeconds);
+                switch (_repairStatus)
+                {
+                    case RepairStatus.ZIP_AROUND:
+                    case RepairStatus.IN_TRANSITION:
+                    case RepairStatus.WELDING:
+                        Master.Body.Health += (Fix64) (_moduleData.RepairRatePerSecond * context.Time.DeltaTime.TotalSeconds);
+                        if (Master.Body.Health > Master.Body.MaxHealth)
+                        {
+                            Master.Body.Health = Master.Body.MaxHealth;
+                            _repairStatus = RepairStatus.INITIAL;
+                            _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
+                        }
+                        break;
+                }
             }
             else if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
@@ -114,11 +160,10 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            // TODO
-            //if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
-            //{
-            //    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
-            //}
+            if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
+            {
+                _gameObject.Die(DeathType.Exploded, context.Time);
+            }
         }
     }
 
