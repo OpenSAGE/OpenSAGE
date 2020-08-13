@@ -3,35 +3,37 @@ using OpenSage.Data;
 using OpenSage.Data.Ani;
 using OpenSage.Utilities;
 
-namespace OpenSage.Input
+namespace OpenSage.Input.Cursors
 {
     internal sealed class Cursor : DisposableBase
     {
-        private readonly AniFile _aniFile;
+        private readonly CursorAnimationFrame[] _animationFrames;
 
         private readonly Sdl2Interop.SDL_Surface[] _surfaces;
         private readonly Sdl2Interop.SDL_Cursor[] _cursors;
 
-        private int _currentSequenceIndex;
+        private int _currentFrame;
         private TimeSpan _nextFrameTime;
 
         public unsafe Cursor(FileSystemEntry entry, GameWindow window)
         {
-            _aniFile = AniFile.FromFileSystemEntry(entry);
+            var cursorFile = CursorFile.FromFileSystemEntry(entry);
 
-            var width = (int) _aniFile.IconWidth;
-            var height = (int) _aniFile.IconHeight;
+            _animationFrames = cursorFile.AnimationFrames;
 
-            _surfaces = new Sdl2Interop.SDL_Surface[_aniFile.Images.Length];
-            _cursors = new Sdl2Interop.SDL_Cursor[_aniFile.Images.Length];
+            _surfaces = new Sdl2Interop.SDL_Surface[cursorFile.Images.Length];
+            _cursors = new Sdl2Interop.SDL_Cursor[cursorFile.Images.Length];
 
             var windowScale = window.WindowScale;
 
-            for (var i = 0; i < _aniFile.Images.Length; i++)
+            for (var i = 0; i < cursorFile.Images.Length; i++)
             {
-                var pixels = _aniFile.Images[i].PixelsBgra;
+                var image = cursorFile.Images[i];
 
-                fixed (byte* pixelsPtr = pixels)
+                var width = (int) image.Width;
+                var height = (int) image.Height;
+
+                fixed (byte* pixelsPtr = image.PixelsBgra)
                 {
                     var surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
                         pixelsPtr,
@@ -71,8 +73,8 @@ namespace OpenSage.Input
 
                 var cursor = Sdl2Interop.SDL_CreateColorCursor(
                     _surfaces[i],
-                    (int) _aniFile.HotspotX,
-                    (int) _aniFile.HotspotY);
+                    (int) (image.HotspotX * windowScale),
+                    (int) (image.HotspotY * windowScale));
 
                 AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(cursor));
 
@@ -82,9 +84,9 @@ namespace OpenSage.Input
 
         public void Apply(in TimeInterval time)
         {
-            if (_aniFile.Sequence != null)
+            if (_animationFrames.Length > 0)
             {
-                _currentSequenceIndex = -1;
+                _currentFrame = -1;
                 _nextFrameTime = time.TotalTime;
                 DisplayNextFrame(time);
             }
@@ -96,22 +98,24 @@ namespace OpenSage.Input
 
         private void DisplayNextFrame(in TimeInterval time)
         {
-            _currentSequenceIndex++;
+            _currentFrame++;
 
-            if (_currentSequenceIndex >= _aniFile.Sequence.FrameIndices.Length)
+            if (_currentFrame >= _animationFrames.Length)
             {
-                _currentSequenceIndex = 0;
+                _currentFrame = 0;
             }
 
-            var frameIndex = _aniFile.Sequence.FrameIndices[_currentSequenceIndex];
+            var nextFrame = _animationFrames[_currentFrame];
+
+            var frameIndex = nextFrame.FrameIndex;
             Sdl2Interop.SDL_SetCursor(_cursors[frameIndex]);
 
-            _nextFrameTime += TimeSpan.FromSeconds(1 / 60.0) * _aniFile.Rates.Durations[_currentSequenceIndex];
+            _nextFrameTime += nextFrame.Duration;
         }
 
         public void Update(in TimeInterval time)
         {
-            if (_aniFile.Sequence == null)
+            if (_animationFrames.Length == 0)
             {
                 return;
             }

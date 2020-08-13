@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
-using OpenSage.Gui.Wnd.Controls;
 
-namespace OpenSage.Input
+namespace OpenSage.Input.Cursors
 {
     internal sealed class CursorManager : DisposableBase
     {

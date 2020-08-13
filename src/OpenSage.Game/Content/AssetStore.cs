@@ -13,6 +13,7 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Input;
+using OpenSage.Input.Cursors;
 using OpenSage.LivingWorld;
 using OpenSage.LivingWorld.AutoResolve;
 using OpenSage.Lod;

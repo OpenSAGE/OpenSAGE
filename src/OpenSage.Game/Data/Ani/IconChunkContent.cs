@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Ani
@@ -18,7 +17,7 @@ namespace OpenSage.Data.Ani
             var startPosition = reader.BaseStream.Position;
 
             // Should be 0, but isn't always.
-            var reserved = reader.ReadUInt16();
+            var _ = reader.ReadUInt16();
 
             var type = reader.ReadUInt16AsEnum<IconType>();
 
@@ -62,6 +61,20 @@ namespace OpenSage.Data.Ani
                 IconDirEntries = iconDirEntries,
                 Images = images
             };
+        }
+
+        public CursorImage GetImage(int index)
+        {
+            var iconDirEntry = IconDirEntries[index];
+
+            var pixels = Images[index].GetBgraPixels();
+
+            return new CursorImage(
+                iconDirEntry.Width,
+                iconDirEntry.Height,
+                iconDirEntry.HotspotX,
+                iconDirEntry.HotspotY,
+                pixels);
         }
     }
 
