@@ -1,7 +1,7 @@
 ﻿using OpenSage.Data.Ini;
 using System.Numerics;
 
-namespace OpenSage.Input
+namespace OpenSage.Input.Cursors
 {
     public sealed class MouseCursor : BaseAsset
     {

@@ -21,6 +21,7 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
+using OpenSage.Input.Cursors;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
