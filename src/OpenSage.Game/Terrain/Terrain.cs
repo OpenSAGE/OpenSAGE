@@ -148,7 +148,7 @@ namespace OpenSage.Terrain
 
             for (var i = 0; i < NumOfCausticsAnimation; i++)
             {
-                var name = $"caust{i:D2}";
+                var name = $"causts{i:D2}";
                 var texture = assetStore.Textures.GetByName(name);
                 textures.Add(texture);
             }
