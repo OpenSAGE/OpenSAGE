@@ -52,7 +52,6 @@ namespace OpenSage.Logic.OrderGenerators
             if (radiusCursors.TryGetValue(radiusCursorName, out var radiusCursor))
             {
                 _decalHandle = scene.Terrain.RadiusCursorDecals.AddDecal(
-                    radiusCursorName,
                     radiusCursor.DecalTemplate,
                     _specialPower.RadiusCursorRadius,
                     time);
