@@ -258,12 +258,12 @@ namespace OpenSage.Mods.Generals.Gui
 
                         switch (commandButton.Command)
                         {
-                            // Disable the button when the unit is not producable
+                            // Disable the button when the unit is not produceable
                             case CommandType.DozerConstruct:
                             case CommandType.UnitBuild:
                                 buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
                                 break;
-                            // Disable the button when the object already has it
+                            // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;

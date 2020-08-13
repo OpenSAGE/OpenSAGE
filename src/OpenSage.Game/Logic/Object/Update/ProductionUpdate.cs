@@ -224,7 +224,7 @@ namespace OpenSage.Logic.Object
             _productionQueue.RemoveAt(index);
         }
 
-        public bool CanEnque() => _productionQueue.Count < _moduleData.MaxQueueEntries;
+        public bool CanEnque() => _moduleData.MaxQueueEntries == 0 || _productionQueue.Count < _moduleData.MaxQueueEntries;
 
         internal override void DrawInspector()
         {
