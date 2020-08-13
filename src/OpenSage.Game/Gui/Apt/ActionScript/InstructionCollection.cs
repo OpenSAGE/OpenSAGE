@@ -92,7 +92,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public int GetIndexByPosition(int position)
         {
-            return _instructions.IndexOfKey(position);
+            var index = _instructions.IndexOfKey(position);
+
+            if (index > _instructions.Last().Key)
+            {
+                // We branched behind the last valid instruction...
+                return _instructions.Last().Key;
+            }
+
+            return index;
         }
 
         public InstructionBase GetInstructionByIndex(int index)
