@@ -171,7 +171,6 @@ namespace OpenSage.Logic.Object
 
             switch (_locomotorTemplate.Appearance)
             {
-                case LocomotorAppearance.Hover:
                 case LocomotorAppearance.Thrust:
                     trans.Z += (distance / distanceRemaining) * (targetPoint.Z - trans.Z);
                     break;
