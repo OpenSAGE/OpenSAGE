@@ -35,6 +35,8 @@ namespace OpenSage.Content
 
                 yield return Path.Combine("art", "textures", name); // Normal and APT
 
+                yield return Path.Combine("data", "waterplane", name);
+
                 // TODO: This is only here to load map preview images, see if there's a better way.
                 yield return name;
             }
