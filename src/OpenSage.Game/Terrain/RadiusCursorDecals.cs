@@ -5,22 +5,31 @@ using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.InGame;
+using OpenSage.Utilities;
 using Veldrid;
 
 namespace OpenSage.Terrain
 {
     internal sealed class RadiusCursorDecals : DisposableBase
     {
+        private readonly AssetStore _assetStore;
         private readonly GraphicsDevice _graphicsDevice;
 
         private readonly ConstantBuffer<RadiusCursorDecalShaderResources.RadiusCursorDecalConstants> _decalConstantBuffer;
 
-        private readonly Dictionary<string, uint> _nameToTextureIndex;
+        private readonly Dictionary<Texture, uint> _nameToTextureIndex;
 
         private readonly List<DecalHandle> _decalsStorage;
 
         private const uint MaxDecals = 8;
         private readonly RadiusCursorDecal[] _decals;
+
+        // TODO: Support non-512px texture sizes.
+        private const uint TextureSize = 512;
+        private static readonly uint TextureMipLevels = TextureMipMapData.CalculateMipMapCount(TextureSize, TextureSize);
+
+        private const uint MaxTextures = 20; // This can be increased if necessary.
+        private uint _nextTextureIndex;
 
         public readonly DeviceBuffer DecalConstants;
 
@@ -30,6 +39,7 @@ namespace OpenSage.Terrain
 
         public RadiusCursorDecals(AssetStore assetStore, GraphicsDevice graphicsDevice)
         {
+            _assetStore = assetStore;
             _graphicsDevice = graphicsDevice;
 
             _decalConstantBuffer = AddDisposable(new ConstantBuffer<RadiusCursorDecalShaderResources.RadiusCursorDecalConstants>(
@@ -49,100 +59,67 @@ namespace OpenSage.Terrain
 
             _decals = new RadiusCursorDecal[MaxDecals];
 
-            _nameToTextureIndex = new Dictionary<string, uint>();
+            _nameToTextureIndex = new Dictionary<Texture, uint>();
 
-            TextureArray = CreateTextureArray(assetStore, graphicsDevice);
+            TextureArray = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    TextureSize,
+                    TextureSize,
+                    TextureMipLevels,
+                    MaxTextures,
+                    PixelFormat.BC3_UNorm, // TODO: Allow other types
+                    TextureUsage.Sampled)));
         }
 
-        private Texture CreateTextureArray(AssetStore assetStore, GraphicsDevice graphicsDevice)
+        private uint GetTextureIndex(Texture texture)
         {
-            var textures = new List<Texture>();
-
-            // TODO: Radius cursors don't only come from InGameUI. They can also come from other sources
-            // like ObjectCreationList.DeliverPayload.DeliveryDecal.
-
-            var largestTextureSize = uint.MinValue;
-            foreach (var radiusCursor in assetStore.InGameUI.Current.RadiusCursors)
+            if (!_nameToTextureIndex.TryGetValue(texture, out var result))
             {
-                var texture = radiusCursor.Value.DecalTemplate.Texture.Value.Texture;
-
-                if (texture.Width != texture.Height)
+                if (_nextTextureIndex == MaxTextures ||
+                    texture.Width != texture.Height ||
+                    texture.Width != TextureSize)
                 {
                     throw new InvalidOperationException();
                 }
 
-                if (texture.Width > largestTextureSize)
+                result = _nextTextureIndex;
+
+                _nameToTextureIndex.Add(texture, _nextTextureIndex);
+
+                var commandList = _graphicsDevice.ResourceFactory.CreateCommandList();
+                commandList.Begin();
+
+                for (var mipLevel = 0u; mipLevel < TextureMipLevels; mipLevel++)
                 {
-                    largestTextureSize = texture.Width;
-                }
-
-                // TODO: Total hack, to avoid handling different-sized textures.
-                // Seems only 512px textures are actually used in Generals.
-                if (texture.Width != 512)
-                {
-                    continue;
-                }
-
-                var textureIndex = textures.Count;
-
-                _nameToTextureIndex.Add(radiusCursor.Key, (uint)textureIndex);
-
-                textures.Add(texture);
-            }
-
-            var mipLevels = textures[0].MipLevels;
-
-            var textureArray = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    largestTextureSize,
-                    largestTextureSize,
-                    mipLevels,
-                    (uint) textures.Count,
-                    textures[0].Format, // TODO
-                    TextureUsage.Sampled)));
-
-            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
-            commandList.Begin();
-
-            for (var i = 0u; i < textures.Count; i++)
-            {
-                var sourceTexture = textures[(int) i];
-
-                for (var mipLevel = 0u; mipLevel < mipLevels; mipLevel++)
-                {
-                    var mipSize = CalculateMipSize(mipLevel, largestTextureSize);
+                    var mipSize = TextureMipMapData.CalculateMipSize(mipLevel, TextureSize);
 
                     commandList.CopyTexture(
-                        sourceTexture,
+                        texture,
                         0, 0, 0,
                         mipLevel,
                         0,
-                        textureArray,
+                        TextureArray,
                         0, 0, 0,
                         mipLevel,
-                        i,
+                        _nextTextureIndex,
                         mipSize,
                         mipSize,
                         1,
                         1);
                 }
+
+                commandList.End();
+
+                _graphicsDevice.SubmitCommands(commandList);
+
+                _graphicsDevice.DisposeWhenIdle(commandList);
+
+                _graphicsDevice.WaitForIdle();
+
+                _nextTextureIndex++;
             }
 
-            commandList.End();
-
-            graphicsDevice.SubmitCommands(commandList);
-
-            graphicsDevice.DisposeWhenIdle(commandList);
-
-            graphicsDevice.WaitForIdle();
-
-            return textureArray;
-        }
-
-        private static uint CalculateMipSize(uint mipLevel, uint baseSize)
-        {
-            baseSize >>= (int)mipLevel;
-            return baseSize > 0 ? baseSize : 1;
+            return result;
         }
 
         public void Update(in TimeInterval time)
@@ -180,7 +157,6 @@ namespace OpenSage.Terrain
         }
 
         public DecalHandle AddDecal(
-            string radiusCursorName,
             RadiusDecalTemplate template,
             float radius,
             in TimeInterval time)
@@ -190,12 +166,14 @@ namespace OpenSage.Terrain
                 _decalsStorage.RemoveAt(0);
             }
 
+            var textureIndex = GetTextureIndex(template.Texture.Value.Texture);
+
             DecalHandle result;
             _decalsStorage.Add(result = new DecalHandle
             {
                 Decal = new RadiusCursorDecal
                 {
-                    DecalTextureIndex = _nameToTextureIndex[radiusCursorName],
+                    DecalTextureIndex = textureIndex,
                     Diameter = radius * 2,
                     Opacity = (float) template.OpacityMin,
                 },

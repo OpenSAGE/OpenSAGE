@@ -390,7 +390,7 @@ namespace OpenSage.Terrain
                 TextureDescription.Texture2D(
                     largestTextureSize,
                     largestTextureSize,
-                    CalculateMipMapCount(largestTextureSize, largestTextureSize),
+                    TextureMipMapData.CalculateMipMapCount(largestTextureSize, largestTextureSize),
                     numTextures,
                     PixelFormat.R8_G8_B8_A8_UNorm,
                     TextureUsage.Sampled)));
@@ -503,11 +503,6 @@ namespace OpenSage.Terrain
             gd.DisposeWhenIdle(cl);
 
             return staging;
-        }
-
-        private static uint CalculateMipMapCount(uint width, uint height)
-        {
-            return 1u + (uint) MathF.Floor(MathF.Log(Math.Max(width, height), 2));
         }
 
         public Vector3? Intersect(Ray ray)
