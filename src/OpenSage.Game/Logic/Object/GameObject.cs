@@ -189,7 +189,7 @@ namespace OpenSage.Logic.Object
         public ProductionUpdate ProductionUpdate { get; }
 
         public List<UpgradeTemplate> Upgrades { get; }
-        public List<UpgradeTemplate> InvalidUpgrades { get; }
+        public List<UpgradeTemplate> ConflictingUpgrades { get; }
 
         public int ExperienceValue { get; private set; }
         internal float ExperienceMultiplier { get; set; }
@@ -305,7 +305,7 @@ namespace OpenSage.Logic.Object
             }
 
             Upgrades = new List<UpgradeTemplate>();
-            InvalidUpgrades = new List<UpgradeTemplate>();
+            ConflictingUpgrades = new List<UpgradeTemplate>();
 
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
@@ -501,7 +501,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool InvalidUpgradeAvailable(UpgradeTemplate upgrade)
+        public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
         {
             if (upgrade == null) return false;
 
@@ -511,7 +511,7 @@ namespace OpenSage.Logic.Object
             }
             else
             {
-                return InvalidUpgrades.Contains(upgrade);
+                return ConflictingUpgrades.Contains(upgrade);
             }
         }
 

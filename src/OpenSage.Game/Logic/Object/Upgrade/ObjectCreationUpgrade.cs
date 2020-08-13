@@ -37,7 +37,7 @@ namespace OpenSage.Logic.Object
                 foreach (var upgrade in _moduleData.ConflictsWith)
                 {
                     if (upgrade == null) continue; 
-                    _gameObject.InvalidUpgrades.Add(upgrade.Value);
+                    _gameObject.ConflictingUpgrades.Add(upgrade.Value);
                 }
             }
         }

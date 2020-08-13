@@ -268,10 +268,11 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+                                var canEnqueue = selectedUnit.ProductionUpdate.CanEnque();
                                 var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
-                                var upgradeIsInvalid = selectedUnit.InvalidUpgradeAvailable(upgrade);
+                                var upgradeIsInvalid = selectedUnit.ConflictingUpgradeAvailable(upgrade);
 
-                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
+                                buttonControl.Enabled = canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
                                 break;
                         }
 
@@ -519,20 +520,24 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
+                void ApplyUpgradeImage(GameObject unit, string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
+
                     upgradeControl.BackgroundImage = upgrade != null
                         ? controlBar._window.ImageLoader.CreateFromMappedImageReference(upgrade.ButtonImage)
                         : null;
+                    upgradeControl.DisabledBackgroundImage = upgradeControl.BackgroundImage?.WithGrayscale(true);
+
+                    upgradeControl.Enabled = unit.UpgradeAvailable(upgrade);
                 }
 
-                ApplyUpgradeImage("UnitUpgrade1", unit.Definition.UpgradeCameo1);
-                ApplyUpgradeImage("UnitUpgrade2", unit.Definition.UpgradeCameo2);
-                ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
-                ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
-                ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
+                ApplyUpgradeImage(unit, "UnitUpgrade1", unit.Definition.UpgradeCameo1);
+                ApplyUpgradeImage(unit, "UnitUpgrade2", unit.Definition.UpgradeCameo2);
+                ApplyUpgradeImage(unit, "UnitUpgrade3", unit.Definition.UpgradeCameo3);
+                ApplyUpgradeImage(unit, "UnitUpgrade4", unit.Definition.UpgradeCameo4);
+                ApplyUpgradeImage(unit, "UnitUpgrade5", unit.Definition.UpgradeCameo5);
             }
         }
 
