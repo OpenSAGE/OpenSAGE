@@ -27,12 +27,6 @@ namespace OpenSage.Logic.Object
             {
                 _gameObject.AIUpdate.AddTargetPoint(Master.Transform.Translation);
             }
-
-            //hack
-            if (_gameObject.Body.Health < _gameObject.Body.MaxHealth)
-            {
-                _gameObject.Body.Health = _gameObject.Body.MaxHealth;
-            }
         }
     }
 

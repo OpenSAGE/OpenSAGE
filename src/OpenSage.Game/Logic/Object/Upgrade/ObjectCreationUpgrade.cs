@@ -22,7 +22,16 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
                 {
-                    item.Execute(context);
+                    var createdObjects = item.Execute(context);
+
+                    foreach (var createdObject in createdObjects)
+                    {
+                        var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
+                        if (slavedUpdateBehaviour != null)
+                        {
+                            slavedUpdateBehaviour.Master = context.GameObject;
+                        }
+                    }
                 }
 
                 foreach (var upgrade in _moduleData.ConflictsWith)

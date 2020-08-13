@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class OCNugget
     {
-        internal abstract void Execute(BehaviorUpdateContext context);
+        internal abstract List<GameObject> Execute(BehaviorUpdateContext context);
     }
 
     public sealed class CreateDebrisOCNugget : OCNugget
@@ -113,7 +113,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int RollRate { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
 
@@ -141,6 +141,8 @@ namespace OpenSage.Logic.Object
             }
 
             // TODO: Count, Disposition, DispositionIntensity
+
+            return new List<GameObject> { debrisObject };
         }
     }
 
@@ -309,8 +311,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public string WaypointSpawnPoints { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
+            var result = new List<GameObject>();
             // TODO
 
             foreach (var objectName in ObjectNames)
@@ -319,19 +322,17 @@ namespace OpenSage.Logic.Object
                 newGameObject.Transform.Translation = context.GameObject.Transform.Translation;
                 newGameObject.Transform.Rotation = context.GameObject.Transform.Rotation;
 
-                var slavedUpdateBehaviour = newGameObject.FindBehavior<SlavedUpdateModule>();
-                if (slavedUpdateBehaviour != null)
-                {
-                    slavedUpdateBehaviour.Master = context.GameObject;
-                }
-
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
                 // TODO: IgnorePrimaryObstacle
                 // TODO: Offset
                 newGameObject.Transform.Translation += Offset;
+
+                result.Add(newGameObject);
             }
+
+            return result;
         }
     }
 
@@ -357,9 +358,10 @@ namespace OpenSage.Logic.Object
         public float MaxForcePitch { get; private set; }
         public float SpinRate { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             // TODO
+            return new List<GameObject>();
         }
     }
 
@@ -377,9 +379,10 @@ namespace OpenSage.Logic.Object
 
         public string Weapon { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             // TODO
+            return new List<GameObject>();
         }
     }
 
@@ -403,9 +406,10 @@ namespace OpenSage.Logic.Object
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             // TODO
+            return new List<GameObject>();
         }
     }
 
@@ -489,9 +493,10 @@ namespace OpenSage.Logic.Object
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             // TODO
+            return new List<GameObject>();
         }
     }
 

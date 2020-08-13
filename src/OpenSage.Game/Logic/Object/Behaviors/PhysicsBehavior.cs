@@ -33,6 +33,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (_gameObject.Definition.KindOf.Get(ObjectKinds.Aircraft)
+                || _gameObject.Definition.KindOf.Get(ObjectKinds.Drone)
+                || _gameObject.Definition.KindOf.Get(ObjectKinds.GiantBird))
+            {
+                if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying) == false) return;
+            }
+
             var cumulativeAcceleration = _cumulativeForces / Mass;
             _cumulativeForces = Vector3.Zero;
 

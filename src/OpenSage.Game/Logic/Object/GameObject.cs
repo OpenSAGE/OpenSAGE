@@ -176,7 +176,7 @@ namespace OpenSage.Logic.Object
         }
 
         public float Speed { get; set; }
-        public float Yaw { get; set; }
+        public float SteeringWheelsYaw { get; set; }
         public float Lift { get; set; }
 
         public bool IsPlacementPreview { get; set; }

@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
                 float yaw = 0.0f;
                 if(boneDef.Item2)
                 {
-                    yaw = GameObject.Yaw;
+                    yaw = GameObject.SteeringWheelsYaw;
                 }
 
                 var bones = ActiveModelInstance.Model.BoneHierarchy.Bones.Where(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase)).ToList();
