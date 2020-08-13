@@ -33,6 +33,7 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _isWelding = false;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -164,6 +165,12 @@ namespace OpenSage.Logic.Object
             {
                 _gameObject.Die(DeathType.Exploded, context.Time);
             }
+
+            // TODO
+            //if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
+            //{
+            //    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
+            //}
         }
     }
 
