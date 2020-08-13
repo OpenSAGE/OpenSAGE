@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Graphics;
@@ -48,6 +49,7 @@ namespace OpenSage.Gui.Apt
         }
     }
 
+    [DebuggerDisplay("[DisplayItem:{Name}]")]
     public abstract class DisplayItem
     {
         public AptContext Context { get; protected set; }

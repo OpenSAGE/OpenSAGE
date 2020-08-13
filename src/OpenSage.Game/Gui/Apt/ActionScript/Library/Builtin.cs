@@ -73,7 +73,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["setInterval"] = SetInterval,
                 ["loadMovie"] = LoadMovie,
                 // Global constructors / functions
-                ["Boolean"] = BoolFunc
+                ["Boolean"] = BoolFunc,
+                ["attachMovie"] = AttachMovie,
             };
         }
 
@@ -204,6 +205,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
 
             context.Apt.Window.Manager.QueryPush(window);
+        }
+
+        private static void AttachMovie(ActionContext context, ObjectContext ctx, Value[] args)
+        {
+            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
+            var name = args[1].ToString();
+            var depth = args[2].ToInteger();
         }
 
         private static void SetInterval(ActionContext context, ObjectContext ctx, Value[] args)

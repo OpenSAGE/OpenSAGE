@@ -125,6 +125,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             var instr = stream.GetInstruction();
+            InstructionBase prevInstr = null;
 
             while (instr.Type != InstructionType.End)
             {
@@ -136,6 +137,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 if (stream.IsFinished())
                     break;
 
+                prevInstr = instr;
                 instr = stream.GetInstruction();
             }
 

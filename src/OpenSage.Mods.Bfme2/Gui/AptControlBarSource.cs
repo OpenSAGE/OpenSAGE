@@ -91,6 +91,22 @@ namespace OpenSage.Mods.Bfme2
             }
         }
 
+        private void UpdateCommandbuttons()
+        {
+            var commandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+
+            for (int i = 0; i < 6; i++)
+            {
+                var commandButton = commandButtons.GetMember(i.ToString()).ToObject();
+                var createContent = commandButton.GetMember("CreateContent");
+                List<Value> args = new List<Value>();
+                args.Add(Value.FromString("bttn"));
+                args.Add(Value.FromString("CommandButton"));
+
+                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
+            }
+        }
+
         private void UpdateSideCommandbar(Player player)
         {
             var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
@@ -105,6 +121,8 @@ namespace OpenSage.Mods.Bfme2
                     FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
                     _commandbarVisible = true;
                 }
+
+                UpdateCommandbuttons();
             }
             else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
             {
