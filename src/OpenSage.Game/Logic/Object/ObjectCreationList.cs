@@ -322,12 +322,6 @@ namespace OpenSage.Logic.Object
                 newGameObject.Transform.Translation = context.GameObject.Transform.Translation;
                 newGameObject.Transform.Rotation = context.GameObject.Transform.Rotation;
 
-                var slavedUpdateBehaviour = newGameObject.FindBehavior<SlavedUpdateModule>();
-                if (slavedUpdateBehaviour != null)
-                {
-                    slavedUpdateBehaviour.Master = context.GameObject;
-                }
-
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
