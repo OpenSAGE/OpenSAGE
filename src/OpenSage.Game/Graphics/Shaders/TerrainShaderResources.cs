@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 
@@ -29,7 +30,7 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("TextureDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Textures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("MacroTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("CausticsTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("CausticsTextures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
             var resourceLayouts = new[]
@@ -60,7 +61,7 @@ namespace OpenSage.Graphics.Shaders
             DeviceBuffer textureDetailsBuffer,
             Texture textureArray,
             Texture macroTexture,
-            Texture casuticsTexture)
+            Texture casuticsTextures)
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
@@ -71,7 +72,7 @@ namespace OpenSage.Graphics.Shaders
                     textureDetailsBuffer,
                     textureArray,
                     macroTexture,
-                    casuticsTexture,
+                    casuticsTextures,
                     GraphicsDevice.Aniso4xSampler));
         }
 
@@ -85,7 +86,10 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 MapSize;
 
             [FieldOffset(16)]
-            public bool IsMacroTextureStretched;
+            public Bool32 IsMacroTextureStretched;
+
+            [FieldOffset(20)]
+            public int CausticTextureIndex;
         }
 
         [StructLayout(LayoutKind.Sequential)]

@@ -434,7 +434,7 @@ namespace OpenSage
                 _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
             }
 
-            Terrain?.Update(gameTime);
+            Terrain?.Update(Waters, gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
