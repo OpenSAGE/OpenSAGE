@@ -72,6 +72,7 @@ namespace OpenSage.Network
             _manager.Stop();
 
             _isRunning = false;
+            _thread.Interrupt();
             _thread.Join();
             _thread = null;
         }
