@@ -837,7 +837,7 @@ namespace OpenSage
                     AssetStore.MapCaches.FirstOrDefault(m => m.IsMultiplayer).Name,
                     SkirmishManager.Connection,
                     playerSettings,
-                    SkirmishManager.SkirmishGame.LocalSlot);
+                    SkirmishManager.SkirmishGame.LocalSlotIndex);
             }
 
             Cursors.Update(RenderTime);

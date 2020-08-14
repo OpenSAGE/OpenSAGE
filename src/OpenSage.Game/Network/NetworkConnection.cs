@@ -80,19 +80,19 @@ namespace OpenSage.Network
             if (game.Configuration.LanIpAddress != IPAddress.Any)
             {
                 Logger.Trace($"Initializing network connection using configured IP Address { game.Configuration.LanIpAddress }");
-                _manager.Start(game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlot); // TODO: what about IPV6
+                _manager.Start(game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex); // TODO: what about IPV6
             }
             else
             {
-                Logger.Trace($"Initializing network connection using default IP Address: {Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlot}.");
-                _manager.Start(Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlot);
+                Logger.Trace($"Initializing network connection using default IP Address: {Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex}.");
+                _manager.Start(Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex);
             }
 
             _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
-                if (slot.State == SkirmishSlotState.Human && slot.Index > game.SkirmishManager.SkirmishGame.LocalSlot)
+                if (slot.State == SkirmishSlotState.Human && slot.Index > game.SkirmishManager.SkirmishGame.LocalSlotIndex)
                 {
                     Logger.Trace($"Connecting to {slot.EndPoint.Address}:{Ports.SkirmishGame + slot.Index}");
                     _manager.Connect(slot.EndPoint.Address.ToString(), Ports.SkirmishGame + slot.Index, string.Empty);
