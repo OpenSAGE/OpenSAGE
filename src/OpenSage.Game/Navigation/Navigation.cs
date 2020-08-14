@@ -20,9 +20,9 @@ namespace OpenSage.Navigation
             var height = tileData.Impassability.GetLength(1);
             _graph = new Graph(width, height);
 
-            for (int x = 0; x < _graph.Width; x++)
+            for (var x = 0; x < _graph.Width; x++)
             {
-                for (int y = 0; y < _graph.Height; y++)
+                for (var y = 0; y < _graph.Height; y++)
                 {
                     var impassable = tileData.Impassability[x, y];
                     _graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
@@ -50,6 +50,8 @@ namespace OpenSage.Navigation
             var (x, y) = coords.Value;
             return _graph.GetNode(x, y);
         }
+
+        public bool IsPassable(Vector3 position) => GetClosestNode(position).IsPassable;
 
         public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {

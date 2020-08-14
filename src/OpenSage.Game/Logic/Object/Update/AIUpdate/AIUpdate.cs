@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
@@ -69,22 +68,32 @@ namespace OpenSage.Logic.Object
         {
             if (GameObject.Definition.KindOf == null) return;
 
-            if (GameObject.Definition.KindOf.Get(ObjectKinds.Infantry)
-                || GameObject.Definition.KindOf.Get(ObjectKinds.Vehicle)
-                || GameObject.Definition.KindOf.Get(ObjectKinds.SmallMissile))
+            if (false) //!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
             {
                 var start = GameObject.Transform.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
                 Logger.Debug("Set new target points: " + TargetPoints.Count);
-            }
 
-            AddTargetPoint(targetPoint);
+                if (GameObject.GameContext.Navigation.IsPassable(targetPoint))
+                {
+                    AddTargetPoint(targetPoint);
+                }
+            }
+            else
+            {
+                AddTargetPoint(targetPoint);
+            }
         }
 
         internal void SetTargetPoint(Vector3 targetPoint)
         {
             TargetPoints.Clear();
+
+            if (this is SupplyAIUpdate supplyAIUpdate)
+            {
+                supplyAIUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.DEFAULT;
+            }
 
             AppendPathToTargetPoint(targetPoint);
         }

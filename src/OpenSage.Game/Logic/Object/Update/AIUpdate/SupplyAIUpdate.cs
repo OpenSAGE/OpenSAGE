@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Runtime.Intrinsics.X86;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -6,6 +7,7 @@ namespace OpenSage.Logic.Object
     public abstract class SupplyAIUpdate : AIUpdate
     {
         public GameObject CurrentSupplyTarget;
+        private DockUpdate _currentTargetDockUpdate;
         public SupplyGatherStates SupplyGatherState;
 
         public enum SupplyGatherStates
@@ -17,7 +19,10 @@ namespace OpenSage.Logic.Object
             GATHERING_SUPPLYS,
             SEARCH_FOR_SUPPLY_TARGET,
             APPROACH_SUPPLY_TARGET,
-            DUMPING_SUPPLYS
+            ENQUEUED_AT_SUPPLY_TARGET,
+            START_DUMPING_SUPPLYS,
+            DUMPING_SUPPLYS,
+            FINISHED_DUMPING_SUPPLYS
         }
 
         private SupplyAIUpdateModuleData _moduleData;
@@ -43,8 +48,6 @@ namespace OpenSage.Logic.Object
             switch (SupplyGatherState)
             {
                 case SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE:
-                    if (isMoving) break;
-
                     if (_currentSupplySource == null || !_currentSourceDockUpdate.HasBoxes())
                     {
                         // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
@@ -59,9 +62,8 @@ namespace OpenSage.Logic.Object
                             if (distanceToSource > _moduleData.SupplyWarehouseScanDistance || distanceToSource > distanceToCurrentSupplySource) continue;
 
                             var dockUpdate = supplySource.FindBehavior<SupplyWarehouseDockUpdate>() ?? null;
-                            var hasBoxes = dockUpdate?.HasBoxes() ?? false;
 
-                            if (!hasBoxes) continue;
+                            if (!dockUpdate?.HasBoxes() ?? false) continue;
 
                             _currentSupplySource = supplySource;
                             _currentSourceDockUpdate = dockUpdate;
@@ -69,8 +71,9 @@ namespace OpenSage.Logic.Object
                         }
                     }
 
-                    // TODO: proper DockUpdate handling (queue etc)
-                    GameObject.AIUpdate.AppendPathToTargetPoint(_currentSupplySource.Transform.Translation);
+                    if (_currentSupplySource == null) break;
+
+                    AppendPathToTargetPoint(_currentSupplySource.Transform.Translation);
                     SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_SOURCE;
                     break;
                 case SupplyGatherStates.APPROACH_SUPPLY_SOURCE:
@@ -124,31 +127,47 @@ namespace OpenSage.Logic.Object
                             var offsetToTarget = supplyTarget.Transform.Translation - GameObject.Transform.Translation;
                             var distanceToTarget = offsetToTarget.Vector2XY().Length();
 
-                            if (distanceToTarget < _moduleData.SupplyWarehouseScanDistance && distanceToTarget < distanceToCurrentSupplyTarget)
-                            {
-                                CurrentSupplyTarget = supplyTarget;
-                                distanceToCurrentSupplyTarget = distanceToTarget;
-                            }
+                            if (distanceToTarget > _moduleData.SupplyWarehouseScanDistance || distanceToTarget > distanceToCurrentSupplyTarget) continue;
+
+                            var dockUpdate = supplyTarget.FindBehavior<DockUpdate>() ?? null;
+                            if (dockUpdate?.CanApproach() ?? false) continue;
+                            
+                            CurrentSupplyTarget = supplyTarget;
+                            _currentTargetDockUpdate = dockUpdate;
+                            distanceToCurrentSupplyTarget = distanceToTarget;
                         }
                     }
 
-                    // TODO: proper DockUpdate handling (queue etc)
-                    GameObject.AIUpdate.SetTargetPoint(CurrentSupplyTarget.Transform.Translation);
+                    if (CurrentSupplyTarget == null) break;
+
+                    if (_currentTargetDockUpdate == null)
+                    {
+                        _currentTargetDockUpdate = CurrentSupplyTarget.FindBehavior<DockUpdate>();
+                    }
+
+                    if (!_currentTargetDockUpdate.CanApproach()) break;
+
+                    AppendPathToTargetPoint(_currentTargetDockUpdate.GetApproachTargetPosition(this));
                     SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_TARGET;
                     break;
                 case SupplyGatherStates.APPROACH_SUPPLY_TARGET:
                     if (!isMoving)
                     {
-                        _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyCenterActionDelay;
-                        SupplyGatherState = SupplyGatherStates.DUMPING_SUPPLYS;
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
-                        CurrentSupplyTarget.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
+                        SupplyGatherState = SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET;
                     }
+                    break;
+                case SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET:
+                    // wait until the DockUpdate moves us forward
+                    break;
+                case SupplyGatherStates.START_DUMPING_SUPPLYS:
+                    _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyCenterActionDelay;
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
+                    SupplyGatherState = SupplyGatherStates.DUMPING_SUPPLYS;
                     break;
                 case SupplyGatherStates.DUMPING_SUPPLYS:
                     if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
                     {
-                        SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                        SupplyGatherState = SupplyGatherStates.FINISHED_DUMPING_SUPPLYS;
 
                         var gameData = context.GameContext.AssetLoadContext.AssetStore.GameData.Current;
                         GameObject.Owner.Money += (uint)(_numBoxes * gameData.ValuePerSupplyBox);
@@ -156,10 +175,10 @@ namespace OpenSage.Logic.Object
 
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, false);
-
-                        // since animation mode is ONCE that flag should be cleared after the animation has run
-                        //CurrentSupplyTarget.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, false);
                     }
+                    break;
+                case SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
+                    SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
                     break;
             }
         }
