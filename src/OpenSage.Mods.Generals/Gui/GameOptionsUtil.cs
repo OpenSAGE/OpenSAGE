@@ -106,6 +106,11 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 context.Game.SkirmishManager.StartGame();
                             }
+                            else
+                            {
+                                context.Game.SkirmishManager.SkirmishGame.LocalSlot.Ready = true;
+                                context.Game.SkirmishManager.UpdateLocalSlot();
+                            }
                         }
                         else
                         {
@@ -140,6 +145,15 @@ namespace OpenSage.Mods.Generals.Gui
                 messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = "GUI:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers);
                 messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
                 return false;
+            }
+
+            //check that nobody hasn't accepted yet:
+            if (_game.SkirmishManager.IsHosting)
+            {
+                if(_game.SkirmishManager.SkirmishGame.Slots.Where(x => x.Index != _game.SkirmishManager.SkirmishGame.LocalSlotIndex && x.State == SkirmishSlotState.Human && !x.Ready).Count() > 0)
+                {
+                    return false;
+                }
             }
 
             return true;
