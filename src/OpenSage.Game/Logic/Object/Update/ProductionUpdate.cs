@@ -188,6 +188,8 @@ namespace OpenSage.Logic.Object
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
+            _gameObject.HandleHarvesterUnitCreation(_producedUnit);
+
             _producedUnit = null;
         }
 
