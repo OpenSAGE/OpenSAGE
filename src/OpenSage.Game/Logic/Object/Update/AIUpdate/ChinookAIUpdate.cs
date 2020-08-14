@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -10,6 +11,12 @@ namespace OpenSage.Logic.Object
         internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+        }
+
+        protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
+        {
+            var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
+            return GameObject.UpgradeAvailable(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
 
         internal override void Update(BehaviorUpdateContext context)

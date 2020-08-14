@@ -1,4 +1,4 @@
-﻿using System.Runtime.Intrinsics.X86;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -31,6 +31,8 @@ namespace OpenSage.Logic.Object
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
         private double _waitUntil;
         private int _numBoxes;
+
+        protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
 
         internal SupplyAIUpdate(GameObject gameObject, SupplyAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -170,7 +172,8 @@ namespace OpenSage.Logic.Object
                         SupplyGatherState = SupplyGatherStates.FINISHED_DUMPING_SUPPLYS;
 
                         var gameData = context.GameContext.AssetLoadContext.AssetStore.GameData.Current;
-                        GameObject.Owner.Money += (uint)(_numBoxes * gameData.ValuePerSupplyBox);
+                        var amountPerBox = gameData.ValuePerSupplyBox + GetAdditionalValuePerSupplyBox(context.GameContext.AssetLoadContext.AssetStore.Upgrades);
+                        GameObject.Owner.Money += (uint) (_numBoxes * amountPerBox);
                         _numBoxes = 0;
 
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
