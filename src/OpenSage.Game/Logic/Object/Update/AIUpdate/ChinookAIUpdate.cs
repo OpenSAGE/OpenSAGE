@@ -1,8 +1,70 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using System.Linq;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class ChinookAIUpdate : AIUpdate
+    {
+        private ChinookAIUpdateModuleData _moduleData;
+
+        private GameObject _currentSupplySource;
+        private ResourceTransportState _resourceTransportState;
+
+        private enum ResourceTransportState
+        {
+            DEFAULT,
+            SEARCH_FOR_WAREHOUSE,
+            APPROACH_WAREHOUSE,
+            DOCK_AT_WAREHOUSE,
+            APPROACH_SUPPLY_CENTER,
+        }
+
+        internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+            _resourceTransportState = ResourceTransportState.SEARCH_FOR_WAREHOUSE;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+
+            switch (_resourceTransportState)
+            {
+                case ResourceTransportState.SEARCH_FOR_WAREHOUSE:
+                    // TODO: use KindOfs SUPPLY_SOURCE_ON_PREVIEW NO_COLLIDE SUPPLY_SOURCE
+                    var warehouses = context.GameContext.GameObjects.GetObjectsByName("SupplyWarehouse");
+                    var docks = context.GameContext.GameObjects.GetObjectsByName("SupplyDock");
+                    var supplySources = warehouses.Concat(docks);
+
+                    var distanceToCurrentSupplySource = float.PositiveInfinity;
+                    foreach (var supplySource in supplySources)
+                    {
+                        var offsetToSource = supplySource.Transform.Translation - GameObject.Transform.Translation;
+                        var distanceToSource = offsetToSource.Vector2XY().Length();
+
+                        if (distanceToSource < _moduleData.SupplyWarehouseScanDistance && distanceToSource < distanceToCurrentSupplySource)
+                        {
+                            _currentSupplySource = supplySource;
+                            distanceToCurrentSupplySource = distanceToSource;
+                        }
+                    }
+                    GameObject.AIUpdate.AddTargetPoint(_currentSupplySource.Transform.Translation);
+                    _resourceTransportState = ResourceTransportState.APPROACH_WAREHOUSE;
+                    break;
+                case ResourceTransportState.APPROACH_WAREHOUSE:
+                    if (!isMoving)
+                    {
+                        _resourceTransportState = ResourceTransportState.DOCK_AT_WAREHOUSE;
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
+                    }
+                    break;
+            }
+        }
+    }
+
     /// <summary>
     /// Logic requires bones for either end of the rope to be defined as RopeEnd and RopeStart.
     /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's 
@@ -38,8 +100,11 @@ namespace OpenSage.Logic.Object
             });
 
         public int MaxBoxes { get; private set; }
+        // ms for whole thing (one transaction)
         public int SupplyCenterActionDelay { get; private set; }
+        // ms per box (many small transactions)
         public int SupplyWarehouseActionDelay { get; private set; }
+        // Max distance to look for a warehouse, or we go home.  (Direct dock command on warehouse overrides, and no max on Center Scan)
         public int SupplyWarehouseScanDistance { get; private set; }
         public string SuppliesDepletedVoice { get; private set; }
 
@@ -60,5 +125,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string RotorWashParticleSystem { get; private set; }
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new ChinookAIUpdate(gameObject, this);
+        }
     }
 }

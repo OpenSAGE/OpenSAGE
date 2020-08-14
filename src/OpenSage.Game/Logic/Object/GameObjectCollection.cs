@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenSage.Logic.Object
 {
@@ -86,6 +87,11 @@ namespace OpenSage.Logic.Object
         public bool TryGetObjectByName(string name, out GameObject gameObject)
         {
             return _nameLookup.TryGetValue(name, out gameObject);
+        }
+
+        public List<GameObject> GetObjectsByName(string typeName)
+        {
+            return _items.Where(x => x.Definition.Name == typeName).ToList();
         }
 
         public void AddNameLookup(GameObject gameObject)
