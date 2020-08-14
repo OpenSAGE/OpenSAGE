@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 
@@ -9,43 +10,94 @@ namespace OpenSage.Logic.Object
         private GameObject _gameObject;
         private DockUpdateModuleData _moduleData;
 
-        private Queue<GameObject> _unitsApproaching;
+        private Queue<SupplyAIUpdate> _unitsApproaching;
+        private bool _usesWaitingBones;
 
         internal DockUpdate(GameObject gameObject, DockUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
-            _unitsApproaching = new Queue<GameObject>();
+            _unitsApproaching = new Queue<SupplyAIUpdate>();
+            _usesWaitingBones = _moduleData.NumberApproachPositions != -1;
         }
 
-        public bool CanApproach() => _moduleData.NumberApproachPositions == -1 || _unitsApproaching.Count < _moduleData.NumberApproachPositions;
-
-        public Vector3 GetApproachTargetPosition(GameObject obj)
+        private Vector3 GetActionBone()
         {
-            if (_moduleData.NumberApproachPositions == -1)
+            // TODO: might also be DOCKSTART or DOCKEND
+            var (actionModelInstance, actionBone) = _gameObject.FindBone($"DOCKACTION");
+
+            if (actionModelInstance != null && actionBone != null)
+            {
+                return actionModelInstance.AbsoluteBoneTransforms[actionBone.Index].Translation;
+            }
+            return _gameObject.Transform.Translation;
+        }
+
+        private Vector3 GetDockWaitingBone(int id)
+        {
+            var identifier = id.ToString("D2");
+            var (modelInstance, bone) = _gameObject.FindBone($"DOCKWAITING{identifier}");
+            return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
+        }
+
+        public bool CanApproach() => !_usesWaitingBones || _unitsApproaching.Count < _moduleData.NumberApproachPositions + 1;
+
+        public Vector3 GetApproachTargetPosition(SupplyAIUpdate aiUpdate)
+        {
+            _unitsApproaching.Enqueue(aiUpdate);
+
+            if (!_usesWaitingBones)
             {
                 return _gameObject.Transform.Translation;
             }
 
-            if (_unitsApproaching.Count == 0)
+            if (_unitsApproaching.Count == 1)
             {
-                // TODO: might also be DOCKSTART or DOCKEND
-                var (_, actionBone) = _gameObject.FindBone($"DOCKACTION");
-                return actionBone.Transform.Translation;
+                return GetActionBone();
             }
 
-            _unitsApproaching.Enqueue(obj);
-            var boneID = _unitsApproaching.Count;
-            var(_, bone) = _gameObject.FindBone($"DOCKWAITING0{boneID}"); //TODO: more than 9 bones
-            return bone.Transform.Translation;
+            return GetDockWaitingBone(_unitsApproaching.Count - 1);
+        }
+
+        private void MoveObjectsForward()
+        {
+            if (!_usesWaitingBones) return;
+
+            var units = _unitsApproaching.ToList();
+            for (var i = 0; i < units.Count; i++)
+            {
+                var aiUpdate = units[i];
+                aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.APPROACH_SUPPLY_TARGET;
+
+                if (i == 0)
+                {
+                    aiUpdate.AddTargetPoint(GetActionBone());
+                }
+                else
+                {
+                    aiUpdate.AddTargetPoint(GetDockWaitingBone(i));
+                }
+            }
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (_unitsApproaching.Count > 0)
+            {
+                var aiUpdate = _unitsApproaching.Peek();
 
-
-            // move objects forward in Queue
-
+                switch (aiUpdate.SupplyGatherState)
+                {
+                    case SupplyAIUpdate.SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET:
+                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.START_DUMPING_SUPPLYS;
+                        break;
+                    case SupplyAIUpdate.SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
+                        _unitsApproaching.Dequeue();
+                        MoveObjectsForward();
+                        break;
+                }
+            }
         }
     }
 
