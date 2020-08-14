@@ -53,14 +53,41 @@ namespace OpenSage.Navigation
 
         public bool IsPassable(Vector3 position) => GetClosestNode(position).IsPassable;
 
+        private Node GetNextPassablePosition(Vector3 start, Vector3 end)
+        {
+            var offset = end - start;
+            var direction = Vector3.Normalize(offset);
+            var currentNode = GetClosestNode(start);
+
+            var maxSteps = (int) offset.Vector2XY().Length() + 1;
+
+            while(!currentNode.IsPassable && maxSteps > 0)
+            {
+                start += direction;
+                currentNode = GetClosestNode(start);
+                maxSteps--;
+            }
+            return maxSteps > 0 ? currentNode : null;
+        }
+
         public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            if (startNode == null || endNode == null || !endNode.IsPassable)
+            if (!startNode.IsPassable)
             {
-                Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
+                startNode = GetNextPassablePosition(start, end);
+            }
+
+            if (!endNode.IsPassable)
+            {
+                endNode = GetNextPassablePosition(end, start);
+            }
+
+            if (startNode == null || endNode == null)
+            {
+                Logger.Info("Aborting pathfinding because start and/or end are null");
                 yield break;
             }
 
