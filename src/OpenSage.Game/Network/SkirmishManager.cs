@@ -106,14 +106,14 @@ namespace OpenSage.Network
         private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet)
         {
             SkirmishGame.Slots = packet.Slots;
-            if (SkirmishGame.LocalSlot < 0)
+            if (SkirmishGame.LocalSlotIndex < 0)
             {
                 for (int i = 0; i < packet.Slots.Length; i++)
                 {
                     if (packet.Slots[i].EndPoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4) &&
                         packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
                     {
-                        SkirmishGame.LocalSlot = i;
+                        SkirmishGame.LocalSlotIndex = i;
                         break;
                     }
                 }
@@ -151,10 +151,10 @@ namespace OpenSage.Network
 
             SkirmishGame = new SkirmishGame(isHost: true)
             {
-                LocalSlot = 0
+                LocalSlotIndex = 0
             };
 
-            var localSlot = SkirmishGame.Slots[SkirmishGame.LocalSlot];
+            var localSlot = SkirmishGame.Slots[SkirmishGame.LocalSlotIndex];
             localSlot.PlayerName = _game.LobbyManager.Username;
             localSlot.State = SkirmishSlotState.Human;
             localSlot.EndPoint = NetUtils.MakeEndPoint(NetUtils.GetLocalIp(LocalAddrType.IPv4), Ports.SkirmishHost);

@@ -14,7 +14,8 @@ namespace OpenSage.Network
         public bool IsHost { get; }
 
         public SkirmishSlot[] Slots { get; set; }
-        public int LocalSlot { get; set; } = -1;
+        public int LocalSlotIndex { get; set; } = -1;
+        public SkirmishSlot? LocalSlot { get { return Slots[LocalSlotIndex]; } }
         public bool ReadyToStart { get; internal set; }
     }
 }
