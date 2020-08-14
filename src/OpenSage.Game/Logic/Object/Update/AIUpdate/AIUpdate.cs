@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
@@ -64,10 +65,8 @@ namespace OpenSage.Logic.Object
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
         }
 
-        internal void SetTargetPoint(Vector3 targetPoint)
+        internal void AppendPathToTargetPoint(in Vector3 targetPoint)
         {
-            TargetPoints.Clear();
-
             if (GameObject.Definition.KindOf == null) return;
 
             if (GameObject.Definition.KindOf.Get(ObjectKinds.Infantry)
@@ -81,6 +80,13 @@ namespace OpenSage.Logic.Object
             }
 
             AddTargetPoint(targetPoint);
+        }
+
+        internal void SetTargetPoint(Vector3 targetPoint)
+        {
+            TargetPoints.Clear();
+
+            AppendPathToTargetPoint(targetPoint);
         }
 
         internal void FollowWaypoints(IEnumerable<Vector3> waypoints)

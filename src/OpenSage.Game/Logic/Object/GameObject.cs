@@ -485,6 +485,21 @@ namespace OpenSage.Logic.Object
             {
                 spawnedUnit.AIUpdate.AddTargetPoint(RallyPoint.Value);
             }
+
+            HandleHarvesterUnitCreation(spawnedUnit);
+        }
+
+        public void HandleHarvesterUnitCreation(GameObject spawnedUnit)
+        {
+            // we are a supply target and just spawned a harvester object
+            if (Definition.KindOf.Get(ObjectKinds.CashGenerator) && spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester))
+            {
+                if (spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate)
+                {
+                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                    supplyUpdate.CurrentSupplyTarget = this;
+                }
+            }
         }
 
         public bool UpgradeAvailable(UpgradeTemplate upgrade)
