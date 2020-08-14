@@ -1,4 +1,5 @@
-﻿using OpenSage.Content;
+﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -50,6 +51,8 @@ namespace OpenSage.Logic.Object
             switch (SupplyGatherState)
             {
                 case SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE:
+                    if (isMoving) break;
+
                     if (_currentSupplySource == null || !_currentSourceDockUpdate.HasBoxes())
                     {
                         // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
@@ -75,7 +78,7 @@ namespace OpenSage.Logic.Object
 
                     if (_currentSupplySource == null) break;
 
-                    AppendPathToTargetPoint(_currentSupplySource.Transform.Translation);
+                    SetTargetPoint(_currentSupplySource.Transform.Translation);
                     SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_SOURCE;
                     break;
                 case SupplyGatherStates.APPROACH_SUPPLY_SOURCE:
@@ -149,7 +152,7 @@ namespace OpenSage.Logic.Object
 
                     if (!_currentTargetDockUpdate.CanApproach()) break;
 
-                    AppendPathToTargetPoint(_currentTargetDockUpdate.GetApproachTargetPosition(this));
+                    SetTargetPoint(_currentTargetDockUpdate.GetApproachTargetPosition(this));
                     SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_TARGET;
                     break;
                 case SupplyGatherStates.APPROACH_SUPPLY_TARGET:

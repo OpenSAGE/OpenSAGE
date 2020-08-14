@@ -68,17 +68,13 @@ namespace OpenSage.Logic.Object
         {
             if (GameObject.Definition.KindOf == null) return;
 
-            if (false) //!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
+            if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
             {
                 var start = GameObject.Transform.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
                 Logger.Debug("Set new target points: " + TargetPoints.Count);
-
-                if (GameObject.GameContext.Navigation.IsPassable(targetPoint))
-                {
-                    AddTargetPoint(targetPoint);
-                }
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
             }
             else
             {
