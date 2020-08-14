@@ -10,10 +10,14 @@ namespace OpenSage.Logic.Object
     {
         private readonly ObjectCreationUpgradeModuleData _moduleData;
 
+        // CASH_GENERATOR
+        private bool _isCashGenerator;
+
         internal ObjectCreationUpgrade(GameObject gameObject, ObjectCreationUpgradeModuleData moduleData)
             : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+            _isCashGenerator = gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator);
         }
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
@@ -30,6 +34,15 @@ namespace OpenSage.Logic.Object
                         if (slavedUpdateBehaviour != null)
                         {
                             slavedUpdateBehaviour.Master = context.GameObject;
+                        }
+
+                        if (_isCashGenerator && createdObject.Definition.KindOf.Get(ObjectKinds.Harvester))
+                        {
+                            var supplyAIUpdate = createdObject.FindBehavior<SupplyAIUpdate>();
+                            if (supplyAIUpdate != null)
+                            {
+                                supplyAIUpdate.CurrentSupplyTarget = context.GameObject;
+                            }
                         }
                     }
                 }

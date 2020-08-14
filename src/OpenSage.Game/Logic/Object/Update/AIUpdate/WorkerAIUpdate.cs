@@ -1,29 +1,38 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class WorkerAIUpdate : SupplyAIUpdate
+    {
+        private WorkerAIUpdateModuleData _moduleData;
+
+        internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+        }
+    }
+
     /// <summary>
     /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceSupply, VoiceNoBuild, and 
     /// VoiceTaskComplete within UnitSpecificSounds section of the object.
-    /// Requires Kindof = DOZER HARVESTER.
+    /// Requires Kindof = DOZER.
     /// </summary>
-    public sealed class WorkerAIUpdateModuleData : AIUpdateModuleData
+    public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData
     {
         internal static new WorkerAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<WorkerAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private static new readonly IniParseTable<WorkerAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<WorkerAIUpdateModuleData>
             {
                 { "RepairHealthPercentPerSecond", (parser, x) => x.RepairHealthPercentPerSecond = parser.ParsePercentage() },
                 { "BoredTime", (parser, x) => x.BoredTime = parser.ParseInteger() },
                 { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
-                { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },
-                { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
-                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
                 { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
                 { "HarvestTrees", (parser, x) => x.HarvestTrees = parser.ParseBoolean() },
                 { "HarvestActivationRange", (parser, x) => x.HarvestActivationRange = parser.ParseInteger() },
@@ -34,11 +43,6 @@ namespace OpenSage.Logic.Object
         public Percentage RepairHealthPercentPerSecond { get; private set; }
         public int BoredTime { get; private set; }
         public int BoredRange { get; private set; }
-        public int MaxBoxes { get; private set; }
-        public int SupplyCenterActionDelay { get; private set; }
-        public int SupplyWarehouseActionDelay { get; private set; }
-        public int SupplyWarehouseScanDistance { get; private set; }
-        public string SuppliesDepletedVoice { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int UpgradedSupplyBoost { get; private set; }
@@ -54,5 +58,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int HarvestActionTime { get; private set; }
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new WorkerAIUpdate(gameObject, this);
+        }
     }
 }

@@ -1,67 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class ChinookAIUpdate : AIUpdate
+    public class ChinookAIUpdate : SupplyAIUpdate
     {
         private ChinookAIUpdateModuleData _moduleData;
-
-        private GameObject _currentSupplySource;
-        private ResourceTransportState _resourceTransportState;
-
-        private enum ResourceTransportState
-        {
-            DEFAULT,
-            SEARCH_FOR_WAREHOUSE,
-            APPROACH_WAREHOUSE,
-            DOCK_AT_WAREHOUSE,
-            APPROACH_SUPPLY_CENTER,
-        }
 
         internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            _resourceTransportState = ResourceTransportState.SEARCH_FOR_WAREHOUSE;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-
-            switch (_resourceTransportState)
-            {
-                case ResourceTransportState.SEARCH_FOR_WAREHOUSE:
-                    // TODO: use KindOfs SUPPLY_SOURCE_ON_PREVIEW NO_COLLIDE SUPPLY_SOURCE
-                    var warehouses = context.GameContext.GameObjects.GetObjectsByName("SupplyWarehouse");
-                    var docks = context.GameContext.GameObjects.GetObjectsByName("SupplyDock");
-                    var supplySources = warehouses.Concat(docks);
-
-                    var distanceToCurrentSupplySource = float.PositiveInfinity;
-                    foreach (var supplySource in supplySources)
-                    {
-                        var offsetToSource = supplySource.Transform.Translation - GameObject.Transform.Translation;
-                        var distanceToSource = offsetToSource.Vector2XY().Length();
-
-                        if (distanceToSource < _moduleData.SupplyWarehouseScanDistance && distanceToSource < distanceToCurrentSupplySource)
-                        {
-                            _currentSupplySource = supplySource;
-                            distanceToCurrentSupplySource = distanceToSource;
-                        }
-                    }
-                    GameObject.AIUpdate.AddTargetPoint(_currentSupplySource.Transform.Translation);
-                    _resourceTransportState = ResourceTransportState.APPROACH_WAREHOUSE;
-                    break;
-                case ResourceTransportState.APPROACH_WAREHOUSE:
-                    if (!isMoving)
-                    {
-                        _resourceTransportState = ResourceTransportState.DOCK_AT_WAREHOUSE;
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
-                    }
-                    break;
-            }
+            base.Update(context);
         }
     }
 
@@ -71,19 +24,13 @@ namespace OpenSage.Logic.Object
     /// KindOf field. Having done that, the "RAPPELLING" ModelConditonState becomes available for 
     /// rappelling out of the object that has the rappel code of this module.
     /// </summary>
-    public sealed class ChinookAIUpdateModuleData : AIUpdateModuleData
+    public sealed class ChinookAIUpdateModuleData : SupplyAIUpdateModuleData
     {
         internal static new ChinookAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private static new readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<ChinookAIUpdateModuleData>
             {
-                { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },
-                { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
-                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
-
                 { "NumRopes", (parser, x) => x.NumRopes = parser.ParseInteger() },
                 { "PerRopeDelayMin", (parser, x) => x.PerRopeDelayMin = parser.ParseInteger() },
                 { "PerRopeDelayMax", (parser, x) => x.PerRopeDelayMax = parser.ParseInteger() },
@@ -98,15 +45,6 @@ namespace OpenSage.Logic.Object
                 { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
                 { "RotorWashParticleSystem", (parser, x) => x.RotorWashParticleSystem = parser.ParseAssetReference() },
             });
-
-        public int MaxBoxes { get; private set; }
-        // ms for whole thing (one transaction)
-        public int SupplyCenterActionDelay { get; private set; }
-        // ms per box (many small transactions)
-        public int SupplyWarehouseActionDelay { get; private set; }
-        // Max distance to look for a warehouse, or we go home.  (Direct dock command on warehouse overrides, and no max on Center Scan)
-        public int SupplyWarehouseScanDistance { get; private set; }
-        public string SuppliesDepletedVoice { get; private set; }
 
         public int NumRopes { get; private set; }
         public int PerRopeDelayMin { get; private set; }
