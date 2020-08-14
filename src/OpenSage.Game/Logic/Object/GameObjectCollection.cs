@@ -94,6 +94,11 @@ namespace OpenSage.Logic.Object
             return _items.Where(x => x.Definition.Name == typeName).ToList();
         }
 
+        public List<GameObject> GetObjectsByKindOf(ObjectKinds kindOf)
+        {
+            return _items.Where(x => x.Definition.KindOf.Get(kindOf)).ToList();
+        }
+
         public void AddNameLookup(GameObject gameObject)
         {
             _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
