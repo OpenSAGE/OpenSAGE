@@ -169,7 +169,8 @@ namespace OpenSage.Logic.Object
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
             ModelConditionState bestConditionState = null;
-            var bestMatch = int.MinValue;
+            var bestIntersections = int.MinValue;
+            var bestBitCount = int.MinValue;
 
             // Find best matching ModelConditionState.
             foreach (var conditionState in _conditionStates)
@@ -183,14 +184,16 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                if (numIntersectionBits > bestMatch)
+                if (numIntersectionBits > bestIntersections ||
+                   ((numIntersectionBits == bestIntersections) && numStateBits < bestBitCount))
                 {
                     bestConditionState = conditionState;
-                    bestMatch = numIntersectionBits;
+                    bestBitCount = numStateBits;
+                    bestIntersections = numIntersectionBits;
                 }
             }
 
-            if (bestConditionState == null || bestMatch == 0)
+            if (bestConditionState == null || bestIntersections == 0)
             {
                 bestConditionState = _defaultConditionState;
             }
@@ -212,7 +215,8 @@ namespace OpenSage.Logic.Object
             };
             
             AnimationState bestAnimationState = null;
-            bestMatch = int.MinValue;
+            bestIntersections = int.MinValue;
+            bestBitCount = int.MinValue;
 
             // Find best matching ModelConditionState.
             foreach (var animationState in _animationStates)
@@ -226,14 +230,16 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                if (numIntersectionBits > bestMatch)
+                if (numIntersectionBits > bestIntersections ||
+                   ((numIntersectionBits == bestIntersections) && numStateBits < bestBitCount))
                 {
                     bestAnimationState = animationState;
-                    bestMatch = numIntersectionBits;
+                    bestBitCount = numStateBits;
+                    bestIntersections = numIntersectionBits;
                 }
             }
 
-            if (bestAnimationState == null || bestMatch == 0)
+            if (bestAnimationState == null || bestIntersections == 0)
             {
                 bestAnimationState = _idleAnimationState;
             }
