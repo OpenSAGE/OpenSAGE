@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     public abstract class SupplyAIUpdate : AIUpdate
     {
         public GameObject CurrentSupplyTarget;
-        private DockUpdate _currentTargetDockUpdate;
+        private SupplyCenterDockUpdate _currentTargetDockUpdate;
         public SupplyGatherStates SupplyGatherState;
 
         public enum SupplyGatherStates
@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Object
 
                             if (distanceToTarget > _moduleData.SupplyWarehouseScanDistance || distanceToTarget > distanceToCurrentSupplyTarget) continue;
 
-                            var dockUpdate = supplyTarget.FindBehavior<DockUpdate>() ?? null;
+                            var dockUpdate = supplyTarget.FindBehavior<SupplyCenterDockUpdate>() ?? null;
                             if (dockUpdate?.CanApproach() ?? false) continue;
                             
                             CurrentSupplyTarget = supplyTarget;
@@ -147,7 +147,7 @@ namespace OpenSage.Logic.Object
 
                     if (_currentTargetDockUpdate == null)
                     {
-                        _currentTargetDockUpdate = CurrentSupplyTarget.FindBehavior<DockUpdate>();
+                        _currentTargetDockUpdate = CurrentSupplyTarget.FindBehavior<SupplyCenterDockUpdate>();
                     }
 
                     if (!_currentTargetDockUpdate.CanApproach()) break;
@@ -174,10 +174,9 @@ namespace OpenSage.Logic.Object
                     {
                         SupplyGatherState = SupplyGatherStates.FINISHED_DUMPING_SUPPLYS;
 
-                        var gameData = context.GameContext.AssetLoadContext.AssetStore.GameData.Current;
-                        var amountPerBox = gameData.ValuePerSupplyBox + GetAdditionalValuePerSupplyBox(context.GameContext.AssetLoadContext.AssetStore.Upgrades);
-                        GameObject.Owner.Money += (uint) (_numBoxes * amountPerBox);
-                        _numBoxes = 0;
+                        var assetStore = context.GameContext.AssetLoadContext.AssetStore;
+                        var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
+                        _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
 
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, false);

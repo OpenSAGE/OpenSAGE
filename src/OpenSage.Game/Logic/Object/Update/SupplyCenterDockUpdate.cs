@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -12,6 +13,24 @@ namespace OpenSage.Logic.Object
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
+        }
+
+        public void DumpBoxes(AssetStore assetStore, ref int numBoxes, int additionalAmountPerBox)
+        {
+            var gameData = assetStore.GameData.Current;
+            var amountPerBox = gameData.ValuePerSupplyBox * _moduleData.ValueMultiplier;
+
+            if (_moduleData.BonusScience != null)
+            {
+                var bonusUpgradeDefinition = assetStore.Upgrades.GetByName(_moduleData.BonusScience);
+                if (_gameObject.UpgradeAvailable(bonusUpgradeDefinition))
+                {
+                    amountPerBox *= _moduleData.BonusScienceMultiplier;
+                }
+            }
+
+            _gameObject.Owner.Money += (uint)(numBoxes * amountPerBox);
+            numBoxes = 0;
         }
 
         internal override void Update(BehaviorUpdateContext context)

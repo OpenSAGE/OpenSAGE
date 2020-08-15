@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
+            // this is also hardcoded in original SAGE, replaced by BonusScience and BonusScienceMultiplier (SupplyCenterDockUpdate) in later games
             var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
             return GameObject.UpgradeAvailable(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
