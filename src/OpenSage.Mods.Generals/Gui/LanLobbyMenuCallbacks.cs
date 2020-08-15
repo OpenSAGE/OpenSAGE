@@ -36,7 +36,7 @@ namespace OpenSage.Mods.Generals.Gui
                             // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "LanLobbyMenu.wnd:ButtonHost":
-                            context.Game.SkirmishManager.HostGame();
+                            context.Game.SkirmishManager = new SkirmishManager.Host(context.Game);
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
@@ -55,7 +55,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                             logger.Info($"Requesting to join {player.EndPoint}");
 
-                            context.Game.SkirmishManager.JoinGame(player.EndPoint);
+                            context.Game.SkirmishManager = new SkirmishManager.Client(context.Game, player.EndPoint);
 
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;

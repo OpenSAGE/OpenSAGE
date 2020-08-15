@@ -31,7 +31,7 @@ namespace OpenSage.Mods.Generals.Gui
                             var text = comboboxRemoteIp.Controls[0].Text;
                             // TODO: Connect to the currently selected game
                             var endPoint = new IPEndPoint(IPAddress.Parse(text), Ports.SkirmishHost);
-                            context.Game.SkirmishManager.JoinGame(endPoint);
+                            context.Game.SkirmishManager = new SkirmishManager.Client(context.Game, endPoint);
                             context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
                             break;
                     }

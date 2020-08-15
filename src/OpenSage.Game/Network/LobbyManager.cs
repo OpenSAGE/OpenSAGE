@@ -90,7 +90,7 @@ namespace OpenSage.Network
                 {
                     ProcessId = processId,
                     Username = Username,
-                    IsHosting = _game.SkirmishManager.IsHosting,
+                    IsHosting = _game.SkirmishManager?.IsHosting ?? false,
                 });
 
                 _manager.PollEvents();
@@ -103,7 +103,14 @@ namespace OpenSage.Network
                     Logger.Info($"Timeout: Removed {removedCount} players from lobby.");
                 }
 
-                Thread.Sleep(100);
+                try
+                {
+                    Thread.Sleep(100);
+                }
+                catch (ThreadInterruptedException tie)
+                {
+                    // Ignore this
+                }
             }
 
             bool IsTimedOut(LobbyPlayer player) =>
