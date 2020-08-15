@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         public void DumpBoxes(AssetStore assetStore, ref int numBoxes, int additionalAmountPerBox)
         {
             var gameData = assetStore.GameData.Current;
-            var amountPerBox = gameData.ValuePerSupplyBox * _moduleData.ValueMultiplier;
+            var amountPerBox = (gameData.ValuePerSupplyBox + additionalAmountPerBox) * _moduleData.ValueMultiplier;
 
             if (_moduleData.BonusScience != null)
             {

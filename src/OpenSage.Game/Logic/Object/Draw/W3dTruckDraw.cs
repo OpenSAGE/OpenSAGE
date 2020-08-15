@@ -19,9 +19,23 @@ namespace OpenSage.Logic.Object
             _boneList = new Tuple<string, bool>[]
                {
                     Tuple.Create(_data.LeftFrontTireBone, true),
+                    Tuple.Create(_data.LeftFrontTireBone2, true),
                     Tuple.Create(_data.RightFrontTireBone, true),
+                    Tuple.Create(_data.RightFrontTireBone2, true),
+
+                    Tuple.Create(_data.MidRightFrontTireBone, false),
+                    Tuple.Create(_data.MidLeftFrontTireBone, false),
+                    Tuple.Create(_data.MidRightMidTireBone, false),
+                    Tuple.Create(_data.MidRightMidTireBone2, false),
+                    Tuple.Create(_data.MidLeftMidTireBone, false),
+                    Tuple.Create(_data.MidLeftMidTireBone2, false),
+                    Tuple.Create(_data.MidRightRearTireBone, false),
+                    Tuple.Create(_data.MidLeftRearTireBone, false),
+
                     Tuple.Create(_data.LeftRearTireBone, false),
-                    Tuple.Create(_data.RightRearTireBone, false)
+                    Tuple.Create(_data.LeftRearTireBone2, false),
+                    Tuple.Create(_data.RightRearTireBone, false),
+                    Tuple.Create(_data.RightRearTireBone2, false)
                };
         }
 
