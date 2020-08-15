@@ -93,6 +93,7 @@ namespace OpenSage.Logic.Object
                         break;
                     case SupplyAIUpdate.SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
+                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
                         _unitsApproaching.Dequeue();
                         MoveObjectsForward();
                         break;

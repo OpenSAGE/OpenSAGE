@@ -109,6 +109,7 @@ namespace OpenSage.Logic.Object
                     }
  
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
                     SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_TARGET;
                     break;
                 case SupplyGatherStates.GATHERING_SUPPLYS:
@@ -116,7 +117,6 @@ namespace OpenSage.Logic.Object
                     {
                         _numBoxes++;
                         SupplyGatherState = SupplyGatherStates.REQUEST_SUPPLYS;
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
                     }
                     break;
                 case SupplyGatherStates.SEARCH_FOR_SUPPLY_TARGET:
@@ -165,9 +165,9 @@ namespace OpenSage.Logic.Object
                     // wait until the DockUpdate moves us forward
                     break;
                 case SupplyGatherStates.START_DUMPING_SUPPLYS:
-                    _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyCenterActionDelay;
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                     SupplyGatherState = SupplyGatherStates.DUMPING_SUPPLYS;
+                    _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyCenterActionDelay;
                     break;
                 case SupplyGatherStates.DUMPING_SUPPLYS:
                     if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
@@ -183,7 +183,6 @@ namespace OpenSage.Logic.Object
                     }
                     break;
                 case SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
-                    SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
                     break;
             }
         }

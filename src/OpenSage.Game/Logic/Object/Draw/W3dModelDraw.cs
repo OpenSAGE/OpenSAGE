@@ -310,7 +310,7 @@ namespace OpenSage.Logic.Object
                 {
                     foreach (var hideSubObject in conditionState.HideSubObject)
                     {
-                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + hideSubObject.ToUpper()));
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(hideSubObject.ToUpper()));
                         if (item != null)
                         {
                             modelInstance.BoneVisibilities[item.i] = false;
@@ -322,7 +322,7 @@ namespace OpenSage.Logic.Object
                 {
                     foreach (var showSubObject in conditionState.ShowSubObject)
                     {
-                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith("." + showSubObject.ToUpper()));
+                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(showSubObject.ToUpper()));
                         if (item != null)
                         {
                             modelInstance.BoneVisibilities[item.i] = true;
