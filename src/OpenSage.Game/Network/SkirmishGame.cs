@@ -15,7 +15,7 @@ namespace OpenSage.Network
 
         public SkirmishSlot[] Slots { get; set; }
         public int LocalSlotIndex { get; set; } = -1;
-        public SkirmishSlot? LocalSlot { get { return Slots[LocalSlotIndex]; } }
+        public SkirmishSlot? LocalSlot { get { return Slots.Where(x => x.Index == LocalSlotIndex).FirstOrDefault(); } }
         public bool ReadyToStart { get; internal set; }
     }
 }

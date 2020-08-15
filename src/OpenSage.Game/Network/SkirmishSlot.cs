@@ -1,5 +1,14 @@
-﻿using System.Net;
+﻿using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
 using LiteNetLib.Utils;
+using SixLabors.ImageSharp.Processing;
 
 namespace OpenSage.Network
 {
@@ -13,6 +22,7 @@ namespace OpenSage.Network
         HardArmy,
     }
 
+    [Serializable]
     public class SkirmishSlot
     {
         public SkirmishSlot()
@@ -31,12 +41,50 @@ namespace OpenSage.Network
         public byte FactionIndex { get; set; }
         public byte Team { get; set; }
         public bool Ready { get; set; }
-        public IPEndPoint EndPoint { get; set; }
+
+        [NonSerialized]
+        public IPEndPoint EndPoint;
 
         /// <summary>
         /// We need this during development to be able to run two games on the same machine.
         /// </summary>
         public int ProcessId { get; set; }
+
+        private byte[] _cleanState = new byte[1];
+        public bool IsDirty {
+            get
+            {
+                return !_cleanState.Equals(_bytes);
+            }
+            internal set {
+                if (!value)
+                {
+                    _cleanState = _bytes;
+                }
+            }
+        }
+
+        private byte[] _bytes
+        {
+            get
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                using (var ms = new MemoryStream())
+                {
+                    bf.Serialize(ms, this);
+                    return ms.ToArray();
+                }
+            }
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            //Maybe filter 
+            IsDirty = true;
+        }
+
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {

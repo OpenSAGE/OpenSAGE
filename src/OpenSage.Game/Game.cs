@@ -68,7 +68,7 @@ namespace OpenSage
 
         public InputMessageBuffer InputMessageBuffer { get; }
         
-        public SkirmishManager SkirmishManager { get; }
+        public SkirmishManager SkirmishManager { get; set; }
 
         //TODO: this will be part of SkirmishManager after merging litenetlib PR
         public MapCache CurrentMap { get; private set; }
@@ -474,7 +474,6 @@ namespace OpenSage
                 _mapTimer.Reset();
 
                 LobbyManager = new LobbyManager(this);
-                SkirmishManager = new SkirmishManager(this);
 
                 IsRunning = true;
                 IsLogicRunning = true;
@@ -814,7 +813,7 @@ namespace OpenSage
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
             // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
-            if (SkirmishManager.SkirmishGame?.ReadyToStart ?? false)
+            if (SkirmishManager?.SkirmishGame?.ReadyToStart ?? false)
             {
                 SkirmishManager.SkirmishGame.ReadyToStart = false;
 
