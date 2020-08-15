@@ -100,7 +100,6 @@ namespace OpenSage.Network
             if (slot != null)
             {
                 slot.PlayerName = packet.PlayerName;
-                slot.Ready = packet.Ready;
             }
         }
 
@@ -119,14 +118,6 @@ namespace OpenSage.Network
                     }
                 }
             }
-        }
-
-        public void UpdateLocalSlot()
-        {
-            var packet = new SkirmishClientUpdatePacket();
-            packet.Ready = SkirmishGame.LocalSlot.Ready;
-            packet.PlayerName = SkirmishGame.LocalSlot.PlayerName;
-            _processor.Write(_writer, packet);
         }
 
         private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
