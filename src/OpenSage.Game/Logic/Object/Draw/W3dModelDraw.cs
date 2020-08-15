@@ -149,11 +149,11 @@ namespace OpenSage.Logic.Object
             var firstAnimationBlock = animationState.Animations.FirstOrDefault();
             if (firstAnimationBlock != null)
             {
-                foreach(var animation in firstAnimationBlock.Animations)
+                foreach (var animation in firstAnimationBlock.Animations)
                 {
                     var anim = animation.Value;
                     //Check if the animation does really exist
-                    if(anim != null)
+                    if (anim != null)
                     {
                         var flags = animationState.Flags;
                         var mode = firstAnimationBlock.AnimationMode;
@@ -213,7 +213,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
             };
-            
+
             AnimationState bestAnimationState = null;
             bestIntersections = int.MinValue;
             bestBitCount = int.MinValue;
