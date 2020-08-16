@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Orders
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
                             var position = order.Arguments[1].Value.Position;
                             var angle = order.Arguments[2].Value.Float;
-                            player.Money -= (uint) objectDefinition.BuildCost;
+                            player.SpendMoney((uint) objectDefinition.BuildCost);
 
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                             gameObject.Transform.Translation = position;
@@ -69,7 +69,7 @@ namespace OpenSage.Logic.Orders
 
                             var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
-                            player.Money -= (uint) upgradeDefinition.BuildCost;
+                            player.SpendMoney((uint) upgradeDefinition.BuildCost);
 
                             gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
                         }
@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Orders
                             var upgradeDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
 
-                            player.Money += (uint) upgradeDefinition.BuildCost;
+                            player.SpendMoney((uint) upgradeDefinition.BuildCost);
                             // since this is a building and only one at a time can be selected
                             player.SelectedUnits.First().ProductionUpdate.CancelUpgrade(upgradeDefinition);
                         }
@@ -97,7 +97,7 @@ namespace OpenSage.Logic.Orders
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
-                            player.Money -= (uint) objectDefinition.BuildCost;
+                            player.SpendMoney((uint) objectDefinition.BuildCost);
                             var placeInQueue = order.Arguments[1].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
@@ -123,7 +123,7 @@ namespace OpenSage.Logic.Orders
                                 var productionJob = unit.ProductionUpdate.ProductionQueue[queueIndex];
                                 var objectDefinition = productionJob.ObjectDefinition;
 
-                                player.Money += (uint) objectDefinition.BuildCost;
+                                player.SpendMoney((uint) objectDefinition.BuildCost);
 
                                 unit.ProductionUpdate?.CancelProduction(queueIndex);
                             }
@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Orders
                         foreach (var unit in player.SelectedUnits)
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
-                            player.Money += (uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
+                            player.SpendMoney((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
                         break;

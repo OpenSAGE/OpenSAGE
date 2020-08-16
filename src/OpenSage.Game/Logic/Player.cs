@@ -20,13 +20,13 @@ namespace OpenSage.Logic
 
         public bool IsHuman { get; private set; }
 
-        public uint Money { get; set; }
+        public uint Money { get; private set; }
         public List<UpgradeTemplate> Upgrades { get; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public int GetEnergy(GameObjectCollection allGameObjects)
         {
-            int energy = 0;
+            var energy = 0;
             foreach (var gameObject in allGameObjects.Items)
             {
                 if (gameObject.Owner != this)
@@ -37,6 +37,21 @@ namespace OpenSage.Logic
             }
             return energy;
         }
+
+        public void SpendMoney(uint amount)
+        {
+            if (Money >= amount)
+            {
+                Money -= amount;
+            }
+            else
+            {
+                // this should not happen since we should check first if we can spend that much
+                Money = 0;
+            }
+        }
+
+        public void ReceiveMoney(uint amount) => Money += amount;
 
         public ColorRgb Color { get; }
 
