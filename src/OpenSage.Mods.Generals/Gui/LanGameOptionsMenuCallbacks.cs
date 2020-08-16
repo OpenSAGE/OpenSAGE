@@ -96,6 +96,11 @@ namespace OpenSage.Mods.Generals.Gui
             var textChat = (TextBox)window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
+            
+            var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
+            //TODO: Use the right language strings
+            buttonAccepted.Text = game.SkirmishManager.IsHosting ? "Play Game" : "Accept";
+
             //game.SkirmishManager.OnStop += () =>
             //{
             //    //TODO: somehow make this work
