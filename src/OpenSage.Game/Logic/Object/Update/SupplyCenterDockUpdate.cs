@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Object
         public Percentage BonusScienceMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float ValueMultiplier { get; private set; }
+        public float ValueMultiplier { get; private set; } = 1.0f;
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
