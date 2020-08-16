@@ -136,7 +136,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             _moneyDisplay.Text = $"$ {player.Money}";
 
-            float powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
+            var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
             ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
@@ -267,12 +267,13 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;
+                                var userHasEnoughMoney = selectedUnit.Owner.Money >= upgrade.BuildCost;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
                                 var canEnqueue = selectedUnit.ProductionUpdate.CanEnque();
                                 var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
                                 var upgradeIsInvalid = selectedUnit.ConflictingUpgradeAvailable(upgrade);
 
-                                buttonControl.Enabled = canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
+                                buttonControl.Enabled = userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
                                 break;
                         }
 
