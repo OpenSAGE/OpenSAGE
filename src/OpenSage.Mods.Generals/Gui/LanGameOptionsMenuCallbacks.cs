@@ -97,9 +97,9 @@ namespace OpenSage.Mods.Generals.Gui
             textChat.Text = string.Empty;
 
             
-            var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
+            var buttonStart = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
             //TODO: Use the right language strings
-            buttonAccepted.Text = game.SkirmishManager.IsHosting ? "Play Game" : "Accept";
+            buttonStart.Text = game.SkirmishManager.IsHosting ? "Play Game" : "Accept";
 
             //game.SkirmishManager.OnStop += () =>
             //{
@@ -153,6 +153,9 @@ namespace OpenSage.Mods.Generals.Gui
 
 
             };
+
+            var buttonAccept = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
+            buttonAccept.Enabled = game.SkirmishManager.IsHosting ? game.SkirmishManager.IsReady : !(game.SkirmishManager.SkirmishGame.LocalSlot?.Ready ?? false);
         }
 
     }

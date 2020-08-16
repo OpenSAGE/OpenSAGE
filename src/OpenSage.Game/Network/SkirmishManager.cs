@@ -79,6 +79,12 @@ namespace OpenSage.Network
         }
 
         public SkirmishGame SkirmishGame { get; private set; }
+        public bool IsReady {
+            get {
+                //no unready human players, except for the host
+                return SkirmishGame.Slots.Where(x => x.Index != 0 && x.State == SkirmishSlotState.Human && !x.Ready).Count() == 0;
+            }
+        }
 
         public void StartGame()
         {
