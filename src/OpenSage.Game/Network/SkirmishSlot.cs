@@ -22,7 +22,6 @@ namespace OpenSage.Network
         HardArmy,
     }
 
-    [Serializable]
     public class SkirmishSlot
     {
         public SkirmishSlot()
@@ -36,13 +35,12 @@ namespace OpenSage.Network
 
         public int Index { get; set; }
         public SkirmishSlotState State { get; set; } = SkirmishSlotState.Open;
-        public string PlayerName { get; set; }
+        public string PlayerName { get; set; } = string.Empty;
         public byte ColorIndex { get; set; }
         public byte FactionIndex { get; set; }
         public byte Team { get; set; }
         public bool Ready { get; set; }
 
-        [NonSerialized]
         public IPEndPoint EndPoint;
 
         /// <summary>
@@ -54,7 +52,7 @@ namespace OpenSage.Network
         public bool IsDirty {
             get
             {
-                return !_cleanState.Equals(_bytes);
+                return !_cleanState.SequenceEqual(_bytes);
             }
             internal set {
                 if (!value)
@@ -68,23 +66,20 @@ namespace OpenSage.Network
         {
             get
             {
-                BinaryFormatter bf = new BinaryFormatter();
                 using (var ms = new MemoryStream())
                 {
-                    bf.Serialize(ms, this);
+                    var writer = new BinaryWriter(ms);
+                    writer.Write(Index);
+                    writer.Write((int)State);
+                    writer.Write(PlayerName);
+                    writer.Write(ColorIndex);
+                    writer.Write(FactionIndex);
+                    writer.Write(Team);
+                    writer.Write(Ready);
                     return ms.ToArray();
                 }
             }
         }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            //Maybe filter 
-            IsDirty = true;
-        }
-
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {

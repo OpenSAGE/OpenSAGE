@@ -20,7 +20,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            logger.Info($"Have message {message.MessageType} for control {control.Name}");
+            logger.Trace($"Have message {message.MessageType} for control {control.Name}");
             if (!GameOptions.HandleSystem(control, message, context))
             {
                 switch (message.MessageType)
@@ -126,7 +126,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var isLocalSlot = slot == game.SkirmishManager.SkirmishGame.LocalSlot;
                 var editable = isLocalSlot || (game.SkirmishManager.IsHosting && slot.State != Network.SkirmishSlotState.Human);
 
-                
+                playerCombo.Enabled = !isLocalSlot && game.SkirmishManager.IsHosting;
+
                 if (slot.State == Network.SkirmishSlotState.Human)
                 {
                     if (buttonAccepted.Visible != slot.Ready)
