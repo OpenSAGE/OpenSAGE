@@ -556,7 +556,14 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<BaseAudioEventInfo> ParseAudioEventReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<BaseAudioEventInfo>(() => _assetStore.AudioEvents.GetByName(name));
+
+            // Do not refactor this! This variable is important.
+            // If we don't copy _assetStore into a new local variable, the callback will capture this by reference
+            // (even though it only needs the asset store), and therefore causes the INI file to stay in memory indefinitely.
+            // By using a local variable the callback will capture the variable instead of the entire object.
+            var assetStore = _assetStore;
+
+            return new LazyAssetReference<BaseAudioEventInfo>(() => assetStore.AudioEvents.GetByName(name));
         }
 
         public LazyAssetReference<AudioFile> ParseAudioFileReference()
