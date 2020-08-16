@@ -128,17 +128,18 @@ namespace OpenSage.Mods.Generals.Gui
 
                 playerCombo.Enabled = !isLocalSlot && game.SkirmishManager.IsHosting;
 
+                buttonAccepted.Visible = slot.State == Network.SkirmishSlotState.Human;
+
                 if (slot.State == Network.SkirmishSlotState.Human)
                 {
-                    if (buttonAccepted.Visible != slot.Ready)
-                        buttonAccepted.Visible = slot.Ready;
+                    if (buttonAccepted.Enabled != slot.Ready)
+                        buttonAccepted.Enabled = slot.Ready;
 
                     playerCombo.Controls[0].Text = slot.PlayerName;
                 }
                 else
                 {
                     playerCombo.Controls[0].Text = slot.State.ToString();
-                    buttonAccepted.Enabled = false;
                 }
 
                 colorCombo.Enabled = editable;

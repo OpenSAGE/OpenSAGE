@@ -144,6 +144,10 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 context.Game.SkirmishManager.StartGame();
                             }
+                            else
+                            {
+                                context.Game.SkirmishManager.SkirmishGame.LocalSlot.Ready = true;
+                            }
                         }
                         else
                         {
