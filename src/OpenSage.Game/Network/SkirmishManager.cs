@@ -92,12 +92,16 @@ namespace OpenSage.Network
             _manager.DisconnectAll();
             _manager.Stop();
 
+            Stop();
+        }
+
+        private void Stop()
+        {
             _isRunning = false;
             _thread?.Interrupt();
             _thread?.Join();
             _thread = null;
         }
-
 
         protected Thread _thread;
         protected bool _isRunning;
@@ -146,6 +150,7 @@ namespace OpenSage.Network
                 _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
                 {
                     var type = (PacketType) dataReader.GetByte();
+                    Logger.Info($"Have packet with type {type}");
                     switch (type)
                     {
                         case PacketType.SkirmishSlotStatus:
@@ -191,6 +196,7 @@ namespace OpenSage.Network
                             if (endpoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4) &&
         packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
                             {
+                                Logger.Info($"New Local slot index is {i}");
                                 SkirmishGame.LocalSlotIndex = i;
                                 break;
                             }
@@ -206,6 +212,8 @@ namespace OpenSage.Network
                 var localSlot = SkirmishGame.LocalSlot;
                 if (localSlot != null && localSlot.IsDirty)
                 {
+                    Logger.Info($"Local slot is dirty, sending...");
+                    _writer.Put((byte) PacketType.SkirmishClientUpdate);
                     _processor.Write(_writer, new SkirmishClientUpdatePacket()
                     {
                         Ready = localSlot.Ready,
@@ -215,6 +223,7 @@ namespace OpenSage.Network
                         Team = localSlot.Team,
                     });
 
+                    _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
                     localSlot.IsDirty = false;
                 }
 
@@ -226,13 +235,17 @@ namespace OpenSage.Network
         public class Host: SkirmishManager
         {
 
-            private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, (IPEndPoint endPoint, int processId) peer)
+            private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
+
+            private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, SkirmishSlot slot)
             {
-                var slot = SkirmishGame.Slots.FirstOrDefault(s => s.EndPoint.Equals(peer.endPoint) && s.ProcessId == peer.processId);
                 if (slot != null)
                 {
                     slot.PlayerName = packet.PlayerName;
                     slot.Ready = packet.Ready;
+                    slot.Team = packet.Team;
+                    slot.FactionIndex = packet.FactionIndex;
+                    slot.ColorIndex = packet.ColorIndex;
                 }
             }
 
@@ -246,10 +259,12 @@ namespace OpenSage.Network
             {
 
                 _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
-                _processor.SubscribeReusable<SkirmishClientUpdatePacket, (IPEndPoint endPoint, int processId)>(SkirmishClientUpdatePacketReceived);
+                _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
 
                 _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
                 _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+
+                _listener.PeerDisconnectedEvent += (peer, info) => _slotLookup.Remove(peer.Id);
 
                 _listener.ConnectionRequestEvent += request =>
                 {
@@ -266,6 +281,7 @@ namespace OpenSage.Network
 
                         nextFreeSlot.State = SkirmishSlotState.Human;
                         nextFreeSlot.EndPoint = peer.EndPoint;
+                        _slotLookup.Add(peer.Id, nextFreeSlot);
                     }
                     else
                     {
@@ -277,13 +293,14 @@ namespace OpenSage.Network
                 _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
                 {
                     var type = (PacketType) dataReader.GetByte();
+                    var slot = _slotLookup[fromPeer.Id];
                     switch (type)
                     {
                         case PacketType.SkirmishSlotStatus:
                             Logger.Error($"Host should never receive slot status updates");
                             break;
                         case PacketType.SkirmishClientUpdate:
-                            _processor.ReadPacket(dataReader, fromPeer.Id);
+                            _processor.ReadPacket(dataReader, slot);
                             break;
                         case PacketType.SkirmishStartGame:
                             Logger.Trace($"Received start game packet");
@@ -317,13 +334,26 @@ namespace OpenSage.Network
 
             protected override void Loop()
             {
-                _writer.Put((byte) PacketType.SkirmishSlotStatus);
-                _processor.Write(_writer, new SkirmishSlotStatusPacket()
+                var dirty = SkirmishGame.Slots.Where(x => x.IsDirty);
+                if(dirty.Count() > 0)
                 {
-                    Slots = SkirmishGame.Slots
-                });
+                    Logger.Info($"Have {dirty.Count()} dirty slots");
 
-                _manager.SendToAll(_writer, DeliveryMethod.Unreliable);
+                    _writer.Put((byte) PacketType.SkirmishSlotStatus);
+                    _processor.Write(_writer, new SkirmishSlotStatusPacket()
+                    {
+                        Slots = SkirmishGame.Slots
+                    });
+
+                    _manager.SendToAll(_writer, DeliveryMethod.Unreliable);
+
+                    foreach (var slot in dirty)
+                    {
+                        slot.IsDirty = false;
+                    }
+
+                }
+
             }
 
         }
