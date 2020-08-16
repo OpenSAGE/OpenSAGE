@@ -17,6 +17,8 @@ namespace OpenSage.Graphics.Animation
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
 
+        private float _speedFactor;
+
         private bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
@@ -30,11 +32,11 @@ namespace OpenSage.Graphics.Animation
             _boneInstances = modelInstance.ModelBoneInstances;
 
             _keyframeIndices = new int[animation.Clips.Length];
-
         }
 
-        public void Play()
+        public void Play(float speedFactor = 1.0f)
         {
+            _speedFactor = speedFactor;
             if (_playing)
             {
                 return;
@@ -45,6 +47,8 @@ namespace OpenSage.Graphics.Animation
 
             _playing = true;
         }
+
+        public bool IsPlaying() => _playing;
 
         public void Stop()
         {
@@ -116,11 +120,11 @@ namespace OpenSage.Graphics.Animation
             {
                 if (Reverse)
                 {
-                    time -= gameTime.DeltaTime;
+                    time -= gameTime.DeltaTime * _speedFactor;
                 }
                 else
                 {
-                    time += gameTime.DeltaTime;
+                    time += gameTime.DeltaTime * _speedFactor;
                 }
             }
 
@@ -162,6 +166,7 @@ namespace OpenSage.Graphics.Animation
                 }
                 else
                 {
+                    _playing = false;
                     if (Reverse)
                     {
                         time = TimeSpan.Zero;
