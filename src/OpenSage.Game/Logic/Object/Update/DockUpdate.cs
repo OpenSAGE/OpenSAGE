@@ -82,6 +82,11 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.DockingActive))
+            {
+                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, false);
+            }
+
             if (_unitsApproaching.Count > 0)
             {
                 var aiUpdate = _unitsApproaching.Peek();

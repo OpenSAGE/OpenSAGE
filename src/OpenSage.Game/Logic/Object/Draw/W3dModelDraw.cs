@@ -98,7 +98,7 @@ namespace OpenSage.Logic.Object
 
             _cachedModelDrawConditionStates = new Dictionary<ModelConditionState, W3dModelDrawConditionState>();
 
-            SetActiveConditionState(_defaultConditionState);
+            SetActiveConditionState(_defaultConditionState, context.Random);
 
             _animationStates = new List<AnimationState>();
 
@@ -113,9 +113,17 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetActiveConditionState(ModelConditionState conditionState)
+        private void SetActiveConditionState(ModelConditionState conditionState, Random random)
         {
             if (_activeConditionState == conditionState)
+            {
+                return;
+            }
+
+            if (_activeConditionState != null
+                && conditionState.WaitForStateToFinishIfPossible != null
+                && _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible
+                && (_activeModelDrawConditionState?.StillActive() ?? false))
             {
                 return;
             }
@@ -131,7 +139,9 @@ namespace OpenSage.Logic.Object
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
 
-            _activeModelDrawConditionState?.Activate();
+            var speedFactor = conditionState.AnimationSpeedFactorRange.GetValue(random);
+            speedFactor = speedFactor < 0.05f ? 1.0f : speedFactor; 
+            _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
         private void SetActiveAnimationState(AnimationState animationState)
@@ -166,7 +176,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
+        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random = null)
         {
             ModelConditionState bestConditionState = null;
             var bestIntersections = int.MinValue;
@@ -198,7 +208,7 @@ namespace OpenSage.Logic.Object
                 bestConditionState = _defaultConditionState;
             }
 
-            SetActiveConditionState(bestConditionState);
+            SetActiveConditionState(bestConditionState, random);
 
             foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
             {
@@ -403,17 +413,26 @@ namespace OpenSage.Logic.Object
             _context = context;
         }
 
-        public void Activate()
+        public void Activate(float speedFactor = 1.0f)
         {
             foreach (var animationInstance in Model.AnimationInstances)
             {
-                animationInstance.Play();
+                animationInstance.Play(speedFactor);
             }
 
             foreach (var particleSystem in _particleSystems)
             {
                 particleSystem.Activate();
             }
+        }
+
+        public bool StillActive()
+        {
+            foreach (var animationInstance in Model.AnimationInstances)
+            {
+                if (animationInstance.IsPlaying()) return true;
+            }
+            return false;
         }
 
         public void Deactivate()
