@@ -1,21 +1,17 @@
-﻿using System;
-using OpenSage.Data;
+﻿using OpenSage.Data;
 using OpenSage.Data.Ani;
+using OpenSage.Gui;
 using OpenSage.Utilities;
 
 namespace OpenSage.Input.Cursors
 {
-    internal sealed class Cursor : DisposableBase
+    internal sealed class HardwareCursor : CursorBase
     {
-        private readonly CursorAnimationFrame[] _animationFrames;
-
         private readonly Sdl2Interop.SDL_Surface[] _surfaces;
         private readonly Sdl2Interop.SDL_Cursor[] _cursors;
+        protected override bool ShowSystemCursor => true;
 
-        private int _currentFrame;
-        private TimeSpan _nextFrameTime;
-
-        public unsafe Cursor(FileSystemEntry entry, GameWindow window)
+        public unsafe HardwareCursor(FileSystemEntry entry, GameWindow window)
         {
             var cursorFile = CursorFile.FromFileSystemEntry(entry);
 
@@ -82,7 +78,7 @@ namespace OpenSage.Input.Cursors
             }
         }
 
-        public void Apply(in TimeInterval time)
+        public override void Apply(in TimeInterval time)
         {
             if (_animationFrames.Length > 0)
             {
@@ -96,7 +92,7 @@ namespace OpenSage.Input.Cursors
             }
         }
 
-        private void DisplayNextFrame(in TimeInterval time)
+        protected override void DisplayNextFrame(in TimeInterval time)
         {
             _currentFrame++;
 
@@ -113,17 +109,9 @@ namespace OpenSage.Input.Cursors
             _nextFrameTime += nextFrame.Duration;
         }
 
-        public void Update(in TimeInterval time)
+        public override void Render(DrawingContext2D drawingContext)
         {
-            if (_animationFrames.Length == 0)
-            {
-                return;
-            }
-
-            while (time.TotalTime > _nextFrameTime)
-            {
-                DisplayNextFrame(time);
-            }
+            // Cursor is rendered by the OS
         }
     }
 }

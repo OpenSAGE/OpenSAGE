@@ -444,6 +444,9 @@ namespace OpenSage
 
                 Lua = AddDisposable(new LuaScriptEngine(this));
 
+                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
+                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
+
                 Scene2D = new Scene2D(this);
 
                 Selection = AddDisposable(new SelectionSystem(this));
@@ -454,9 +457,6 @@ namespace OpenSage
                 OnPanelSizeChanged(this, EventArgs.Empty);
 
                 GameSystems.ForEach(gs => gs.Initialize());
-
-                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
-                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
 
                 var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
 

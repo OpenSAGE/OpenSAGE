@@ -18,6 +18,12 @@ namespace OpenSage.Diagnostics
             {
                 PathOptimizer.EnablePathSmoothing = enablePathSmooting;
             }
+
+            var useHardwareCursor = Game.Cursors.UseHardwareCursor;
+            if (ImGui.Checkbox("Use hardware cursor", ref useHardwareCursor))
+            {
+                Game.Cursors.UseHardwareCursor = useHardwareCursor;
+            }
         }
     }
 }
