@@ -31,20 +31,6 @@ namespace OpenSage.Graphics.Animation
 
             _keyframeIndices = new int[animation.Clips.Length];
 
-            if (_flags.HasFlag(AnimationFlags.StartFrameFirst) ||
-                _flags == AnimationFlags.None)
-            {
-                _currentTimeValue = TimeSpan.Zero;
-            }
-            else if (_flags.HasFlag(AnimationFlags.StartFrameLast))
-            {
-                _currentTimeValue = _animation.Duration;
-            }
-            else
-            {
-                //TODO: implement other flags
-                //throw new NotImplementedException();
-            }
         }
 
         public void Play()
@@ -54,6 +40,7 @@ namespace OpenSage.Graphics.Animation
                 return;
             }
 
+            ResetTimeStamps();
             ResetBoneTransforms();
 
             _playing = true;
@@ -69,6 +56,24 @@ namespace OpenSage.Graphics.Animation
             // TODO: Reset to original transforms and visibilities?
 
             _playing = false;
+        }
+
+        private void ResetTimeStamps()
+        {
+            if (_flags.HasFlag(AnimationFlags.StartFrameFirst) ||
+                _flags == AnimationFlags.None)
+            {
+                _currentTimeValue = TimeSpan.Zero;
+            }
+            else if (_flags.HasFlag(AnimationFlags.StartFrameLast))
+            {
+                _currentTimeValue = _animation.Duration;
+            }
+            else
+            {
+                //TODO: implement other flags
+                //throw new NotImplementedException();
+            }
         }
 
         private void ResetBoneTransforms()
