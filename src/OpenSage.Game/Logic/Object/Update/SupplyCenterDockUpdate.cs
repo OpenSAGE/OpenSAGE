@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            _gameObject.Owner.Money += (uint)(numBoxes * amountPerBox);
+            _gameObject.Owner.ReceiveMoney((uint)(numBoxes * amountPerBox));
             numBoxes = 0;
         }
 

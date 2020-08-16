@@ -139,8 +139,7 @@ namespace OpenSage.Logic.Object
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
 
-            var speedFactor = conditionState.AnimationSpeedFactorRange.GetValue(random);
-            speedFactor = speedFactor < 0.05f ? 1.0f : speedFactor; 
+            var speedFactor = conditionState.AnimationSpeedFactorRange?.GetValue(random) ?? 1.0f;
             _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
