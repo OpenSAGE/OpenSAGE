@@ -166,7 +166,8 @@ namespace OpenSage.Logic.Object
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
             var yaw = currentYaw + newDelta;
-            _gameObject.Yaw = Math.Clamp(newDelta / deltaTime, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
+
+            _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
 
             switch (_locomotorTemplate.Appearance)
             {
@@ -178,27 +179,25 @@ namespace OpenSage.Logic.Object
                         distance = 0.0f;
                     break;
                 case LocomotorAppearance.FourWheels:
+                default:
                     var lookingDirection = transform.LookDirection;
                     moveDirection = Vector2.Normalize(new Vector2(lookingDirection.X, lookingDirection.Y));
+                    break;
+            }
 
-                    break;
-                default:
-                    var height = heightMap.GetHeight(x, y);
-                    if (!_locomotorTemplate.StickToGround)
-                    {
-                        var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
-                        var oldLift = _gameObject.Lift;
-                        var lift = GetLift();
-                        var newLift = oldLift + lift;
-                        newLift = Math.Clamp(newLift, 0.0f, lift);
-                        _gameObject.Lift = newLift;
-                        trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
-                    }
-                    else
-                    {
-                        trans.Z = height;
-                    }
-                    break;
+            var height = heightMap.GetHeight(x, y);
+            trans.Z = height;
+
+            if (!_locomotorTemplate.StickToGround)
+            {
+                //    var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - z;
+                //    var oldLift = _gameObject.Lift;
+                //    var lift = GetLift();
+                //    var newLift = oldLift + lift;
+                //    newLift = Math.Clamp(newLift, 0.0f, lift);
+                //    _gameObject.Lift = newLift;
+                //    trans.Z += MathF.Min(newLift * deltaTime, heightRemaining);
+                trans.Z += _locomotorTemplate.PreferredHeight;
             }
 
             var pitch = 0.0f;

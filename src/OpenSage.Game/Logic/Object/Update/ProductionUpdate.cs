@@ -197,12 +197,6 @@ namespace OpenSage.Logic.Object
             _productionQueue.Add(job);
         }
 
-        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
-        {
-            var job = new ProductionJob(upgradeDefinition);
-            _productionQueue.Add(job);
-        }
-
         public void CancelProduction(int index)
         {
             if (index < _productionQueue.Count)
@@ -210,6 +204,27 @@ namespace OpenSage.Logic.Object
                 _productionQueue.RemoveAt(index);
             }
         }
+
+        internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            var job = new ProductionJob(upgradeDefinition);
+            _productionQueue.Add(job);
+        }
+
+        internal void CancelUpgrade(UpgradeTemplate upgradeDefinition)
+        {
+            var index = -1;
+            for (var i = 0; i < _productionQueue.Count; i++)
+            {
+                if (_productionQueue[i].UpgradeDefinition == upgradeDefinition) index = i;
+            }
+
+            if (index < 0 || index > _productionQueue.Count) return;
+
+            _productionQueue.RemoveAt(index);
+        }
+
+        public bool CanEnque() => _moduleData.MaxQueueEntries == 0 || _productionQueue.Count < _moduleData.MaxQueueEntries;
 
         internal override void DrawInspector()
         {

@@ -6,13 +6,11 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ExperienceScalarUpgrade : UpgradeModule
     {
-        private readonly GameObject _gameObject;
         private readonly ExperienceScalarUpgradeModuleData _moduleData;
 
         internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData)
-            : base(moduleData)
+            : base(gameObject, moduleData)
         {
-            _gameObject = gameObject;
             _moduleData = moduleData;
         }
 

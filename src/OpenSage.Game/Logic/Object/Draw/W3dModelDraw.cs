@@ -339,7 +339,7 @@ namespace OpenSage.Logic.Object
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)
         {
-            return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
+            return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
         }
 
         internal override void Update(in TimeInterval gameTime)

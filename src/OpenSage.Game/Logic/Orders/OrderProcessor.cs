@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Orders
                         }
                         break;
 
-                    case OrderType.ObjectUprade:
+                    case OrderType.BeginUpgrade:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;
@@ -72,6 +72,17 @@ namespace OpenSage.Logic.Orders
                             player.Money -= (uint) upgradeDefinition.BuildCost;
 
                             gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
+                        }
+                        break;
+
+                    case OrderType.CancelUpgrade:
+                        {
+                            var upgradeDefinitionId = order.Arguments[0].Value.Integer;
+                            var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
+
+                            player.Money += (uint) upgradeDefinition.BuildCost;
+                            // since this is a building and only one at a time can be selected
+                            player.SelectedUnits.First().ProductionUpdate.CancelUpgrade(upgradeDefinition);
                         }
                         break;
 
@@ -143,7 +154,7 @@ namespace OpenSage.Logic.Orders
 
                             _game.Selection.SetSelectedObjects(player, objectIds);
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
                             logger.Error(e, "Error while setting selection");
                         }
@@ -164,7 +175,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
                                 }
                             }
                         }

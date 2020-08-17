@@ -20,7 +20,6 @@ namespace OpenSage.Logic.Object
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
     public sealed class GameObject : DisposableBase
     {
-
         internal static GameObject FromMapObject(
             MapObject mapObject,
             AssetStore assetStore,
@@ -177,7 +176,7 @@ namespace OpenSage.Logic.Object
         }
 
         public float Speed { get; set; }
-        public float Yaw { get; set; }
+        public float SteeringWheelsYaw { get; set; }
         public float Lift { get; set; }
 
         public bool IsPlacementPreview { get; set; }
@@ -190,6 +189,7 @@ namespace OpenSage.Logic.Object
         public ProductionUpdate ProductionUpdate { get; }
 
         public List<UpgradeTemplate> Upgrades { get; }
+        public List<UpgradeTemplate> ConflictingUpgrades { get; }
 
         public int ExperienceValue { get; private set; }
         internal float ExperienceMultiplier { get; set; }
@@ -305,6 +305,7 @@ namespace OpenSage.Logic.Object
             }
 
             Upgrades = new List<UpgradeTemplate>();
+            ConflictingUpgrades = new List<UpgradeTemplate>();
 
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
@@ -483,6 +484,34 @@ namespace OpenSage.Logic.Object
             if (RallyPoint.HasValue)
             {
                 spawnedUnit.AIUpdate.AddTargetPoint(RallyPoint.Value);
+            }
+        }
+
+        public bool UpgradeAvailable(UpgradeTemplate upgrade)
+        {
+            if (upgrade == null) return false;
+
+            if(upgrade.Type == UpgradeType.Player)
+            {
+                return Owner.Upgrades.Contains(upgrade);
+            }
+            else
+            {
+                return Upgrades.Contains(upgrade);
+            }
+        }
+
+        public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
+        {
+            if (upgrade == null) return false;
+
+            if (upgrade.Type == UpgradeType.Player)
+            {
+                return false; // TODO: player invalid upgrades?
+            }
+            else
+            {
+                return ConflictingUpgrades.Contains(upgrade);
             }
         }
 
@@ -739,13 +768,18 @@ namespace OpenSage.Logic.Object
 
         public void Upgrade(UpgradeTemplate upgrade)
         {
-            if (upgrade.AcademyClassify == AcademyType.Superpower)
+            // TODO: do something 
+            if (upgrade.Type == UpgradeType.Object)
             {
                 Upgrades.Add(upgrade);
             }
+            else if(upgrade.Type == UpgradeType.Player)
+            {
+               Owner.Upgrades.Add(upgrade);
+            }
             else
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException("This should not happen");
             }
         }
 

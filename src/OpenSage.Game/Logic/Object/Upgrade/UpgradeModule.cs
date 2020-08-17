@@ -1,77 +1,54 @@
 ﻿using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class UpgradeModule : BehaviorModule
     {
+        protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;
         protected bool _triggered;
         private bool _initial = true;
 
         internal bool Triggered => _triggered;
 
-        internal UpgradeModule(UpgradeModuleData moduleData)
+        internal UpgradeModule(GameObject gameObject, UpgradeModuleData moduleData)
         {
+            _gameObject = gameObject;
             _moduleData = moduleData;
             _triggered = _moduleData.StartsActive;
         }
 
+        private bool AnyUpgradeAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        {
+            if (upgrades == null) return true;
+
+            foreach (var trigger in upgrades)
+            {
+                if (_gameObject.UpgradeAvailable(trigger.Value)) return true;
+            }
+            return false;
+        }
+
+        private bool AllUpgradesAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        {
+            if (upgrades == null) return true;
+
+            foreach (var trigger in upgrades)
+            {
+                if (_gameObject.UpgradeAvailable(trigger.Value) == false) return false;
+            }
+            return true;
+        }
+
         internal override void Update(BehaviorUpdateContext context)
         {
-            var triggered = false;
-
-            if (_moduleData.TriggeredBy != null)
-            {
-                foreach (var trigger in _moduleData.TriggeredBy)
-                {
-                    var upgrade = trigger.Value;
-
-                    if (upgrade != null)
-                    {
-                        triggered = true;
-                        if (_moduleData.RequiresAllTriggers == false)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            //TODO:
-                        }
-                    }
-                    else if (_moduleData.RequiresAllTriggers == true)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (_moduleData.ConflictsWith != null)
-            {
-                foreach (var conflict in _moduleData.ConflictsWith)
-                {
-                    var upgrade = conflict.Value;
-
-                    if (upgrade != null)
-                    {
-                        if (_moduleData.RequiresAllConflictingTriggers == false)
-                        {
-                            triggered = false;
-                            break;
-                        }
-                        else
-                        {
-                            //TODO:
-                        }
-                    }
-                    else if (_moduleData.RequiresAllConflictingTriggers == true)
-                    {
-                        break;
-                    }
-                }
-            }
+            var triggered = _moduleData.RequiresAllTriggers ? AllUpgradesAvailable(_moduleData.TriggeredBy) : AnyUpgradeAvailable(_moduleData.TriggeredBy);
+            var conflicts = _moduleData.RequiresAllConflictingTriggers ? AllUpgradesAvailable(_moduleData.ConflictsWith) : AnyUpgradeAvailable(_moduleData.ConflictsWith);
+            if (conflicts) triggered = false;
 
             if (triggered != _triggered || _initial)
             {
@@ -95,6 +72,11 @@ namespace OpenSage.Logic.Object
 
             var unknownByte1 = reader.ReadByte();
             var unknownByte2 = reader.ReadByte();
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGuiUtility.PropertyRow("Triggered", _triggered);
         }
     }
 

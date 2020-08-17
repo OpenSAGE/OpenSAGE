@@ -258,17 +258,21 @@ namespace OpenSage.Mods.Generals.Gui
 
                         switch (commandButton.Command)
                         {
-                            // Disable the button when the unit is not producable
+                            // Disable the button when the unit is not produceable
                             case CommandType.DozerConstruct:
                             case CommandType.UnitBuild:
                                 buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
                                 break;
-                            // Disable the button when the object already has it
+                            // Disable the button when the object already has it etc.
+                            case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
                                 var upgrade = commandButton.Upgrade.Value;
                                 var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
-                                var hasUpgrade = selectedUnit.Upgrades.Contains(upgrade);
-                                buttonControl.Enabled = !hasQueuedUpgrade && !hasUpgrade;
+                                var canEnqueue = selectedUnit.ProductionUpdate.CanEnque();
+                                var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
+                                var upgradeIsInvalid = selectedUnit.ConflictingUpgradeAvailable(upgrade);
+
+                                buttonControl.Enabled = canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
                                 break;
                         }
 
@@ -306,9 +310,10 @@ namespace OpenSage.Mods.Generals.Gui
                                     context.Game.OrderGenerator.SetRallyPoint();
                                     break;
 
+                                case CommandType.PlayerUpgrade:
                                 case CommandType.ObjectUpgrade:
                                     {
-                                        order = CreateOrder(OrderType.ObjectUprade);
+                                        order = CreateOrder(OrderType.BeginUpgrade);
                                         //TODO: figure this out correctly
                                         var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
                                         var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
@@ -424,6 +429,9 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
+
+                if (unit.Definition.CommandSet == null) return;
+
                 var commandSet = unit.Definition.CommandSet.Value;
 
                 // TODO: Only do this when command set changes.
@@ -482,9 +490,18 @@ namespace OpenSage.Mods.Generals.Gui
                                 queueButton.SystemCallback = (control, message, context) =>
                                 {
                                     var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
-                                    var order = new Order(playerIndex, OrderType.CancelUnit);
-                                    order.AddIntegerArgument(posCopy);
-                                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    if (job.Type == ProductionJobType.Unit)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUnit);
+                                        order.AddIntegerArgument(posCopy);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
+                                    else if (job.Type == ProductionJobType.Upgrade)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUpgrade);
+                                        order.AddIntegerArgument(job.UpgradeDefinition.InternalId);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
                                 };
                             }
                         }
@@ -503,20 +520,24 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
+                void ApplyUpgradeImage(GameObject unit, string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
+
                     upgradeControl.BackgroundImage = upgrade != null
                         ? controlBar._window.ImageLoader.CreateFromMappedImageReference(upgrade.ButtonImage)
                         : null;
+                    upgradeControl.DisabledBackgroundImage = upgradeControl.BackgroundImage?.WithGrayscale(true);
+
+                    upgradeControl.Enabled = unit.UpgradeAvailable(upgrade);
                 }
 
-                ApplyUpgradeImage("UnitUpgrade1", unit.Definition.UpgradeCameo1);
-                ApplyUpgradeImage("UnitUpgrade2", unit.Definition.UpgradeCameo2);
-                ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
-                ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
-                ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
+                ApplyUpgradeImage(unit, "UnitUpgrade1", unit.Definition.UpgradeCameo1);
+                ApplyUpgradeImage(unit, "UnitUpgrade2", unit.Definition.UpgradeCameo2);
+                ApplyUpgradeImage(unit, "UnitUpgrade3", unit.Definition.UpgradeCameo3);
+                ApplyUpgradeImage(unit, "UnitUpgrade4", unit.Definition.UpgradeCameo4);
+                ApplyUpgradeImage(unit, "UnitUpgrade5", unit.Definition.UpgradeCameo5);
             }
         }
 

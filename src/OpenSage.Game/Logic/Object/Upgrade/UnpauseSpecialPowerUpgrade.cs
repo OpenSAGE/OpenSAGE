@@ -6,8 +6,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
     {
-        internal UnpauseSpecialPowerUpgrade(UnpauseSpecialPowerUpgradeModuleData moduleData)
-            : base(moduleData)
+        internal UnpauseSpecialPowerUpgrade(GameObject gameObject, UnpauseSpecialPowerUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
 
@@ -43,7 +43,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new UnpauseSpecialPowerUpgrade(this);
+            return new UnpauseSpecialPowerUpgrade(gameObject, this);
         }
     }
 }

@@ -8,12 +8,39 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ObjectCreationUpgrade : UpgradeModule
     {
-        internal ObjectCreationUpgrade(ObjectCreationUpgradeModuleData moduleData)
-            : base(moduleData)
+        private readonly ObjectCreationUpgradeModuleData _moduleData;
+
+        internal ObjectCreationUpgrade(GameObject gameObject, ObjectCreationUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
+            _moduleData = moduleData;
         }
 
-        // TODO
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
+                {
+                    var createdObjects = item.Execute(context);
+
+                    foreach (var createdObject in createdObjects)
+                    {
+                        var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
+                        if (slavedUpdateBehaviour != null)
+                        {
+                            slavedUpdateBehaviour.Master = context.GameObject;
+                        }
+                    }
+                }
+
+                foreach (var upgrade in _moduleData.ConflictsWith)
+                {
+                    if (upgrade == null) continue; 
+                    _gameObject.ConflictingUpgrades.Add(upgrade.Value);
+                }
+            }
+        }
 
         internal override void Load(BinaryReader reader)
         {
@@ -80,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ObjectCreationUpgrade(this);
+            return new ObjectCreationUpgrade(gameObject, this);
         }
     }
 }

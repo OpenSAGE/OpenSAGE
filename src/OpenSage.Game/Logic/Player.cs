@@ -21,6 +21,7 @@ namespace OpenSage.Logic
         public bool IsHuman { get; private set; }
 
         public uint Money { get; set; }
+        public List<UpgradeTemplate> Upgrades { get; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public int GetEnergy(GameObjectCollection allGameObjects)
@@ -59,6 +60,7 @@ namespace OpenSage.Logic
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
+            Upgrades = new List<UpgradeTemplate>();
         }
 
         internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)

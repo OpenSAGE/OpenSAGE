@@ -54,6 +54,7 @@ namespace OpenSage.Logic.Object
 
             // TODO: DamageFX
             var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+
             // TODO: MajorFX
             var damageFX = damageFXGroup.MinorFX?.Value;
             if (damageFX != null)
