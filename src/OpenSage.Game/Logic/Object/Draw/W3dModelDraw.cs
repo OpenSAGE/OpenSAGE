@@ -426,14 +426,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool StillActive()
-        {
-            foreach (var animationInstance in Model.AnimationInstances)
-            {
-                if (animationInstance.IsPlaying()) return true;
-            }
-            return false;
-        }
+        public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying());
 
         public void Deactivate()
         {

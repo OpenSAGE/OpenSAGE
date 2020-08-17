@@ -12,6 +12,8 @@ namespace OpenSage.Logic
     [DebuggerDisplay("[Player: {Name}]")]
     public class Player
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public PlayerTemplate Template { get; }
         public string Name { get; private set; }
         public string DisplayName { get; private set; }
@@ -47,6 +49,7 @@ namespace OpenSage.Logic
             else
             {
                 // this should not happen since we should check first if we can spend that much
+                logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
                 Money = 0;
             }
         }
