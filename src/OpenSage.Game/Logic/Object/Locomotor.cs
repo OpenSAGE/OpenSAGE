@@ -195,7 +195,6 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
-            var height = heightMap.GetHeight(x, y);
             trans.Z = height;
 
             if (!_locomotorTemplate.StickToGround)

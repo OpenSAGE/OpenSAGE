@@ -203,8 +203,6 @@ namespace OpenSage.Logic.Object
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public GameObject Garrison;
-
         internal GameObject(
             ObjectDefinition objectDefinition,
             GameContext gameContext,

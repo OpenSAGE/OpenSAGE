@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    //TODO: HasRunways. Figure out cols & rows
     public sealed class ParkingPlaceBehaviour : BehaviorModule, IProductionExit
     {
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
             var freeSlot = NextFreeSlot();
             var runway = freeSlot % 2 + 1;
             var hangar = freeSlot / 2 + 1;
-            var (modelInstance, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
+            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
 
             if (bone == null)
             {
@@ -77,13 +77,17 @@ namespace OpenSage.Logic.Object
             return bone.Transform.Translation;
         }
 
-        public void ParkVehicle(GameObject gameObject)
+        public void ParkVehicle(GameObject vehicle)
         {
             var freeSlot = NextFreeSlot();
-            //TODO: when there are no slots don't produce the plane anymore
-            _parkingSlots[freeSlot] = gameObject;
-            gameObject.Garrison = _gameObject;
-            gameObject.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, true);
+            _parkingSlots[freeSlot] = vehicle;
+            var jetAIUpdate = vehicle.FindBehavior<JetAIUpdate>();
+
+            if (jetAIUpdate == null) return;
+
+            jetAIUpdate.Base = _gameObject;
+            // needed ?
+            vehicle.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, true);
         }
 
         public Vector3? GetNaturalRallyPoint()
@@ -141,7 +145,7 @@ namespace OpenSage.Logic.Object
 
         public void Unpark(GameObject gameObject)
         {
-            gameObject
+            //
         }
     }
 
