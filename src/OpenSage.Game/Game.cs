@@ -474,7 +474,7 @@ namespace OpenSage
                 _mapTimer.Reset();
 
                 LobbyManager = new LobbyManager(this);
-                SkirmishManager = new SkirmishManager(this);                
+                SkirmishManager = new SkirmishManager(this);
 
                 IsRunning = true;
                 IsLogicRunning = true;

@@ -53,20 +53,17 @@ namespace OpenSage.Logic.Object
             SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
-            if (armorSet.DamageFX.Value != null)
-            {
-                var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+            var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
 
-                // TODO: MajorFX
-                var damageFX = damageFXGroup.MinorFX?.Value;
-                if (damageFX != null)
-                {
-                    damageFX.Execute(
-                        new FXListExecutionContext(
-                            GameObject.Transform.Rotation,
-                            GameObject.Transform.Translation,
-                            GameObject.GameContext));
-                }
+            // TODO: MajorFX
+            var damageFX = damageFXGroup.MinorFX?.Value;
+            if (damageFX != null)
+            {
+                damageFX.Execute(
+                    new FXListExecutionContext(
+                        GameObject.Transform.Rotation,
+                        GameObject.Transform.Translation,
+                        GameObject.GameContext));
             }
 
             if (Health <= Fix64.Zero)

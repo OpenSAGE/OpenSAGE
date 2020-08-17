@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
         protected readonly GameObject _gameObject;
         public GameObject Master;
 
-        private double _waitUntil;
+        private TimeSpan _waitUntil;
         private RepairStatus _repairStatus;
 
         private enum RepairStatus
@@ -65,11 +65,11 @@ namespace OpenSage.Logic.Object
                         {
                             _repairStatus = RepairStatus.READY;
                             var readyDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxReadyTime - _moduleData.RepairMinReadyTime) + _moduleData.RepairMinReadyTime);
-                            _waitUntil = context.Time.TotalTime.TotalMilliseconds + readyDuration;
+                            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(readyDuration);
                         }
                         break;
                     case RepairStatus.READY:
-                        if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                        if (context.Time.TotalTime > _waitUntil)
                         {
                             var range = (float) (context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
                             var height = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
@@ -94,12 +94,12 @@ namespace OpenSage.Logic.Object
                             particleSystem.Activate();
 
                             var weldDuration = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxWeldTime - _moduleData.RepairMinWeldTime) + _moduleData.RepairMinWeldTime);
-                            _waitUntil = context.Time.TotalTime.TotalMilliseconds + weldDuration;
+                            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(weldDuration);
                             _repairStatus = RepairStatus.WELDING;
                         }
                         break;
                     case RepairStatus.WELDING:
-                        if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                        if (context.Time.TotalTime > _waitUntil)
                         {
                             _repairStatus = RepairStatus.READY;
                         }
