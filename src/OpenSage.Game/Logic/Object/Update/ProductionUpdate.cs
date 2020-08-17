@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
@@ -170,7 +171,6 @@ namespace OpenSage.Logic.Object
                     break;
             }
         }
-
 
         private void ProduceObject(ProductionJob job)
         {

@@ -1,11 +1,12 @@
-﻿using NLog.Targets;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class JetAIUpdate : AIUpdate
     {
+        public GameObject Base;
+
         private readonly JetAIUpdateModuleData _moduleData;
 
         internal JetAIUpdate(GameObject gameObject, JetAIUpdateModuleData moduleData)
@@ -74,23 +75,45 @@ namespace OpenSage.Logic.Object
         /// Amount of damage, as a percentage of max health, to take per second when out of ammo.
         /// </summary>
         public Percentage OutOfAmmoDamagePerSecond { get; private set; }
-
+        /// <summary>
+        /// smaller numbers give more lift sooner when taking off
+        /// </summary>
         public Percentage TakeoffSpeedForMaxLift { get; private set; }
+        public int TakeoffPause { get; private set; }
+        public int MinHeight { get; private set; }
+        /// <summary>
+        /// comanche (helicopter) does not need a runway
+        /// </summary>
+        public bool NeedsRunway { get; private set; }
+        /// <summary>
+        /// comanche (helicopter) does not keep its parking space
+        /// </summary>
+        public bool KeepsParkingSpaceWhenAirborne { get; private set; }
+        /// <summary>
+        /// this is how far behind us people aim when we are in attack mode
+        /// </summary>
+        public float SneakyOffsetWhenAttacking { get; private set; }
+        public LocomotorSetType AttackLocomotorType { get; private set; }
+        /// <summary>
+        /// we start slowing down almost immediately
+        /// </summary>
+        public int AttackLocomotorPersistTime { get; private set; }
+        /// <summary>
+        /// but remain untargetable fer a bit longer
+        /// </summary>
+        public int AttackersMissPersistTime { get; private set; }
+        public LocomotorSetType ReturnForAmmoLocomotorType { get; private set; }
+        /// <summary>
+        /// scooch it a little forward so the tail doesn't hit the doors
+        /// </summary>
+        public int ParkingOffset { get; private set; }
+        /// <summary>
+        /// if idle for this long, return to base, even if not out of ammo
+        /// </summary>
+        public int ReturnToBaseIdleTime { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public Percentage TakeoffDistForMaxLift { get; private set; }
-
-        public int TakeoffPause { get; private set; }
-        public int MinHeight { get; private set; }
-        public bool NeedsRunway { get; private set; }
-        public bool KeepsParkingSpaceWhenAirborne { get; private set; }
-        public float SneakyOffsetWhenAttacking { get; private set; }
-        public LocomotorSetType AttackLocomotorType { get; private set; }
-        public int AttackLocomotorPersistTime { get; private set; }
-        public int AttackersMissPersistTime { get; private set; }
-        public LocomotorSetType ReturnForAmmoLocomotorType { get; private set; }
-        public int ParkingOffset { get; private set; }
-        public int ReturnToBaseIdleTime { get; private set; }
 
         internal override AIUpdate CreateAIUpdate(GameObject gameObject)
         {
