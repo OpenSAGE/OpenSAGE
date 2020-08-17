@@ -164,11 +164,6 @@ namespace OpenSage.Logic.Object
             {
                 _gameObject.Die(DeathType.Exploded, context.Time);
             }
-
-            if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
-            {
-                _gameObject.Die(DeathType.Exploded, context.Time);
-            }
         }
     }
 
