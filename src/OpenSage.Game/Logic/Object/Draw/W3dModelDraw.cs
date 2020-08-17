@@ -120,6 +120,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            // wait for previous condition state (animation) to finish if possible
             if (_activeConditionState != null
                 && conditionState.WaitForStateToFinishIfPossible != null
                 && _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible

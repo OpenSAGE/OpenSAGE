@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+﻿using System;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
 
         private GameObject _currentSupplySource;
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
-        private double _waitUntil;
+        private TimeSpan _waitUntil;
         private int _numBoxes;
 
         protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
@@ -103,7 +103,7 @@ namespace OpenSage.Logic.Object
                     else if (_numBoxes < _moduleData.MaxBoxes)
                     {
                         _currentSourceDockUpdate.GetBox();
-                        _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyWarehouseActionDelay;
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyWarehouseActionDelay);
                         SupplyGatherState = SupplyGatherStates.GATHERING_SUPPLYS;
                         break;
                     }
@@ -113,7 +113,7 @@ namespace OpenSage.Logic.Object
                     SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_TARGET;
                     break;
                 case SupplyGatherStates.GATHERING_SUPPLYS:
-                    if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                    if (context.Time.TotalTime > _waitUntil)
                     {
                         _numBoxes++;
                         SupplyGatherState = SupplyGatherStates.REQUEST_SUPPLYS;
@@ -167,10 +167,10 @@ namespace OpenSage.Logic.Object
                 case SupplyGatherStates.START_DUMPING_SUPPLYS:
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                     SupplyGatherState = SupplyGatherStates.DUMPING_SUPPLYS;
-                    _waitUntil = context.Time.TotalTime.TotalMilliseconds + _moduleData.SupplyCenterActionDelay;
+                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyCenterActionDelay);
                     break;
                 case SupplyGatherStates.DUMPING_SUPPLYS:
-                    if (context.Time.TotalTime.TotalMilliseconds > _waitUntil)
+                    if (context.Time.TotalTime > _waitUntil)
                     {
                         SupplyGatherState = SupplyGatherStates.FINISHED_DUMPING_SUPPLYS;
 
