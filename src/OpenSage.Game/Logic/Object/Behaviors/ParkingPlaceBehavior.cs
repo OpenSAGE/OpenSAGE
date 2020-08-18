@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,6 +19,11 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _gameContext = context;
             _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
+        }
+
+        public bool ProducedAtHelipad(ObjectDefinition definition)
+        {
+            return definition.KindOf.Get(ObjectKinds.ProducedAtHelipad);
         }
 
         public int NextFreeSlot()
@@ -64,44 +69,52 @@ namespace OpenSage.Logic.Object
 
         public Vector3 GetUnitCreatePoint()
         {
-            var freeSlot = NextFreeSlot();
-            var runway = freeSlot % 2 + 1;
-            var hangar = freeSlot / 2 + 1;
-            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
+            throw new InvalidOperationException("not supported here");
+        }
+
+        public Transform GetUnitCreateTransform(bool producedAtHelipad)
+        {
+            ModelBone bone;
+
+            if (producedAtHelipad)
+            {
+                (_, bone) = _gameObject.FindBone($"HELIPARK01");
+            }
+            else
+            {
+                var freeSlot = NextFreeSlot();
+                var runway = freeSlot % 2 + 1;
+                var hangar = freeSlot / 2 + 1;
+                (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
+            }
 
             if (bone == null)
             {
                 throw new InvalidOperationException("Could not find spawn point bone");
             }
 
-            return bone.Transform.Translation;
+            return bone.Transform;
         }
 
         public void ParkVehicle(GameObject vehicle)
         {
             var freeSlot = NextFreeSlot();
             _parkingSlots[freeSlot] = vehicle;
-            var jetAIUpdate = vehicle.FindBehavior<JetAIUpdate>();
 
-            if (jetAIUpdate == null) return;
-
+            vehicle.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
+            var jetAIUpdate = vehicle.AIUpdate as JetAIUpdate;
             jetAIUpdate.Base = _gameObject;
-            // needed ?
-            vehicle.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, true);
+            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.PARKED;
         }
 
-        public Vector3? GetNaturalRallyPoint()
-        {
-            throw new InvalidOperationException("no game object provided");
-        }
+        public Vector3? GetNaturalRallyPoint() => null;
 
-        public Vector3? GetNaturalRallyPoint(GameObject gameObject)
+        public Vector3 GetNaturalRallyPoint(GameObject gameObject)
         {
-
             var slot = GetCorrespondingSlot(gameObject);
             var runway = slot % 2 + 1;
             var hangar = slot / 2 + 1;
-            var (modelInstance, bone) = _gameObject.FindBone($"RUNWAY{runway}PARKING{hangar}");
+            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARKING{hangar}");
 
             if (bone == null)
             {
@@ -111,37 +124,77 @@ namespace OpenSage.Logic.Object
             return bone.Transform.Translation;
         }
 
-        // TODO: this is not quite correct yet, but the original behaviour is quite random
-        public List<Vector3> GetUnparkingPath(GameObject gameObject)
+        // TODO: multiple prep points
+        public Vector3 GetPrepPoint(GameObject vehicle)
         {
-            var result = new List<Vector3>();
-            var slot = GetCorrespondingSlot(gameObject);
+            var slot = GetCorrespondingSlot(vehicle);
             var runway = slot % 2 + 1;
             var hangar = slot / 2 + 1;
 
             var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PREP{hangar}");
             if (bone == null)
             {
-                throw new InvalidOperationException("Could not find start point bone");
+                throw new InvalidOperationException("Could not find prep point bone");
             }
-            result.Add(bone.Transform.Translation);
-
-            (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
-            if (bone == null)
-            {
-                throw new InvalidOperationException("Could not find start point bone");
-            }
-            result.Add(bone.Transform.Translation);
-
-            (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
-            if (bone == null)
-            {
-                throw new InvalidOperationException("Could not find start point bone");
-            }
-            result.Add(bone.Transform.Translation);
-
-            return result;
+            return bone.Transform.Translation;
         }
+
+        public Vector3 GetRunwayStartPoint(GameObject vehicle)
+        {
+            var slot = GetCorrespondingSlot(vehicle);
+            var runway = slot % 2 + 1;
+
+            var (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find runway start point bone");
+            }
+            return bone.Transform.Translation;
+        }
+
+        public Vector3 GetRunwayEndPoint(GameObject vehicle)
+        {
+            var slot = GetCorrespondingSlot(vehicle);
+            var runway = slot % 2 + 1;
+
+            var (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find runway end point bone");
+            }
+            return bone.Transform.Translation;
+        }
+
+        //public List<Vector3> GetUnparkingPath(GameObject gameObject)
+        //{
+        //    var result = new List<Vector3>();
+        //    var slot = GetCorrespondingSlot(gameObject);
+        //    var runway = slot % 2 + 1;
+        //    var hangar = slot / 2 + 1;
+
+        //    var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PREP{hangar}");
+        //    if (bone == null)
+        //    {
+        //        throw new InvalidOperationException("Could not find start point bone");
+        //    }
+        //    result.Add(bone.Transform.Translation);
+
+        //    (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
+        //    if (bone == null)
+        //    {
+        //        throw new InvalidOperationException("Could not find start point bone");
+        //    }
+        //    result.Add(bone.Transform.Translation);
+
+        //    (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
+        //    if (bone == null)
+        //    {
+        //        throw new InvalidOperationException("Could not find start point bone");
+        //    }
+        //    result.Add(bone.Transform.Translation);
+
+        //    return result;
+        //}
 
         public void Unpark(GameObject gameObject)
         {

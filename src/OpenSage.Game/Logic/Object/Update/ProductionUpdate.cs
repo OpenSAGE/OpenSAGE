@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
@@ -22,8 +21,9 @@ namespace OpenSage.Logic.Object
         private TimeSpan _currentStepEnd;
 
         private GameObject _producedUnit;
+        private IProductionExit _productionExit;
 
-        private int doorIndex;
+        private int _doorIndex;
 
         private enum DoorState
         {
@@ -77,13 +77,14 @@ namespace OpenSage.Logic.Object
                 {
                     if (front.Type == ProductionJobType.Unit)
                     {
-                        if (_moduleData.NumDoorAnimations > 0)
+                        if (_moduleData.NumDoorAnimations > 0 && UsesDoor(front.ObjectDefinition))
                         {
                             Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
                             _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
                             _currentDoorState = DoorState.Opening;
 
-                            SetCurrentDoorIndex();
+                            SetDoorIndex();
+
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
 
@@ -131,12 +132,22 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetCurrentDoorIndex()
+        private bool UsesDoor(ObjectDefinition definition)
         {
-            var productionExit = _gameObject.FindBehavior<IProductionExit>();
-            if (productionExit is ParkingPlaceBehaviour parkingPlace)
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+            if (_productionExit is ParkingPlaceBehaviour parkingPlace)
             {
-                doorIndex = parkingPlace.NextFreeSlot();
+                return !parkingPlace.ProducedAtHelipad(definition);
+            }
+            return true;
+        }
+
+        private void SetDoorIndex()
+        {
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+            if (_productionExit is ParkingPlaceBehaviour parkingPlace)
+            {
+                _doorIndex = parkingPlace.NextFreeSlot();
             }
         }
 
@@ -146,11 +157,7 @@ namespace OpenSage.Logic.Object
             waitingOpen = ModelConditionFlag.Door1WaitingOpen;
             closing = ModelConditionFlag.Door1Closing;
 
-            var productionExit = _gameObject.FindBehavior<IProductionExit>();
-
-            if (!(productionExit is ParkingPlaceBehaviour)) return;
-
-            switch (doorIndex)
+            switch (_doorIndex)
             {
                 case 0:
                     break;
@@ -199,51 +206,52 @@ namespace OpenSage.Logic.Object
 
         private void ProduceObject(ObjectDefinition objectDefinition)
         {
-            var productionExit = _gameObject.FindBehavior<IProductionExit>();
-            if (productionExit == null)
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+            if (_productionExit == null)
             {
                 // If there's no IProductionExit behavior on this object, don't emit anything.
                 return;
             }
 
             _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
-            _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
-            _producedUnit.Transform.Translation = _gameObject.ToWorldspace(productionExit.GetUnitCreatePoint());
 
-            if (productionExit is ParkingPlaceBehaviour parkingPlace)
+            if (_productionExit is ParkingPlaceBehaviour parkingPlace)
             {
-                parkingPlace.ParkVehicle(_producedUnit);
+                var producedAtHelipad = parkingPlace.ProducedAtHelipad(_producedUnit.Definition);
+                _producedUnit.Transform.CopyFrom(parkingPlace.GetUnitCreateTransform(producedAtHelipad).Matrix * _gameObject.Transform.Matrix);
+
+                if (!producedAtHelipad)
+                {
+                    parkingPlace.ParkVehicle(_producedUnit);
+                }
+                return;
             }
+
+            _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
+            _producedUnit.Transform.Translation = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
         }
 
         private void MoveProducedObjectOut()
         {
-            if (_producedUnit == null)
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+            if (_producedUnit == null) return;
+
+            if (_productionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(_producedUnit.Definition))
             {
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(parkingPlace.GetNaturalRallyPoint(_producedUnit)));
+                _producedUnit = null;
                 return;
             }
 
             // First go to the natural rally point
-            var productionExit = _gameObject.FindBehavior<IProductionExit>();
-
-            Vector3? naturalRallyPoint;
-
-            if (productionExit is ParkingPlaceBehaviour parkingPlaceBehaviour)
-            {
-                naturalRallyPoint = parkingPlaceBehaviour.GetNaturalRallyPoint(_producedUnit);
-            }
-            else
-            {
-                naturalRallyPoint = productionExit.GetNaturalRallyPoint();
-            }
-
+            var naturalRallyPoint = _productionExit.GetNaturalRallyPoint();
             if (naturalRallyPoint.HasValue)
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
             }
 
             // Then go to the rally point if it exists
-            if (_gameObject.RallyPoint.HasValue && !_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Garrisoned))
+            if (_gameObject.RallyPoint.HasValue)
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
