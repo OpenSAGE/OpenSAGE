@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -8,34 +9,99 @@ namespace OpenSage.Logic.Object
         public GameObject Base;
 
         private readonly JetAIUpdateModuleData _moduleData;
+        private Vector3 CurrentTargetPoint;
+
+        public JetAIState CurrentJetAIState;
+
+        public enum JetAIState
+        {
+            PARKED,
+            UNPARKING_REQUESTED,
+            MOVING_TOWARDS_PREP,
+            MOVING_TOWARDS_START,
+            STARTING,
+            UNPARKED,
+            MOVING_TOWARDS_TARGET,
+            IDLE,
+            MOVING_BACK_TO_BASE,
+            MOVING_BACK_TO_PREP,
+            MOVING_BACK_TO_PARKING
+        }
 
         internal JetAIUpdate(GameObject gameObject, JetAIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+            CurrentJetAIState = JetAIState.UNPARKED;
+        }
 
-            SetLocomotor(LocomotorSetType.Taxiing);
+        internal override void SetTargetPoint(Vector3 targetPoint)
+        {
+            switch(CurrentJetAIState)
+            {
+                case JetAIState.PARKED:
+                    CurrentJetAIState = JetAIState.UNPARKING_REQUESTED;
+                    CurrentTargetPoint = targetPoint;
+                    return;
+                case JetAIState.UNPARKING_REQUESTED:
+                case JetAIState.MOVING_TOWARDS_PREP:
+                case JetAIState.MOVING_TOWARDS_START:
+                case JetAIState.STARTING:
+                    CurrentTargetPoint = targetPoint;
+                    return;
+                case JetAIState.IDLE:
+                case JetAIState.MOVING_BACK_TO_BASE:
+                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
+                    break;
+                case JetAIState.MOVING_BACK_TO_PREP:
+                case JetAIState.MOVING_BACK_TO_PARKING:
+                    // TODO: check vanilla behavior
+                    return;
+            }
+            base.SetTargetPoint(targetPoint);
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            var transform = GameObject.Transform;
-            var trans = transform.Translation;
+            var parkingPlaceBehavior = Base.FindBehavior<ParkingPlaceBehaviour>();
 
-            var x = trans.X;
-            var y = trans.Y;
-            var z = trans.Z;
+            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
-            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(x, y);
-
-            for (var i = 0; i < TargetPoints.Count; i++)
+            switch (CurrentJetAIState)
             {
-                var targetPoint = TargetPoints[i];
-                if ((targetPoint.Z - terrainHeight) < _moduleData.MinHeight)
-                {
-                    targetPoint.Z = terrainHeight + _moduleData.MinHeight;
-                }
+                case JetAIState.PARKED:
+                    break;
+                case JetAIState.UNPARKING_REQUESTED:
+                    SetTargetPoint(parkingPlaceBehavior.GetPrepPoint(GameObject));
+                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_PREP;
+                    break;
+                case JetAIState.MOVING_TOWARDS_PREP: // TODO: multiple prep points
+                    if (!isMoving)
+                    {
+                        SetTargetPoint(parkingPlaceBehavior.GetRunwayStartPoint(GameObject));
+                        CurrentJetAIState = JetAIState.MOVING_TOWARDS_START;
+                    }
+                    break;
             }
+
+
+            //var transform = GameObject.Transform;
+            //var trans = transform.Translation;
+
+                //var x = trans.X;
+                //var y = trans.Y;
+                //var z = trans.Z;
+
+                //var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(x, y);
+
+                //for (var i = 0; i < TargetPoints.Count; i++)
+                //{
+                //    var targetPoint = TargetPoints[i];
+                //    if ((targetPoint.Z - terrainHeight) < _moduleData.MinHeight)
+                //    {
+                //        targetPoint.Z = terrainHeight + _moduleData.MinHeight;
+                //    }
+                //}
 
             base.Update(context);
         }
