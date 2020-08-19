@@ -55,6 +55,8 @@ namespace OpenSage.Mods.Generals.Gui
                     return;
                 }
 
+                var slot = game.SkirmishManager.SkirmishGame.Slots[index];
+
                 switch (name)
                 {
                     case GameOptionsUtil.ComboBoxColorPrefix:
