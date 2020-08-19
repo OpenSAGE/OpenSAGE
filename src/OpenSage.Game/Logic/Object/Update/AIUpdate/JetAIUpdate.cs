@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
             MOVING_TOWARDS_PREP,
             MOVING_TOWARDS_START,
             STARTING,
+            STARTED,
             UNPARKED,
             MOVING_TOWARDS_TARGET,
             IDLE,
@@ -49,6 +50,7 @@ namespace OpenSage.Logic.Object
                 case JetAIState.STARTING:
                     CurrentTargetPoint = targetPoint;
                     return;
+                case JetAIState.STARTED:
                 case JetAIState.IDLE:
                 case JetAIState.MOVING_BACK_TO_BASE:
                     CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
@@ -81,6 +83,9 @@ namespace OpenSage.Logic.Object
                         SetTargetPoint(parkingPlaceBehavior.GetRunwayStartPoint(GameObject));
                         CurrentJetAIState = JetAIState.MOVING_TOWARDS_START;
                     }
+                    break;
+                case JetAIState.STARTED:
+                    SetTargetPoint(CurrentTargetPoint);
                     break;
             }
 
