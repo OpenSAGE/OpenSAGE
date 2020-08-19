@@ -69,6 +69,11 @@ namespace OpenSage
             Scale = scale;
         }
 
+        public Transform(in Matrix4x4 matrix)
+        {
+            Matrix = matrix;
+        }
+
         public Vector3 LookDirection { get; private set; }
 
         public Matrix4x4 Matrix
