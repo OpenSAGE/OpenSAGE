@@ -445,6 +445,13 @@ namespace OpenSage.Logic.Object
             return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
         }
 
+        internal Transform ToWorldspace(in Transform localPos)
+        {
+            var worldPos = localPos.Matrix * Transform.Matrix;
+            return new Transform(worldPos);
+        }
+
+
         internal T FindBehavior<T>()
         {
             // TODO: Cache this?

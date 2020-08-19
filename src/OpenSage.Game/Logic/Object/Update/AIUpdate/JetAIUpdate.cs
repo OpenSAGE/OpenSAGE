@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -11,21 +14,26 @@ namespace OpenSage.Logic.Object
         private readonly JetAIUpdateModuleData _moduleData;
         private Vector3 CurrentTargetPoint;
 
+        private Queue<string> _pathToStart;
+        private Queue<string> _pathToParking;
+        private string? _currentUnparkTarget;
+
         public JetAIState CurrentJetAIState;
+
+        private TimeSpan _waitUntil;
 
         public enum JetAIState
         {
             PARKED,
             UNPARKING_REQUESTED,
-            MOVING_TOWARDS_PREP,
             MOVING_TOWARDS_START,
             STARTING,
             STARTED,
             UNPARKED,
             MOVING_TOWARDS_TARGET,
             IDLE,
-            MOVING_BACK_TO_BASE,
-            MOVING_BACK_TO_PREP,
+            RETURNING_TO_BASE,
+            LANDING,
             MOVING_BACK_TO_PARKING
         }
 
@@ -45,17 +53,15 @@ namespace OpenSage.Logic.Object
                     CurrentTargetPoint = targetPoint;
                     return;
                 case JetAIState.UNPARKING_REQUESTED:
-                case JetAIState.MOVING_TOWARDS_PREP:
                 case JetAIState.MOVING_TOWARDS_START:
                 case JetAIState.STARTING:
                     CurrentTargetPoint = targetPoint;
                     return;
                 case JetAIState.STARTED:
                 case JetAIState.IDLE:
-                case JetAIState.MOVING_BACK_TO_BASE:
+                case JetAIState.RETURNING_TO_BASE:
                     CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
                     break;
-                case JetAIState.MOVING_BACK_TO_PREP:
                 case JetAIState.MOVING_BACK_TO_PARKING:
                     // TODO: check vanilla behavior
                     return;
@@ -65,6 +71,8 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            base.Update(context);
+
             var parkingPlaceBehavior = Base.FindBehavior<ParkingPlaceBehaviour>();
 
             var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
@@ -74,41 +82,93 @@ namespace OpenSage.Logic.Object
                 case JetAIState.PARKED:
                     break;
                 case JetAIState.UNPARKING_REQUESTED:
-                    SetTargetPoint(parkingPlaceBehavior.GetPrepPoint(GameObject));
-                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_PREP;
+                    _pathToStart = parkingPlaceBehavior.GetPathToStart(GameObject);
+                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_START;
                     break;
-                case JetAIState.MOVING_TOWARDS_PREP: // TODO: multiple prep points
+                case JetAIState.MOVING_TOWARDS_START:
                     if (!isMoving)
                     {
-                        SetTargetPoint(parkingPlaceBehavior.GetRunwayStartPoint(GameObject));
-                        CurrentJetAIState = JetAIState.MOVING_TOWARDS_START;
+                        if (ProcessWaipointPath(parkingPlaceBehavior, _pathToStart))
+                        {
+                            break;
+                        }
+                        CurrentJetAIState = JetAIState.STARTING;
                     }
                     break;
-                case JetAIState.STARTED:
-                    SetTargetPoint(CurrentTargetPoint);
+                case JetAIState.STARTING:
+                    SetLocomotor(LocomotorSetType.Normal);
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, true);
+                    //GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
+                    base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject)));
+                    base.AddTargetPoint(CurrentTargetPoint);
+                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
+                    break;
+                case JetAIState.MOVING_TOWARDS_TARGET:
+                    if (!isMoving)
+                    {
+                        CurrentJetAIState = JetAIState.IDLE;
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ReturnToBaseIdleTime);
+                    }
+                    break;
+                case JetAIState.IDLE:
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject)));
+                        CurrentJetAIState = JetAIState.RETURNING_TO_BASE;
+                    }
+                    break;
+                case JetAIState.RETURNING_TO_BASE:
+                    if (!isMoving)
+                    {
+                        CurrentJetAIState = JetAIState.LANDING;
+                        SetLocomotor(LocomotorSetType.Taxiing);
+                        _pathToParking = parkingPlaceBehavior.GetPathToParking(GameObject);
+                    }
+                    break;
+                case JetAIState.LANDING:
+                    if (!isMoving)
+                    {
+                        if (ProcessWaipointPath(parkingPlaceBehavior, _pathToParking))
+                        {
+                            break;
+                        }
+                        CurrentJetAIState = JetAIState.PARKED;
+                    }
                     break;
             }
 
+            var transform = GameObject.Transform;
+            var trans = transform.Translation;
 
-            //var transform = GameObject.Transform;
-            //var trans = transform.Translation;
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
+            if (trans.Z - terrainHeight < _moduleData.MinHeight)
+            {
+                trans.Z = terrainHeight + _moduleData.MinHeight;
+                transform.Translation = trans;
+            }
+        }
 
-                //var x = trans.X;
-                //var y = trans.Y;
-                //var z = trans.Z;
+        private bool ProcessWaipointPath(ParkingPlaceBehaviour parkingPlaceBehavior, Queue<string> path)
+        {
+            if (_currentUnparkTarget != null)
+            {
+                parkingPlaceBehavior.SetPointBlocked(_currentUnparkTarget, false);
+            }
 
-                //var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(x, y);
+            if (path.Count > 0)
+            {
+                var nextPoint = path.Peek();
+                if (parkingPlaceBehavior.IsPointBlocked(nextPoint))
+                {
+                    return true;
+                }
+                _currentUnparkTarget = nextPoint;
+                parkingPlaceBehavior.SetPointBlocked(nextPoint, true);
+                base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetBoneTranslation(path.Dequeue())));
+                return true;
+            }
 
-                //for (var i = 0; i < TargetPoints.Count; i++)
-                //{
-                //    var targetPoint = TargetPoints[i];
-                //    if ((targetPoint.Z - terrainHeight) < _moduleData.MinHeight)
-                //    {
-                //        targetPoint.Z = terrainHeight + _moduleData.MinHeight;
-                //    }
-                //}
-
-            base.Update(context);
+            return false;
         }
     }
 

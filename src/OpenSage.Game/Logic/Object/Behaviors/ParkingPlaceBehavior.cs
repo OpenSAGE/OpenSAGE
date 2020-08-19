@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
         private GameObject[] _parkingSlots;
+        private Dictionary<string, bool> _blockedBones;
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
@@ -19,6 +20,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _gameContext = context;
             _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
+            _blockedBones = new Dictionary<string, bool>();
         }
 
         public bool ProducedAtHelipad(ObjectDefinition definition)
@@ -74,26 +76,15 @@ namespace OpenSage.Logic.Object
 
         public Transform GetUnitCreateTransform(bool producedAtHelipad)
         {
-            ModelBone bone;
-
             if (producedAtHelipad)
             {
-                (_, bone) = _gameObject.FindBone($"HELIPARK01");
-            }
-            else
-            {
-                var freeSlot = NextFreeSlot();
-                var runway = freeSlot % 2 + 1;
-                var hangar = freeSlot / 2 + 1;
-                (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARK{hangar}HAN");
+                return GetBoneTransform($"HELIPARK01");
             }
 
-            if (bone == null)
-            {
-                throw new InvalidOperationException("Could not find spawn point bone");
-            }
-
-            return bone.Transform;
+            var freeSlot = NextFreeSlot();
+            var runway = freeSlot % 2 + 1;
+            var hangar = freeSlot / 2 + 1;
+            return GetBoneTransform($"RUNWAY{runway}PARK{hangar}HAN");
         }
 
         public void ParkVehicle(GameObject vehicle)
@@ -114,92 +105,110 @@ namespace OpenSage.Logic.Object
             var slot = GetCorrespondingSlot(gameObject);
             var runway = slot % 2 + 1;
             var hangar = slot / 2 + 1;
-            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PARKING{hangar}");
 
-            if (bone == null)
-            {
-                throw new InvalidOperationException("Could not find start point bone");
-            }
-
-            return bone.Transform.Translation;
+            return GetBoneTranslation($"RUNWAY{runway}PARKING{hangar}");
         }
 
-        // TODO: multiple prep points
-        public Vector3 GetPrepPoint(GameObject vehicle)
+        public bool IsPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) ? _blockedBones[boneName] : false;
+        public void SetPointBlocked(string boneName, bool value) => _blockedBones[boneName] = value;
+
+        public Queue<string> GetPathToStart(GameObject vehicle)
         {
+            var result = new Queue<string>();
             var slot = GetCorrespondingSlot(vehicle);
             var runway = slot % 2 + 1;
             var hangar = slot / 2 + 1;
 
-            var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PREP{hangar}");
-            if (bone == null)
+            var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
+
+            switch (parkingPoint)
             {
-                throw new InvalidOperationException("Could not find prep point bone");
+                case "RUNWAY1PARKING1":
+                    result.Enqueue($"RUNWAY2PREP2");
+                    result.Enqueue($"RUNWAY1PREP1");
+                    result.Enqueue($"RUNWAYSTART1");
+                    break;
+                case "RUNWAY2PARKING1":
+                    result.Enqueue($"RUNWAY2PREP1");
+                    result.Enqueue($"RUNWAYSTART2");
+                    break;
+                case "RUNWAY1PARKING2":
+                    result.Enqueue($"RUNWAY1PREP2");
+                    result.Enqueue($"RUNWAY1PREP1");
+                    result.Enqueue($"RUNWAYSTART1");
+                    break;
+                case "RUNWAY2PARKING2":
+                    result.Enqueue($"RUNWAY2PREP2");
+                    result.Enqueue($"RUNWAY2PREP1");
+                    result.Enqueue($"RUNWAYSTART2");
+                    break;
             }
-            return bone.Transform.Translation;
+            return result;
         }
 
-        public Vector3 GetRunwayStartPoint(GameObject vehicle)
+        // TODO: merge this with GetPathToStart?
+        public Queue<string> GetPathToParking(GameObject vehicle)
         {
+            var result = new Queue<string>();
             var slot = GetCorrespondingSlot(vehicle);
             var runway = slot % 2 + 1;
+            var hangar = slot / 2 + 1;
 
-            var (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
-            if (bone == null)
+            var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
+
+            switch (parkingPoint)
             {
-                throw new InvalidOperationException("Could not find runway start point bone");
+                case "RUNWAY1PARKING1":
+                    result.Enqueue($"RUNWAYSTART1");
+                    result.Enqueue($"RUNWAY1PREP1");
+                    result.Enqueue($"RUNWAY2PREP2");
+                    break;
+                case "RUNWAY2PARKING1":
+                    result.Enqueue($"RUNWAYSTART2");
+                    result.Enqueue($"RUNWAY2PREP1");
+                    break;
+                case "RUNWAY1PARKING2":
+                    result.Enqueue($"RUNWAYSTART1");
+                    result.Enqueue($"RUNWAY1PREP1");
+                    result.Enqueue($"RUNWAY1PREP2");
+                    break;
+                case "RUNWAY2PARKING2":
+                    result.Enqueue($"RUNWAYSTART2");
+                    result.Enqueue($"RUNWAY2PREP1");
+                    result.Enqueue($"RUNWAY2PREP2");
+                    break;
             }
-            return bone.Transform.Translation;
+
+            result.Enqueue(parkingPoint);
+            return result;
         }
+
+
 
         public Vector3 GetRunwayEndPoint(GameObject vehicle)
         {
             var slot = GetCorrespondingSlot(vehicle);
             var runway = slot % 2 + 1;
 
-            var (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
-            if (bone == null)
-            {
-                throw new InvalidOperationException("Could not find runway end point bone");
-            }
-            return bone.Transform.Translation;
+            return GetBoneTranslation($"RUNWAYEND{runway}");
         }
-
-        //public List<Vector3> GetUnparkingPath(GameObject gameObject)
-        //{
-        //    var result = new List<Vector3>();
-        //    var slot = GetCorrespondingSlot(gameObject);
-        //    var runway = slot % 2 + 1;
-        //    var hangar = slot / 2 + 1;
-
-        //    var (_, bone) = _gameObject.FindBone($"RUNWAY{runway}PREP{hangar}");
-        //    if (bone == null)
-        //    {
-        //        throw new InvalidOperationException("Could not find start point bone");
-        //    }
-        //    result.Add(bone.Transform.Translation);
-
-        //    (_, bone) = _gameObject.FindBone($"RUNWAYSTART{runway}");
-        //    if (bone == null)
-        //    {
-        //        throw new InvalidOperationException("Could not find start point bone");
-        //    }
-        //    result.Add(bone.Transform.Translation);
-
-        //    (_, bone) = _gameObject.FindBone($"RUNWAYEND{runway}");
-        //    if (bone == null)
-        //    {
-        //        throw new InvalidOperationException("Could not find start point bone");
-        //    }
-        //    result.Add(bone.Transform.Translation);
-
-        //    return result;
-        //}
 
         public void Unpark(GameObject gameObject)
         {
             //
         }
+
+        public Transform GetBoneTransform(string name)
+        {
+            var (_, bone) = _gameObject.FindBone(name);
+            if (bone == null)
+            {
+                throw new InvalidOperationException("Could not find runway start point bone");
+            }
+            return bone.Transform;
+        }
+
+        public Vector3 GetBoneTranslation(string name) => GetBoneTransform(name).Translation;
     }
 
     /// <summary>

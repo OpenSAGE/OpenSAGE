@@ -125,23 +125,31 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_currentLocomotor != null && TargetPoints.Count > 0)
+            if (_currentLocomotor != null)
             {
-                Vector3? nextPoint = null;
-
-                if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
-
-                var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
-
-                // this should be moved to LogicTick
-                if (reachedPosition)
+                if (TargetPoints.Count > 0)
                 {
-                    Logger.Debug($"Reached point {TargetPoints[0]}");
-                    TargetPoints.RemoveAt(0);
-                    if (TargetPoints.Count == 0)
+                    Vector3? nextPoint = null;
+
+                    if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
+
+                    var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
+
+                    // this should be moved to LogicTick
+                    if (reachedPosition)
                     {
-                        MoveToNextWaypointOrStop();
+                        Logger.Debug($"Reached point {TargetPoints[0]}");
+                        TargetPoints.RemoveAt(0);
+                        if (TargetPoints.Count == 0)
+                        {
+                            MoveToNextWaypointOrStop();
+                        }
                     }
+                }
+                else
+                {
+                    // maintain position (jets etc)
+                    _currentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
                 }
             }
         }
