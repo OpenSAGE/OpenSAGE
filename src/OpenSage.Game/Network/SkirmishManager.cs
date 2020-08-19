@@ -79,8 +79,10 @@ namespace OpenSage.Network
         }
 
         public SkirmishGame SkirmishGame { get; private set; }
-        public bool IsReady {
-            get {
+        public bool IsReady
+        {
+            get
+            {
                 //no unready human players, except for the host
                 return SkirmishGame.Slots.Where(x => x.Index != 0 && x.State == SkirmishSlotState.Human && !x.Ready).Count() == 0;
             }
@@ -238,7 +240,7 @@ namespace OpenSage.Network
 
         }
 
-        public class Host: SkirmishManager
+        public class Host : SkirmishManager
         {
 
             private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
@@ -341,7 +343,7 @@ namespace OpenSage.Network
             protected override void Loop()
             {
                 var dirty = SkirmishGame.Slots.Where(x => x.IsDirty);
-                if(dirty.Count() > 0)
+                if (dirty.Count() > 0)
                 {
                     Logger.Info($"Have {dirty.Count()} dirty slots");
 
