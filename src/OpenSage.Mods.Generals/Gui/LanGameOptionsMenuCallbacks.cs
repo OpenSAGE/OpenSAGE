@@ -50,22 +50,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             GameOptions.OnSlotIndexChange += (index, name, value) =>
             {
-                if(game == null)
-                {
-                    return;
-                }
-                if(game.SkirmishManager == null)
-                {
-                    return;
-                }
-                if(game.SkirmishManager.SkirmishGame == null)
-                {
-                    return;
-                }
-                var skirmishGame = game.SkirmishManager.SkirmishGame;
-
-                var slot = skirmishGame.Slots[index];
-                if(slot == null)
+                if (game?.SkirmishManager?.SkirmishGame == null)
                 {
                     return;
                 }
