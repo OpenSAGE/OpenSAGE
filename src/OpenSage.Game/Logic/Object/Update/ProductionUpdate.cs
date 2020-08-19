@@ -188,15 +188,34 @@ namespace OpenSage.Logic.Object
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
-            _gameObject.HandleHarvesterUnitCreation(_producedUnit);
+            HandleHarvesterUnitCreation(_producedUnit);
 
             _producedUnit = null;
+        }
+
+        private void HandleHarvesterUnitCreation(GameObject spawnedUnit)
+        {
+            // a supply target (supply center etc.) just spawned a harvester object
+            if (_gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator) && spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester))
+            {
+                if (spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate)
+                {
+                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                    supplyUpdate.CurrentSupplyTarget = _gameObject;
+                }
+            }
         }
 
         internal void QueueProduction(ObjectDefinition objectDefinition)
         {
             var job = new ProductionJob(objectDefinition);
             _productionQueue.Add(job);
+        }
+
+        internal void Spawn(ObjectDefinition objectDefinition)
+        {
+            var job = new ProductionJob(objectDefinition, instant: true);
+            _productionQueue.Insert(0, job);
         }
 
         public void CancelProduction(int index)

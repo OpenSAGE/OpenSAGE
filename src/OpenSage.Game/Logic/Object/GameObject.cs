@@ -459,49 +459,6 @@ namespace OpenSage.Logic.Object
             return BehaviorModules.OfType<T>();
         }
 
-        internal void Spawn(ObjectDefinition objectDefinition)
-        {
-            var productionExit = FindBehavior<IProductionExit>();
-
-            if (productionExit == null)
-            {
-                // If there's no IProductionExit behavior on this object, don't spawn anything.
-                return;
-            }
-
-            var spawnedUnit = Parent.Add(objectDefinition, Owner);
-            spawnedUnit.Transform.Rotation = Transform.Rotation;
-            spawnedUnit.Transform.Translation = ToWorldspace(productionExit.GetUnitCreatePoint());
-
-            // First go to the natural rally point
-            var naturalRallyPoint = productionExit.GetNaturalRallyPoint();
-            if (naturalRallyPoint.HasValue)
-            {
-                spawnedUnit.AIUpdate.AddTargetPoint(ToWorldspace(naturalRallyPoint.Value));
-            }
-
-            // Then go to the rally point if it exists
-            if (RallyPoint.HasValue)
-            {
-                spawnedUnit.AIUpdate.AddTargetPoint(RallyPoint.Value);
-            }
-
-            HandleHarvesterUnitCreation(spawnedUnit);
-        }
-
-        public void HandleHarvesterUnitCreation(GameObject spawnedUnit)
-        {
-            // we are a supply target and just spawned a harvester object
-            if (Definition.KindOf.Get(ObjectKinds.CashGenerator) && spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester))
-            {
-                if (spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate)
-                {
-                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
-                    supplyUpdate.CurrentSupplyTarget = this;
-                }
-            }
-        }
-
         public bool UpgradeAvailable(UpgradeTemplate upgrade)
         {
             if (upgrade == null) return false;
@@ -554,7 +511,7 @@ namespace OpenSage.Logic.Object
             {
                 if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
                 {
-                    Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
+                    ProductionUpdate.Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
                 }
             }
 

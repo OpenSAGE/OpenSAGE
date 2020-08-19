@@ -113,18 +113,17 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void SetActiveConditionState(ModelConditionState conditionState, Random random)
+        private bool ShouldWaitForRunningAnimationsToFinish(ModelConditionState conditionState)
         {
-            if (_activeConditionState == conditionState)
-            {
-                return;
-            }
-
-            // wait for previous condition state (animation) to finish if possible
-            if (_activeConditionState != null
+            return _activeConditionState != null
                 && conditionState.WaitForStateToFinishIfPossible != null
                 && _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible
-                && (_activeModelDrawConditionState?.StillActive() ?? false))
+                && (_activeModelDrawConditionState?.StillActive() ?? false);
+        }
+
+        private void SetActiveConditionState(ModelConditionState conditionState, Random random)
+        {
+            if (_activeConditionState == conditionState || ShouldWaitForRunningAnimationsToFinish(conditionState))
             {
                 return;
             }
