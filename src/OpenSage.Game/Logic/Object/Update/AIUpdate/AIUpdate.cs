@@ -82,15 +82,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void SetTargetPoint(Vector3 targetPoint)
+        internal virtual void SetTargetPoint(Vector3 targetPoint)
         {
             TargetPoints.Clear();
-
-            if (this is SupplyAIUpdate supplyAIUpdate)
-            {
-                supplyAIUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.DEFAULT;
-            }
-
             AppendPathToTargetPoint(targetPoint);
         }
 

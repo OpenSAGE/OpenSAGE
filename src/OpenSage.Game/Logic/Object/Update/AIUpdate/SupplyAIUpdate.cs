@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -40,6 +41,12 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
             SupplyGatherState = SupplyGatherStates.DEFAULT;
             _numBoxes = 0;
+        }
+
+        internal override void SetTargetPoint(Vector3 targetPoint)
+        {
+            SupplyGatherState = SupplyGatherStates.DEFAULT;
+            base.SetTargetPoint(targetPoint);
         }
 
         internal override void Update(BehaviorUpdateContext context)

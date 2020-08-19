@@ -25,11 +25,11 @@ namespace OpenSage.Logic.Object.Production
         public ObjectDefinition ObjectDefinition { get; }
         public UpgradeTemplate UpgradeDefinition { get; }
 
-        public ProductionJob(ObjectDefinition definition)
+        public ProductionJob(ObjectDefinition definition, bool instant = false)
         {
             ObjectDefinition = definition;
             Type = ProductionJobType.Unit;
-            _duration = (int) (definition.BuildTime * 1000.0f);
+            _duration = instant ? 0 : (int) (definition.BuildTime * 1000.0f);
         }
 
         public ProductionJob(UpgradeTemplate definition)
