@@ -312,7 +312,7 @@ namespace OpenSage.Network
                             break;
                         case PacketType.SkirmishStartGame:
                             Logger.Trace($"Received start game packet");
-
+                            Debug.Assert(false, "Host should never receive SkirmishStartGame");
                             CreateNetworkConnection();
                             break;
                     }
