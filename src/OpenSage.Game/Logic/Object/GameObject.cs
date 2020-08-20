@@ -115,9 +115,13 @@ namespace OpenSage.Logic.Object
 
         public readonly BitArray<ModelConditionFlag> ModelConditionFlags;
 
-        public readonly IReadOnlyList<DrawModule> DrawModules;
+        // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
+        // while simultaneously supporting fast (non-allocating) iteration when accessing the list within the class.
+        public IReadOnlyList<DrawModule> DrawModules => _drawModules;
+        private readonly List<DrawModule> _drawModules;
 
-        public readonly IReadOnlyList<BehaviorModule> BehaviorModules;
+        public IReadOnlyList<BehaviorModule> BehaviorModules => _behaviorModules;
+        private readonly List<BehaviorModule> _behaviorModules;
 
         public readonly BodyModule Body;
 
@@ -234,7 +238,7 @@ namespace OpenSage.Logic.Object
                     drawModules.Add(drawModule);
                 }
             }
-            DrawModules = drawModules;
+            _drawModules = drawModules;
 
             var behaviors = new List<BehaviorModule>();
 
@@ -267,7 +271,7 @@ namespace OpenSage.Logic.Object
                     AddBehavior(behaviorData.Tag, module);
                 }
             }
-            BehaviorModules = behaviors;
+            _behaviorModules = behaviors;
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
@@ -314,7 +318,7 @@ namespace OpenSage.Logic.Object
         // TODO: This probably shouldn't be here.
         public Matrix4x4? GetWeaponFireFXBoneTransform(WeaponSlot slot, int index)
         {
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 var fireFXBone = drawModule.GetWeaponFireFXBone(slot);
                 if (fireFXBone != null)
@@ -334,7 +338,7 @@ namespace OpenSage.Logic.Object
         // TODO: This probably shouldn't be here.
         public Matrix4x4? GetWeaponLaunchBoneTransform(WeaponSlot slot, int index)
         {
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 var fireFXBone = drawModule.GetWeaponLaunchBone(slot);
                 if (fireFXBone != null)
@@ -353,7 +357,7 @@ namespace OpenSage.Logic.Object
 
         public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
         {
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 var (modelInstance, bone) = drawModule.FindBone(boneName);
                 if (bone != null)
@@ -385,7 +389,7 @@ namespace OpenSage.Logic.Object
 
             AIUpdate?.Update(behaviorUpdateContext);
 
-            foreach (var behavior in BehaviorModules)
+            foreach (var behavior in _behaviorModules)
             {
                 behavior.Update(behaviorUpdateContext);
             }
@@ -420,7 +424,7 @@ namespace OpenSage.Logic.Object
                 this,
                 time);
 
-            foreach (var behavior in BehaviorModules)
+            foreach (var behavior in _behaviorModules)
             {
                 behavior.OnCollide(context, collidingObject);
             }
@@ -450,13 +454,13 @@ namespace OpenSage.Logic.Object
         internal T FindBehavior<T>()
         {
             // TODO: Cache this?
-            return BehaviorModules.OfType<T>().FirstOrDefault();
+            return _behaviorModules.OfType<T>().FirstOrDefault();
         }
 
         internal IEnumerable<T> FindBehaviors<T>()
         {
             // TODO: Cache this?
-            return BehaviorModules.OfType<T>();
+            return _behaviorModules.OfType<T>();
         }
 
         public bool UpgradeAvailable(UpgradeTemplate upgrade)
@@ -560,7 +564,7 @@ namespace OpenSage.Logic.Object
                     this,
                     new TimeInterval()); // TODO
 
-                foreach (var behavior in BehaviorModules)
+                foreach (var behavior in _behaviorModules)
                 {
                     behavior.OnDamageStateChanged(
                         behaviorUpdateContext,
@@ -596,14 +600,14 @@ namespace OpenSage.Logic.Object
 
             // Update all draw modules
             UpdateDrawModuleConditionStates();
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 drawModule.Update(gameTime);
             }
 
             // This must be done after processing anything that might update this object's transform.
             var worldMatrix = Transform.Matrix;
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 drawModule.SetWorldMatrix(worldMatrix);
             }
@@ -624,7 +628,7 @@ namespace OpenSage.Logic.Object
                 TintColor = IsPlacementInvalid ? new Vector3(1, 0.3f, 0.3f) : Vector3.One,
             };
 
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 drawModule.BuildRenderList(
                     renderList,
@@ -650,7 +654,7 @@ namespace OpenSage.Logic.Object
         private void UpdateDrawModuleConditionStates()
         {
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in _drawModules)
             {
                 drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
             }
@@ -794,7 +798,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidOperationException();
             }
 
-            foreach (var dieModule in BehaviorModules)
+            foreach (var dieModule in _behaviorModules)
             {
                 dieModule.OnDie(behaviorUpdateContext, deathType);
             }
