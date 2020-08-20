@@ -110,7 +110,7 @@ namespace OpenSage.Logic.Object
         public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public AnimationMode AnimationMode { get; private set; }
-        public FloatRange? AnimationSpeedFactorRange { get; private set; }
+        public FloatRange AnimationSpeedFactorRange { get; private set; } = new FloatRange(1.0f, 1.0f);
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
         public AnimationFlags Flags { get; private set; }
 

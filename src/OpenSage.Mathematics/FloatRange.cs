@@ -13,10 +13,6 @@ namespace OpenSage.Mathematics
             High = high;
         }
 
-        public float GetValue(Random random)
-        {
-            if (random == null) return High;
-            return (float)(random.NextDouble() * (High - Low) + Low);
-        }
+        public float GetValue(Random random) => (float)(random.NextDouble() * (High - Low) + Low);
     }
 }

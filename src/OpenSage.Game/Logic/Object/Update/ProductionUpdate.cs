@@ -200,7 +200,7 @@ namespace OpenSage.Logic.Object
             {
                 if (spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate)
                 {
-                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchForSupplySource;
                     supplyUpdate.CurrentSupplyTarget = _gameObject;
                 }
             }

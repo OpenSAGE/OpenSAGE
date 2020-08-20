@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
         internal abstract string GetWeaponLaunchBone(WeaponSlot slot);
 
-        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random = null)
+        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
 
         }

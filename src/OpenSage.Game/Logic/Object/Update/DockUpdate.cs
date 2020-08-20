@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < units.Count; i++)
             {
                 var aiUpdate = units[i];
-                aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.APPROACH_SUPPLY_TARGET;
+                aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.ApproachSupplyTarget;
 
                 if (i == 0)
                 {
@@ -93,12 +93,12 @@ namespace OpenSage.Logic.Object
 
                 switch (aiUpdate.SupplyGatherState)
                 {
-                    case SupplyAIUpdate.SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET:
-                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.START_DUMPING_SUPPLYS;
+                    case SupplyAIUpdate.SupplyGatherStates.EnqueuedAtSupplyTarget:
+                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.StartDumpingSupplies;
                         break;
-                    case SupplyAIUpdate.SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
+                    case SupplyAIUpdate.SupplyGatherStates.FinishedDumpingSupplies:
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
-                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                        aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchForSupplySource;
                         _unitsApproaching.Dequeue();
                         MoveObjectsForward();
                         break;
