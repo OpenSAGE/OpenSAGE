@@ -652,7 +652,7 @@ namespace OpenSage.Logic.Object
             // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
             foreach (var drawModule in DrawModules)
             {
-                drawModule.UpdateConditionState(ModelConditionFlags, new Random());
+                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
             }
         }
 
