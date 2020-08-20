@@ -92,12 +92,12 @@ namespace OpenSage.Graphics.Animation
                 }
             }
 
-            for (var i = 0; i < _boneInstances.Length; i++)
+            foreach (var bone in _boneInstances)
             {
-                _boneInstances[i].AnimatedOffset.Translation = Vector3.Zero;
-                _boneInstances[i].AnimatedOffset.Rotation = Quaternion.Identity;
+                bone.AnimatedOffset.Translation = Vector3.Zero;
+                bone.AnimatedOffset.Rotation = Quaternion.Identity;
 
-                _boneInstances[i].Visible = true;
+                bone.Visible = true;
             }
         }
 
@@ -115,16 +115,17 @@ namespace OpenSage.Graphics.Animation
         {
             //TODO: implement ping pong
             var time = _currentTimeValue;
+            var deltaTime = gameTime.DeltaTime * _speedFactor;
 
             if (!Manual)
             {
                 if (Reverse)
                 {
-                    time -= gameTime.DeltaTime * _speedFactor;
+                    time -= deltaTime;
                 }
                 else
                 {
-                    time += gameTime.DeltaTime * _speedFactor;
+                    time += deltaTime;
                 }
             }
 

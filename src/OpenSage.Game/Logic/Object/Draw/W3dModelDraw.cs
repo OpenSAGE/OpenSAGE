@@ -139,7 +139,7 @@ namespace OpenSage.Logic.Object
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
 
-            var speedFactor = conditionState.AnimationSpeedFactorRange?.GetValue(random) ?? 1.0f;
+            var speedFactor = conditionState.AnimationSpeedFactorRange.GetValue(random);
             _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
@@ -175,7 +175,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random = null)
+        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
             ModelConditionState bestConditionState = null;
             var bestIntersections = int.MinValue;

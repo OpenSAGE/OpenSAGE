@@ -14,17 +14,17 @@ namespace OpenSage.Logic.Object
 
         public enum SupplyGatherStates
         {
-            DEFAULT,
-            SEARCH_FOR_SUPPLY_SOURCE,
-            APPROACH_SUPPLY_SOURCE,
-            REQUEST_SUPPLYS,
-            GATHERING_SUPPLYS,
-            SEARCH_FOR_SUPPLY_TARGET,
-            APPROACH_SUPPLY_TARGET,
-            ENQUEUED_AT_SUPPLY_TARGET,
-            START_DUMPING_SUPPLYS,
-            DUMPING_SUPPLYS,
-            FINISHED_DUMPING_SUPPLYS
+            Default,
+            SearchForSupplySource,
+            ApproachSupplySource,
+            RequestSupplies,
+            GatheringSupplies,
+            SearchForSupplyTarget,
+            ApproachSupplyTarget,
+            EnqueuedAtSupplyTarget,
+            StartDumpingSupplies,
+            DumpingSupplies,
+            FinishedDumpingSupplies
         }
 
         private SupplyAIUpdateModuleData _moduleData;
@@ -39,13 +39,13 @@ namespace OpenSage.Logic.Object
         internal SupplyAIUpdate(GameObject gameObject, SupplyAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            SupplyGatherState = SupplyGatherStates.DEFAULT;
+            SupplyGatherState = SupplyGatherStates.Default;
             _numBoxes = 0;
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
-            SupplyGatherState = SupplyGatherStates.DEFAULT;
+            SupplyGatherState = SupplyGatherStates.Default;
             base.SetTargetPoint(targetPoint);
         }
 
@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
 
             switch (SupplyGatherState)
             {
-                case SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE:
+                case SupplyGatherStates.SearchForSupplySource:
                     if (isMoving) break;
 
                     if (_currentSupplySource == null || !_currentSourceDockUpdate.HasBoxes())
@@ -86,16 +86,16 @@ namespace OpenSage.Logic.Object
                     if (_currentSupplySource == null) break;
 
                     SetTargetPoint(_currentSupplySource.Transform.Translation);
-                    SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_SOURCE;
+                    SupplyGatherState = SupplyGatherStates.ApproachSupplySource;
                     break;
-                case SupplyGatherStates.APPROACH_SUPPLY_SOURCE:
+                case SupplyGatherStates.ApproachSupplySource:
                     if (!isMoving)
                     {
-                        SupplyGatherState = SupplyGatherStates.REQUEST_SUPPLYS;
+                        SupplyGatherState = SupplyGatherStates.RequestSupplies;
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                     }
                     break;
-                case SupplyGatherStates.REQUEST_SUPPLYS:
+                case SupplyGatherStates.RequestSupplies:
                     var boxesAvailable = _currentSourceDockUpdate?.HasBoxes() ?? false;
 
                     if (!boxesAvailable)
@@ -103,7 +103,7 @@ namespace OpenSage.Logic.Object
                         if (_numBoxes == 0)
                         {
                             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
-                            SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_SOURCE;
+                            SupplyGatherState = SupplyGatherStates.SearchForSupplySource;
                             break;
                         }
                     }
@@ -111,22 +111,22 @@ namespace OpenSage.Logic.Object
                     {
                         _currentSourceDockUpdate.GetBox();
                         _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyWarehouseActionDelay);
-                        SupplyGatherState = SupplyGatherStates.GATHERING_SUPPLYS;
+                        SupplyGatherState = SupplyGatherStates.GatheringSupplies;
                         break;
                     }
  
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
-                    SupplyGatherState = SupplyGatherStates.SEARCH_FOR_SUPPLY_TARGET;
+                    SupplyGatherState = SupplyGatherStates.SearchForSupplyTarget;
                     break;
-                case SupplyGatherStates.GATHERING_SUPPLYS:
+                case SupplyGatherStates.GatheringSupplies:
                     if (context.Time.TotalTime > _waitUntil)
                     {
                         _numBoxes++;
-                        SupplyGatherState = SupplyGatherStates.REQUEST_SUPPLYS;
+                        SupplyGatherState = SupplyGatherStates.RequestSupplies;
                     }
                     break;
-                case SupplyGatherStates.SEARCH_FOR_SUPPLY_TARGET:
+                case SupplyGatherStates.SearchForSupplyTarget:
                     if (CurrentSupplyTarget == null)
                     {
                         var supplyTargets = context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.CashGenerator);
@@ -160,26 +160,26 @@ namespace OpenSage.Logic.Object
                     if (!_currentTargetDockUpdate.CanApproach()) break;
 
                     SetTargetPoint(_currentTargetDockUpdate.GetApproachTargetPosition(this));
-                    SupplyGatherState = SupplyGatherStates.APPROACH_SUPPLY_TARGET;
+                    SupplyGatherState = SupplyGatherStates.ApproachSupplyTarget;
                     break;
-                case SupplyGatherStates.APPROACH_SUPPLY_TARGET:
+                case SupplyGatherStates.ApproachSupplyTarget:
                     if (!isMoving)
                     {
-                        SupplyGatherState = SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET;
+                        SupplyGatherState = SupplyGatherStates.EnqueuedAtSupplyTarget;
                     }
                     break;
-                case SupplyGatherStates.ENQUEUED_AT_SUPPLY_TARGET:
+                case SupplyGatherStates.EnqueuedAtSupplyTarget:
                     // wait until the DockUpdate moves us forward
                     break;
-                case SupplyGatherStates.START_DUMPING_SUPPLYS:
+                case SupplyGatherStates.StartDumpingSupplies:
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
-                    SupplyGatherState = SupplyGatherStates.DUMPING_SUPPLYS;
+                    SupplyGatherState = SupplyGatherStates.DumpingSupplies;
                     _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyCenterActionDelay);
                     break;
-                case SupplyGatherStates.DUMPING_SUPPLYS:
+                case SupplyGatherStates.DumpingSupplies:
                     if (context.Time.TotalTime > _waitUntil)
                     {
-                        SupplyGatherState = SupplyGatherStates.FINISHED_DUMPING_SUPPLYS;
+                        SupplyGatherState = SupplyGatherStates.FinishedDumpingSupplies;
 
                         var assetStore = context.GameContext.AssetLoadContext.AssetStore;
                         var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
@@ -189,7 +189,7 @@ namespace OpenSage.Logic.Object
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, false);
                     }
                     break;
-                case SupplyGatherStates.FINISHED_DUMPING_SUPPLYS:
+                case SupplyGatherStates.FinishedDumpingSupplies:
                     break;
             }
         }

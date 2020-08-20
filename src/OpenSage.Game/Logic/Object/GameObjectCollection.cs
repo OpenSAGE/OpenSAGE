@@ -89,11 +89,6 @@ namespace OpenSage.Logic.Object
             return _nameLookup.TryGetValue(name, out gameObject);
         }
 
-        public List<GameObject> GetObjectsByName(string typeName)
-        {
-            return _items.Where(x => x.Definition.Name == typeName).ToList();
-        }
-
         public List<GameObject> GetObjectsByKindOf(ObjectKinds kindOf)
         {
             return _items.Where(x => x.Definition.KindOf.Get(kindOf)).ToList();
