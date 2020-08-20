@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 
@@ -50,7 +49,7 @@ namespace OpenSage.Logic.Object
     {
         public readonly GameContext GameContext;
         public readonly GameObject GameObject;
-        public readonly TimeInterval Time;
+        public TimeInterval Time { get; private set; }
 
         public BehaviorUpdateContext(
             GameContext gameContext,
@@ -59,6 +58,11 @@ namespace OpenSage.Logic.Object
         {
             GameContext = gameContext;
             GameObject = gameObject;
+            Time = time;
+        }
+
+        public void UpdateTime(TimeInterval time)
+        {
             Time = time;
         }
     }
