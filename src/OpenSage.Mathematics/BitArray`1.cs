@@ -13,7 +13,7 @@ namespace OpenSage.Mathematics
 
         public BitArray()
         {
-            var maxBits = Enum.GetValues(typeof(TEnum)).Length;
+            var maxBits = GetNumValues();
             if (maxBits >= 512)
             {
                 throw new Exception($"Cannot create a BitArray for enum {typeof(TEnum).Name}, because it has {maxBits} cases (max 512).");
@@ -127,6 +127,19 @@ namespace OpenSage.Mathematics
         {
             var result = new BitArray<TEnum>();
             result.CopyFrom(this);
+            return result;
+        }
+
+        private static readonly Dictionary<Type, int> CachedNumValues = new Dictionary<Type, int>();
+
+        private static int GetNumValues()
+        {
+            var key = typeof(TEnum);
+            if (!CachedNumValues.TryGetValue(key, out var result))
+            {
+                result = Enum.GetValues(key).Length;
+                CachedNumValues.Add(key, result);
+            }
             return result;
         }
     }
