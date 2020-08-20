@@ -18,11 +18,11 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static ModelConditionState Parse(IniParser parser)
+        internal static ModelConditionState Parse(IniParser parser, ModelConditionState defaultConditionState)
         {
             var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
 
-            var result = parser.ParseBlock(FieldParseTable);
+            var result = parser.ParseBlock(FieldParseTable, defaultConditionState?.Clone() ?? new ModelConditionState());
 
             result.ConditionFlags = conditionFlags;
 
@@ -90,6 +90,26 @@ namespace OpenSage.Logic.Object
             {
                 Animations.Add(AnimationStateAnimation.Parse(parser));
             }
+        }
+
+        internal ModelConditionState Clone()
+        {
+            var result = (ModelConditionState) MemberwiseClone();
+
+            result.ConditionFlags = new BitArray<ModelConditionFlag>(result.ConditionFlags);
+            result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
+            result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
+            result.WeaponMuzzleFlashes = new List<BoneAttachPoint>(result.WeaponMuzzleFlashes);
+            result.WeaponLaunchBones = new List<BoneAttachPoint>(result.WeaponLaunchBones);
+            result.WeaponHideShowBones = new List<BoneAttachPoint>(result.WeaponHideShowBones);
+
+            result.ConditionAnimations = new List<ObjectConditionAnimation>(result.ConditionAnimations);
+            result.Animations = new List<AnimationStateAnimation>(result.Animations);
+
+            result.IdleAnimations = new List<ObjectConditionAnimation>(result.IdleAnimations);
+            result.ParticleSysBones = new List<ParticleSysBone>(result.ParticleSysBones);
+            result.FXEvents = new List<FXEvent>(result.FXEvents);
+            return result;
         }
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
@@ -229,9 +249,11 @@ namespace OpenSage.Logic.Object
     {
         internal static ObjectConditionAnimation Parse(IniParser parser)
         {
-            var result = new ObjectConditionAnimation();
+            var result = new ObjectConditionAnimation
+            {
+                Animation = parser.ParseAnimationReference()
+            };
 
-            result.Animation = parser.ParseAnimationReference();
 
             var unknown1Token = parser.GetNextTokenOptional();
 

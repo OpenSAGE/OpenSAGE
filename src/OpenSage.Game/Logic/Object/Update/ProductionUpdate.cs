@@ -110,6 +110,16 @@ namespace OpenSage.Logic.Object
                 case DoorState.Open:
                     if (time.TotalTime >= _currentStepEnd)
                     {
+                        _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+                        if (_productionExit is ParkingPlaceBehaviour parkingPlace)
+                        {
+                            var parkedObject = parkingPlace.GetObejctInSlot(_doorIndex);
+                            if (parkedObject.ModelConditionFlags.Get(ModelConditionFlag.Dying) == false)
+                            {
+                                break;
+                            }
+                        }
+
                         Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
                         _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
                         _currentDoorState = DoorState.Closing;
@@ -238,7 +248,7 @@ namespace OpenSage.Logic.Object
 
             if (_productionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(_producedUnit.Definition))
             {
-                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(parkingPlace.GetNaturalRallyPoint(_producedUnit)));
+                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(parkingPlace.GetParkingPoint(_producedUnit)));
                 _producedUnit = null;
                 return;
             }

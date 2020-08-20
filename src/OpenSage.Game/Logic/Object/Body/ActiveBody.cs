@@ -39,10 +39,7 @@ namespace OpenSage.Logic.Object
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
-            if (Health <= Fix64.Zero)
-            {
-                return;
-            }
+            if (Health <= Fix64.Zero) return;
 
             var armorSet = GameObject.CurrentArmorSet;
 
@@ -53,13 +50,13 @@ namespace OpenSage.Logic.Object
             SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
-            var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
-
-            // TODO: MajorFX
-            var damageFX = damageFXGroup.MinorFX?.Value;
-            if (damageFX != null)
+            if (armorSet.DamageFX.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
             {
-                damageFX.Execute(
+                var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+
+                // TODO: MajorFX
+                var damageFX = damageFXGroup.MinorFX?.Value;
+                damageFX?.Execute(
                     new FXListExecutionContext(
                         GameObject.Transform.Rotation,
                         GameObject.Transform.Translation,

@@ -46,7 +46,7 @@ namespace OpenSage.Mathematics
         /// <param name="alpha">the first angle</param>
         /// <param name="beta">the second angle</param>
         /// <returns>the absolute delta between the two angles in radians.
-        /// The value is between -180 and 180 degrees by definition.
+        /// The value is between -PI and PI degrees by definition.
         /// </returns>
         public static float CalculateAngleDelta(float alpha, float beta)
         {

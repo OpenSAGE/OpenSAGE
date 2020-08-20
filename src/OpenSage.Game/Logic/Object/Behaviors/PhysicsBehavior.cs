@@ -33,7 +33,6 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            return;
             if (_gameObject.Definition.KindOf.Get(ObjectKinds.Aircraft)
                 || _gameObject.Definition.KindOf.Get(ObjectKinds.Drone)
                 || _gameObject.Definition.KindOf.Get(ObjectKinds.GiantBird))

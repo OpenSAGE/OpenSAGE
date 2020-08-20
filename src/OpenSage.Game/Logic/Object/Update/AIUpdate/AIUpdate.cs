@@ -25,6 +25,8 @@ namespace OpenSage.Logic.Object
         /// </summary>
         private IEnumerator<Vector3> _waypointEnumerator;
 
+        private Vector3? _targetDirection;
+
         public bool IsFollowingWaypoints() => _waypointEnumerator != null;
 
         /// <summary>
@@ -105,6 +107,8 @@ namespace OpenSage.Logic.Object
             GameObject.Speed = 0;
         }
 
+        internal void SetTargetDirection(Vector3 targetDirection) => _targetDirection = targetDirection;
+
         /// <summary>
         /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
         /// </summary>
@@ -144,6 +148,13 @@ namespace OpenSage.Logic.Object
                         {
                             MoveToNextWaypointOrStop();
                         }
+                    }
+                }
+                else if (_targetDirection.HasValue)
+                {
+                    if (_currentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
+                    {
+                        _targetDirection = null;
                     }
                 }
                 else
