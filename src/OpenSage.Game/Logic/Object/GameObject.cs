@@ -103,6 +103,8 @@ namespace OpenSage.Logic.Object
 
         internal GameContext GameContext => _gameContext;
 
+        private readonly BehaviorUpdateContext _behaviorUpdateContext;
+
         private readonly GameObject _rallyPointMarker;
 
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
@@ -223,6 +225,8 @@ namespace OpenSage.Logic.Object
             Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
+
+            _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
 
             SetDefaultWeapon();
             Transform = Transform.CreateIdentity();
@@ -376,22 +380,19 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            // TODO: Should there be a BeforeLogicTick where we update this?
+            _behaviorUpdateContext.UpdateTime(time);
+
             //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
                 CurrentWeapon?.LogicTick(time);
             }
 
-            // TODO: Don't create this every time.
-            var behaviorUpdateContext = new BehaviorUpdateContext(
-                _gameContext,
-                this,
-                time);
-
-            AIUpdate?.Update(behaviorUpdateContext);
+            AIUpdate?.Update(_behaviorUpdateContext);
 
             foreach (var behavior in _behaviorModules)
             {
-                behavior.Update(behaviorUpdateContext);
+                behavior.Update(_behaviorUpdateContext);
             }
         }
 
@@ -418,15 +419,12 @@ namespace OpenSage.Logic.Object
 
         internal void DoCollide(GameObject collidingObject, in TimeInterval time)
         {
-            // TODO: Don't create this every time.
-            var context = new BehaviorUpdateContext(
-                _gameContext,
-                this,
-                time);
+            // TODO: Can we avoid updating this every time?
+            _behaviorUpdateContext.UpdateTime(time);
 
             foreach (var behavior in _behaviorModules)
             {
-                behavior.OnCollide(context, collidingObject);
+                behavior.OnCollide(_behaviorUpdateContext, collidingObject);
             }
         }
 
@@ -559,15 +557,10 @@ namespace OpenSage.Logic.Object
 
             if (oldDamageType != _bodyDamageType)
             {
-                var behaviorUpdateContext = new BehaviorUpdateContext(
-                    _gameContext,
-                    this,
-                    new TimeInterval()); // TODO
-
                 foreach (var behavior in _behaviorModules)
                 {
                     behavior.OnDamageStateChanged(
-                        behaviorUpdateContext,
+                        _behaviorUpdateContext,
                         oldDamageType,
                         _bodyDamageType);
                 }
@@ -744,7 +737,7 @@ namespace OpenSage.Logic.Object
 
         public void Upgrade(UpgradeTemplate upgrade)
         {
-            // TODO: do something 
+            // TODO: do something
             if (upgrade.Type == UpgradeType.Object)
             {
                 Upgrades.Add(upgrade);
@@ -771,10 +764,8 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
             ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
 
-            var behaviorUpdateContext = new BehaviorUpdateContext(
-                _gameContext,
-                this,
-                time);
+            // TODO: Can we avoid updating this every time?
+            _behaviorUpdateContext.UpdateTime(time);
 
             // If there are multiple SlowDeathBehavior modules,
             // we need to use ProbabilityModifier to choose between them.
@@ -791,7 +782,7 @@ namespace OpenSage.Logic.Object
                     cumulative += deathBehavior.ProbabilityModifier;
                     if (random < cumulative)
                     {
-                        deathBehavior.OnDie(behaviorUpdateContext, deathType);
+                        deathBehavior.OnDie(_behaviorUpdateContext, deathType);
                         return;
                     }
                 }
@@ -800,7 +791,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var dieModule in _behaviorModules)
             {
-                dieModule.OnDie(behaviorUpdateContext, deathType);
+                dieModule.OnDie(_behaviorUpdateContext, deathType);
             }
         }
 
