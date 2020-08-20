@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace OpenSage.Mathematics
 {
@@ -52,7 +53,9 @@ namespace OpenSage.Mathematics
 
         public bool Get(TEnum bit)
         {
-            return _data.Get((int) (object) bit);
+            // This avoids an object allocation.
+            var bitI = Unsafe.As<TEnum, int>(ref bit);
+            return _data.Get(bitI);
         }
 
         public void Set(int bit, bool value)
@@ -62,7 +65,9 @@ namespace OpenSage.Mathematics
 
         public void Set(TEnum bit, bool value)
         {
-            _data.Set((int) (object) bit, value);
+            // This avoids an object allocation.
+            var bitI = Unsafe.As<TEnum, int>(ref bit);
+            _data.Set(bitI, value);
         }
 
         public void SetAll(bool value)
