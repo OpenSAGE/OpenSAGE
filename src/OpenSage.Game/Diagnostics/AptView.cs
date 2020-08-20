@@ -171,7 +171,19 @@ namespace OpenSage.Diagnostics
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
             }
 
+            bool hasRenderCallback = false;
+            if(item is RenderItem renderItem && renderItem.RenderCallback != null)
+            {
+                hasRenderCallback = true;
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));
+            }
+
             var opened = ImGui.TreeNodeEx($"[{depth}] {item.Name}", treeNodeFlags);
+
+            if (hasRenderCallback)
+            {
+                ImGui.PopStyleColor();
+            }
 
             if (_currentClipDepth.HasValue)
             {
@@ -204,9 +216,11 @@ namespace OpenSage.Diagnostics
         {
             if (_selectedItem != null)
             {
+                _selectedItem.Highlight = false;
                 _selectedItem = null;
             }
             _selectedItem = item;
+            _selectedItem.Highlight = true;
             Context.SelectedAptWindow = _selectedItem.Context.Window;
         }
     }

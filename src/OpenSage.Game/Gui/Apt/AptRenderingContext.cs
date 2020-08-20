@@ -158,6 +158,30 @@ namespace OpenSage.Gui.Apt
             return RectangleF.Transform(geom.BoundingBox, matrix);
         }
 
+        public void RenderOutline(Geometry shape)
+        {
+            var transform = _transformStack.Peek();
+            CalculateTransform(ref transform);
+            var matrix = transform.GeometryRotation;
+
+            var bounds = RectangleF.Transform(shape.BoundingBox, matrix);
+            var tl = new Vector2(bounds.Left, bounds.Top);
+            var tr = new Vector2(bounds.Right, bounds.Top);
+            var bl = new Vector2(bounds.Left, bounds.Bottom);
+            var br = new Vector2(bounds.Right, bounds.Bottom);
+
+            var left = new Line2D(tl, bl);
+            var right = new Line2D(tr, br);
+            var top = new Line2D(tl, tr);
+            var bottom = new Line2D(bl, br);
+
+            var color = new ColorRgbaF(1f, 0.41f, 0.71f, 1);
+            _activeDrawingContext.DrawLine(left, 5.0f, color);
+            _activeDrawingContext.DrawLine(right, 5.0f, color);
+            _activeDrawingContext.DrawLine(top, 5.0f, color);
+            _activeDrawingContext.DrawLine(bottom, 5.0f, color);
+        }
+
         public void RenderGeometry(Geometry shape, Texture solidTexture)
         {
             var transform = _transformStack.Peek();

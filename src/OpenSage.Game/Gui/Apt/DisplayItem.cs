@@ -61,6 +61,8 @@ namespace OpenSage.Gui.Apt
         public bool Visible { get; set; }
         public int? ClipDepth { get; set; }
 
+        public bool Highlight { get; set; }
+
         internal RenderTarget ClipMask { get; set; }
 
         /// <summary>

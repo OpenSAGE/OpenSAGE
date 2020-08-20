@@ -133,9 +133,19 @@ namespace OpenSage
             DrawRadarOverlay(drawingContext, objectTransform);
         }
 
-        public void DrawRadarMinimap(DrawingContext2D drawingContext, in Mathematics.Rectangle rectangle)
+        public void DrawRadarMinimap(DrawingContext2D drawingContext, in Mathematics.Rectangle rectangle, bool flip = false)
         {
-            drawingContext.DrawImage(_miniMapTexture, null, rectangle);
+            drawingContext.DrawImage(_miniMapTexture, null, rectangle, flip);
+        }
+
+        public void DrawRadarOverlay(DrawingContext2D drawingContext, in Mathematics.Rectangle rectangle)
+        {
+            var rectF = rectangle.ToRectangleF();
+            var objectTransform = RectangleF.CalculateTransformForRectangleFittingAspectRatio(
+                rectF,
+                rectF.Size,
+                rectangle.Size);
+            DrawRadarOverlay(drawingContext, objectTransform);
         }
 
         public void DrawRadarOverlay(DrawingContext2D drawingContext, in Matrix3x2 transform)

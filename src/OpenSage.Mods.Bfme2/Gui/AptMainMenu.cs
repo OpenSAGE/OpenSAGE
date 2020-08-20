@@ -1,6 +1,7 @@
 ﻿using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
+using Veldrid;
 
 namespace OpenSage.Mods.Bfme2.Gui
 {
@@ -14,7 +15,7 @@ namespace OpenSage.Mods.Bfme2.Gui
             var logoTexture = game.GetMappedImage("LogoWithShadow").Texture.Value;
             var imageSprite = window.Root.ScriptObject.Variables["Image"].ToObject().Item as SpriteItem;
             var shape = imageSprite.Content.Items[1] as RenderItem;
-            shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom) =>
+            shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
             {
                 renderContext.RenderGeometry(geom, logoTexture);
             };

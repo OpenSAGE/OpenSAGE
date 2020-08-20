@@ -218,6 +218,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
                             _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\AptImages\");
                             break;
                     }
                     break;

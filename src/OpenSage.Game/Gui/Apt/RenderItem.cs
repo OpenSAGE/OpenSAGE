@@ -13,7 +13,7 @@ namespace OpenSage.Gui.Apt
 
         private bool IsHovered { get; set; }
 
-        public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry);
+        public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
         public CustomRenderCallback RenderCallback;
 
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
@@ -40,11 +40,16 @@ namespace OpenSage.Gui.Apt
                     var geometry = Context.GetGeometry(s.Geometry, Character);
                     if (RenderCallback != null)
                     {
-                        RenderCallback(renderingContext, geometry);
+                        RenderCallback(renderingContext, geometry, Texture);
                     }
                     else
                     {
                         renderingContext.RenderGeometry(geometry, Texture);
+                    }
+
+                    if(Highlight)
+                    {
+                        renderingContext.RenderOutline(geometry);
                     }
                     break;
 
