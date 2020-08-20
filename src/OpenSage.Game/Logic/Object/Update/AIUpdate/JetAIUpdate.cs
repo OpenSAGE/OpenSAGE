@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -12,7 +11,7 @@ namespace OpenSage.Logic.Object
         public GameObject Base;
 
         private readonly JetAIUpdateModuleData _moduleData;
-        private Vector3 CurrentTargetPoint;
+        private Vector3 _currentTargetPoint;
 
         private Queue<string> _pathToStart;
         private Queue<string> _pathToParking;
@@ -24,9 +23,11 @@ namespace OpenSage.Logic.Object
 
         public enum JetAIState
         {
+            REACHED_PARKING_PLACE,
             PARKED,
             UNPARKING_REQUESTED,
             MOVING_TOWARDS_START,
+            WAITING_TO_START,
             STARTING,
             STARTED,
             UNPARKED,
@@ -50,12 +51,12 @@ namespace OpenSage.Logic.Object
             {
                 case JetAIState.PARKED:
                     CurrentJetAIState = JetAIState.UNPARKING_REQUESTED;
-                    CurrentTargetPoint = targetPoint;
+                    _currentTargetPoint = targetPoint;
                     return;
                 case JetAIState.UNPARKING_REQUESTED:
                 case JetAIState.MOVING_TOWARDS_START:
                 case JetAIState.STARTING:
-                    CurrentTargetPoint = targetPoint;
+                    _currentTargetPoint = targetPoint;
                     return;
                 case JetAIState.STARTED:
                 case JetAIState.IDLE:
@@ -79,6 +80,12 @@ namespace OpenSage.Logic.Object
 
             switch (CurrentJetAIState)
             {
+                case JetAIState.REACHED_PARKING_PLACE:
+                    var creationPoint = Base.ToWorldspace(parkingPlaceBehavior.GetUnitCreateTransform(GameObject)).Translation;
+                    var parkingPoint = Base.ToWorldspace(parkingPlaceBehavior.GetParkingTransform(GameObject)).Translation;
+                    SetTargetDirection(parkingPoint - creationPoint);
+                    CurrentJetAIState = JetAIState.PARKED;
+                    break;
                 case JetAIState.PARKED:
                     break;
                 case JetAIState.UNPARKING_REQUESTED:
@@ -88,20 +95,31 @@ namespace OpenSage.Logic.Object
                 case JetAIState.MOVING_TOWARDS_START:
                     if (!isMoving)
                     {
-                        if (ProcessWaipointPath(parkingPlaceBehavior, _pathToStart))
+                        if (ProcessWaypointPath(parkingPlaceBehavior, _pathToStart))
                         {
                             break;
                         }
+                        CurrentJetAIState = JetAIState.WAITING_TO_START;
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
+                    }
+                    break;
+                case JetAIState.WAITING_TO_START:
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        SetLocomotor(LocomotorSetType.Normal);
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, true);
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
+                        base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject)));
                         CurrentJetAIState = JetAIState.STARTING;
                     }
                     break;
                 case JetAIState.STARTING:
-                    SetLocomotor(LocomotorSetType.Normal);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, true);
-                    //GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
-                    base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject)));
-                    base.AddTargetPoint(CurrentTargetPoint);
-                    CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
+                    if (!isMoving)
+                    {
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, false);
+                        base.SetTargetPoint(_currentTargetPoint);
+                        CurrentJetAIState = JetAIState.MOVING_TOWARDS_TARGET;
+                    }
                     break;
                 case JetAIState.MOVING_TOWARDS_TARGET:
                     if (!isMoving)
@@ -120,6 +138,7 @@ namespace OpenSage.Logic.Object
                 case JetAIState.RETURNING_TO_BASE:
                     if (!isMoving)
                     {
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, false);
                         CurrentJetAIState = JetAIState.LANDING;
                         SetLocomotor(LocomotorSetType.Taxiing);
                         _pathToParking = parkingPlaceBehavior.GetPathToParking(GameObject);
@@ -128,11 +147,11 @@ namespace OpenSage.Logic.Object
                 case JetAIState.LANDING:
                     if (!isMoving)
                     {
-                        if (ProcessWaipointPath(parkingPlaceBehavior, _pathToParking))
+                        if (ProcessWaypointPath(parkingPlaceBehavior, _pathToParking))
                         {
                             break;
                         }
-                        CurrentJetAIState = JetAIState.PARKED;
+                        CurrentJetAIState = JetAIState.REACHED_PARKING_PLACE;
                     }
                     break;
             }
@@ -148,7 +167,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private bool ProcessWaipointPath(ParkingPlaceBehaviour parkingPlaceBehavior, Queue<string> path)
+        private bool ProcessWaypointPath(ParkingPlaceBehaviour parkingPlaceBehavior, Queue<string> path)
         {
             if (_currentUnparkTarget != null)
             {
@@ -181,9 +200,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class JetAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new JetAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static JetAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<JetAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<JetAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<JetAIUpdateModuleData>
             {
                 { "OutOfAmmoDamagePerSecond", (parser, x) => x.OutOfAmmoDamagePerSecond = parser.ParsePercentage() },

@@ -178,7 +178,7 @@ namespace OpenSage.Logic.Object
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
             ModelConditionState bestConditionState = null;
-            var bestIntersections = int.MinValue;
+            var bestIntersections = 0;
             var bestBitCount = int.MinValue;
 
             // Find best matching ModelConditionState.
@@ -193,13 +193,15 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                if (numIntersectionBits > bestIntersections ||
-                   ((numIntersectionBits == bestIntersections) && numStateBits < bestBitCount))
+                if (numIntersectionBits <= bestIntersections &&
+                    ((numIntersectionBits != bestIntersections) || numStateBits >= bestBitCount))
                 {
-                    bestConditionState = conditionState;
-                    bestBitCount = numStateBits;
-                    bestIntersections = numIntersectionBits;
+                    continue;
                 }
+
+                bestConditionState = conditionState;
+                bestBitCount = numStateBits;
+                bestIntersections = numIntersectionBits;
             }
 
             if (bestConditionState == null || bestIntersections == 0)
@@ -239,13 +241,15 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                if (numIntersectionBits > bestIntersections ||
-                   ((numIntersectionBits == bestIntersections) && numStateBits < bestBitCount))
+                if (numIntersectionBits <= bestIntersections &&
+                    ((numIntersectionBits != bestIntersections) || numStateBits >= bestBitCount))
                 {
-                    bestAnimationState = animationState;
-                    bestBitCount = numStateBits;
-                    bestIntersections = numIntersectionBits;
+                    continue;
                 }
+
+                bestAnimationState = animationState;
+                bestBitCount = numStateBits;
+                bestIntersections = numIntersectionBits;
             }
 
             if (bestAnimationState == null || bestIntersections == 0)
@@ -275,17 +279,14 @@ namespace OpenSage.Logic.Object
                 var firstAnimation = conditionState.ConditionAnimations
                     .Concat(conditionState.IdleAnimations)
                     .LastOrDefault();
-                if (firstAnimation != null)
-                {
-                    var animation = firstAnimation.Animation.Value;
 
-                    if (animation != null)
-                    {
-                        var mode = conditionState.AnimationMode;
-                        var flags = conditionState.Flags;
-                        var animationInstance = new AnimationInstance(modelInstance, animation, mode, flags);
-                        modelInstance.AnimationInstances.Add(animationInstance);
-                    }
+                var animation = firstAnimation?.Animation.Value;
+                if (animation != null)
+                {
+                    var mode = conditionState.AnimationMode;
+                    var flags = conditionState.Flags;
+                    var animationInstance = new AnimationInstance(modelInstance, animation, mode, flags);
+                    modelInstance.AnimationInstances.Add(animationInstance);
                 }
             }
 
@@ -487,7 +488,7 @@ namespace OpenSage.Logic.Object
                 "ConditionState",
                 (parser, x) =>
                 {
-                    var conditionState = ModelConditionState.Parse(parser);
+                    var conditionState = ModelConditionState.Parse(parser, x.DefaultConditionState);
                     x.ConditionStates.Add(conditionState);
                     parser.Temp = conditionState;
                 }
@@ -496,7 +497,7 @@ namespace OpenSage.Logic.Object
                 "ModelConditionState",
                 (parser, x) =>
                 {
-                    var conditionState = ModelConditionState.Parse(parser);
+                    var conditionState = ModelConditionState.Parse(parser, x.DefaultConditionState);
                     x.ConditionStates.Add(conditionState);
                     parser.Temp = conditionState;
                 }

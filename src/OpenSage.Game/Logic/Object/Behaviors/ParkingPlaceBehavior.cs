@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics;
 
 namespace OpenSage.Logic.Object
 {
@@ -26,6 +25,13 @@ namespace OpenSage.Logic.Object
         public bool ProducedAtHelipad(ObjectDefinition definition)
         {
             return definition.KindOf.Get(ObjectKinds.ProducedAtHelipad);
+        }
+
+        public GameObject GetObejctInSlot(int slotIndex)
+        {
+            if (slotIndex > _parkingSlots.Length) return null;
+
+            return _parkingSlots[slotIndex];
         }
 
         public int NextFreeSlot()
@@ -54,36 +60,23 @@ namespace OpenSage.Logic.Object
             return -1;
         }
 
-        //Runway1Prking1
-        //Runway1Parking2
-        //Runway2Parking1
-        //Runway2Parking2
-        //Runway1Park1Han
-        //Runway1Park2Han
-        //Runway2Park1Han
-        //Runway2Park2Han
-
-        //Runway1Prep1
-        //Runway1Prep2
-        //RunwayStart1
-        //RunwayEnd1
-        //HeliPark01
-
-        public Vector3 GetUnitCreatePoint()
-        {
-            throw new InvalidOperationException("not supported here");
-        }
+        public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("not supported here");
 
         public Transform GetUnitCreateTransform(bool producedAtHelipad)
         {
-            if (producedAtHelipad)
-            {
-                return GetBoneTransform($"HELIPARK01");
-            }
+            if (producedAtHelipad) return GetBoneTransform($"HELIPARK01");
 
             var freeSlot = NextFreeSlot();
-            var runway = freeSlot % 2 + 1;
-            var hangar = freeSlot / 2 + 1;
+            var runway = SlotToRunway(freeSlot);
+            var hangar = SlotToHangar(freeSlot);
+            return GetBoneTransform($"RUNWAY{runway}PARK{hangar}HAN");
+        }
+
+        public Transform GetUnitCreateTransform(GameObject gameObject)
+        {
+            var slot = GetCorrespondingSlot(gameObject);
+            var runway = SlotToRunway(slot);
+            var hangar = SlotToHangar(slot);
             return GetBoneTransform($"RUNWAY{runway}PARK{hangar}HAN");
         }
 
@@ -100,24 +93,26 @@ namespace OpenSage.Logic.Object
 
         public Vector3? GetNaturalRallyPoint() => null;
 
-        public Vector3 GetNaturalRallyPoint(GameObject gameObject)
+        public Transform GetParkingTransform(GameObject gameObject)
         {
             var slot = GetCorrespondingSlot(gameObject);
-            var runway = slot % 2 + 1;
-            var hangar = slot / 2 + 1;
+            var runway = SlotToRunway(slot);
+            var hangar = SlotToHangar(slot);
 
-            return GetBoneTranslation($"RUNWAY{runway}PARKING{hangar}");
+            return GetBoneTransform($"RUNWAY{runway}PARKING{hangar}");
         }
 
-        public bool IsPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) ? _blockedBones[boneName] : false;
+        public Vector3 GetParkingPoint(GameObject gameObject) => GetParkingTransform(gameObject).Translation;
+
+        public bool IsPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) && _blockedBones[boneName];
         public void SetPointBlocked(string boneName, bool value) => _blockedBones[boneName] = value;
 
         public Queue<string> GetPathToStart(GameObject vehicle)
         {
             var result = new Queue<string>();
             var slot = GetCorrespondingSlot(vehicle);
-            var runway = slot % 2 + 1;
-            var hangar = slot / 2 + 1;
+            var runway = SlotToRunway(slot);
+            var hangar = SlotToHangar(slot);
 
             var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
 
@@ -151,8 +146,8 @@ namespace OpenSage.Logic.Object
         {
             var result = new Queue<string>();
             var slot = GetCorrespondingSlot(vehicle);
-            var runway = slot % 2 + 1;
-            var hangar = slot / 2 + 1;
+            var runway = SlotToRunway(slot);
+            var hangar = SlotToHangar(slot);
 
             var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
 
@@ -183,19 +178,12 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-
-
         public Vector3 GetRunwayEndPoint(GameObject vehicle)
         {
             var slot = GetCorrespondingSlot(vehicle);
-            var runway = slot % 2 + 1;
+            var runway = SlotToRunway(slot);
 
             return GetBoneTranslation($"RUNWAYEND{runway}");
-        }
-
-        public void Unpark(GameObject gameObject)
-        {
-            //
         }
 
         public Transform GetBoneTransform(string name)
@@ -209,6 +197,9 @@ namespace OpenSage.Logic.Object
         }
 
         public Vector3 GetBoneTranslation(string name) => GetBoneTransform(name).Translation;
+
+        private int SlotToHangar(int slot) => slot / 2 + 1;
+        private int SlotToRunway(int slot) => slot % 2 + 1;
     }
 
     /// <summary>
