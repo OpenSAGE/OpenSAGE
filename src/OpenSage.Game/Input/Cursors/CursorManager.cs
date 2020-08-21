@@ -24,8 +24,6 @@ namespace OpenSage.Input.Cursors
 
         public void SetCursor(string cursorName, in TimeInterval time)
         {
-            return;
-
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
                 var mouseCursor = _assetStore.MouseCursors.GetByName(cursorName);
