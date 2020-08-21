@@ -324,6 +324,10 @@ namespace OpenSage.Logic.Object
                         if (item != null)
                         {
                             modelInstance.BoneVisibilities[item.i] = false;
+                            if (hideSubObject.StartsWith("BOX"))
+                            {
+                                var k = 0;
+                            }
                         }
 
                     }
@@ -336,6 +340,10 @@ namespace OpenSage.Logic.Object
                         if (item != null)
                         {
                             modelInstance.BoneVisibilities[item.i] = true;
+                            if (showSubObject.StartsWith("BOX"))
+                            {
+                                var k = 0;
+                            }
                         }
 
                     }

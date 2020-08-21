@@ -45,6 +45,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _locomotorSet = locomotorSet;
             _locomotorTemplate = locomotorSet.Locomotor.Value;
+            LiftFactor = 1.0f;
         }
 
         public float GetPitchDamping()
@@ -53,23 +54,23 @@ namespace OpenSage.Logic.Object
         }
 
         //TODO: check if the damaged values exists
-        private float GetAcceleration()
+        public float GetAcceleration()
         {
             return _gameObject.IsDamaged
-                ? GetLocomotorValue(_ => _.AccelerationDamaged)
-                : GetLocomotorValue(_ => _.Acceleration);
+                ? GetScaledLocomotorValue(_ => _.AccelerationDamaged)
+                : GetScaledLocomotorValue(_ => _.Acceleration);
         }
 
         private float GetFrontWheelTurnAngle()
         {
-            return GetLocomotorValue(_ => _.FrontWheelTurnAngle);
+            return GetScaledLocomotorValue(_ => _.FrontWheelTurnAngle);
         }
 
         private float GetTurnRate()
         {
             return _gameObject.IsDamaged
-                ? GetLocomotorValue(_ => _.TurnRateDamaged)
-                : GetLocomotorValue(_ => _.TurnRate);
+                ? GetScaledLocomotorValue(_ => _.TurnRateDamaged)
+                : GetScaledLocomotorValue(_ => _.TurnRate);
         }
 
         public float GetSpeed()
@@ -78,8 +79,8 @@ namespace OpenSage.Logic.Object
             if (_locomotorTemplate.Speed.HasValue)
             {
                 return _gameObject.IsDamaged
-                    ? GetLocomotorValue(_ => _.SpeedDamaged)
-                    : GetLocomotorValue(x => x.Speed.Value);
+                    ? GetScaledLocomotorValue(_ => _.SpeedDamaged)
+                    : GetScaledLocomotorValue(_ => _.Speed.Value);
             }
             return _locomotorSet.Speed;
         }
@@ -87,8 +88,8 @@ namespace OpenSage.Logic.Object
         public float GetLift()
         {
             var currentLift = _gameObject.IsDamaged
-                ? GetLocomotorValue(x => x.LiftDamaged)
-                : GetLocomotorValue(x => x.Lift);
+                ? GetScaledLocomotorValue(_ => _.LiftDamaged)
+                : GetScaledLocomotorValue(_ => _.Lift);
             return currentLift * LiftFactor;
         }
 
@@ -133,7 +134,7 @@ namespace OpenSage.Logic.Object
 
             // Distance is 2D
             var distanceRemaining = delta.Vector2XY().Length();
-            var braking = GetLocomotorValue(_ => _.Braking);
+            var braking = GetScaledLocomotorValue(_ => _.Braking);
 
             switch (_locomotorTemplate.Appearance)
             {
@@ -170,6 +171,8 @@ namespace OpenSage.Logic.Object
             var deltaSpeed = currentAcceleration * deltaTime;
 
             var newSpeed = oldSpeed + deltaSpeed;
+            var val = GetScaledLocomotorValue(_ => _.MinTurnSpeed);
+            var reachedTurnSpeed = newSpeed >= GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             _gameObject.Speed = Math.Clamp(newSpeed, 0, GetSpeed());
 
             // This locomotor speed is distance/second
@@ -187,7 +190,8 @@ namespace OpenSage.Logic.Object
 
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
-            var yaw = currentYaw + newDelta; // newSpeed >= _locomotorTemplate.MinTurnSpeed * GetSpeed() ? currentYaw + newDelta : 0.0f;
+
+            var yaw = reachedTurnSpeed ? currentYaw + newDelta : currentYaw;
 
             _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
 
@@ -211,6 +215,7 @@ namespace OpenSage.Logic.Object
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
                     var thrust = GetCurrentThrust(height, deltaTime, transform);
+                    if (!reachedTurnSpeed) break;
                     trans.Z += thrust;
                     moveDirection = Vector2.Normalize(new Vector2(lookingDirection.X, lookingDirection.Y));
                     //model_pitch = -thrust;
@@ -260,12 +265,13 @@ namespace OpenSage.Logic.Object
                     var transform = _gameObject.Transform;
                     var trans = transform.Translation;
 
-                    var circumference = MathUtility.TwoPi * GetLocomotorValue(x => x.CirclingRadius);
-                    var timePerRoundtrip = circumference / GetSpeed();
+                    _gameObject.Speed = GetSpeed();
+                    var circumference = MathUtility.TwoPi * GetScaledLocomotorValue(x => x.CirclingRadius);
+                    var timePerRoundtrip = circumference / _gameObject.Speed;
 
                     var moveDirection = Vector2.Normalize(new Vector2(transform.LookDirection.X, transform.LookDirection.Y));
 
-                    var deltaTransform = new Vector3(moveDirection * GetSpeed() * deltaTime, 0);
+                    var deltaTransform = new Vector3(moveDirection * _gameObject.Speed * deltaTime, 0);
 
                     trans += deltaTransform;
                     transform.Translation = trans;
@@ -297,9 +303,11 @@ namespace OpenSage.Logic.Object
             return MathF.Min(_gameObject.Lift * deltaTime, heightRemaining);
         }
 
-        public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue)
+        public float GetScaledLocomotorValue(Func<LocomotorTemplate, float> getValue)
         {
             return (_locomotorSet.Speed / 100.0f) * getValue(_locomotorTemplate);
         }
+
+        public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(_locomotorTemplate);
     }
 }

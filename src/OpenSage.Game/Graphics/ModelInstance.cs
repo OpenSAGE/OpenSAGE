@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Logic;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -33,6 +31,12 @@ namespace OpenSage.Graphics
         /// if their parent bones are hidden.
         /// </summary>
         internal readonly bool[] BoneVisibilities;
+
+        /// <summary>
+        /// Calculated bone visibilities for the current frame. Child bones will be hidden
+        /// if their parent bones are hidden.
+        /// </summary>
+        internal readonly bool[] BoneFrameVisibilities;
 
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegates;
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegatesDepth;
@@ -67,9 +71,12 @@ namespace OpenSage.Graphics
             AbsoluteBoneTransforms = new Matrix4x4[model.BoneHierarchy.Bones.Length];
 
             BoneVisibilities = new bool[model.BoneHierarchy.Bones.Length];
+            BoneFrameVisibilities = new bool[model.BoneHierarchy.Bones.Length];
+
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
             {
                 BoneVisibilities[i] = true;
+                BoneFrameVisibilities[i] = true;
             }
 
             _hasSkinnedMeshes = model.SubObjects.Any(x => x.RenderObject.Skinned);
@@ -158,12 +165,13 @@ namespace OpenSage.Graphics
                         : Matrix4x4.Identity;
 
                     RelativeBoneTransforms[i] =
+
                         ModelBoneInstances[i].Matrix *
                         parentTransform;
 
                     var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
-                    BoneVisibilities[i] = parentVisible && ModelBoneInstances[i].Visible;
+                    BoneFrameVisibilities[i] = BoneVisibilities[i] && parentVisible && ModelBoneInstances[i].Visible;
                 }
             }
 
