@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -10,33 +10,32 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
-        private readonly Tuple<string, bool>[] _boneList;
+        private readonly (string name, bool affectedBySteering)[] _boneList;
 
         internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
             : base(data, gameObject, context)
         {
             _data = data;
-            _boneList = new Tuple<string, bool>[]
-               {
-                    Tuple.Create(_data.LeftFrontTireBone, true),
-                    Tuple.Create(_data.LeftFrontTireBone2, true),
-                    Tuple.Create(_data.RightFrontTireBone, true),
-                    Tuple.Create(_data.RightFrontTireBone2, true),
+            _boneList = new[] {
+                (_data.LeftFrontTireBone, true),
+                (_data.LeftFrontTireBone2, true),
+                (_data.RightFrontTireBone, true),
+                (_data.RightFrontTireBone2, true),
 
-                    Tuple.Create(_data.MidRightFrontTireBone, false),
-                    Tuple.Create(_data.MidLeftFrontTireBone, false),
-                    Tuple.Create(_data.MidRightMidTireBone, false),
-                    Tuple.Create(_data.MidRightMidTireBone2, false),
-                    Tuple.Create(_data.MidLeftMidTireBone, false),
-                    Tuple.Create(_data.MidLeftMidTireBone2, false),
-                    Tuple.Create(_data.MidRightRearTireBone, false),
-                    Tuple.Create(_data.MidLeftRearTireBone, false),
+                (_data.MidRightFrontTireBone, false),
+                (_data.MidLeftFrontTireBone, false),
+                (_data.MidRightMidTireBone, false),
+                (_data.MidRightMidTireBone2, false),
+                (_data.MidLeftMidTireBone, false),
+                (_data.MidLeftMidTireBone2, false),
+                (_data.MidRightRearTireBone, false),
+                (_data.MidLeftRearTireBone, false),
 
-                    Tuple.Create(_data.LeftRearTireBone, false),
-                    Tuple.Create(_data.LeftRearTireBone2, false),
-                    Tuple.Create(_data.RightRearTireBone, false),
-                    Tuple.Create(_data.RightRearTireBone2, false)
-               };
+                (_data.LeftRearTireBone, false),
+                (_data.LeftRearTireBone2, false),
+                (_data.RightRearTireBone, false),
+                (_data.RightRearTireBone2, false)
+            };
         }
 
         internal override void Update(in TimeInterval gameTime)
@@ -45,27 +44,39 @@ namespace OpenSage.Logic.Object
 
             // Rotating wheels
             var roll = _data.TireRotationMultiplier * GameObject.Speed * gameTime.TotalTime.Milliseconds;
-          
-            foreach (var boneDef in _boneList)
-            {
-                if (boneDef == null)
-                {
-                    continue;
-                }
 
+            foreach (var (boneName, affectedBySteering) in _boneList)
+            {
                 var yaw = 0.0f;
-                if(boneDef.Item2)
+
+                if (affectedBySteering)
                 {
                     yaw = GameObject.SteeringWheelsYaw;
                 }
 
-                var bones = ActiveModelInstance.Model.BoneHierarchy.Bones.Where(x => string.Equals(x.Name, boneDef.Item1, StringComparison.OrdinalIgnoreCase)).ToList();
-                if (bones.Count == 0) continue;
-                var boneInstance = ActiveModelInstance.ModelBoneInstances[bones[0].Index];
+                var boneInstance = FindBoneInstance(boneName);
+
+                if (boneInstance == null)
+                {
+                    continue;
+                }
+
                 boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
                 boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
-
             }
+        }
+
+        private ModelBoneInstance FindBoneInstance(string name)
+        {
+            foreach (var bone in ActiveModelInstance.Model.BoneHierarchy.Bones)
+            {
+                if (bone.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ActiveModelInstance.ModelBoneInstances[bone.Index];
+                }
+            }
+
+            return null;
         }
     }
 
