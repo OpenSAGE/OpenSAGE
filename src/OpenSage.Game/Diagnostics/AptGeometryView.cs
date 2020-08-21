@@ -141,7 +141,7 @@ namespace OpenSage.Diagnostics
                 _renderingContext.SetDrawingContext(drawingContext);
                 _renderingContext.PushTransform(itemTransform);
 
-                _renderingContext.RenderGeometry(_shape, (Texture)null);
+                _renderingContext.RenderGeometry(_shape, null);
 
                 _renderingContext.PopTransform();
             }
