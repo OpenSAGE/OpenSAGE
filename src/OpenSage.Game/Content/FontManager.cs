@@ -57,12 +57,7 @@ namespace OpenSage.Content
 
         public Font GetOrCreateFont(string fontName, float fontSize, FontWeight fontWeight)
         {
-            var key = new FontKey
-            {
-                FontName = fontName,
-                FontSize = fontSize,
-                FontWeight = fontWeight
-            };
+            var key = new FontKey(fontName, fontSize, fontWeight);
 
             if (!_cachedFonts.TryGetValue(key, out var font))
             {
@@ -94,11 +89,43 @@ namespace OpenSage.Content
             return font;
         }
 
-        private struct FontKey
+        private readonly struct FontKey : IEquatable<FontKey>
         {
-            public string FontName;
-            public float FontSize;
-            public FontWeight FontWeight;
+            private readonly string _fontName;
+            private readonly float _fontSize;
+            private readonly FontWeight _fontWeight;
+
+            public FontKey(string fontName, float fontSize, FontWeight fontWeight)
+            {
+                _fontName = fontName;
+                _fontSize = fontSize;
+                _fontWeight = fontWeight;
+            }
+
+            public bool Equals(FontKey other)
+            {
+                return _fontName == other._fontName && _fontSize.Equals(other._fontSize) && _fontWeight == other._fontWeight;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is FontKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(_fontName, _fontSize, (int) _fontWeight);
+            }
+
+            public static bool operator ==(FontKey left, FontKey right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(FontKey left, FontKey right)
+            {
+                return !left.Equals(right);
+            }
         }
     }
 }
