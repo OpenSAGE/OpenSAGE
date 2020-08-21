@@ -82,6 +82,11 @@ namespace OpenSage.Logic.Object
 
             var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
+            var transform = GameObject.Transform;
+            var trans = transform.Translation;
+
+            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
+
             switch (CurrentJetAIState)
             {
                 case JetAIState.MovingOut:
@@ -128,17 +133,52 @@ namespace OpenSage.Logic.Object
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
                     base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject)));
                     CurrentJetAIState = JetAIState.Starting;
+                    _currentLocomotor.LiftFactor = 0;
                     break;
 
                 case JetAIState.Starting:
-                    if (isMoving) break;
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, false);
+                    if (isMoving)
+                    {
+                        // TODO: for ZH
+                        //var startPointPosition =
+                        //    Base.ToWorldspace(parkingPlaceBehavior.GetRunwayStartPoint(GameObject));
+                        //var endPointPosition =
+                        //    Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject));
+                        //var runwayLength = (endPointPosition - startPointPosition).Length();
+
+                        //var currentStartingDistancePercent = (GameObject.Transform.Translation - startPointPosition).Length() / runwayLength;
+                        //var takeOffDist = _moduleData.TakeoffDistForMaxLift.Value;
+
+                        var speedPercentage = GameObject.Speed / _currentLocomotor.GetSpeed();
+                        //_currentLocomotor.LiftFactor = speedPercentage;
+
+                        if (speedPercentage > _moduleData.TakeoffSpeedForMaxLift.Value)
+                            //|| currentStartingDistancePercent > _moduleData.TakeoffDistForMaxLift.Value)
+                        {
+                            _currentLocomotor.LiftFactor = 1;
+                        }
+
+                        if (speedPercentage > 0.9f)
+                        {
+                            var k = 0;
+                        }
+                        break;
+                    }
+
                     base.SetTargetPoint(_currentTargetPoint);
                     CurrentJetAIState = JetAIState.MovingTowardsTarget;
                     break;
 
                 case JetAIState.MovingTowardsTarget:
-                    if (isMoving) break;
+                    if (isMoving)
+                    {
+                        if (MathF.Abs((trans.Z - terrainHeight) -
+                                      _currentLocomotor.GetLocomotorValue(_ => _.PreferredHeight)) < 0.1f)
+                        {
+                            GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, false);
+                        }
+                        break;
+                    }
                     CurrentJetAIState = JetAIState.Idle;
                     _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ReturnToBaseIdleTime);
                     break;
@@ -163,10 +203,6 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
-            var transform = GameObject.Transform;
-            var trans = transform.Translation;
-
-            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
             if (trans.Z - terrainHeight < _moduleData.MinHeight)
             {
                 trans.Z = terrainHeight + _moduleData.MinHeight;

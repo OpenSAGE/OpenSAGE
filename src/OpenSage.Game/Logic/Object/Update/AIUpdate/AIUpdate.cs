@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly Dictionary<LocomotorSetType, Locomotor> _locomotors;
-        private Locomotor _currentLocomotor;
+        protected Locomotor _currentLocomotor;
 
         private readonly AIUpdateModuleData _moduleData;
 

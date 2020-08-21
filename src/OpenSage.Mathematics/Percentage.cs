@@ -11,6 +11,8 @@
             _value = value;
         }
 
+        public float Value => _value;
+
         public static float operator *(float f, Percentage p) => f * p._value;
         public static float operator *(Percentage p, float f) => p._value * f;
 
