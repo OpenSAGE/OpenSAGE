@@ -23,6 +23,11 @@ namespace OpenSage.Diagnostics
 
         private void OnScriptingUpdateFinished(object sender, ScriptingSystem scripting)
         {
+            if (!IsVisible)
+            {
+                return;
+            }
+
             _scriptStateContent.Clear();
 
             _scriptStateContent.AppendLine("Counters:");
