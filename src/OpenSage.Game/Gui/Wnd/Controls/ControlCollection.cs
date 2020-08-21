@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -14,7 +15,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public Control FindControl(string name, bool searchAllChildren = true)
         {
-            foreach (var child in this)
+            foreach (var child in AsList())
             {
                 if (child.Name == name)
                 {
@@ -36,7 +37,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected override void ClearItems()
         {
-            foreach (var control in this)
+            foreach (var control in AsList())
             {
                 control.ParentInternal = null;
                 SetWindowRecursive(control, null);
@@ -92,10 +93,19 @@ namespace OpenSage.Gui.Wnd.Controls
         internal static void SetWindowRecursive(Control control, Window window)
         {
             control.Window = window;
-            foreach (var child in control.Controls)
+            foreach (var child in control.Controls.AsList())
             {
                 SetWindowRecursive(child, window);
             }
+        }
+
+        // Obtains a reference to the internal List<T>.
+        // Unlike Collection<T>, List<T> supports efficient zero-allocation enumeration.
+        // ControlCollection is enumerated so much that the cost iteration has a measurable effect on memory usage.
+        // Do NOT refactor this to return an abstract type, as that will force the enumerator to be boxed, resulting in allocations.
+        public List<Control> AsList()
+        {
+            return Items as List<Control>;
         }
     }
 }
