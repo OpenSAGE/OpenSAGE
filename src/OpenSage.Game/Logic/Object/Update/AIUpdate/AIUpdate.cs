@@ -107,7 +107,11 @@ namespace OpenSage.Logic.Object
             GameObject.Speed = 0;
         }
 
-        internal void SetTargetDirection(Vector3 targetDirection) => _targetDirection = targetDirection;
+        internal void SetTargetDirection(Vector3 targetDirection)
+        {
+            _targetDirection = targetDirection;
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
+        }
 
         /// <summary>
         /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
@@ -155,6 +159,7 @@ namespace OpenSage.Logic.Object
                     if (_currentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
                     {
                         _targetDirection = null;
+                        Stop();
                     }
                 }
                 else

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.Object.Production;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,16 +12,25 @@ namespace OpenSage.Logic.Object
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
-        private GameObject[] _parkingSlots;
-        private Dictionary<string, bool> _blockedBones;
+        public GameObject[] ParkingSlots { get; }
+        private readonly Dictionary<string, bool> _blockedBones;
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
             _gameContext = context;
-            _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
+            ParkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
             _blockedBones = new Dictionary<string, bool>();
+        }
+
+        public bool CanProduceObject(ObjectDefinition definition, IReadOnlyList<ProductionJob> productionQueue)
+        {
+            if (ProducedAtHelipad(definition)) return true;
+
+            var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition.AIUpdate).NeedsRunway);
+            var slotsAvailable = ParkingSlots.Count(x => x == null);
+            return slotsAvailable > numInQueue;
         }
 
         public bool ProducedAtHelipad(ObjectDefinition definition)
@@ -27,18 +38,11 @@ namespace OpenSage.Logic.Object
             return definition.KindOf.Get(ObjectKinds.ProducedAtHelipad);
         }
 
-        public GameObject GetObejctInSlot(int slotIndex)
-        {
-            if (slotIndex > _parkingSlots.Length) return null;
-
-            return _parkingSlots[slotIndex];
-        }
-
         public int NextFreeSlot()
         {
-            for (var index = 0; index < _parkingSlots.Length; index++)
+            for (var index = 0; index < ParkingSlots.Length; index++)
             {
-                if (_parkingSlots[index] == null)
+                if (ParkingSlots[index] == null)
                 {
                     return index;
                 }
@@ -47,17 +51,29 @@ namespace OpenSage.Logic.Object
             return -1;
         }
 
-        private int GetCorrespondingSlot(GameObject gameObject)
+        public int GetCorrespondingSlot(GameObject gameObject)
         {
-            for (var index = 0; index < _parkingSlots.Length; index++)
+            for (var index = 0; index < ParkingSlots.Length; index++)
             {
-                if (_parkingSlots[index] == gameObject)
+                if (ParkingSlots[index] == gameObject)
                 {
                     return index;
                 }
             }
 
             return -1;
+        }
+
+        public void ClearObjectFromSlot(GameObject gameObject)
+        {
+            for (var index = 0; index < ParkingSlots.Length; index++)
+            {
+                if (ParkingSlots[index] == gameObject)
+                {
+                    ParkingSlots[index] = null;
+                    return;
+                }
+            }
         }
 
         public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("not supported here");
@@ -80,15 +96,22 @@ namespace OpenSage.Logic.Object
             return GetBoneTransform($"RUNWAY{runway}PARK{hangar}HAN");
         }
 
-        public void ParkVehicle(GameObject vehicle)
+        public void AddVehicle(GameObject vehicle)
         {
             var freeSlot = NextFreeSlot();
-            _parkingSlots[freeSlot] = vehicle;
+            ParkingSlots[freeSlot] = vehicle;
 
             vehicle.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
             var jetAIUpdate = vehicle.AIUpdate as JetAIUpdate;
             jetAIUpdate.Base = _gameObject;
-            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.PARKED;
+            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
+        }
+
+        public void ParkVehicle(GameObject vehicle)
+        {
+            var jetAIUpdate = vehicle.AIUpdate as JetAIUpdate;
+            jetAIUpdate.AddTargetPoint(_gameObject.ToWorldspace(GetParkingPoint(vehicle)));
+            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.MovingOut;
         }
 
         public Vector3? GetNaturalRallyPoint() => null;

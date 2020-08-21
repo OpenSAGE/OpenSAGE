@@ -277,16 +277,13 @@ namespace OpenSage.Logic.Object
 
                     var normal = heightMap.GetNormal(transform.Translation.X, transform.Translation.Y);
 
-                    var deltaX = normal.X;
-                    //var deltaY = normal.Y;
-
-                    var worldPitch = (float) Math.Asin(deltaX);
-                    //var world_roll = (float) Math.Asin(deltaY);
+                    var worldPitch = 0.0f; //-(float) Math.Asin(normal.X);
+                    var worldRoll = 0.0f; //-(float) Math.Asin(normal.Y);
 
                     var deltaYaw = (deltaTime / timePerRoundtrip) * MathUtility.TwoPi;
                     var worldYaw = -transform.EulerAngles.Z + deltaYaw;
                     var modelRoll = -deltaYaw * deltaTransform.Length();
-                    transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, 0, worldYaw); // world space
+                    transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, worldYaw); // world space
                     transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0); // model space
                     break;
             }
