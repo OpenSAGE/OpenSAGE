@@ -216,7 +216,7 @@ namespace OpenSage.Logic.Object
                 {
                     var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
                     // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
-                    if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName.ToUpper()))
+                    if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName, StringComparison.OrdinalIgnoreCase))
                     {
                         _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
                     }
