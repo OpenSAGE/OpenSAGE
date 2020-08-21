@@ -285,7 +285,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     return;
                 }
 
-                foreach (var child in control.Controls)
+                foreach (var child in control.Controls.AsList())
                 {
                     findRecursive(child);
                 }
@@ -313,7 +313,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 _needsLayout = false;
             }
 
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 child.Layout();
             }
@@ -500,7 +500,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             yield return baseControl;
 
-            foreach (var child in baseControl.Controls)
+            foreach (var child in baseControl.Controls.AsList())
             {
                 if (isRecursive)
                 {

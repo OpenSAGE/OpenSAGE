@@ -94,7 +94,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 control.DrawCallback(control, drawingContext);
 
                 // Draw child controls.
-                foreach (var child in control.Controls)
+                foreach (var child in control.Controls.AsList())
                 {
                     drawControlRecursive(child);
                 }
