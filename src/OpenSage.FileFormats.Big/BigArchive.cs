@@ -37,9 +37,9 @@ namespace OpenSage.FileFormats.Big
             _entries = new List<BigArchiveEntry>();
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
 
-            FileMode fileMode = mode == BigArchiveMode.Create ? FileMode.Create : FileMode.Open;
-            FileAccess fileAccess = mode == BigArchiveMode.Read ? FileAccess.Read : FileAccess.ReadWrite;
-            FileShare fileShare = mode == BigArchiveMode.Read ? FileShare.Read : FileShare.ReadWrite;
+            var fileMode = mode == BigArchiveMode.Create ? FileMode.Create : FileMode.Open;
+            var fileAccess = mode == BigArchiveMode.Read ? FileAccess.Read : FileAccess.ReadWrite;
+            var fileShare = mode == BigArchiveMode.Read ? FileShare.Read : FileShare.ReadWrite;
 
             _stream = AddDisposable(new FileStream(
                 filePath,

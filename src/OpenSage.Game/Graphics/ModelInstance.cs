@@ -161,9 +161,7 @@ namespace OpenSage.Graphics
                         ModelBoneInstances[i].Matrix *
                         parentTransform;
 
-                    var parentVisible = bone.Parent != null
-                        ? BoneVisibilities[bone.Parent.Index]
-                        : true;
+                    var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
                     BoneVisibilities[i] = parentVisible && ModelBoneInstances[i].Visible;
                 }

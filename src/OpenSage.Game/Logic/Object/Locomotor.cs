@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using NLog.Targets;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -33,11 +32,13 @@ namespace OpenSage.Logic.Object
     ///   These control how much acceleration and cornering, respectively, will cause
     ///   the chassis to pitch or roll.
     /// </summary>
-    internal sealed class Locomotor
+    public sealed class Locomotor
     {
         private readonly GameObject _gameObject;
         private readonly LocomotorSet _locomotorSet;
         private readonly LocomotorTemplate _locomotorTemplate;
+
+        public float LiftFactor;
 
         public Locomotor(GameObject gameObject, LocomotorSet locomotorSet)
         {
@@ -55,42 +56,40 @@ namespace OpenSage.Logic.Object
         private float GetAcceleration()
         {
             return _gameObject.IsDamaged
-                ? GetLocomotorValue(x => x.AccelerationDamaged)
-                : GetLocomotorValue(x => x.Acceleration);
+                ? GetLocomotorValue(_ => _.AccelerationDamaged)
+                : GetLocomotorValue(_ => _.Acceleration);
         }
 
         private float GetFrontWheelTurnAngle()
         {
-            return GetLocomotorValue(x => x.FrontWheelTurnAngle);
+            return GetLocomotorValue(_ => _.FrontWheelTurnAngle);
         }
 
         private float GetTurnRate()
         {
             return _gameObject.IsDamaged
-                ? GetLocomotorValue(x => x.TurnRateDamaged)
-                : GetLocomotorValue(x => x.TurnRate);
+                ? GetLocomotorValue(_ => _.TurnRateDamaged)
+                : GetLocomotorValue(_ => _.TurnRate);
         }
 
-        private float GetSpeed()
+        public float GetSpeed()
         {
             // TODO: this is probably not correct for BFME
             if (_locomotorTemplate.Speed.HasValue)
             {
                 return _gameObject.IsDamaged
-                    ? GetLocomotorValue(x => x.SpeedDamaged)
+                    ? GetLocomotorValue(_ => _.SpeedDamaged)
                     : GetLocomotorValue(x => x.Speed.Value);
             }
-            else
-            {
-                return _locomotorSet.Speed;
-            }
+            return _locomotorSet.Speed;
         }
 
-        private float GetLift()
+        public float GetLift()
         {
-            return _gameObject.IsDamaged
+            var currentLift = _gameObject.IsDamaged
                 ? GetLocomotorValue(x => x.LiftDamaged)
                 : GetLocomotorValue(x => x.Lift);
+            return currentLift * LiftFactor;
         }
 
         public bool RotateToTargetDirection(in TimeInterval gameTime, in Vector3 targetDirection)
@@ -134,7 +133,7 @@ namespace OpenSage.Logic.Object
 
             // Distance is 2D
             var distanceRemaining = delta.Vector2XY().Length();
-            var braking = GetLocomotorValue(x => x.Braking);
+            var braking = GetLocomotorValue(_ => _.Braking);
 
             switch (_locomotorTemplate.Appearance)
             {
@@ -298,7 +297,7 @@ namespace OpenSage.Logic.Object
             return MathF.Min(_gameObject.Lift * deltaTime, heightRemaining);
         }
 
-        private float GetLocomotorValue(Func<LocomotorTemplate, float> getValue)
+        public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue)
         {
             return (_locomotorSet.Speed / 100.0f) * getValue(_locomotorTemplate);
         }

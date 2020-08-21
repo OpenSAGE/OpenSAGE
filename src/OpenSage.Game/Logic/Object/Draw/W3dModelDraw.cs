@@ -178,7 +178,7 @@ namespace OpenSage.Logic.Object
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
             ModelConditionState bestConditionState = null;
-            var bestIntersections = 0;
+            var bestIntersections = int.MinValue;
             var bestBitCount = int.MinValue;
 
             // Find best matching ModelConditionState.

@@ -209,6 +209,14 @@ namespace OpenSage.Logic.Object
             return GetBoneTranslation($"RUNWAYEND{runway}");
         }
 
+        public Vector3 GetRunwayStartPoint(GameObject vehicle)
+        {
+            var slot = GetCorrespondingSlot(vehicle);
+            var runway = SlotToRunway(slot);
+
+            return GetBoneTranslation($"RUNWAYSTART{runway}");
+        }
+
         public Transform GetBoneTransform(string name)
         {
             var (_, bone) = _gameObject.FindBone(name);
