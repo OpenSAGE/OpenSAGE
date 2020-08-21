@@ -78,8 +78,9 @@ namespace OpenSage.Mods.Generals.Gui
         private void ApplyProgress(string name, string coordPrefix, float progress = 1.0f)
         {
             var control = FindControl(name);
-            if (control == null)
-                return;
+
+            if (control == null) return;
+
             var schemeType = _scheme.GetType();
 
             var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(_scheme);
@@ -261,7 +262,9 @@ namespace OpenSage.Mods.Generals.Gui
                             // Disable the button when the unit is not produceable
                             case CommandType.DozerConstruct:
                             case CommandType.UnitBuild:
-                                buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                                buttonControl.Enabled = objectDefinition != null &&
+                                                        selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition) &&
+                                                        selectedUnit.CanProduceObject(objectDefinition);
                                 break;
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:

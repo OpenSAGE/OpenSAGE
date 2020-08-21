@@ -111,22 +111,11 @@ namespace OpenSage.Logic.Object
                     if (time.TotalTime >= _currentStepEnd)
                     {
                         _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
-                        if (_productionExit is ParkingPlaceBehaviour parkingPlace)
+                        if (_productionExit is ParkingPlaceBehaviour)
                         {
-                            var parkedObject = parkingPlace.GetObejctInSlot(_doorIndex);
-                            if (parkedObject.ModelConditionFlags.Get(ModelConditionFlag.Dying) == false)
-                            {
-                                break;
-                            }
+                            break; // Door is closed on aircraft death from JetAIUpdate
                         }
-
-                        Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
-                        _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
-                        _currentDoorState = DoorState.Closing;
-                        GetDoorConditionFlags(out var _, out var doorWaitingOpen, out var doorClosing);
-                        _gameObject.ModelConditionFlags.Set(doorWaitingOpen, false);
-                        _gameObject.ModelConditionFlags.Set(doorClosing, true);
-                        // TODO: What is ModelConditionFlag.Door1WaitingToClose?
+                        CloseDoor(time, _doorIndex);
                     }
                     break;
 
@@ -140,6 +129,18 @@ namespace OpenSage.Logic.Object
                     }
                     break;
             }
+        }
+
+        public void CloseDoor(TimeInterval time, int doorIndex)
+        {
+            _doorIndex = doorIndex;
+            Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
+            _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
+            _currentDoorState = DoorState.Closing;
+            GetDoorConditionFlags(out var _, out var doorWaitingOpen, out var doorClosing);
+            _gameObject.ModelConditionFlags.Set(doorWaitingOpen, false);
+            _gameObject.ModelConditionFlags.Set(doorClosing, true);
+            // TODO: What is ModelConditionFlag.Door1WaitingToClose?
         }
 
         private bool UsesDoor(ObjectDefinition definition)
@@ -214,6 +215,19 @@ namespace OpenSage.Logic.Object
             _gameObject.Upgrade(upgradeDefinition);
         }
 
+        internal bool CanProduceObject(ObjectDefinition objectDefinition)
+        {
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+            if (_productionExit == null) return true;
+
+            if (_productionExit is ParkingPlaceBehaviour parkingPlace)
+            {
+                return parkingPlace.CanProduceObject(objectDefinition, ProductionQueue);
+            }
+
+            return true;
+        }
+
         private void ProduceObject(ObjectDefinition objectDefinition)
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
@@ -232,7 +246,7 @@ namespace OpenSage.Logic.Object
 
                 if (!producedAtHelipad)
                 {
-                    parkingPlace.ParkVehicle(_producedUnit);
+                    parkingPlace.AddVehicle(_producedUnit);
                 }
                 return;
             }
@@ -248,7 +262,7 @@ namespace OpenSage.Logic.Object
 
             if (_productionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(_producedUnit.Definition))
             {
-                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(parkingPlace.GetParkingPoint(_producedUnit)));
+                parkingPlace.ParkVehicle(_producedUnit);
                 _producedUnit = null;
                 return;
             }
@@ -274,14 +288,15 @@ namespace OpenSage.Logic.Object
         private void HandleHarvesterUnitCreation(GameObject spawnedUnit)
         {
             // a supply target (supply center etc.) just spawned a harvester object
-            if (_gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator) && spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester))
+            if (!_gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator) ||
+                !spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester) ||
+                !(spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate))
             {
-                if (spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate)
-                {
-                    supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchForSupplySource;
-                    supplyUpdate.CurrentSupplyTarget = _gameObject;
-                }
+                return;
             }
+
+            supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchForSupplySource;
+            supplyUpdate.CurrentSupplyTarget = _gameObject;
         }
 
         internal void QueueProduction(ObjectDefinition objectDefinition)

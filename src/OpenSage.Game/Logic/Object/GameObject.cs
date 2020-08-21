@@ -209,16 +209,10 @@ namespace OpenSage.Logic.Object
             Player owner,
             GameObjectCollection parent)
         {
-            if (objectDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(objectDefinition));
-            }
+            Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
             _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
-
             _gameContext = gameContext;
-
-            Definition = objectDefinition;
             Owner = owner;
             Parent = parent;
 
@@ -392,6 +386,11 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool CanProduceObject(ObjectDefinition definition)
+        {
+            return ProductionUpdate?.CanProduceObject(definition) ?? true;
+        }
+
         internal bool Intersects(GameObject other)
         {
             if (Collider == null || other.Collider == null)
@@ -451,7 +450,6 @@ namespace OpenSage.Logic.Object
             return new Transform(worldPos);
         }
 
-
         internal T FindBehavior<T>()
         {
             // TODO: Cache this?
@@ -486,10 +484,7 @@ namespace OpenSage.Logic.Object
             {
                 return false; // TODO: player invalid upgrades?
             }
-            else
-            {
-                return ConflictingUpgrades.Contains(upgrade);
-            }
+            return ConflictingUpgrades.Contains(upgrade);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
