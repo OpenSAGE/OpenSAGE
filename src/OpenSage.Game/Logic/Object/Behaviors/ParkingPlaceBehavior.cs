@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
         {
             if (ProducedAtHelipad(definition)) return true;
 
-            var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition.AIUpdate).NeedsRunway);
+            // e.g. a enqueued upgrade (mig armor) has no AIUpdate
+            var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition?.AIUpdate)?.NeedsRunway ?? false);
             var slotsAvailable = ParkingSlots.Count(x => x == null);
             return slotsAvailable > numInQueue;
         }
@@ -118,6 +119,8 @@ namespace OpenSage.Logic.Object
 
         public Transform GetParkingTransform(GameObject gameObject)
         {
+            if (_moduleData.ParkInHangars) return GetUnitCreateTransform(gameObject);
+
             var slot = GetCorrespondingSlot(gameObject);
             var runway = SlotToRunway(slot);
             var hangar = SlotToHangar(slot);
@@ -139,66 +142,96 @@ namespace OpenSage.Logic.Object
 
             var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
 
+            if (_moduleData.ParkInHangars) result.Enqueue(parkingPoint);
+
+            // this is a very hacky solution, but a generic one does not seem to work for both airfields
+            // also with this approach the aircrafts do not collide like in the vanilla version
             switch (parkingPoint)
             {
                 case "RUNWAY1PARKING1":
-                    result.Enqueue($"RUNWAY2PREP2");
+                    if (_moduleData.ParkInHangars)
+                    {
+                        result.Enqueue($"RUNWAY1PARKING2");
+                        result.Enqueue($"RUNWAY1PREP2");
+                    }
+                    else
+                    {
+                        result.Enqueue($"RUNWAY2PREP2");
+                    }
                     result.Enqueue($"RUNWAY1PREP1");
-                    result.Enqueue($"RUNWAYSTART1");
-                    break;
-                case "RUNWAY2PARKING1":
-                    result.Enqueue($"RUNWAY2PREP1");
-                    result.Enqueue($"RUNWAYSTART2");
                     break;
                 case "RUNWAY1PARKING2":
+                    if (_moduleData.ParkInHangars)
+                    {
+                        result.Enqueue($"RUNWAY1PARKING2");
+                    }
+
                     result.Enqueue($"RUNWAY1PREP2");
                     result.Enqueue($"RUNWAY1PREP1");
-                    result.Enqueue($"RUNWAYSTART1");
+                    break;
+                case "RUNWAY2PARKING1":
+                    if (_moduleData.ParkInHangars)
+                    {
+                        result.Enqueue($"RUNWAY2PARKING2");
+                        result.Enqueue($"RUNWAY2PREP2");
+                    }
+                    result.Enqueue($"RUNWAY2PREP1");
                     break;
                 case "RUNWAY2PARKING2":
+                    if (_moduleData.ParkInHangars)
+                    {
+                        result.Enqueue($"RUNWAY2PARKING2");
+                    }
+
                     result.Enqueue($"RUNWAY2PREP2");
                     result.Enqueue($"RUNWAY2PREP1");
-                    result.Enqueue($"RUNWAYSTART2");
                     break;
             }
+            result.Enqueue($"RUNWAYSTART{runway}");
             return result;
         }
 
-        // TODO: merge this with GetPathToStart?
         public Queue<string> GetPathToParking(GameObject vehicle)
         {
-            var result = new Queue<string>();
             var slot = GetCorrespondingSlot(vehicle);
             var runway = SlotToRunway(slot);
             var hangar = SlotToHangar(slot);
 
-            var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
-
-            switch (parkingPoint)
-            {
-                case "RUNWAY1PARKING1":
-                    result.Enqueue($"RUNWAYSTART1");
-                    result.Enqueue($"RUNWAY1PREP1");
-                    result.Enqueue($"RUNWAY2PREP2");
-                    break;
-                case "RUNWAY2PARKING1":
-                    result.Enqueue($"RUNWAYSTART2");
-                    result.Enqueue($"RUNWAY2PREP1");
-                    break;
-                case "RUNWAY1PARKING2":
-                    result.Enqueue($"RUNWAYSTART1");
-                    result.Enqueue($"RUNWAY1PREP1");
-                    result.Enqueue($"RUNWAY1PREP2");
-                    break;
-                case "RUNWAY2PARKING2":
-                    result.Enqueue($"RUNWAYSTART2");
-                    result.Enqueue($"RUNWAY2PREP1");
-                    result.Enqueue($"RUNWAY2PREP2");
-                    break;
-            }
-
-            result.Enqueue(parkingPoint);
+            var result = new Queue<string>(GetPathToStart(vehicle).Reverse());
+            if (_moduleData.ParkInHangars) result.Enqueue($"RUNWAY{runway}PARK{hangar}HAN");
+            else result.Enqueue($"RUNWAY{runway}PARKING{hangar}");
             return result;
+            //var slot = GetCorrespondingSlot(vehicle);
+            //var runway = SlotToRunway(slot);
+            //var hangar = SlotToHangar(slot);
+
+            //var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
+
+            //switch (parkingPoint)
+            //{
+            //    case "RUNWAY1PARKING1":
+            //        result.Enqueue($"RUNWAYSTART1");
+            //        result.Enqueue($"RUNWAY1PREP1");
+            //        result.Enqueue($"RUNWAY2PREP2");
+            //        break;
+            //    case "RUNWAY2PARKING1":
+            //        result.Enqueue($"RUNWAYSTART2");
+            //        result.Enqueue($"RUNWAY2PREP1");
+            //        break;
+            //    case "RUNWAY1PARKING2":
+            //        result.Enqueue($"RUNWAYSTART1");
+            //        result.Enqueue($"RUNWAY1PREP1");
+            //        result.Enqueue($"RUNWAY1PREP2");
+            //        break;
+            //    case "RUNWAY2PARKING2":
+            //        result.Enqueue($"RUNWAYSTART2");
+            //        result.Enqueue($"RUNWAY2PREP1");
+            //        result.Enqueue($"RUNWAY2PREP2");
+            //        break;
+            //}
+
+            //result.Enqueue(parkingPoint);
+            //return result;
         }
 
         public Vector3 GetRunwayEndPoint(GameObject vehicle)
