@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -13,6 +9,12 @@ namespace OpenSage.Logic.Object
         private readonly W3dTankDrawModuleData _data;
         private readonly FXParticleSystemTemplate _treadDebrisLeft;
         private readonly FXParticleSystemTemplate _treadDebrisRight;
+
+        private static readonly string[] MeshNames = new[]
+        {
+            "TREADSL01",
+            "TREADSR01",
+        };
 
         internal W3dTankDraw(W3dTankDrawModuleData data, GameObject gameObject, GameContext context)
             : base(data, gameObject, context)
@@ -30,12 +32,7 @@ namespace OpenSage.Logic.Object
 
             // Animate treads
             var animationRate = _data.TreadAnimationRate * GameObject.Speed;
-            var meshNames = new string[]
-            {
-                 "TREADSL01",
-                 "TREADSR01",
-            };
-            foreach (var meshName in meshNames)
+            foreach (var meshName in MeshNames)
             {
                 // TODO: We need to update FixedFunctionShaderResources.TextureMapping.UVPerSec.X with animationRate.
                 // But right now that value is shared amongst all model instances that use this model.
