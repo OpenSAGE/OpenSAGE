@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -106,6 +106,11 @@ namespace OpenSage.Gui.Wnd.Controls
         public List<Control> AsList()
         {
             return Items as List<Control>;
+        }
+
+        public new IEnumerator<Control> GetEnumerator()
+        {
+            throw new InvalidOperationException($"Do not enumerate ControlCollection directly - use the {nameof(AsList)} method.");
         }
     }
 }

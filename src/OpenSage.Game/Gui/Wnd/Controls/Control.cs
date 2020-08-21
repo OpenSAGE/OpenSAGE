@@ -486,7 +486,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 child.ParentInternal = null;
                 child.Dispose();

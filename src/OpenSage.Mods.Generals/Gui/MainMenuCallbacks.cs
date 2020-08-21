@@ -40,7 +40,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var control = window.Controls.FindControl(controlName);
                 control.Opacity = 0;
 
-                foreach (var button in control.Controls.First().Controls)
+                foreach (var button in control.Controls.First().Controls.ToList())
                 {
                     button.Opacity = 0;
                     button.TextOpacity = 0;
