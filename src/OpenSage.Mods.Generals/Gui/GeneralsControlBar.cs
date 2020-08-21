@@ -212,11 +212,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ClearControls(GeneralsControlBar controlBar)
             {
-                foreach (var control in controlBar._center.Controls)
+                foreach (var control in controlBar._center.Controls.AsList())
                 {
                     if (control.Name == "ControlBar.wnd:CommandWindow")
                     {
-                        foreach (var child in control.Controls)
+                        foreach (var child in control.Controls.AsList())
                         {
                             child.Hide();
                         }
@@ -228,7 +228,7 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                 }
 
-                foreach (var control in controlBar._right.Controls)
+                foreach (var control in controlBar._right.Controls.AsList())
                 {
                     control.Hide();
                 }

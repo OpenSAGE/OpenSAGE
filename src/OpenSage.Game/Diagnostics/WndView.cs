@@ -54,7 +54,7 @@ namespace OpenSage.Diagnostics
 
             if (opened)
             {
-                foreach (var child in control.Controls)
+                foreach (var child in control.Controls.AsList())
                 {
                     DrawControlTreeItemRecursive(child);
                 }
