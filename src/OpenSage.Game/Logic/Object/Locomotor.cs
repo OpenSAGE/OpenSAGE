@@ -146,7 +146,6 @@ namespace OpenSage.Logic.Object
                 default:
                     if (nextPoint != null) braking = 0;
 
-                    // Calculate turn radius from speed & turnrate
                     var circumference = 360.0f / GetTurnRate() * oldSpeed;
                     var radius = circumference / MathUtility.TwoPi;
 
@@ -159,7 +158,7 @@ namespace OpenSage.Logic.Object
             if (distanceRemaining < 0.25f) return true;
 
             var minimumBrakingDistance = braking > 0
-                ? (oldSpeed * oldSpeed) / braking
+                ? (oldSpeed * oldSpeed) / (braking * 2.0f) // s = v² / 2a
                 : 0;
 
             // Are we braking or accelerating?
@@ -171,7 +170,6 @@ namespace OpenSage.Logic.Object
             var deltaSpeed = currentAcceleration * deltaTime;
 
             var newSpeed = oldSpeed + deltaSpeed;
-            var val = GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             var reachedTurnSpeed = newSpeed >= GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             _gameObject.Speed = Math.Clamp(newSpeed, 0, GetSpeed());
 
@@ -189,36 +187,31 @@ namespace OpenSage.Logic.Object
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
-            var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
+            var turningDelta = MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
+            var newDelta = -MathF.Sign(angleDelta) * turningDelta;
 
             var yaw = reachedTurnSpeed ? currentYaw + newDelta : currentYaw;
 
             _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
 
-            var worldPitch = 0.0f;
-            var worldRoll = 0.0f;
-            var modelPitch = 0.0f;
-            var modelRoll = 0.0f;
+            var thrust = 0.0f;
+            var deltaZ = 0.0f;
 
+            // height
             var height = heightMap.GetHeight(x, y);
-            var lookingDirection = transform.LookDirection;
-
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Thrust:
                     var targetZ = targetPoint.Z;
                     if (nextPoint != null) targetZ = height + _locomotorTemplate.PreferredHeight;
-                    var deltaZ = (distance / distanceRemaining) * (targetZ - trans.Z);
+                    deltaZ = (distance / distanceRemaining) * (targetZ - trans.Z);
                     trans.Z += deltaZ;
-                    modelPitch = deltaZ;
                     break;
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
-                    var thrust = GetCurrentThrust(height, deltaTime, transform);
+                    thrust = GetCurrentThrust(height, deltaTime, transform);
                     if (!reachedTurnSpeed) break;
                     trans.Z += thrust;
-                    moveDirection = Vector2.Normalize(new Vector2(lookingDirection.X, lookingDirection.Y));
-                    //model_pitch = -thrust;
                     break;
                 case LocomotorAppearance.Treads:
                     trans.Z = height;
@@ -229,10 +222,44 @@ namespace OpenSage.Logic.Object
                     break;
                 default:
                     trans.Z = height;
+                    break;
+            }
+
+            // moving direction
+            var lookingDirection = transform.LookDirection;
+            switch (_locomotorTemplate.Appearance)
+            {
+                case LocomotorAppearance.Thrust:
+                case LocomotorAppearance.Treads:
+                    break;
+                default:
                     moveDirection = Vector2.Normalize(new Vector2(lookingDirection.X, lookingDirection.Y));
                     break;
             }
 
+            // model roll and pitch
+            var modelPitch = 0.0f;
+            var modelRoll = 0.0f;
+            switch (_locomotorTemplate.Appearance)
+            {
+                case LocomotorAppearance.Thrust:
+                    modelPitch = deltaZ;
+                    break;
+                case LocomotorAppearance.Wings:
+                    if (!reachedTurnSpeed) break;
+                    modelPitch = -thrust / distance + distance * _locomotorTemplate.ForwardVelocityPitchFactor;
+                    var angle = Math.Clamp(angleDelta, -MathUtility.PiOver4, MathUtility.PiOver4);
+                    modelRoll = angle * distance * _locomotorTemplate.LateralVelocityRollFactor;
+                    break;
+                case LocomotorAppearance.Hover:
+                    modelPitch = -distance * _locomotorTemplate.ForwardVelocityPitchFactor;
+                    modelRoll = angleDelta * distance * _locomotorTemplate.LateralVelocityRollFactor;
+                    break;
+            }
+
+            // roll and pitch according to terrain
+            var worldPitch = 0.0f;
+            var worldRoll = 0.0f;
             switch (_locomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
@@ -247,11 +274,12 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
-            trans += new Vector3(moveDirection * distance, worldRoll);
-            transform.Translation = trans;
+            trans += new Vector3(moveDirection * distance, 0);
+            _gameObject.Transform.Translation = trans;
 
-            transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, yaw); // world space
-            transform.Rotation *= Quaternion.CreateFromYawPitchRoll(modelPitch, modelRoll, 0); // model space
+            _gameObject.ModelTransform.Rotation = Quaternion.CreateFromYawPitchRoll(modelPitch, modelRoll, 0);
+            _gameObject.Transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, yaw);
+
             return false;
         }
 
@@ -282,21 +310,21 @@ namespace OpenSage.Logic.Object
 
                     var normal = heightMap.GetNormal(transform.Translation.X, transform.Translation.Y);
 
-                    var worldPitch = 0.0f; //-(float) Math.Asin(normal.X);
-                    var worldRoll = 0.0f; //-(float) Math.Asin(normal.Y);
+                    var worldPitch = -(float) Math.Asin(normal.X);
+                    var worldRoll = -(float) Math.Asin(normal.Y);
 
                     var deltaYaw = (deltaTime / timePerRoundtrip) * MathUtility.TwoPi;
                     var worldYaw = -transform.EulerAngles.Z + deltaYaw;
                     var modelRoll = -deltaYaw * deltaTransform.Length();
-                    transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, worldYaw); // world space
-                    transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0); // model space
+                    _gameObject.ModelTransform.Rotation = Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0);
+                    _gameObject.Transform.Rotation = Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, worldYaw);
                     break;
             }
         }
 
-        private float GetCurrentThrust(float height, float deltaTime, Transform transform)
+        private float GetCurrentThrust(float terrainHeight, float deltaTime, Transform transform)
         {
-            var heightRemaining = (height + _locomotorTemplate.PreferredHeight) - transform.Translation.Z;
+            var heightRemaining = (terrainHeight + _locomotorTemplate.PreferredHeight) - transform.Translation.Z;
             var lift = GetLift();
             _gameObject.Lift += lift;
             _gameObject.Lift = Math.Clamp(_gameObject.Lift, 0, lift);

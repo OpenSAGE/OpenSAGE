@@ -193,6 +193,7 @@ namespace OpenSage.Logic.Object
 
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying))
             {
+                parkingPlaceBehavior.ClearObjectFromSlot(GameObject);
                 Base.ProductionUpdate?.CloseDoor(context.Time, parkingPlaceBehavior.GetCorrespondingSlot(GameObject));
             }
         }
