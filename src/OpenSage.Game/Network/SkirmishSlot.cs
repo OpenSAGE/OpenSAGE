@@ -33,7 +33,19 @@ namespace OpenSage.Network
             Index = index;
         }
 
-        public SkirmishSlotState State { get; set; } = SkirmishSlotState.Open;
+        private SkirmishSlotState _state = SkirmishSlotState.Open;
+        public SkirmishSlotState State
+        {
+            get
+            {
+                return _state;
+            }
+            set
+            {
+                IsDirty |= _state != value;
+                _state = value;
+            }
+        }
 
         private int _index;
         public int Index
