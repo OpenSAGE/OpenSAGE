@@ -33,13 +33,80 @@ namespace OpenSage.Network
             Index = index;
         }
 
-        public int Index { get; set; }
         public SkirmishSlotState State { get; set; } = SkirmishSlotState.Open;
-        public string PlayerName { get; set; } = string.Empty;
-        public byte ColorIndex { get; set; }
-        public byte FactionIndex { get; set; }
-        public byte Team { get; set; }
-        public bool Ready { get; set; }
+
+        private int _index;
+        public int Index
+        {
+            get
+            {
+                return _index;
+            }
+            set
+            {
+                IsDirty |= _index != value;
+                _index = value;
+            }
+        }
+
+
+        private string _playerName = string.Empty;
+        public string PlayerName { get
+            {
+                return _playerName;
+            }
+            set
+            {
+                IsDirty |= _playerName != value;
+                _playerName = value;
+            }
+        }
+
+        private byte _colorIndex;
+        public byte ColorIndex
+        {
+            get
+            {
+                return _colorIndex;
+            }
+            set
+            {
+                IsDirty |= _colorIndex != value;
+                _colorIndex = value;
+            }
+        }
+
+        private byte _factionIndex;
+        public byte FactionIndex { get
+            {
+                return _factionIndex;
+            }
+            set
+            {
+                IsDirty |= _factionIndex != value;
+                _factionIndex = value;
+            }
+        }
+
+        private byte _team;
+        public byte Team { get {
+                return _team; }
+            set
+            {
+                IsDirty |= _team != value;
+                _team = value;
+            } }
+
+        private bool _ready;
+        public bool Ready { get
+            {
+                return _ready;
+            } set
+            {
+                IsDirty |= _ready != value;
+                _ready = value;
+            }
+        }
 
         public IPEndPoint EndPoint;
 
@@ -48,38 +115,7 @@ namespace OpenSage.Network
         /// </summary>
         public int ProcessId { get; set; }
 
-        private byte[] _cleanState = new byte[1];
-        public bool IsDirty {
-            get
-            {
-                return !_cleanState.SequenceEqual(_bytes);
-            }
-            internal set {
-                if (!value)
-                {
-                    _cleanState = _bytes;
-                }
-            }
-        }
-
-        private byte[] _bytes
-        {
-            get
-            {
-                using (var ms = new MemoryStream())
-                {
-                    var writer = new BinaryWriter(ms);
-                    writer.Write(Index);
-                    writer.Write((int)State);
-                    writer.Write(PlayerName);
-                    writer.Write(ColorIndex);
-                    writer.Write(FactionIndex);
-                    writer.Write(Team);
-                    writer.Write(Ready);
-                    return ms.ToArray();
-                }
-            }
-        }
+        public bool IsDirty { get; set; }
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {
