@@ -5,6 +5,7 @@ namespace OpenSage.Mathematics
 {
     public static class MathUtility
     {
+        public static readonly float PiOver4 = MathF.PI / 4.0f;
         public static readonly float PiOver2 = MathF.PI / 2.0f;
         public static readonly float TwoPi = MathF.PI * 2.0f;
 

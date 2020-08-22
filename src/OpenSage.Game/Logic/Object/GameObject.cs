@@ -112,6 +112,7 @@ namespace OpenSage.Logic.Object
         public readonly ObjectDefinition Definition;
 
         public readonly Transform Transform;
+        public readonly Transform ModelTransform;
 
         public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
 
@@ -220,6 +221,7 @@ namespace OpenSage.Logic.Object
 
             SetDefaultWeapon();
             Transform = Transform.CreateIdentity();
+            ModelTransform = Transform.CreateIdentity();
             Transform.Scale = objectDefinition.Scale;
 
             var drawModules = new List<DrawModule>();
@@ -584,7 +586,7 @@ namespace OpenSage.Logic.Object
             }
 
             // This must be done after processing anything that might update this object's transform.
-            var worldMatrix = Transform.Matrix;
+            var worldMatrix = ModelTransform.Matrix * Transform.Matrix;
             foreach (var drawModule in _drawModules)
             {
                 drawModule.SetWorldMatrix(worldMatrix);
