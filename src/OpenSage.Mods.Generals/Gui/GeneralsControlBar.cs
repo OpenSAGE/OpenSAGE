@@ -71,6 +71,8 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Image _commandButtonHover;
         private readonly Image _commandButtonPushed;
 
+        private readonly Button[] _commandButtons;
+
         private ControlBarSize _size = ControlBarSize.Maximized;
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
@@ -121,6 +123,15 @@ namespace OpenSage.Mods.Generals.Gui
             _commandButtonPushed = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_push"));
 
             UpdateResizeButtonStyle();
+
+            _commandButtons = new Button[12];
+
+            for (var i = 0; i < 12; i++)
+            {
+                var buttonIndex = i + 1;
+                var buttonControl = _commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{buttonIndex:D2}") as Button;
+                _commandButtons[i] = buttonControl;
+            }
 
             State = ControlBarState.Default;
         }
@@ -236,11 +247,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
-                for (var i = 1; i <= 12; i++)
+                for (var i = 0; i < controlBar._commandButtons.Length; i++)
                 {
-                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
+                    var buttonControl = controlBar._commandButtons[i];
 
-                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
+                    if (commandSet != null && commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                     {
                         var commandButton = commandButtonReference.Value;
 
