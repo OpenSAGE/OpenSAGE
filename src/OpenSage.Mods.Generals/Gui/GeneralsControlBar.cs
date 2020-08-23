@@ -240,9 +240,13 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
-                for (var i = 1; i <= 12; i++)
+                for (var i = 1; i < 100; i++) // Generals has 12 buttons and Zero Hour has 14, but there's no need to set those values as the limit in the code
                 {
                     var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
+
+                    // the amount of ButtonCommand children in ControlBar.wnd defines how many buttons the game will have in-game
+                    if ( controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") == null )
+                        break;
 
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
                     {
