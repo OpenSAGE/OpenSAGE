@@ -127,7 +127,12 @@ namespace OpenSage.Network
         /// </summary>
         public int ProcessId { get; set; }
 
-        public bool IsDirty { get; set; }
+        public bool IsDirty { get; private set; }
+
+        public void ResetDirty()
+        {
+            IsDirty = false;
+        }
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {

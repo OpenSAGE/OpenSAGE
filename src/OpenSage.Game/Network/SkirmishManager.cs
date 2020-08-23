@@ -232,7 +232,7 @@ namespace OpenSage.Network
                     });
 
                     _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
-                    localSlot.IsDirty = false;
+                    localSlot.ResetDirty();
                 }
 
             }
@@ -357,7 +357,7 @@ namespace OpenSage.Network
 
                     foreach (var slot in dirty)
                     {
-                        slot.IsDirty = false;
+                        slot.ResetDirty();
                     }
 
                 }
