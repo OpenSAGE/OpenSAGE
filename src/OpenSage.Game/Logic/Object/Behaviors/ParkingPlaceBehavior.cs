@@ -74,8 +74,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public int GetApproachHeight() => _moduleData.ApproachHeight;
-
         public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("not supported here");
 
         public Transform GetUnitCreateTransform(bool producedAtHelipad)
@@ -110,8 +108,7 @@ namespace OpenSage.Logic.Object
         public void ParkVehicle(GameObject vehicle)
         {
             var jetAIUpdate = vehicle.AIUpdate as JetAIUpdate;
-            jetAIUpdate.AddTargetPoint(_gameObject.ToWorldspace(GetParkingPoint(vehicle)));
-            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.MovingOut;
+            jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.JustCreated;
         }
 
         public Vector3? GetNaturalRallyPoint() => null;
@@ -126,8 +123,6 @@ namespace OpenSage.Logic.Object
 
             return GetBoneTransform($"RUNWAY{runway}PARKING{hangar}");
         }
-
-        public Vector3 GetParkingPoint(GameObject gameObject) => GetParkingTransform(gameObject).Translation;
 
         public bool IsPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) && _blockedBones[boneName];
         public void SetPointBlocked(string boneName, bool value) => _blockedBones[boneName] = value;
@@ -144,6 +139,7 @@ namespace OpenSage.Logic.Object
             if (_moduleData.ParkInHangars) result.Enqueue(parkingPoint);
 
             // this is a very hacky solution, but a generic one does not seem to work for both airfields
+            // and even does not work for all aircrafts of the US airfield
             // also with this approach the aircrafts do not collide like in the vanilla version
             switch (parkingPoint)
             {
@@ -190,32 +186,13 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        public Queue<string> GetPathToParking(GameObject vehicle)
-        {
-            var slot = GetCorrespondingSlot(vehicle);
-            var runway = SlotToRunway(slot);
-            var hangar = SlotToHangar(slot);
-
-            var result = new Queue<string>(GetPathToStart(vehicle).Reverse());
-            if (_moduleData.ParkInHangars) result.Enqueue($"RUNWAY{runway}PARK{hangar}HAN");
-            else result.Enqueue($"RUNWAY{runway}PARKING{hangar}");
-            return result;
-        }
+        public Queue<string> GetPathToHangar(GameObject vehicle) => new Queue<string>(GetPathToStart(vehicle).Reverse());
 
         public Vector3 GetRunwayEndPoint(GameObject vehicle)
         {
             var slot = GetCorrespondingSlot(vehicle);
             var runway = SlotToRunway(slot);
-
             return GetBoneTranslation($"RUNWAYEND{runway}");
-        }
-
-        public Vector3 GetRunwayStartPoint(GameObject vehicle)
-        {
-            var slot = GetCorrespondingSlot(vehicle);
-            var runway = SlotToRunway(slot);
-
-            return GetBoneTranslation($"RUNWAYSTART{runway}");
         }
 
         public Transform GetBoneTransform(string name)

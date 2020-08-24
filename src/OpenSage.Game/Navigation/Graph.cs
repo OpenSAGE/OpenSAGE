@@ -49,7 +49,7 @@ namespace OpenSage.Navigation
 
         private List<Node> GetPath(Node start, Node end)
         {
-            var result = new List<Node>();
+            var result = new List<Node> { end };
             var iter = end.CameFrom;
 
             while (iter != start)
@@ -58,7 +58,6 @@ namespace OpenSage.Navigation
                 iter = iter.CameFrom;
             }
 
-            result.RemoveAt(result.Count - 1);
             result.Reverse();
 
             return result;
