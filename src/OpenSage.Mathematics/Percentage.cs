@@ -2,25 +2,23 @@
 {
     public readonly struct Percentage
     {
-        private readonly float _value;
-
-        public bool IsZero => _value == 0;
+        public bool IsZero => Value == 0;
 
         public Percentage(float value)
         {
-            _value = value;
+            Value = value;
         }
 
-        public float Value => _value;
+        public float Value { get; }
 
-        public static float operator *(float f, Percentage p) => f * p._value;
-        public static float operator *(Percentage p, float f) => p._value * f;
+        public static float operator *(float f, Percentage p) => f * p.Value;
+        public static float operator *(Percentage p, float f) => p.Value * f;
 
-        public static explicit operator float(Percentage p) => p._value;
+        public static explicit operator float(Percentage p) => p.Value;
 
         public override string ToString()
         {
-            return _value.ToString();
+            return Value.ToString();
         }
     }
 }
