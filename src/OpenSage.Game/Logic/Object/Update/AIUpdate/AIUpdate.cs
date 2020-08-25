@@ -42,6 +42,11 @@ namespace OpenSage.Logic.Object
             _locomotors = new Dictionary<LocomotorSetType, Locomotor>();
 
             SetLocomotor(LocomotorSetType.Normal);
+
+            if (_moduleData.Turret == null) return;
+
+            GameObject.TurretYaw = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretAngle);
+            GameObject.TurretPitch = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretPitch);
         }
 
         internal void SetLocomotor(LocomotorSetType type)
@@ -201,6 +206,58 @@ namespace OpenSage.Logic.Object
             {
                 // maintain position (jets etc)
                 CurrentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
+            }
+
+            UpdateTurret(context);
+        }
+
+        private void UpdateTurret(BehaviorUpdateContext context)
+        {
+            if (_moduleData.Turret == null) return;
+            // ConditionState.Turret = Turret (BoneName)
+
+            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
+
+            var target = GameObject.CurrentWeapon.CurrentTarget;
+
+            if (target != null)
+            {
+                var directionToTarget = (target.TargetPosition - GameObject.Transform.Translation).Vector2XY();
+                var targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
+
+                var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, GameObject.TurretYaw - GameObject.Transform.EulerAngles.Z);
+
+                if (MathF.Abs(deltaYaw) > 0.15f)
+                {
+                    GameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.Turret.TurretTurnRate);
+                }
+                else
+                {
+                    GameObject.TurretYaw -= deltaYaw;
+                }
+            }
+
+
+            if (_moduleData.Turret.AllowsPitch)
+            {
+                var pitch = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretPitch);
+
+                if (target != null)
+                {
+                    if (target.TargetType == WeaponTargetType.Object &&
+                        !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
+                    {
+                        pitch = MathUtility.ToRadians(_moduleData.Turret.GroundUnitPitch);
+                    }
+                }
+
+                // TODO: pitch rate
+                var deltaPitch = GameObject.TurretPitch - pitch;
+
+                if (MathF.Abs(deltaPitch) > 0.05f)
+                {
+                    GameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.Turret.TurretPitchRate);
+                }
             }
         }
 

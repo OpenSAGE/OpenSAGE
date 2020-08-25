@@ -317,6 +317,19 @@ namespace OpenSage.Logic.Object
             return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
         }
 
+        internal ModelBoneInstance FindBoneInstance(string name)
+        {
+            foreach (var bone in ActiveModelInstance.Model.BoneHierarchy.Bones)
+            {
+                if (bone.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ActiveModelInstance.ModelBoneInstances[bone.Index];
+                }
+            }
+
+            return null;
+        }
+
         internal override void Update(in TimeInterval gameTime)
         {
             if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))

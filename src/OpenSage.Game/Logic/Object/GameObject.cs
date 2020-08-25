@@ -16,6 +16,7 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
@@ -251,6 +252,9 @@ namespace OpenSage.Logic.Object
         public float Speed { get; set; }
         public float SteeringWheelsYaw { get; set; }
         public float Lift { get; set; }
+
+        public float TurretYaw { get; set; }
+        public float TurretPitch { get; set; }
 
         public bool IsPlacementPreview { get; set; }
 
@@ -753,9 +757,23 @@ namespace OpenSage.Logic.Object
 
         internal void SetDefaultWeapon()
         {
-            // TODO: we currently always pick the weapon without any conditions.
-            var weaponSet = Definition.WeaponSets.Values.FirstOrDefault(x => x.Conditions?.AnyBitSet == false);
-            SetWeaponSet(weaponSet);
+            // we have no WeaponSet or only the invalid one from 'DefaultThingTemplate'
+            if (Definition.WeaponSets.Count < 2) return;
+
+            var i = 0;
+            foreach (var weaponSet in Definition.WeaponSets.Values)
+            {
+                if (i++ == 0) continue; // Definition.WeaponSets.Values[0] is the invalid one from 'DefaultThingTemplate'
+
+                // TODO: we currently always pick the weapon without any conditions.
+                if (weaponSet.Conditions?.AnyBitSet == false)
+                {
+                    SetWeaponSet(weaponSet);
+                    return;
+                }
+            }
+
+            SetWeaponSet(Definition.WeaponSets.Values.Last());
         }
 
         internal void SetWeaponSet(WeaponTemplateSet weaponSet)

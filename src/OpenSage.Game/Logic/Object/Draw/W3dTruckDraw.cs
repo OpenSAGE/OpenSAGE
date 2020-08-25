@@ -60,23 +60,9 @@ namespace OpenSage.Logic.Object
                 {
                     continue;
                 }
-
                 boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
                 boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
             }
-        }
-
-        private ModelBoneInstance FindBoneInstance(string name)
-        {
-            foreach (var bone in ActiveModelInstance.Model.BoneHierarchy.Bones)
-            {
-                if (bone.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return ActiveModelInstance.ModelBoneInstances[bone.Index];
-                }
-            }
-
-            return null;
         }
     }
 

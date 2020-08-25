@@ -55,6 +55,9 @@ namespace OpenSage.Logic.Object
 
         public int MinPhysicalPitch { get; private set; }
 
+        /// <summary>
+        /// Instead of aiming pitchwise at the target, it will aim here
+        /// /// </summary>
         public int FirePitch { get; private set; }
 
         /// <summary>
