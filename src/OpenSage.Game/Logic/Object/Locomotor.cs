@@ -48,11 +48,6 @@ namespace OpenSage.Logic.Object
             LiftFactor = 1.0f;
         }
 
-        public float GetPitchDamping()
-        {
-            return _locomotorTemplate.PitchDamping;
-        }
-
         //TODO: check if the damaged values exists
         public float GetAcceleration()
         {
@@ -103,17 +98,13 @@ namespace OpenSage.Logic.Object
             var targetYaw = MathUtility.GetYawFromDirection(new Vector2(targetDirection.X, targetDirection.Y));
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
-            if (MathF.Abs(angleDelta) < 0.1f)
-            {
-                return true;
-            }
+            if (MathF.Abs(angleDelta) < 0.1f) return true;
 
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
             var yaw = currentYaw + newDelta;
 
             transform.Rotation = Quaternion.CreateFromYawPitchRoll(0.0f, 0.0f, yaw);
-
             return false;
         }
 
@@ -141,7 +132,7 @@ namespace OpenSage.Logic.Object
                 case LocomotorAppearance.Treads:
                     break;
                 case LocomotorAppearance.Wings:
-                    braking = 0; // hack for now until we understand why they always brake in the air
+                    braking = 0; // TODO: aircrafts should only brake while landing (do they?)
                     break;
                 default:
                     if (nextPoint != null) braking = 0;
@@ -310,8 +301,9 @@ namespace OpenSage.Logic.Object
 
                     var normal = heightMap.GetNormal(transform.Translation.X, transform.Translation.Y);
 
-                    var worldPitch = -(float) Math.Asin(normal.X);
-                    var worldRoll = -(float) Math.Asin(normal.Y);
+                    // TODO: in order to align to the terrain, but this messes up our lookingDirection -> we move randomly instead of in a clear circle
+                    var worldPitch = 0; //-(float) Math.Asin(normal.X);
+                    var worldRoll = 0; //-(float) Math.Asin(normal.Y);
 
                     var deltaYaw = (deltaTime / timePerRoundtrip) * MathUtility.TwoPi;
                     var worldYaw = -transform.EulerAngles.Z + deltaYaw;
