@@ -77,7 +77,7 @@ namespace OpenSage.Logic.Object
                 {
                     if (front.Type == ProductionJobType.Unit)
                     {
-                        if (_moduleData.NumDoorAnimations > 0 && UsesDoor(front.ObjectDefinition))
+                        if (_moduleData.NumDoorAnimations > 0 && ExitsThroughDoor(front.ObjectDefinition))
                         {
                             Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
                             _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
@@ -143,7 +143,7 @@ namespace OpenSage.Logic.Object
             // TODO: What is ModelConditionFlag.Door1WaitingToClose?
         }
 
-        private bool UsesDoor(ObjectDefinition definition)
+        private bool ExitsThroughDoor(ObjectDefinition definition)
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
             if (_productionExit is ParkingPlaceBehaviour parkingPlace)
@@ -218,9 +218,8 @@ namespace OpenSage.Logic.Object
         internal bool CanProduceObject(ObjectDefinition objectDefinition)
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
-            if (_productionExit == null) return true;
 
-            if (_productionExit is ParkingPlaceBehaviour parkingPlace)
+            if (_productionExit != null && _productionExit is ParkingPlaceBehaviour parkingPlace)
             {
                 return parkingPlace.CanProduceObject(objectDefinition, ProductionQueue);
             }

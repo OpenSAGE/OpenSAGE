@@ -212,13 +212,13 @@ namespace OpenSage.Logic.Object
         {
             if (_currentTaxiingTarget != null)
             {
-                parkingPlaceBehavior.SetPointBlocked(_currentTaxiingTarget, false);
+                parkingPlaceBehavior.SetTaxiingPointBlocked(_currentTaxiingTarget, false);
             }
 
             if (path.Count > 0)
             {
                 var nextPoint = path.Peek();
-                if (parkingPlaceBehavior.IsPointBlocked(nextPoint))
+                if (parkingPlaceBehavior.IsTaxiingPointBlocked(nextPoint))
                 {
                     _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
                     return true;
@@ -226,7 +226,7 @@ namespace OpenSage.Logic.Object
                 if (context.Time.TotalTime < _waitUntil) return true;
 
                 _currentTaxiingTarget = nextPoint;
-                parkingPlaceBehavior.SetPointBlocked(nextPoint, true);
+                parkingPlaceBehavior.SetTaxiingPointBlocked(nextPoint, true);
                 base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetBoneTranslation(path.Dequeue())));
                 return true;
             }

@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
-        public GameObject[] ParkingSlots { get; }
+        private readonly GameObject[] _parkingSlots;
         private readonly Dictionary<string, bool> _blockedBones;
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
             _gameObject = gameObject;
             _gameContext = context;
-            ParkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
+            _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
             _blockedBones = new Dictionary<string, bool>();
         }
 
@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
 
             // e.g. a enqueued upgrade (mig armor) has no AIUpdate
             var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition?.AIUpdate)?.NeedsRunway ?? false);
-            var slotsAvailable = ParkingSlots.Count(x => x == null);
+            var slotsAvailable = _parkingSlots.Count(_ => _ == null);
             return slotsAvailable > numInQueue;
         }
 
@@ -38,9 +38,9 @@ namespace OpenSage.Logic.Object
 
         public int NextFreeSlot()
         {
-            for (var index = 0; index < ParkingSlots.Length; index++)
+            for (var index = 0; index < _parkingSlots.Length; index++)
             {
-                if (ParkingSlots[index] == null)
+                if (_parkingSlots[index] == null)
                 {
                     return index;
                 }
@@ -51,9 +51,9 @@ namespace OpenSage.Logic.Object
 
         public int GetCorrespondingSlot(GameObject gameObject)
         {
-            for (var index = 0; index < ParkingSlots.Length; index++)
+            for (var index = 0; index < _parkingSlots.Length; index++)
             {
-                if (ParkingSlots[index] == gameObject)
+                if (_parkingSlots[index] == gameObject)
                 {
                     return index;
                 }
@@ -64,17 +64,17 @@ namespace OpenSage.Logic.Object
 
         public void ClearObjectFromSlot(GameObject gameObject)
         {
-            for (var index = 0; index < ParkingSlots.Length; index++)
+            for (var index = 0; index < _parkingSlots.Length; index++)
             {
-                if (ParkingSlots[index] == gameObject)
+                if (_parkingSlots[index] == gameObject)
                 {
-                    ParkingSlots[index] = null;
+                    _parkingSlots[index] = null;
                     return;
                 }
             }
         }
 
-        public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("not supported here");
+        public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("use GetUnitCreateTransform instead");
 
         public Transform GetUnitCreateTransform(bool producedAtHelipad)
         {
@@ -97,7 +97,7 @@ namespace OpenSage.Logic.Object
         public void AddVehicle(GameObject vehicle)
         {
             var freeSlot = NextFreeSlot();
-            ParkingSlots[freeSlot] = vehicle;
+            _parkingSlots[freeSlot] = vehicle;
 
             vehicle.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
             var jetAIUpdate = vehicle.AIUpdate as JetAIUpdate;
@@ -111,6 +111,7 @@ namespace OpenSage.Logic.Object
             jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.JustCreated;
         }
 
+        // this is handled via JetAIUpdate
         public Vector3? GetNaturalRallyPoint() => null;
 
         public Transform GetParkingTransform(GameObject gameObject)
@@ -124,8 +125,8 @@ namespace OpenSage.Logic.Object
             return GetBoneTransform($"RUNWAY{runway}PARKING{hangar}");
         }
 
-        public bool IsPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) && _blockedBones[boneName];
-        public void SetPointBlocked(string boneName, bool value) => _blockedBones[boneName] = value;
+        public bool IsTaxiingPointBlocked(string boneName) => _blockedBones.ContainsKey(boneName) && _blockedBones[boneName];
+        public void SetTaxiingPointBlocked(string boneName, bool value) => _blockedBones[boneName] = value;
 
         public Queue<string> GetPathToStart(GameObject vehicle)
         {
