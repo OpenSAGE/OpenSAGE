@@ -98,7 +98,7 @@ namespace OpenSage.Mods.Generals.Gui
                         var listBox = (ListBox) comboBox.Controls[2];
                         listBox.SelectedIndexChanged += (sender, e) =>
                         {
-                            OnSlotIndexChange(i, prefix, comboBox.SelectedIndex);
+                            OnSlotIndexChange?.Invoke(i, prefix, comboBox.SelectedIndex);
                         };
                     }
                     else
@@ -136,7 +136,7 @@ namespace OpenSage.Mods.Generals.Gui
                             context.Game.HostSkirmishGame();
                         }
 
-                        if (context.Game.SkirmishManager.SkirmishGame != null)
+                        if (context.Game.SkirmishManager?.SkirmishGame != null)
                         {
                             if (context.Game.SkirmishManager.IsHosting)
                             {
