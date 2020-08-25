@@ -16,7 +16,7 @@ namespace OpenSage.Gui.Wnd
         internal Stack<Window> WindowStack { get; }
 
         public WindowTransitionManager TransitionManager { get; }
-        public Control ?FocussedControl { get; private set; }
+        public Control FocussedControl { get; private set; }
 
         public WndWindowManager(Game game)
         {
@@ -26,6 +26,7 @@ namespace OpenSage.Gui.Wnd
             game.InputMessageBuffer.Handlers.Add(new WndInputMessageHandler(this, _game));
 
             TransitionManager = new WindowTransitionManager(game.AssetStore.WindowTransitions);
+            FocussedControl = null;
         }
 
         public Window PushWindow(Window window)
@@ -35,6 +36,8 @@ namespace OpenSage.Gui.Wnd
             WindowStack.Push(window);
 
             window.LayoutInit?.Invoke(window, _game);
+
+            FocussedControl = null;
 
             return window;
         }
