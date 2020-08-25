@@ -1,5 +1,7 @@
-﻿using OpenSage.Content;
+﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
@@ -9,6 +11,10 @@ namespace OpenSage.Logic.Object
         private readonly W3dTankDrawModuleData _data;
         private readonly FXParticleSystemTemplate _treadDebrisLeft;
         private readonly FXParticleSystemTemplate _treadDebrisRight;
+        private readonly ModelBoneInstance _turretBone;
+        private readonly ModelBoneInstance _barrelBone;
+        private readonly bool _hasTurret;
+        private readonly bool _hasBarrel;
 
         private static readonly string[] MeshNames = new[]
         {
@@ -22,6 +28,11 @@ namespace OpenSage.Logic.Object
             _data = data;
             _treadDebrisLeft = data.TreadDebrisLeft?.Value ?? context.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtLeft");
             _treadDebrisRight = data.TreadDebrisRight?.Value ?? context.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtRight");
+
+            _turretBone = FindBoneInstance("Turret");
+            _hasTurret = _turretBone != null;
+            _barrelBone = FindBoneInstance("Barrel01");
+            _hasBarrel = _barrelBone != null;
         }
 
         internal override void Update(in TimeInterval gameTime)
@@ -37,6 +48,15 @@ namespace OpenSage.Logic.Object
                 // TODO: We need to update FixedFunctionShaderResources.TextureMapping.UVPerSec.X with animationRate.
                 // But right now that value is shared amongst all model instances that use this model.
                 // We need to make it a per-model-instance value.
+            }
+
+            if (_hasTurret)
+            {
+                _turretBone.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, GameObject.TurretYaw);
+                if (_hasBarrel)
+                {
+                    _barrelBone.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(GameObject.TurretPitch, 0, 0);
+                }
             }
         }
     }

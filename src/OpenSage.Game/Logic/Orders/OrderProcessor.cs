@@ -188,7 +188,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(targetPosition));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(targetPosition));
                                 }
                             }
                         }
