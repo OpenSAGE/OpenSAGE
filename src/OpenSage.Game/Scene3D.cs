@@ -399,13 +399,13 @@ namespace OpenSage
                 gameObject.LogicTick(frame, time);
             }
 
+            GameObjects.DeleteDestroyed();
             DetectCollisions(time);
         }
 
         private void DetectCollisions(in TimeInterval time)
         {
-            var items = GameObjects.Items;
-            foreach (var current in items)
+            foreach (var current in GameObjects.Items)
             {
                 var intersecting = Quadtree.FindIntersecting(current.Collider);
 
