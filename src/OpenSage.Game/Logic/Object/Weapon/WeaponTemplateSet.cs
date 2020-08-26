@@ -86,7 +86,7 @@ namespace OpenSage.Logic.Object
                 slotsToProcess.Remove(slot);
             }
 
-            void AddWeaponSlotTurret(TurretAIData turretAIData)
+            void AddWeaponSlotTurret(TurretAIUpdateModuleData turretAIData)
             {
                 var weaponSlot = new WeaponSlotTurretData
                 {

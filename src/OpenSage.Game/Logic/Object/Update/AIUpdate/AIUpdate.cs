@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
 
         protected readonly GameObject GameObject;
 
+        private readonly List<BehaviorModule> _childBehaviors;
+
         /// <summary>
         /// An enumerator of the waypoints if the unit is currently following a waypoint path.
         /// The path (as in pathfinding) to the next waypoint can contain multiple <see cref="TargetPoints"/>.
@@ -43,10 +45,11 @@ namespace OpenSage.Logic.Object
 
             SetLocomotor(LocomotorSetType.Normal);
 
-            if (_moduleData.Turret == null) return;
-
-            GameObject.TurretYaw = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretAngle);
-            GameObject.TurretPitch = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretPitch);
+            _childBehaviors = new List<BehaviorModule>();
+            if (_moduleData.Turret != null)
+            {
+                _childBehaviors.Add(_moduleData.Turret.CreateTurretAIUpdate(GameObject));
+            }
         }
 
         internal void SetLocomotor(LocomotorSetType type)
@@ -160,17 +163,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (CurrentLocomotor == null)
-            {
-                return;
-            }
 
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
             {
                 context.GameContext.Quadtree.Update(GameObject);
             }
 
-            if (TargetPoints.Count > 0)
+            if (_currentLocomotor != null && TargetPoints.Count > 0)
             {
                 Vector3? nextPoint = null;
 
@@ -206,58 +205,6 @@ namespace OpenSage.Logic.Object
             {
                 // maintain position (jets etc)
                 CurrentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
-            }
-
-            UpdateTurret(context);
-        }
-
-        private void UpdateTurret(BehaviorUpdateContext context)
-        {
-            if (_moduleData.Turret == null) return;
-            // ConditionState.Turret = Turret (BoneName)
-
-            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
-
-            var target = GameObject.CurrentWeapon.CurrentTarget;
-
-            if (target != null)
-            {
-                var directionToTarget = (target.TargetPosition - GameObject.Transform.Translation).Vector2XY();
-                var targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
-
-                var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, GameObject.TurretYaw - GameObject.Transform.EulerAngles.Z);
-
-                if (MathF.Abs(deltaYaw) > 0.15f)
-                {
-                    GameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.Turret.TurretTurnRate);
-                }
-                else
-                {
-                    GameObject.TurretYaw -= deltaYaw;
-                }
-            }
-
-
-            if (_moduleData.Turret.AllowsPitch)
-            {
-                var pitch = MathUtility.ToRadians(_moduleData.Turret.NaturalTurretPitch);
-
-                if (target != null)
-                {
-                    if (target.TargetType == WeaponTargetType.Object &&
-                        !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
-                    {
-                        pitch = MathUtility.ToRadians(_moduleData.Turret.GroundUnitPitch);
-                    }
-                }
-
-                // TODO: pitch rate
-                var deltaPitch = GameObject.TurretPitch - pitch;
-
-                if (MathF.Abs(deltaPitch) > 0.05f)
-                {
-                    GameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.Turret.TurretPitchRate);
-                }
             }
         }
 
@@ -328,8 +275,8 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<AIUpdateModuleData> FieldParseTable = new IniParseTable<AIUpdateModuleData>
         {
-            { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
-            { "AltTurret", (parser, x) => x.AltTurret = TurretAIData.Parse(parser) },
+            { "Turret", (parser, x) => x.Turret = TurretAIUpdateModuleData.Parse(parser) },
+            { "AltTurret", (parser, x) => x.AltTurret = TurretAIUpdateModuleData.Parse(parser) },
             { "TurretsLinked", (parser, x) => x.TurretsLinked = parser.ParseBoolean() },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseEnumBitArray<AutoAcquireEnemiesType>() },
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
@@ -355,9 +302,9 @@ namespace OpenSage.Logic.Object
         /// Allows the use of TurretMoveStart and TurretMoveLoop within the UnitSpecificSounds 
         /// section of the object.
         /// </summary>
-        public TurretAIData Turret { get; private set; }
+        public TurretAIUpdateModuleData Turret { get; private set; }
 
-        public TurretAIData AltTurret { get; private set; }
+        public TurretAIUpdateModuleData AltTurret { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool TurretsLinked { get; private set; }

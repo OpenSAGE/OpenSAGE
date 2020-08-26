@@ -313,7 +313,7 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public abstract class SupplyAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new readonly IniParseTable<SupplyAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        internal new static readonly IniParseTable<SupplyAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<SupplyAIUpdateModuleData>
             {
                 { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },

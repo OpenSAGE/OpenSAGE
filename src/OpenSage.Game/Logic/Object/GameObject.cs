@@ -276,7 +276,8 @@ namespace OpenSage.Logic.Object
         public int EnergyProduction { get; internal set; }
 
         // TODO
-        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
+        // here applies the same as for WeaponSet, we do not want to use the ArmorSet from 'DefaultThingTemplate'
+        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.Last();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

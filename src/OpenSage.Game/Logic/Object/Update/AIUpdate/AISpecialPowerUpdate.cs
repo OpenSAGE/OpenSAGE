@@ -5,9 +5,9 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme2)]
     public sealed class AISpecialPowerUpdateModuleData : AIUpdateModuleData
     {
-        internal static new AISpecialPowerUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static AISpecialPowerUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<AISpecialPowerUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<AISpecialPowerUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<AISpecialPowerUpdateModuleData>
             {
                 { "CommandButtonName", (parser, x) => x.CommandButtonName = parser.ParseIdentifier() },

@@ -30,9 +30,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class TransportAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new TransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static TransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<TransportAIUpdateModuleData>());
 
         internal override AIUpdate CreateAIUpdate(GameObject gameObject)

@@ -82,9 +82,9 @@ namespace OpenSage.Logic.Object
 
     public sealed class MissileAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new MissileAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static MissileAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<MissileAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable.Concat(new IniParseTable<MissileAIUpdateModuleData>
+        private new static readonly IniParseTable<MissileAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable.Concat(new IniParseTable<MissileAIUpdateModuleData>
         {
             { "TryToFollowTarget", (parser, x) => x.TryToFollowTarget = parser.ParseBoolean() },
             { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseInteger() },

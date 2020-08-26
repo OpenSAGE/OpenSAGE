@@ -8,9 +8,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class RailedTransportAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new RailedTransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static RailedTransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<RailedTransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<RailedTransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<RailedTransportAIUpdateModuleData>
             {
                 { "PathPrefixName", (parser, x) => x.PathPrefixName = parser.ParseAssetReference() }

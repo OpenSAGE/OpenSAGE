@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
 {
     public class ChinookAIUpdate : SupplyAIUpdate
     {
-        private ChinookAIUpdateModuleData _moduleData;
+        private readonly ChinookAIUpdateModuleData _moduleData;
 
         internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -19,24 +19,19 @@ namespace OpenSage.Logic.Object
             var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
             return GameObject.UpgradeAvailable(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            base.Update(context);
-        }
     }
 
     /// <summary>
     /// Logic requires bones for either end of the rope to be defined as RopeEnd and RopeStart.
     /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's 
-    /// KindOf field. Having done that, the "RAPPELLING" ModelConditonState becomes available for 
+    /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for 
     /// rappelling out of the object that has the rappel code of this module.
     /// </summary>
     public sealed class ChinookAIUpdateModuleData : SupplyAIUpdateModuleData
     {
-        internal static new ChinookAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static ChinookAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<ChinookAIUpdateModuleData>
             {
                 { "NumRopes", (parser, x) => x.NumRopes = parser.ParseInteger() },

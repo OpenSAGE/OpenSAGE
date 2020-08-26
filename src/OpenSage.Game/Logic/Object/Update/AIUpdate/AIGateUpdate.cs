@@ -5,9 +5,9 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme2)]
     public sealed class AIGateUpdateModuleData : AIUpdateModuleData
     {
-        internal static new AIGateUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static AIGateUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<AIGateUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<AIGateUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<AIGateUpdateModuleData>
             {
                 { "TriggerWidthX", (parser, x) => x.TriggerWidthX = parser.ParseFloat() },
