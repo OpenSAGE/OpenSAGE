@@ -118,10 +118,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public bool Equals(BitArray<TEnum> other)
-        {
-            return _data.Equals(other);
-        }
+        public bool Equals(BitArray<TEnum> other) => _data.Equals(other._data);
 
         public override int GetHashCode()
         {
