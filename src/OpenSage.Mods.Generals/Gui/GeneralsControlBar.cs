@@ -251,7 +251,7 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
 
                         buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
-
+                        
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
 

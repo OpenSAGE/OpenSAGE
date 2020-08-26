@@ -21,8 +21,6 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            // ConditionState.Turret = Turret (BoneName)
-
             var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
 
             var target = _gameObject.CurrentWeapon.CurrentTarget;
@@ -36,14 +34,21 @@ namespace OpenSage.Logic.Object
 
                 if (MathF.Abs(deltaYaw) > 0.15f)
                 {
+                    if (!_moduleData.FiresWhileTurning)
+                    {
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, false);
+                    }
                     _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.TurretTurnRate);
                 }
                 else
                 {
+                    if (!_moduleData.FiresWhileTurning)
+                    {
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, true);
+                    }
                     _gameObject.TurretYaw -= deltaYaw;
                 }
             }
-
 
             if (_moduleData.AllowsPitch)
             {
@@ -58,9 +63,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
 
-                // TODO: pitch rate
                 var deltaPitch = _gameObject.TurretPitch - pitch;
-
                 if (MathF.Abs(deltaPitch) > 0.05f)
                 {
                     _gameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.TurretPitchRate);
@@ -73,7 +76,7 @@ namespace OpenSage.Logic.Object
     {
         internal static TurretAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private new static readonly IniParseTable<TurretAIUpdateModuleData> FieldParseTable = new IniParseTable<TurretAIUpdateModuleData>
+        private static readonly IniParseTable<TurretAIUpdateModuleData> FieldParseTable = new IniParseTable<TurretAIUpdateModuleData>
         {
             { "InitiallyDisabled", (parser, x) => x.InitiallyDisabled = parser.ParseBoolean() },
             { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },

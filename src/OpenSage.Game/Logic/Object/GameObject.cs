@@ -276,8 +276,7 @@ namespace OpenSage.Logic.Object
         public int EnergyProduction { get; internal set; }
 
         // TODO
-        // here applies the same as for WeaponSet, we do not want to use the ArmorSet from 'DefaultThingTemplate'
-        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.Last();
+        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -758,14 +757,8 @@ namespace OpenSage.Logic.Object
 
         internal void SetDefaultWeapon()
         {
-            // we have no WeaponSet or only the invalid one from 'DefaultThingTemplate'
-            if (Definition.WeaponSets.Count < 2) return;
-
-            var i = 0;
             foreach (var weaponSet in Definition.WeaponSets.Values)
             {
-                if (i++ == 0) continue; // Definition.WeaponSets.Values[0] is the invalid one from 'DefaultThingTemplate'
-
                 // TODO: we currently always pick the weapon without any conditions.
                 if (weaponSet.Conditions?.AnyBitSet == false)
                 {
@@ -774,7 +767,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            SetWeaponSet(Definition.WeaponSets.Values.Last());
+            SetWeaponSet(Definition.WeaponSets.Values.First());
         }
 
         internal void SetWeaponSet(WeaponTemplateSet weaponSet)
