@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
 
     public class WeaponSlotTurretData : WeaponSlotHardpointData
     {
-        public TurretAIData TurretSettings { get; internal set; }
+        public TurretAIUpdateModuleData TurretSettings { get; internal set; }
     }
 
     public sealed class WeaponSlotHierarchicalTurretData : WeaponSlotTurretData

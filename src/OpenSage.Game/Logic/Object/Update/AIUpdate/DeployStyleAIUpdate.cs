@@ -8,9 +8,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class DeployStyleAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new DeployStyleAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static DeployStyleAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<DeployStyleAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<DeployStyleAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<DeployStyleAIUpdateModuleData>
             {
                 { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },

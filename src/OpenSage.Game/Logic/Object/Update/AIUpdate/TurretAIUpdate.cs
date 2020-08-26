@@ -1,14 +1,79 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class TurretAIData
+    public class TurretAIUpdate : UpdateModule
     {
-        internal static TurretAIData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        private readonly TurretAIUpdateModuleData _moduleData;
+        private readonly GameObject _gameObject;
 
-        private static readonly IniParseTable<TurretAIData> FieldParseTable = new IniParseTable<TurretAIData>
+        internal TurretAIUpdate(GameObject gameObject, TurretAIUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+
+            _gameObject.TurretYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
+            _gameObject.TurretPitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            // ConditionState.Turret = Turret (BoneName)
+
+            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
+
+            var target = _gameObject.CurrentWeapon.CurrentTarget;
+
+            if (target != null)
+            {
+                var directionToTarget = (target.TargetPosition - _gameObject.Transform.Translation).Vector2XY();
+                var targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
+
+                var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw - _gameObject.Transform.EulerAngles.Z);
+
+                if (MathF.Abs(deltaYaw) > 0.15f)
+                {
+                    _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.TurretTurnRate);
+                }
+                else
+                {
+                    _gameObject.TurretYaw -= deltaYaw;
+                }
+            }
+
+
+            if (_moduleData.AllowsPitch)
+            {
+                var pitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+
+                if (target != null)
+                {
+                    if (target.TargetType == WeaponTargetType.Object &&
+                        !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
+                    {
+                        pitch = MathUtility.ToRadians(_moduleData.GroundUnitPitch);
+                    }
+                }
+
+                // TODO: pitch rate
+                var deltaPitch = _gameObject.TurretPitch - pitch;
+
+                if (MathF.Abs(deltaPitch) > 0.05f)
+                {
+                    _gameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.TurretPitchRate);
+                }
+            }
+        }
+    }
+
+    public sealed class TurretAIUpdateModuleData : UpdateModuleData
+    {
+        internal static TurretAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private new static readonly IniParseTable<TurretAIUpdateModuleData> FieldParseTable = new IniParseTable<TurretAIUpdateModuleData>
         {
             { "InitiallyDisabled", (parser, x) => x.InitiallyDisabled = parser.ParseBoolean() },
             { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },
@@ -89,6 +154,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int TurretMaxDeflectionACW { get; private set; }
+
+        internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject)
+        {
+            return new TurretAIUpdate(gameObject, this);
+        }
     }
 
     public sealed class TurretAITargetChooserData : BaseAITargetChooserData

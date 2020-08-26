@@ -5,9 +5,9 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class GiantBirdAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new GiantBirdAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static GiantBirdAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<GiantBirdAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<GiantBirdAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<GiantBirdAIUpdateModuleData>
             {
                 { "FollowThroughDistance", (parser, x) => x.FollowThroughDistance = parser.ParseInteger() },

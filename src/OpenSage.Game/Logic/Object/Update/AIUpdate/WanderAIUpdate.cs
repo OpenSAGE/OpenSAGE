@@ -7,9 +7,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class WanderAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new WanderAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static WanderAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<WanderAIUpdateModuleData>());
     }
 }
