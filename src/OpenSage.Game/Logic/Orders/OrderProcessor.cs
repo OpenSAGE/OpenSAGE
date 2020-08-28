@@ -134,6 +134,8 @@ namespace OpenSage.Logic.Orders
                         foreach (var unit in player.SelectedUnits)
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
+                            // TODO: is there any logic for ModelConditionFlag.Sold ?
+                            unit.Destroy();
                             player.ReceiveMoney((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
