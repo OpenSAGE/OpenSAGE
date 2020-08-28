@@ -277,10 +277,9 @@ namespace OpenSage.Terrain.Roads
             var neighborNormal = GetNeighborNormal(neighbor, atEnd);
             var toCornerDirection = neighbor.To switch
             {
-                null => DirectionNormalNoZ,                                      // if I have no neighbor, use my own normal
-                CrossingRoadSegment _ => neighborNormal,                         // if my neighbor is an unflexible crossing
-                EndCapRoadSegment _ => neighborNormal,                           // or end cap, use its normal
-                _ => Vector3.Normalize(DirectionNormalNoZ + neighborNormal) / 2, // otherwise, meet in the middle
+                null => DirectionNormalNoZ,                                                      // if I have no neighbor, use my own normal
+                StraightRoadSegment _ => Vector3.Normalize(DirectionNormalNoZ + neighborNormal), // if my neighbor is also a straight road segment, meet in the middle
+                _ => neighborNormal,                                                             // otherwise use my unflexible neighbor's normal
             };
 
             // This shouldn't happen but sometimes does in broken maps (Heartland Shield for example).
@@ -291,14 +290,14 @@ namespace OpenSage.Terrain.Roads
 
             // When two road segments meet in an angled curve, their meeting edge is tilted and thus longer than the width of the road
             // -> divide by cosine
-            // For straight roads ending in a crossing:
+            // For straight roads ending in a curve or crossing:
             // -> the angles in the crossing texture may not well match the actual angles of the incoming roads
-            //    (especially for x-crossings, since there's only one texture for 4-road crossings which assumes 90° everywhere)
+            //    (especially for X-crossings, since there's only one texture for 4-road crossings which assumes 90° everywhere)
             // -> the meeting edge may become quite tilted and noticeably longer than road width,
             //    while the road shown in the texture of the crossing always has the fixed road width
             // -> to avoid visible breaks between the road segment and the crossing texture, distort the edge so its tilted seam is 'roadwidth' long
             var cosine = Vector3.Dot(DirectionNormalNoZ, toCornerDirection);
-            var toCornerLength = neighbor.To is CrossingRoadSegment ? HalfHeight : HalfHeight / cosine;
+            var toCornerLength = neighbor.To is StraightRoadSegment ? HalfHeight / cosine : HalfHeight;
             return toCornerDirection * toCornerLength;
         }
 
