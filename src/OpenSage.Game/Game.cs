@@ -117,6 +117,8 @@ namespace OpenSage
         /// </summary>
         public bool IsRunning { get; }
 
+        public Action Restart { get; set; }
+
         /// <summary>
         /// Are we currently in a skirmish game?
         /// </summary>
@@ -857,6 +859,11 @@ namespace OpenSage
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
                 DeveloperModeEnabled = !DeveloperModeEnabled;
+            }
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Pause))
+            {
+                Restart?.Invoke();
             }
 
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Comma))
