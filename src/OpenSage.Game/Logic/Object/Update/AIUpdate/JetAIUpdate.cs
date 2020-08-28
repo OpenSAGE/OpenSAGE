@@ -87,6 +87,8 @@ namespace OpenSage.Logic.Object
 
             if (Base == null)
             {
+                // fix for mapObject aircrafts etc (e.g. ZH shellmap)
+                // TODO: handle scenario of a destroyed airfield
                 return;
             }
 
