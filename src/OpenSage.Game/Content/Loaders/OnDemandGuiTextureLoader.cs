@@ -47,6 +47,17 @@ namespace OpenSage.Content.Loaders
                     {
                         break;
                     }
+
+                    // Temporary workaround for user maps
+                    if (Path.IsPathRooted(possibleFilePath))
+                    {
+                        var info = new FileInfo(possibleFilePath);
+                        if (info.Exists)
+                        {
+                            entry = new FileSystemEntry(context.FileSystem, possibleFilePath, (uint)info.Length, info.OpenRead);
+                            break;
+                        }                        
+                    }
                 }
 
                 if (entry != null)
