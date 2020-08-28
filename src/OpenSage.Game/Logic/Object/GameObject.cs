@@ -567,7 +567,10 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            if (Destroyed) return;
+            if (Destroyed)
+            {
+                return;
+            }
 
             HandleConstruction(gameTime);
 
@@ -576,7 +579,10 @@ namespace OpenSage.Logic.Object
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
-            if (Destroyed || ModelConditionFlags.Get(ModelConditionFlag.Sold)) return;
+            if (Destroyed || ModelConditionFlags.Get(ModelConditionFlag.Sold))
+            {
+                return;
+            }
 
             // Update all draw modules
             UpdateDrawModuleConditionStates();

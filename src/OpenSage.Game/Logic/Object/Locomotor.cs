@@ -52,20 +52,20 @@ namespace OpenSage.Logic.Object
         public float GetAcceleration()
         {
             return _gameObject.IsDamaged
-                ? GetScaledLocomotorValue(_ => _.AccelerationDamaged)
-                : GetScaledLocomotorValue(_ => _.Acceleration);
+                ? GetScaledLocomotorValue(x => x.AccelerationDamaged)
+                : GetScaledLocomotorValue(x => x.Acceleration);
         }
 
         private float GetFrontWheelTurnAngle()
         {
-            return GetScaledLocomotorValue(_ => _.FrontWheelTurnAngle);
+            return GetScaledLocomotorValue(x => x.FrontWheelTurnAngle);
         }
 
         private float GetTurnRate()
         {
             return _gameObject.IsDamaged
-                ? GetScaledLocomotorValue(_ => _.TurnRateDamaged)
-                : GetScaledLocomotorValue(_ => _.TurnRate);
+                ? GetScaledLocomotorValue(x => x.TurnRateDamaged)
+                : GetScaledLocomotorValue(x => x.TurnRate);
         }
 
         public float GetSpeed()
@@ -74,8 +74,8 @@ namespace OpenSage.Logic.Object
             if (_locomotorTemplate.Speed.HasValue)
             {
                 return _gameObject.IsDamaged
-                    ? GetScaledLocomotorValue(_ => _.SpeedDamaged)
-                    : GetScaledLocomotorValue(_ => _.Speed.Value);
+                    ? GetScaledLocomotorValue(x => x.SpeedDamaged)
+                    : GetScaledLocomotorValue(x => x.Speed.Value);
             }
             return _locomotorSet.Speed;
         }
@@ -83,8 +83,8 @@ namespace OpenSage.Logic.Object
         public float GetLift()
         {
             var currentLift = _gameObject.IsDamaged
-                ? GetScaledLocomotorValue(_ => _.LiftDamaged)
-                : GetScaledLocomotorValue(_ => _.Lift);
+                ? GetScaledLocomotorValue(x => x.LiftDamaged)
+                : GetScaledLocomotorValue(x => x.Lift);
             return currentLift * LiftFactor;
         }
 
@@ -98,7 +98,10 @@ namespace OpenSage.Logic.Object
             var targetYaw = MathUtility.GetYawFromDirection(new Vector2(targetDirection.X, targetDirection.Y));
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
-            if (MathF.Abs(angleDelta) < 0.1f) return true;
+            if (MathF.Abs(angleDelta) < 0.1f)
+            {
+                return true;
+            }
 
             var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
@@ -135,18 +138,27 @@ namespace OpenSage.Logic.Object
                     braking = 0; // TODO: aircrafts should only brake while landing (do they?)
                     break;
                 default:
-                    if (nextPoint != null) braking = 0;
+                    if (nextPoint != null)
+                    {
+                        braking = 0;
+                    }
 
                     var circumference = 360.0f / GetTurnRate() * oldSpeed;
                     var radius = circumference / MathUtility.TwoPi;
 
                     if (distanceRemaining < (radius + 0.25f) && nextPoint != null)
+                    {
                         // turn towards next point
                         return true;
+                    }
+
                     break;
             }
 
-            if (distanceRemaining < 0.25f) return true;
+            if (distanceRemaining < 0.25f)
+            {
+                return true;
+            }
 
             var minimumBrakingDistance = braking > 0
                 ? (oldSpeed * oldSpeed) / (braking * 2.0f) // s = v² / 2a
@@ -194,14 +206,22 @@ namespace OpenSage.Logic.Object
             {
                 case LocomotorAppearance.Thrust:
                     var targetZ = targetPoint.Z;
-                    if (nextPoint != null) targetZ = height + _locomotorTemplate.PreferredHeight;
+                    if (nextPoint != null)
+                    {
+                        targetZ = height + _locomotorTemplate.PreferredHeight;
+                    }
+
                     deltaZ = (distance / distanceRemaining) * (targetZ - trans.Z);
                     trans.Z += deltaZ;
                     break;
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
                     thrust = GetCurrentThrust(height, deltaTime, transform);
-                    if (!reachedTurnSpeed) break;
+                    if (!reachedTurnSpeed)
+                    {
+                        break;
+                    }
+
                     trans.Z += thrust;
                     break;
                 case LocomotorAppearance.Treads:
@@ -237,7 +257,11 @@ namespace OpenSage.Logic.Object
                     modelPitch = deltaZ;
                     break;
                 case LocomotorAppearance.Wings:
-                    if (!reachedTurnSpeed) break;
+                    if (!reachedTurnSpeed)
+                    {
+                        break;
+                    }
+
                     modelPitch = -thrust / distance + distance * _locomotorTemplate.ForwardVelocityPitchFactor;
                     var angle = Math.Clamp(angleDelta, -MathUtility.PiOver4, MathUtility.PiOver4);
                     modelRoll = angle * distance * _locomotorTemplate.LateralVelocityRollFactor;

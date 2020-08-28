@@ -26,7 +26,10 @@ namespace OpenSage.Logic.Object
 
         public bool CanProduceObject(ObjectDefinition definition, IReadOnlyList<ProductionJob> productionQueue)
         {
-            if (ProducedAtHelipad(definition)) return true;
+            if (ProducedAtHelipad(definition))
+            {
+                return true;
+            }
 
             // e.g. a enqueued upgrade (mig armor) has no AIUpdate
             var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition?.AIUpdate)?.NeedsRunway ?? false);
@@ -78,7 +81,10 @@ namespace OpenSage.Logic.Object
 
         public Transform GetUnitCreateTransform(bool producedAtHelipad)
         {
-            if (producedAtHelipad) return GetBoneTransform($"HELIPARK01");
+            if (producedAtHelipad)
+            {
+                return GetBoneTransform($"HELIPARK01");
+            }
 
             var freeSlot = NextFreeSlot();
             var runway = SlotToRunway(freeSlot);
@@ -116,7 +122,10 @@ namespace OpenSage.Logic.Object
 
         public Transform GetParkingTransform(GameObject gameObject)
         {
-            if (_moduleData.ParkInHangars) return GetUnitCreateTransform(gameObject);
+            if (_moduleData.ParkInHangars)
+            {
+                return GetUnitCreateTransform(gameObject);
+            }
 
             var slot = GetCorrespondingSlot(gameObject);
             var runway = SlotToRunway(slot);
@@ -137,7 +146,10 @@ namespace OpenSage.Logic.Object
 
             var parkingPoint = $"RUNWAY{runway}PARKING{hangar}";
 
-            if (_moduleData.ParkInHangars) result.Enqueue(parkingPoint);
+            if (_moduleData.ParkInHangars)
+            {
+                result.Enqueue(parkingPoint);
+            }
 
             // this is a very hacky solution, but a generic one does not seem to work for both airfields
             // and even does not work for all aircrafts of the US airfield

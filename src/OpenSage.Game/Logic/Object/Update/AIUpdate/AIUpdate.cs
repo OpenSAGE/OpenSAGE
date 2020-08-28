@@ -27,8 +27,6 @@ namespace OpenSage.Logic.Object
 
         private Vector3? _targetDirection;
 
-        public bool IsFollowingWaypoints() => _waypointEnumerator != null;
-
         /// <summary>
         /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
         /// </summary>
@@ -54,7 +52,10 @@ namespace OpenSage.Logic.Object
                 locomotor = (locomotorSet != null)
                     ? new Locomotor(GameObject, locomotorSet)
                     : null;
-                if (locomotor != null) _locomotors[type] = locomotor;
+                if (locomotor != null)
+                {
+                    _locomotors[type] = locomotor;
+                }
             }
 
             _currentLocomotor = locomotor;
@@ -69,7 +70,10 @@ namespace OpenSage.Logic.Object
 
         internal void AppendPathToTargetPoint(in Vector3 targetPoint)
         {
-            if (GameObject.Definition.KindOf == null) return;
+            if (GameObject.Definition.KindOf == null)
+            {
+                return;
+            }
 
             if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
             {
@@ -133,40 +137,47 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_currentLocomotor != null)
+            if (_currentLocomotor == null)
             {
-                if (TargetPoints.Count > 0)
+                return;
+            }
+
+            if (TargetPoints.Count > 0)
+            {
+                Vector3? nextPoint = null;
+
+                if (TargetPoints.Count > 1)
                 {
-                    Vector3? nextPoint = null;
+                    nextPoint = TargetPoints[1];
+                }
 
-                    if (TargetPoints.Count > 1) nextPoint = TargetPoints[1];
+                var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
-                    var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
-
-                    // this should be moved to LogicTick
-                    if (reachedPosition)
+                // this should be moved to LogicTick
+                if (reachedPosition)
+                {
+                    Logger.Debug($"Reached point {TargetPoints[0]}");
+                    TargetPoints.RemoveAt(0);
+                    if (TargetPoints.Count == 0)
                     {
-                        Logger.Debug($"Reached point {TargetPoints[0]}");
-                        TargetPoints.RemoveAt(0);
-                        if (TargetPoints.Count == 0)
-                        {
-                            MoveToNextWaypointOrStop();
-                        }
+                        MoveToNextWaypointOrStop();
                     }
                 }
-                else if (_targetDirection.HasValue)
+            }
+            else if (_targetDirection.HasValue)
+            {
+                if (!_currentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
                 {
-                    if (_currentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
-                    {
-                        _targetDirection = null;
-                        Stop();
-                    }
+                    return;
                 }
-                else
-                {
-                    // maintain position (jets etc)
-                    _currentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
-                }
+
+                _targetDirection = null;
+                Stop();
+            }
+            else
+            {
+                // maintain position (jets etc)
+                _currentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
             }
         }
 
