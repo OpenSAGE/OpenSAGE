@@ -49,7 +49,7 @@ namespace OpenSage.Logic.Object
             if (!_locomotors.TryGetValue(type, out var locomotor))
             {
                 var locomotorSet = GameObject.Definition.LocomotorSets.Find(x => x.Condition == type);
-                locomotor = (locomotorSet != null)
+                locomotor = (locomotorSet?.Locomotor.Value != null)
                     ? new Locomotor(GameObject, locomotorSet)
                     : null;
                 if (locomotor != null)

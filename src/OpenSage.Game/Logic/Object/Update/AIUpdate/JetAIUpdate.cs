@@ -85,6 +85,11 @@ namespace OpenSage.Logic.Object
                 return; // helicopters are way more simple (at least for now)
             }
 
+            if (Base == null)
+            {
+                return;
+            }
+
             var parkingPlaceBehavior = Base.FindBehavior<ParkingPlaceBehaviour>();
 
             var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
