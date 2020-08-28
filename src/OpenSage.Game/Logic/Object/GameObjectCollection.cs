@@ -43,6 +43,11 @@ namespace OpenSage.Logic.Object
             _nextObjectId = 0;
         }
 
+        public GameObject Add(string typeName)
+        {
+            return Add(typeName, _civilianPlayer);
+        }
+
         public GameObject Add(string typeName, Player player)
         {
             var definition = _gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(typeName);
@@ -56,9 +61,9 @@ namespace OpenSage.Logic.Object
             return Add(definition, player);
         }
 
-        public GameObject Add(string typeName)
+        public GameObject Add(ObjectDefinition objectDefinition)
         {
-            return Add(typeName, _civilianPlayer);
+            return Add(objectDefinition, _civilianPlayer);
         }
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)
@@ -66,11 +71,6 @@ namespace OpenSage.Logic.Object
             var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player, this));
             _createList.Add(gameObject);
             return gameObject;
-        }
-
-        public GameObject Add(ObjectDefinition objectDefinition)
-        {
-            return Add(objectDefinition, _civilianPlayer);
         }
 
         // TODO: This is probably not how real SAGE works.
