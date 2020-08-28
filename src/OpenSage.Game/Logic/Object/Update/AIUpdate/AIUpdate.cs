@@ -166,16 +166,15 @@ namespace OpenSage.Logic.Object
             {
                 _turretAIUpdate.Update(context);
             }
-            //else
-            //{
-            //    var target = GameObject.CurrentWeapon.CurrentTarget;
-            //    if (target != null)
-            //    {
-            //        var directionToTarget = (target.TargetPosition - GameObject.Transform.Translation).Vector2XY();
-            //        // TODO: rebase onto locomotion branch
-            //        //SetTargetDirection();
-            //    }
-            //}
+            else
+            {
+                var target = GameObject.CurrentWeapon?.CurrentTarget;
+                if (target != null)
+                {
+                    var directionToTarget = (target.TargetPosition - GameObject.Transform.Translation).Vector2XY();
+                    SetTargetDirection();
+                }
+            }
 
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
             {
@@ -186,10 +185,10 @@ namespace OpenSage.Logic.Object
             {
                 Vector3? nextPoint = null;
 
-                if (TargetPoints.Count > 1)
-                {
-                    nextPoint = TargetPoints[1];
-                }
+                    if (TargetPoints.Count > 1)
+                    {
+                        nextPoint = TargetPoints[1];
+                    }
 
                 var reachedPosition = CurrentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
