@@ -578,6 +578,11 @@ namespace OpenSage.Logic.Object
 
         internal void StartConstruction(in TimeInterval gameTime)
         {
+            if (Definition.KindOf == null)
+            {
+                return;
+            }
+
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
                 ModelConditionFlags.SetAll(false);
@@ -631,15 +636,17 @@ namespace OpenSage.Logic.Object
                 _bodyDamageType = BodyDamageType.Pristine;
             }
 
-            if (oldDamageType != _bodyDamageType)
+            if (oldDamageType == _bodyDamageType)
             {
-                foreach (var behavior in _behaviorModules)
-                {
-                    behavior.OnDamageStateChanged(
-                        _behaviorUpdateContext,
-                        oldDamageType,
-                        _bodyDamageType);
-                }
+                return;
+            }
+
+            foreach (var behavior in _behaviorModules)
+            {
+                behavior.OnDamageStateChanged(
+                    _behaviorUpdateContext,
+                    oldDamageType,
+                    _bodyDamageType);
             }
         }
 
@@ -855,18 +862,17 @@ namespace OpenSage.Logic.Object
 
         public void Upgrade(UpgradeTemplate upgrade)
         {
-            // TODO: do something
-            if (upgrade.Type == UpgradeType.Object)
+            switch (upgrade.Type)
             {
-                Upgrades.Add(upgrade);
-            }
-            else if(upgrade.Type == UpgradeType.Player)
-            {
-               Owner.Upgrades.Add(upgrade);
-            }
-            else
-            {
-                throw new InvalidOperationException("This should not happen");
+                // TODO: do something
+                case UpgradeType.Object:
+                    Upgrades.Add(upgrade);
+                    break;
+                case UpgradeType.Player:
+                    Owner.Upgrades.Add(upgrade);
+                    break;
+                default:
+                    throw new InvalidOperationException("This should not happen");
             }
         }
 
