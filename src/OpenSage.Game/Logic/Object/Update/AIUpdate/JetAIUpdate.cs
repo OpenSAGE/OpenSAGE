@@ -80,7 +80,10 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            if (!_moduleData.KeepsParkingSpaceWhenAirborne) return; // helicopters are way more simple
+            if (!_moduleData.KeepsParkingSpaceWhenAirborne)
+            {
+                return; // helicopters are way more simple (at least for now)
+            }
 
             var parkingPlaceBehavior = Base.FindBehavior<ParkingPlaceBehaviour>();
 
@@ -102,7 +105,11 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.MovingToParkingPlace:
-                    if (isMoving) break;
+                    if (isMoving)
+                    {
+                        break;
+                    }
+
                     CurrentJetAIState = JetAIState.ReachedParkingPlace;
                     break;
 
@@ -113,7 +120,11 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.Rotating:
-                    if (isMoving) break;
+                    if (isMoving)
+                    {
+                        break;
+                    }
+
                     //base.SetTargetPoint(GameObject.Transform.Translation + GameObject.Transform.LookDirection * _moduleData.ParkingOffset);
                     CurrentJetAIState = JetAIState.Parked;
                     break;
@@ -128,13 +139,21 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.MovingTowardsStart:
-                    if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToStart)) break;
+                    if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToStart))
+                    {
+                        break;
+                    }
+
                     CurrentJetAIState = JetAIState.PreparingStart;
                     _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
                     break;
 
                 case JetAIState.PreparingStart:
-                    if (context.Time.TotalTime < _waitUntil) break;
+                    if (context.Time.TotalTime < _waitUntil)
+                    {
+                        break;
+                    }
+
                     SetLocomotor(LocomotorSetType.Normal);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, true);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
@@ -151,7 +170,10 @@ namespace OpenSage.Logic.Object
                     var speedPercentage = GameObject.Speed / _currentLocomotor.GetSpeed();
                     _currentLocomotor.LiftFactor = speedPercentage;
 
-                    if (speedPercentage < _moduleData.TakeoffSpeedForMaxLift.Value) break;
+                    if (speedPercentage < _moduleData.TakeoffSpeedForMaxLift)
+                    {
+                        break;
+                    }
 
                     CurrentJetAIState = JetAIState.MovingTowardsTarget;
                     break;
@@ -171,7 +193,10 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.ReachedTargetPoint:
-                    if (context.Time.TotalTime < _waitUntil) break;
+                    if (context.Time.TotalTime < _waitUntil)
+                    {
+                        break;
+                    }
 
                     var endPosition =
                         Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject));
@@ -181,7 +206,11 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.ReturningToBase:
-                    if (isMoving) break;
+                    if (isMoving)
+                    {
+                        break;
+                    }
+
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, false);
                     CurrentJetAIState = JetAIState.MovingBackToHangar;
                     SetLocomotor(LocomotorSetType.Taxiing);
@@ -189,7 +218,11 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case JetAIState.MovingBackToHangar:
-                    if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToParking)) break;
+                    if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToParking))
+                    {
+                        break;
+                    }
+
                     CurrentJetAIState = JetAIState.JustCreated;
                     break;
 
@@ -223,7 +256,10 @@ namespace OpenSage.Logic.Object
                     _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
                     return true;
                 }
-                if (context.Time.TotalTime < _waitUntil) return true;
+                if (context.Time.TotalTime < _waitUntil)
+                {
+                    return true;
+                }
 
                 _currentTaxiingTarget = nextPoint;
                 parkingPlaceBehavior.SetTaxiingPointBlocked(nextPoint, true);

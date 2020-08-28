@@ -124,7 +124,10 @@ namespace OpenSage.Graphics
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
-            if (Hidden || !modelInstance.BoneFrameVisibilities[parentBone.Index]) return;
+            if (Hidden || !modelInstance.BoneFrameVisibilities[parentBone.Index])
+            {
+                return;
+            }
 
             Matrix4x4 world;
             if (CameraOriented)

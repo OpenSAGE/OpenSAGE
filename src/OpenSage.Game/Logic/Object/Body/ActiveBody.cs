@@ -39,7 +39,10 @@ namespace OpenSage.Logic.Object
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
         {
-            if (Health <= Fix64.Zero) return;
+            if (Health <= Fix64.Zero)
+            {
+                return;
+            }
 
             var armorSet = GameObject.CurrentArmorSet;
 
