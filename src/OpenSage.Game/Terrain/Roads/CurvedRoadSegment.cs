@@ -116,6 +116,7 @@ namespace OpenSage.Terrain.Roads
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var curveAngle = MathF.PI - startEdge.AngleToPreviousEdge;
+            var innerAngle = startEdge.AngleToPreviousEdge;
 
             if (curveAngle < RoadConstants.MinCurveAngle)
             {
@@ -125,8 +126,8 @@ namespace OpenSage.Terrain.Roads
             
             var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
 
-            var radius = (type == RoadTextureType.TightCurve ? RoadConstants.TightCurveRadius : RoadConstants.BroadCurveRadius) * halfRoadWidth;
-            var toCenterLength = radius / MathF.Cos(curveAngle / 2);
+            var radius = (type == RoadTextureType.TightCurve ? RoadConstants.TightCurveRadius : 3.3f) * halfRoadWidth;
+            var toCenterLength = radius / MathF.Sin(innerAngle / 2);
             var toCenterDirection = Vector3.Normalize(startEdge.OutDirection + endEdge.OutDirection);
             var toCenter = toCenterDirection * toCenterLength;
             var center = position + toCenter;
@@ -135,18 +136,21 @@ namespace OpenSage.Terrain.Roads
             var startSegmentEndDistance = Vector3.Dot(toCenter, startEdge.OutDirection);
             var endSegmentStartDistance = Vector3.Dot(toCenter, endEdge.OutDirection);
 
-            var startEdgeVector = startEdge.TopologyEdge.End.Position - startEdge.TopologyEdge.Start.Position;
-            var endEdgeVector = endEdge.TopologyEdge.End.Position - endEdge.TopologyEdge.Start.Position;
+            var startSegment = edgeSegments[startEdge.TopologyEdge];
+            var endSegment = edgeSegments[endEdge.TopologyEdge];
 
-            if (startSegmentEndDistance * startSegmentEndDistance > startEdgeVector.LengthSquared() ||
-                endSegmentStartDistance * endSegmentStartDistance > endEdgeVector.LengthSquared())
+            var startEdgeVector = startSegment.End.Position - startSegment.Start.Position;
+            var endEdgeVector = endSegment.End.Position - endSegment.Start.Position;
+
+            var overlapAngle = MathUtility.ToRadians(type == RoadTextureType.TightCurve ? 6f : 2f);
+            var overlapDistance = 2 * overlapAngle * radius;
+
+            if (Math.Pow(startSegmentEndDistance - overlapDistance, 2) > startEdgeVector.LengthSquared() ||
+                Math.Pow(endSegmentStartDistance - overlapDistance, 2) > endEdgeVector.LengthSquared())
             {
                 // render as angled connection
                 return;
             }
-
-            var startSegment = edgeSegments[startEdge.TopologyEdge];
-            var endSegment = edgeSegments[endEdge.TopologyEdge];
 
             var startSegmentEndPoint = startSegment.StartPosition == position ? startSegment.Start : startSegment.End;
             startSegmentEndPoint.Position = position + startEdge.OutDirection * startSegmentEndDistance;
@@ -157,7 +161,6 @@ namespace OpenSage.Terrain.Roads
             const float segmentAngle = MathF.PI / 6f;
             var cosine = MathF.Cos(segmentAngle / 2);
             var additionalRadius = (radius + halfRoadWidth) * (1f - cosine) / cosine;
-            var overlapAngle = MathUtility.ToRadians(type == RoadTextureType.TightCurve ? 6f : 2f);
 
             var remainingAngle = curveAngle;
             var overlapRotationAngle = 0f;

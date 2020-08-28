@@ -23,7 +23,8 @@ namespace OpenSage.Terrain.Roads
         {
             topology.AlignOrientation();
             var edgeSegments = BuildEdgeSegments(topology);
-            InsertNodeSegments(topology, edgeSegments);
+            InsertCrossingSegments(topology, edgeSegments);
+            InsertCurveSegments(topology, edgeSegments);
             InsertEndCapSegments(edgeSegments, roadTemplateList);
             var networks = BuildNetworks(topology, edgeSegments);
 
@@ -77,24 +78,33 @@ namespace OpenSage.Terrain.Roads
             return edgeSegments;
         }
 
-        private static void InsertNodeSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        private static void InsertCrossingSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             foreach (var node in topology.Nodes)
             {
                 foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template))
                 {
-                    var template = edgesPerTemplate.Key;                    
-                    var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate);
-
-                    switch (edgesPerTemplate.Count())
+                    var connectedEdges = edgesPerTemplate.Count();
+                    if (connectedEdges == 3 || connectedEdges == 4)
                     {
-                        case 2:
-                            CurvedRoadSegment.CreateCurve(incomingRoadData, node.Position, template, edgeSegments);
-                            break;
-                        case 3:
-                        case 4:
-                            CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, template, edgeSegments);
-                            break;
+                        var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate, edgeSegments);
+                        CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, edgesPerTemplate.Key, edgeSegments);
+                    }
+                }
+            }
+        }
+
+        private static void InsertCurveSegments(RoadTopology topology, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
+        {
+            foreach (var node in topology.Nodes)
+            {
+                foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template))
+                {
+                    var connectedEdges = edgesPerTemplate.Count();
+                    if (connectedEdges == 2)
+                    {
+                        var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate, edgeSegments);
+                        CurvedRoadSegment.CreateCurve(incomingRoadData, node.Position, edgesPerTemplate.Key, edgeSegments);
                     }
                 }
             }
@@ -111,16 +121,26 @@ namespace OpenSage.Terrain.Roads
                 // single edges without any connected edges can only have one end cap (at the end position), even when the flag is present at both nodes
                 if (hasEndCapAtEnd)
                 {
-                    EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(edge.Key.End, edge.Key), edge.Value.EndPosition, edge.Key.Template, edgeSegments, roadTemplateList);
+                    EndCapRoadSegment.CreateEndCap(
+                        GetIncomingRoadData(edge.Key.End, edge.Key, edgeSegments[edge.Key]),
+                        edge.Value.EndPosition,
+                        edge.Key.Template,
+                        edgeSegments,
+                        roadTemplateList);
                 }
                 else if (hasEndCapAtStart)
                 {
-                    EndCapRoadSegment.CreateEndCap(GetIncomingRoadData(edge.Key.Start, edge.Key), edge.Value.StartPosition, edge.Key.Template, edgeSegments, roadTemplateList);
+                    EndCapRoadSegment.CreateEndCap(
+                        GetIncomingRoadData(edge.Key.Start, edge.Key, edgeSegments[edge.Key]),
+                        edge.Value.StartPosition,
+                        edge.Key.Template,
+                        edgeSegments,
+                        roadTemplateList);
                 }
             }
         }
 
-        private static IReadOnlyList<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges)
+        private static IReadOnlyList<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             if (edges.Count() < 2)
             {
@@ -128,7 +148,7 @@ namespace OpenSage.Terrain.Roads
             }
 
             var incomingRoads = edges
-                .Select(e => GetIncomingRoadData(node, e))
+                .Select(e => GetIncomingRoadData(node, e, edgeSegments[e]))
                 .OrderBy(d => d.AngleToAxis)
                 .ToList();
 
@@ -144,16 +164,16 @@ namespace OpenSage.Terrain.Roads
             return incomingRoads;
         }
 
-        private static IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge)
+        private static IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge, StraightRoadSegment edgeSegment)
         {
             var isStart = incomingEdge.Start.Position == node.Position;
-            var targetNodePosition = isStart ? incomingEdge.End.Position : incomingEdge.Start.Position;
-            var roadVector = targetNodePosition - node.Position;
-            var direction = roadVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(roadVector);
+            var fromPosition = isStart ? edgeSegment.EndPosition : edgeSegment.StartPosition;
+            var segmentVector = (edgeSegment.EndPosition - edgeSegment.StartPosition) * (isStart ? 1 : -1);
+            var direction = segmentVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(segmentVector);
 
             return new IncomingRoadData(
                 incomingEdge,
-                targetNodePosition,
+                fromPosition,
                 direction,
                 MathF.Atan2(direction.Y, direction.X));
         }
