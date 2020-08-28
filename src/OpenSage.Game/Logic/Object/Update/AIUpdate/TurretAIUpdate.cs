@@ -10,6 +10,20 @@ namespace OpenSage.Logic.Object
         private readonly TurretAIUpdateModuleData _moduleData;
         private readonly GameObject _gameObject;
 
+        private WeaponTarget _currentTarget;
+        private TimeSpan _waitUntil;
+        private TurretAIStates _turretAIstate;
+
+        public enum TurretAIStates
+        {
+            Disabled,
+            Idle,
+            ScanningForTargets,
+            Turning,
+            Attacking,
+            Recentering
+        }
+
         internal TurretAIUpdate(GameObject gameObject, TurretAIUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
@@ -17,6 +31,8 @@ namespace OpenSage.Logic.Object
 
             _gameObject.TurretYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
             _gameObject.TurretPitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+
+            _turretAIstate = _moduleData.InitiallyDisabled ? TurretAIStates.Disabled : TurretAIStates.ScanningForTargets;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -24,51 +40,129 @@ namespace OpenSage.Logic.Object
             var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
 
             var target = _gameObject.CurrentWeapon.CurrentTarget;
+            float targetYaw;
 
-            if (target != null)
+            switch (_turretAIstate)
             {
-                var directionToTarget = (target.TargetPosition - _gameObject.Transform.Translation).Vector2XY();
-                var targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
+                case TurretAIStates.Disabled:
+                    break; // TODO: how does it get enabled?
 
-                var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw - _gameObject.Transform.EulerAngles.Z);
+                case TurretAIStates.Idle:
+                    if (target != null)
+                    {
+                        _turretAIstate = TurretAIStates.Turning;
+                        _currentTarget = target;
+                    }
 
-                if (MathF.Abs(deltaYaw) > 0.15f)
-                {
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        _turretAIstate = TurretAIStates.ScanningForTargets;
+                    }
+                    break;
+
+                case TurretAIStates.ScanningForTargets:
+                    // TODO: scan for targets
+                    if (target == null)
+                    {
+                        var scanInterval =
+                            context.GameContext.Random.NextDouble() *
+                            (_moduleData.MaxIdleScanInterval - _moduleData.MinIdleScanInterval) +
+                            _moduleData.MinIdleScanInterval;
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(scanInterval);
+                        _turretAIstate = TurretAIStates.Idle;
+                        break;
+                    }
+
                     if (!_moduleData.FiresWhileTurning)
                     {
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, false);
                     }
-                    _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.TurretTurnRate);
-                }
-                else
-                {
+
+                    _turretAIstate = TurretAIStates.Turning;
+                    break;
+
+                case TurretAIStates.Turning:
+                    if (target == null)
+                    {
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.RecenterTime);
+                        _turretAIstate = TurretAIStates.Recentering;
+                        break;
+                    }
+
+                    var directionToTarget = (target.TargetPosition - _gameObject.Transform.Translation).Vector2XY();
+                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
+
+                    if (Rotate(targetYaw, deltaTime))
+                    {
+                        break;
+                    }
+
                     if (!_moduleData.FiresWhileTurning)
                     {
                         _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, true);
                     }
-                    _gameObject.TurretYaw -= deltaYaw;
-                }
-            }
 
-            if (_moduleData.AllowsPitch)
-            {
-                var pitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+                    _turretAIstate = TurretAIStates.Attacking;
+                    break;
 
-                if (target != null)
-                {
-                    if (target.TargetType == WeaponTargetType.Object &&
-                        !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
+                case TurretAIStates.Attacking:
+                    if (target == null)
                     {
-                        pitch = MathUtility.ToRadians(_moduleData.GroundUnitPitch);
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.RecenterTime);
+                        _turretAIstate = TurretAIStates.Recentering;
                     }
-                }
+                    else if (target != _currentTarget)
+                    {
+                        _turretAIstate = TurretAIStates.Turning;
+                        _currentTarget = target;
+                    }
+                    break;
 
-                var deltaPitch = _gameObject.TurretPitch - pitch;
-                if (MathF.Abs(deltaPitch) > 0.05f)
-                {
-                    _gameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.TurretPitchRate);
-                }
+                case TurretAIStates.Recentering:
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
+                        if (!Rotate(targetYaw, deltaTime))
+                        {
+                            _turretAIstate = TurretAIStates.Idle;
+                        }
+                    }
+                    break;
             }
+
+
+            //if (_moduleData.AllowsPitch)
+            //{
+            //    var pitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+
+            //    if (target != null)
+            //    {
+            //        if (target.TargetType == WeaponTargetType.Object &&
+            //            !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
+            //        {
+            //            pitch = MathUtility.ToRadians(_moduleData.GroundUnitPitch);
+            //        }
+            //    }
+
+            //    var deltaPitch = _gameObject.TurretPitch - pitch;
+            //    if (MathF.Abs(deltaPitch) > 0.05f)
+            //    {
+            //        _gameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.TurretPitchRate);
+            //    }
+            //}
+        }
+
+        private bool Rotate(float targetYaw, float deltaTime)
+        {
+            var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw - _gameObject.Transform.EulerAngles.Z);
+
+            if (MathF.Abs(deltaYaw) > 0.15f)
+            {
+                _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.TurretTurnRate);
+                return true;
+            }
+            _gameObject.TurretYaw -= deltaYaw;
+            return false;
         }
     }
 

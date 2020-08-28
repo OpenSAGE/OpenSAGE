@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -116,6 +117,9 @@ namespace OpenSage.Logic.Object
         internal override List<GameObject> Execute(BehaviorUpdateContext context)
         {
             var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
+
+            var lifeTime = context.GameContext.Random.NextDouble() * (MaxLifetime - MinLifetime) + MinLifetime;
+            debrisObject.LifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(lifeTime);
 
             debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
 
