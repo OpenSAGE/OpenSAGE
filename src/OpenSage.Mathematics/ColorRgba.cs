@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -24,6 +25,11 @@ namespace OpenSage.Mathematics
         public static ColorRgba operator*(ColorRgba value, float scale)
         {
             return new ColorRgba((byte) (value.R * scale), (byte) (value.G * scale), (byte) (value.B * scale), (byte) (value.A * scale));
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
         }
 
         public ColorRgbaF ToColorRgbaF()

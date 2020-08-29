@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
@@ -76,7 +77,7 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            ImGuiUtility.PropertyRow("Triggered", _triggered);
+            ImGui.Checkbox("Triggered", ref _triggered);
         }
     }
 

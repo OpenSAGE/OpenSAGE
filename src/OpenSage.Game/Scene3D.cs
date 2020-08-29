@@ -98,6 +98,8 @@ namespace OpenSage
 
         public readonly Radar Radar;
 
+        public readonly Game Game;
+
         internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
@@ -279,6 +281,8 @@ namespace OpenSage
 
         private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
+            Game = game;
+
             Camera = new Camera(getViewport);
 
             SelectionGui = new SelectionGui();
@@ -329,7 +333,8 @@ namespace OpenSage
                 new ObjectCreationListManager(),
                 Terrain,
                 Navigation,
-                Radar);
+                Radar,
+                this);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(

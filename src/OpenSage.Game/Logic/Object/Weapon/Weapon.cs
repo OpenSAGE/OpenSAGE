@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using ImGuiNET;
 
 namespace OpenSage.Logic.Object
 {
@@ -9,13 +10,19 @@ namespace OpenSage.Logic.Object
 
         private readonly WeaponStateMachine _stateMachine;
 
+        private int _currentRounds;
+
         public readonly int WeaponIndex;
 
         public readonly GameObject ParentGameObject;
 
         public readonly WeaponTemplate Template;
 
-        public int CurrentRounds { get; internal set; }
+        public int CurrentRounds
+        {
+            get => _currentRounds;
+            internal set => _currentRounds = value;
+        }
 
         public WeaponTarget CurrentTarget { get; private set; }
 
@@ -107,6 +114,23 @@ namespace OpenSage.Logic.Object
         public void Fire(TimeInterval time)
         {
             _stateMachine.Fire(time);
+        }
+
+        internal void DrawInspector()
+        {
+            // TODO: Weapon template
+
+            ImGui.InputInt("CurrentRounds", ref _currentRounds);
+
+            ImGui.LabelText("CurrentTarget", CurrentTarget?.TargetType.ToString() ?? "[none]");
+
+            if (CurrentTarget != null && CurrentTarget.TargetType == WeaponTargetType.Position)
+            {
+                var currentTargetPosition = CurrentTarget.TargetPosition;
+                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
+                ImGui.InputFloat3("CurrentTargetPosition", ref currentTargetPosition);
+                ImGui.PopStyleVar();
+            }
         }
     }
 }

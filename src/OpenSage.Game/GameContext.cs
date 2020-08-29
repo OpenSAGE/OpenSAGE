@@ -21,6 +21,9 @@ namespace OpenSage
         // TODO: Make this readonly.
         public GameObjectCollection GameObjects;
 
+        // TODO: This is temporary until Scene3D and GameContext are merged.
+        public readonly Scene3D Scene3D;
+
         public GameContext(
             AssetLoadContext assetLoadContext,
             AudioSystem audioSystem,
@@ -28,7 +31,8 @@ namespace OpenSage
             ObjectCreationListManager objectCreationLists,
             Terrain.Terrain terrain,
             Navigation.Navigation navigation,
-            Radar radar)
+            Radar radar,
+            Scene3D scene)
         {
             AssetLoadContext = assetLoadContext;
             AudioSystem = audioSystem;
@@ -37,6 +41,7 @@ namespace OpenSage
             Terrain = terrain;
             Navigation = navigation;
             Radar = radar;
+            Scene3D = scene;
         }
     }
 }

@@ -36,6 +36,7 @@ namespace OpenSage.Diagnostics
             }
 
             AddView(new GameView(context) { IsVisible = true });
+            AddView(new ObjectListView(context));
             AddView(new AssetListView(context));
             AddView(new MapSettingsView(context));
             AddView(new RenderSettingsView(context));

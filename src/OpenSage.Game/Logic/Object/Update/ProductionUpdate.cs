@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
@@ -341,7 +342,7 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            ImGuiUtility.PropertyRow("DoorState", _currentDoorState);
+            ImGuiUtility.ComboEnum("DoorState", ref _currentDoorState);
         }
 
         internal override void Load(BinaryReader reader)

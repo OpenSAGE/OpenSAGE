@@ -119,5 +119,31 @@ namespace OpenSage.Diagnostics.Util
             ImGui.Text(value?.ToString() ?? "<null>");
             ImGui.NextColumn();
         }
+
+        public static bool ComboEnum<TEnum>(string label, ref TEnum currentValue)
+            where TEnum : struct, Enum
+        {
+            var currentObjectValue = (Enum) currentValue;
+            var result = ComboEnum(typeof(TEnum), label, ref currentObjectValue);
+            if (result)
+            {
+                currentValue = (TEnum) currentObjectValue;
+            }
+            return result;
+        }
+
+        public static bool ComboEnum(Type enumType, string label, ref Enum currentValue)
+        {
+            var names = Enum.GetNames(enumType);
+            var currentItem = Array.IndexOf(names, currentValue.ToString());
+
+            if (ImGui.Combo(label, ref currentItem, names, names.Length))
+            {
+                currentValue = (Enum) Enum.Parse(enumType, names[currentItem]);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

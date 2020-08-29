@@ -155,6 +155,11 @@ namespace OpenSage.Launcher
 
                 game.DeveloperModeEnabled = opts.DeveloperMode;
 
+                if (opts.DeveloperMode)
+                {
+                    game.Window.Maximized = true;
+                }
+
                 if (opts.ReplayFile != null)
                 {
                     var replayFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Replays", opts.ReplayFile));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
@@ -13,12 +14,18 @@ namespace OpenSage.Logic.Object
         private readonly PhysicsBehaviorModuleData _moduleData;
         private readonly Vector3 _gravityAcceleration;
 
+        private float _mass;
+
         // TODO: Don't know if this belongs here.
         private Vector3 _velocity;
 
         private Vector3 _cumulativeForces;
 
-        public float Mass { get; set; }
+        public float Mass
+        {
+            get => _mass;
+            set => _mass = value;
+        }
 
         internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
         {
@@ -79,8 +86,8 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            ImGuiUtility.PropertyRow("Mass", Mass);
-            ImGuiUtility.PropertyRow("Velocity", _velocity);
+            ImGui.InputFloat("Mass", ref _mass);
+            ImGui.DragFloat3("Velocity", ref _velocity);
         }
 
         internal override void Load(BinaryReader reader)

@@ -54,6 +54,12 @@ namespace OpenSage
             set { _window.WindowState = value ? WindowState.BorderlessFullScreen : WindowState.Normal; }
         }
 
+        public bool Maximized
+        {
+            get { return _window.WindowState == WindowState.Maximized; }
+            set { _window.WindowState = value ? WindowState.Maximized : WindowState.Normal; }
+        }
+
         internal GameWindow(string title, int x, int y, int width, int height,
                             GraphicsBackend? preferredBackend, bool fullscreen)
         {
