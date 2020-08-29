@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace OpenSage.Mathematics
@@ -70,6 +71,11 @@ namespace OpenSage.Mathematics
         public override int GetHashCode()
         {
             return HashCode.Combine(R, G, B, A);
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4(R, G, B, A);
         }
     }
 }

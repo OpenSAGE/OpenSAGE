@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics.FixedMath;
@@ -28,6 +29,21 @@ namespace OpenSage.Logic.Object
             }
 
             base.Load(reader);
+        }
+
+        internal override void DrawInspector()
+        {
+            var maxHealth = (float) MaxHealth;
+            if (ImGui.InputFloat("MaxHealth", ref maxHealth))
+            {
+                MaxHealth = (Fix64) maxHealth;
+            }
+
+            var health = (float) Health;
+            if (ImGui.InputFloat("Health", ref health))
+            {
+                Health = (Fix64) health;
+            }
         }
     }
 

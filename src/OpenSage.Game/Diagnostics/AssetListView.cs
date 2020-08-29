@@ -59,11 +59,13 @@ namespace OpenSage.Diagnostics
         private sealed class AssetListItem
         {
             public readonly string Name;
+            public readonly BaseAsset Asset;
             public readonly Func<AssetView> CreateAssetView;
 
-            public AssetListItem(string name, Func<AssetView> createAssetView)
+            public AssetListItem(string name, BaseAsset asset, Func<AssetView> createAssetView)
             {
                 Name = name;
+                Asset = asset;
                 CreateAssetView = createAssetView;
             }
         }
@@ -88,6 +90,8 @@ namespace OpenSage.Diagnostics
                     RemoveAndDispose(ref _currentAssetView);
 
                     _currentAssetView = AddDisposable(item.CreateAssetView());
+
+                    Context.SelectedObject = new DefaultInspectable(item.Asset);
                 }
                 ImGuiUtility.DisplayTooltipOnHover(item.Name);
             }
@@ -136,7 +140,7 @@ namespace OpenSage.Diagnostics
                     }
 
                     AssetView createAssetView() => (AssetView) assetViewConstructor.Invoke(new object[] { Context, asset });
-                    _items.Add(new AssetListItem(asset.FullName, createAssetView));
+                    _items.Add(new AssetListItem(asset.FullName, asset, createAssetView));
                 }
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Diagnostics.Util;
@@ -97,8 +98,9 @@ namespace OpenSage.Logic.Object
         internal override void DrawInspector()
         {
             var entry = FindCastle();
-            ImGuiUtility.PropertyRow("Camp", entry.Camp);
-            ImGuiUtility.PropertyRow("Unpacked", _unpacked);
+
+            ImGui.LabelText("Camp", entry.Camp);
+            ImGui.LabelText("Unpacked", _unpacked.ToString());
         }
     }
 

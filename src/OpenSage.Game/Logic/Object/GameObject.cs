@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Map;
+using OpenSage.Diagnostics;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -18,7 +21,7 @@ using OpenSage.Terrain;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : DisposableBase
+    public sealed class GameObject : DisposableBase, IInspectable
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -150,6 +153,8 @@ namespace OpenSage.Logic.Object
                 Parent.AddNameLookup(this);
             }
         }
+
+        string IInspectable.Name => "GameObject";
 
         public Team Team { get; set; }
 
@@ -801,6 +806,85 @@ namespace OpenSage.Logic.Object
         internal BehaviorModule GetModuleByTag(string tag)
         {
             return _tagToModuleLookup[tag];
+        }
+
+        void IInspectable.DrawInspector()
+        {
+            if (ImGui.Button("Bring into view"))
+            {
+                _gameContext.Scene3D.CameraController.GoToObject(this);
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Select"))
+            {
+                _gameContext.Scene3D.LocalPlayer.SelectUnits(new[] { this });
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Kill"))
+            {
+                // TODO: Time isn't right.
+                Kill(DeathType.Exploded, _gameContext.Scene3D.Game.MapTime);
+            }
+
+            if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                ImGui.LabelText("DisplayName", Definition.DisplayName);
+
+                var translation = Transform.Translation;
+                if (ImGui.DragFloat3("Position", ref translation))
+                {
+                    Transform.Translation = translation;
+                }
+
+                // TODO: Make this editable
+                ImGui.LabelText("ModelConditionFlags", ModelConditionFlags.DisplayName);
+
+                var speed = Speed;
+                if (ImGui.InputFloat("Speed", ref speed))
+                {
+                    Speed = speed;
+                }
+
+                var lift = Lift;
+                if (ImGui.InputFloat("Lift", ref lift))
+                {
+                    Lift = lift;
+                }
+            }
+
+            foreach (var drawModule in DrawModules)
+            {
+                if (ImGui.CollapsingHeader(drawModule.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    drawModule.DrawInspector();
+                }
+            }
+
+            if (ImGui.CollapsingHeader(Body.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                Body.DrawInspector();
+            }
+
+            if (CurrentWeapon != null)
+            {
+                var weapon = CurrentWeapon;
+                if (ImGui.CollapsingHeader("Weapon", ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    weapon.DrawInspector();
+                }
+            }
+
+            foreach (var behaviorModule in BehaviorModules)
+            {
+                if (ImGui.CollapsingHeader(behaviorModule.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    behaviorModule.DrawInspector();
+                }
+            }
         }
     }
 }

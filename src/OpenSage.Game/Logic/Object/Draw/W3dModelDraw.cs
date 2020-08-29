@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
@@ -391,7 +392,7 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            ImGuiUtility.PropertyRow("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
+            ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
     }
 

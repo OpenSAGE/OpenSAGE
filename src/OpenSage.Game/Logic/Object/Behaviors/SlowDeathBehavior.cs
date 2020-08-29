@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
@@ -116,7 +117,18 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            ImGuiUtility.PropertyRow("Phase", _phase?.ToString() ?? "<not dying>");
+            if (_phase == null)
+            {
+                ImGui.LabelText("Phase", "<not dying>");
+            }
+            else
+            {
+                var phase = _phase.Value;
+                if (ImGuiUtility.ComboEnum("Phase", ref phase))
+                {
+                    _phase = phase;
+                }
+            }
         }
 
         internal override void Load(BinaryReader reader)
