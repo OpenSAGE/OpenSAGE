@@ -10,7 +10,6 @@ using Veldrid.Sdl2;
 using SharpFileDialog;
 using Veldrid;
 using OpenSage.Tools.BigEditor.Views;
-using SharpDX;
 
 namespace OpenSage.Tools.BigEditor.UI
 {

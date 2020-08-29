@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.78.0" />
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />

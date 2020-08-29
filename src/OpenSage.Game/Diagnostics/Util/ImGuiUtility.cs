@@ -10,6 +10,15 @@ namespace OpenSage.Diagnostics.Util
 {
     internal static class ImGuiUtility
     {
+        public static void SetupDocking()
+        {
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+            //TODO: For multi-viewports we need to connect the platform IO callbacks
+            //ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
+            //ImGui.GetPlatformIO().Renderer_CreateWindow = ...
+        }
+
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
         {
             var temp = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
