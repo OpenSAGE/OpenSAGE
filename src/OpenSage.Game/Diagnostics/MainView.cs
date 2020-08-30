@@ -91,9 +91,24 @@ namespace OpenSage.Diagnostics
 
         public void Draw(ref bool isGameViewFocused)
         {
+            var viewport = ImGui.GetMainViewport();
+            ImGui.SetNextWindowPos(viewport.GetWorkPos());
+            ImGui.SetNextWindowSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowViewport(viewport.ID);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+
+            var windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+            windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
+            windowFlags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+
+            ImGui.Begin("Root", windowFlags);
+
+            ImGui.DockSpace(ImGui.GetID("DockSpace"), Vector2.Zero, ImGuiDockNodeFlags.None);
+
             float menuBarHeight = 0;
 
-            if (ImGui.BeginMainMenuBar())
+            if (ImGui.BeginMenuBar())
             {
                 menuBarHeight = ImGui.GetWindowHeight();
 
@@ -243,7 +258,7 @@ namespace OpenSage.Diagnostics
                 ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - fpsTextSize);
                 ImGui.Text(fpsText);
 
-                ImGui.EndMainMenuBar();
+                ImGui.EndMenuBar();
             }
 
             foreach (var view in _views)
@@ -279,6 +294,8 @@ namespace OpenSage.Diagnostics
                 ImGui.End();
                 ImGui.PopStyleVar();
             }
+
+            ImGui.End();
         }
     }
 }
