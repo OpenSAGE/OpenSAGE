@@ -30,25 +30,32 @@ namespace OpenSage.Diagnostics
             UpdateSearch(null);
         }
 
-        protected override void DrawOverride(ref bool isGameViewFocused)
+        protected override unsafe void DrawOverride(ref bool isGameViewFocused)
         {
             ImGui.PushItemWidth(-1);
             ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
             UpdateSearch(searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("files list", Vector2.Zero, true);
+            ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), true);
 
-            foreach (var item in Context.Game.Scene3D.GameObjects.Items)
+            var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper(_items.Count, ImGui.GetTextLineHeightWithSpacing());
+            var clipper = new ImGuiListClipperPtr(clipperPtr);
+            while (clipper.Step())
             {
-                var name = GetObjectName(item);
-                if (ImGui.Selectable(name, item == _currentItem))
+                for (var i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
                 {
-                    _currentItem = item;
-                    Context.SelectedObject = item;
+                    var item = _items[i];
+                    var name = GetObjectName(item);
+                    if (ImGui.Selectable(name, item == _currentItem))
+                    {
+                        _currentItem = item;
+                        Context.SelectedObject = item;
+                    }
+                    ImGuiUtility.DisplayTooltipOnHover(name);
                 }
-                ImGuiUtility.DisplayTooltipOnHover(name);
             }
+            clipper.Destroy();
 
             ImGui.EndChild();
         }
