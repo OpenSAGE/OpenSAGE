@@ -91,7 +91,7 @@ namespace OpenSage.Diagnostics
 
                     _currentAssetView = AddDisposable(item.CreateAssetView());
 
-                    Context.SelectedObject = new DefaultInspectable(item.Asset);
+                    Context.SelectedObject = new DefaultInspectable(item.Asset, Context);
                 }
                 ImGuiUtility.DisplayTooltipOnHover(item.Name);
             }
