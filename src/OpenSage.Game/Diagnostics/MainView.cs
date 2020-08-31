@@ -61,7 +61,7 @@ namespace OpenSage.Diagnostics
                 ? ("Pause (F9)", new Vector4(0.980f, 0, 0.243f, 1))
                 : ("Play (F9)", new Vector4(0.066f, 0.654f, 0.066f, 1));
 
-            var buttonSize = new Vector2(80.0f, ImGui.GetWindowHeight());
+            var buttonSize = new Vector2(80.0f, 0);
 
             ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
             ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
@@ -103,7 +103,7 @@ namespace OpenSage.Diagnostics
             var windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
             windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
             windowFlags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
-            windowFlags |= ImGuiWindowFlags.NoBackground;
+            //windowFlags |= ImGuiWindowFlags.NoBackground;
 
             ImGui.Begin("Root", windowFlags);
 
