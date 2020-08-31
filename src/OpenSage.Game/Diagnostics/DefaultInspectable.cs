@@ -12,12 +12,14 @@ namespace OpenSage.Diagnostics
     internal sealed class DefaultInspectable : IInspectable
     {
         private readonly object _value;
+        private readonly DiagnosticViewContext _context;
 
         public string Name => _value.GetType().Name;
 
-        public DefaultInspectable(object value)
+        public DefaultInspectable(object value, DiagnosticViewContext context)
         {
             _value = value;
+            _context = context;
         }
 
         void IInspectable.DrawInspector()
@@ -164,6 +166,14 @@ namespace OpenSage.Diagnostics
                     if (ImGuiUtility.ComboEnum(propertyValue.GetType(), name, ref e))
                     {
                         setPropertyValue?.Invoke(e);
+                    }
+                    break;
+
+                case BaseAsset asset:
+                    // TODO: Show combo to allow asset to be changed.
+                    if (ImGui.Selectable(name))
+                    {
+                        _context.SelectedObject = new DefaultInspectable(asset, _context);
                     }
                     break;
 

@@ -97,12 +97,16 @@ namespace OpenSage.Diagnostics
             ImGui.SetNextWindowViewport(viewport.ID);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
 
             var windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
             windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
             windowFlags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+            windowFlags |= ImGuiWindowFlags.NoBackground;
 
             ImGui.Begin("Root", windowFlags);
+
+            ImGui.PopStyleVar(3);
 
             ImGui.DockSpace(ImGui.GetID("DockSpace"), Vector2.Zero, ImGuiDockNodeFlags.None);
 
