@@ -10,7 +10,7 @@ namespace OpenSage.Diagnostics
 
         public AptWindow SelectedAptWindow { get; set; }
 
-        public IInspectable SelectedObject { get; set; }
+        public object SelectedObject { get; set; }
 
         public DiagnosticViewContext(Game game, ImGuiRenderer imGuiRenderer)
         {

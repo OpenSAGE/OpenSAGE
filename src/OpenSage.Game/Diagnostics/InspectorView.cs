@@ -4,6 +4,9 @@ namespace OpenSage.Diagnostics
 {
     internal sealed class InspectorView : DiagnosticView
     {
+        private object _currentSelectedObject;
+        private IInspectable _currentInspectable;
+
         public InspectorView(DiagnosticViewContext context)
             : base(context)
         {
@@ -14,15 +17,24 @@ namespace OpenSage.Diagnostics
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            if (Context.SelectedObject != null)
+            if (Context.SelectedObject != _currentSelectedObject)
             {
-                ImGui.Text(Context.SelectedObject.Name);
+                _currentInspectable =
+                    (Context.SelectedObject as IInspectable)
+                    ?? new DefaultInspectable(Context.SelectedObject, Context);
+
+                _currentSelectedObject = Context.SelectedObject;
+            }
+
+            if (_currentInspectable != null)
+            {
+                ImGui.Text(_currentInspectable.Name);
 
                 ImGui.Separator();
 
                 ImGui.PushItemWidth(ImGui.GetWindowWidth() * 0.55f);
 
-                Context.SelectedObject.DrawInspector();
+                _currentInspectable.DrawInspector();
 
                 ImGui.PopItemWidth();
             }

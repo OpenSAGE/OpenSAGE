@@ -100,13 +100,11 @@ namespace OpenSage.Diagnostics.Util
         {
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
             ImGui.Columns(2);
-            ImGui.Separator();
         }
 
         public static void EndPropertyList()
         {
             ImGui.Columns(1);
-            ImGui.Separator();
             ImGui.PopStyleVar();
         }
 
