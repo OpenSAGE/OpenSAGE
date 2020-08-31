@@ -145,7 +145,7 @@ namespace OpenSage.Data.StreamFS
         }
 
         public LazyAssetReference<T> GetImportedData<T>(BinaryReader reader)
-            where T : class
+            where T : BaseAsset
         {
             var position = (uint) reader.BaseStream.Position;
 
