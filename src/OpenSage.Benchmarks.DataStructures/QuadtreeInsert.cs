@@ -36,6 +36,19 @@ namespace OpenSage.Benchmarks.DataStructures
             }
         }
 
+        [Benchmark(Baseline = true)]
+        public List<BenchQuadtreeItem> InsertList()
+        {
+            var items = new List<BenchQuadtreeItem>();
+
+            foreach (var item in _items)
+            {
+                items.Add(item);
+            }
+
+            return items;
+        }
+
         [Benchmark(OperationsPerInvoke = 100)]
         public Quadtree<BenchQuadtreeItem> InsertTest()
         {

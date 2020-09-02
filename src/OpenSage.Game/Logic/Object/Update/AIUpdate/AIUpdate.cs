@@ -153,6 +153,11 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
+            {
+                context.GameContext.Quadtree.Update(GameObject);
+            }
+
             if (TargetPoints.Count > 0)
             {
                 Vector3? nextPoint = null;
