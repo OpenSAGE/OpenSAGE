@@ -42,6 +42,12 @@ namespace OpenSage.Logic.Object
             var target = _gameObject.CurrentWeapon.CurrentTarget;
             float targetYaw;
 
+            if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
+            {
+                _turretAIstate = TurretAIStates.Recentering;
+                _gameObject.CurrentWeapon.SetTarget(null);
+            }
+
             switch (_turretAIstate)
             {
                 case TurretAIStates.Disabled:
@@ -261,11 +267,14 @@ namespace OpenSage.Logic.Object
 
         public int GroundUnitPitch { get; private set; }
 
+        /// <summary>
+        /// If allows pitch, the lowest I can dip down to shoot.defaults to 0 (horizontal)
+        /// </summary>
         public int MinPhysicalPitch { get; private set; }
 
         /// <summary>
         /// Instead of aiming pitchwise at the target, it will aim here
-        /// /// </summary>
+        /// </summary>
         public int FirePitch { get; private set; }
 
         /// <summary>
@@ -288,8 +297,11 @@ namespace OpenSage.Logic.Object
         public int RecenterTime { get; private set; }
 
         public BitArray<WeaponSlot> ControlledWeaponSlots { get; private set; }
-
         public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();
+
+        /// <summary>
+        /// Sweep slower than you turn
+        /// /// </summary>
         public Dictionary<WeaponSlot, float> TurretSweepSpeedModifiers { get; } = new Dictionary<WeaponSlot, float>();
 
         [AddedIn(SageGame.Bfme2Rotwk)]

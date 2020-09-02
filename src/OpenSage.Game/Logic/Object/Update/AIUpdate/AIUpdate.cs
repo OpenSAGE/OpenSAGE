@@ -172,7 +172,7 @@ namespace OpenSage.Logic.Object
                 if (target != null)
                 {
                     var directionToTarget = (target.TargetPosition - GameObject.Transform.Translation).Vector2XY();
-                    SetTargetDirection();
+                    SetTargetDirection(directionToTarget);
                 }
             }
 
