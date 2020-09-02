@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
 
         protected readonly GameObject GameObject;
 
-        private readonly BehaviorModule _turretAIUpdate;
+        private readonly TurretAIUpdate _turretAIUpdate;
 
         /// <summary>
         /// An enumerator of the waypoints if the unit is currently following a waypoint path.
@@ -164,7 +164,7 @@ namespace OpenSage.Logic.Object
         {
             if (_turretAIUpdate != null)
             {
-                _turretAIUpdate.Update(context);
+                _turretAIUpdate.Update(context, _moduleData.AutoAcquireEnemiesWhenIdle);
             }
             else
             {
