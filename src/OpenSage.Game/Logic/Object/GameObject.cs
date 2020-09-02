@@ -23,7 +23,7 @@ using OpenSage.Terrain;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : DisposableBase, IInspectable
+    public sealed class GameObject : DisposableBase, IInspectable, IHasBounds
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -139,6 +139,8 @@ namespace OpenSage.Logic.Object
         public readonly BodyModule Body;
 
         public readonly Collider Collider;
+
+        public RectangleF Bounds { get; }
 
         public float VerticalOffset;
 
@@ -298,6 +300,10 @@ namespace OpenSage.Logic.Object
             }
 
             Collider = Collider.Create(objectDefinition, Transform);
+            var boundingArea = Collider.GetBoundingArea();
+            var width = boundingArea.LowerRight.X - boundingArea.LowerLeft.X;
+            var height = boundingArea.UpperLeft.Y - boundingArea.LowerLeft.Y;
+            Bounds = new RectangleF(boundingArea.LowerLeft, width, height);
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)

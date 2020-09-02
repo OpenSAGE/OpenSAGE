@@ -53,6 +53,7 @@ namespace OpenSage.Logic.Object
             _items.Add(gameObject);
 
             _gameContext.Radar.AddGameObject(gameObject);
+            _gameContext.Quadtree?.Insert(gameObject);
 
             return gameObject;
         }

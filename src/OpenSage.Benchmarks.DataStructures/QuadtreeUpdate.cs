@@ -97,10 +97,8 @@ namespace OpenSage.Benchmarks.DataStructures
             for (var i = 0; i < MovingItems; i++)
             {
                 var item = _movingItems[i];
-                var oldRect = item.Bounds;
-                var newRect = _newRects[i];
-                _quadtree.Update(oldRect, newRect);
-                item.Bounds = newRect;
+                item.Bounds = _newRects[i];
+                _quadtree.Update(item);
             }
         }
     }

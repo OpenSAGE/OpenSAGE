@@ -55,6 +55,14 @@ namespace OpenSage.Mathematics
             Height = size.Height;
         }
 
+        public RectangleF(in Vector2 position, float width, float height)
+        {
+            X = position.X;
+            Y = position.Y;
+            Width = width;
+            Height = height;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {

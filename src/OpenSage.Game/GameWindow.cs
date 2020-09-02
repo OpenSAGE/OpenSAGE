@@ -50,8 +50,8 @@ namespace OpenSage
 
         public bool Fullscreen
         {
-            get { return _window.WindowState == WindowState.BorderlessFullScreen; }
-            set { _window.WindowState = value ? WindowState.BorderlessFullScreen : WindowState.Normal; }
+            get => _window.WindowState == WindowState.BorderlessFullScreen;
+            set => _window.WindowState = value ? WindowState.BorderlessFullScreen : WindowState.Normal;
         }
 
         public bool Maximized

@@ -7,6 +7,7 @@ using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
+using OpenSage.DataStructures;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -55,6 +56,8 @@ namespace OpenSage
         public readonly MapCache MapCache;
 
         public readonly Terrain.Terrain Terrain;
+
+        public readonly Quadtree<GameObject> Quadtree;
         public bool ShowTerrain { get; set; } = true;
 
         public readonly WaterAreaCollection WaterAreas;
@@ -324,6 +327,11 @@ namespace OpenSage
 
             Radar = new Radar(this, game.AssetStore, MapCache);
 
+            if (mapFile != null)
+            {
+                Quadtree = new Quadtree<GameObject>(new RectangleF(0, 0, mapFile.HeightMapData.Width, mapFile.HeightMapData.Height));
+            }
+
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
@@ -332,6 +340,7 @@ namespace OpenSage
                 Terrain,
                 Navigation,
                 Radar,
+                Quadtree,
                 this);
 
             GameObjects = AddDisposable(
@@ -390,29 +399,22 @@ namespace OpenSage
                 gameObject.LogicTick(frame, time);
             }
 
-            //DetectCollisions(time);
+            DetectCollisions(time);
         }
 
         private void DetectCollisions(in TimeInterval time)
         {
-            // TODO: Use Quadtree.
+            var numCollisions = 0; //??
 
-            var numCollisions = 0;
-
-            for (var i = 0; i < GameObjects.Items.Count; i++)
+            foreach (var current in GameObjects.Items)
             {
-                for (var j = i + 1; j < GameObjects.Items.Count; j++)
+                var intersecting = Quadtree.FindIntersecting(current.Bounds);
+
+                foreach (var intersect in intersecting)
                 {
-                    var gameObject1 = GameObjects.Items[i];
-                    var gameObject2 = GameObjects.Items[j];
-
-                    if (gameObject1.Intersects(gameObject2))
-                    {
-                        gameObject1.DoCollide(gameObject2, time);
-                        gameObject2.DoCollide(gameObject1, time);
-
-                        numCollisions++;
-                    }
+                    current.DoCollide(intersect, time);
+                    intersect.DoCollide(current, time);
+                    numCollisions++;
                 }
             }
         }
