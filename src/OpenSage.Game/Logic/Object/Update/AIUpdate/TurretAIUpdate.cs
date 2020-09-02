@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             _turretAIstate = _moduleData.InitiallyDisabled ? TurretAIStates.Disabled : TurretAIStates.ScanningForTargets;
         }
 
-        internal override void Update(BehaviorUpdateContext context)
+        internal void Update(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
         {
             var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
 
@@ -53,24 +53,25 @@ namespace OpenSage.Logic.Object
                         _turretAIstate = TurretAIStates.Turning;
                         _currentTarget = target;
                     }
-
-                    if (context.Time.TotalTime > _waitUntil)
+                    else if (context.Time.TotalTime > _waitUntil && autoAcquireEnemiesWhenIdle.Get(AutoAcquireEnemiesType.Yes))
                     {
                         _turretAIstate = TurretAIStates.ScanningForTargets;
                     }
                     break;
 
                 case TurretAIStates.ScanningForTargets:
-                    // TODO: scan for targets
                     if (target == null)
                     {
-                        var scanInterval =
-                            context.GameContext.Random.NextDouble() *
-                            (_moduleData.MaxIdleScanInterval - _moduleData.MinIdleScanInterval) +
-                            _moduleData.MinIdleScanInterval;
-                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(scanInterval);
-                        _turretAIstate = TurretAIStates.Idle;
-                        break;
+                        if (!FoundTargetWhileScanning(context, autoAcquireEnemiesWhenIdle))
+                        {
+                            var scanInterval =
+                                context.GameContext.Random.NextDouble() *
+                                (_moduleData.MaxIdleScanInterval - _moduleData.MinIdleScanInterval) +
+                                _moduleData.MinIdleScanInterval;
+                            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(scanInterval);
+                            _turretAIstate = TurretAIStates.Idle;
+                            break;
+                        }
                     }
 
                     if (!_moduleData.FiresWhileTurning)
@@ -90,7 +91,7 @@ namespace OpenSage.Logic.Object
                     }
 
                     var directionToTarget = (target.TargetPosition - _gameObject.Transform.Translation).Vector2XY();
-                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget);
+                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget) + _gameObject.Transform.EulerAngles.Z;
 
                     if (Rotate(targetYaw, deltaTime))
                     {
@@ -121,7 +122,7 @@ namespace OpenSage.Logic.Object
                 case TurretAIStates.Recentering:
                     if (context.Time.TotalTime > _waitUntil)
                     {
-                        targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
+                        targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle) ;
                         if (!Rotate(targetYaw, deltaTime))
                         {
                             _turretAIstate = TurretAIStates.Idle;
@@ -131,6 +132,7 @@ namespace OpenSage.Logic.Object
             }
 
 
+            // TODO: MinTargetPitch, MaxTargetPitch, MinPhysicalPitch
             //if (_moduleData.AllowsPitch)
             //{
             //    var pitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
@@ -154,7 +156,7 @@ namespace OpenSage.Logic.Object
 
         private bool Rotate(float targetYaw, float deltaTime)
         {
-            var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw - _gameObject.Transform.EulerAngles.Z);
+            var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw);
 
             if (MathF.Abs(deltaYaw) > 0.15f)
             {
@@ -162,6 +164,50 @@ namespace OpenSage.Logic.Object
                 return true;
             }
             _gameObject.TurretYaw -= deltaYaw;
+            return false;
+        }
+
+        private bool FoundTargetWhileScanning(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
+        {
+            var attacksBuildings = autoAcquireEnemiesWhenIdle.Get(AutoAcquireEnemiesType.AttackBuildings);
+            var scanRange = _gameObject.CurrentWeapon.Template.AttackRange;
+
+            var restrictedByScanAngle = _moduleData.MinIdleScanAngle != 0 && _moduleData.MaxIdleScanAngle != 0;
+            var scanAngleOffset = context.GameContext.Random.NextDouble() *
+                            (_moduleData.MaxIdleScanAngle - _moduleData.MinIdleScanAngle) +
+                            _moduleData.MinIdleScanAngle;
+
+            //TODO: use QuadTree
+            foreach (var obj in context.GameContext.GameObjects.Items)
+            {
+                var deltaTranslation = _gameObject.Transform.Translation - obj.Transform.Translation;
+                var dist = deltaTranslation.Length();
+
+                if (dist < scanRange)
+                {
+                    if (obj.Definition.KindOf.Get(ObjectKinds.Structure) && !attacksBuildings)
+                    {
+                        continue;
+                    }
+
+                    if (restrictedByScanAngle)
+                    {
+                        // TODO: test with GLAVehicleTechnicalChassisOne
+                        var direction = deltaTranslation.Vector2XY();
+                        var angleToObject = MathUtility.GetYawFromDirection(direction);
+                        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.Transform.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
+
+                        if (angleDelta < -scanAngleOffset || scanAngleOffset < angleDelta)
+                        {
+                            continue;
+                        }
+                    }
+
+                    _gameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
+                    return true;
+                }
+            }
+            
             return false;
         }
     }
