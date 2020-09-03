@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using ScriptAction = OpenSage.Data.Map.ScriptAction;
 using ScriptActionType = OpenSage.Data.Map.ScriptActionType;
 
@@ -35,6 +37,9 @@ namespace OpenSage.Scripting.Actions
             { ScriptActionType.CameraModFinalLookToward, CameraActions.CameraModFinalLookToward },
             { ScriptActionType.CameraModLookToward, CameraActions.CameraModLookToward },
 
+            // Camera - Terrain
+            { ScriptActionType.TerrainRenderDisable, CameraActions.TerrainRenderDisable},
+
             // Team
             { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact },
 
@@ -46,13 +51,30 @@ namespace OpenSage.Scripting.Actions
 
         public static ScriptingAction Get(ScriptAction action)
         {
-            if (!Actions.TryGetValue(action.ContentType, out var actionFunction))
+            var actionType = action.ContentType;
+
+            if (action.InternalName != null)
+            {
+                if (CachedEnumMap.TryGetValue(action.InternalName.Name, out var untypedActionType))
+                {
+                    actionType = (ScriptActionType) untypedActionType;
+                }
+            }
+
+            if (!Actions.TryGetValue(actionType, out var actionFunction))
             {
                 // TODO: Implement this action type.
                 return MiscActions.NoOp;
             }
 
             return actionFunction;
+        }
+
+        private static readonly Dictionary<string, Enum> CachedEnumMap = new Dictionary<string, Enum>();
+
+        static ActionLookup()
+        {
+            CachedEnumMap = IniParser.GetEnumMap<ScriptActionType>();
         }
     }
 }

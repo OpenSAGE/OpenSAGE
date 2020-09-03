@@ -74,6 +74,8 @@ namespace OpenSage.Scripting.Actions
             if (context.Scene.Cameras.Exists(name))
             {
                 targetPoint = context.Scene.Cameras[name].LookAtPoint;
+                // TODO: Zoom
+                // TODO: EulerAngles
             }
             else
             {
@@ -99,6 +101,15 @@ namespace OpenSage.Scripting.Actions
             var shutter = action.Arguments[2].FloatValue.Value;
 
             return new MoveCameraAlongWaypointPathAction(waypoint.FollowPath(context.Scene.Random), totalDuration, shutter).Execute(context);
+        }
+
+        public static ActionResult TerrainRenderDisable(ScriptAction action, ScriptExecutionContext context)
+        {
+            var disable = action.Arguments[0].IntValueAsBool;
+
+            context.Scene.ShowTerrain = !disable;
+
+            return ActionResult.Finished;
         }
     }
 

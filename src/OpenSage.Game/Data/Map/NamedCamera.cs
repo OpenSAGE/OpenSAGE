@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {

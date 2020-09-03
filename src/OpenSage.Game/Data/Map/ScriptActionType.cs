@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Data.Map
+﻿using OpenSage.Data.Ini;
+
+namespace OpenSage.Data.Map
 {
     // TODO: BFME re-used existing ScriptActionType values, so we can't have one enum for all SAGE games.
     // We can either have separate enums per game, or rely in InternalName, but this wasn't available in some
@@ -480,5 +482,8 @@
         PlayerAssimilateWithArmyByName = 539,
         TeamAssimilateWithArmyByName = 540,
         CallInReinforcementsWithoutMovie = 542,
+
+        [IniEnum("TERRAIN_RENDER_DISABLE")] // BFME2 = 372
+        TerrainRenderDisable,
     }
 }
