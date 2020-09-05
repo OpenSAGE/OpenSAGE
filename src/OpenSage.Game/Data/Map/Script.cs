@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -231,6 +230,12 @@ namespace OpenSage.Data.Map
                     scriptAction.WriteTo(writer, assetNames);
                 }
             });
+        }
+
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            IsActive = reader.ReadBooleanChecked();
         }
     }
 

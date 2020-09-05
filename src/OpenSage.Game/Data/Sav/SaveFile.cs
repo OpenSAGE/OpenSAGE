@@ -591,16 +591,7 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_SidesList":
                             {
-                                var numSides = reader.ReadUInt32();
-                                //for (var i = 0; i < numSides; i++)
-                                //{
-                                //    var something = reader.ReadBooleanChecked();
-                                //    if (something)
-                                //    {
-                                //        reader.ReadBytes(5);
-                                //    }
-                                //}
-                                stream.Seek(chunkHeader.DataLength - 4, SeekOrigin.Current);
+                                game.Scene3D.Terrain.Map.SidesList.Load(reader);
                                 break;
                             }
 

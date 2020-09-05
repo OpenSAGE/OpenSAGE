@@ -111,5 +111,18 @@ namespace OpenSage.Data.Map
                 }
             });
         }
+
+        internal void Load(BinaryReader reader)
+        {
+            var numSides = reader.ReadUInt32();
+            for (var i = 0; i < numSides; i++)
+            {
+                var hasScripts = reader.ReadBooleanChecked();
+                if (hasScripts)
+                {
+                    PlayerScripts.ScriptLists[i].Load(reader);
+                }
+            }
+        }
     }
 }
