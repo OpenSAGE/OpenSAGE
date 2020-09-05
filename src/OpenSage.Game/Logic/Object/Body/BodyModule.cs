@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
         public abstract Fix64 MaxHealth { get; internal set; }
 
-        public Fix64 HealthPercentage => Health / MaxHealth;
+        public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
         public virtual void SetInitialHealth(float multiplier) { }
 
