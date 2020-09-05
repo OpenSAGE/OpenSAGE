@@ -339,7 +339,7 @@ namespace OpenSage.Scripting
             }
 
             var unknown17 = reader.ReadUInt32();
-            if (unknown17 != 0 && unknown17 != 1)
+            if (unknown17 != 0 && unknown17 != 1 && unknown17 != 2)
             {
                 throw new InvalidDataException();
             }

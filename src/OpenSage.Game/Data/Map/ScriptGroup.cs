@@ -81,5 +81,22 @@ namespace OpenSage.Data.Map
                 }
             });
         }
+
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+
+            var numScripts = reader.ReadUInt16();
+
+            if (numScripts != Scripts.Length)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < numScripts; i++)
+            {
+                Scripts[i].Load(reader);
+            }
+        }
     }
 }

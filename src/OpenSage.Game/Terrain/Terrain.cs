@@ -37,6 +37,8 @@ namespace OpenSage.Terrain
 
         internal const int PatchSize = 17;
 
+        public readonly MapFile Map;
+
         public HeightMap HeightMap { get; }
 
         public IReadOnlyList<TerrainPatch> Patches { get; }
@@ -53,6 +55,8 @@ namespace OpenSage.Terrain
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
+            Map = mapFile;
+
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
             _graphicsDevice = loadContext.GraphicsDevice;
