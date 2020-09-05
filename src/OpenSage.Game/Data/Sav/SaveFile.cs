@@ -7,7 +7,6 @@ using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -371,7 +370,12 @@ namespace OpenSage.Data.Sav
                                     reader.ReadBooleanChecked(); // 1
                                 }
 
-                                reader.ReadBytes(15);
+                                reader.ReadByte(); // 3
+
+                                var sideName = reader.ReadBytePrefixedAsciiString();
+                                var missionName = reader.ReadBytePrefixedAsciiString();
+
+                                reader.ReadBytes(12);
 
                                 var someCount4 = reader.ReadUInt32();
                                 for (var i = 0; i < someCount4; i++)
@@ -400,6 +404,9 @@ namespace OpenSage.Data.Sav
                                 reader.ReadBooleanChecked(); // 1
                                 reader.ReadBooleanChecked(); // 1
                                 reader.ReadUInt32(); // 0xFFFFFFFF
+
+
+
                                 reader.ReadUInt32(); // 0
                                 reader.ReadBooleanChecked(); // 0
 
@@ -579,7 +586,7 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_ScriptEngine":
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                            game.Scripting.Load(reader);
                             break;
 
                         case "CHUNK_SidesList":

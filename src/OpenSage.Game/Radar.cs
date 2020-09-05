@@ -268,11 +268,7 @@ namespace OpenSage
                 throw new InvalidDataException();
             }
 
-            var unknown2 = reader.ReadByte();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var unknown2 = reader.ReadBooleanChecked();
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);

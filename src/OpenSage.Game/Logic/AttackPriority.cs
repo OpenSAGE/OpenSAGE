@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic
 {
@@ -23,6 +25,24 @@ namespace OpenSage.Logic
 
         public int Default { get; private set; }
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
+
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+
+            Name = reader.ReadBytePrefixedAsciiString();
+
+            var unknown = reader.ReadUInt32(); // Probably default value?
+
+            var numTargets = reader.ReadUInt16();
+
+            for (var i = 0; i < numTargets; i++)
+            {
+                var target = new AttackPriorityTarget();
+                target.Load(reader);
+                Targets.Add(target);
+            }
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -33,11 +53,17 @@ namespace OpenSage.Logic
             return new AttackPriorityTarget
             {
                 Target = parser.ParseAssetReference(),
-                Value = parser.ParseInteger()
+                Value = parser.ParseUnsignedInteger()
             };
         }
 
         public string Target { get; private set; }
-        public int Value { get; private set; }
+        public uint Value { get; private set; }
+
+        internal void Load(BinaryReader reader)
+        {
+            Target = reader.ReadBytePrefixedAsciiString();
+            Value = reader.ReadUInt32();
+        }
     }
 }

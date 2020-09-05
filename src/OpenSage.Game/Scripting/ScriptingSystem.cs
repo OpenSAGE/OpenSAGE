@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Runtime.Serialization;
 using OpenSage.Data.Map;
+using OpenSage.FileFormats;
+using OpenSage.Logic;
 
 namespace OpenSage.Scripting
 {
     public delegate bool ScriptingCondition(ScriptCondition condition, ScriptExecutionContext context);
     public delegate ActionResult ScriptingAction(ScriptAction action, ScriptExecutionContext context);
-
-    // type ActionResult = ActionFinished | ActionContinuation
-    public class ActionResult
-    {
-        public static readonly ActionResult Finished = new ActionFinished();
-
-        // This is a zero-sized type which is used to signal that action execution has finished.
-        public sealed class ActionFinished : ActionResult { }
-
-        // This is effectively a stackless coroutine - update runs for one cycle, and then yields control back to the scripting system.
-        public abstract class ActionContinuation : ActionResult
-        {
-            public abstract ActionResult Execute(ScriptExecutionContext context);
-        }
-    }
 
     public sealed class ScriptingSystem : GameSystem
     {
@@ -129,6 +117,268 @@ namespace OpenSage.Scripting
             OnUpdateFinished?.Invoke(this, this);
 
             Timers.Update();
+        }
+
+        internal void Load(BinaryReader reader)
+        {
+            var numSequentialScripts = reader.ReadUInt16();
+            for (var i = 0; i < numSequentialScripts; i++)
+            {
+                var version = reader.ReadVersion();
+
+                var unknown1 = reader.ReadUInt32();
+                if (unknown1 != 11)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var unknown1_1 = reader.ReadUInt32();
+                if (unknown1_1 != 0)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var scriptName = reader.ReadBytePrefixedAsciiString();
+
+                var unknown1_2 = reader.ReadUInt32();
+                if (unknown1_2 != 3)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var unknown1_3 = reader.ReadUInt32();
+                if (unknown1_3 != 0)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var unknown1_4 = reader.ReadInt32();
+                if (unknown1_4 != -1)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var unknown1_5 = reader.ReadByte();
+                if (unknown1_5 != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var numTimersAndCounters = reader.ReadUInt32();
+
+            var unknown2 = reader.ReadUInt32();
+            if (unknown2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 1; i < numTimersAndCounters; i++)
+            {
+                var value = reader.ReadInt32();
+                var name = reader.ReadBytePrefixedAsciiString();
+                var active = reader.ReadBooleanChecked();
+            }
+
+            var numTimersAndCounters2 = reader.ReadUInt32();
+            if (numTimersAndCounters2 != numTimersAndCounters)
+            {
+                throw new InvalidDataException();
+            }
+
+            var numFlags = reader.ReadUInt32();
+
+            for (var i = 1; i < numFlags; i++)
+            {
+                var value = reader.ReadBooleanChecked();
+                var name = reader.ReadBytePrefixedAsciiString();
+            }
+
+            var numFlags2 = reader.ReadUInt32();
+            if (numFlags2 != numFlags)
+            {
+                throw new InvalidDataException();
+            }
+
+            var numAttackPrioritySets = reader.ReadUInt16();
+
+            var unknown3 = reader.ReadBytes(8); // TODO
+
+            for (var i = 1; i < numAttackPrioritySets; i++)
+            {
+                var attackPriority = new AttackPriority();
+                attackPriority.Load(reader);
+            }
+
+            var numAttackPrioritySets2 = reader.ReadUInt32();
+            if (numAttackPrioritySets2 != numAttackPrioritySets)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown7 = reader.ReadInt32();
+            if (unknown7 != -1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown8 = reader.ReadInt32();
+            if (unknown8 != -1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownCount = reader.ReadUInt16();
+            for (var i = 0; i < unknownCount; i++)
+            {
+                var name = reader.ReadBytePrefixedAsciiString();
+                var timestamp = reader.ReadUInt32();
+            }
+
+            var unknown9 = reader.ReadUInt32();
+            if (unknown9 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown10 = reader.ReadByte();
+            if (unknown10 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown11 = reader.ReadSingle();
+            var unknown12 = reader.ReadSingle();
+            var unknown13 = reader.ReadSingle();
+
+            var unknown14 = reader.ReadBytes(28);
+
+            var numSpecialPowerSets = reader.ReadUInt16(); // Maybe not sides, maybe player count?
+            for (var i = 0; i < numSpecialPowerSets; i++)
+            {
+                var version = reader.ReadByte();
+
+                var numSpecialPowers = reader.ReadUInt16();
+                for (var j = 0; j < numSpecialPowers; j++)
+                {
+                    var name = reader.ReadBytePrefixedAsciiString();
+                    var timestamp = reader.ReadUInt32();
+                }
+            }
+
+            var numUnknown1Sets = reader.ReadUInt16();
+            for (var i = 0; i < numUnknown1Sets; i++)
+            {
+                var version = reader.ReadByte();
+
+                var count = reader.ReadUInt16();
+                if (count != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var numUnknown2Sets = reader.ReadUInt16();
+            for (var i = 0; i < numUnknown2Sets; i++)
+            {
+                var version = reader.ReadByte();
+
+                var count = reader.ReadUInt16();
+                if (count != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var numUpgradeSets = reader.ReadUInt16();
+            for (var i = 0; i < numUpgradeSets; i++)
+            {
+                var version = reader.ReadByte();
+
+                var numUpgrades = reader.ReadUInt16();
+                for (var j = 0; j < numUpgrades; j++)
+                {
+                    var name = reader.ReadBytePrefixedAsciiString();
+                    var timestamp = reader.ReadUInt32();
+                }
+            }
+
+            var numScienceSets = reader.ReadUInt16();
+            for (var i = 0; i < numScienceSets; i++)
+            {
+                var version = reader.ReadByte();
+
+                var numSciences = reader.ReadUInt16();
+                for (var j = 0; j < numSciences; j++)
+                {
+                    var name = reader.ReadBytePrefixedAsciiString();
+                }
+            }
+
+            var unknown14_1 = reader.ReadByte();
+            if (unknown14_1 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown14_2 = reader.ReadUInt16();
+            if (unknown14_2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < 6; i++)
+            {
+                var unknown15 = reader.ReadSingle();
+            }
+
+            var unknown16 = reader.ReadUInt32();
+            if (unknown16 != 150)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown17 = reader.ReadUInt32();
+            if (unknown17 != 0 && unknown17 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown18 = reader.ReadByte();
+            if (unknown18 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var numMapReveals = reader.ReadUInt16();
+            for (var i = 0; i < numMapReveals; i++)
+            {
+                var revealName = reader.ReadBytePrefixedAsciiString();
+                var waypoint = reader.ReadBytePrefixedAsciiString();
+                var radius = reader.ReadSingle();
+                var player = reader.ReadBytePrefixedAsciiString();
+            }
+
+            var numObjectTypeLists = reader.ReadUInt16();
+            for (var i = 0; i < numObjectTypeLists; i++)
+            {
+                var objectTypeList = new ObjectTypeList();
+                objectTypeList.Load(reader);
+            }
+
+            var unknown20 = reader.ReadByte();
+            if (unknown20 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var musicTrack = reader.ReadBytePrefixedAsciiString();
+
+            var unknown21 = reader.ReadByte();
+            if (unknown21 != 0)
+            {
+                throw new InvalidDataException();
+            }
         }
     }
 }
