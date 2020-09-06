@@ -124,45 +124,8 @@ namespace OpenSage.Scripting
             var numSequentialScripts = reader.ReadUInt16();
             for (var i = 0; i < numSequentialScripts; i++)
             {
-                var version = reader.ReadVersion();
-
-                var unknown1 = reader.ReadUInt32();
-                if (unknown1 != 11)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var unknown1_1 = reader.ReadUInt32();
-                if (unknown1_1 != 0)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var scriptName = reader.ReadBytePrefixedAsciiString();
-
-                var unknown1_2 = reader.ReadUInt32();
-                if (unknown1_2 != 3)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var unknown1_3 = reader.ReadUInt32();
-                if (unknown1_3 != 0)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var unknown1_4 = reader.ReadInt32();
-                if (unknown1_4 != -1)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var unknown1_5 = reader.ReadByte();
-                if (unknown1_5 != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                var sequentialScript = new SequentialScript();
+                sequentialScript.Load(reader);
             }
 
             var numTimersAndCounters = reader.ReadUInt32();
