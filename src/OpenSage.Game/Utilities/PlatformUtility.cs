@@ -35,7 +35,7 @@ namespace OpenSage.Utilities
             }
             else
             {
-                return 1.0f; // TODO: What happens on Linux?
+                return 96.0f; // TODO: For GNOME3 the default DPI is 96
             }
         }
     }
