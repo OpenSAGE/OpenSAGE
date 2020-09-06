@@ -2,6 +2,10 @@
 using OpenSage.Data;
 using OpenSage.Data.Ani;
 using OpenSage.Utilities;
+using System.Runtime.InteropServices;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace OpenSage.Input.Cursors
 {
@@ -30,40 +34,44 @@ namespace OpenSage.Input.Cursors
             {
                 var image = cursorFile.Images[i];
 
-                var width = (int) image.Width;
-                var height = (int) image.Height;
+                var width = (int)image.Width;
+                var height = (int)image.Height;
 
                 fixed (byte* pixelsPtr = image.PixelsBgra)
                 {
-                    var surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
-                        pixelsPtr,
-                        width,
-                        height,
-                        32,
-                        width * 4,
-                        Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
-
-                    if (windowScale != 1.0f)
+                    Sdl2Interop.SDL_Surface surface;
+                    if (windowScale == 1.0f)
                     {
-                        var scaledWidth = (int) (windowScale * width);
-                        var scaledHeight = (int) (windowScale * height);
-
-                        var scaledSurface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormat(
-                            0,
-                            scaledWidth,
-                            scaledHeight,
+                        surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
+                            pixelsPtr,
+                            width,
+                            height,
                             32,
+                            width * 4,
                             Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+                    }
+                    else
+                    {
+                        var scaledWidth = (int)(windowScale * width);
+                        var scaledHeight = (int)(windowScale * height);
 
-                        Sdl2Interop.SDL_BlitScaled(
-                            surface,
-                            new Sdl2Interop.SDL_Rect(0, 0, width, height),
-                            scaledSurface,
-                            new Sdl2Interop.SDL_Rect(0, 0, scaledWidth, scaledHeight));
+                        var scaledImage = Image.LoadPixelData<Argb32>(image.PixelsBgra, width, height);
+                        scaledImage.Mutate(x => x.Resize(scaledWidth, scaledHeight));
 
-                        Sdl2Interop.SDL_FreeSurface(surface);
-
-                        surface = scaledSurface;
+                        if (!scaledImage.TryGetSinglePixelSpan(out Span<Argb32> pixelSpan))
+                        {
+                            throw new InvalidOperationException("Unable to get image pixelspan.");
+                        }
+                        fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+                        {
+                            surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
+                               (byte*)pin,
+                               scaledWidth,
+                               scaledHeight,
+                               32,
+                               scaledWidth * 4,
+                               Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+                        }
                     }
 
                     AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(surface));
@@ -73,8 +81,8 @@ namespace OpenSage.Input.Cursors
 
                 var cursor = Sdl2Interop.SDL_CreateColorCursor(
                     _surfaces[i],
-                    (int) (image.HotspotX * windowScale),
-                    (int) (image.HotspotY * windowScale));
+                    (int)(image.HotspotX * windowScale),
+                    (int)(image.HotspotY * windowScale));
 
                 AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(cursor));
 

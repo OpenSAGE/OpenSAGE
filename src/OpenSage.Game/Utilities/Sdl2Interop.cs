@@ -48,13 +48,6 @@ namespace OpenSage.Utilities
 
         public static void SDL_FreeSurface(SDL_Surface Sdl2Surface) => FreeSurfaceImpl(Sdl2Surface);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_BlitScaled_Delegate(SDL_Surface src, SDL_Rect srcRect, SDL_Surface dst, SDL_Rect dstRect);
-
-        // According to the SDL docs, we should use SDL_BlitScaled, but that function isn't found by Sdl2Native.LoadFunction.
-        private static readonly SDL_BlitScaled_Delegate BlitScaledImpl = Sdl2Native.LoadFunction<SDL_BlitScaled_Delegate>("SDL_LowerBlitScaled");
-
-        public static void SDL_BlitScaled(SDL_Surface src, SDL_Rect srcRect, SDL_Surface dst, SDL_Rect dstRect) => BlitScaledImpl(src, srcRect, dst, dstRect);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetWindowDisplayIndex_Delegate(SDL_Window Sdl2Window);
