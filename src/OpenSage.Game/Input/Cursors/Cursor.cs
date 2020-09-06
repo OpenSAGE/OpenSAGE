@@ -34,55 +34,55 @@ namespace OpenSage.Input.Cursors
             {
                 var image = cursorFile.Images[i];
 
-                var width = (int)image.Width;
-                var height = (int)image.Height;
+                var width = (int) image.Width;
+                var height = (int) image.Height;
 
-                fixed (byte* pixelsPtr = image.PixelsBgra)
+                Sdl2Interop.SDL_Surface surface;
+                if (windowScale == 1.0f )
                 {
-                    Sdl2Interop.SDL_Surface surface;
-                    if (windowScale == 1.0f)
+                    fixed (byte* pixelsPtr = image.PixelsBgra)
                     {
                         surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
-                            pixelsPtr,
-                            width,
-                            height,
-                            32,
-                            width * 4,
-                            Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+                                pixelsPtr,
+                                width,
+                                height,
+                                32,
+                                width * 4,
+                                Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
                     }
-                    else
-                    {
-                        var scaledWidth = (int)(windowScale * width);
-                        var scaledHeight = (int)(windowScale * height);
-
-                        var scaledImage = Image.LoadPixelData<Argb32>(image.PixelsBgra, width, height);
-                        scaledImage.Mutate(x => x.Resize(scaledWidth, scaledHeight));
-
-                        if (!scaledImage.TryGetSinglePixelSpan(out Span<Argb32> pixelSpan))
-                        {
-                            throw new InvalidOperationException("Unable to get image pixelspan.");
-                        }
-                        fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
-                        {
-                            surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
-                               (byte*)pin,
-                               scaledWidth,
-                               scaledHeight,
-                               32,
-                               scaledWidth * 4,
-                               Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
-                        }
-                    }
-
-                    AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(surface));
-
-                    _surfaces[i] = surface;
                 }
+                else
+                {
+                    var scaledWidth = (int) (windowScale * width);
+                    var scaledHeight = (int) (windowScale * height);
+
+                    var scaledImage = Image.LoadPixelData<Bgra32>(image.PixelsBgra, width, height);
+                    scaledImage.Mutate(x => x.Resize(scaledWidth, scaledHeight));
+
+                    if (!scaledImage.TryGetSinglePixelSpan(out Span<Bgra32> pixelSpan))
+                    {
+                        throw new InvalidOperationException("Unable to get image pixelspan.");
+                    }
+                    fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+                    {
+                        surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
+                           (byte*) pin,
+                           scaledWidth,
+                           scaledHeight,
+                           32,
+                           scaledWidth * 4,
+                           Sdl2Interop.SDL_PixelFormat.SDL_PIXELFORMAT_ABGR8888);
+                    }
+                }
+
+                AddDisposeAction(() => Sdl2Interop.SDL_FreeSurface(surface));
+
+                _surfaces[i] = surface;
 
                 var cursor = Sdl2Interop.SDL_CreateColorCursor(
                     _surfaces[i],
-                    (int)(image.HotspotX * windowScale),
-                    (int)(image.HotspotY * windowScale));
+                    (int) (image.HotspotX * windowScale),
+                    (int) (image.HotspotY * windowScale));
 
                 AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(cursor));
 
