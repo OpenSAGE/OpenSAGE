@@ -70,6 +70,11 @@ namespace OpenSage.Utilities
 
         public static unsafe void SDL_GetDisplayDPI(int displayIndex, float* ddpi, float* hdpi, float* vdpi) => GetDisplayDPIImpl(displayIndex, ddpi, hdpi, vdpi);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate uint SDL_GetMouseState_Delegate(int* x, int* y);
+        private static readonly SDL_GetMouseState_Delegate GetMouseStateImpl = Sdl2Native.LoadFunction<SDL_GetMouseState_Delegate>("SDL_GetMouseState");
+        public static unsafe uint SDL_GetMouseState(int* x, int* y) => GetMouseStateImpl(x, y);
+
         public static unsafe float GetDisplayScale(int displayIndex)
         {
             float hdpi;

@@ -1,25 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
+using OpenSage.Gui;
 
 namespace OpenSage.Input.Cursors
 {
     internal sealed class CursorManager : DisposableBase
     {
-        private readonly Dictionary<string, Cursor> _cachedCursors;
-        private Cursor _currentCursor;
+        private readonly Dictionary<string, CursorBase> _cachedCursors;
+        private CursorBase _currentCursor;
 
         private readonly GameWindow _window;
         private readonly AssetStore _assetStore;
         private readonly ContentManager _contentManager;
 
+        private bool _useHardwareCursor;
+
+        public bool UseHardwareCursor
+        {
+            get { return _useHardwareCursor; }
+            set
+            {
+                _useHardwareCursor = value;
+                _cachedCursors.Clear();
+                _currentCursor = null;
+            }
+        }
+
         public CursorManager(GameWindow window, AssetStore assetStore, ContentManager contentManager)
         {
-            _cachedCursors = new Dictionary<string, Cursor>();
+            _cachedCursors = new Dictionary<string, CursorBase>();
 
             _window = window;
             _assetStore = assetStore;
             _contentManager = contentManager;
+
+            UseHardwareCursor = true;
         }
 
         public void SetCursor(string cursorName, in TimeInterval time)
@@ -55,7 +71,17 @@ namespace OpenSage.Input.Cursors
                 var cursorFilePath = Path.Combine(cursorDirectory, cursorFileName);
                 var cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window));
+                CursorBase newCursor = null;
+                if(UseHardwareCursor)
+                {
+                    newCursor = new HardwareCursor(cursorEntry, _window);
+                }
+                else
+                {
+                    newCursor = new SoftwareCursor(cursorEntry, _window, _contentManager.GraphicsDevice);
+                }
+
+                _cachedCursors[cursorName] = cursor = AddDisposable(newCursor);
             }
 
             if (_currentCursor == cursor)
@@ -70,6 +96,11 @@ namespace OpenSage.Input.Cursors
         public void Update(in TimeInterval time)
         {
             _currentCursor?.Update(time);
+        }
+
+        public void Render(DrawingContext2D drawingContext)
+        {
+            _currentCursor?.Render(drawingContext);
         }
     }
 }
