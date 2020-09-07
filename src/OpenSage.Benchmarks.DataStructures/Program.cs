@@ -11,8 +11,8 @@ namespace OpenSage.Benchmarks.DataStructures
             //BenchmarkRunner.Run<BitArray512SetAllAndCount>();
             //BenchmarkRunner.Run<BitArray512SetAllExceptOneAndCount>();
             //BenchmarkRunner.Run<BitArray512SetHalfRandomlyAndCount>();
-            BenchmarkRunner.Run<QuadtreeInsert>();
-            //BenchmarkRunner.Run<QuadtreeUpdate>();
+            //BenchmarkRunner.Run<QuadtreeInsert>();
+            BenchmarkRunner.Run<QuadtreeUpdate>();
             //BenchmarkRunner.Run<QuadtreeQuery>();
             //BenchmarkRunner.Run<PathfindingQuery>();
             Console.ReadLine();

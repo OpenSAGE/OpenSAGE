@@ -8,36 +8,22 @@ namespace OpenSage.Logic.Object
 {
     public abstract class Collider
     {
-        protected readonly Transform Transform;
+        protected Transform Transform;
+        public BoundingVolume WorldBounds { get; protected set; }
+        public TransformedRectangle BoundingArea { get; protected set; }
+        public RectangleF AABoundingArea { get; protected set; }
+        public float Height { get; protected set; }
 
         protected Collider(Transform transform)
         {
             Transform = transform;
         }
 
-        public abstract float Height { get; }
-
-        public bool Intersects(in Ray ray, out float depth)
-        {
-            var transformedRay = Ray.Transform(ray, Transform.MatrixInverse);
-
-            if (IntersectsTransformedRay(transformedRay, out depth))
-            {
-                // Assumes uniform scaling
-                depth *= Transform.Scale;
-                return true;
-            }
-
-            return false;
-        }
+        public abstract void Update(Transform transform);
 
         public abstract bool Intersects(in BoundingFrustum frustum);
+        protected abstract bool Intersects(in Ray ray, out float depth);
 
-        protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
-
-        public abstract Rectangle GetBoundingRectangle(Camera camera);
-        public abstract TransformedRectangle GetBoundingArea();
-        public abstract BoundingBox GetAxisAlignedBoundingBox();
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
@@ -70,9 +56,6 @@ namespace OpenSage.Logic.Object
     public class BoxCollider : Collider
     {
         private readonly BoundingBox _bounds;
-        private readonly float _height;
-
-        public override float Height => _height;
 
         public BoxCollider(ObjectDefinition def, Transform transform)
             : base(transform)
@@ -80,35 +63,25 @@ namespace OpenSage.Logic.Object
             var min = new Vector3(-def.Geometry.MajorRadius, -def.Geometry.MinorRadius, 0);
             var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
             _bounds = new BoundingBox(min, max);
-            _height = def.Geometry.Height;
+            Update(transform);
+            Height = def.Geometry.Height;
         }
 
-        protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
+        public sealed override void Update(Transform transform)
         {
-            return transformedRay.Intersects(_bounds, out depth);
+            WorldBounds = BoundingBox.Transform(_bounds, transform.Matrix);
+            BoundingArea = TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
+            //AABoundingArea = RectangleF.
         }
 
-        public override bool Intersects(in BoundingFrustum frustum)
+        protected override bool Intersects(in Ray ray, out float depth)
         {
-            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var result = ray.Intersects((BoundingBox) WorldBounds, out depth);
+            depth *= Transform.Scale; // Assumes uniform scaling
+            return result;
         }
 
-        public override Rectangle GetBoundingRectangle(Camera camera)
-        {
-            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return camera.GetBoundingRectangle(worldBounds);
-        }
-
-        public override TransformedRectangle GetBoundingArea()
-        {
-            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
-        }
-
-        public override BoundingBox GetAxisAlignedBoundingBox()
-        {
-             return BoundingBox.Transform(_bounds, Transform.Matrix);
-        }
+        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects((BoundingBox) WorldBounds);
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
@@ -153,50 +126,31 @@ namespace OpenSage.Logic.Object
     public class SphereCollider : Collider
     {
         private readonly BoundingSphere _bounds;
-        private readonly float _height;
-
-        public override float Height => _height;
+        
 
         public SphereCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
-            _bounds = new BoundingSphere(Vector3.Zero, def.Geometry.MajorRadius);
-            _height = def.Geometry.Height;
+            var radius = def.Geometry.MajorRadius;
+            _bounds = new BoundingSphere(Vector3.Zero, radius);
+            Update(transform);
+            Height = def.Geometry.Height;
         }
 
-        protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
+        public sealed override void Update(Transform transform)
         {
-            return transformedRay.Intersects(_bounds, out depth);
+            WorldBounds = BoundingSphere.Transform(_bounds, transform.Matrix);
+            BoundingArea = TransformedRectangle.FromBoundingSphere(_bounds, Transform.Translation);
         }
 
-        public override bool Intersects(in BoundingFrustum frustum)
+        protected override bool Intersects(in Ray ray, out float depth)
         {
-            var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var result = ray.Intersects((BoundingSphere)WorldBounds, out depth);
+            depth *= Transform.Scale; // Assumes uniform scaling
+            return result;
         }
 
-        public override BoundingBox GetAxisAlignedBoundingBox()
-        {
-            var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
-            var center = worldBounds.Center;
-            var radius = worldBounds.Radius;
-            var min = new Vector3(center.X - radius, center.Y - radius, center.Z - radius);
-            var max = new Vector3(center.X + radius, center.Y + radius, center.Z + radius);
-            return new BoundingBox(min, max);
-        }
-
-        public override Rectangle GetBoundingRectangle(Camera camera)
-        {
-            // TODO: Implement this.
-            // Or don't, since Generals has only 4 spherical selectable objects,
-            // and all of them are debug objects.
-            return new Rectangle(0, 0, 0, 0);
-        }
-
-        public override TransformedRectangle GetBoundingArea()
-        {
-            return TransformedRectangle.FromBoundingSphere(_bounds, Transform.Translation);
-        }
+        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects((BoundingSphere)WorldBounds);
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
@@ -209,47 +163,34 @@ namespace OpenSage.Logic.Object
     public class CylinderCollider : Collider
     {
         private readonly BoundingBox _bounds;
-        private readonly float _height;
-
-        public override float Height => _height;
 
         public CylinderCollider(ObjectDefinition def, Transform transform)
              : base(transform)
         {
             var radius = def.Geometry.MajorRadius;
-            _height = def.Geometry.Height;
+            Height = def.Geometry.Height;
 
             _bounds = new BoundingBox(
                 new Vector3(-radius, -radius, 0),
-                new Vector3(radius, radius, _height));
+                new Vector3(radius, radius, def.Geometry.Height));
+
+            Update(transform);
         }
 
-        protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
+        public sealed override void Update(Transform transform)
         {
-            return transformedRay.Intersects(_bounds, out depth);
+            WorldBounds = BoundingBox.Transform(_bounds, transform.Matrix);
+            BoundingArea = TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
         }
 
-        public override bool Intersects(in BoundingFrustum frustum)
+        protected override bool Intersects(in Ray ray, out float depth)
         {
-            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var result = ray.Intersects((BoundingBox)WorldBounds, out depth);
+            depth *= Transform.Scale; // Assumes uniform scaling
+            return result;
         }
 
-        public override Rectangle GetBoundingRectangle(Camera camera)
-        {
-            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return camera.GetBoundingRectangle(worldBounds);
-        }
-
-        public override TransformedRectangle GetBoundingArea()
-        {
-            return TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
-        }
-
-        public override BoundingBox GetAxisAlignedBoundingBox()
-        {
-            return BoundingBox.Transform(_bounds, Transform.Matrix);
-        }
+        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects((BoundingBox)WorldBounds);
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
