@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct BoundingBox
+    public readonly struct BoundingBox : BoundingVolume
     {
         public readonly Vector3 Min;
         public readonly Vector3 Max;

@@ -27,10 +27,10 @@ namespace OpenSage.Benchmarks.DataStructures
             _bounds = new RectangleF(0, 0, 5000, 5000);
         }
 
-        [Params(3000)]
+        [Params(15000)]
         public int TotalItems { get; set; }
 
-        [Params(100)]
+        [Params(10000)]
         public int MovingItems { get; set; }
 
         private const float MaxItemSize = 20f;

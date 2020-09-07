@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.DataStructures
 {
-    public sealed class Quadtree<T> where T : IHasBounds
+    public sealed class Quadtree<T> where T : IHasCollider
     {
         private const int MaxDepth = 8;
         private const int MaxItemsPerLeaf = 2;
@@ -96,7 +97,7 @@ namespace OpenSage.DataStructures
 
             foreach (var item in _items)
             {
-                if (bounds.IntersectsWith(item.Bounds))
+                if (item.Collider.Intersects(bounds))
                 {
                     yield return item;
                 }
@@ -144,7 +145,7 @@ namespace OpenSage.DataStructures
             // 2. Check if the item fully fits into any of the children.
             foreach (var subTree in _children)
             {
-                var containment = subTree.Bounds.Intersect(item.Bounds);
+                var containment = subTree.Bounds.Intersect(item.Collider.BoundingArea);
 
                 switch (containment)
                 {
@@ -172,44 +173,33 @@ namespace OpenSage.DataStructures
 
         public void Remove(in T item)
         {
-            if (_children != null)
+            foreach (var subTree in _children)
             {
-                foreach (var subTree in _children)
+                if (subTree._items.Remove(item))
                 {
-                    var subtree = subTree;
-                    if (subtree == null)
-                    {
-                        continue;
-                    }
-
-                    var containment = subtree.Bounds.Intersect(item.Bounds);
-
-                    switch (containment)
-                    {
-                        case ContainmentType.Disjoint: continue;
-
-                        case ContainmentType.Contains:
-                        {
-                            subtree.Remove(item);
-                            return;
-                        }
-
-                        // In this case we'll know the item is either stored in this node or nowhere,
-                        // so we can fall through to the for loop below.
-                        case ContainmentType.Intersects: break;
-                    }
-
-                    break;
+                    return;
                 }
             }
 
             _items.Remove(item);
         }
 
+        //private bool RemoveIfInvalid(in T item)
+        //{
+        //    foreach (var subTree in _children)
+        //    {
+        //        if (subTree._items.Remove(item))
+        //        {
+        //            return;
+        //        }
+        //    }
+        //    _items.Remove(item);
+        //}
+
         public void Update(in T item)
         {
-            Remove(item);
-            Insert(item);
+            //RemoveIfInvalid(item);
+            //Insert(item);
         }
 
         internal enum Quad
@@ -221,8 +211,8 @@ namespace OpenSage.DataStructures
         }
     }
 
-    public interface IHasBounds
+    public interface IHasCollider
     {
-        RectangleF Bounds { get; }
+        Collider Collider { get; }
     }
 }
