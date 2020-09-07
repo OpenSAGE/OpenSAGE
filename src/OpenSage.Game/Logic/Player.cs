@@ -232,30 +232,4 @@ namespace OpenSage.Logic
             };
         }
     }
-
-    public class Team
-    {
-        public string Name { get; }
-        public Player Owner { get; }
-        public bool IsSingleton { get; }
-
-        public Team(string name, Player owner, bool isSingleton)
-        {
-            Name = name;
-            Owner = owner;
-            IsSingleton = isSingleton;
-        }
-
-        public static Team FromMapData(Data.Map.Team mapTeam, IList<Player> players)
-        {
-            var name = mapTeam.Properties["teamName"].Value as string;
-
-            var ownerName = mapTeam.Properties["teamOwner"].Value as string;
-            var owner = players.FirstOrDefault(player => player.Name == ownerName);
-
-            var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
-
-            return new Team(name, owner, isSingleton);
-        }
-    }
 }
