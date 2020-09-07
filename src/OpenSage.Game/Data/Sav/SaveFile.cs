@@ -176,31 +176,11 @@ namespace OpenSage.Data.Sav
                         }
 
                         case "CHUNK_TeamFactory":
-                        {
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-                            break;
-
-                            var unknown = reader.ReadUInt32(); // 46
-                            var unknown2 = reader.ReadUInt16(); // 71
-                            var unknown3 = reader.ReadUInt32(); // 1
-                            var unknown4 = reader.ReadUInt32(); // 2
-                            var unknown5 = reader.ReadBytes(19);
-
-                            while (true)
                             {
-                                var num = reader.ReadUInt16();
-                                var unknownNumbers = new uint[num];
-                                for (var i = 0; i < num; i++)
-                                {
-                                    unknownNumbers[i] = reader.ReadUInt32();
-                                }
-
-                                reader.ReadBytes(155);
+                                var teamFactory = new TeamFactory();
+                                teamFactory.Load(reader);
+                                break;
                             }
-
-                            stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-                            break;
-                        }
 
                         case "CHUNK_Players":
                         {
