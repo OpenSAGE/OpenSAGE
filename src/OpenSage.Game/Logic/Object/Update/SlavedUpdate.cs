@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
             var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
             var masterHealthPercent = Master.Body.Health / Master.Body.MaxHealth;
 
-            var offsetToMaster = Master.Transform.Translation - _gameObject.Transform.Translation;
+            var offsetToMaster = Master.Translation - _gameObject.Translation;
             var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
             if (!masterIsMoving && (masterHealthPercent < (Fix64) (_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
                         // go to master
                         if (distanceToMaster > 1.0)
                         {
-                            _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                            _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
                             _repairStatus = RepairStatus.GOING_TO_MASTER;
                         }
 
@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
                             var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
 
                             var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                            _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation + offset);
+                            _gameObject.AIUpdate.SetTargetPoint(Master.Translation + offset);
                             _repairStatus = RepairStatus.IN_TRANSITION;
                         }
                         break;
@@ -128,12 +128,12 @@ namespace OpenSage.Logic.Object
 
                 if (target != null)
                 {
-                    var offsetToTarget = target.Transform.Translation - _gameObject.Transform.Translation;
+                    var offsetToTarget = target.Translation - _gameObject.Translation;
                     var distanceToTarget = offsetToTarget.Length();
 
                     if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToTarget > _moduleData.AttackWanderRange)
                     {
-                        _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                        _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
                     }
                 }
             }
@@ -156,7 +156,7 @@ namespace OpenSage.Logic.Object
 
                 if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToMaster > maxRange)
                 {
-                    _gameObject.AIUpdate.SetTargetPoint(Master.Transform.Translation);
+                    _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
                 }
             }
 

@@ -209,8 +209,8 @@ namespace OpenSage.Scripting
             var spawnUnitPosition = localPlayerStartPosition;
             var playerTemplate = Game.Scene3D.LocalPlayer.Template;
             var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
-            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-            spawnUnit.Transform.Translation = spawnUnitPosition;
+            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+            spawnUnit.SetTranslation(spawnUnitPosition);
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
         }
 
@@ -223,7 +223,7 @@ namespace OpenSage.Scripting
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }
             var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
             spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
-            spawnUnit.Transform.Translation = spawnPosition;
+            spawnUnit.SetTranslation(spawnPosition);
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
         }
 

@@ -628,16 +628,15 @@ namespace OpenSage
                     if (playerTemplate.StartingBuilding != null)
                     {
                         var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, players[i]);
-                        startingBuilding.Transform.Translation = playerStartPosition;
-                        startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
-                        startingBuilding.Collider.Update(startingBuilding.Transform);
+                        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+                        startingBuilding.UpdateTransform(playerStartPosition, rotation);
+
                         Scene3D.Navigation.UpdateAreaPassability(startingBuilding, false);
 
                         var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
                         var startingUnit0Position = playerStartPosition;
-                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-                        startingUnit0.Transform.Translation = startingUnit0Position;
-                        startingBuilding.Collider.Update(startingBuilding.Transform);
+                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+                        startingUnit0.SetTranslation(startingUnit0Position);
 
                         Selection.SetSelectedObjects(players[i], new[] { startingBuilding }, playAudio: false);
                     }

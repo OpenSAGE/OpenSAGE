@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
                         // TODO: InitialAccelPercent
                         var deltaAngle = 0.3f * (float) context.Time.DeltaTime.TotalSeconds;
                         _toppleAngle += deltaAngle;
-                        context.GameObject.Transform.Rotation *= Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0);
+                        context.GameObject.SetRotation(context.GameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
                         if (_toppleAngle > MathUtility.PiOver2)
                         {
                             _toppleAngle = MathUtility.PiOver2;
@@ -102,9 +102,7 @@ namespace OpenSage.Logic.Object
             }
 
             var stump = context.GameContext.GameObjects.Add(_moduleData.StumpName.Value);
-
-            stump.Transform.Translation = context.GameObject.Transform.Translation;
-            stump.Transform.Rotation = context.GameObject.Transform.Rotation;
+            stump.UpdateTransform(context.GameObject.Translation, context.GameObject.Rotation);
         }
 
         private void KillObject(BehaviorUpdateContext context)

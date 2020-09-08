@@ -137,12 +137,5 @@ namespace OpenSage
                 return new Vector3(x, y, z);
             }
         }
-
-        internal void CopyFrom(in Matrix4x4 matrix)
-        {
-            Matrix4x4.Decompose(matrix, out _, out var rotation, out var translation);
-            Rotation = rotation;
-            Translation = translation;
-        }
     }
 }

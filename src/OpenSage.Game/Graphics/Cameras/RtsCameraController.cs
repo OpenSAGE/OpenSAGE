@@ -286,7 +286,7 @@ namespace OpenSage.Graphics.Cameras
 
         public void GoToObject(Logic.Object.GameObject gameObject)
         {
-            TerrainPosition = gameObject.Transform.Translation;
+            TerrainPosition = gameObject.Translation;
         }
 
         internal void DrawInspector()

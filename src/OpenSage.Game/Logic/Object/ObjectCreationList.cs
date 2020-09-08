@@ -117,8 +117,7 @@ namespace OpenSage.Logic.Object
         {
             var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
 
-            debrisObject.Transform.Translation = context.GameObject.Transform.Translation + Offset;
-            debrisObject.Transform.Rotation = context.GameObject.Transform.Rotation;
+            debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
 
             // Model
             var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.DrawModules[0];
@@ -319,15 +318,12 @@ namespace OpenSage.Logic.Object
             foreach (var objectName in ObjectNames)
             {
                 var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
-                newGameObject.Transform.Translation = context.GameObject.Transform.Translation;
-                newGameObject.Transform.Rotation = context.GameObject.Transform.Rotation;
-
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
                 // TODO: IgnorePrimaryObstacle
-                // TODO: Offset
-                newGameObject.Transform.Translation += Offset;
+
+                newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
 
                 result.Add(newGameObject);
             }

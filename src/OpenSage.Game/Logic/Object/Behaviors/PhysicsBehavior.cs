@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
             _velocity += acceleration * deltaTime;
 
             // Integrate position.
-            var newTranslation = context.GameObject.Transform.Translation + (_velocity * deltaTime);
+            var newTranslation = context.GameObject.Translation + (_velocity * deltaTime);
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
                 newTranslation.X,
@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            context.GameObject.Transform.Translation = newTranslation;
+            context.GameObject.SetTranslation(newTranslation);
         }
 
         public void AddForce(in Vector3 force)

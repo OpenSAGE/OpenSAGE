@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3 TargetPosition => TargetType == WeaponTargetType.Position
             ? TargetGroundPosition.Value
-            : TargetObject.Transform.Translation;
+            : TargetObject.Translation;
 
         internal WeaponTarget(in Vector3 targetGroundPosition)
         {

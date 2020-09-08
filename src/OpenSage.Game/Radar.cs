@@ -167,7 +167,7 @@ namespace OpenSage
             // things in the same radar position.
 
             var gameObject = _scene.GameObjects.GetObjectById((int) item.ObjectId);
-            var gameObjectPosition = gameObject.Transform.Translation;
+            var gameObjectPosition = gameObject.Translation;
 
             var radarPosition = WorldToRadarSpace(gameObjectPosition, miniMapTransform);
             if (radarPosition == null)

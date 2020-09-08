@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
 
             if (particleSystems != null)
             {
-                var worldMatrix = context.GameObject.Transform.Matrix;
+                var worldMatrix = context.GameObject.TransformMatrix;
 
                 foreach (var particleSystemTemplate in particleSystems)
                 {

@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
             {
                 return actionModelInstance.AbsoluteBoneTransforms[actionBone.Index].Translation;
             }
-            return _gameObject.Transform.Translation;
+            return _gameObject.Translation;
         }
 
         private Vector3 GetDockWaitingBone(int id)
@@ -48,7 +48,7 @@ namespace OpenSage.Logic.Object
 
             if (!_usesWaitingBones)
             {
-                return _gameObject.Transform.Translation;
+                return _gameObject.Translation;
             }
 
             if (_unitsApproaching.Count == 1)

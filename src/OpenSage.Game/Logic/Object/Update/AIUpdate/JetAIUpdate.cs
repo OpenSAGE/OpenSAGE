@@ -96,8 +96,7 @@ namespace OpenSage.Logic.Object
 
             var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
-            var transform = GameObject.Transform;
-            var trans = transform.Translation;
+            var trans = GameObject.Translation;
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
 
@@ -238,7 +237,7 @@ namespace OpenSage.Logic.Object
             if (trans.Z - terrainHeight < _moduleData.MinHeight)
             {
                 trans.Z = terrainHeight + _moduleData.MinHeight;
-                transform.Translation = trans;
+                GameObject.SetTranslation(trans);
             }
 
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying))

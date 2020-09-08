@@ -124,7 +124,7 @@ namespace OpenSage.Gui.DebugUI
                         // Draw line to the first target point
                         if (targetPoints.Count > 0)
                         {
-                            var p1 = gameObject.Transform.Translation;
+                            var p1 = gameObject.Translation;
                             var p2 = targetPoints[0];
                             var wp1 = camera.WorldToScreenPoint(p1).Vector2XY();
                             var wp2 = camera.WorldToScreenPoint(p2).Vector2XY();

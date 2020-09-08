@@ -37,14 +37,14 @@ namespace OpenSage.Logic.Object
                     {
                         _moduleData.IgnitionFX?.Value?.Execute(
                             new FXListExecutionContext(
-                                GameObject.Transform.Rotation,
-                                GameObject.Transform.Translation,
+                                GameObject.Rotation,
+                                GameObject.Translation,
                                 context.GameContext));
 
                         if (_moduleData.DistanceToTravelBeforeTurning > 0)
                         {
-                            var pointToReachBeforeTurning = context.GameObject.Transform.Translation
-                                + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix) * _moduleData.DistanceToTravelBeforeTurning;
+                            var pointToReachBeforeTurning = context.GameObject.Translation
+                                + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix) * _moduleData.DistanceToTravelBeforeTurning;
                             AddTargetPoint(pointToReachBeforeTurning);
                         }
 
