@@ -80,12 +80,8 @@ namespace OpenSage.Logic.Object
             var rotationOffset = Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
             var position = mapObject.Position + rotationOffset.ToVector3();
             var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
-            gameObject.Transform.Translation = new Vector3(position.X, position.Y, height);
-            gameObject.Transform.Rotation = rotation;
-            gameObject.Transform.Scale = gameObject.Definition.Scale;
-
-            gameObject.Collider.Update(gameObject.Transform);
-            gameObject._gameContext.Quadtree.Insert(gameObject);
+            gameObject.UpdateTransform(new Vector3(position.X, position.Y, height), rotation,
+                gameObject.Definition.Scale);
 
             if (gameObject.Definition.IsBridge)
             {
@@ -124,8 +120,52 @@ namespace OpenSage.Logic.Object
 
         public readonly ObjectDefinition Definition;
 
-        public readonly Transform Transform;
+        private readonly Transform _transform;
         public readonly Transform ModelTransform;
+
+        private void UpdateCollider()
+        {
+            Collider.Update(_transform);
+            _gameContext.Quadtree.Update(this);
+        }
+
+        public Vector3 EulerAngles => _transform.EulerAngles;
+        public Vector3 LookDirection => _transform.LookDirection;
+        public Vector3 Translation => _transform.Translation;
+        public Quaternion Rotation => _transform.Rotation;
+        public Matrix4x4 TransformMatrix => _transform.Matrix;
+
+        public void SetTransformMatrix(Matrix4x4 matrix)
+        {
+            _transform.Matrix = matrix;
+            UpdateCollider();
+        }
+
+        public void SetTranslation(Vector3 translation)
+        {
+            _transform.Translation = translation;
+            UpdateCollider();
+        }
+
+        public void SetRotation(Quaternion rotation)
+        {
+            _transform.Rotation = rotation;
+            UpdateCollider();
+        }
+
+        public void SetScale(float scale)
+        {
+            _transform.Scale = scale;
+            UpdateCollider();
+        }
+
+        public void UpdateTransform(in Vector3? translation = null, in Quaternion? rotation = null, float scale = 1.0f)
+        {
+            _transform.Translation = translation ?? _transform.Translation;
+            _transform.Rotation = rotation ?? _transform.Rotation;
+            _transform.Scale = scale;
+            UpdateCollider();
+        }
 
         public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
 
@@ -238,9 +278,9 @@ namespace OpenSage.Logic.Object
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
 
             SetDefaultWeapon();
-            Transform = Transform.CreateIdentity();
+            _transform = Transform.CreateIdentity();
             ModelTransform = Transform.CreateIdentity();
-            Transform.Scale = objectDefinition.Scale;
+            _transform.Scale = Definition.Scale;
 
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws.Values)
@@ -300,7 +340,7 @@ namespace OpenSage.Logic.Object
                 _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
             
-            Collider = Collider.Create(objectDefinition, Transform);
+            Collider = Collider.Create(objectDefinition, _transform);
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)
@@ -398,12 +438,7 @@ namespace OpenSage.Logic.Object
                 CurrentWeapon?.LogicTick(time);
             }
 
-            if (AIUpdate != null)
-            {
-                AIUpdate.Update(_behaviorUpdateContext);
-                Collider.Update(Transform);
-                _gameContext.Quadtree.Update(this);
-            }
+            AIUpdate?.Update(_behaviorUpdateContext);
 
             foreach (var behavior in _behaviorModules)
             {
@@ -460,13 +495,13 @@ namespace OpenSage.Logic.Object
 
         internal Vector3 ToWorldspace(in Vector3 localPos)
         {
-            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), Transform.Matrix);
+            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), _transform.Matrix);
             return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
         }
 
         internal Transform ToWorldspace(in Transform localPos)
         {
-            var worldPos = localPos.Matrix * Transform.Matrix;
+            var worldPos = localPos.Matrix * _transform.Matrix;
             return new Transform(worldPos);
         }
 
@@ -517,7 +552,6 @@ namespace OpenSage.Logic.Object
                 ConstructionStart = gameTime.TotalTime;
             }
 
-            Collider.Update(Transform);
             _gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 
@@ -610,7 +644,7 @@ namespace OpenSage.Logic.Object
             }
 
             // This must be done after processing anything that might update this object's transform.
-            var worldMatrix = ModelTransform.Matrix * Transform.Matrix;
+            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
             foreach (var drawModule in _drawModules)
             {
                 drawModule.SetWorldMatrix(worldMatrix);
@@ -643,7 +677,7 @@ namespace OpenSage.Logic.Object
 
             if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
             {
-                _rallyPointMarker.Transform.Translation = RallyPoint.Value;
+                _rallyPointMarker._transform.Translation = RallyPoint.Value;
 
                 // TODO: check if this should be drawn with transparency?
                 _rallyPointMarker.BuildRenderList(renderList, camera, gameTime);

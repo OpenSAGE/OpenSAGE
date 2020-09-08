@@ -236,7 +236,7 @@ namespace OpenSage.Data.Sav
                                     var unknownBool3 = reader.ReadBooleanChecked(); // 1
 
                                     var transform = reader.ReadMatrix4x3Transposed();
-                                    gameObject.Transform.Matrix = transform.ToMatrix4x4();
+                                    gameObject.SetTransformMatrix(transform.ToMatrix4x4());
 
                                     var unknown8 = reader.ReadBytes(16);
 

@@ -77,7 +77,7 @@ namespace OpenSage.Logic.Object
 
             if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
             {
-                var start = GameObject.Transform.Translation;
+                var start = GameObject.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
                 TargetPoints[TargetPoints.Count - 1] = targetPoint;

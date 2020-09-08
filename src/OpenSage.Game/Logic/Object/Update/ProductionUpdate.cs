@@ -305,7 +305,7 @@ namespace OpenSage.Logic.Object
             if (_productionExit is ParkingPlaceBehaviour parkingPlace)
             {
                 var producedAtHelipad = parkingPlace.ProducedAtHelipad(_producedUnit.Definition);
-                _producedUnit.Transform.CopyFrom(parkingPlace.GetUnitCreateTransform(producedAtHelipad).Matrix * _gameObject.Transform.Matrix);
+                _producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad).Matrix * _gameObject.TransformMatrix);
 
                 if (!producedAtHelipad)
                 {
@@ -314,10 +314,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var createPoint = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
-            _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
-            _producedUnit.Transform.Translation = createPoint;
-            _producedUnit.Collider.Update(_producedUnit.Transform);
+            _producedUnit.UpdateTransform(_gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint()), _gameObject.Rotation);
         }
 
         private void MoveProducedObjectOut()

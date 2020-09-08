@@ -68,7 +68,7 @@ namespace OpenSage.Logic.Object
                         var distanceToCurrentSupplySource = float.PositiveInfinity;
                         foreach (var supplySource in supplySources)
                         {
-                            var offsetToSource = supplySource.Transform.Translation - GameObject.Transform.Translation;
+                            var offsetToSource = supplySource.Translation - GameObject.Translation;
                             var distanceToSource = offsetToSource.Vector2XY().Length();
 
                             if (distanceToSource > _moduleData.SupplyWarehouseScanDistance || distanceToSource > distanceToCurrentSupplySource) continue;
@@ -85,7 +85,7 @@ namespace OpenSage.Logic.Object
 
                     if (_currentSupplySource == null) break;
 
-                    SetTargetPoint(_currentSupplySource.Transform.Translation);
+                    SetTargetPoint(_currentSupplySource.Translation);
                     SupplyGatherState = SupplyGatherStates.ApproachSupplySource;
                     break;
                 case SupplyGatherStates.ApproachSupplySource:
@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
                         {
                             if (supplyTarget.Owner != GameObject.Owner) continue;
 
-                            var offsetToTarget = supplyTarget.Transform.Translation - GameObject.Transform.Translation;
+                            var offsetToTarget = supplyTarget.Translation - GameObject.Translation;
                             var distanceToTarget = offsetToTarget.Vector2XY().Length();
 
                             if (distanceToTarget > _moduleData.SupplyWarehouseScanDistance || distanceToTarget > distanceToCurrentSupplyTarget) continue;

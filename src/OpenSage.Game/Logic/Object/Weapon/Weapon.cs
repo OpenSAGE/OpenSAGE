@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
 
                 var distance = Vector3.Distance(
                     currentTargetPosition.Value,
-                    ParentGameObject.Transform.Translation);
+                    ParentGameObject.Translation);
 
                 return distance <= Template.AttackRange;
             }

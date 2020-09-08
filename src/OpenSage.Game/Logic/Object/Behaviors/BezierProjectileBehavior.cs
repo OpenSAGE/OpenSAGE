@@ -25,12 +25,14 @@ namespace OpenSage.Logic.Object
         {
             // TODO: Bezier implementation.
             if (!_gameObject.IsProjectile)
+            {
                 return;
+            }
 
-            var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix);
+            var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
             var velocity = direction * context.GameObject.Speed;
 
-            _gameObject.Transform.Translation += velocity * ((float)Game.LogicUpdateInterval / 1000.0f);
+            _gameObject.SetTranslation(_gameObject.Translation + velocity * ((float) Game.LogicUpdateInterval / 1000.0f)) ;
 
             CheckForHit(
                 context,
@@ -43,27 +45,25 @@ namespace OpenSage.Logic.Object
             bool detonateCallsKill,
             FXList groundHitFX)
         {
-            var transform = context.GameObject.Transform;
-
             // Did we hit an object?
             // TODO
 
             if (DidHitGround(context))
             {
                 // TODO: Interpolate to find actual point we hit the ground?
-                Detonate(context, new WeaponTarget(transform.Translation), detonateCallsKill, groundHitFX);
+                Detonate(context, new WeaponTarget(context.GameObject.Translation), detonateCallsKill, groundHitFX);
             }
         }
 
         private static bool DidHitGround(BehaviorUpdateContext context)
         {
-            var transform = context.GameObject.Transform;
+            var translation = context.GameObject.Translation;
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
-                transform.Translation.X,
-                transform.Translation.Y);
+                translation.X,
+                translation.Y);
 
-            return transform.Translation.Z <= terrainHeight;
+            return translation.Z <= terrainHeight;
         }
 
         private static void Detonate(
@@ -72,8 +72,6 @@ namespace OpenSage.Logic.Object
             bool detonateCallsKill,
             FXList groundHitFX)
         {
-            var transform = context.GameObject.Transform;
-
             // TODO: Should this ever be null?
             if (context.GameObject.CurrentWeapon != null)
             {
@@ -83,13 +81,10 @@ namespace OpenSage.Logic.Object
 
             if (target.TargetType == WeaponTargetType.Position)
             {
-                if (groundHitFX != null)
-                {
-                    groundHitFX.Execute(new FXListExecutionContext(
-                        transform.Rotation,
-                        transform.Translation,
-                        context.GameContext));
-                }
+                groundHitFX?.Execute(new FXListExecutionContext(
+                    context.GameObject.Rotation,
+                    context.GameObject.Translation,
+                    context.GameContext));
             }
 
             if (detonateCallsKill)

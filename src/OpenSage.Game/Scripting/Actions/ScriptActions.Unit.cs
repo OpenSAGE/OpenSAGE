@@ -47,7 +47,7 @@ namespace OpenSage.Scripting
             var waypoints = context.Scene.Waypoints.GetByPathLabel(waypointPathName);
 
             // The unit should not necessarily start at the first waypoint in the path, but at the nearest.
-            var nearestWaypoint = waypoints.MinByOrDefault(w => Vector3.DistanceSquared(unit.Transform.Translation, w.Position));
+            var nearestWaypoint = waypoints.MinByOrDefault(w => Vector3.DistanceSquared(unit.Translation, w.Position));
             if (nearestWaypoint != null)
             {
                 var positions = nearestWaypoint.FollowPath(context.Scene.Random);

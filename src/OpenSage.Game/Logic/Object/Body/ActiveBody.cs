@@ -61,8 +61,8 @@ namespace OpenSage.Logic.Object
                 var damageFX = damageFXGroup.MinorFX?.Value;
                 damageFX?.Execute(
                     new FXListExecutionContext(
-                        GameObject.Transform.Rotation,
-                        GameObject.Transform.Translation,
+                        GameObject.Rotation,
+                        GameObject.Translation,
                         GameObject.GameContext));
             }
 

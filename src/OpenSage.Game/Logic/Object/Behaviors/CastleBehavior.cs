@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
                         var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, defaultAngle + viewAngle)).ToVector3();
 
                         var angle = defaultAngle + viewAngle + castleTemplate.Angle;
-                        mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + offset;
+                        mapObject.Position = new Vector3(_gameObject.Translation.X, _gameObject.Translation.Y, 0.0f) + offset;
 
                         var baseObject = GameObject.FromMapObject(
                             mapObject,

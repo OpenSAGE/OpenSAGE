@@ -18,8 +18,8 @@ namespace OpenSage.Logic.Object
         internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
         {
             _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
-                context.GameObject.Transform.Rotation,
-                context.GameObject.Transform.Translation,
+                context.GameObject.Rotation,
+                context.GameObject.Translation,
                 context.GameContext));
         }
 

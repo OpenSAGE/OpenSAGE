@@ -20,7 +20,6 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly int _definitionIndex;
         private readonly GameData _config;
         private readonly Scene3D _scene;
-        private readonly float _baseAngle;
 
         private readonly GameObject _previewObject;
 
@@ -43,8 +42,7 @@ namespace OpenSage.Logic.OrderGenerators
             _scene = scene;
 
             // TODO: Should this be relative to the current camera angle?
-            _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
-            _angle = _baseAngle;
+            _angle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
 
             _previewObject = new GameObject(
                 buildingDefinition,
@@ -128,7 +126,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdatePreviewObjectPosition()
         {
-            _previewObject.Transform.Translation = _position;
+            _previewObject.SetTranslation(_position);
         }
 
         public void UpdateDrag(Vector3 position)
@@ -143,13 +141,12 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdatePreviewObjectAngle()
         {
-            _previewObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle);
+            _previewObject.SetRotation(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
         }
 
         private void UpdateValidity()
         {
             // TODO: draw collider bounds in debug view when 'showBounds'
-            _previewObject.Collider.Update(_previewObject.Transform);
             _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
 
