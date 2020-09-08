@@ -84,6 +84,9 @@ namespace OpenSage.Logic.Object
             gameObject.Transform.Rotation = rotation;
             gameObject.Transform.Scale = gameObject.Definition.Scale;
 
+            gameObject.Collider.Update(gameObject.Transform);
+            gameObject._gameContext.Quadtree.Insert(gameObject);
+
             if (gameObject.Definition.IsBridge)
             {
                 BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
@@ -390,12 +393,17 @@ namespace OpenSage.Logic.Object
             // TODO: Should there be a BeforeLogicTick where we update this?
             _behaviorUpdateContext.UpdateTime(time);
 
-            //if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+            if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
                 CurrentWeapon?.LogicTick(time);
             }
 
-            AIUpdate?.Update(_behaviorUpdateContext);
+            if (AIUpdate != null)
+            {
+                AIUpdate.Update(_behaviorUpdateContext);
+                Collider.Update(Transform);
+                _gameContext.Quadtree.Update(this);
+            }
 
             foreach (var behavior in _behaviorModules)
             {
@@ -421,12 +429,7 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            // TODO: Use more accurate collider/collider intersection.
-
-            var thisBoundingArea = Collider.GetBoundingArea();
-            var otherBoundingArea = other.Collider.GetBoundingArea();
-
-            return thisBoundingArea.Intersects(otherBoundingArea);
+            return Collider.Intersects(other.Collider);
         }
 
         internal void DoCollide(GameObject collidingObject, in TimeInterval time)
@@ -448,7 +451,7 @@ namespace OpenSage.Logic.Object
                 var passed = gameTime.TotalTime - ConstructionStart;
                 BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
 
-                if (BuildProgress == 1.0f)
+                if (BuildProgress >= 1.0f)
                 {
                     FinishConstruction();
                 }
@@ -481,21 +484,20 @@ namespace OpenSage.Logic.Object
 
         public bool UpgradeAvailable(UpgradeTemplate upgrade)
         {
-            if (upgrade == null) return false;
+            if (upgrade == null)
+            {
+                return false;
+            }
 
-            if(upgrade.Type == UpgradeType.Player)
-            {
-                return Owner.Upgrades.Contains(upgrade);
-            }
-            else
-            {
-                return Upgrades.Contains(upgrade);
-            }
+            return upgrade.Type == UpgradeType.Player ? Owner.Upgrades.Contains(upgrade) : Upgrades.Contains(upgrade);
         }
 
         public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
         {
-            if (upgrade == null) return false;
+            if (upgrade == null)
+            {
+                return false;
+            }
 
             if (upgrade.Type == UpgradeType.Player)
             {
@@ -515,6 +517,7 @@ namespace OpenSage.Logic.Object
                 ConstructionStart = gameTime.TotalTime;
             }
 
+            Collider.Update(Transform);
             _gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 

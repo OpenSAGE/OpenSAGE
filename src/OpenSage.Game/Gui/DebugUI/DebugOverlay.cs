@@ -108,6 +108,8 @@ namespace OpenSage.Gui.DebugUI
 
             if (ShowColliders)
             {
+                _scene3D.Quadtree.DebugDraw(context, camera);
+
                 foreach (var gameObject in _scene3D.GameObjects.Items)
                 {
                     // TODO: Reuse frustum culling results.

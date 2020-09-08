@@ -98,26 +98,5 @@ namespace OpenSage.Mathematics
 
             return new TransformedRectangle(upperLeft, upperRight, lowerLeft, lowerRight);
         }
-
-        public static TransformedRectangle FromBoundingBox(
-            in BoundingBox boundingBox,
-            in Vector3 transformTranslation,
-            in Quaternion transformRotation)
-        {
-            var lengths = boundingBox.Max - boundingBox.Min;
-            var upperLeft = new Vector2(boundingBox.Min.X, boundingBox.Min.Y) + new Vector2(transformTranslation.X, transformTranslation.Y);
-            var xyRectangle = new RectangleF(upperLeft, new SizeF(lengths.X, lengths.Y));
-            var angle = transformRotation.Z;
-            return FromRectangle(xyRectangle, angle);
-        }
-
-        public static TransformedRectangle FromBoundingSphere(
-            in BoundingSphere boundingSphere,
-            in Vector3 transformTranslation)
-        {
-            var upperLeft = boundingSphere.Center.Vector2XY() + new Vector2(transformTranslation.X, transformTranslation.Y);
-            var xyRectangle = new RectangleF(upperLeft, new SizeF(boundingSphere.Radius * 2, boundingSphere.Radius * 2));
-            return FromRectangle(xyRectangle, 0.0f);
-        }
     }
 }

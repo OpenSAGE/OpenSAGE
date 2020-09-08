@@ -317,6 +317,7 @@ namespace OpenSage.Logic.Object
             var createPoint = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
             _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
             _producedUnit.Transform.Translation = createPoint;
+            _producedUnit.Collider.Update(_producedUnit.Transform);
         }
 
         private void MoveProducedObjectOut()

@@ -41,9 +41,9 @@ namespace OpenSage.Logic
         {
             _worldPosition = GetTerrainPosition(mousePosition);
 
-            if (_worldPosition.HasValue && ActiveGenerator != null)
+            if (_worldPosition.HasValue)
             {
-                ActiveGenerator.UpdatePosition(mousePosition, _worldPosition.Value);
+                ActiveGenerator?.UpdatePosition(mousePosition, _worldPosition.Value);
             }
         }
 
@@ -51,9 +51,9 @@ namespace OpenSage.Logic
         {
             var worldPosition = GetTerrainPosition(mousePosition);
 
-            if (worldPosition.HasValue && ActiveGenerator != null)
+            if (worldPosition.HasValue)
             {
-                ActiveGenerator.UpdateDrag(worldPosition.Value);
+                ActiveGenerator?.UpdateDrag(worldPosition.Value);
             }
         }
 
