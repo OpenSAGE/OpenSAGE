@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct BoundingSphere : BoundingVolume
+    public readonly struct BoundingSphere : IBoundingVolume
     {
         public readonly Vector3 Center;
 
@@ -39,19 +39,6 @@ namespace OpenSage.Mathematics
                 (leftRadius + rightRadius) / 2);
         }
 
-        public static BoundingSphere CreateFromBoundingBox(BoundingBox box)
-        {
-            // Find the center of the box.
-            var center = new Vector3((box.Min.X + box.Max.X) / 2.0f,
-                                         (box.Min.Y + box.Max.Y) / 2.0f,
-                                         (box.Min.Z + box.Max.Z) / 2.0f);
-
-            // Find the distance between the center and one of the corners of the box.
-            var radius = Vector3.Distance(center, box.Max);
-
-            return new BoundingSphere(center, radius);
-        }
-
         public static BoundingSphere Transform(in BoundingSphere sphere, in Matrix4x4 matrix)
         {
             return new BoundingSphere(
@@ -72,14 +59,26 @@ namespace OpenSage.Mathematics
             {
                 return PlaneIntersectionType.Front;
             }
-            else if (distance < -Radius)
+            return distance < -Radius ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+        }
+
+        public bool Intersects(RectangleF bounds)
+        {
+            var circleDistanceX = MathF.Abs(Center.X - bounds.X);
+            var circleDistanceY = MathF.Abs(Center.Y - bounds.Y);
+
+            if (circleDistanceX <= Radius ||
+                circleDistanceY <= Radius ||
+                circleDistanceX > bounds.Width + Radius ||
+                circleDistanceY > bounds.Height + Radius)
             {
-                return PlaneIntersectionType.Back;
+                return false;
             }
-            else
-            {
-                return PlaneIntersectionType.Intersecting;
-            }
+
+            var cornerDistanceSquared = MathF.Pow((circleDistanceX - bounds.Width / 2.0f), 2) +
+                                        MathF.Pow((circleDistanceY - bounds.Height / 2.0f), 2);
+
+            return cornerDistanceSquared <= MathF.Pow(Radius, 2);
         }
     }
 }

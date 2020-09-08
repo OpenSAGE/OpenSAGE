@@ -17,7 +17,7 @@ namespace OpenSage.Graphics.Rendering
         // The backing storage for render items. 
         private RenderItem[] _items;
 
-        // TODO: Bounds check?
+        // TODO: SphereBounds check?
         internal ref RenderItem this[int i] => ref _items[i];
 
         // An array of flags indicating if a render item should be included in the culling set.

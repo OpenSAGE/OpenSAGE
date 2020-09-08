@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
+using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Logic.OrderGenerators

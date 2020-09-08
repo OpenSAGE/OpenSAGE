@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct BoundingBox : BoundingVolume
+    public readonly struct BoundingBox : IBoundingVolume
     {
         public readonly Vector3 Min;
         public readonly Vector3 Max;
@@ -128,6 +128,16 @@ namespace OpenSage.Mathematics
             }
 
             return PlaneIntersectionType.Intersecting;
+        }
+
+        public bool Intersects(RectangleF bounds)
+        {
+            var position = Min.Vector2XY();
+            var maxPosition = Max.Vector2XY();
+            var width = maxPosition.X - position.X;
+            var height = maxPosition.Y - position.Y;
+            var rect = new RectangleF(position, width, height);
+            return rect.IntersectsWith(bounds);
         }
 
         // Based on http://dev.theomader.com/transform-bounding-boxes/

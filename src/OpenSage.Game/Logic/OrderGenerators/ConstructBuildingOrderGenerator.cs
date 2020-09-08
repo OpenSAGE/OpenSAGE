@@ -24,8 +24,6 @@ namespace OpenSage.Logic.OrderGenerators
 
         private readonly GameObject _previewObject;
 
-        private readonly BoxCollider _collider;
-
         private float _angle;
         private Vector3 _position;
 
@@ -60,9 +58,6 @@ namespace OpenSage.Logic.OrderGenerators
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();
             UpdateValidity();
-
-            // TODO: This should work for all collider types.
-            _collider = Collider.Create(_buildingDefinition, _previewObject.Transform) as BoxCollider;
         }
 
         public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -115,25 +110,12 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Check that the builder can reach target position
             // TODO: Check that the terrain is even enough at the target position
 
-            if (_collider != null)
+            if (_previewObject.Collider == null)
             {
-                // TODO: Optimise using a quadtree
-                foreach (var obj in _scene.GameObjects.Items)
-                {
-                    if (!(obj.Collider is BoxCollider otherCollider))
-                    {
-                        continue;
-                    }
-
-                    // TODO: Should use FactoryExitWidth
-                    if (_collider.Intersects(otherCollider))
-                    {
-                        return false;
-                    }
-                }
+                return true;
             }
 
-            return true;
+            return !_scene.Quadtree.FindIntersecting(_previewObject.Collider).Any();
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
@@ -166,6 +148,8 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdateValidity()
         {
+            // TODO: draw collider bounds in debug view when 'showBounds'
+            _previewObject.Collider.Update(_previewObject.Transform);
             _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
 

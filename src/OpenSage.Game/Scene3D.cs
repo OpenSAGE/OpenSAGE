@@ -329,7 +329,10 @@ namespace OpenSage
 
             if (mapFile != null)
             {
-                Quadtree = new Quadtree<GameObject>(new RectangleF(0, 0, mapFile.HeightMapData.Width, mapFile.HeightMapData.Height));
+                var borderWidth = mapFile.HeightMapData.BorderWidth * HeightMap.HorizontalScale;
+                var width = mapFile.HeightMapData.Width * HeightMap.HorizontalScale;
+                var height = mapFile.HeightMapData.Height * HeightMap.HorizontalScale;
+                Quadtree = new Quadtree<GameObject>(new RectangleF(-borderWidth, -borderWidth, width, height));
             }
 
             GameContext = new GameContext(
@@ -408,7 +411,7 @@ namespace OpenSage
 
             foreach (var current in GameObjects.Items)
             {
-                var intersecting = Quadtree.FindIntersecting(current.Bounds);
+                var intersecting = Quadtree.FindIntersecting(current.Collider);
 
                 foreach (var intersect in intersecting)
                 {
@@ -423,7 +426,7 @@ namespace OpenSage
         {
             _orderGeneratorInputHandler?.Update();
 
-            for (int i = 0; i < GameObjects.Items.Count; i++)
+            for (var i = 0; i < GameObjects.Items.Count; i++)
             {
                 var gameObject = GameObjects.Items[i];
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);

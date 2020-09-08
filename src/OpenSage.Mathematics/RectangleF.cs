@@ -4,7 +4,7 @@ using System.Numerics;
 namespace OpenSage.Mathematics
 {
     /// <summary>
-    /// Describes a floating-point rectangle.
+    /// Describes a axis-aligned floating-point rectangle.
     /// </summary>
     public readonly struct RectangleF
     {
@@ -175,7 +175,7 @@ namespace OpenSage.Mathematics
                 && rect.Bottom >= Top;
         }
 
-        // TODO: It might make sense to micro-optimise this, as it's a very common operation.
+        // TODO: It might make sense to micro-optimize this, as it's a very common operation.
         public ContainmentType Intersect(in RectangleF rect)
         {
             if (Contains(rect))

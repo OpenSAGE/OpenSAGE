@@ -1,22 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using OpenSage.DataStructures;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using SharpDX;
 using Xunit;
 
 namespace OpenSage.Tests.DataStructures
 {
     public class QuadtreeTests
     {
-        public class MockQuadtreeItem : IHasBounds
+        public class MockQuadtreeItem : IHasCollider
         {
             public readonly int Id;
-            public RectangleF Bounds { get; }
+            public Collider Collider { get; }
 
             public MockQuadtreeItem(int id, RectangleF bounds)
             {
                 Id = id;
-                Bounds = bounds;
+                Collider = new BoxCollider(bounds);
             }
         }
 
@@ -58,7 +59,8 @@ namespace OpenSage.Tests.DataStructures
                 quadtree.Insert(item);
             }
 
-            Assert.Equal(items, quadtree.FindIntersecting(quadtree.Bounds).OrderBy(x => x.Id));
+            var actual = quadtree.FindIntersecting(quadtree.Bounds).OrderBy(x => x.Id);
+            Assert.Equal(items, actual);
         }
 
         [Fact]
@@ -69,9 +71,10 @@ namespace OpenSage.Tests.DataStructures
             var item = new MockQuadtreeItem(1, new RectangleF(0.5f, 0.5f, 1, 1));
 
             quadtree.Insert(item);
-            quadtree.Remove(item.Bounds);
+            quadtree.Remove(item);
 
-            Assert.Empty(quadtree.FindIntersecting(quadtree.Bounds));
+            var result = quadtree.FindIntersecting(quadtree.Bounds);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -82,38 +85,12 @@ namespace OpenSage.Tests.DataStructures
             var item = new MockQuadtreeItem(1, new RectangleF(8, 8, 2, 2));
 
             quadtree.Insert(item);
-            quadtree.Remove(new RectangleF(0, 0, 1, 1));
+
+            var notInsertedItem = new MockQuadtreeItem(1, new RectangleF(7, 7, 2, 2));
+
+            quadtree.Remove(notInsertedItem);
 
             Assert.Equal(new[] {item}, quadtree.FindIntersecting(quadtree.Bounds));
-        }
-
-        [Fact]
-        public void InsertAndRemoveManyOverlapping()
-        {
-            var items = new List<MockQuadtreeItem>
-            {
-                new MockQuadtreeItem(1, new RectangleF(0, 0, 1, 1)),
-                new MockQuadtreeItem(2, new RectangleF(0, 0, 1.25f, 1.25f)),
-                new MockQuadtreeItem(3, new RectangleF(0, 0, 1.5f, 1.5f)),
-                new MockQuadtreeItem(4, new RectangleF(0, 0, 1.75f, 1.75f)),
-                new MockQuadtreeItem(5, new RectangleF(0, 0, 2f, 2f)),
-            };
-
-            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 10, 10));
-
-            foreach (var item in items)
-            {
-                quadtree.Insert(item);
-            }
-
-            Assert.Equal(5, quadtree.FindIntersecting(quadtree.Bounds).Count());
-
-            foreach (var item in items)
-            {
-                quadtree.Remove(item.Bounds);
-            }
-
-            Assert.Empty(quadtree.FindIntersecting(quadtree.Bounds));
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -58,15 +61,16 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
-        public IEnumerable<T> FindIntersecting(in RectangleF bounds)
+        public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
+
+        public IEnumerable<T> FindIntersecting(in Collider collider)
         {
-            return !bounds.IntersectsWith(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(bounds);
+            return /*!collider.Intersects(Bounds) ? Enumerable.Empty<T>() :*/ FindIntersectingInternal(collider);
         }
 
-        // Iterators cannot have in parameters, so we must copy the rectangle :(
-        private IEnumerable<T> FindIntersectingInternal(RectangleF bounds)
+        private IEnumerable<T> FindIntersectingInternal(Collider collider)
         {
-            if (_children != null)
+            if (!IsLeaf)
             {
                 foreach (var subtree in _children)
                 {
@@ -75,14 +79,14 @@ namespace OpenSage.DataStructures
                         continue;
                     }
 
-                    var containment = subtree.Bounds.Intersect(bounds);
+                    var containment = subtree.Bounds.Intersect(collider.AxisAlignedBoundingArea);
 
                     if (containment == ContainmentType.Disjoint)
                     {
                         continue;
                     }
 
-                    foreach (var item in subtree.FindIntersectingInternal(bounds))
+                    foreach (var item in subtree.FindIntersectingInternal(collider))
                     {
                         yield return item;
                     }
@@ -97,7 +101,7 @@ namespace OpenSage.DataStructures
 
             foreach (var item in _items)
             {
-                if (item.Collider.Intersects(bounds))
+                if (item.Collider.Intersects(collider))
                 {
                     yield return item;
                 }
@@ -145,7 +149,7 @@ namespace OpenSage.DataStructures
             // 2. Check if the item fully fits into any of the children.
             foreach (var subTree in _children)
             {
-                var containment = subTree.Bounds.Intersect(item.Collider.BoundingArea);
+                var containment = subTree.Bounds.Intersect(item.Collider.AxisAlignedBoundingArea);
 
                 switch (containment)
                 {
@@ -173,33 +177,53 @@ namespace OpenSage.DataStructures
 
         public void Remove(in T item)
         {
-            foreach (var subTree in _children)
+            if (_children != null)
             {
-                if (subTree._items.Remove(item))
+                foreach (var subTree in _children)
                 {
-                    return;
+                    if (subTree._items.Remove(item))
+                    {
+                        return;
+                    }
                 }
             }
 
             _items.Remove(item);
         }
 
-        //private bool RemoveIfInvalid(in T item)
-        //{
-        //    foreach (var subTree in _children)
-        //    {
-        //        if (subTree._items.Remove(item))
-        //        {
-        //            return;
-        //        }
-        //    }
-        //    _items.Remove(item);
-        //}
-
         public void Update(in T item)
         {
-            //RemoveIfInvalid(item);
-            //Insert(item);
+            // TODO: check if object even moved
+            Remove(item);
+            Insert(item);
+        }
+
+        public void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        {
+            var strokeColor = new ColorRgbaF(0, 220, 0, 255);
+
+            var ltWorld = new Vector3(Bounds.Position + new Vector2(0, Bounds.Height), 0);
+            var rtWorld = new Vector3(Bounds.Position + new Vector2(Bounds.Width, Bounds.Height), 0);
+            var rbWorld = new Vector3(Bounds.Position + new Vector2(Bounds.Width, 0), 0);
+            var lbWorld = new Vector3(Bounds.Position, 0);
+
+            var ltScreen = camera.WorldToScreenPoint(ltWorld).Vector2XY();
+            var rtScreen = camera.WorldToScreenPoint(rtWorld).Vector2XY();
+            var rbScreen = camera.WorldToScreenPoint(rbWorld).Vector2XY();
+            var lbScreen = camera.WorldToScreenPoint(lbWorld).Vector2XY();
+
+            drawingContext.DrawLine(new Line2D(ltScreen, lbScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(lbScreen, rbScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
+
+            if (!IsLeaf)
+            {
+                foreach (var child in _children)
+                {
+                    child.DebugDraw(drawingContext, camera);
+                }
+            }
         }
 
         internal enum Quad

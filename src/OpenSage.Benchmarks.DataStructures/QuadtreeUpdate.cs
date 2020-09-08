@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using OpenSage.DataStructures;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Benchmarks.DataStructures
@@ -55,16 +56,16 @@ namespace OpenSage.Benchmarks.DataStructures
                         Vector2.Normalize(new Vector2((float) _random.NextDouble(), (float) _random.NextDouble())) *
                         (float) _random.NextDouble() * MaximumMovementDistance;
 
-                    var newPosition = item.Bounds.Position + movementVector;
+                    var newPosition = item.Collider.AxisAlignedBoundingArea.Position + movementVector;
 
                     newPosition =
                         Vector2.Max(
                             Vector2.Min(newPosition,
                                 _bounds.Position + _bounds.Size.ToVector2() -
-                                item.Bounds.Size.ToVector2()), _bounds.Position);
+                                item.Collider.AxisAlignedBoundingArea.Size.ToVector2()), _bounds.Position);
 
                     _movingItemsOriginal[i] = item;
-                    _newRects[i] = new RectangleF(newPosition, item.Bounds.Size);
+                    _newRects[i] = new RectangleF(newPosition, item.Collider.AxisAlignedBoundingArea.Size);
                 }
             }
         }
@@ -87,7 +88,7 @@ namespace OpenSage.Benchmarks.DataStructures
         {
             for (var i = 0; i < MovingItems; i++)
             {
-                _movingItems[i].Bounds = _newRects[i];
+                _movingItems[i].Collider = new BoxCollider(_newRects[i]);
             }
         }
 
@@ -97,7 +98,7 @@ namespace OpenSage.Benchmarks.DataStructures
             for (var i = 0; i < MovingItems; i++)
             {
                 var item = _movingItems[i];
-                item.Bounds = _newRects[i];
+                item.Collider = new BoxCollider(_newRects[i]);
                 _quadtree.Update(item);
             }
         }

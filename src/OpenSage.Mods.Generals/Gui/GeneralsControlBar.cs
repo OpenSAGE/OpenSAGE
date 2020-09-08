@@ -79,7 +79,10 @@ namespace OpenSage.Mods.Generals.Gui
         {
             var control = FindControl(name);
 
-            if (control == null) return;
+            if (control == null)
+            {
+                return;
+            }
 
             var schemeType = _scheme.GetType();
 

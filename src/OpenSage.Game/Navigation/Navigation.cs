@@ -9,8 +9,8 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        readonly Graph _graph;
-        readonly HeightMap _heightMap;
+        private readonly Graph _graph;
+        private readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -111,17 +111,25 @@ namespace OpenSage.Navigation
 
         public void UpdateAreaPassability(GameObject gameObject, bool passable)
         {
-            if (gameObject.Collider == null) return;
+            if (gameObject.Collider == null)
+            {
+                return;
+            }
 
-            var aabb = gameObject.Collider.GetAxisAlignedBoundingBox();
+            var axisAlignedBoundingArea = gameObject.Collider.AxisAlignedBoundingArea;
 
-            var bottomLeftNode = GetClosestNode(aabb.Min);
-            var topRightNode = GetClosestNode(aabb.Max);
+            var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
+            var bottomLeftNode = GetClosestNode(bottomLeft);
+            var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
+            var topRightNode = GetClosestNode(topRight);
 
             //sometimes map objects are places outside the actual map....
-            if (bottomLeftNode == null || topRightNode == null) return;
+            if (bottomLeftNode == null || topRightNode == null)
+            {
+                return;
+            }
 
-            var area = gameObject.Collider.GetBoundingArea();
+            var area = gameObject.Collider.BoundingArea;
 
             for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
             {
