@@ -114,11 +114,14 @@ namespace OpenSage.Input.Cursors
             }
 
             var nextFrame = _animationFrames[_currentFrame];
-
-            var frameIndex = nextFrame.FrameIndex;
-            Sdl2Interop.SDL_SetCursor(_cursors[frameIndex]);
-
             _nextFrameTime += nextFrame.Duration;
+
+            // Only update the cursor if this is the last frame this tick
+            if(_nextFrameTime > time.TotalTime)
+            {
+                var frameIndex = nextFrame.FrameIndex;
+                Sdl2Interop.SDL_SetCursor(_cursors[frameIndex]);
+            }
         }
 
         public void Update(in TimeInterval time)
