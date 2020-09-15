@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -177,28 +179,34 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_TeamFactory":
                             {
+                                //var bytes = reader.ReadBytes((int) chunkHeader.DataLength);
+                                //File.WriteAllBytes($"CHUNK_TeamFactory_{gameState.Timestamp.Ticks}", bytes);
+
                                 var teamFactory = new TeamFactory();
                                 teamFactory.Load(reader);
                                 break;
                             }
 
                         case "CHUNK_Players":
-                        {
-                            var numPlayers = reader.ReadUInt32();
-                            //var unknownBytes = reader.ReadBytes(47);
+                            {
+                                //var bytes = reader.ReadBytes((int)chunkHeader.DataLength);
+                                //File.WriteAllBytes($"CHUNK_Players_{gameState.Timestamp.Ticks}", bytes);
 
-                            //var players = new PlayerState[numPlayers];
-                            //for (var i = 0; i < numPlayers; i++)
-                            //{
-                            //    players[i] = PlayerState.Parse(reader);
-                            //}
-
-                            stream.Seek(chunkHeader.DataLength - 4, SeekOrigin.Current);
-                            break;
-                        }
+                                var numPlayers = reader.ReadUInt32();
+                                var players = new Logic.Player[numPlayers];
+                                for (var i = 0; i < numPlayers; i++)
+                                {
+                                    players[i] = new Logic.Player(null, new ColorRgb());
+                                    players[i].Load(reader);
+                                }
+                                break;
+                            }
 
                         case "CHUNK_GameLogic":
                             {
+                                //stream.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+                                //break;
+
                                 var unknown1 = reader.ReadUInt32(); // Maybe some kind of frame counter
                                 var unknown2 = reader.ReadByte();
 
@@ -250,9 +258,10 @@ namespace OpenSage.Data.Sav
                                     var unknown18 = reader.ReadBytes(5);
 
                                     var disabledCount = reader.ReadUInt32();
+                                    var disabledEnumMap = IniParser.GetEnumMap<DisabledType>();
                                     for (var i = 0; i < disabledCount; i++)
                                     {
-                                        var disabledType = reader.ReadBytePrefixedAsciiString();
+                                        var disabledType = (DisabledType) disabledEnumMap[reader.ReadBytePrefixedAsciiString()];
                                     }
 
                                     var unknown18_1 = reader.ReadBytes(75);
@@ -445,6 +454,9 @@ namespace OpenSage.Data.Sav
                                             case ParticleVelocityType.Spherical:
                                                 var velocitySpherical = reader.ReadRandomVariable();
                                                 break;
+                                            case ParticleVelocityType.Hemispherical:
+                                                var velocityHemispherical = reader.ReadRandomVariable();
+                                                break;
                                             case ParticleVelocityType.Cylindrical:
                                                 var velocityCylindricalRadial = reader.ReadRandomVariable();
                                                 var velocityCylindricalNormal = reader.ReadRandomVariable();
@@ -464,6 +476,9 @@ namespace OpenSage.Data.Sav
                                             case ParticleVolumeType.Line:
                                                 var lineStartPoint = reader.ReadVector3();
                                                 var lineEndPoint = reader.ReadVector3();
+                                                break;
+                                            case ParticleVolumeType.Box:
+                                                var halfSize = reader.ReadVector3();
                                                 break;
                                             case ParticleVolumeType.Sphere:
                                                 var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
@@ -839,55 +854,6 @@ namespace OpenSage.Data.Sav
                 }
 
                 //TODO: Check for result.Unknown2
-
-                return result;
-            }
-        }
-
-        private sealed class PlayerState
-        {
-            public uint UnknownInt1 { get; private set; }
-            public bool UnknownBool1 { get; private set; }
-            public bool UnknownBool2 { get; private set; }
-            public bool UnknownBool3 { get; private set; }
-            public string ScienceRank { get; private set; }
-            public uint Unknown1 { get; private set; }
-            public uint Unknown2 { get; private set; }
-            public uint Unknown3 { get; private set; }
-            public uint Unknown4 { get; private set; }
-            public uint Unknown5 { get; private set; }
-            public string Name { get; private set; }
-            public bool UnknownBool4 { get; private set; }
-            public byte MaybePlayerId { get; private set; }
-            public byte[] UnknownBytes { get; private set; }
-
-            internal static PlayerState Parse(BinaryReader reader)
-            {
-                var result = new PlayerState
-                {
-                    UnknownInt1 = reader.ReadUInt32(),          // 3, 4, 1, 6, 8, 9, 10, 2,
-                    UnknownBool1 = reader.ReadBooleanChecked(), // 1, 1, 1, 1, 1, 1,  1, 1,
-                    UnknownBool2 = reader.ReadBooleanChecked(), // 1, 1, 2, 3, 3, 3,  3, 1,
-                    UnknownBool3 = reader.ReadBooleanChecked(), // 0, 0, 0, 0, 0, 0,  0, 0,
-                    ScienceRank = reader.ReadBytePrefixedAsciiString(),
-                    Unknown1 = reader.ReadUInt32(), // 1
-                    Unknown2 = reader.ReadUInt32(), // 2
-                    Unknown3 = reader.ReadUInt32(), // 1
-                    Unknown4 = reader.ReadUInt32(), // 800
-                    Unknown5 = reader.ReadUInt32(), // 0
-                    Name = reader.ReadBytePrefixedUnicodeString(),
-                    UnknownBool4 = reader.ReadBooleanChecked(),
-                    MaybePlayerId = reader.ReadByte(),
-                    //UnknownBytes = reader.ReadBytes(588)
-                };
-
-                var numBuildListItems = reader.ReadUInt16();
-                var buildListItems = new BuildListItem[numBuildListItems];
-                for (var i = 0; i < numBuildListItems; i++)
-                {
-                    buildListItems[i] = new BuildListItem();
-                    buildListItems[i].ReadFromSaveFile(reader);
-                }
 
                 return result;
             }

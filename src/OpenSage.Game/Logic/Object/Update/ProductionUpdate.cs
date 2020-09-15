@@ -493,10 +493,23 @@ namespace OpenSage.Logic.Object
 
     public enum DisabledType
     {
+        Default,
+        UserParalyzed,
+        Emp,
+
         [IniEnum("DISABLED_HELD")]
-        DisabledHeld,
+        Held,
+
+        Paralyzed,
+        Unmanned,
 
         [IniEnum("DISABLED_UNDERPOWERED")]
-        DisabledUnderpowered,
+        Underpowered,
+
+        Freefall,
+        TemporarilyBusy,
+        ScriptDisabled,
+        ScriptUnderpowered,
+        Infiltrated,
     }
 }

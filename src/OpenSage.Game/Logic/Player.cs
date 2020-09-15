@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Map;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -14,6 +17,15 @@ namespace OpenSage.Logic
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private readonly StringSet _sciencesDisabled = new StringSet();
+        private readonly StringSet _sciencesHidden = new StringSet();
+
+        private readonly StringSet _upgradesInProgress = new StringSet();
+        private readonly StringSet _upgradesCompleted = new StringSet();
+
+        private readonly PlayerRelationships _playerToPlayerRelationships = new PlayerRelationships();
+        private readonly PlayerRelationships _playerToTeamRelationships = new PlayerRelationships();
+
         public PlayerTemplate Template { get; }
         public string Name { get; private set; }
         public string DisplayName { get; private set; }
@@ -24,6 +36,16 @@ namespace OpenSage.Logic
 
         public uint Money { get; private set; }
         public List<UpgradeTemplate> Upgrades { get; }
+
+        public StringSet Sciences { get; } = new StringSet();
+
+        public uint Rank { get; private set; }
+        public uint SkillPointsTotal { get; private set; }
+        public uint SkillPointsAvailable { get; private set; }
+        public bool CanBuildUnits;
+        public bool CanBuildBuildings;
+        public float GeneralsExperienceMultiplier;
+        public bool ShowOnScoreScreen;
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public int GetEnergy(GameObjectCollection allGameObjects)
@@ -151,6 +173,169 @@ namespace OpenSage.Logic
             return true;
         }
 
+        internal void Load(BinaryReader reader)
+        {
+            var unknown1 = reader.ReadByte();
+            if (unknown1 != 8)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown2 = reader.ReadBooleanChecked();
+            if (!unknown2)
+            {
+                throw new InvalidDataException();
+            }
+
+            Money = reader.ReadUInt32();
+
+            var upgradeQueueCount = reader.ReadUInt16();
+
+            if (reader.ReadBooleanChecked())
+            {
+                throw new InvalidDataException();
+            }
+
+            _sciencesDisabled.Load(reader);
+            _sciencesHidden.Load(reader);
+
+            for (var i = 0; i < upgradeQueueCount; i++)
+            {
+                var upgradeName = reader.ReadBytePrefixedAsciiString();
+                reader.ReadBooleanChecked();
+
+                var status = reader.ReadUInt32AsEnum<UpgradeStatus>();
+            }
+
+            reader.ReadBytes(9);
+
+            var hasInsufficientPower = reader.ReadBooleanChecked();
+
+            _upgradesInProgress.Load(reader);
+            _upgradesCompleted.Load(reader);
+
+            if (reader.ReadByte() != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            var someKindOfPlayerIndex = reader.ReadUInt32();
+
+            reader.ReadBytes(6);
+
+            var someCount = reader.ReadUInt16();
+            for (var i = 0; i < someCount; i++)
+            {
+                var unknown10 = reader.ReadUInt16();
+                if (unknown10 != 2)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var objectName = reader.ReadBytePrefixedAsciiString();
+                var position = reader.ReadVector3();
+
+                reader.ReadBytes(18);
+
+                var maybeHealth = reader.ReadUInt32(); // 100
+
+                reader.ReadBytes(63);
+            }
+
+            var isAIPlayer = reader.ReadBooleanChecked();
+            if (isAIPlayer)
+            {
+                // TODO: There are sometimes floats in here, X and Y and maybe a height.
+                reader.ReadBytes(86);
+            }
+
+            reader.ReadBooleanChecked();
+
+            var somePlayerType = reader.ReadBooleanChecked();
+            if (somePlayerType)
+            {
+                var constructedUnits = new ObjectIdSet();
+                constructedUnits.Load(reader);
+
+                var constructedBuildings = new ObjectIdSet();
+                constructedBuildings.Load(reader);
+
+                reader.ReadBytes(13);
+            }
+
+            var playerID = reader.ReadUInt32();
+
+            Sciences.Load(reader);
+
+            Rank = reader.ReadUInt32();
+            SkillPointsTotal = reader.ReadUInt32();
+            SkillPointsAvailable = reader.ReadUInt32();
+
+            var unknown4 = reader.ReadUInt32(); // 800
+            var unknown5 = reader.ReadUInt32(); // 0
+
+            Name = reader.ReadBytePrefixedUnicodeString();
+
+            _playerToPlayerRelationships.Load(reader);
+            _playerToTeamRelationships.Load(reader);
+
+            CanBuildUnits = reader.ReadBooleanChecked();
+            CanBuildBuildings = reader.ReadBooleanChecked();
+
+            var unknown6 = reader.ReadBooleanChecked();
+
+            GeneralsExperienceMultiplier = reader.ReadSingle();
+            ShowOnScoreScreen = reader.ReadBooleanChecked();
+
+            var unknownBytes2 = reader.ReadBytes(87);
+
+            var suppliesCollected = reader.ReadUInt32();
+            var moneySpent = reader.ReadUInt32();
+
+            var unknownBytes2_1 = reader.ReadBytes(156);
+
+            var unknown8 = reader.ReadUInt32();
+
+            var buildingsCreated = new PlayerStatObjectCollection();
+            buildingsCreated.Load(reader);
+
+            var numPlayers = reader.ReadUInt16();
+            for (var i = 0; i < numPlayers; i++)
+            {
+                var playerObjectsDestroyed = new PlayerStatObjectCollection();
+                playerObjectsDestroyed.Load(reader);
+            }
+
+            var unitsCreated = new PlayerStatObjectCollection();
+            unitsCreated.Load(reader);
+
+            var buildingsCaptured = new PlayerStatObjectCollection();
+            buildingsCaptured.Load(reader);
+
+            var unknown11 = reader.ReadUInt32();
+            if (unknown11 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var numControlGroups = reader.ReadUInt16();
+            for (var i = 0; i < numControlGroups; i++)
+            {
+                var controlGroup = new ObjectIdSet();
+                controlGroup.Load(reader);
+            }
+
+            if (!reader.ReadBooleanChecked())
+            {
+                throw new InvalidDataException();
+            }
+
+            var destroyedObjects = new ObjectIdSet();
+            destroyedObjects.Load(reader);
+
+            reader.ReadBytes(14);
+        }
+
         private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
@@ -231,5 +416,122 @@ namespace OpenSage.Logic
                 IsHuman = setting?.Owner == PlayerOwner.Player
             };
         }
+    }
+
+    public enum RelationshipType : uint
+    {
+        Enemies = 0,
+        Neutral = 1,
+        Allies = 2,
+    }
+
+    internal sealed class PlayerRelationships
+    {
+        private readonly Dictionary<uint, RelationshipType> _store;
+
+        public PlayerRelationships()
+        {
+            _store = new Dictionary<uint, RelationshipType>();
+        }
+
+        internal void Load(BinaryReader reader)
+        {
+            reader.ReadVersion();
+
+            _store.Clear();
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                var playerOrTeamId = reader.ReadUInt32();
+                var relationship = reader.ReadUInt32AsEnum<RelationshipType>();
+                _store[playerOrTeamId] = relationship;
+            }
+        }
+    }
+
+    // TODO: I don't know if these are always serialized the same way in .sav files.
+    // Maybe we shouldn't use a generic container like this.
+    public sealed class StringSet : HashSet<string>
+    {
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            Clear();
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                Add(reader.ReadBytePrefixedAsciiString());
+            }
+        }
+    }
+
+    // TODO: I don't know if these are always serialized the same way in .sav files.
+    // Maybe we shouldn't use a generic container like this.
+    public sealed class ObjectIdSet : HashSet<uint>
+    {
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            Clear();
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                Add(reader.ReadUInt32());
+            }
+        }
+    }
+
+    internal sealed class PlayerStats
+    {
+        public readonly PlayerStatObjectCollection UnitsDestroyed = new PlayerStatObjectCollection();
+
+        internal void Load(BinaryReader reader)
+        {
+            // After 0x10, 3rd entry is ObjectsDestroyed?
+            // After 0x10, 17th entry is ObjectsLost?
+            UnitsDestroyed.Load(reader);
+        }
+    }
+
+    internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>
+    {
+        internal void Load(BinaryReader reader)
+        {
+            Clear();
+
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                var objectType = reader.ReadBytePrefixedAsciiString();
+                var total = reader.ReadUInt32();
+
+                Add(objectType, total);
+            }
+        }
+    }
+
+    internal enum UpgradeStatus
+    {
+        Queued = 1,
+        Completed = 2
     }
 }

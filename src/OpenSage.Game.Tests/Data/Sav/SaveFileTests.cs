@@ -9,20 +9,15 @@ using Xunit;
 
 namespace OpenSage.Tests.Data.Sav
 {
-    public class SaveFileTests : IDisposable
+    public class SaveFileTests : IClassFixture<SaveFileFixture>
     {
         private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Sav", "Assets");
 
-        private readonly Game _game;
+        private readonly SaveFileFixture _fixture;
 
-        public SaveFileTests()
+        public SaveFileTests(SaveFileFixture fixture)
         {
-            var rootFolder = InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGenerals);
-            var installation = new GameInstallation(new GeneralsDefinition(), rootFolder);
-
-            Platform.Start();
-
-            _game = new Game(installation, GraphicsBackend.Direct3D11);
+            _fixture = fixture;
         }
 
         [Theory(Skip = "Doesn't work yet")]
@@ -33,16 +28,9 @@ namespace OpenSage.Tests.Data.Sav
 
             using var stream = File.OpenRead(fullPath);
 
-            SaveFile.LoadFromStream(stream, _game);
+            SaveFile.LoadFromStream(stream, _fixture.Game);
 
-            _game.EndGame();
-        }
-
-        public void Dispose()
-        {
-            _game.Dispose();
-
-            Platform.Stop();
+            _fixture.Game.EndGame();
         }
 
         public static IEnumerable<object[]> GetSaveFiles()
@@ -52,6 +40,28 @@ namespace OpenSage.Tests.Data.Sav
                 var relativePath = file.Substring(RootFolder.Length + 1);
                 yield return new object[] { relativePath };
             }
+        }
+    }
+
+    public class SaveFileFixture : IDisposable
+    {
+        public readonly Game Game;
+
+        public SaveFileFixture()
+        {
+            var rootFolder = InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGenerals);
+            var installation = new GameInstallation(new GeneralsDefinition(), rootFolder);
+
+            Platform.Start();
+
+            Game = new Game(installation, GraphicsBackend.Direct3D11);
+        }
+
+        public void Dispose()
+        {
+            Game.Dispose();
+
+            Platform.Stop();
         }
     }
 }

@@ -467,7 +467,7 @@ namespace OpenSage.Graphics.ParticleSystems
         Spherical = 2,
 
         [IniEnum("HEMISPHERICAL")]
-        Hemispherical,
+        Hemispherical = 3,
 
         [IniEnum("CYLINDRICAL")]
         Cylindrical = 4,
@@ -488,7 +488,7 @@ namespace OpenSage.Graphics.ParticleSystems
         Line,
 
         [IniEnum("BOX")]
-        Box,
+        Box = 3,
 
         [IniEnum("SPHERE")]
         Sphere = 4,

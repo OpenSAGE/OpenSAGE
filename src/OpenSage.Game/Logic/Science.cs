@@ -30,4 +30,11 @@ namespace OpenSage.Logic
         [AddedIn(SageGame.Bfme)]
         public int  SciencePurchasePointCostMP { get; private set; }
     }
+
+    public enum ScienceAvailability
+    {
+        Available = 0,
+        Disabled  = 1,
+        Hidden    = 2,
+    }
 }
