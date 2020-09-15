@@ -19,7 +19,7 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal void ReadFromSaveFile(BinaryReader reader)
+        internal void Load(BinaryReader reader)
         {
             var version = reader.ReadByte();
 
