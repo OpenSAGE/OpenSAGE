@@ -109,11 +109,7 @@ namespace OpenSage.Scripting
             foreach (var action in actions)
             {
                 var executor = ActionLookup.Get(action);
-                var result = executor(action, context);
-                if (result is ActionResult.ActionContinuation coroutine)
-                {
-                    context.Scripting.AddCoroutine(coroutine);
-                }
+                executor(action, context);
             }
 
             var shouldDeactivate = DeactivateUponSuccess && actions.Length > 0;
