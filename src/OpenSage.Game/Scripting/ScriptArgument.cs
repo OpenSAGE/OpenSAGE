@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class ScriptArgument
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 using OpenSage.Logic;
@@ -23,7 +22,7 @@ namespace OpenSage.Scripting
         private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
         private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
 
-        private MapScriptCollection[] _playerScripts;
+        private ScriptList[] _playerScripts;
 
         public Dictionary<string, bool> Flags { get; }
         public CounterCollection Counters { get; }
@@ -59,14 +58,14 @@ namespace OpenSage.Scripting
             _playerScripts = Game.Scene3D?.PlayerScripts;
         }
 
-        public MapScript FindScript(string name)
+        public Script FindScript(string name)
         {
             if (_playerScripts == null)
             {
                 return null;
             }
 
-            for (int i = 0; i < _playerScripts.Length; i++)
+            for (var i = 0; i < _playerScripts.Length; i++)
             {
                 var script = _playerScripts[i].FindScript(name);
                 if (script != null)

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data.Map;
+using OpenSage.Scripting;
 using Xunit;
 using Xunit.Abstractions;
 

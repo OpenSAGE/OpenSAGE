@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class ScriptGroup : Asset
     {
@@ -16,6 +15,43 @@ namespace OpenSage.Data.Map
         public Script[] Scripts { get; private set; }
 
         public ScriptGroup[] Groups { get; private set; }
+
+        public void Execute(ScriptExecutionContext context)
+        {
+            if (IsSubroutine || !IsActive)
+            {
+                return;
+            }
+
+            foreach (var script in Scripts)
+            {
+                script.Execute(context);
+            }
+        }
+
+        public Script FindScript(string name)
+        {
+            // TODO: Use a dictionary?
+
+            foreach (var script in Scripts)
+            {
+                if (script.Name == name)
+                {
+                    return script;
+                }
+            }
+
+            foreach (var scriptGroup in Groups)
+            {
+                var result = scriptGroup.FindScript(name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
 
         internal static ScriptGroup Parse(BinaryReader reader, MapParseContext context)
         {

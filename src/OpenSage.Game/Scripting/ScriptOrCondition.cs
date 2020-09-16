@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data.Map;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class ScriptOrCondition : Asset
     {
