@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 using OpenSage.Logic;
 
 namespace OpenSage.Scripting
 {
     public delegate bool ScriptingCondition(ScriptCondition condition, ScriptExecutionContext context);
-    public delegate ActionResult ScriptingAction(ScriptAction action, ScriptExecutionContext context);
+    public delegate void ScriptingAction(ScriptAction action, ScriptExecutionContext context);
 
     public sealed class ScriptingSystem : GameSystem
     {
@@ -18,9 +17,6 @@ namespace OpenSage.Scripting
         public const int TickRate = 30;
 
         private readonly ScriptExecutionContext _executionContext;
-
-        private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
-        private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
 
         private ScriptList[] _playerScripts;
 
@@ -39,15 +35,10 @@ namespace OpenSage.Scripting
             Timers = new TimerCollection(Counters);
 
             _executionContext = new ScriptExecutionContext(game);
-
-            _activeCoroutines = new List<ActionResult.ActionContinuation>();
-            _finishedCoroutines = new List<ActionResult.ActionContinuation>();
         }
 
         internal override void OnSceneChanging()
         {
-            _activeCoroutines.Clear();
-
             Flags.Clear();
             Counters.Clear();
             Timers.Clear();
@@ -77,11 +68,6 @@ namespace OpenSage.Scripting
             return null;
         }
 
-        public void AddCoroutine(ActionResult.ActionContinuation coroutine)
-        {
-            _activeCoroutines.Add(coroutine);
-        }
-
         public void ScriptingTick()
         {
             if (_playerScripts == null)
@@ -92,20 +78,6 @@ namespace OpenSage.Scripting
             if (!Active)
             {
                 return;
-            }
-
-            foreach (var coroutine in _activeCoroutines)
-            {
-                var result = coroutine.Execute(_executionContext);
-                if (result is ActionResult.ActionFinished)
-                {
-                    _finishedCoroutines.Add(coroutine);
-                }
-            }
-
-            foreach (var coroutine in _finishedCoroutines)
-            {
-                _activeCoroutines.Remove(coroutine);
             }
 
             foreach (var playerScripts in _playerScripts)
