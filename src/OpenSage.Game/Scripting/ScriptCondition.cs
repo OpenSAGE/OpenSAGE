@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class ScriptCondition : ScriptContent<ScriptCondition, ScriptConditionType>
     {

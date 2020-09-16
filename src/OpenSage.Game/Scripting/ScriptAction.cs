@@ -1,6 +1,7 @@
 ﻿using System.IO;
+using OpenSage.Data.Map;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class ScriptAction : ScriptContent<ScriptAction, ScriptActionType>
     {

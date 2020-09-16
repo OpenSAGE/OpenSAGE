@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public abstract class ScriptContent<TDerived, TContentType> : Asset
         where TDerived : ScriptContent<TDerived, TContentType>, new()

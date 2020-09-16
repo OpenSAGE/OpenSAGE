@@ -1,6 +1,4 @@
-﻿using OpenSage.Data.Map;
-
-namespace OpenSage.Scripting.Actions
+﻿namespace OpenSage.Scripting.Actions
 {
     public static class ScriptActions
     {

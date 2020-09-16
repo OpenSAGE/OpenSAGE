@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using ScriptAction = OpenSage.Data.Map.ScriptAction;
-using ScriptActionType = OpenSage.Data.Map.ScriptActionType;
 
 namespace OpenSage.Scripting.Actions
 {

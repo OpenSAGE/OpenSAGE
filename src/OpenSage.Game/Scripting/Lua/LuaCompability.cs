@@ -92,7 +92,7 @@ namespace OpenSage.Scripting.Lua
         //unsupported (and never used in any SAGE game and it's mods): debug and tag methods, %upvalues
         //DEPRECATED and actually removed from original SAGE: rawgetglobal, rawsetglobal, foreachvar, nextvar
 
-        public static void Apply(Script script)
+        public static void Apply(MoonSharp.Interpreter.Script script)
         {
             script.DoString(_compabilityCode);
         }

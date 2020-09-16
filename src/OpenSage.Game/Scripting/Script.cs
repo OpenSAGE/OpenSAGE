@@ -1,12 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data.Map;
 using OpenSage.FileFormats;
+using OpenSage.Scripting.Actions;
+using OpenSage.Scripting.Conditions;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Scripting
 {
     public sealed class Script : Asset
     {
         public const string AssetName = "Script";
+
+        private uint _framesUntilNextEvaluation;
 
         public string Name { get; private set; }
 
@@ -57,6 +62,95 @@ namespace OpenSage.Data.Map
 
         public ScriptAction[] ActionsIfTrue { get; private set; }
         public ScriptAction[] ActionsIfFalse { get; private set; }
+
+        public void Execute(ScriptExecutionContext context)
+        {
+            var shouldExecute =
+                !IsSubroutine &&
+                IsActive &&
+                (EvaluationInterval == 0 || _framesUntilNextEvaluation == 0);
+
+            if (EvaluationInterval != 0)
+            {
+                // TODO: Is there an off-by-one error here?
+                _framesUntilNextEvaluation = _framesUntilNextEvaluation == 0
+                    ? EvaluationInterval * ScriptingSystem.TickRate
+                    : _framesUntilNextEvaluation--;
+            }
+
+            if (!shouldExecute)
+            {
+                return;
+            }
+
+            RunActions(context);
+        }
+
+        public void ExecuteAsSubroutine(ScriptExecutionContext context)
+        {
+            // Note: _evaluationInterval is checked here for compatiblity.
+            // See Systems >> Scripting >> Subroutines in OpenSAGE docs for more information.
+            var shouldExecute = IsSubroutine && IsActive && EvaluationInterval == 0;
+
+            if (shouldExecute)
+            {
+                RunActions(context);
+            }
+        }
+
+        private void RunActions(ScriptExecutionContext context)
+        {
+            var conditionValue = EvaluateConditions(context);
+
+            var actions = conditionValue
+                ? ActionsIfTrue
+                : ActionsIfFalse;
+
+            foreach (var action in actions)
+            {
+                var executor = ActionLookup.Get(action);
+                var result = executor(action, context);
+                if (result is ActionResult.ActionContinuation coroutine)
+                {
+                    context.Scripting.AddCoroutine(coroutine);
+                }
+            }
+
+            var shouldDeactivate = DeactivateUponSuccess && actions.Length > 0;
+
+            if (shouldDeactivate)
+            {
+                IsActive = false;
+            }
+        }
+
+        private bool EvaluateConditions(ScriptExecutionContext context)
+        {
+            bool AllConditionsTrue(ScriptCondition[] conditions)
+            {
+                foreach (var condition in conditions)
+                {
+                    var result = ConditionLookup.Get(condition)(condition, context);
+                    if (!result)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            foreach (var orCondition in OrConditions)
+            {
+                var result = AllConditionsTrue(orCondition.Conditions);
+                if (result)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         internal static Script Parse(BinaryReader reader, MapParseContext context)
         {

@@ -66,7 +66,7 @@ namespace OpenSage
         public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
-        public MapScriptCollection[] PlayerScripts { get; }
+        public ScriptList[] PlayerScripts { get; }
 
         public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
@@ -139,9 +139,7 @@ namespace OpenSage
 
             PlayerScripts = mapFile
                 .GetPlayerScriptsList()
-                .ScriptLists
-                .Select(s => new MapScriptCollection(s))
-                .ToArray();
+                .ScriptLists;
 
             CameraController = new RtsCameraController(game.AssetStore.GameData.Current)
             {

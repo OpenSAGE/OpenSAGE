@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting.Conditions
 {

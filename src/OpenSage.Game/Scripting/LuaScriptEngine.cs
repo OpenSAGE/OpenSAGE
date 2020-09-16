@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
 using OpenSage.Data.Ini;
@@ -9,19 +8,19 @@ namespace OpenSage.Scripting
 {
     public sealed class LuaScriptEngine : GameSystem
     {
-        public Script MainScript;
+        public MoonSharp.Interpreter.Script MainScript;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public LuaScriptEngine(Game game) : base(game)
         {
-            Script.DefaultOptions.DebugPrint = text =>
+            MoonSharp.Interpreter.Script.DefaultOptions.DebugPrint = text =>
             {
                 Diagnostics.LuaScriptConsole._scriptConsoleTextAll =
                 string.Concat(Diagnostics.LuaScriptConsole._scriptConsoleTextAll, text, "\n");
             };
 
-            MainScript = new Script();
+            MainScript = new MoonSharp.Interpreter.Script();
 
             FunctionInit();
 
