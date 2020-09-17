@@ -8,11 +8,17 @@ namespace OpenSage.Scripting
     public enum ScriptActionType : uint
     {
         DebugMessageBox = 0,
+
+        [IniEnum("SET_FLAG")]
         SetFlag = 1,
+
         SetCounter = 2,
         Victory = 3,
         Defeat = 4,
+
+        [IniEnum("NO_OP")]
         NoOp = 5,
+
         SetTimer = 6,
         PlaySoundEffect = 7,
         EnableScript = 8,

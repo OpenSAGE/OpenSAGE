@@ -6,17 +6,40 @@ namespace OpenSage.Scripting
 {
     public sealed class ScriptArgument
     {
-        public ScriptArgumentType ArgumentType { get; private set; }
+        public ScriptArgumentType ArgumentType { get; set; }
 
         // Either...
-        public int? IntValue { get; private set; }
-        public float? FloatValue { get; private set; }
-        public string StringValue { get; private set; }
+        public int? IntValue { get; set; }
+        public float? FloatValue { get; set; }
+        public string StringValue { get; set; }
 
         // Or...
-        public Vector3? PositionValue { get; private set; }
+        public Vector3? PositionValue { get; set; }
 
         public bool IntValueAsBool => IntValue.Value == 1;
+
+        public ScriptArgument()
+        {
+
+        }
+
+        public ScriptArgument(ScriptArgumentType argumentType, float floatValue)
+        {
+            ArgumentType = argumentType;
+            FloatValue = floatValue;
+        }
+
+        public ScriptArgument(ScriptArgumentType argumentType, string stringValue)
+        {
+            ArgumentType = argumentType;
+            StringValue = stringValue;
+        }
+
+        public ScriptArgument(ScriptArgumentType argumentType, int intValue)
+        {
+            ArgumentType = argumentType;
+            IntValue = intValue;
+        }
 
         internal static ScriptArgument Parse(BinaryReader reader)
         {

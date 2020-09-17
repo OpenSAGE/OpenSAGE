@@ -2,8 +2,6 @@
 using System.IO;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
-using OpenSage.Scripting.Actions;
-using OpenSage.Scripting.Conditions;
 
 namespace OpenSage.Scripting
 {
@@ -108,8 +106,7 @@ namespace OpenSage.Scripting
 
             foreach (var action in actions)
             {
-                var executor = ActionLookup.Get(action);
-                executor(action, context);
+                ScriptActions.Execute(context, action);
             }
 
             var shouldDeactivate = DeactivateUponSuccess && actions.Length > 0;
@@ -126,7 +123,7 @@ namespace OpenSage.Scripting
             {
                 foreach (var condition in conditions)
                 {
-                    var result = ConditionLookup.Get(condition)(condition, context);
+                    var result = ScriptConditions.Evaluate(context, condition);
                     if (!result)
                     {
                         return false;

@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Sav;
-using OpenSage.Mods.Generals;
-using Veldrid;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Sav
 {
-    public class SaveFileTests : IClassFixture<SaveFileFixture>
+    public class SaveFileTests : IClassFixture<GameFixture>
     {
         private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Sav", "Assets");
 
-        private readonly SaveFileFixture _fixture;
+        private readonly GameFixture _fixture;
 
-        public SaveFileTests(SaveFileFixture fixture)
+        public SaveFileTests(GameFixture fixture)
         {
             _fixture = fixture;
         }
 
-        [Theory(Skip = "Doesn't work yet")]
+        //[Theory(Skip = "Doesn't work yet")]
+        [Theory]
         [MemberData(nameof(GetSaveFiles))]
         public void CanLoadSaveFiles(string relativePath)
         {
@@ -40,28 +38,6 @@ namespace OpenSage.Tests.Data.Sav
                 var relativePath = file.Substring(RootFolder.Length + 1);
                 yield return new object[] { relativePath };
             }
-        }
-    }
-
-    public class SaveFileFixture : IDisposable
-    {
-        public readonly Game Game;
-
-        public SaveFileFixture()
-        {
-            var rootFolder = InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGenerals);
-            var installation = new GameInstallation(new GeneralsDefinition(), rootFolder);
-
-            Platform.Start();
-
-            Game = new Game(installation, GraphicsBackend.Direct3D11);
-        }
-
-        public void Dispose()
-        {
-            Game.Dispose();
-
-            Platform.Stop();
         }
     }
 }
