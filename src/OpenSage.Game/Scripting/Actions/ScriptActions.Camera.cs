@@ -49,10 +49,10 @@ namespace OpenSage.Scripting
         }
 
         // TODO: In BFME and later, the first argument is actually NamedCamera, not a waypoint.
-        [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds")]
-        public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float rawDuration, float shutter)
+        [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
+        public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float rawDuration, float shutter, float easeIn, float easeOut)
         {
-            //Check if a named camera exists
+            // Check if a named camera exists
             Vector3 targetPoint;
             if (context.Scene.Cameras.Exists(waypointName))
             {

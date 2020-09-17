@@ -78,7 +78,7 @@ namespace OpenSage.Diagnostics
             }
         }
 
-        private static void DrawScriptList(int index, ScriptList scriptList)
+        private void DrawScriptList(int index, ScriptList scriptList)
         {
             if (ImGui.TreeNodeEx($"Script List {index}", ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -96,7 +96,7 @@ namespace OpenSage.Diagnostics
             }
         }
 
-        private static void DrawScriptGroup(ScriptGroup scriptGroup)
+        private void DrawScriptGroup(ScriptGroup scriptGroup)
         {
             if (ImGui.TreeNodeEx(GetScriptDetails(scriptGroup.Name, scriptGroup.IsActive, scriptGroup.IsSubroutine), ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -114,9 +114,12 @@ namespace OpenSage.Diagnostics
             }
         }
 
-        private static void DrawScript(Script script)
+        private void DrawScript(Script script)
         {
-            ImGui.BulletText(GetScriptDetails(script.Name, script.IsActive, script.IsSubroutine));
+            if (ImGui.Selectable(GetScriptDetails(script.Name, script.IsActive, script.IsSubroutine)))
+            {
+                Context.SelectedObject = script;
+            }
         }
 
         private static string GetScriptDetails(string name, bool isActive, bool isSubroutine)
