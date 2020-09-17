@@ -6,8 +6,8 @@ using OpenSage.Logic;
 
 namespace OpenSage.Scripting
 {
-    public delegate bool ScriptingCondition(ScriptCondition condition, ScriptExecutionContext context);
-    public delegate void ScriptingAction(ScriptAction action, ScriptExecutionContext context);
+    public delegate bool ScriptingCondition(ScriptExecutionContext context, ScriptCondition condition);
+    public delegate void ScriptingAction(ScriptExecutionContext context, ScriptAction action);
 
     public sealed class ScriptingSystem : GameSystem
     {
@@ -88,6 +88,12 @@ namespace OpenSage.Scripting
             OnUpdateFinished?.Invoke(this, this);
 
             Timers.Update();
+        }
+
+        // For unit tests.
+        internal bool EvaluateScriptCondition(ScriptCondition condition)
+        {
+            return ScriptConditions.Evaluate(_executionContext, condition);
         }
 
         internal void Load(BinaryReader reader)

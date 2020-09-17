@@ -1,13 +1,13 @@
 ﻿using System.Numerics;
 using OpenSage.Utilities.Extensions;
 
-namespace OpenSage.Scripting.Actions
+namespace OpenSage.Scripting
 {
-    public static class UnitActions
+    partial class ScriptActions
     {
-        public static void NamedStop(ScriptAction action, ScriptExecutionContext context)
+        [ScriptAction(ScriptActionType.NamedStop, "Unit/Stop/Stop unit", "Stop {0} moving")]
+        public static void NamedStop(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName)
         {
-            var unitName = action.Arguments[0].StringValue;
             if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
             {
                 ScriptingSystem.Logger.Warn($"Unit \"{unitName}\" does not exist.");
@@ -17,16 +17,15 @@ namespace OpenSage.Scripting.Actions
             unit.AIUpdate.Stop();
         }
 
-        public static void MoveNamedUnitTo(ScriptAction action, ScriptExecutionContext context)
+        [ScriptAction(ScriptActionType.MoveNamedUnitTo, "Unit/Move/Move unit to a location", "Move {0} to {1}")]
+        public static void MoveNamedUnitTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
         {
-            var unitName = action.Arguments[0].StringValue;
             if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
             {
                 ScriptingSystem.Logger.Warn($"Unit \"{unitName}\" does not exist.");
                 return;
             }
 
-            var waypointName = action.Arguments[1].StringValue;
             if (!context.Scene.Waypoints.TryGetByName(waypointName, out var waypoint))
             {
                 ScriptingSystem.Logger.Warn($"Waypoint \"{waypointName}\" does not exist.");
@@ -36,18 +35,16 @@ namespace OpenSage.Scripting.Actions
             unit.AIUpdate.SetTargetPoint(waypoint.Position);
         }
 
-        public static void NamedFollowWaypoints(ScriptAction action, ScriptExecutionContext context)
+        [ScriptAction(ScriptActionType.NamedFollowWaypoints, "Unit/Move/Follow a waypoint path", "{0} follows waypoints, beginning at {1}")]
+        public static void NamedFollowWaypoints(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName, [ScriptArgumentType(ScriptArgumentType.WaypointPathName)] string waypointPathName)
         {
-            var unitName = action.Arguments[0].StringValue;
             if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
             {
                 ScriptingSystem.Logger.Warn($"Unit \"{unitName}\" does not exist.");
                 return;
             }
 
-            var pathLabel = action.Arguments[1].StringValue;
-
-            var waypoints = context.Scene.Waypoints.GetByPathLabel(pathLabel);
+            var waypoints = context.Scene.Waypoints.GetByPathLabel(waypointPathName);
 
             // The unit should not necessarily start at the first waypoint in the path, but at the nearest.
             var nearestWaypoint = waypoints.MinByOrDefault(w => Vector3.DistanceSquared(unit.Transform.Translation, w.Position));

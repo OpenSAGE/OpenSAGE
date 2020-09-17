@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using OpenSage.Data.Ini;
 
 namespace OpenSage.Scripting
 {
-    internal static partial class ScriptActions
+    internal static partial class ScriptConditions
     {
-        private static readonly Dictionary<ScriptActionType, ScriptingAction> Actions;
-        private static readonly Dictionary<string, Enum> CachedEnumMap;
+        private static readonly Dictionary<ScriptConditionType, ScriptingCondition> Conditions;
 
-        static ScriptActions()
+        static ScriptConditions()
         {
             // TODO: All of this should be done at compile-time with a SourceGenerator, once .NET 5.0 has been released.
 
-            Actions = new Dictionary<ScriptActionType, ScriptingAction>();
+            Conditions = new Dictionary<ScriptConditionType, ScriptingCondition>();
 
-            var methods = typeof(ScriptActions).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            var methods = typeof(ScriptConditions).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var method in methods)
             {
-                var scriptActionAttribute = method.GetCustomAttribute<ScriptActionAttribute>();
+                var scriptActionAttribute = method.GetCustomAttribute<ScriptConditionAttribute>();
                 if (scriptActionAttribute != null)
                 {
                     var localMethod = method;
@@ -37,11 +35,11 @@ namespace OpenSage.Scripting
                         typeCodes[i] = Type.GetTypeCode(parameters[i + 1].ParameterType);
                     }
 
-                    Actions.Add(
-                        scriptActionAttribute.ActionType,
-                        (context, action) =>
+                    Conditions.Add(
+                        scriptActionAttribute.ConditionType,
+                        (context, condition) =>
                         {
-                            if (action.Arguments.Length != parameters.Length - 1)
+                            if (condition.Arguments.Length != parameters.Length - 1)
                             {
                                 throw new InvalidOperationException();
                             }
@@ -49,9 +47,9 @@ namespace OpenSage.Scripting
                             var arguments = new object[typeCodes.Length + 1];
                             arguments[0] = context;
 
-                            for (var i = 0; i < action.Arguments.Length; i++)
+                            for (var i = 0; i < condition.Arguments.Length; i++)
                             {
-                                var argument = action.Arguments[i];
+                                var argument = condition.Arguments[i];
 
                                 arguments[i + 1] = (typeCodes[i]) switch
                                 {
@@ -63,33 +61,21 @@ namespace OpenSage.Scripting
                                 };
                             }
 
-                            localMethod.Invoke(null, arguments);
+                            return (bool) localMethod.Invoke(null, arguments);
                         });
                 }
             }
-
-            CachedEnumMap = IniParser.GetEnumMap<ScriptActionType>();
         }
 
-        public static void Execute(ScriptExecutionContext context, ScriptAction action)
+        public static bool Evaluate(ScriptExecutionContext context, ScriptCondition condition)
         {
-            var actionType = action.ContentType;
-
-            if (action.InternalName != null)
+            if (!Conditions.TryGetValue(condition.ContentType, out var conditionFunction))
             {
-                if (CachedEnumMap.TryGetValue(action.InternalName.Name, out var untypedActionType))
-                {
-                    actionType = (ScriptActionType) untypedActionType;
-                }
+                // TODO: Implement this condition type.
+                return false;
             }
 
-            if (!Actions.TryGetValue(actionType, out var actionFunction))
-            {
-                // TODO: Implement this action type.
-                return;
-            }
-
-            actionFunction(context, action);
+            return conditionFunction(context, condition);
         }
     }
 }

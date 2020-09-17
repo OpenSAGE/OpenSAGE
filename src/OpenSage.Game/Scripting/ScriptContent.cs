@@ -9,12 +9,22 @@ namespace OpenSage.Scripting
         where TDerived : ScriptContent<TDerived, TContentType>, new()
         where TContentType : struct
     {
-        public TContentType ContentType { get; private set; }
+        public TContentType ContentType { get; set; }
         public AssetPropertyKey InternalName { get; private set; }
 
-        public ScriptArgument[] Arguments { get; private set; }
+        public ScriptArgument[] Arguments { get; set; }
 
         public bool Enabled { get; private set; }
+
+        protected ScriptContent()
+        {
+        }
+
+        protected ScriptContent(TContentType contentType, params ScriptArgument[] arguments)
+        {
+            ContentType = contentType;
+            Arguments = arguments;
+        }
 
         internal static TDerived Parse(
             BinaryReader reader,

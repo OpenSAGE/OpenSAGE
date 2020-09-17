@@ -13,6 +13,16 @@ namespace OpenSage.Scripting
 
         public bool IsInverted { get; private set; }
 
+        public ScriptCondition()
+            : base()
+        {
+        }
+
+        public ScriptCondition(ScriptConditionType conditionType, params ScriptArgument[] arguments)
+            : base(conditionType, arguments)
+        {
+        }
+
         internal static ScriptCondition Parse(BinaryReader reader, MapParseContext context)
         {
             return Parse(
