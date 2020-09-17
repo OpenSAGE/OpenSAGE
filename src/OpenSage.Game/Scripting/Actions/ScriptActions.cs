@@ -7,6 +7,8 @@ namespace OpenSage.Scripting
 {
     internal static partial class ScriptActions
     {
+        private static NLog.Logger Logger => NLog.LogManager.GetCurrentClassLogger();
+
         private static readonly Dictionary<ScriptActionType, ScriptingAction> Actions;
         private static readonly Dictionary<string, Enum> CachedEnumMap;
 
@@ -49,6 +51,16 @@ namespace OpenSage.Scripting
                             var arguments = new object[typeCodes.Length + 1];
                             arguments[0] = context;
 
+                            var logMessageArgs = new object[typeCodes.Length];
+
+                            void SetLogMessageArgument(int index)
+                            {
+                                var arg = typeCodes[index] == TypeCode.Int32 && parameters[index + 1].ParameterType.IsEnum
+                                    ? Enum.ToObject(parameters[index + 1].ParameterType, (int) arguments[index + 1])
+                                    : arguments[index + 1];
+                                logMessageArgs[index] = arg;
+                            }
+
                             for (var i = 0; i < action.Arguments.Length; i++)
                             {
                                 var argument = action.Arguments[i];
@@ -61,6 +73,7 @@ namespace OpenSage.Scripting
                                     TypeCode.Boolean => argument.IntValueAsBool,
                                     _ => throw new InvalidOperationException(),
                                 };
+                                SetLogMessageArgument(i);
                             }
 
                             // Fill in remaining parameters with default values. For example,
@@ -75,9 +88,13 @@ namespace OpenSage.Scripting
                                     TypeCode.Boolean => false,
                                     _ => throw new InvalidOperationException(),
                                 };
+                                SetLogMessageArgument(i);
                             }
 
                             localMethod.Invoke(null, arguments);
+
+                            var logMessage = string.Format(scriptActionAttribute.DisplayTemplate, logMessageArgs);
+                            Logger.Info($"Executed script action: {logMessage}");
                         });
                 }
             }
@@ -99,7 +116,7 @@ namespace OpenSage.Scripting
 
             if (!Actions.TryGetValue(actionType, out var actionFunction))
             {
-                // TODO: Implement this action type.
+                Logger.Warn($"Script action type '{actionType}' not implemented");
                 return;
             }
 
