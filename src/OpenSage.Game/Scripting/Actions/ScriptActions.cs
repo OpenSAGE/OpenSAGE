@@ -41,7 +41,7 @@ namespace OpenSage.Scripting
                         scriptActionAttribute.ActionType,
                         (context, action) =>
                         {
-                            if (action.Arguments.Length != parameters.Length - 1)
+                            if (action.Arguments.Length > parameters.Length - 1)
                             {
                                 throw new InvalidOperationException();
                             }
@@ -59,6 +59,20 @@ namespace OpenSage.Scripting
                                     TypeCode.Single => argument.FloatValue.Value,
                                     TypeCode.Int32 => argument.IntValue.Value,
                                     TypeCode.Boolean => argument.IntValueAsBool,
+                                    _ => throw new InvalidOperationException(),
+                                };
+                            }
+
+                            // Fill in remaining parameters with default values. For example,
+                            // MOVE_CAMERA_TO got a couple of extra parameters between Generals and BFME.
+                            for (var i = action.Arguments.Length; i < parameters.Length - 1; i++)
+                            {
+                                arguments[i + 1] = (typeCodes[i]) switch
+                                {
+                                    TypeCode.String => "",
+                                    TypeCode.Single => 0.0f,
+                                    TypeCode.Int32 => 0,
+                                    TypeCode.Boolean => false,
                                     _ => throw new InvalidOperationException(),
                                 };
                             }
