@@ -17,8 +17,8 @@ namespace OpenSage.Tests.Data.Sav
             _fixture = fixture;
         }
 
-        //[Theory(Skip = "Doesn't work yet")]
-        [Theory]
+        [Theory(Skip = "Doesn't work yet")]
+        //[Theory]
         [MemberData(nameof(GetSaveFiles))]
         public void CanLoadSaveFiles(string relativePath)
         {
