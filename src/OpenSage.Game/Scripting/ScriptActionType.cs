@@ -134,10 +134,19 @@ namespace OpenSage.Scripting
         PitchCamera = 118,
         CameraFollowNamed = 119,
         OversizeTerrain = 120,
+
+        [IniEnum("CAMERA_FADE_ADD")]
         CameraFadeAdd = 121,
+
+        [IniEnum("CAMERA_FADE_SUBTRACT")]
         CameraFadeSubtract = 122,
+
+        [IniEnum("CAMERA_FADE_SATURATE")]
         CameraFadeSaturate = 123,
+
+        [IniEnum("CAMERA_FADE_MULTIPLY")]
         CameraFadeMultiply = 124,
+
         CameraBwModeBegin = 125,
         CameraBwModeEnd = 126,
         DrawSkyboxBegin = 127,

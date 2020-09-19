@@ -20,6 +20,8 @@ namespace OpenSage.Scripting
 
         private ScriptList[] _playerScripts;
 
+        internal CameraFadeOverlay CameraFadeOverlay;
+
         public Dictionary<string, bool> Flags { get; }
         public CounterCollection Counters { get; }
         public TimerCollection Timers { get; }
@@ -28,11 +30,14 @@ namespace OpenSage.Scripting
 
         public event EventHandler<ScriptingSystem> OnUpdateFinished; 
 
-        public ScriptingSystem(Game game) : base(game)
+        public ScriptingSystem(Game game)
+            : base(game)
         {
             Flags = new Dictionary<string, bool>();
             Counters = new CounterCollection();
             Timers = new TimerCollection(Counters);
+
+            CameraFadeOverlay = AddDisposable(new CameraFadeOverlay(game));
 
             _executionContext = new ScriptExecutionContext(game);
         }
@@ -88,12 +93,31 @@ namespace OpenSage.Scripting
             OnUpdateFinished?.Invoke(this, this);
 
             Timers.Update();
+
+            UpdateCameraFadeOverlay();
         }
 
         // For unit tests.
         internal bool EvaluateScriptCondition(ScriptCondition condition)
         {
             return ScriptConditions.Evaluate(_executionContext, condition);
+        }
+
+        internal void SetCameraFade(CameraFadeType type, float from, float to, uint framesIncrease, uint framesHold, uint framesDecrease)
+        {
+            CameraFadeOverlay.FadeType = type;
+            CameraFadeOverlay.From = from;
+            CameraFadeOverlay.To = to;
+            CameraFadeOverlay.FramesIncrease = framesIncrease;
+            CameraFadeOverlay.FramesHold = framesHold;
+            CameraFadeOverlay.FramesDecrease = framesDecrease;
+
+            CameraFadeOverlay.CurrentFrame = 0;
+        }
+
+        private void UpdateCameraFadeOverlay()
+        {
+            CameraFadeOverlay.Update();
         }
 
         internal void Load(BinaryReader reader)
@@ -171,27 +195,19 @@ namespace OpenSage.Scripting
             var unknownCount = reader.ReadUInt16();
             for (var i = 0; i < unknownCount; i++)
             {
-                var name = reader.ReadBytePrefixedAsciiString();
-                var timestamp = reader.ReadUInt32();
+                var objectName = reader.ReadBytePrefixedAsciiString();
+                var someId = reader.ReadUInt32();
             }
 
-            var unknown9 = reader.ReadUInt32();
+            var unknown9 = reader.ReadByte();
             if (unknown9 != 0)
             {
                 throw new InvalidDataException();
             }
 
-            var unknown10 = reader.ReadByte();
-            if (unknown10 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            CameraFadeOverlay.Load(reader);
 
-            var unknown11 = reader.ReadSingle();
-            var unknown12 = reader.ReadSingle();
-            var unknown13 = reader.ReadSingle();
-
-            var unknown14 = reader.ReadBytes(28);
+            var unknown14 = reader.ReadBytes(12);
 
             var numSpecialPowerSets = reader.ReadUInt16(); // Maybe not sides, maybe player count?
             for (var i = 0; i < numSpecialPowerSets; i++)
