@@ -104,5 +104,11 @@ namespace OpenSage.Scripting
         {
             context.Scene.ShowTerrain = !disable;
         }
+
+        [ScriptAction(ScriptActionType.CameraFadeAdd, "Camera/Fade/Fade using an additive blend to white", "Fade (0-1) from {0} to {1} adding towards white. Take {2} frames to increase. Hold for {3} frames. Decrease for {4} frames.")]
+        public static void CameraFadeAdd(ScriptExecutionContext context, float from, float to, int framesIncrease, int framesHold, int framesDecrease)
+        {
+            context.Scripting.SetCameraFade(CameraFadeType.AdditiveBlendToWhite, from, to, (uint)framesIncrease, (uint)framesHold, (uint)framesDecrease);
+        }
     }
 }

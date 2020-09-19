@@ -250,6 +250,10 @@ namespace OpenSage.Graphics.Rendering
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
+
+            scene.Game.Scripting.CameraFadeOverlay.Render(
+                commandList,
+                new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
         }
 
         private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet cloudResourceSet)
