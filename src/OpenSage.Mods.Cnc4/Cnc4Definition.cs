@@ -28,6 +28,8 @@ namespace OpenSage.Mods.Cnc4
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 
+        public uint ScriptingTicksPerSecond => 5;
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc4Definition Instance { get; } = new Cnc4Definition();

@@ -31,6 +31,8 @@ namespace OpenSage.Mods.BFME
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
 
+        public uint ScriptingTicksPerSecond => 5;
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
             return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.BfmeTexture);

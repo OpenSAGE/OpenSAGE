@@ -25,6 +25,8 @@ namespace OpenSage
 
         string Identifier { get; }
 
+        uint ScriptingTicksPerSecond { get; }
+
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
 
         bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));

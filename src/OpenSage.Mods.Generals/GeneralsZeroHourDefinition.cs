@@ -37,6 +37,8 @@ namespace OpenSage.Mods.Generals
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
 
+        public uint ScriptingTicksPerSecond => 30;
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
             return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
