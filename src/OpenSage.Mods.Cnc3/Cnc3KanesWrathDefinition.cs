@@ -27,6 +27,8 @@ namespace OpenSage.Mods.CnC3
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 
+        public uint ScriptingTicksPerSecond => 5;
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();

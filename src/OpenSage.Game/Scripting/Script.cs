@@ -72,7 +72,7 @@ namespace OpenSage.Scripting
             {
                 // TODO: Is there an off-by-one error here?
                 _framesUntilNextEvaluation = _framesUntilNextEvaluation == 0
-                    ? EvaluationInterval * ScriptingSystem.TickRate
+                    ? EvaluationInterval * context.Scripting.TickRate
                     : _framesUntilNextEvaluation--;
             }
 

@@ -27,6 +27,8 @@ namespace OpenSage.Mods.Ra3
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 
+        public uint ScriptingTicksPerSecond => 5;
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Ra3Definition Instance { get; } = new Ra3Definition();

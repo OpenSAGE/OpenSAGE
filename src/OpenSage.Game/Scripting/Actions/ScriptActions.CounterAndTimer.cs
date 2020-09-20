@@ -29,7 +29,7 @@
         [ScriptAction(ScriptActionType.SetMillisecondTimer, "Scripting/Timers/Set seconds countdown timer", "Set timer {0} to expire in {1} seconds")]
         public static void SetMillisecondTimer(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string timerName, float duration)
         {
-            SetFrameTimerInternal(timerName, (int) (duration * ScriptingSystem.TickRate), context);
+            SetFrameTimerInternal(timerName, (int) (duration * context.Scripting.TickRate), context);
         }
 
         private static void SetFrameTimerInternal(string timerName, int durationFrames, ScriptExecutionContext context)

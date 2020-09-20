@@ -14,7 +14,7 @@ namespace OpenSage.Scripting
         public static NLog.Logger Logger => NLog.LogManager.GetCurrentClassLogger();
 
         // How many updates are performed per second?
-        public const int TickRate = 30;
+        public readonly uint TickRate;
 
         private readonly ScriptExecutionContext _executionContext;
 
@@ -40,6 +40,8 @@ namespace OpenSage.Scripting
             CameraFadeOverlay = AddDisposable(new CameraFadeOverlay(game));
 
             _executionContext = new ScriptExecutionContext(game);
+
+            TickRate = game.Definition.ScriptingTicksPerSecond;
         }
 
         internal override void OnSceneChanging()

@@ -47,7 +47,7 @@ namespace OpenSage
         //internal const double LogicUpdateInterval = 1000.0 / 5.0;
         internal const double LogicUpdateInterval = 1000.0 / 30.0;
 
-        private const double ScriptingUpdateInterval = 1000.0 / 30.0;
+        private readonly double _scriptingUpdateInterval;
 
         private readonly FileSystem _fileSystem;
         private readonly FileSystem _userDataFileSystem;
@@ -442,6 +442,8 @@ namespace OpenSage
 
                 Graphics = AddDisposable(new GraphicsSystem(this));
 
+                _scriptingUpdateInterval = 1000.0 / installation.Game.ScriptingTicksPerSecond;
+
                 Scripting = AddDisposable(new ScriptingSystem(this));
 
                 Lua = AddDisposable(new LuaScriptEngine(this));
@@ -791,8 +793,8 @@ namespace OpenSage
             if (IsLogicRunning && totalGameTime >= _nextScriptingUpdate)
             {
                 Scripting.ScriptingTick();
-                // Scripting updates happen at 30Hz.
-                _nextScriptingUpdate += TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
+                // Scripting updates happen at 30Hz / 5Hz depending on game.
+                _nextScriptingUpdate += TimeSpan.FromMilliseconds(_scriptingUpdateInterval);
             }
         }
 
