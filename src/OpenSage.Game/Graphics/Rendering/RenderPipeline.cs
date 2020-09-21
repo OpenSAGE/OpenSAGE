@@ -237,16 +237,16 @@ namespace OpenSage.Graphics.Rendering
             RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
-            commandList.PushDebugGroup("Water");
-            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, cloudResourceSet);
-            commandList.PopDebugGroup();
-
             commandList.PushDebugGroup("Opaque");
             RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, cloudResourceSet);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Water");
+            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
