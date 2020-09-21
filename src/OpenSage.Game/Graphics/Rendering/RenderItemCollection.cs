@@ -64,7 +64,7 @@ namespace OpenSage.Graphics.Rendering
             _culled[i] = _culled[i] && _items[i].BoundingBox.Intersects(clippingPlane) != PlaneIntersectionType.Back;
         }
 
-        public void CullAndSort(in BoundingFrustum cameraFrustum, in Plane? clippingPlane, int batchSize)
+        public void CullAndSort(in BoundingFrustum cameraFrustum, in Plane? clippingPlane1, in Plane? clippingPlane2, int batchSize)
         {
             if (Length == 0)
             {
@@ -80,9 +80,13 @@ namespace OpenSage.Graphics.Rendering
                 for (var i = 0; i < Length; i++)
                 {
                     Cull(i, cameraFrustum);
-                    if (clippingPlane != null)
+                    if (clippingPlane1 != null)
                     {
-                        Cull(i, clippingPlane.Value);
+                        Cull(i, clippingPlane1.Value);
+                    }
+                    if (clippingPlane2 != null)
+                    {
+                        Cull(i, clippingPlane2.Value);
                     }
                 }
             }
@@ -91,7 +95,8 @@ namespace OpenSage.Graphics.Rendering
                 // We need a copy of cameraFrustum, as we can't send in parameters to closures. 
                 var frustum = cameraFrustum;
                 // We need a copy of clippingPlane, as we can't send in parameters to closures. 
-                var clip = clippingPlane;
+                var clip1 = clippingPlane1;
+                var clip2 = clippingPlane2;
 
                 // Perform culling using the thread pool, in batches of batchSize.
                 Parallel.ForEach(Partitioner.Create(0, Length, batchSize), range =>
@@ -100,9 +105,13 @@ namespace OpenSage.Graphics.Rendering
                     for (var i = start; i < end; i++)
                     {
                         Cull(i, frustum);
-                        if (clip != null)
+                        if (clip1 != null)
                         {
-                            Cull(i, clip.Value);
+                            Cull(i, clip1.Value);
+                        }
+                        if (clip2 != null)
+                        {
+                            Cull(i, clip2.Value);
                         }
                     }
                 });

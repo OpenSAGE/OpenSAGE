@@ -22,8 +22,8 @@ layout(location = 5) out vec4 out_ClippingPlane;
 
 void main()
 {
-    gl_ClipDistance[0] = CalculateClippingPlane(in_Position, _GlobalConstantsVS.ClippingPlane);
-    out_ClippingPlane = _GlobalConstantsVS.ClippingPlane;
+    DO_CLIPPING(in_Position)
+    out_ClippingPlane = _GlobalConstantsVS.ClippingPlane1;
 
     out_WorldPosition = in_Position;
 

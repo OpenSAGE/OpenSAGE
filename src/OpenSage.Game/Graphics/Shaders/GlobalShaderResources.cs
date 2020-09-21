@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -72,7 +73,13 @@ namespace OpenSage.Graphics.Shaders
         public struct GlobalConstantsVS
         {
             public Matrix4x4 ViewProjection;
-            public Vector4 ClippingPlane;
+            public Vector4 ClippingPlane1;
+            public Vector4 ClippingPlane2;
+            public Bool32 HasClippingPlane1;
+            public Bool32 HasClippingPlane2;
+#pragma warning disable IDE1006, CS0169
+            private readonly Vector2 _padding;
+#pragma warning restore IDE1006, CS0169
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]

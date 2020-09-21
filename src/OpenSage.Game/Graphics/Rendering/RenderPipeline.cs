@@ -206,7 +206,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection, new Vector4(0, 0, 0, 0));
+                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection, null, null);
 
                     DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -219,7 +219,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection, new Vector4(0, 0, 0, 0));
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection, null, null);
             _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ClearColor);
@@ -273,10 +273,14 @@ namespace OpenSage.Graphics.Rendering
                     {
                         commandList.PushDebugGroup("Refraction");
                         camera.FarPlaneDistance = scene.Waters.RefractionRenderDistance;
-                        var clippingPlane = new Plane(-Vector3.UnitZ, pivot + clippingOffset);
+
+                        var clippingPlaneTop = new Plane(-Vector3.UnitZ, pivot + clippingOffset);
+
+                        var transparentWaterDepth = scene.AssetLoadContext.AssetStore.WaterTransparency.Current.TransparentWaterDepth;
+                        var clippingPlaneBottom = new Plane(Vector3.UnitZ, -pivot + transparentWaterDepth);
 
                         // Render normal scene for water refraction shader
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.AsVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlaneTop.AsVector4(), clippingPlaneBottom.AsVector4());
                         _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
                         commandList.SetFramebuffer(refractionFramebuffer);
@@ -286,8 +290,8 @@ namespace OpenSage.Graphics.Rendering
 
                         commandList.SetFullViewports();
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlaneTop, clippingPlaneBottom);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlaneTop, clippingPlaneBottom);
                         commandList.PopDebugGroup();
                     }
 
@@ -299,7 +303,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // TODO: Improve rendering speed somehow?
                         // ------------------- Used for creating stencil mask -------------------
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.AsVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -310,7 +314,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // Render inverted scene for water reflection shader
                         camera.SetMirrorX(pivot);
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.AsVector4());
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         //commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -328,7 +332,7 @@ namespace OpenSage.Graphics.Rendering
                     if (reflectionFramebuffer != null || refractionFramebuffer != null)
                     {
                         camera.FarPlaneDistance = originalFarPlaneDistance;
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, new Vector4(0, 0, 0, 0));
+                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, camera.ViewProjection, null, null);
                         _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
                         // Reset the render item pipeline
@@ -348,10 +352,11 @@ namespace OpenSage.Graphics.Rendering
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
             ResourceSet cloudResourceSet,
-            in Plane? clippingPlane = null)
+            in Plane? clippingPlane1 = null,
+            in Plane? clippingPlane2 = null)
         {
             // TODO: Make culling batch size configurable at runtime
-            bucket.RenderItems.CullAndSort(cameraFrustum, clippingPlane, ParallelCullingBatchSize);
+            bucket.RenderItems.CullAndSort(cameraFrustum, clippingPlane1, clippingPlane2, ParallelCullingBatchSize);
 
             if (bucket.RenderItems.CulledItemIndices.Count == 0)
             {
