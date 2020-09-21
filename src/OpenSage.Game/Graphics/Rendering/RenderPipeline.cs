@@ -365,6 +365,8 @@ namespace OpenSage.Graphics.Rendering
             {
                 ref var renderItem = ref bucket.RenderItems[i];
 
+                commandList.PushDebugGroup($"Render item: {renderItem.DebugName}");
+
                 if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Pipeline != renderItem.Pipeline)
                 {
                     commandList.InsertDebugMarker("Setting pipeline");
@@ -404,6 +406,8 @@ namespace OpenSage.Graphics.Rendering
                     0);
 
                 lastRenderItemIndex = i;
+
+                commandList.PopDebugGroup();
             }
 
             return bucket.RenderItems.CulledItemIndices.Count;

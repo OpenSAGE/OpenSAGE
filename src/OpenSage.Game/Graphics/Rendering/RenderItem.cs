@@ -8,6 +8,8 @@ namespace OpenSage.Graphics.Rendering
 {
     internal readonly struct RenderItem : IComparable<RenderItem>
     {
+        public readonly string DebugName;
+
         public readonly ShaderSet ShaderSet;
         public readonly Pipeline Pipeline;
         public readonly BoundingBox BoundingBox;
@@ -21,6 +23,7 @@ namespace OpenSage.Graphics.Rendering
         public readonly int Key;
 
         public RenderItem(
+            string debugName,
             ShaderSet shaderSet,
             Pipeline pipeline,
             in BoundingBox boundingBox,
@@ -31,6 +34,7 @@ namespace OpenSage.Graphics.Rendering
             BeforeRenderDelegate beforeRenderCallback,
             MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
+            DebugName = debugName;
             ShaderSet = shaderSet;
             Pipeline = pipeline;
             BoundingBox = boundingBox;
