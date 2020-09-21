@@ -149,6 +149,7 @@ namespace OpenSage.Terrain
             Pipeline pipeline)
         {
             renderList.Terrain.RenderItems.Add(new RenderItem(
+                $"Terrain-{Bounds}",
                 shaderSet,
                 pipeline,
                 BoundingBox,
