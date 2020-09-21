@@ -71,6 +71,8 @@ namespace OpenSage.Graphics.Rendering
                 return;
             }
 
+            ClearCullingResults();
+
             // Step 1: Compute visibility for each item in _items and store the result _culled.
 
             // TODO: If Length <= batchSize, don't call Parallel.ForEach
@@ -143,10 +145,15 @@ namespace OpenSage.Graphics.Rendering
             });
         }
 
+        private void ClearCullingResults()
+        {
+            _culledItemIndices.Clear();
+        }
+
         public void Clear()
         {
             Length = 0;
-            _culledItemIndices.Clear();
+            ClearCullingResults();
 
             // TODO: Should we provide a different method for actually clearing the item buffer?
             // Otherwise there might be memory leaks when switching between scenes.
