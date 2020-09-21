@@ -45,8 +45,8 @@ namespace OpenSage.Graphics.Rendering.Water
         private bool _isRenderReflection;
         private bool _isRenderRefraction;
 
-        private float _transparentWaterDepth;
-        private float _transparentWaterMinOpacity;
+        private readonly float _transparentWaterDepth;
+        private readonly float _transparentWaterMinOpacity;
 
         public WaterMapRenderer(
             AssetStore assetStore,
