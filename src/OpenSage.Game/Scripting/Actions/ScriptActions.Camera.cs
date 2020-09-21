@@ -48,22 +48,34 @@ namespace OpenSage.Scripting
             context.Scene.CameraController.ModLookToward(waypoint.Position);
         }
 
-        // TODO: In BFME and later, the first argument is actually NamedCamera, not a waypoint.
-        [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
-        public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float rawDuration, float shutter, float easeIn, float easeOut)
+        // There are two versions of MoveCameraTo:
+        // - In Generals and ZH, the first argument is a waypoint.
+        // - In BFME and later, the first argument is a NamedCamera.
+        //
+        // So we have two methods here. The first specifies via the [ScriptAction]
+        // attribute that it is only for Generals and Zero Hour.
+        //
+        // The second is for all other games.
+
+        [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds", SageGame.CncGenerals, SageGame.CncGeneralsZeroHour)]
+        public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float rawDuration, float shutter)
         {
-            // Check if a named camera exists
-            Vector3 targetPoint;
-            if (context.Scene.Cameras.Exists(waypointName))
-            {
-                targetPoint = context.Scene.Cameras[waypointName].LookAtPoint;
-                // TODO: Zoom
-                // TODO: EulerAngles
-            }
-            else
-            {
-                targetPoint = context.Scene.Waypoints[waypointName].Position;
-            }
+            var targetPoint = context.Scene.Waypoints[waypointName].Position;
+
+            var duration = TimeSpan.FromSeconds(rawDuration);
+
+            context.Scene.CameraController.StartAnimation(
+                new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
+                context.UpdateTime.TotalTime,
+                duration);
+        }
+
+        [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
+        public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string cameraName, float rawDuration, float shutter, float easeIn, float easeOut)
+        {
+            var targetPoint = context.Scene.Cameras[cameraName].LookAtPoint;
+            // TODO: Zoom
+            // TODO: EulerAngles
 
             var duration = TimeSpan.FromSeconds(rawDuration);
 

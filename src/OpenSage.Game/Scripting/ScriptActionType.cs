@@ -27,7 +27,10 @@ namespace OpenSage.Scripting
         PlaySoundEffectAt = 11,
         DamageMembersOfTeam = 12,
         MoveTeamTo = 13,
+
+        [IniEnum("MOVE_CAMERA_TO")]
         MoveCameraTo = 14,
+
         IncrementCounter = 15,
         DecrementCounter = 16,
         MoveCameraAlongWaypointPath = 17,
