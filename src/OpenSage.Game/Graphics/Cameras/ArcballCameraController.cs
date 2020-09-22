@@ -23,7 +23,7 @@ namespace OpenSage.Graphics.Cameras
         private float _zoom;
         private Vector3 _translation;
 
-        float ICameraController.Pitch { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        void ICameraController.SetPitch(float pitch) => throw new NotImplementedException();
         float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
