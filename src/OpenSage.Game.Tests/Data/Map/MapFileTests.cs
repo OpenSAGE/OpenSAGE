@@ -645,6 +645,14 @@ namespace OpenSage.Tests.Data.Map
         }
 
         [Fact]
+        public void CameraFocalLength()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.NamedCameras.Cameras.Length);
+        }
+
+        [Fact]
         public void Scripts_EvaluationIntervals()
         {
             var mapFile = GetMapFile();
