@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Scripting
 {
@@ -16,7 +17,7 @@ namespace OpenSage.Scripting
 
             context.Scene.CameraController.TerrainPosition = positionWaypoint.Position;
             context.Scene.CameraController.Zoom = zoom;
-            context.Scene.CameraController.Pitch = pitch;
+            context.Scene.CameraController.SetPitch(pitch);
             context.Scene.CameraController.SetLookDirection(Vector3.Normalize(targetWaypoint.Position - positionWaypoint.Position));
         }
 
@@ -73,16 +74,26 @@ namespace OpenSage.Scripting
         [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
         public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string cameraName, float rawDuration, float shutter, float easeIn, float easeOut)
         {
-            var targetPoint = context.Scene.Cameras[cameraName].LookAtPoint;
-            // TODO: Zoom
-            // TODO: EulerAngles
+            var camera = context.Scene.Cameras[cameraName];
+
+            var targetPoint = camera.LookAtPoint;
 
             var duration = TimeSpan.FromSeconds(rawDuration);
 
-            context.Scene.CameraController.StartAnimation(
+            var animation = context.Scene.CameraController.StartAnimation(
                 new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
                 context.UpdateTime.TotalTime,
                 duration);
+
+            var rotation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(camera.Yaw, 0, camera.Roll);
+            var lookToward = Vector3.Transform(Vector3.UnitY, rotation);
+            animation.SetFinalLookDirection(lookToward);
+
+            animation.SetFinalPitchAngle(-camera.Pitch);
+
+            animation.SetFinalZoom(camera.Zoom);
+
+            animation.SetFinalFieldOfView(camera.FieldOfView);
         }
 
         [ScriptAction(ScriptActionType.MoveCameraAlongWaypointPath, "Camera/Move/Move camera along a waypoint path", "Move along path starting with {0} in {1} seconds, camera shutter {2} seconds")]

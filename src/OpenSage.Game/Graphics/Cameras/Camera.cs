@@ -15,17 +15,17 @@ namespace OpenSage.Graphics.Cameras
 
         private Matrix4x4 _world, _projection;
 
-        private float _focalLength = 25;
+        private float _fieldOfView = MathUtility.ToRadians(50);
 
         /// <summary>
-        /// Gets or sets a value that represents the camera's focal length in mm. 
+        /// Gets or sets a value that represents the camera's field of view in radians. 
         /// </summary>
-        public float FocalLength
+        public float FieldOfView
         {
-            get { return _focalLength; }
+            get { return _fieldOfView; }
             set
             {
-                _focalLength = value;
+                _fieldOfView = value;
                 UpdateProjection();
             }
         }
@@ -80,7 +80,6 @@ namespace OpenSage.Graphics.Cameras
 
         public Camera(Func<Viewport> getViewport)
         {
-
             _getViewport = getViewport;
             _viewport = getViewport();
 
@@ -128,19 +127,13 @@ namespace OpenSage.Graphics.Cameras
             UpdateViewProjection();
         }
 
+        private float GetVerticalFieldOfView() => _fieldOfView / (_viewport.Width / _viewport.Height);
+
         private void CreateProjection(out Matrix4x4 projection)
         {
-            var fieldOfView = GetFieldOfView();
-
             projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                fieldOfView, _viewport.Width / _viewport.Height,
+                GetVerticalFieldOfView(), _viewport.Width / _viewport.Height,
                 NearPlaneDistance, FarPlaneDistance);
-        }
-
-        private float GetFieldOfView()
-        {
-            const int height = 24; // Height in mm of 35mm film.
-            return 2 * MathF.Atan(0.5f * height / _focalLength);
         }
 
         /// <summary>
@@ -204,9 +197,8 @@ namespace OpenSage.Graphics.Cameras
         /// </summary>
         public float GetScreenSize(in BoundingSphere boundingSphere)
         {
-            var fieldOfView = GetFieldOfView();
             var distance = Vector3.Distance(boundingSphere.Center, Position);
-            return (boundingSphere.Radius / (MathF.Tan(fieldOfView / 2) * distance)) * (_viewport.Height / 2);
+            return (boundingSphere.Radius / (MathF.Tan(GetVerticalFieldOfView() / 2) * distance)) * (_viewport.Height / 2);
         }
 
         /// <summary>
