@@ -6,7 +6,9 @@ using OpenSage.Data.Tga;
 using OpenSage.Graphics;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Veldrid;
 using Veldrid.ImageSharp;
 
@@ -59,12 +61,12 @@ namespace OpenSage.Content.Loaders
                 return null;
             }
 
-            var texture = LoadImpl(entry, context.GraphicsDevice);
+            var texture = LoadImpl(entry, context.FileSystem, context.GraphicsDevice);
             texture.Name = entry.FilePath;
             return new TextureAsset(texture, name);
         }
 
-        private Texture LoadImpl(FileSystemEntry entry, GraphicsDevice graphicsDevice)
+        private Texture LoadImpl(FileSystemEntry entry, FileSystem fileSystem, GraphicsDevice graphicsDevice)
         {
             switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
             {
@@ -81,11 +83,7 @@ namespace OpenSage.Content.Loaders
                     return CreateTextureFromTga(tgaFile, graphicsDevice);
 
                 case ".jpg":
-                    using (var stream = entry.Open())
-                    {
-                        var jpgFile = new ImageSharpTexture(stream);
-                        return CreateFromImageSharpTexture(jpgFile, graphicsDevice);
-                    }
+                    return CreateTextureFromJpg(entry, fileSystem, graphicsDevice);
 
                 default:
                     throw new InvalidOperationException();
@@ -118,6 +116,45 @@ namespace OpenSage.Content.Loaders
 
                 return CreateFromImageSharpTexture(imageSharpTexture, graphicsDevice);
             }
+        }
+
+        private Texture CreateTextureFromJpg(FileSystemEntry entry, FileSystem fileSystem, GraphicsDevice graphicsDevice)
+        {
+            ImageSharpTexture colorTexture;
+            using (var stream = entry.Open())
+            {
+                colorTexture = new ImageSharpTexture(stream);
+            }
+
+            // Sometimes there's a .png sidecar file which contains the alpha channel.
+            using (var stream = entry.Open())
+            {
+                var pngFilePath = Path.ChangeExtension(entry.FilePath, ".png");
+                var pngEntry = fileSystem.GetFile(pngFilePath);
+                if (pngEntry != null)
+                {
+                    using var pngStream = pngEntry.Open();
+
+                    var alphaTexture = new ImageSharpTexture(pngStream);
+
+                    if (!colorTexture.Images[0].TryGetSinglePixelSpan(out var colorPixelSpan))
+                    {
+                        throw new InvalidOperationException("Unable to get image pixelspan.");
+                    }
+
+                    if (!alphaTexture.Images[0].TryGetSinglePixelSpan(out var alphaPixelSpan))
+                    {
+                        throw new InvalidOperationException("Unable to get image pixelspan.");
+                    }
+
+                    for (var i = 0; i < colorPixelSpan.Length; i++)
+                    {
+                        colorPixelSpan[i].A = alphaPixelSpan[i].A;
+                    }
+                }
+            }
+
+            return CreateFromImageSharpTexture(colorTexture, graphicsDevice);
         }
 
         private Texture CreateFromImageSharpTexture(ImageSharpTexture imageSharpTexture, GraphicsDevice graphicsDevice)
