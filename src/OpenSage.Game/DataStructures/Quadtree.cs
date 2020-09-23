@@ -65,7 +65,7 @@ namespace OpenSage.DataStructures
 
         public IEnumerable<T> FindIntersecting(in Collider collider)
         {
-            return /*!collider.Intersects(Bounds) ? Enumerable.Empty<T>() :*/ FindIntersectingInternal(collider);
+            return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider);
         }
 
         private IEnumerable<T> FindIntersectingInternal(Collider collider)
@@ -175,25 +175,24 @@ namespace OpenSage.DataStructures
             }
         }
 
-        public void Remove(in T item)
+        public bool Remove(in T item)
         {
             if (_children != null)
             {
                 foreach (var subTree in _children)
                 {
-                    if (subTree._items.Remove(item))
+                    if (subTree.Remove(item))
                     {
-                        return;
+                        return true;
                     }
                 }
             }
 
-            _items.Remove(item);
+            return _items.Remove(item);
         }
 
         public void Update(in T item)
         {
-            // TODO: check if object even moved
             Remove(item);
             Insert(item);
         }

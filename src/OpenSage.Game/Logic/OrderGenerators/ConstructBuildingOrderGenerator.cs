@@ -113,6 +113,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return true;
             }
 
+            _scene.Quadtree.Remove(_previewObject);
             return !_scene.Quadtree.FindIntersecting(_previewObject.Collider).Any();
         }
 

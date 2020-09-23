@@ -64,19 +64,26 @@ namespace OpenSage.Mathematics
 
         public bool Intersects(RectangleF bounds)
         {
-            var circleDistanceX = MathF.Abs(Center.X - bounds.X);
-            var circleDistanceY = MathF.Abs(Center.Y - bounds.Y);
+            var halfWidth = bounds.Width / 2.0f;
+            var halfHeight = bounds.Height / 2.0f;
 
-            if (circleDistanceX <= Radius ||
-                circleDistanceY <= Radius ||
-                circleDistanceX > bounds.Width + Radius ||
-                circleDistanceY > bounds.Height + Radius)
+            var circleDistanceX = MathF.Abs(Center.X - (bounds.X + halfWidth));
+            var circleDistanceY = MathF.Abs(Center.Y - (bounds.Y + halfHeight));
+
+            if (circleDistanceX > halfWidth + Radius ||
+                circleDistanceY > halfHeight + Radius)
             {
                 return false;
             }
 
-            var cornerDistanceSquared = MathF.Pow((circleDistanceX - bounds.Width / 2.0f), 2) +
-                                        MathF.Pow((circleDistanceY - bounds.Height / 2.0f), 2);
+            if (circleDistanceX <= halfWidth ||
+                circleDistanceY <= halfHeight)
+            {
+                return true;
+            }
+
+            var cornerDistanceSquared = MathF.Pow((circleDistanceX - halfWidth), 2) +
+                                        MathF.Pow((circleDistanceY - halfHeight), 2);
 
             return cornerDistanceSquared <= MathF.Pow(Radius, 2);
         }
