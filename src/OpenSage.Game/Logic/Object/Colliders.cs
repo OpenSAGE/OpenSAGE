@@ -27,9 +27,7 @@ namespace OpenSage.Logic.Object
 
         public abstract bool Intersects(RectangleF bounds);
 
-        public bool Intersects(Collider collider) => BoundingArea.Intersects(collider.BoundingArea);
-
-        public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
+        public abstract bool Intersects(Collider collider);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
         {
@@ -56,6 +54,8 @@ namespace OpenSage.Logic.Object
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
     }
 
     public class SphereCollider : Collider
@@ -99,18 +99,46 @@ namespace OpenSage.Logic.Object
 
         public override bool Intersects(in Ray ray, out float depth)
         {
-            var result = ray.Intersects((BoundingSphere)WorldBounds, out depth);
+            var result = ray.Intersects(WorldBounds, out depth);
             depth *= Transform.Scale; // Assumes uniform scaling
             return result;
         }
 
         public override bool Intersects(RectangleF bounds) => WorldBounds.Intersects(bounds);
 
-        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects((BoundingSphere)WorldBounds);
+        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects(WorldBounds);
+
+        public override bool Intersects(Collider other)
+        {
+            var distance = (WorldBounds.Center - other.WorldBounds.Center).Length();
+            return (distance <= WorldBounds.Radius + other.WorldBounds.Radius);
+            // TODO: sphere - cylinder, sphere - box
+        }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
-            //TODO implement
+            var strokeColor = new ColorRgbaF(0, 0, 220, 255);
+
+            var worldPos = Transform.Translation;
+            //var rotation = Transform.Rotation;
+
+            // AxisAlignedBoundingArea 
+            var bottomLeft = new Vector3(AxisAlignedBoundingArea.X, AxisAlignedBoundingArea.Y, worldPos.Z);
+            var bottomRight = new Vector3(AxisAlignedBoundingArea.X + AxisAlignedBoundingArea.Width, AxisAlignedBoundingArea.Y, worldPos.Z);
+            var topLeft = new Vector3(AxisAlignedBoundingArea.X, AxisAlignedBoundingArea.Y + AxisAlignedBoundingArea.Height, worldPos.Z);
+            var topRight = new Vector3(AxisAlignedBoundingArea.X + AxisAlignedBoundingArea.Width, AxisAlignedBoundingArea.Y + AxisAlignedBoundingArea.Height, worldPos.Z);
+
+            var lbScreen = camera.WorldToScreenPoint(bottomLeft).Vector2XY();
+            var rbScreen = camera.WorldToScreenPoint(bottomRight).Vector2XY();
+            var ltScreen = camera.WorldToScreenPoint(topLeft).Vector2XY();
+            var rtScreen = camera.WorldToScreenPoint(topRight).Vector2XY();
+
+            drawingContext.DrawLine(new Line2D(ltScreen, lbScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(lbScreen, rbScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
+
+            //TODO implement BoundingSphere
         }
     }
 
@@ -123,6 +151,8 @@ namespace OpenSage.Logic.Object
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
+            base.DebugDraw(drawingContext, camera);
+
             const int sides = 8;
             var lineColor = new ColorRgbaF(220, 220, 220, 255);
 
@@ -194,6 +224,11 @@ namespace OpenSage.Logic.Object
 
         public override bool Intersects(in Ray ray, out float depth)
         {
+            if (!base.Intersects(in ray, out depth))
+            {
+                return false;
+            }
+
             var result = ray.Intersects(_worldBoxBounds, out depth);
             depth *= Transform.Scale; // Assumes uniform scaling
             return result;
@@ -208,6 +243,8 @@ namespace OpenSage.Logic.Object
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
+            base.DebugDraw(drawingContext, camera);
+
             var strokeColor = new ColorRgbaF(220, 220, 220, 255);
 
             var worldPos = Transform.Translation;
