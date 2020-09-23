@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
 using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
@@ -14,6 +15,7 @@ namespace OpenSage.Graphics.Cameras
         private const float PanSpeed = 3f;
 
         private readonly Camera _camera;
+        private readonly HeightMap _heightMap;
 
         private readonly float _defaultHeight;
         private readonly float _defaultPitchAngle;
@@ -51,8 +53,6 @@ namespace OpenSage.Graphics.Cameras
             set { _terrainPosition = new Vector3(value.X, value.Y, 0); }
         }
 
-        private float _toCameraIntersectionDistance;
-
         public CameraAnimation StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
         {
             EndAnimation();
@@ -70,9 +70,10 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(GameData gameData, Camera camera)
+        public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap)
         {
             _camera = camera;
+            _heightMap = heightMap;
 
             _defaultHeight = gameData.DefaultCameraMaxHeight > 0
                 ? gameData.DefaultCameraMaxHeight
@@ -194,6 +195,9 @@ namespace OpenSage.Graphics.Cameras
                 _defaultHeight,
                 _zoom);
 
+            // TODO: I think we're supposed to use this somehow, but I don't yet know exactly how.
+            var cameraHeightAboveTerrain = cameraHeight - _heightMap.GetHeight(_terrainPosition.X, _terrainPosition.Y);
+
             var pitch = _currentPitchAngle;
 
             // Calculate "clamped" pitch, which is no higher than "normal" pitch.
@@ -202,10 +206,6 @@ namespace OpenSage.Graphics.Cameras
             {
                 clampedPitch = -_defaultPitchAngle;
             }
-            //else if (pitch < 0 && pitch > -_defaultPitchAngle)
-            //{
-            //    clampedPitch = -_defaultPitchAngle;
-            //}
 
             // Compute terrain-position-to-camera vector, based on "clamped" pitch.
             var cameraToTerrainDirection = Vector3.Normalize(new Vector3(
@@ -219,9 +219,8 @@ namespace OpenSage.Graphics.Cameras
                 new Vector3(0, 0, cameraHeight),
                 new Vector3(0, 1, cameraHeight),
                 new Vector3(1, 0, cameraHeight));
-            // If this does not intersect with the ground, use the previous value.
-            _toCameraIntersectionDistance = toCameraRay.Intersects(plane) ?? _toCameraIntersectionDistance;
-            var newPosition = _terrainPosition - cameraToTerrainDirection * _toCameraIntersectionDistance;
+            var toCameraIntersectionDistance = toCameraRay.Intersects(plane).Value;
+            var newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
 
             // Pitch: 1 is default.
             // [-x..0] - to the sky
@@ -236,6 +235,11 @@ namespace OpenSage.Graphics.Cameras
                 MathF.Cos(yaw),
                 MathF.Sin(yaw),
                 MathF.Sin(pitch));
+
+            // World Builder shows this value for the "Look At point" height. But I don't know yet how it's applied.
+            //var cameraHeightAboveTerrain = cameraHeight - _heightMap.GetHeight(_terrainPosition.X, _terrainPosition.Y);
+            //var zOffset = pitch * -cameraHeightAboveTerrain;
+            //newPosition.Z += zOffset;
 
             var targetPosition = newPosition + lookDirection;
 
@@ -275,9 +279,6 @@ namespace OpenSage.Graphics.Cameras
             _terrainPosition += _lookDirection * forwards * panSpeed;
 
             // Get "right" vector from look direction.
-
-            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
-
             var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
@@ -306,8 +307,10 @@ namespace OpenSage.Graphics.Cameras
 
             ImGui.DragFloat3("Terrain position", ref _terrainPosition);
 
+            ImGui.PushStyleVar(ImGuiStyleVar.Alpha, ImGui.GetStyle().Alpha * 0.5f);
             var cameraPosition = _camera.Position;
             ImGui.DragFloat3("Camera position", ref cameraPosition);
+            ImGui.PopStyleVar();
 
             if (_animation != null)
             {
