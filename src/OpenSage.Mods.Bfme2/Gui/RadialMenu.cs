@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Map;
+﻿using OpenSage.Logic;
 
 namespace OpenSage.Mods.Bfme2.Gui
 {
@@ -11,7 +11,7 @@ namespace OpenSage.Mods.Bfme2.Gui
             _game = game;
         }
 
-        public void Update(Player player, Scene2D scene2D)
+        public void Update(Player player)
         {
 
         }

@@ -25,12 +25,14 @@ namespace OpenSage.Mods.Bfme2
         private bool _palantirInitialized = false;
         private bool _minimapInitialized = false;
         private GameObject _selectedUnit;
+        private RadialMenu _radialMenu;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public AptControlBar(Game game)
         {
             _game = game;
+            _radialMenu = new RadialMenu(game);
         }
 
         public void AddToScene(Scene2D scene2D)
@@ -212,6 +214,7 @@ namespace OpenSage.Mods.Bfme2
                 }
                 UpdatePalantir(player);
             }
+            _radialMenu.Update(player);
         }
     }
 
