@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
@@ -215,6 +216,11 @@ namespace OpenSage.Mods.Bfme2
                 UpdatePalantir(player);
             }
             _radialMenu.Update(player);
+        }
+
+        public void Render(DrawingContext2D drawingContext)
+        {
+            _radialMenu.Render(drawingContext);
         }
     }
 

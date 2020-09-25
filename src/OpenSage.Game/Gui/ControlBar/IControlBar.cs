@@ -6,6 +6,7 @@ namespace OpenSage.Gui.ControlBar
     {
         void AddToScene(Scene2D scene2D);
         void Update(Player player);
+        void Render(DrawingContext2D drawingContext);
     }
 
     public interface IControlBarSource

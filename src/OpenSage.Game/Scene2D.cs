@@ -28,6 +28,8 @@ namespace OpenSage
 
         internal void Render(DrawingContext2D drawingContext)
         {
+            ControlBar?.Render(drawingContext);
+
             WndWindowManager.Render(drawingContext);
             AptWindowManager.Render(drawingContext);
         }
