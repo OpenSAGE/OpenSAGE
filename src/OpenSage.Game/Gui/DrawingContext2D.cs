@@ -120,6 +120,15 @@ namespace OpenSage.Gui
             DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped, grayscale);
         }
 
+        public void DrawMappedImage(
+            MappedImage mappedImage,
+            in RectangleF destinationRect,
+            bool flipped = false,
+            bool grayscaled = false)
+        {
+            DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, flipped, grayscaled);
+        }
+
         public void DrawImage(
             Texture texture,
             in Rectangle? sourceRect,
