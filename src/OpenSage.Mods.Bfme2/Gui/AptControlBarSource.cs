@@ -44,7 +44,6 @@ namespace OpenSage.Mods.Bfme2
         }
 
 
-
         private void SetMinimap()
         {
             if (!_minimapInitialized)
