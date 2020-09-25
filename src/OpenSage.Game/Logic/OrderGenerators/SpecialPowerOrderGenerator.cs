@@ -27,7 +27,6 @@ namespace OpenSage.Logic.OrderGenerators
 
         private readonly DecalHandle _decalHandle;
 
-        private float _angle;
         private Vector3 _position;
 
         public bool CanDrag => false;
@@ -64,7 +63,7 @@ namespace OpenSage.Logic.OrderGenerators
         {
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
-            Order specialPowerOrder = null;
+            Order specialPowerOrder;
             if (_target == SpecialPowerTarget.Location)
             {
                 specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, _position);

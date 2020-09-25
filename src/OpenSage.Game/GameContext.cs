@@ -34,8 +34,8 @@ namespace OpenSage
             Terrain.Terrain terrain,
             Navigation.Navigation navigation,
             Radar radar,
-            Scene3D scene,
-            Quadtree<GameObject> quadtree)
+            Quadtree<GameObject> quadtree,
+            Scene3D scene)
         {
             AssetLoadContext = assetLoadContext;
             AudioSystem = audioSystem;
