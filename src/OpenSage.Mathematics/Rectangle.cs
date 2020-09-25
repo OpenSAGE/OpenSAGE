@@ -12,6 +12,8 @@ namespace OpenSage.Mathematics
         public Point2D Location => new Point2D(X, Y);
         public Size Size => new Size(Width, Height);
 
+        public Point2D Center => new Point2D(X + Width / 2, Y + Height / 2);
+
         public int Left => X;
         public int Right => X + Width;
         public int Top => Y;
