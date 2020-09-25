@@ -107,7 +107,7 @@ namespace OpenSage.Network
                 {
                     Thread.Sleep(100);
                 }
-                catch (ThreadInterruptedException tie)
+                catch (ThreadInterruptedException)
                 {
                     // Ignore this
                 }

@@ -7,8 +7,8 @@ using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Map;
+using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
-using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -23,7 +23,7 @@ using OpenSage.Terrain;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : DisposableBase, IInspectable, IHasBounds
+    public sealed class GameObject : DisposableBase, IInspectable, IHasCollider
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -917,10 +917,10 @@ namespace OpenSage.Logic.Object
             {
                 ImGui.LabelText("DisplayName", Definition.DisplayName);
 
-                var translation = Transform.Translation;
+                var translation = _transform.Translation;
                 if (ImGui.DragFloat3("Position", ref translation))
                 {
-                    Transform.Translation = translation;
+                    _transform.Translation = translation;
                 }
 
                 // TODO: Make this editable
