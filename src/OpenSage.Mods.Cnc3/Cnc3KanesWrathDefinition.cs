@@ -3,6 +3,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.UnitOverlay;
 
 namespace OpenSage.Mods.CnC3
 {
@@ -26,6 +27,7 @@ namespace OpenSage.Mods.CnC3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
+        public IUnitOverlaySource UnitOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 

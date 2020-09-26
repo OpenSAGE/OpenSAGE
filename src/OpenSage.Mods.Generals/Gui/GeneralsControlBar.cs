@@ -200,11 +200,6 @@ namespace OpenSage.Mods.Generals.Gui
             scene2D.WndWindowManager.PushWindow(_window);
         }
 
-        public void Render(DrawingContext2D drawingContext)
-        {
-            throw new NotImplementedException();
-        }
-
         private abstract class ControlBarState
         {
             public abstract void OnEnterState(GeneralsControlBar controlBar);
@@ -288,92 +283,9 @@ namespace OpenSage.Mods.Generals.Gui
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
                             logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
-
-                            var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
-                            Order CreateOrder(OrderType type) => new Order(playerIndex, type);
-
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
-                            Order order = null;
-                            switch (commandButton.Command)
-                            {
-                                case CommandType.DozerConstruct:
-                                    context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
-                                    break;
-
-                                case CommandType.ToggleOvercharge:
-                                    order = CreateOrder(OrderType.ToggleOvercharge);
-                                    break;
-
-                                case CommandType.Sell:
-                                    order = CreateOrder(OrderType.Sell);
-                                    break;
-
-                                case CommandType.UnitBuild:
-                                    order = CreateOrder(OrderType.CreateUnit);
-                                    order.AddIntegerArgument(objectDefinition.InternalId);
-                                    order.AddIntegerArgument(1);
-                                    break;
-
-                                case CommandType.SetRallyPoint:
-                                    context.Game.OrderGenerator.SetRallyPoint();
-                                    break;
-
-                                case CommandType.PlayerUpgrade:
-                                case CommandType.ObjectUpgrade:
-                                    {
-                                        order = CreateOrder(OrderType.BeginUpgrade);
-                                        //TODO: figure this out correctly
-                                        var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
-                                        var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
-                                        order.AddIntegerArgument(objId);
-                                        var upgrade = commandButton.Upgrade.Value;
-                                        order.AddIntegerArgument(upgrade.InternalId);
-                                    }
-                                    break;
-
-                                case CommandType.Stop:
-                                    // TODO: Also stop construction?
-                                    order = CreateOrder(OrderType.StopMoving);
-                                    break;
-
-                                case CommandType.SpecialPower:
-                                    {
-                                        var specialPower = commandButton.SpecialPower.Value;
-                                        if (commandButton.Options != null)
-                                        {
-                                            var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
-                                            var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
-                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
-                                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
-
-                                            if (needsPos)
-                                            {
-                                                context.Game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
-                                            }
-                                            else if (needsObject)
-                                            {
-                                                context.Game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            order = CreateOrder(OrderType.SpecialPower);
-                                            order.AddIntegerArgument(specialPower.InternalId);
-                                            order.AddIntegerArgument(0);
-                                            order.AddObjectIdArgument(0);
-                                        }
-                                    }
-                                    break;
-
-                                default:
-                                    throw new NotImplementedException();
-                            }
-
-                            if (order != null)
-                            {
-                                context.Game.NetworkMessageBuffer.AddLocalOrder(order);
-                            }
+                            CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition);
                         };
 
                         buttonControl.Show();

@@ -290,6 +290,17 @@ namespace OpenSage.Gui
                 fillAmount: progress * MathUtility.TwoPi);
         }
 
+        public void FillCircleRadial360(in Rectangle rect, in ColorRgbaF fillColor, float progress)
+        {
+            _spriteBatch.DrawImage(
+                _solidWhiteTexture,
+                new Rectangle(0, 0, 1, 1),
+                RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
+                GetModifiedColorWithCurrentOpacity(fillColor),
+                fillMethod: SpriteFillMethod.Radial360,
+                fillAmount: progress * MathUtility.TwoPi);
+        }
+
         public void End()
         {
             _spriteBatch.End();

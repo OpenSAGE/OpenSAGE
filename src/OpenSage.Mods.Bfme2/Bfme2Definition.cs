@@ -4,6 +4,8 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.UnitOverlay;
+using OpenSage.Mods.Bfme2.Gui;
 
 namespace OpenSage.Mods.Bfme2
 {
@@ -30,6 +32,7 @@ namespace OpenSage.Mods.Bfme2
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; } = new AptControlBarSource();
+        public IUnitOverlaySource UnitOverlay { get; } = new RadialUnitOverlaySource();
 
         public uint ScriptingTicksPerSecond => 5;
 
