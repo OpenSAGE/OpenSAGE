@@ -85,15 +85,18 @@ namespace OpenSage.Gui.UnitOverlay
 
             if (_count > 0)
             {
-                drawingContext.SetAlphaMask(_alphaMask);
+                //drawingContext.SetAlphaMask(_alphaMask);
                 drawingContext.FillRectangleRadial360(
                                         new Rectangle(rect),
                                         new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f), //_scheme.BuildUpClockColor.ToColorRgbaF(),
                                         _progress);
 
-                var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 3))));
-                drawingContext.DrawText(_count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
-                drawingContext.SetAlphaMask(null);
+                if (_count > 1)
+                {
+                    var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 3))));
+                    drawingContext.DrawText(_count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+                }
+                //drawingContext.SetAlphaMask(null);
             }
 
             if (_isHovered)
@@ -126,7 +129,6 @@ namespace OpenSage.Gui.UnitOverlay
                 case InputMessageType.MouseLeftButtonUp:
                     if (_isHovered)
                     {
-                        //_isPushed = true;
                         CommandButtonCallback.HandleCommand(_game, _commandButton, _commandButton.Object?.Value);
                         _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
                         return true;

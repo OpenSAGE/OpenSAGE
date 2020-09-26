@@ -44,6 +44,11 @@ namespace OpenSage.Gui
                         order = CreateOrder(OrderType.BeginUpgrade);
                         //TODO: figure this out correctly
                         var selection = game.Scene3D.LocalPlayer.SelectedUnits;
+                        if (selection.Count == 0)
+                        {
+                            break;
+                        }
+
                         var objId = game.Scene3D.GameObjects.GetObjectId(selection.First());
                         order.AddIntegerArgument(objId);
                         var upgrade = commandButton.Upgrade.Value;
