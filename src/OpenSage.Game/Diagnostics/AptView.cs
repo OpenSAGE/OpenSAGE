@@ -54,6 +54,7 @@ namespace OpenSage.Diagnostics
                 if (ImGui.TreeNodeEx(aptWindow.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnArrow))
                 {
                     DrawDisplayListRecursive(0, aptWindow.Root);
+                    ImGui.TreePop();
                 }
                 ImGui.EndChild();
 

@@ -109,7 +109,7 @@ namespace OpenSage.Mods.Bfme2
                 args.Add(Value.FromString("CommandButton"));
 
                 //TODO: fix so this works
-                //FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
+                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
             }
         }
 
