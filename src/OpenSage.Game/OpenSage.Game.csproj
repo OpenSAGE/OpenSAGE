@@ -15,7 +15,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0003" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0010" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
-    <PackageReference Include="SharpAudio.Util" Version="$(SharpAudioVersion)" />
+    <PackageReference Include="SharpAudio.Codec" Version="$(SharpAudioVersion)" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />

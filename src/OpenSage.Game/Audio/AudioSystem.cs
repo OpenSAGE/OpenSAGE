@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using OpenSage.Data;
 using SharpAudio;
-using SharpAudio.Util;
-using SharpAudio.Util.Wave;
+using SharpAudio.Codec;
+using SharpAudio.Codec.Wave;
 
 namespace OpenSage.Audio
 {
@@ -58,7 +58,7 @@ namespace OpenSage.Audio
             }
 
             var source = AddDisposable(_engine.CreateSource());
-            source.QueryBuffer(buffer);
+            source.QueueBuffer(buffer);
             // TODO: Implement looping
 
             _sources.Add(source);
