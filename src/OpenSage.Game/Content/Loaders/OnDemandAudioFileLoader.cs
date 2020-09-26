@@ -8,22 +8,31 @@ namespace OpenSage.Content.Loaders
     {
         public AudioFile Load(string key, AssetLoadContext context)
         {
-            var audioSettings = context.AssetStore.AudioSettings.Current;
-
-            var soundFileName = $"{key}.{audioSettings.SoundsExtension}";
-
-            var localisedAudioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
-            var audioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder);
-
             FileSystemEntry entry = null;
-            foreach (var rootPath in new[] { localisedAudioRoot, audioRoot })
+
+            // audio events
+            if (string.IsNullOrEmpty(Path.GetExtension(key)))
             {
-                var fullPath = Path.Combine(rootPath, soundFileName);
-                entry = context.FileSystem.GetFile(fullPath);
-                if (entry != null)
+                var audioSettings = context.AssetStore.AudioSettings.Current;
+
+                var soundFileName = $"{key}.{audioSettings.SoundsExtension}";
+
+                var localisedAudioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
+                var audioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder);
+
+                foreach (var rootPath in new[] { localisedAudioRoot, audioRoot })
                 {
-                    break;
+                    var fullPath = Path.Combine(rootPath, soundFileName);
+                    entry = context.FileSystem.GetFile(fullPath);
+                    if (entry != null)
+                    {
+                        break;
+                    }
                 }
+            }
+            else // music tracks
+            {
+                entry = context.FileSystem.GetFile(Path.Combine(@"Data\Audio\Tracks", key));
             }
 
             if (entry == null)

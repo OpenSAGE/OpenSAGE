@@ -42,7 +42,8 @@ namespace OpenSage.Content
                         @"Data\INI\AudioSettings.ini",
                         @"Data\INI\SoundEffects.ini",
                         @"Data\INI\MiscAudio.ini",
-                        @"Data\INI\Voice.ini");
+                        @"Data\INI\Voice.ini",
+                        @"Data\Ini\Music.ini");
                     break;
                 case Subsystem.ObjectCreation:
                     LoadFiles(
