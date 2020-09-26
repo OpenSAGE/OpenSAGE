@@ -9,6 +9,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         PreloadExtern = 0x010000,   //this seems to be added by EA
         PreloadParent = 0x008000,
         PreloadRoot = 0x004000,
+
         SupressSuper = 0x002000,
         PreloadSuper = 0x001000,
         SupressArguments = 0x000800,

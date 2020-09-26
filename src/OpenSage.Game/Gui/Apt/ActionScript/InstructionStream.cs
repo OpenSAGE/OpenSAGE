@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public bool IsFinished()
         {
-            return _index == _instructions.Count;
+            return _index == _instructions.Count || _index == -1;
         }
 
         /// <summary>
