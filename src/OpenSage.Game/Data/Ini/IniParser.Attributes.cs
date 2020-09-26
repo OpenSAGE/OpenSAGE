@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Content;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
@@ -112,6 +114,13 @@ namespace OpenSage.Data.Ini
         public string ParseAttributeIdentifier(string label)
         {
             string GetText(in IniToken token) => token.Text;
+
+            return ParseAttribute(label, GetText);
+        }
+
+        public LazyAssetReference<ObjectDefinition> ParseAttributeObjectReference(string label)
+        {
+            LazyAssetReference<ObjectDefinition> GetText(in IniToken token) => ParseObjectReference(token.Text);
 
             return ParseAttribute(label, GetText);
         }
