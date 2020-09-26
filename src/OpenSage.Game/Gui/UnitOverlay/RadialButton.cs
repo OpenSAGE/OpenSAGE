@@ -129,7 +129,7 @@ namespace OpenSage.Gui.UnitOverlay
                 case InputMessageType.MouseLeftButtonUp:
                     if (_isHovered)
                     {
-                        CommandButtonCallback.HandleCommand(_game, _commandButton, _commandButton.Object?.Value);
+                        CommandButtonCallback.HandleCommand(_game, _commandButton, _objectDefinition);
                         _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
                         return true;
                     }
