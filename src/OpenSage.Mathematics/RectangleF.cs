@@ -212,5 +212,14 @@ namespace OpenSage.Mathematics
         {
             return HashCode.Combine(X.GetHashCode(), Y.GetHashCode(), Width.GetHashCode(), Height.GetHashCode());
         }
+
+        public RectangleF Scale(float factor)
+        {
+            var newWidth = Width * factor;
+            var newHeight = Height * factor;
+            var deltaWidth = Width - newWidth;
+            var deltaHeight = Height - newHeight;
+            return new RectangleF(X + deltaWidth / 2, Y + deltaHeight / 2, newWidth, newHeight);
+        }
     }
 }
