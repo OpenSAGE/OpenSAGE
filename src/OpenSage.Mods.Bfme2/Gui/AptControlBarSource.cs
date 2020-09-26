@@ -110,6 +110,17 @@ namespace OpenSage.Mods.Bfme2
 
                 //TODO: fix so this works
                 FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
+
+                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                placeHolder.Item.Visible = true;
+                var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
+
+                shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
+                {
+                    //TODO: draw correct mapped image here
+                    var rect = new Rectangle(renderContext.GetBoundingBox(geom));
+                    renderContext.GetActiveDrawingContext().DrawRectangle(rect.ToRectangleF(), ColorRgbaF.White, 5.0f);
+                };
             }
         }
 
