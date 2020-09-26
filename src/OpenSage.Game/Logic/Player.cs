@@ -113,10 +113,27 @@ namespace OpenSage.Logic
             {
                 _selectedUnits = units.ToSet();
             }
+
+            var unitsFromHordeSelection = new List<GameObject>();
             foreach (var unit in _selectedUnits)
             {
                 unit.IsSelected = true;
+
+                if (unit.ParentHorde != null && !unit.ParentHorde.IsSelected)
+                {
+                    unitsFromHordeSelection.Add(unit.ParentHorde);
+                    unitsFromHordeSelection.AddRange(unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(true));
+                }
+                else
+                {
+                    var hordeContain = unit.FindBehavior<HordeContainBehavior>();
+                    if (hordeContain != null)
+                    {
+                        unitsFromHordeSelection.AddRange(hordeContain.SelectAll(true));
+                    }
+                }
             }
+            _selectedUnits.UnionWith(unitsFromHordeSelection);
         }
 
         public void DeselectUnits()
@@ -124,6 +141,19 @@ namespace OpenSage.Logic
             foreach (var unit in _selectedUnits)
             {
                 unit.IsSelected = false;
+
+                if (unit.ParentHorde != null && unit.ParentHorde.IsSelected)
+                {
+                    unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
+                }
+                else
+                {
+                    var hordeContain = unit.FindBehavior<HordeContainBehavior>();
+                    if (hordeContain != null)
+                    {
+                        hordeContain.SelectAll(false);
+                    }
+                }
             }
             _selectedUnits.Clear();
         }

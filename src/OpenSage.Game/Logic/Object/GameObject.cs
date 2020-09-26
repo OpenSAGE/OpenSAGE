@@ -139,6 +139,8 @@ namespace OpenSage.Logic.Object
 
         public Player Owner { get; internal set; }
 
+        public GameObject ParentHorde { get; set; }
+
         private string _name;
 
         public string Name
@@ -165,6 +167,7 @@ namespace OpenSage.Logic.Object
         public bool CanAttack { get; private set; }
 
         public bool IsSelected { get; set; }
+
         public Vector3? RallyPoint { get; set; }
 
         internal Weapon CurrentWeapon { get; private set; }

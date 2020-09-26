@@ -491,7 +491,7 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
-                if (gameObject.Definition.Geometry is null)
+                if (gameObject.Definition.Geometry is null || gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
                 {
                     return;
                 }
