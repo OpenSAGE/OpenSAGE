@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data;
 using SharpAudio;
 using SharpAudio.Codec;
@@ -12,6 +13,8 @@ namespace OpenSage.Audio
         private readonly List<AudioSource> _sources;
         private readonly Dictionary<string, AudioBuffer> _cached;
         private readonly AudioEngine _engine;
+        private readonly AudioSettings _settings;
+        private readonly Dictionary<AudioVolumeSlider, Submixer> _mixers;
 
         private readonly Random _random;
 
@@ -20,9 +23,32 @@ namespace OpenSage.Audio
             _engine = AudioEngine.CreateDefault();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
+            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
+            _settings = game.AssetStore.AudioSettings.Current;
+
+            CreateSubmixers();
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
+        }
+
+        private void CreateSubmixers()
+        {
+            // Create all available mixers
+            _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.SoundFX].Volume = (float) _settings.DefaultSoundVolume;
+
+            _mixers[AudioVolumeSlider.Music] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Music].Volume = (float) _settings.DefaultMusicVolume;
+
+            _mixers[AudioVolumeSlider.Ambient] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Ambient].Volume = (float) _settings.DefaultAmbientVolume;
+
+            _mixers[AudioVolumeSlider.Voice] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Voice].Volume = (float) _settings.DefaultVoiceVolume;
+
+            _mixers[AudioVolumeSlider.Movie] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Movie].Volume = (float) _settings.DefaultMovieVolume;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -30,14 +56,15 @@ namespace OpenSage.Audio
             base.Dispose(disposeManagedResources);
             _sources.Clear();
             _cached.Clear();
-          
+
             _engine.Dispose();
         }
 
         /// <summary>
         /// Opens a cached audio file. Usually used for small audio files (.wav)
         /// </summary>
-        public AudioSource GetSound(FileSystemEntry entry, bool loop = false)
+        public AudioSource GetSound(FileSystemEntry entry,
+            AudioVolumeSlider? vslider = AudioVolumeSlider.None, bool loop = false)
         {
             AudioBuffer buffer;
 
@@ -49,7 +76,7 @@ namespace OpenSage.Audio
 
                 buffer = AddDisposable(_engine.CreateBuffer());
                 buffer.BufferData(data, decoder.Format);
-     
+
                 _cached[entry.FilePath] = buffer;
             }
             else
@@ -57,7 +84,9 @@ namespace OpenSage.Audio
                 buffer = _cached[entry.FilePath];
             }
 
-            var source = AddDisposable(_engine.CreateSource());
+            var mixer = (vslider.HasValue && vslider.Value != AudioVolumeSlider.None) ?
+                        _mixers[vslider.Value] : null;
+            var source = AddDisposable(_engine.CreateSource(mixer));
             source.QueueBuffer(buffer);
             // TODO: Implement looping
 
@@ -123,7 +152,7 @@ namespace OpenSage.Audio
                 return;
             }
 
-            var source = GetSound(entry, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
+            var source = GetSound(entry, audioEvent.SubmixSlider, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
             _sources.Add(source);
 
             source.Volume = (float) audioEvent.Volume;
