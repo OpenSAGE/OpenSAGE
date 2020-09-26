@@ -29,8 +29,61 @@ namespace OpenSage.Logic.Object
                 for (var i = 0; i < payload.Count; i++)
                 {
                     var createdObject = gameObject.Parent.Add(payload.Object.Value, gameObject.Owner);
+                    createdObject.ParentHorde = gameObject;
                     _payload.Add(createdObject);
                 }
+            }
+        }
+
+        public List<GameObject> SelectAll(bool value)
+        {
+            _gameObject.IsSelected = value;
+            foreach (var obj in _payload)
+            {
+                obj.IsSelected = value;
+            }
+            return _payload;
+        }
+
+        private List<Vector3> GetFormationOffsets()
+        {
+            var result = new List<Vector3>();
+            foreach (var unit in _payload)
+            {
+                result.Add(new Vector3());
+            }
+
+            var counters = new Dictionary<string, int>();
+            foreach (var rankInfo in _moduleData.RankInfos)
+            {
+                var matchingUnits = _payload.Where(x => x.Definition.Name == rankInfo.UnitType.Value.Name).ToList();
+                foreach (var pos in rankInfo.Positions)
+                {
+                    var name = rankInfo.UnitType.Value.Name;
+                    if (!counters.ContainsKey(name))
+                    {
+                        counters.Add(name, 0);
+                    }
+
+                    var index = _payload.IndexOf(matchingUnits[counters[name]]);
+                    result[index] = new Vector3(pos, 0);
+                    counters[name]++;
+                }
+            }
+
+            return result;
+        }
+
+        public void SetTargetPoints(Vector3 targetPosition, Vector3 targetDirection)
+        {
+            var offsets = GetFormationOffsets();
+            var targetYaw = MathUtility.GetYawFromDirection(targetDirection.Vector2XY());
+            var i = 0;
+            foreach (var unit in _payload)
+            {
+                var offset = Vector3.Transform(offsets[i++], Quaternion.CreateFromAxisAngle(Vector3.UnitZ, targetYaw));
+                unit.AIUpdate?.SetTargetPoint(targetPosition + offset);
+                unit.AIUpdate?.SetTargetDirection(targetDirection);
             }
         }
 
@@ -40,25 +93,12 @@ namespace OpenSage.Logic.Object
             {
                 _initial = false;
 
-                foreach (var payload in _payload)
+                var offsets = GetFormationOffsets();
+                var i = 0;
+                foreach (var unit in _payload)
                 {
-                    payload.Transform.Translation = _gameObject.Transform.Translation;
-                }
-
-                var counters = new Dictionary<string, int>();
-                foreach (var rankInfo in _moduleData.RankInfos)
-                {
-                    var matchingUnits = _payload.Where(x => x.Definition.Name == rankInfo.UnitType.Value.Name).ToList();
-                    foreach (var pos in rankInfo.Positions)
-                    {
-                        var name = rankInfo.UnitType.Value.Name;
-                        if (!counters.ContainsKey(name))
-                        {
-                            counters.Add(name, 0);
-                        }
-                        matchingUnits[counters[name]].Transform.Translation += new Vector3(pos, 0);
-                        counters[name]++;
-                    }
+                    unit.Transform.Translation = _gameObject.Transform.Translation + offsets[i++];
+                    unit.Transform.Rotation = _gameObject.Transform.Rotation;
                 }
             }
         }
