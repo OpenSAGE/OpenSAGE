@@ -56,7 +56,7 @@ namespace OpenSage.Mods.Bfme2.Gui
             _center = screenSpaceBoundingRectangle.Center;
             _commandSet = selectedUnit.Definition.CommandSet.Value;
 
-            if (_selectedUnit != selectedUnit)
+            if (_selectedUnit != selectedUnit && _commandSet != null)
             {
                 //Update button list
                 _buttons.Clear();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
@@ -10,6 +11,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Mods.Bfme2.Gui;
+using SixLabors.Fonts;
 using Veldrid;
 using Geometry = OpenSage.Data.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -29,9 +31,18 @@ namespace OpenSage.Mods.Bfme2
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private Font _font;
+        private int _fontSize = 11;
+        private ColorRgbaF _fontColor;
+
         public AptControlBar(Game game)
         {
             _game = game;
+
+            _fontColor = new ColorRgbaF(0, 0, 0, 1); // _game.AssetStore.InGameUI.Current.DrawableCaptionColor.ToColorRgbaF(); -> this is white -> conflicts with the progress clock
+            _fontSize = _game.AssetStore.InGameUI.Current.DrawableCaptionPointSize;
+            var fontWeight = _game.AssetStore.InGameUI.Current.DrawableCaptionBold ? FontWeight.Bold : FontWeight.Normal;
+            _font = _game.ContentManager.FontManager.GetOrCreateFont(_game.AssetStore.InGameUI.Current.DrawableCaptionFont, _fontSize, fontWeight);
         }
 
         public void AddToScene(Scene2D scene2D)
@@ -96,6 +107,20 @@ namespace OpenSage.Mods.Bfme2
             }
         }
 
+        private void ClearCommandbuttons()
+        {
+            var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+            for (var i = 1; i <= 6; i++)
+            {
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
+                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                placeHolder.Item.Visible = false;
+
+                var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
+                shape.RenderCallback = null;
+            }
+        }
+
         private void UpdateCommandbuttons()
         {
             if (_game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
@@ -113,11 +138,16 @@ namespace OpenSage.Mods.Bfme2
                 return;
             }
 
+            var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
             var commandSet = selectedUnit.Definition.CommandSet.Value;
-            var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
 
+            var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
             for (var i = 1; i <= 6; i++)
             {
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
+                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                placeHolder.Item.Visible = false;
+
                 if (!commandSet.Buttons.ContainsKey(i))
                 {
                     continue;
@@ -128,7 +158,6 @@ namespace OpenSage.Mods.Bfme2
                     continue;
                 }
 
-                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var createContent = commandButton.GetMember("CreateContent");
                 var args = new List<Value>();
                 args.Add(Value.FromString("bttn"));
@@ -137,15 +166,45 @@ namespace OpenSage.Mods.Bfme2
                 //TODO: fix so this works
                 FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
 
-                var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = true;
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
+
+                var progress = 0.0f;
+                var numCurrentProduction = 0;
+
+                if (button.Object != null && button.Object.Value != null && isProducing)
+                {
+                    var queue = selectedUnit.ProductionUpdate.ProductionQueue;
+                    var currentJob = queue[0];
+
+                    progress = 0.0f;
+                    numCurrentProduction = queue.Where(x => x.ObjectDefinition != null && button.Object.Value.Name == x.ObjectDefinition.Name).Count();
+
+                    if (button.Object.Value.Name == currentJob.ObjectDefinition.Name)
+                    {
+                        progress = currentJob.Progress;
+                    }
+                }
 
                 var texture = button.ButtonImage.Value;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
                     var rect = new Rectangle(renderContext.GetBoundingBox(geom)).ToRectangleF();
                     renderContext.GetActiveDrawingContext().DrawMappedImage(texture, rect);
+
+                    if (numCurrentProduction > 0)
+                    {
+                        renderContext.GetActiveDrawingContext().FillRectangleRadial360(
+                                        new Rectangle(rect),
+                                        new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f),
+                                        progress);
+
+                        if (numCurrentProduction > 1)
+                        {
+                            var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 4))));
+                            renderContext.GetActiveDrawingContext().DrawText(numCurrentProduction.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+                        }
+                    }
                 };
             }
         }
@@ -209,15 +268,18 @@ namespace OpenSage.Mods.Bfme2
         {
             var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
 
-            if (player.SelectedUnits.Count > 0 && !_commandbarVisible)
+            if (player.SelectedUnits.Count > 0)
             {
-                var fadeIn = sideCommandBar.Item.ScriptObject.GetMember("FadeIn");
-
-                if (fadeIn.Type != ValueType.Undefined)
+                if (!_commandbarVisible)
                 {
-                    List<Value> emptyArgs = new List<Value>();
-                    FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
-                    _commandbarVisible = true;
+                    var fadeIn = sideCommandBar.Item.ScriptObject.GetMember("FadeIn");
+
+                    if (fadeIn.Type != ValueType.Undefined)
+                    {
+                        var emptyArgs = new List<Value>();
+                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                        _commandbarVisible = true;
+                    }
                 }
 
                 UpdateCommandbuttons();
@@ -234,6 +296,7 @@ namespace OpenSage.Mods.Bfme2
                 }
 
                 _commandbarVisible = false;
+                ClearCommandbuttons();
             }
         }
 
