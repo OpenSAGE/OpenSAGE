@@ -87,8 +87,8 @@ namespace OpenSage.Mods.Bfme2
                 var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
                 if (showCommandInterface.Type != ValueType.Undefined)
                 {
-                    bool good = Array.Exists(player.Template.IntrinsicSciences, s => s == "SCIENCE_GOOD");
-                    List<Value> emptyArgs = new List<Value>();
+                    var good = Array.Exists(player.Template.IntrinsicSciences, s => s == "SCIENCE_GOOD");
+                    var emptyArgs = new List<Value>();
                     emptyArgs.Add(Value.FromString(good ? "_good" : "_evil"));
                     FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
                     _palantirInitialized = true;
@@ -98,13 +98,39 @@ namespace OpenSage.Mods.Bfme2
 
         private void UpdateCommandbuttons()
         {
-            var commandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
-
-            for (int i = 0; i < 6; i++)
+            if (_game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
             {
-                var commandButton = commandButtons.GetMember(i.ToString()).ToObject();
+                return;
+            }
+
+            var selectedUnit = _game.Scene3D.LocalPlayer.SelectedUnits.First();
+            if (selectedUnit == null)
+            {
+                return;
+            }
+            if (selectedUnit.Definition.CommandSet == null || selectedUnit.Definition.CommandSet.Value == null)
+            {
+                return;
+            }
+
+            var commandSet = selectedUnit.Definition.CommandSet.Value;
+            var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+
+            for (var i = 1; i <= 6; i++)
+            {
+                if (!commandSet.Buttons.ContainsKey(i))
+                {
+                    continue;
+                }
+                var button = commandSet.Buttons[i].Value;
+                if (!button.InPalantir || button.Command == CommandType.Revive)
+                {
+                    continue;
+                }
+
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var createContent = commandButton.GetMember("CreateContent");
-                List<Value> args = new List<Value>();
+                var args = new List<Value>();
                 args.Add(Value.FromString("bttn"));
                 args.Add(Value.FromString("CommandButton"));
 
@@ -115,11 +141,11 @@ namespace OpenSage.Mods.Bfme2
                 placeHolder.Item.Visible = true;
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
 
+                var texture = button.ButtonImage.Value;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
-                    //TODO: draw correct mapped image here
-                    var rect = new Rectangle(renderContext.GetBoundingBox(geom));
-                    renderContext.GetActiveDrawingContext().DrawRectangle(rect.ToRectangleF(), ColorRgbaF.White, 5.0f);
+                    var rect = new Rectangle(renderContext.GetBoundingBox(geom)).ToRectangleF();
+                    renderContext.GetActiveDrawingContext().DrawMappedImage(texture, rect);
                 };
             }
         }

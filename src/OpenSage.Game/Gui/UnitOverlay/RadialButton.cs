@@ -1,9 +1,12 @@
 ﻿using System.Numerics;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.Wnd.Images;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using SixLabors.Fonts;
 
 namespace OpenSage.Gui.UnitOverlay
 {
@@ -25,14 +28,21 @@ namespace OpenSage.Gui.UnitOverlay
         private CommandButton _commandButton;
         private ObjectDefinition _objectDefinition;
 
+        private Font _font;
+        private int _fontSize = 11;
+        private ColorRgbaF _fontColor;
+
         private float _progress;
+        private int _count;
+
+        private Veldrid.Texture _alphaMask;
         //private ControlBarScheme _scheme;
 
-        public RadialButton(Game game, CommandButton commandButton, ObjectDefinition objectDefintion)
+        public RadialButton(Game game, CommandButton commandButton)
         {
             _game = game;
             _commandButton = commandButton;
-            _objectDefinition = objectDefintion;
+            _objectDefinition = commandButton.Object?.Value ?? null;
 
             _background = commandButton.ButtonImage.Value;
             _border = _game.GetMappedImage("RadialBorder");
@@ -41,13 +51,30 @@ namespace OpenSage.Gui.UnitOverlay
 
             _width = _border.Coords.Width;
 
+            _fontColor = new ColorRgbaF(0, 0, 0, 1); // _game.AssetStore.InGameUI.Current.DrawableCaptionColor.ToColorRgbaF(); -> this is white -> conflicts with the progress clock
+            _fontSize = _game.AssetStore.InGameUI.Current.DrawableCaptionPointSize;
+            var fontWeight = _game.AssetStore.InGameUI.Current.DrawableCaptionBold ? FontWeight.Bold : FontWeight.Normal;
+            _font = _game.ContentManager.FontManager.GetOrCreateFont(_game.AssetStore.InGameUI.Current.DrawableCaptionFont, _fontSize, fontWeight);
+
+            _alphaMask = MappedImageUtility.CreateTexture(_game.GraphicsLoadContext, _game.GetMappedImage("RadialClockOverlay1"));
+
             //_scheme = game.AssetStore.ControlBarSchemes.FindBySide(game.Scene3D.LocalPlayer.Side);
         }
 
-        public void Update(float progress)
+        public bool CorrespondsTo(ObjectDefinition objectDefinition)
+        {
+            if (_objectDefinition == null || objectDefinition == null)
+            {
+                return false;
+            }
+            return _objectDefinition.Name == objectDefinition.Name;
+        }
+
+        public void Update(float progress, int count)
         {
             _isPushed = false;
             _progress = progress;
+            _count = count;
         }
 
         public void Render(DrawingContext2D drawingContext, Vector2 center)
@@ -55,6 +82,19 @@ namespace OpenSage.Gui.UnitOverlay
             _center = center;
             var rect = new RectangleF(center.X - _width / 2, center.Y - _width / 2, _width, _width);
             drawingContext.DrawMappedImage(_background, rect.Scale(0.9f));
+
+            if (_count > 0)
+            {
+                drawingContext.SetAlphaMask(_alphaMask);
+                drawingContext.FillRectangleRadial360(
+                                        new Rectangle(rect),
+                                        new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f), //_scheme.BuildUpClockColor.ToColorRgbaF(),
+                                        _progress);
+
+                var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 3))));
+                drawingContext.DrawText(_count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+                drawingContext.SetAlphaMask(null);
+            }
 
             if (_isHovered)
             {
@@ -67,14 +107,6 @@ namespace OpenSage.Gui.UnitOverlay
             else
             {
                 drawingContext.DrawMappedImage(_border, rect);
-            }
-
-            if (_progress > 0.0f)
-            {
-                drawingContext.FillRectangleRadial360(
-                                        new Rectangle(rect),
-                                        new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.75f), //_scheme.BuildUpClockColor.ToColorRgbaF(),
-                                        _progress);
             }
         }
 
