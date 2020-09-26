@@ -7,6 +7,9 @@ using OpenSage.Logic.Object;
 using SharpAudio;
 using SharpAudio.Codec;
 using SharpAudio.Codec.Wave;
+using SharpAudio.Util;
+using SharpAudio.Util.Mp3;
+using SharpAudio.Util.Wave;
 
 namespace OpenSage.Audio
 {
@@ -137,7 +140,7 @@ namespace OpenSage.Audio
             }
 
             PlayAudioEvent(audioEvent);
-        }
+        }        
 
         private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
@@ -205,6 +208,13 @@ namespace OpenSage.Audio
             }
 
             source.Play();
+        }
+
+        public void PlayMusicTrack(MusicTrack musicTrack)
+        {
+            var stream = GetStream(musicTrack.File.Value.Entry);
+            stream.Volume = (float) musicTrack.Volume;
+            stream.Play();            
         }
     }
 }
