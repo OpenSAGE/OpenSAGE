@@ -4,6 +4,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.UnitOverlay;
 
 namespace OpenSage
 {
@@ -22,6 +23,7 @@ namespace OpenSage
         
         IMainMenuSource MainMenu { get; }
         IControlBarSource ControlBar { get; }
+        IUnitOverlaySource UnitOverlay { get; }
 
         string Identifier { get; }
 

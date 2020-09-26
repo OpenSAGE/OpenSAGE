@@ -651,6 +651,11 @@ namespace OpenSage
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
 
+            if (Definition.UnitOverlay != null)
+            {
+                Scene2D.UnitOverlay = Definition.UnitOverlay.Create(this);
+            }
+
             // Reset everything, and run the first update on the first frame.
             CurrentFrame = 0;
             _mapTimer.Reset();
