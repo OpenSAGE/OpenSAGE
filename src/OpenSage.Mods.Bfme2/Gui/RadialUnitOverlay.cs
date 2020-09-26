@@ -65,22 +65,37 @@ namespace OpenSage.Mods.Bfme2.Gui
 
                 foreach(var commandButton in commandButtons)
                 {
-                    var radialButton = new RadialButton(_game, commandButton.Value, selectedUnit.Definition);
+                    var radialButton = new RadialButton(_game, commandButton.Value);
                     _buttons.Add(radialButton);
                 }
 
                 _selectedUnit = selectedUnit;
             }
 
-            //var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
-            //if (isProducing)
-            //{
-            //    var queue = unit.ProductionUpdate.ProductionQueue;
-            //}
-
-            foreach (var radialButton in _buttons)
+            var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
+            if (isProducing)
             {
-                radialButton.Update(0.3f);
+                var queue = selectedUnit.ProductionUpdate.ProductionQueue;
+                var currentJob = queue[0];
+                foreach (var radialButton in _buttons)
+                {
+                    var progress = 0.0f;
+                    var numCurrentProduction = queue.Where(x => radialButton.CorrespondsTo(x.ObjectDefinition)).Count();
+
+                    if (radialButton.CorrespondsTo(currentJob.ObjectDefinition))
+                    {
+                        progress = currentJob.Progress;
+                    }
+
+                    radialButton.Update(progress, numCurrentProduction);
+                }
+            }
+            else
+            {
+                foreach (var radialButton in _buttons)
+                {
+                    radialButton.Update(0.0f, 0);
+                }
             }
         }
 
