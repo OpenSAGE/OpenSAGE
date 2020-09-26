@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 using OpenSage.Audio;
-using SharpAudio.Util;
+using SharpAudio.Codec;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
