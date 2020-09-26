@@ -5,7 +5,6 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using OpenSage.Diagnostics.Util;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object

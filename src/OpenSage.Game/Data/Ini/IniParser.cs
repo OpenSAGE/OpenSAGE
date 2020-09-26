@@ -591,9 +591,9 @@ namespace OpenSage.Data.Ini
             return _assetStore.ObjectDefinitions.GetByName("DefaultThingTemplate");
         }
 
-        public LazyAssetReference<ObjectDefinition> ParseObjectReference()
+        public LazyAssetReference<ObjectDefinition> ParseObjectReference(string label = null)
         {
-            var name = ParseAssetReference();
+            var name = label ?? ParseAssetReference();
 
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name)

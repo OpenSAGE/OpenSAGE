@@ -1,10 +1,69 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    [AddedIn(SageGame.Bfme)]
+    public sealed class HordeContainBehavior : UpdateModule
+    {
+        GameObject _gameObject;
+        HordeContainModuleData _moduleData;
+
+        private List<GameObject> _payload;
+
+        private bool _initial = true;
+
+        public HordeContainBehavior(GameObject gameObject, HordeContainModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+
+            _payload = new List<GameObject>();
+
+            foreach (var payload in _moduleData.InitialPayloads)
+            {
+                for (var i = 0; i < payload.Count; i++)
+                {
+                    var createdObject = gameObject.Parent.Add(payload.Object.Value, gameObject.Owner);
+                    _payload.Add(createdObject);
+                }
+            }
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_initial)
+            {
+                _initial = false;
+
+                foreach (var payload in _payload)
+                {
+                    payload.Transform.Translation = _gameObject.Transform.Translation;
+                }
+
+                var counters = new Dictionary<string, int>();
+                foreach (var rankInfo in _moduleData.RankInfos)
+                {
+                    var matchingUnits = _payload.Where(x => x.Definition.Name == rankInfo.UnitType.Value.Name).ToList();
+                    foreach (var pos in rankInfo.Positions)
+                    {
+                        var name = rankInfo.UnitType.Value.Name;
+                        if (!counters.ContainsKey(name))
+                        {
+                            counters.Add(name, 0);
+                        }
+                        matchingUnits[counters[name]].Transform.Translation += new Vector3(pos, 0);
+                        counters[name]++;
+                    }
+                }
+            }
+        }
+    }
+
     [AddedIn(SageGame.Bfme)]
     public class HordeContainModuleData : BehaviorModuleData
     {
@@ -142,6 +201,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string LivingWorldOverloadTemplate { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new HordeContainBehavior(gameObject, this);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -151,14 +215,14 @@ namespace OpenSage.Logic.Object
         {
             var payload = new Payload
             {
-                Name = parser.ParseAssetReference()
+                Object = parser.ParseObjectReference()
             };
 
             payload.Count = parser.GetIntegerOptional();
             return payload;
         }
 
-        public string Name { get; private set; }
+        public LazyAssetReference<ObjectDefinition> Object { get; private set; }
         public int Count { get; private set; }
     }
 
@@ -169,12 +233,12 @@ namespace OpenSage.Logic.Object
         {
             return new BannerCarrierPosition
             {
-                UnitType = parser.ParseAttributeIdentifier("UnitType"),
+                UnitType = parser.ParseAttributeObjectReference("UnitType"),
                 Position = parser.ParseAttributeVector2("Pos")
             };
         }
 
-        public string UnitType { get; private set; }
+        public LazyAssetReference<ObjectDefinition> UnitType { get; private set; }
         public Vector2 Position { get; private set; }
     }
 
@@ -186,7 +250,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<RankInfo> FieldParseTable = new IniParseTable<RankInfo>
         {
             { "RankNumber", (parser, x) => x.RankNumber = parser.ParseInteger() },
-            { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
+            { "UnitType", (parser, x) => x.UnitType = parser.ParseObjectReference() },
             { "Position", (parser, x) => x.Positions.Add(parser.ParseVector2()) },
             { "RevokedWeaponCondition", (parser, x) => x.RevokedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
             { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
@@ -194,7 +258,7 @@ namespace OpenSage.Logic.Object
         };
 
         public int RankNumber { get; private set; }
-        public string UnitType { get; private set; }
+        public LazyAssetReference<ObjectDefinition> UnitType { get; private set; }
         public List<Vector2> Positions { get; } = new List<Vector2>();
         public WeaponSetConditions RevokedWeaponCondition { get; private set; }
         public WeaponSetConditions GrantedWeaponCondition { get; private set; }
@@ -221,7 +285,7 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class SplitHorde 
+    public sealed class SplitHorde
     {
         internal static SplitHorde Parse(IniParser parser)
         {
