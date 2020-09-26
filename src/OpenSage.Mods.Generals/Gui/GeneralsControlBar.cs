@@ -200,6 +200,11 @@ namespace OpenSage.Mods.Generals.Gui
             scene2D.WndWindowManager.PushWindow(_window);
         }
 
+        public void Render(DrawingContext2D drawingContext)
+        {
+            throw new NotImplementedException();
+        }
+
         private abstract class ControlBarState
         {
             public abstract void OnEnterState(GeneralsControlBar controlBar);
