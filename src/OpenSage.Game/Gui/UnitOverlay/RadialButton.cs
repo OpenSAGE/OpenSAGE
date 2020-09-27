@@ -1,12 +1,8 @@
-﻿using System.Linq;
-using System.Numerics;
-using OpenSage.Audio;
-using OpenSage.Content;
+﻿using System.Numerics;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
-using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
@@ -14,34 +10,34 @@ namespace OpenSage.Gui.UnitOverlay
 {
     public class RadialButton
     {
-        private GameObject _owner;
-        private Game _game;
-        private int _width;
+        private readonly GameObject _owner;
+        private readonly Game _game;
+        private readonly int _width;
 
-        private MappedImage _background;
-        private MappedImage _border;
-        private MappedImage _hover;
-        private MappedImage _down;
+        private readonly MappedImage _background;
+        private readonly MappedImage _border;
+        private readonly MappedImage _hover;
+        private readonly MappedImage _down;
 
         private Vector2 _center;
 
         private bool _isHovered = false;
         private bool _isPushed = false;
 
-        private ObjectDefinition _objectDefinition;
+        private readonly ObjectDefinition _objectDefinition;
 
-        private Font _font;
-        private int _fontSize = 11;
-        private ColorRgbaF _fontColor;
+        private readonly Font _font;
+        private readonly int _fontSize = 11;
+        private readonly ColorRgbaF _fontColor;
 
         private float _progress;
         private int _count;
         private bool _enabled;
 
-        private Veldrid.Texture _alphaMask;
+        private readonly Veldrid.Texture _alphaMask;
         //private ControlBarScheme _scheme;
 
-        public CommandButton CommandButton { get; }
+        public readonly CommandButton CommandButton;
 
         public RadialButton(Game game, GameObject owner, CommandButton commandButton)
         {
