@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -7,15 +7,25 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    class HordeMemberPosition
+    {
+        public ObjectDefinition Definition;
+        public GameObject Object { get; set; }
+        public Vector3 Position;
+        public bool Initialized { get; set; } = false;
+    }
+
     [AddedIn(SageGame.Bfme)]
     public sealed class HordeContainBehavior : UpdateModule
     {
-        GameObject _gameObject;
-        HordeContainModuleData _moduleData;
+        private readonly GameObject _gameObject;
+        private readonly HordeContainModuleData _moduleData;
 
+        private Dictionary<int, List<HordeMemberPosition>> _formation;
         private List<GameObject> _payload;
 
-        private bool _initial = true;
+        private ProductionUpdate _productionUpdate;
+        private int _pendingRegistrations;
 
         public HordeContainBehavior(GameObject gameObject, HordeContainModuleData moduleData)
         {
@@ -23,16 +33,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
 
             _payload = new List<GameObject>();
-
-            foreach (var payload in _moduleData.InitialPayloads)
-            {
-                for (var i = 0; i < payload.Count; i++)
-                {
-                    var createdObject = gameObject.Parent.Add(payload.Object.Value, gameObject.Owner);
-                    createdObject.ParentHorde = gameObject;
-                    _payload.Add(createdObject);
-                }
-            }
+            _formation = CreateFormationOffsets();
         }
 
         public List<GameObject> SelectAll(bool value)
@@ -45,62 +46,120 @@ namespace OpenSage.Logic.Object
             return _payload;
         }
 
-        private List<Vector3> GetFormationOffsets()
+        private Dictionary<int, List<HordeMemberPosition>> CreateFormationOffsets()
         {
-            var result = new List<Vector3>();
-            foreach (var unit in _payload)
-            {
-                result.Add(new Vector3());
-            }
-
-            var counters = new Dictionary<string, int>();
+            var result = new Dictionary<int, List<HordeMemberPosition>>();
+            var i = 0;
             foreach (var rankInfo in _moduleData.RankInfos)
             {
-                var matchingUnits = _payload.Where(x => x.Definition.Name == rankInfo.UnitType.Value.Name).ToList();
+                result.Add(i, new List<HordeMemberPosition>());
                 foreach (var pos in rankInfo.Positions)
                 {
-                    var name = rankInfo.UnitType.Value.Name;
-                    if (!counters.ContainsKey(name))
+                    result[i].Add(new HordeMemberPosition
                     {
-                        counters.Add(name, 0);
-                    }
+                        Definition = rankInfo.UnitType.Value,
+                        Object = null,
+                        Position = new Vector3(pos, 0)
+                    });
+                }
+                i++;
+            }
+            return result;
+        }
 
-                    var index = _payload.IndexOf(matchingUnits[counters[name]]);
-                    result[index] = new Vector3(pos, 0);
-                    counters[name]++;
+        public void Unpack()
+        {
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    var createdObject = _gameObject.Parent.Add(position.Definition, _gameObject.Owner);
+                    createdObject.ParentHorde = _gameObject;
+                    position.Object = createdObject;
+                    _payload.Add(createdObject);
+
+                    createdObject.Transform.Translation = _gameObject.Transform.Translation + position.Position;
+                    createdObject.Transform.Rotation = _gameObject.Transform.Rotation;
                 }
             }
-
-            return result;
         }
 
         public void SetTargetPoints(Vector3 targetPosition, Vector3 targetDirection)
         {
-            var offsets = GetFormationOffsets();
             var targetYaw = MathUtility.GetYawFromDirection(targetDirection.Vector2XY());
-            var i = 0;
-            foreach (var unit in _payload)
+
+            foreach (var rank in _formation.Values)
             {
-                var offset = Vector3.Transform(offsets[i++], Quaternion.CreateFromAxisAngle(Vector3.UnitZ, targetYaw));
-                unit.AIUpdate?.SetTargetPoint(targetPosition + offset);
-                unit.AIUpdate?.SetTargetDirection(targetDirection);
+                foreach (var position in rank)
+                {
+                    var offset = Vector3.Transform(position.Position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, targetYaw));
+                    position.Object?.AIUpdate?.SetTargetPoint(targetPosition + offset);
+                    position.Object?.AIUpdate?.SetTargetDirection(targetDirection);
+                }
+            }
+        }
+
+        public void Register(GameObject obj)
+        {
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    if (position.Object != null)
+                    {
+                        continue;
+                    }
+
+                    if (position.Definition.Name == obj.Definition.Name)
+                    {
+                        position.Object = obj;
+                        _payload.Add(obj);
+
+                        _pendingRegistrations--;
+                        if (_pendingRegistrations == 0)
+                        {
+                            _productionUpdate.ParentHorde = null;
+                            _productionUpdate = null;
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        public Vector3 GetFormationOffset(GameObject obj)
+        {
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    if (position.Object == obj)
+                    {
+                        _payload.Add(obj);
+                        return position.Position;
+                    }
+                }
+            }
+            return Vector3.Zero;
+        }
+
+        public void EnqueuePayload(ProductionUpdate productionUpdate)
+        {
+            _productionUpdate = productionUpdate;
+
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    _productionUpdate.SpawnPayload(position.Definition, 0.3f);
+                    _pendingRegistrations++;
+                }
             }
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_initial)
-            {
-                _initial = false;
 
-                var offsets = GetFormationOffsets();
-                var i = 0;
-                foreach (var unit in _payload)
-                {
-                    unit.Transform.Translation = _gameObject.Transform.Translation + offsets[i++];
-                    unit.Transform.Rotation = _gameObject.Transform.Rotation;
-                }
-            }
         }
     }
 
