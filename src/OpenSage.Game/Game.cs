@@ -848,6 +848,7 @@ namespace OpenSage
                     SkirmishManager.SkirmishGame.LocalSlotIndex);
             }
 
+            Audio.Update(Scene3D?.Camera);
             Cursors.Update(RenderTime);
         }
 

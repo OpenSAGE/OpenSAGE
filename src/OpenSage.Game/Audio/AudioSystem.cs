@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Data;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Logic.Object;
 using SharpAudio;
 using SharpAudio.Codec;
 using SharpAudio.Codec.Wave;
@@ -14,6 +17,7 @@ namespace OpenSage.Audio
         private readonly Dictionary<string, AudioBuffer> _cached;
         private readonly AudioEngine _engine;
         private readonly AudioSettings _settings;
+        private readonly Audio3DEngine _3dengine;
         private readonly Dictionary<AudioVolumeSlider, Submixer> _mixers;
 
         private readonly Random _random;
@@ -21,6 +25,7 @@ namespace OpenSage.Audio
         public AudioSystem(Game game) : base(game)
         {
             _engine = AudioEngine.CreateDefault();
+            _3dengine = _engine.Create3DEngine();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
             _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
@@ -30,6 +35,11 @@ namespace OpenSage.Audio
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
+        }
+
+        public void Update(Camera camera)
+        {
+            UpdateListener(camera);
         }
 
         private void CreateSubmixers()
@@ -131,31 +141,63 @@ namespace OpenSage.Audio
             PlayAudioEvent(audioEvent);
         }
 
-        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
             if (baseAudioEvent == null)
             {
-                return;
+                return false;
             }
 
-            if (!(baseAudioEvent is AudioEvent audioEvent))
+            if (!(baseAudioEvent is AudioEvent))
             {
                 // TODO
-                return;
+                return false;
             }
 
+            return true;
+        }
+
+        private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent)
+        {
+            if (!ValidateAudioEvent(baseAudioEvent))
+                return null;
+
+            var audioEvent = baseAudioEvent as AudioEvent;
             var entry = ResolveAudioEventEntry(audioEvent);
 
             if (entry == null)
             {
                 logger.Warn($"Missing Audio File: {audioEvent.Name}");
-                return;
+                return null;
             }
 
             var source = GetSound(entry, audioEvent.SubmixSlider, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
-            _sources.Add(source);
-
             source.Volume = (float) audioEvent.Volume;
+            return source;
+        }
+
+        private void UpdateListener(Camera camera)
+        {
+            _3dengine.SetListenerPosition(camera.Position);
+            var front = Vector3.Normalize(camera.Target - camera.Position);
+            _3dengine.SetListenerOrientation(camera.Up, front);
+        }
+
+        public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
+        {
+            var source = PlayAudioEventBase(baseAudioEvent);
+            if (source == null)
+                return;
+
+            _3dengine.SetSourcePosition(source, emitter.Transform.Translation);
+            source.Play();
+        }
+
+        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        {
+            var source = PlayAudioEventBase(baseAudioEvent);
+            if (source == null)
+                return;
 
             source.Play();
         }
