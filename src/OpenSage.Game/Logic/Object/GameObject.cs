@@ -273,7 +273,7 @@ namespace OpenSage.Logic.Object
             // Probably only those with weapons.
             AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
 
-            foreach (var behaviorData in objectDefinition.Behaviors)
+            foreach (var behaviorData in objectDefinition.Behaviors.Values)
             {
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
                 if (module != null)
@@ -522,7 +522,7 @@ namespace OpenSage.Logic.Object
         {
             ClearModelConditionFlags();
 
-            foreach (var behavior in Definition.Behaviors)
+            foreach (var behavior in Definition.Behaviors.Values)
             {
                 if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
                 {
@@ -701,7 +701,7 @@ namespace OpenSage.Logic.Object
         {
             if (weaponSet != null)
             {
-                var aiUpdate = Definition.Behaviors.OfType<AIUpdateModuleData>().FirstOrDefault();
+                var aiUpdate = Definition.Behaviors.Values.OfType<AIUpdateModuleData>().FirstOrDefault();
                 var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
 
                 // Happens for BFME structures
