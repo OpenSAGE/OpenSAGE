@@ -656,7 +656,7 @@ namespace OpenSage.Logic.Object
             var audioEvent = Definition.VoiceSelect?.Value;
             if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(audioEvent);
+                gameAudio.PlayAudioEvent(this, audioEvent);
             }
         }
 
@@ -666,7 +666,7 @@ namespace OpenSage.Logic.Object
             var audioEvent = Definition.VoiceMove?.Value;
             if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(audioEvent);
+                gameAudio.PlayAudioEvent(this, audioEvent);
             }
         }
 
@@ -676,7 +676,7 @@ namespace OpenSage.Logic.Object
             var audioEvent = Definition.VoiceAttack?.Value;
             if (audioEvent != null)
             {
-                gameAudio.PlayAudioEvent(audioEvent);
+                gameAudio.PlayAudioEvent(this, audioEvent);
             }
         }
 
