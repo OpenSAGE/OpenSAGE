@@ -19,10 +19,12 @@ namespace OpenSage.Logic.Object
             var defaultThingTemplate = parser.GetDefaultThingTemplate();
             var resultObject = defaultThingTemplate?.CloneForImplicitInheritance();
 
-            return parser.ParseNamedBlock(
+            resultObject = parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("GameObject", name),
                 FieldParseTable,
                 resultObject: resultObject);
+
+            return resultObject;
         }
 
         internal static ObjectDefinition ParseReskin(IniParser parser)
@@ -244,9 +246,13 @@ namespace OpenSage.Logic.Object
                     {
                         x.AIUpdate = aiUpdate;
                     }
+                    else if (x.Behaviors.ContainsKey(behavior.Tag))
+                    {
+                        x.Behaviors[behavior.Tag] = behavior;
+                    }
                     else
                     {
-                        x.Behaviors.Add(behavior);
+                        x.Behaviors.Add(behavior.Tag, behavior);
                     }
                 }
             },
@@ -813,7 +819,7 @@ namespace OpenSage.Logic.Object
 
         // Engineering
         public AIUpdateModuleData AIUpdate { get; private set; }
-        public List<BehaviorModuleData> Behaviors { get; internal set; } = new List<BehaviorModuleData>();
+        public Dictionary<string, BehaviorModuleData> Behaviors { get; internal set; } = new Dictionary<string, BehaviorModuleData>();
         public Dictionary<string, DrawModuleData> Draws { get; internal set; } = new Dictionary<string, DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; internal set; } = new List<ClientUpdateModuleData>();
@@ -1179,8 +1185,8 @@ namespace OpenSage.Logic.Object
             result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
             result.Geometry = result.Geometry.Clone();
-            result.Behaviors = new List<BehaviorModuleData>();
-            result.Draws = new Dictionary<string, DrawModuleData>(); // TODO: Is this right?
+            result.Behaviors = new Dictionary<string, BehaviorModuleData>();
+            result.Draws = new Dictionary<string, DrawModuleData>();
             result.ClientUpdates = new List<ClientUpdateModuleData>();
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
@@ -1188,7 +1194,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var inheritableModule in result.InheritableModules)
             {
-                result.Behaviors.Add(inheritableModule.Module);
+                result.Behaviors.Add(inheritableModule.Module.Tag, inheritableModule.Module);
             }
 
             result.InheritableModules = null;
@@ -1205,7 +1211,7 @@ namespace OpenSage.Logic.Object
             result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
             result.Geometry = result.Geometry.Clone();
-            result.Behaviors = new List<BehaviorModuleData>(result.Behaviors);
+            result.Behaviors = new Dictionary<string, BehaviorModuleData>(result.Behaviors);
             result.Draws = new Dictionary<string, DrawModuleData>(result.Draws);
             result.ClientUpdates = new List<ClientUpdateModuleData>(result.ClientUpdates);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
