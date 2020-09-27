@@ -8,7 +8,7 @@ namespace OpenSage.Gui
 {
     public static class CommandButtonCallback
     {
-        public static void HandleCommand(Game game, CommandButton commandButton, ObjectDefinition objectDefinition)
+        public static void HandleCommand(Game game, CommandButton commandButton, ObjectDefinition objectDefinition, bool cancel = false, int index = 0)
         {
             var playerIndex = game.Scene3D.GetPlayerIndex(game.Scene3D.LocalPlayer);
             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
@@ -29,6 +29,12 @@ namespace OpenSage.Gui
                     break;
 
                 case CommandType.UnitBuild:
+                    if (cancel)
+                    {
+                        order = CreateOrder(OrderType.CancelUnit);
+                        order.AddIntegerArgument(index);
+                        break;
+                    }
                     order = CreateOrder(OrderType.CreateUnit);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddIntegerArgument(1);
@@ -40,20 +46,26 @@ namespace OpenSage.Gui
 
                 case CommandType.PlayerUpgrade:
                 case CommandType.ObjectUpgrade:
+                    if (cancel)
                     {
-                        order = CreateOrder(OrderType.BeginUpgrade);
-                        //TODO: figure this out correctly
-                        var selection = game.Scene3D.LocalPlayer.SelectedUnits;
-                        if (selection.Count == 0)
-                        {
-                            break;
-                        }
-
-                        var objId = game.Scene3D.GameObjects.GetObjectId(selection.First());
-                        order.AddIntegerArgument(objId);
-                        var upgrade = commandButton.Upgrade.Value;
-                        order.AddIntegerArgument(upgrade.InternalId);
+                        order = CreateOrder(OrderType.CancelUpgrade);
+                        order.AddIntegerArgument(index);
+                        break;
                     }
+
+                    order = CreateOrder(OrderType.BeginUpgrade);
+                    //TODO: figure this out correctly
+                    var selection = game.Scene3D.LocalPlayer.SelectedUnits;
+                    if (selection.Count == 0)
+                    {
+                        break;
+                    }
+
+                    var objId = game.Scene3D.GameObjects.GetObjectId(selection.First());
+                    order.AddIntegerArgument(objId);
+
+                    var upgrade = commandButton.Upgrade.Value;
+                    order.AddIntegerArgument(upgrade.InternalId);
                     break;
 
                 case CommandType.Stop:

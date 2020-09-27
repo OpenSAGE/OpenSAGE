@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.UnitOverlay;
@@ -65,7 +66,7 @@ namespace OpenSage.Mods.Bfme2.Gui
 
                 foreach(var commandButton in commandButtons)
                 {
-                    var radialButton = new RadialButton(_game, commandButton.Value);
+                    var radialButton = new RadialButton(_game, selectedUnit, commandButton.Value);
                     _buttons.Add(radialButton);
                 }
 
@@ -73,29 +74,10 @@ namespace OpenSage.Mods.Bfme2.Gui
             }
 
             var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
-            if (isProducing)
+            foreach (var radialButton in _buttons)
             {
-                var queue = selectedUnit.ProductionUpdate.ProductionQueue;
-                var currentJob = queue[0];
-                foreach (var radialButton in _buttons)
-                {
-                    var progress = 0.0f;
-                    var numCurrentProduction = queue.Where(x => radialButton.CorrespondsTo(x.ObjectDefinition)).Count();
-
-                    if (radialButton.CorrespondsTo(currentJob.ObjectDefinition))
-                    {
-                        progress = currentJob.Progress;
-                    }
-
-                    radialButton.Update(progress, numCurrentProduction);
-                }
-            }
-            else
-            {
-                foreach (var radialButton in _buttons)
-                {
-                    radialButton.Update(0.0f, 0);
-                }
+                var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
+                radialButton.Update(progress, count, selectedUnit.CanEnqueue(radialButton.CommandButton));
             }
         }
 

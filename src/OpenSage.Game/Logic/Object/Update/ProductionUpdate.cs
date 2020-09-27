@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using ImGuiNET;
+using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
 
@@ -226,6 +227,46 @@ namespace OpenSage.Logic.Object
             }
 
             return true;
+        }
+
+        public (int, float) GetCountAndProgress(CommandButton button)
+        {
+            //check upgrades here first (object upgrades e.g. upgrade barracks to level 2 have object AND upgrade)
+            if (button.Upgrade != null && button.Upgrade.Value != null)
+            {
+                return GetCountAndProgress(button.Upgrade.Value);
+            }
+            if (button.Object != null && button.Object.Value != null)
+            {
+                return GetCountAndProgress(button.Object.Value);
+            }
+            return (0, 0.0f);
+        }
+
+        private (int, float) GetCountAndProgress(ObjectDefinition objectDefinition)
+        {
+            var progress = 0.0f;
+            var count = _productionQueue.Where(x => x.ObjectDefinition != null && objectDefinition.Name == x.ObjectDefinition.Name).Count();
+            var currentJob = _productionQueue[0];
+            if (currentJob.ObjectDefinition != null && objectDefinition.Name == currentJob.ObjectDefinition.Name)
+            {
+                progress = currentJob.Progress;
+            }
+
+            return (count, progress);
+        }
+
+        private (int, float) GetCountAndProgress(UpgradeTemplate upgradeTemplate)
+        {
+            var progress = 0.0f;
+            var count = _productionQueue.Where(x => x.UpgradeDefinition != null && upgradeTemplate.Name == x.UpgradeDefinition.Name).Count();
+            var currentJob = _productionQueue[0];
+            if (currentJob.UpgradeDefinition != null && upgradeTemplate.Name == currentJob.UpgradeDefinition.Name)
+            {
+                progress = currentJob.Progress;
+            }
+
+            return (count, progress);
         }
 
         private void ProduceObject(ObjectDefinition objectDefinition)

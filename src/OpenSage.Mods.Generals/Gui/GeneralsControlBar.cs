@@ -262,21 +262,12 @@ namespace OpenSage.Mods.Generals.Gui
                             // Disable the button when the unit is not produceable
                             case CommandType.DozerConstruct:
                             case CommandType.UnitBuild:
-                                buttonControl.Enabled = objectDefinition != null &&
-                                                        selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition) &&
-                                                        selectedUnit.CanProduceObject(objectDefinition);
+                                buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition);
                                 break;
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
-                                var upgrade = commandButton.Upgrade.Value;
-                                var userHasEnoughMoney = selectedUnit.Owner.Money >= upgrade.BuildCost;
-                                var hasQueuedUpgrade = selectedUnit.ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
-                                var canEnqueue = selectedUnit.ProductionUpdate.CanEnque();
-                                var hasUpgrade = selectedUnit.UpgradeAvailable(upgrade);
-                                var upgradeIsInvalid = selectedUnit.ConflictingUpgradeAvailable(upgrade);
-
-                                buttonControl.Enabled = userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
+                                buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
                                 break;
                         }
 
@@ -285,7 +276,7 @@ namespace OpenSage.Mods.Generals.Gui
                             logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
-                            CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition);
+                            CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
                         };
 
                         buttonControl.Show();
