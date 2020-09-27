@@ -169,40 +169,26 @@ namespace OpenSage.Mods.Bfme2
                 placeHolder.Item.Visible = true;
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
 
-                var progress = 0.0f;
-                var numCurrentProduction = 0;
-
-                if (button.Object != null && button.Object.Value != null && isProducing)
-                {
-                    var queue = selectedUnit.ProductionUpdate.ProductionQueue;
-                    var currentJob = queue[0];
-
-                    progress = 0.0f;
-                    numCurrentProduction = queue.Where(x => x.ObjectDefinition != null && button.Object.Value.Name == x.ObjectDefinition.Name).Count();
-
-                    if (button.Object.Value.Name == currentJob.ObjectDefinition.Name)
-                    {
-                        progress = currentJob.Progress;
-                    }
-                }
+                var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(button) : (0, 0.0f);
 
                 var texture = button.ButtonImage.Value;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
+                    var enabled = selectedUnit.CanEnqueue(button);
                     var rect = new Rectangle(renderContext.GetBoundingBox(geom)).ToRectangleF();
-                    renderContext.GetActiveDrawingContext().DrawMappedImage(texture, rect);
+                    renderContext.GetActiveDrawingContext().DrawMappedImage(texture, rect, grayscaled: !enabled);
 
-                    if (numCurrentProduction > 0)
+                    if (count > 0)
                     {
                         renderContext.GetActiveDrawingContext().FillRectangleRadial360(
                                         new Rectangle(rect),
                                         new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f),
                                         progress);
 
-                        if (numCurrentProduction > 1)
+                        if (count > 1)
                         {
                             var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 4))));
-                            renderContext.GetActiveDrawingContext().DrawText(numCurrentProduction.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+                            renderContext.GetActiveDrawingContext().DrawText(count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
                         }
                     }
                 };

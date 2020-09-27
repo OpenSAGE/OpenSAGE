@@ -13,7 +13,9 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Helpers;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
@@ -731,6 +733,42 @@ namespace OpenSage.Logic.Object
             {
                 CurrentWeapon = null;
             }
+        }
+
+        public bool CanEnqueue(CommandButton button)
+        {
+            if (button.Object != null && button.Object.Value != null)
+            {
+                return CanConstructUnit(button.Object.Value);
+            }
+            if (button.Upgrade != null && button.Upgrade.Value != null)
+            {
+                return CanEnqueueUpgrade(button.Upgrade.Value);
+            }
+            return true;
+        }
+
+        public bool CanConstructUnit(ObjectDefinition objectDefinition)
+        {
+            return objectDefinition != null
+                && Owner.CanProduceObject(Parent, objectDefinition)
+                && CanProduceObject(objectDefinition);
+        }
+
+        public bool CanEnqueueUpgrade(UpgradeTemplate upgrade)
+        {
+            if (upgrade == null || ProductionUpdate == null)
+            {
+                return false;
+            }
+
+            var userHasEnoughMoney = Owner.Money >= upgrade.BuildCost;
+            var hasQueuedUpgrade = ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+            var canEnqueue = ProductionUpdate.CanEnque();
+            var hasUpgrade = UpgradeAvailable(upgrade);
+            var upgradeIsInvalid = ConflictingUpgradeAvailable(upgrade);
+
+            return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
         }
 
         public void Upgrade(UpgradeTemplate upgrade)

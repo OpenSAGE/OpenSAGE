@@ -1,10 +1,12 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
@@ -12,6 +14,7 @@ namespace OpenSage.Gui.UnitOverlay
 {
     public class RadialButton
     {
+        private GameObject _owner;
         private Game _game;
         private int _width;
 
@@ -25,7 +28,6 @@ namespace OpenSage.Gui.UnitOverlay
         private bool _isHovered = false;
         private bool _isPushed = false;
 
-        private CommandButton _commandButton;
         private ObjectDefinition _objectDefinition;
 
         private Font _font;
@@ -34,14 +36,18 @@ namespace OpenSage.Gui.UnitOverlay
 
         private float _progress;
         private int _count;
+        private bool _enabled;
 
         private Veldrid.Texture _alphaMask;
         //private ControlBarScheme _scheme;
 
-        public RadialButton(Game game, CommandButton commandButton)
+        public CommandButton CommandButton { get; }
+
+        public RadialButton(Game game, GameObject owner, CommandButton commandButton)
         {
             _game = game;
-            _commandButton = commandButton;
+            _owner = owner;
+            CommandButton = commandButton;
             _objectDefinition = commandButton.Object?.Value ?? null;
 
             _background = commandButton.ButtonImage.Value;
@@ -70,18 +76,19 @@ namespace OpenSage.Gui.UnitOverlay
             return _objectDefinition.Name == objectDefinition.Name;
         }
 
-        public void Update(float progress, int count)
+        public void Update(float progress, int count, bool enabled)
         {
             _isPushed = false;
             _progress = progress;
             _count = count;
+            _enabled = enabled;
         }
 
         public void Render(DrawingContext2D drawingContext, Vector2 center)
         {
             _center = center;
             var rect = new RectangleF(center.X - _width / 2, center.Y - _width / 2, _width, _width);
-            drawingContext.DrawMappedImage(_background, rect.Scale(0.9f));
+            drawingContext.DrawMappedImage(_background, rect.Scale(0.9f), grayscaled: !_enabled);
 
             if (_count > 0)
             {
@@ -99,11 +106,11 @@ namespace OpenSage.Gui.UnitOverlay
                 //drawingContext.SetAlphaMask(null);
             }
 
-            if (_isHovered)
+            if (_isHovered && _enabled)
             {
                 drawingContext.DrawMappedImage(_hover, rect);
             }
-            else if (_isPushed)
+            else if (_isPushed && _enabled)
             {
                 drawingContext.DrawMappedImage(_down, rect);
             }
@@ -129,8 +136,39 @@ namespace OpenSage.Gui.UnitOverlay
                 case InputMessageType.MouseLeftButtonUp:
                     if (_isHovered)
                     {
-                        CommandButtonCallback.HandleCommand(_game, _commandButton, _objectDefinition);
-                        _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
+                        if (_enabled)
+                        {
+                            CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition);
+                            _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
+                        }
+                        return true;
+                    }
+                    break;
+                case InputMessageType.MouseRightButtonUp:
+                    if (_isHovered)
+                    {
+                        if (_count > 0)
+                        {
+                            var index = 0;
+                            // upgrades first!!
+                            if (CommandButton.Upgrade != null && CommandButton.Upgrade.Value != null)
+                            {
+                                index = CommandButton.Upgrade.Value.InternalId;
+                            }
+                            else if (CommandButton.Object != null && CommandButton.Object.Value != null)
+                            {
+                                for (var i = 0; i < _owner.ProductionUpdate.ProductionQueue.Count; i++)
+                                {
+                                    var job = _owner.ProductionUpdate.ProductionQueue[i];
+                                    if (job.ObjectDefinition != null && job.ObjectDefinition.Name == CommandButton.Object.Value.Name)
+                                    {
+                                        index = i;
+                                    }
+                                }
+                            }
+
+                            CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition, true, index);
+                        }
                         return true;
                     }
                     break;
