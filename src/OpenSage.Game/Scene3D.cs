@@ -111,7 +111,15 @@ namespace OpenSage
             _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
 
             // TODO: This is completely wrong.
-            LocalPlayer = _players.FirstOrDefault();
+            var valids = _players.Where(x => x.Side.Contains("Gondor") || x.Side.Contains("USA"));
+            if (valids.Count() > 0)
+            {
+                LocalPlayer = valids.First();
+            }
+            else
+            {
+                LocalPlayer = _players.FirstOrDefault();
+            }
 
             _teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
                 .Select(team => Team.FromMapData(team, _players))
@@ -185,7 +193,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, null, teams);
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teams: teams);
                                 break;
                         }
                         break;
