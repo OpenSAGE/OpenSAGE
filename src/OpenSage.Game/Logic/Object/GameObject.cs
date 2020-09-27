@@ -94,6 +94,11 @@ namespace OpenSage.Logic.Object
                 gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
 
+            if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+            {
+                gameObject.FindBehavior<HordeContainBehavior>().Unpack();
+            }
+
             return gameObject;
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
@@ -26,6 +27,8 @@ namespace OpenSage.Logic.Object
         private IProductionExit _productionExit;
 
         private int _doorIndex;
+
+        public GameObject ParentHorde;
 
         private enum DoorState
         {
@@ -279,6 +282,20 @@ namespace OpenSage.Logic.Object
             }
 
             _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            _producedUnit.ParentHorde = ParentHorde;
+
+            var isHorde = _producedUnit.Definition.KindOf.Get(ObjectKinds.Horde);
+            if (isHorde)
+            {
+                var hordeContain = _producedUnit.FindBehavior<HordeContainBehavior>();
+                ParentHorde = _producedUnit;
+                hordeContain.EnqueuePayload(this);
+            }
+            else if (_producedUnit.ParentHorde != null)
+            {
+                var hordeContain = _producedUnit.ParentHorde.FindBehavior<HordeContainBehavior>();
+                hordeContain.Register(_producedUnit);
+            }
 
             if (_productionExit is ParkingPlaceBehaviour parkingPlace)
             {
@@ -292,8 +309,9 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            var createPoint = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
             _producedUnit.Transform.Rotation = _gameObject.Transform.Rotation;
-            _producedUnit.Transform.Translation = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
+            _producedUnit.Transform.Translation = createPoint;
         }
 
         private void MoveProducedObjectOut()
@@ -312,13 +330,34 @@ namespace OpenSage.Logic.Object
             var naturalRallyPoint = _productionExit.GetNaturalRallyPoint();
             if (naturalRallyPoint.HasValue)
             {
-                _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value));
+                var rallyPoint = _gameObject.ToWorldspace(naturalRallyPoint.Value);
+                _producedUnit.AIUpdate.AddTargetPoint(rallyPoint);
             }
 
             // Then go to the rally point if it exists
             if (_gameObject.RallyPoint.HasValue)
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
+            }
+
+            if (_producedUnit.ParentHorde != null)
+            {
+                var hordeContain = _producedUnit.ParentHorde.FindBehavior<HordeContainBehavior>();
+                var formationOffset = hordeContain.GetFormationOffset(_producedUnit); // TODO: rotate?
+
+                if (_gameObject.RallyPoint.HasValue)
+                {
+                    _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value + formationOffset);
+                }
+                else if (naturalRallyPoint.HasValue)
+                {
+                    _producedUnit.AIUpdate.AddTargetPoint(naturalRallyPoint.Value + formationOffset);
+                }
+                else
+                {
+                    _producedUnit.AIUpdate.AddTargetPoint(_producedUnit.Transform.Translation + formationOffset);
+                }
+                _producedUnit.AIUpdate.SetTargetDirection(_producedUnit.ParentHorde.Transform.LookDirection);
             }
 
             HandleHarvesterUnitCreation(_producedUnit);
@@ -348,8 +387,14 @@ namespace OpenSage.Logic.Object
 
         internal void Spawn(ObjectDefinition objectDefinition)
         {
-            var job = new ProductionJob(objectDefinition, instant: true);
+            var job = new ProductionJob(objectDefinition);
             _productionQueue.Insert(0, job);
+        }
+
+        internal void SpawnPayload(ObjectDefinition objectDefinition, float buildTime = 0.0f)
+        {
+            var job = new ProductionJob(objectDefinition, buildTime);
+            _productionQueue.Insert(1, job);
         }
 
         public void CancelProduction(int index)
