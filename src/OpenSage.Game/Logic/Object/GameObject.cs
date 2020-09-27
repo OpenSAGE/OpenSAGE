@@ -29,6 +29,7 @@ namespace OpenSage.Logic.Object
             AssetStore assetStore,
             GameObjectCollection gameObjects,
             HeightMap heightMap,
+            bool useRotationAnchorOffset = true,
             in float? overwriteAngle = 0.0f,
             IReadOnlyList<Team> teams = null)
         {
@@ -76,7 +77,9 @@ namespace OpenSage.Logic.Object
 
             // TODO: handle "align to terrain" property
             var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
-            var rotationOffset = Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation);
+            var rotationOffset = useRotationAnchorOffset
+                ? Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation)
+                : Vector4.UnitW;
             var position = mapObject.Position + rotationOffset.ToVector3();
             var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
             gameObject.UpdateTransform(new Vector3(position.X, position.Y, height), rotation,
