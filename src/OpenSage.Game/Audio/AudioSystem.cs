@@ -114,8 +114,7 @@ namespace OpenSage.Audio
 
             // TOOD: Check control flag before choosing at random.
             var sound = ev.Sounds[_random.Next(ev.Sounds.Length)];
-            var audioFile = sound.AudioFile.Value;
-            return audioFile.Entry;
+            return sound.AudioFile.Value?.Entry;
         }
 
         /// <summary>
