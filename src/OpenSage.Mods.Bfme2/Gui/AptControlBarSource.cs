@@ -218,10 +218,13 @@ namespace OpenSage.Mods.Bfme2
                     renderContext.RenderGeometry(geom, orig);
 
                     var destRect = RectangleF.Transform(geom.BoundingBox, renderContext.GetCurrentTransformMatrix());
-                    var selectPortrait = unit.Definition.SelectPortrait.Value;
-                    var sourceRect = selectPortrait.Coords;
+                    if (unit.Definition.SelectPortrait != null && unit.Definition.SelectPortrait.Value != null)
+                    {
+                        var selectPortrait = unit.Definition.SelectPortrait.Value;
+                        var sourceRect = selectPortrait.Coords;
 
-                    renderContext.GetActiveDrawingContext().DrawImage(selectPortrait.Texture.Value, sourceRect, destRect);
+                        renderContext.GetActiveDrawingContext().DrawImage(selectPortrait.Texture.Value, sourceRect, destRect);
+                    }
                 };
             }
             else

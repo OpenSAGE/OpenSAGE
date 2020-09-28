@@ -80,6 +80,7 @@ namespace OpenSage.Logic.Object
                 var start = GameObject.Transform.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
+                TargetPoints[TargetPoints.Count - 1] = targetPoint;
                 Logger.Debug("Set new target points: " + TargetPoints.Count);
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
             }
@@ -91,6 +92,16 @@ namespace OpenSage.Logic.Object
 
         internal virtual void SetTargetPoint(Vector3 targetPoint)
         {
+            if (GameObject.ParentHorde != null)
+            {
+                return;
+            }
+            else if (GameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+            {
+                var targetDirection = targetPoint - GameObject.Transform.Translation;
+                GameObject.FindBehavior<HordeContainBehavior>()?.SetTargetPoints(targetPoint, targetDirection);
+            }
+
             TargetPoints.Clear();
             AppendPathToTargetPoint(targetPoint);
         }

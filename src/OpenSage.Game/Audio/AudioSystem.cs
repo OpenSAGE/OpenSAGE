@@ -112,9 +112,21 @@ namespace OpenSage.Audio
                 return null;
             }
 
-            // TOOD: Check control flag before choosing at random.
-            var sound = ev.Sounds[_random.Next(ev.Sounds.Length)];
-            var audioFile = sound.AudioFile.Value;
+            var attempts = 0;
+            AudioFile audioFile = null;
+            while(audioFile == null)
+            {
+                // TOOD: Check control flag before choosing at random.
+                var sound = ev.Sounds[_random.Next(ev.Sounds.Length)];
+                audioFile = sound.AudioFile.Value;
+                attempts++;
+                if (attempts > 20)
+                {
+                    //wild spider horde has sounds where audioFile is null
+                    throw new Exception();
+                }
+            }
+
             return audioFile.Entry;
         }
 

@@ -146,7 +146,8 @@ namespace OpenSage.Logic.Object
 
         private void SetActiveAnimationState(AnimationState animationState)
         {
-            if (_activeAnimationState == animationState
+            if (animationState == null
+             || _activeAnimationState == animationState
              || _activeModelDrawConditionState == null)
             {
                 return;

@@ -43,15 +43,6 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                if (unit.ParentHorde != null)
-                                {
-                                    continue;
-                                }
-                                else if (unit.Definition.KindOf.Get(ObjectKinds.Horde))
-                                {
-                                    var targetDirection = targetPosition - unit.Transform.Translation;
-                                    unit.FindBehavior<HordeContainBehavior>()?.SetTargetPoints(targetPosition, targetDirection);
-                                }
                                 unit.AIUpdate?.SetTargetPoint(targetPosition);
                             }
                         }
