@@ -577,15 +577,10 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                var audioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text);
-                //some objects like e.g. the spider horde from bfme2 have audio events where the file is null
-                if (audioFile != null)
+                result.Add(new AudioFileWithWeight
                 {
-                    result.Add(new AudioFileWithWeight
-                    {
-                        AudioFile = audioFile
-                    });
-                }
+                       AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
+                });
             }
 
             return result.ToArray();
