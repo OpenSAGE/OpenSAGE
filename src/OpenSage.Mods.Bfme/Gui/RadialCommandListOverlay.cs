@@ -19,9 +19,8 @@ namespace OpenSage.Mods.Bfme.Gui
         private bool _visible;
         private Point2D _center;
         private CommandSet _commandSet;
-        private CommandSet _gettingBuildCommandSet;
         List<RadialButton> _buttons;
-        private GameObject _selectedObject;
+        private GameObject _selectedUnit;
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
@@ -30,14 +29,6 @@ namespace OpenSage.Mods.Bfme.Gui
             _game = game;
             _game.InputMessageBuffer.Handlers.Add(this);
             _buttons = new List<RadialButton>();
-
-            // there is a note in commandbuttons.ini that this is also hardcoded in original SAGE engine
-            _gettingBuildCommandSet = new CommandSet();
-            var commandButton = game.AssetStore.CommandButtons.GetLazyAssetReferenceByName("Command_CancelUnitCreate");
-            commandButton.Value.ButtonImage = game.AssetStore.MappedImages.GetLazyAssetReferenceByName("BCSell");
-            commandButton.Value.Radial = true;
-            commandButton.Value.InPalantir = true;
-            _gettingBuildCommandSet.Buttons[0] = commandButton;
         }
 
         public void Update(Player player)
@@ -45,72 +36,47 @@ namespace OpenSage.Mods.Bfme.Gui
             _visible = false;
             if (player.SelectedUnits.Count != 1)
             {
-                _selectedObject = null;
                 return;
             }
 
-            var selectedObject = player.SelectedUnits.First();
-            if (selectedObject.Owner != player
-                || !selectedObject.Definition.KindOf.Get(ObjectKinds.Structure)
-                || selectedObject.Definition.CommandSet == null)
+            var selectedUnit = player.SelectedUnits.First();
+            if (!selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure))
             {
-                _selectedObject = null;
                 return;
             }
 
-            var playerTemplate = selectedObject.Owner.Template;
+            if (selectedUnit.Definition.CommandSet == null)
+            {
+                return;
+            }
+
             _visible = true;
 
-            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedObject.Collider.WorldBounds.Center);
-            _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
+            var screenSpaceBoundingRectangle = selectedUnit.Collider.GetBoundingRectangle(_game.Scene3D.Camera);
+            _center = screenSpaceBoundingRectangle.Center;
+            _commandSet = selectedUnit.Definition.CommandSet.Value;
 
-            _commandSet = selectedObject.IsBeingConstructed() ? _gettingBuildCommandSet : selectedObject.Definition.CommandSet.Value;
-
-            if (_selectedObject != selectedObject && _commandSet != null)
+            if (_selectedUnit != selectedUnit && _commandSet != null)
             {
                 //Update button list
-                var heroIndex = 0;
-
-                var commandButtons = new List<CommandButton>();
-                foreach (var button in _commandSet.Buttons.Values)
-                {
-                    if (button.Value.Command == CommandType.Revive)
-                    {
-                        if (heroIndex < playerTemplate.BuildableHeroesMP.Count())
-                        {
-                            var heroDefinition = playerTemplate.BuildableHeroesMP[heroIndex++];
-                            commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
-                        }
-                    }
-                    else
-                    {
-                        commandButtons.Add(button.Value);
-                    }
-                }
-
                 _buttons.Clear();
-                foreach (var commandButton in commandButtons)
+
+                var commandButtons = _commandSet.Buttons.Values.Where(x => x.Value.Radial && x.Value.Command != CommandType.Revive);
+
+                foreach(var commandButton in commandButtons)
                 {
-                    var isHeroButton = commandButton.Object?.Value?.KindOf.Get(ObjectKinds.Hero) ?? false;
-                    var radialButton = new RadialButton(_game, selectedObject, commandButton, isHeroButton);
+                    var radialButton = new RadialButton(_game, selectedUnit, commandButton.Value);
                     _buttons.Add(radialButton);
                 }
 
-                _selectedObject = selectedObject;
+                _selectedUnit = selectedUnit;
             }
 
-            var isProducing = selectedObject.ProductionUpdate?.IsProducing ?? false;
+            var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
             foreach (var radialButton in _buttons)
             {
-                radialButton.IsVisible = true;
-                if (radialButton.IsRecruitHeroButton)
-                {
-                    var definition = radialButton.CommandButton.Object.Value;
-                    radialButton.IsVisible = selectedObject.CanRecruitHero(definition);
-                }
-
-                var (count, progress) = isProducing ? selectedObject.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
-                radialButton.Update(progress, count, selectedObject.CanPurchase(radialButton.CommandButton));
+                var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
+                radialButton.Update(progress, count, selectedUnit.CanEnqueue(radialButton.CommandButton));
             }
         }
 
@@ -123,18 +89,17 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var radialBorder = _game.GetMappedImage("RadialBorder");
 
-            var numVisibleButtons = _buttons.Where(x => x.IsVisible).Count();
-            var radius = (-1 + MathF.Sqrt(numVisibleButtons + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
-            var deltaAngle = MathUtility.TwoPi / numVisibleButtons;
+            // TODO: fill revive buttons with died heroes
+            var commandButtons = _commandSet.Buttons.Values.Where(x => x.Value.Radial && x.Value.Command != CommandType.Revive);
+
+            var radius = (-1 + MathF.Sqrt(commandButtons.Count())) * (radialBorder.Coords.Width * 1.1f);
+            var deltaAngle = MathUtility.TwoPi / commandButtons.Count();
+            var width = radialBorder.Coords.Width;
+            var height = radialBorder.Coords.Height;
 
             var i = 0;
             foreach (var button in _buttons)
             {
-                if (!button.IsVisible)
-                {
-                    continue;
-                }
-
                 var posX = _center.X + MathF.Sin(i * deltaAngle) * radius;
                 var posY = _center.Y + -MathF.Cos(i * deltaAngle) * radius;
 
@@ -145,14 +110,11 @@ namespace OpenSage.Mods.Bfme.Gui
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            if (_visible)
+            foreach(var button in _buttons)
             {
-                foreach (var button in _buttons)
+                if (button.HandleMouseCursor(message))
                 {
-                    if (button.HandleMouseCursor(message))
-                    {
-                        return InputMessageResult.Handled;
-                    }
+                    return InputMessageResult.Handled;
                 }
             }
             return InputMessageResult.NotHandled;
