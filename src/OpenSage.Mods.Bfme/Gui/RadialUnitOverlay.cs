@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.UnitOverlay;
@@ -11,7 +10,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Mods.Bfme2.Gui
+namespace OpenSage.Mods.Bfme.Gui
 {
     public class RadialUnitOverlay : InputMessageHandler, IUnitOverlay
     {

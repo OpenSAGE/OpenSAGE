@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Mods.Generals;
-using OpenSage.Mods.BFME;
+using OpenSage.Mods.Bfme;
 using OpenSage.Mods.Bfme2;
 using OpenSage.Mods.Cnc4;
 using OpenSage.Mods.CnC3;

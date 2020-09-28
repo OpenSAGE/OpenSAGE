@@ -5,8 +5,9 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.UnitOverlay;
+using OpenSage.Mods.Bfme.Gui;
 
-namespace OpenSage.Mods.BFME
+namespace OpenSage.Mods.Bfme
 {
     public class BfmeDefinition : IGameDefinition
     {
@@ -31,7 +32,7 @@ namespace OpenSage.Mods.BFME
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
-        public IUnitOverlaySource UnitOverlay => null;
+        public IUnitOverlaySource UnitOverlay { get; } = new RadialUnitOverlaySource();
 
         public uint ScriptingTicksPerSecond => 5;
 

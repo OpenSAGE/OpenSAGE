@@ -3,6 +3,7 @@ using System.Linq;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
 {
@@ -16,6 +17,13 @@ namespace OpenSage.Gui
             Order order = null;
             switch (commandButton.Command)
             {
+                case CommandType.FoundationConstruct:
+                    var selectedObject = game.Scene3D.LocalPlayer.SelectedUnits.First();
+                    order = CreateOrder(OrderType.BuildObject);
+                    order.AddIntegerArgument(objectDefinition.InternalId);
+                    order.AddPositionArgument(selectedObject.Transform.Translation);
+                    order.AddFloatArgument(selectedObject.Transform.EulerAngles.Z + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)); // selectedObject.Transform.EulerAngles.Z/* + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)*/);
+                    break;
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);
                     break;
