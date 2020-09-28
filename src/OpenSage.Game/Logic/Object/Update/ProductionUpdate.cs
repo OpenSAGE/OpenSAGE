@@ -351,7 +351,7 @@ namespace OpenSage.Logic.Object
                 }
                 else if (naturalRallyPoint.HasValue)
                 {
-                    _producedUnit.AIUpdate.AddTargetPoint(naturalRallyPoint.Value + formationOffset);
+                    _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value) + formationOffset);
                 }
                 else
                 {

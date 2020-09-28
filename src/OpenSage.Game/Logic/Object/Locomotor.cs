@@ -155,11 +155,6 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
-            if (distanceRemaining < 0.25f)
-            {
-                return true;
-            }
-
             var minimumBrakingDistance = braking > 0
                 ? (oldSpeed * oldSpeed) / (braking * 2.0f) // s = v² / 2a
                 : 0;
@@ -175,6 +170,17 @@ namespace OpenSage.Logic.Object
             var newSpeed = oldSpeed + deltaSpeed;
             var reachedTurnSpeed = newSpeed >= GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             _gameObject.Speed = Math.Clamp(newSpeed, 0, GetSpeed());
+
+            if (_locomotorTemplate.CloseEnoughDist > 0.01f && distanceRemaining < _locomotorTemplate.CloseEnoughDist * 2)
+            {
+                _gameObject.Transform.Translation = targetPoint;
+                return true;
+            }
+            if (_locomotorTemplate.SlideIntoPlaceTime > 0 && (_locomotorTemplate.SlideIntoPlaceTime / 1000 * _locomotorTemplate.Speed) < distanceRemaining)
+            {
+                _gameObject.Transform.Translation = targetPoint;
+                return true;
+            }
 
             // This locomotor speed is distance/second
             var distance = MathF.Min(_gameObject.Speed * deltaTime, distanceRemaining);

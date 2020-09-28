@@ -93,7 +93,9 @@ namespace OpenSage.Logic.Object
                 foreach (var position in rank)
                 {
                     var offset = Vector3.Transform(position.Position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, targetYaw));
-                    position.Object?.AIUpdate?.SetTargetPoint(targetPosition + offset);
+
+                    position.Object?.AIUpdate?.TargetPoints.Clear();
+                    position.Object?.AIUpdate?.AppendPathToTargetPoint(targetPosition + offset);
                     position.Object?.AIUpdate?.SetTargetDirection(targetDirection);
                 }
             }
