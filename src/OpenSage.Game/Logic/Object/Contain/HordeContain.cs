@@ -7,14 +7,6 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    class HordeMemberPosition
-    {
-        public ObjectDefinition Definition;
-        public GameObject Object { get; set; }
-        public Vector3 Position;
-        public bool Initialized { get; set; } = false;
-    }
-
     [AddedIn(SageGame.Bfme)]
     public sealed class HordeContainBehavior : UpdateModule
     {
@@ -310,6 +302,14 @@ namespace OpenSage.Logic.Object
         {
             return new HordeContainBehavior(gameObject, this);
         }
+    }
+
+    class HordeMemberPosition
+    {
+        public ObjectDefinition Definition;
+        public GameObject Object { get; set; }
+        public Vector3 Position;
+        public bool Initialized { get; set; } = false;
     }
 
     [AddedIn(SageGame.Bfme)]
