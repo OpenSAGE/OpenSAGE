@@ -121,6 +121,7 @@ namespace OpenSage.Logic.Object
                         if (_pendingRegistrations == 0)
                         {
                             _productionUpdate.ParentHorde = null;
+                            _productionUpdate.CloseDoor();
                             _productionUpdate = null;
                         }
                         return;
@@ -131,6 +132,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3 GetFormationOffset(GameObject obj)
         {
+            var hordeYaw = _gameObject.Transform.EulerAngles.Z;
             foreach (var rank in _formation.Values)
             {
                 foreach (var position in rank)
@@ -138,22 +140,23 @@ namespace OpenSage.Logic.Object
                     if (position.Object == obj)
                     {
                         _payload.Add(obj);
-                        return position.Position;
+                        return Vector3.Transform(position.Position, Quaternion.CreateFromYawPitchRoll(hordeYaw, 0, 0));
                     }
                 }
             }
             return Vector3.Zero;
         }
 
-        public void EnqueuePayload(ProductionUpdate productionUpdate)
+        public void EnqueuePayload(ProductionUpdate productionUpdate, int delay)
         {
+            var delay_s = delay / 1000.0f;
             _productionUpdate = productionUpdate;
 
             foreach (var rank in _formation.Values)
             {
                 foreach (var position in rank)
                 {
-                    _productionUpdate.SpawnPayload(position.Definition, 0.3f);
+                    _productionUpdate.SpawnPayload(position.Definition, delay_s);
                     _pendingRegistrations++;
                 }
             }
