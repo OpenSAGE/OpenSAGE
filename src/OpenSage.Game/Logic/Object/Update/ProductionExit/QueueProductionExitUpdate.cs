@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
         Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+        public int ExitDelay => _moduleData.ExitDelay; 
     }
 
     public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData

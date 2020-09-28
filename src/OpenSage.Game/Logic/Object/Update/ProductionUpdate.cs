@@ -35,6 +35,7 @@ namespace OpenSage.Logic.Object
             Closed,
             WaitingToOpen,
             Opening,
+            OpenForHordePayload,
             Open,
             Closing,
         }
@@ -48,6 +49,11 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _moduleData = moduleData;
             _currentDoorState = DoorState.Closed;
+        }
+
+        public void CloseDoor()
+        {
+            _currentDoorState = DoorState.Open;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -82,7 +88,9 @@ namespace OpenSage.Logic.Object
                 {
                     if (front.Type == ProductionJobType.Unit)
                     {
-                        if (_moduleData.NumDoorAnimations > 0 && ExitsThroughDoor(front.ObjectDefinition))
+                        if (_moduleData.NumDoorAnimations > 0
+                            && ExitsThroughDoor(front.ObjectDefinition)
+                            && (_currentDoorState != DoorState.OpenForHordePayload))
                         {
                             Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
                             _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
@@ -133,6 +141,8 @@ namespace OpenSage.Logic.Object
                         _gameObject.ModelConditionFlags.Set(doorClosing, false);
                     }
                     break;
+                case DoorState.OpenForHordePayload:
+                    break; //door is closed again by HordeContain
             }
         }
 
@@ -289,12 +299,7 @@ namespace OpenSage.Logic.Object
             {
                 var hordeContain = _producedUnit.FindBehavior<HordeContainBehavior>();
                 ParentHorde = _producedUnit;
-                hordeContain.EnqueuePayload(this);
-            }
-            else if (_producedUnit.ParentHorde != null)
-            {
-                var hordeContain = _producedUnit.ParentHorde.FindBehavior<HordeContainBehavior>();
-                hordeContain.Register(_producedUnit);
+                hordeContain.EnqueuePayload(this, ((QueueProductionExitUpdate)_productionExit).ExitDelay);
             }
 
             if (_productionExit is ParkingPlaceBehaviour parkingPlace)
@@ -317,7 +322,10 @@ namespace OpenSage.Logic.Object
         private void MoveProducedObjectOut()
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
-            if (_producedUnit == null) return;
+            if (_producedUnit == null)
+            {
+                return;
+            }
 
             if (_productionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(_producedUnit.Definition))
             {
@@ -327,11 +335,11 @@ namespace OpenSage.Logic.Object
             }
 
             // First go to the natural rally point
-            var naturalRallyPoint = _productionExit.GetNaturalRallyPoint();
-            if (naturalRallyPoint.HasValue)
+            var naturalRallyPoint = _productionExit.GetNaturalRallyPoint().Value;
+            if (naturalRallyPoint != null)
             {
-                var rallyPoint = _gameObject.ToWorldspace(naturalRallyPoint.Value);
-                _producedUnit.AIUpdate.AddTargetPoint(rallyPoint);
+                naturalRallyPoint = _gameObject.ToWorldspace(naturalRallyPoint);
+                _producedUnit.AIUpdate.AddTargetPoint(naturalRallyPoint);
             }
 
             // Then go to the rally point if it exists
@@ -340,37 +348,39 @@ namespace OpenSage.Logic.Object
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
-            if (_producedUnit.ParentHorde != null)
-            {
-                var hordeContain = _producedUnit.ParentHorde.FindBehavior<HordeContainBehavior>();
-                var formationOffset = hordeContain.GetFormationOffset(_producedUnit); // TODO: rotate?
-
-                if (_gameObject.RallyPoint.HasValue)
-                {
-                    _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value + formationOffset);
-                }
-                else if (naturalRallyPoint.HasValue)
-                {
-                    _producedUnit.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(naturalRallyPoint.Value) + formationOffset);
-                }
-                else
-                {
-                    _producedUnit.AIUpdate.AddTargetPoint(_producedUnit.Transform.Translation + formationOffset);
-                }
-                _producedUnit.AIUpdate.SetTargetDirection(_producedUnit.ParentHorde.Transform.LookDirection);
-            }
-
-            HandleHarvesterUnitCreation(_producedUnit);
+            HandleHordeCreation();
+            HandleHarvesterUnitCreation();
 
             _producedUnit = null;
         }
 
-        private void HandleHarvesterUnitCreation(GameObject spawnedUnit)
+        private void HandleHordeCreation()
+        {
+            if (_producedUnit.Definition.KindOf.Get(ObjectKinds.Horde))
+            {
+                _currentDoorState = DoorState.OpenForHordePayload;
+            }
+            else if (_producedUnit.ParentHorde != null)
+            {
+                var hordeContain = _producedUnit.ParentHorde.FindBehavior<HordeContainBehavior>();
+                hordeContain.Register(_producedUnit);
+
+                var count = _producedUnit.AIUpdate.TargetPoints.Count;
+                var direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.AIUpdate.TargetPoints[count - 2];
+
+                var formationOffset = hordeContain.GetFormationOffset(_producedUnit);
+                var offset = Vector3.Transform(formationOffset, Quaternion.CreateFromYawPitchRoll(MathUtility.GetYawFromDirection(direction.Vector2XY()), 0, 0));
+                _producedUnit.AIUpdate.AddTargetPoint(_producedUnit.AIUpdate.TargetPoints[count - 1] + offset);
+                _producedUnit.AIUpdate.SetTargetDirection(direction);
+            }
+        }
+
+        private void HandleHarvesterUnitCreation()
         {
             // a supply target (supply center etc.) just spawned a harvester object
             if (!_gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator) ||
-                !spawnedUnit.Definition.KindOf.Get(ObjectKinds.Harvester) ||
-                !(spawnedUnit.AIUpdate is SupplyAIUpdate supplyUpdate))
+                !_producedUnit.Definition.KindOf.Get(ObjectKinds.Harvester) ||
+                !(_producedUnit.AIUpdate is SupplyAIUpdate supplyUpdate))
             {
                 return;
             }
