@@ -8,7 +8,7 @@ namespace OpenSage.Mathematics
         where TEnum : Enum
     {
         private BitArray512 _data;
-        
+
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 

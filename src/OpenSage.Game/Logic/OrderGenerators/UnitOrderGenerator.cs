@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -63,6 +62,7 @@ namespace OpenSage.Logic.OrderGenerators
             if (keyModifiers.HasFlag(KeyModifiers.Ctrl))
             {
                 // TODO: Check whether clicked point is an object, or empty ground.
+                // TODO: handle hordes properly
                 unit.OnLocalAttack(_game.Audio);
                 if (_worldObject != null)
                 {
@@ -82,13 +82,14 @@ namespace OpenSage.Logic.OrderGenerators
                 {
                     var objectId = scene.GameObjects.GetObjectId(_worldObject);
 
+                    // TODO: handle hordes properly
                     unit.OnLocalAttack(_game.Audio);
                     order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), (uint) objectId, false);
                 }
                 else
                 {
                     // TODO: Check whether at least one of the selected units can actually be moved.
-
+                    // TODO: handle hordes properly
                     unit.OnLocalMove(_game.Audio);
                     order = Order.CreateMoveOrder(scene.GetPlayerIndex(scene.LocalPlayer), _worldPosition);
                 }

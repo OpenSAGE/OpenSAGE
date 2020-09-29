@@ -144,11 +144,21 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
-        private void SetActiveAnimationState(AnimationState animationState)
+        private void SetActiveAnimationState(AnimationState animationState, Random random)
         {
             if (animationState == null
-             || _activeAnimationState == animationState
-             || _activeModelDrawConditionState == null)
+                || animationState.Animations.Count == 0
+                || _activeModelDrawConditionState == null)
+            {
+                return;
+            }
+
+            if (_activeModelDrawConditionState.StillActive() == false)
+            {
+                _activeAnimationState = null;
+            }
+
+            if (animationState == _activeAnimationState)
             {
                 return;
             }
@@ -157,7 +167,7 @@ namespace OpenSage.Logic.Object
 
             var modelInstance = _activeModelDrawConditionState.Model;
 
-            var firstAnimationBlock = animationState.Animations.FirstOrDefault();
+            var firstAnimationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
             if (firstAnimationBlock != null)
             {
                 foreach (var animation in firstAnimationBlock.Animations)
@@ -179,7 +189,7 @@ namespace OpenSage.Logic.Object
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
-            ModelConditionState bestConditionState = null;
+            var bestConditionState = _defaultConditionState;
             var bestIntersections = int.MinValue;
             var bestBitCount = int.MinValue;
 
@@ -206,11 +216,6 @@ namespace OpenSage.Logic.Object
                 bestIntersections = numIntersectionBits;
             }
 
-            if (bestConditionState == null || bestIntersections == 0)
-            {
-                bestConditionState = _defaultConditionState;
-            }
-
             SetActiveConditionState(bestConditionState, random);
 
             foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
@@ -227,7 +232,7 @@ namespace OpenSage.Logic.Object
                 }
             };
 
-            AnimationState bestAnimationState = null;
+            var bestAnimationState = _idleAnimationState;
             bestIntersections = int.MinValue;
             bestBitCount = int.MinValue;
 
@@ -238,7 +243,7 @@ namespace OpenSage.Logic.Object
                 var numIntersectionBits = animationState.TypeFlags.CountIntersectionBits(flags);
 
                 // If there's no intersection never select this.
-                if (numIntersectionBits != numStateBits)
+                if (numIntersectionBits == 0)
                 {
                     continue;
                 }
@@ -254,12 +259,7 @@ namespace OpenSage.Logic.Object
                 bestIntersections = numIntersectionBits;
             }
 
-            if (bestAnimationState == null || bestIntersections == 0)
-            {
-                bestAnimationState = _idleAnimationState;
-            }
-
-            SetActiveAnimationState(bestAnimationState);
+            SetActiveAnimationState(bestAnimationState, random);
         }
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
