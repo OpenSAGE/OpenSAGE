@@ -92,7 +92,7 @@ namespace OpenSage.Logic.Object
         {
             var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
 
-            var currentYaw = -_gameObject.EulerAngles.Z;
+            var currentYaw = _gameObject.Transform.Yaw;
 
             var targetYaw = MathUtility.GetYawFromDirection(new Vector2(targetDirection.X, targetDirection.Y));
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
@@ -187,7 +187,7 @@ namespace OpenSage.Logic.Object
             var moveDirection = direction;
 
             // Calculate rotation
-            var currentYaw = -_gameObject.EulerAngles.Z;
+            var currentYaw = transform.Yaw;
 
             var targetYaw = MathUtility.GetYawFromDirection(direction);
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
@@ -331,7 +331,7 @@ namespace OpenSage.Logic.Object
                     var worldRoll = 0; //-(float) Math.Asin(normal.Y);
 
                     var deltaYaw = (deltaTime / timePerRoundtrip) * MathUtility.TwoPi;
-                    var worldYaw = -_gameObject.EulerAngles.Z + deltaYaw;
+                    var worldYaw = transform.Yaw + deltaYaw;
                     var modelRoll = -deltaYaw * deltaTransform.Length();
                     _gameObject.ModelTransform.Rotation = Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0);
                     _gameObject.SetRotation(Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, worldYaw));

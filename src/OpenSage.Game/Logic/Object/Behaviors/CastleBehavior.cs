@@ -38,15 +38,21 @@ namespace OpenSage.Logic.Object
                     foreach (var castleTemplate in mapFile.CastleTemplates.Templates)
                     {
                         var mapObject = mapObjects.Find(x => x.TypeName == castleTemplate.TemplateName);
-                        mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + castleTemplate.Offset;
+
+                        var viewAngle = MathUtility.ToRadians(_gameObject.Definition.PlacementViewAngle);
+
+                        var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, viewAngle)).ToVector3();
+
+                        var angle = viewAngle + castleTemplate.Angle;
+                        mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + offset;
 
                         var baseObject = GameObject.FromMapObject(
                             mapObject,
                             context.AssetLoadContext.AssetStore,
                             context.GameObjects,
                             context.Terrain.HeightMap,
-                            useRotationAnchorOffset: false,
-                            castleTemplate.Angle);
+                            false,
+                            angle);
 
                         AssignOwner(baseObject);
                     }
