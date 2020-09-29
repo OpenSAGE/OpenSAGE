@@ -110,6 +110,7 @@ namespace OpenSage.Logic
 
                 if (playAudio)
                 {
+                    //TODO: handle hordes properly
                     objects[0].OnLocalSelect(Game.Audio);
                 }
             }

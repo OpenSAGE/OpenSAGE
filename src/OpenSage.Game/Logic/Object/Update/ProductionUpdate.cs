@@ -364,7 +364,11 @@ namespace OpenSage.Logic.Object
                 hordeContain.Register(_producedUnit);
 
                 var count = _producedUnit.AIUpdate.TargetPoints.Count;
-                var direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.AIUpdate.TargetPoints[count - 2];
+                var direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.Transform.Translation;
+                if (count > 1)
+                {
+                    direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.AIUpdate.TargetPoints[count - 2];
+                }
 
                 var formationOffset = hordeContain.GetFormationOffset(_producedUnit);
                 var offset = Vector3.Transform(formationOffset, Quaternion.CreateFromYawPitchRoll(MathUtility.GetYawFromDirection(direction.Vector2XY()), 0, 0));
