@@ -14,15 +14,22 @@ namespace OpenSage.Gui
             var playerIndex = game.Scene3D.GetPlayerIndex(game.Scene3D.LocalPlayer);
             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
+            var selection = game.Scene3D.LocalPlayer.SelectedUnits;
+
             Order order = null;
             switch (commandButton.Command)
             {
                 case CommandType.FoundationConstruct:
-                    var selectedObject = game.Scene3D.LocalPlayer.SelectedUnits.First();
+                    //TODO: figure this out correctly
+                    if (selection.Count == 0)
+                    {
+                        break;
+                    }
+                    var selectedObject = selection.First();
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Transform.Translation);
-                    order.AddFloatArgument(selectedObject.Transform.EulerAngles.Z + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)); // selectedObject.Transform.EulerAngles.Z/* + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)*/);
+                    order.AddFloatArgument(-selectedObject.Transform.EulerAngles.Z + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)); // selectedObject.Transform.EulerAngles.Z/* + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)*/);
                     break;
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);
@@ -63,7 +70,6 @@ namespace OpenSage.Gui
 
                     order = CreateOrder(OrderType.BeginUpgrade);
                     //TODO: figure this out correctly
-                    var selection = game.Scene3D.LocalPlayer.SelectedUnits;
                     if (selection.Count == 0)
                     {
                         break;

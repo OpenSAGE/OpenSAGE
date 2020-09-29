@@ -127,6 +127,9 @@ namespace OpenSage
                 return _matrixInverse;
             }
         }
+
+        public float Yaw => MathF.Asin(-2.0f * (_rotation.X * _rotation.Z - _rotation.W * _rotation.Y));
+
         public Vector3 EulerAngles
         {
             get
