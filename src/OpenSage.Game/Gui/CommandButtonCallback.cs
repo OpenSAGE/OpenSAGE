@@ -25,11 +25,12 @@ namespace OpenSage.Gui
                     {
                         break;
                     }
+
                     var selectedObject = selection.First();
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Transform.Translation);
-                    order.AddFloatArgument(-selectedObject.Transform.EulerAngles.Z + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)); // selectedObject.Transform.EulerAngles.Z/* + MathUtility.ToRadians(objectDefinition.PlacementViewAngle)*/);
+                    order.AddFloatArgument(selectedObject.Transform.Yaw + MathUtility.ToRadians(objectDefinition.PlacementViewAngle));
                     break;
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);

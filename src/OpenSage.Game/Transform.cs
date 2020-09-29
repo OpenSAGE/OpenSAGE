@@ -128,7 +128,7 @@ namespace OpenSage
             }
         }
 
-        public float Yaw => MathF.Asin(-2.0f * (_rotation.X * _rotation.Z - _rotation.W * _rotation.Y));
+        public float Yaw => -MathF.Atan2(Matrix.M21, Matrix.M11);
 
         public Vector3 EulerAngles
         {
@@ -136,8 +136,7 @@ namespace OpenSage
             {
                 var x = MathF.Atan2(Matrix.M32, Matrix.M33);
                 var y = MathF.Atan2(-Matrix.M31, MathF.Sqrt(MathF.Pow(Matrix.M32, 2) + MathF.Pow(Matrix.M33, 2)));
-                var z = MathF.Atan2(Matrix.M21, Matrix.M11);
-                return new Vector3(x, y, z);
+                return new Vector3(x, y, Yaw);
             }
         }
     }
