@@ -148,8 +148,8 @@ namespace OpenSage.Diagnostics
                                         new EchoConnection(),
                                         new PlayerSetting?[]
                                         {
-                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
-                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0), PlayerOwner.Player),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), PlayerOwner.EasyAi),
                                         },
                                         0
                                     );

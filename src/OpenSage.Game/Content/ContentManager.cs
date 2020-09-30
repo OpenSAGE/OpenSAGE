@@ -148,5 +148,7 @@ namespace OpenSage.Content
                 return FileSystem.GetFile(mapPath);
             }
         }
+
+        internal FileSystemEntry GetScriptEntry(string scriptPath) => FileSystem.GetFile(scriptPath);
     }
 }
