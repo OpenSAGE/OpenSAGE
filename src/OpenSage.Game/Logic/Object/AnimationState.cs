@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class AnimationState 
+    public class AnimationState : IConditionState
     {
         internal static AnimationState Parse(IniParser parser)
         {
@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.TypeFlags = stateTypeFlags;
+            result.ConditionFlags = stateTypeFlags;
 
             return result;
         }
@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
         };
 
-        public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
+        public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();

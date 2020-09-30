@@ -87,7 +87,7 @@ namespace OpenSage.Logic.Object
 
                     position.Object?.AIUpdate?.TargetPoints.Clear();
                     position.Object?.AIUpdate?.AppendPathToTargetPoint(targetPosition + offset);
-                    //position.Object?.AIUpdate?.SetTargetDirection(targetDirection);
+                    position.Object?.AIUpdate?.SetTargetDirection(targetDirection);
                 }
             }
         }

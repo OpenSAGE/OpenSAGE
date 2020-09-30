@@ -227,7 +227,7 @@ namespace OpenSage
                         // We'll skip processing them altogether.
                         if (mapObject.TypeName == "" || roadEnd.TypeName == "")
                         {
-                            Logger.Warn($"Road {mapObject.ToString()} has invalid start- or endpoint, skipping...");
+                            Logger.Warn($"Road {mapObject} has invalid start- or endpoint, skipping...");
                             continue;
                         }
 

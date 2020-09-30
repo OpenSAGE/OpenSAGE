@@ -54,6 +54,7 @@ namespace OpenSage.Logic.Object
                             false,
                             angle);
 
+                        baseObject.BuildProgress = 1.0f;
                         AssignOwner(baseObject);
                     }
                 }

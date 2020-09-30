@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class ModelConditionState
+    public class ModelConditionState : IConditionState
     {
         internal static ModelConditionState ParseDefault(IniParser parser)
         {
