@@ -20,7 +20,7 @@ namespace OpenSage.Logic
         public int? StartPosition { get; }
         public PlayerTemplate Template { get; set; }
         public PlayerOwner Owner { get; set; }
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, PlayerOwner owner = PlayerOwner.None, string name = "")
         {

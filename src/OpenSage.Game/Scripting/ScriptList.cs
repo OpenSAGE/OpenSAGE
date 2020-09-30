@@ -132,5 +132,14 @@ namespace OpenSage.Scripting
                 ScriptGroups[i].Load(reader);
             }
         }
+
+        internal ScriptList Copy(string appendix)
+        {
+            // TODO
+            return new ScriptList()
+            {
+
+            };
+        }
     }
 }

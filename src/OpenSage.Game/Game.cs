@@ -11,6 +11,7 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
+using OpenSage.Data.Scb;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
@@ -469,7 +470,14 @@ namespace OpenSage
                 if (playerTemplate != null)
                 {
                     var gameData = AssetStore.GameData.Current;
-                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate);
+
+                    // TODO: Should this be hardcoded? What about other games?
+                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate, new PlayerSetting()
+                    {
+                        Name = "PlyrCivilian",
+                        Color = new ColorRgb(255, 255, 255),
+                        Owner = PlayerOwner.None
+                    });
                 }
 
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
@@ -665,6 +673,7 @@ namespace OpenSage
                 }
 
                 Scene3D.SetPlayers(players, players[localPlayerIndex]);
+                Scripting.LoadDefaultScripts();
             }
 
             if (Definition.ControlBar != null)

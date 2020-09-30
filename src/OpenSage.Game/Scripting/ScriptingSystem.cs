@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using OpenSage.Data.Scb;
 using OpenSage.FileFormats;
+using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Logic;
 
 namespace OpenSage.Scripting
@@ -336,6 +339,46 @@ namespace OpenSage.Scripting
             if (unknown21 != 0)
             {
                 throw new InvalidDataException();
+            }
+        }
+
+        public void LoadDefaultScripts()
+        {
+            var skirmishScriptsEntry = Game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
+            if (skirmishScriptsEntry != null)
+            {
+                using (var stream = skirmishScriptsEntry.Open())
+                {
+                    var skirmishScripts = ScbFile.FromStream(stream);
+
+                    for (int i = 0; i < Game.Scene3D.Players.Count; i++)
+                    {
+                        var player = Game.Scene3D.Players[i];
+                        var scriptsPlayer = FindScriptsPlayer(skirmishScripts, player.Side);
+                        if (player.IsHuman || scriptsPlayer < 0)
+                        {
+                            continue;
+                        }
+
+                        // rename all scripts and variables for all players except civilian
+                        var appendix = i == 0 ? null : (i - 1).ToString();
+                        _playerScripts[i] = skirmishScripts.PlayerScripts.ScriptLists[scriptsPlayer].Copy(appendix);
+                    }
+                }
+            }
+            // Audio.PlayMusicTrack(AssetStore.MusicTracks.GetByName("End_USA_Failure"));
+
+            int FindScriptsPlayer(ScbFile scriptsFile, string side)
+            {
+                for (int i = 0; i < scriptsFile.Players.PlayerNames.Length; i++)
+                {
+                    if (scriptsFile.Players.PlayerNames[i].Equals("Skirmish" + side, StringComparison.Ordinal))
+                    {
+                        return i;
+                    }
+                }
+
+                return -1;
             }
         }
     }
