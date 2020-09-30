@@ -7,6 +7,8 @@ namespace OpenSage.Graphics.Animation
 {
     public sealed class AnimationInstance
     {
+        private GameObject _gameObject;
+
         private readonly int[] _keyframeIndices;
         private readonly ModelBoneInstance[] _boneInstances;
         private readonly W3DAnimation _animation;
@@ -24,8 +26,9 @@ namespace OpenSage.Graphics.Animation
         private bool Manual => _mode == AnimationMode.Manual;
 
         public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation,
-            AnimationMode mode, AnimationFlags flags)
+            AnimationMode mode, AnimationFlags flags, GameObject gameObject)
         {
+            _gameObject = gameObject;
             _animation = animation;
             _mode = mode;
             _flags = flags;
@@ -117,7 +120,11 @@ namespace OpenSage.Graphics.Animation
             var time = _currentTimeValue;
             var deltaTime = gameTime.DeltaTime * _speedFactor;
 
-            if (!Manual)
+            if (Manual)
+            {
+                time = _animation.Duration * _gameObject.BuildProgress * _speedFactor;
+            }
+            else
             {
                 if (Reverse)
                 {
