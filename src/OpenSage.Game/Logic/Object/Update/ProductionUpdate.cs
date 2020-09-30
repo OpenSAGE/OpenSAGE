@@ -393,7 +393,7 @@ namespace OpenSage.Logic.Object
 
         internal void QueueProduction(ObjectDefinition objectDefinition)
         {
-            var job = new ProductionJob(objectDefinition);
+            var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime);
             _productionQueue.Add(job);
         }
 

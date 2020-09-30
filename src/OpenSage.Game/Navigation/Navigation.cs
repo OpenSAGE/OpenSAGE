@@ -70,8 +70,10 @@ namespace OpenSage.Navigation
             return maxSteps > 0 ? currentNode : null;
         }
 
-        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
+        public IList<Vector3> CalculatePath(Vector3 start, Vector3 end, out bool endIsPassable)
         {
+            var result = new List<Vector3>();
+            endIsPassable = true;
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
@@ -83,12 +85,13 @@ namespace OpenSage.Navigation
             if (!endNode.IsPassable)
             {
                 endNode = GetNextPassablePosition(end, start);
+                endIsPassable = false;
             }
 
             if (startNode == null || endNode == null)
             {
                 Logger.Info("Aborting pathfinding because start and/or end are null");
-                yield break;
+                return result;
             }
 
             var route = _graph.Search(startNode, endNode);
@@ -96,7 +99,7 @@ namespace OpenSage.Navigation
             if (route == null)
             {
                 Logger.Warn($"Graph search failed to find a path between {start} and {end}.");
-                yield break;
+                return result;
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
@@ -105,8 +108,9 @@ namespace OpenSage.Navigation
             foreach (var node in route)
             {
                 var pos = GetNodePosition(node);
-                yield return new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y));
+                result.Add(new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y)));
             }
+            return result;
         }
 
         public void UpdateAreaPassability(GameObject gameObject, bool passable)
