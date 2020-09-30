@@ -132,7 +132,7 @@ namespace OpenSage.Logic.Object
 
             if (!_cachedModelDrawConditionStates.TryGetValue(conditionState, out var modelDrawConditionState))
             {
-                modelDrawConditionState = AddDisposable(CreateModelDrawConditionStateInstance(conditionState));
+                modelDrawConditionState = AddDisposable(CreateModelDrawConditionStateInstance(conditionState, random));
                 _cachedModelDrawConditionStates.Add(conditionState, modelDrawConditionState);
             }
 
@@ -167,17 +167,17 @@ namespace OpenSage.Logic.Object
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
 
-            var firstAnimationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
-            if (firstAnimationBlock != null)
+            var animationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
+            if (animationBlock != null)
             {
-                foreach (var animation in firstAnimationBlock.Animations)
+                foreach (var animation in animationBlock.Animations)
                 {
                     var anim = animation.Value;
                     //Check if the animation does really exist
                     if (anim != null)
                     {
                         var flags = animationState.Flags;
-                        var mode = firstAnimationBlock.AnimationMode;
+                        var mode = animationBlock.AnimationMode;
                         var animationInstance = new AnimationInstance(modelInstance, anim, mode, flags, GameObject);
                         modelInstance.AnimationInstances.Add(animationInstance);
                         animationInstance.Play();
@@ -236,27 +236,27 @@ namespace OpenSage.Logic.Object
             SetActiveAnimationState(bestAnimationState, random);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)
         {
             // Load model, fallback to default model.
             var model = conditionState.Model?.Value ?? _defaultConditionState.Model?.Value;
+            var modelInstance = model?.CreateInstance(_context.AssetLoadContext) ?? null;
 
-            ModelInstance modelInstance = null;
-            if (model != null)
+            if (modelInstance == null)
             {
-                modelInstance = model.CreateInstance(_context.AssetLoadContext);
+                return null;
             }
 
-            if (modelInstance != null)
+            // TODO: since the ModelDrawConditionStates are cached we should find a way to change the animation afterwards
+            var animations = conditionState.ConditionAnimations;
+            if (!conditionState.ConditionFlags.Get(ModelConditionFlag.Moving))
             {
-                // TODO: Multiple animations. Shouldn't play all of them. I think
-                // we should randomly choose one of them?
-                // And there is also IdleAnimation.
-                var firstAnimation = conditionState.ConditionAnimations
-                    .Concat(conditionState.IdleAnimations)
-                    .LastOrDefault();
+                animations.AddRange(conditionState.IdleAnimations);
+            }
 
-                var animation = firstAnimation?.Animation.Value;
+            if (animations.Count > 0)
+            {
+                var animation = animations[random.Next(0, animations.Count - 1)]?.Animation.Value;
                 if (animation != null)
                 {
                     var mode = conditionState.AnimationMode;
@@ -267,60 +267,53 @@ namespace OpenSage.Logic.Object
             }
 
             var particleSystems = new List<ParticleSystem>();
-            if (modelInstance != null)
+
+            foreach (var particleSysBone in conditionState.ParticleSysBones)
             {
-                foreach (var particleSysBone in conditionState.ParticleSysBones)
+                var particleSystemTemplate = particleSysBone.ParticleSystem.Value;
+                if (particleSystemTemplate == null)
                 {
-                    var particleSystemTemplate = particleSysBone.ParticleSystem.Value;
-                    if (particleSystemTemplate == null)
+                    throw new InvalidOperationException();
+                }
+
+                var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+                if (bone == null)
+                {
+                    // TODO: Should this ever happen?
+                    continue;
+                }
+
+                particleSystems.Add(_context.ParticleSystems.Create(
+                    particleSystemTemplate,
+                    () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
+            }
+
+            if (conditionState.HideSubObject != null)
+            {
+                foreach (var hideSubObject in conditionState.HideSubObject)
+                {
+                    var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(hideSubObject.ToUpper()));
+                    if (item != null)
                     {
-                        throw new InvalidOperationException();
+                        modelInstance.BoneVisibilities[item.i] = false;
                     }
 
-                    var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
-                    if (bone == null)
+                }
+            }
+            if (conditionState.ShowSubObject != null)
+            {
+                foreach (var showSubObject in conditionState.ShowSubObject)
+                {
+                    var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(showSubObject.ToUpper()));
+                    if (item != null)
                     {
-                        // TODO: Should this ever happen?
-                        continue;
+                        modelInstance.BoneVisibilities[item.i] = true;
                     }
 
-                    particleSystems.Add(_context.ParticleSystems.Create(
-                        particleSystemTemplate,
-                        () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
 
-            if (modelInstance != null)
-            {
-                if (conditionState.HideSubObject != null)
-                {
-                    foreach (var hideSubObject in conditionState.HideSubObject)
-                    {
-                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(hideSubObject.ToUpper()));
-                        if (item != null)
-                        {
-                            modelInstance.BoneVisibilities[item.i] = false;
-                        }
-
-                    }
-                }
-                if (conditionState.ShowSubObject != null)
-                {
-                    foreach (var showSubObject in conditionState.ShowSubObject)
-                    {
-                        var item = modelInstance.ModelBoneInstances.Select((value, i) => new { i, value }).FirstOrDefault(x => x.value.Name.EndsWith(showSubObject.ToUpper()));
-                        if (item != null)
-                        {
-                            modelInstance.BoneVisibilities[item.i] = true;
-                        }
-
-                    }
-                }
-            }
-
-            return modelInstance != null
-               ? new W3dModelDrawConditionState(modelInstance, particleSystems, _context)
-               : null;
+            return new W3dModelDrawConditionState(modelInstance, particleSystems, _context);
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)

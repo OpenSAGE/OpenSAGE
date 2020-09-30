@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Object
                 var start = GameObject.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint);
                 TargetPoints.AddRange(path);
-                if (TargetPoints.Count > 0)
+                if (TargetPoints.Count > 0 && endIsPassable)
                 {
                     TargetPoints[TargetPoints.Count - 1] = targetPoint;
                 }

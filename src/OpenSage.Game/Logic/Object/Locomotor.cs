@@ -152,6 +152,11 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
+            if (distanceRemaining < 0.25f)
+            {
+                return true;
+            }
+
             var minimumBrakingDistance = braking > 0
                 ? (oldSpeed * oldSpeed) / (braking * 2.0f) // s = v² / 2a
                 : 0;
