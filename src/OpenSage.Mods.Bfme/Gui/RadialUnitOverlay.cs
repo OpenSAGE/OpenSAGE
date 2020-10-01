@@ -40,12 +40,9 @@ namespace OpenSage.Mods.Bfme.Gui
             }
 
             var selectedUnit = player.SelectedUnits.First();
-            if (!selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                return;
-            }
-
-            if (selectedUnit.Definition.CommandSet == null)
+            if (selectedUnit.BuildProgress < 0.999f
+                || !selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure)
+                || selectedUnit.Definition.CommandSet == null)
             {
                 return;
             }
@@ -92,7 +89,7 @@ namespace OpenSage.Mods.Bfme.Gui
             // TODO: fill revive buttons with died heroes
             var commandButtons = _commandSet.Buttons.Values.Where(x => x.Value.Radial && x.Value.Command != CommandType.Revive);
 
-            var radius = (-1 + MathF.Sqrt(commandButtons.Count())) * (radialBorder.Coords.Width * 1.1f);
+            var radius = (-1 + MathF.Sqrt(commandButtons.Count() + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
             var deltaAngle = MathUtility.TwoPi / commandButtons.Count();
             var width = radialBorder.Coords.Width;
             var height = radialBorder.Coords.Height;
@@ -110,11 +107,14 @@ namespace OpenSage.Mods.Bfme.Gui
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            foreach(var button in _buttons)
+            if (_visible)
             {
-                if (button.HandleMouseCursor(message))
+                foreach (var button in _buttons)
                 {
-                    return InputMessageResult.Handled;
+                    if (button.HandleMouseCursor(message))
+                    {
+                        return InputMessageResult.Handled;
+                    }
                 }
             }
             return InputMessageResult.NotHandled;

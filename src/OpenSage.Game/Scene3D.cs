@@ -544,9 +544,17 @@ namespace OpenSage
                         (float)gameObject.Body.HealthPercentage);
                 }
 
-                if (gameObject.ProductionUpdate != null)
+                var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.BuildProgress < 0.999f)
                 {
-                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+                    DrawBar(
+                        productionBoxRect,
+                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
+                        gameObject.BuildProgress);
+                }
+                else if (gameObject.ProductionUpdate != null)
+                {
                     var productionBoxValue = gameObject.ProductionUpdate.IsProducing
                         ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
                         : 0;
