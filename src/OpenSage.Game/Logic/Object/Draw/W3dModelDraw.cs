@@ -156,8 +156,7 @@ namespace OpenSage.Logic.Object
             {
                 _activeAnimationState = null;
             }
-
-            if (animationState == _activeAnimationState)
+            else if (animationState == _activeAnimationState)
             {
                 return;
             }
