@@ -448,6 +448,19 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool CanRecruitHero(ObjectDefinition definition)
+        {
+            foreach (var obj in Parent.Items)
+            {
+                if (obj.Definition.Name == definition.Name
+                    && obj.Owner == Owner)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public bool CanProduceObject(ObjectDefinition definition)
         {
             return ProductionUpdate?.CanProduceObject(definition) ?? true;

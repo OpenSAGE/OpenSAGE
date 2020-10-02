@@ -36,6 +36,7 @@ namespace OpenSage.Mods.Bfme.Gui
             _visible = false;
             if (player.SelectedUnits.Count != 1)
             {
+                _selectedUnit = null;
                 return;
             }
 
@@ -44,6 +45,7 @@ namespace OpenSage.Mods.Bfme.Gui
                 || !selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure)
                 || selectedUnit.Definition.CommandSet == null)
             {
+                _selectedUnit = null;
                 return;
             }
 
@@ -56,13 +58,33 @@ namespace OpenSage.Mods.Bfme.Gui
             if (_selectedUnit != selectedUnit && _commandSet != null)
             {
                 //Update button list
-                _buttons.Clear();
+                var playerTeamplate = selectedUnit.Owner.Template;
+                var heroIndex = 0;
 
-                var commandButtons = _commandSet.Buttons.Values.Where(x => x.Value.Radial && x.Value.Command != CommandType.Revive);
-
-                foreach(var commandButton in commandButtons)
+                var commandButtons = new List<CommandButton>();
+                foreach (var button in _commandSet.Buttons.Values)
                 {
-                    var radialButton = new RadialButton(_game, selectedUnit, commandButton.Value);
+                    if (button.Value.Command == CommandType.Revive)
+                    {
+                        if (heroIndex < playerTeamplate.BuildableHeroesMP.Count())
+                        {
+                            var heroDefinition = playerTeamplate.BuildableHeroesMP[heroIndex++];
+                            if (selectedUnit.CanRecruitHero(heroDefinition.Value))
+                            {
+                                commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        commandButtons.Add(button.Value);
+                    }
+                }
+
+                _buttons.Clear();
+                foreach (var commandButton in commandButtons)
+                {
+                    var radialButton = new RadialButton(_game, selectedUnit, commandButton);
                     _buttons.Add(radialButton);
                 }
 
@@ -86,13 +108,8 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var radialBorder = _game.GetMappedImage("RadialBorder");
 
-            // TODO: fill revive buttons with died heroes
-            var commandButtons = _commandSet.Buttons.Values.Where(x => x.Value.Radial && x.Value.Command != CommandType.Revive);
-
-            var radius = (-1 + MathF.Sqrt(commandButtons.Count() + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
-            var deltaAngle = MathUtility.TwoPi / commandButtons.Count();
-            var width = radialBorder.Coords.Width;
-            var height = radialBorder.Coords.Height;
+            var radius = (-1 + MathF.Sqrt(_buttons.Count() + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
+            var deltaAngle = MathUtility.TwoPi / _buttons.Count();
 
             var i = 0;
             foreach (var button in _buttons)

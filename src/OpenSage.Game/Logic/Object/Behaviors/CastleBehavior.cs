@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -13,25 +12,27 @@ namespace OpenSage.Logic.Object
     {
         GameObject _gameObject;
         CastleBehaviorModuleData _moduleData;
+        GameContext _context;
         bool _unpacked = false;
 
         internal CastleBehaviorModule(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _context = context;
         }
 
-        private void Unpack(GameContext context)
+        public void Unpack(Player player, Team team)
         {
             if (!_unpacked)
             {
-                var castleEntry = FindCastle();
+                var castleEntry = FindCastle(player.Side);
 
                 if (castleEntry != null)
                 {
                     var basePath = $"bases\\{castleEntry.Camp}\\{castleEntry.Camp}.bse";
 
-                    var entry = context.AssetLoadContext.FileSystem.GetFile(basePath);
+                    var entry = _context.AssetLoadContext.FileSystem.GetFile(basePath);
                     var mapFile = MapFile.FromFileSystemEntry(entry);
                     var mapObjects = mapFile.ObjectsList.Objects.ToList();
 
@@ -48,17 +49,22 @@ namespace OpenSage.Logic.Object
 
                         var baseObject = GameObject.FromMapObject(
                             mapObject,
-                            context.AssetLoadContext.AssetStore,
-                            context.GameObjects,
-                            context.Terrain.HeightMap,
+                            _context.AssetLoadContext.AssetStore,
+                            _context.GameObjects,
+                            _context.Terrain.HeightMap,
                             false,
                             angle);
 
                         baseObject.BuildProgress = 1.0f;
-                        AssignOwner(baseObject);
+
+                        if (_moduleData.FilterValidOwnedEntries.Matches(baseObject))
+                        {
+                            baseObject.Owner = player;
+                            baseObject.Team = team;
+                        }
                     }
                 }
-
+                _gameObject.Destroy();
                 _unpacked = true;
             }
         }
@@ -66,30 +72,17 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Figure out the other unpack conditions
-            //if (_moduleData.InstantUnpack)
+            if (_moduleData.InstantUnpack)
             {
-                Unpack(context.GameContext);
-                _gameObject.Destroy();
+                Unpack(_gameObject.Owner, _gameObject.Team);
             }
         }
 
-        private void AssignOwner(GameObject gameObject)
+        private CastleEntry FindCastle(string side)
         {
-            if (_moduleData.FilterValidOwnedEntries.Matches(gameObject))
-            {
-                gameObject.Owner = _gameObject.Owner;
-                gameObject.Team = _gameObject.Team;
-            }
-        }
-
-        private CastleEntry FindCastle()
-        {
-            // Use the gameobject side
-            return _moduleData.CastleToUnpackForFactions[0];
-
             foreach (var entry in _moduleData.CastleToUnpackForFactions)
             {
-                if (entry.FactionName == _gameObject.Owner.Side)
+                if (entry.FactionName == side)
                 {
                     return entry;
                 }
@@ -100,9 +93,9 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            var entry = FindCastle();
+            //var entry = FindCastle();
 
-            ImGui.LabelText("Camp", entry.Camp);
+            //ImGui.LabelText("Camp", entry.Camp);
             ImGui.LabelText("Unpacked", _unpacked.ToString());
         }
     }

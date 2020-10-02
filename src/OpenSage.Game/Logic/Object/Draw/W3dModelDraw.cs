@@ -192,7 +192,6 @@ namespace OpenSage.Logic.Object
             var bestIntersections = 0;
             var bestBitCount = 0;
 
-            // Find best matching ModelConditionState.
             foreach (var conditionState in conditionStates)
             {
                 var numStateBits = conditionState.ConditionFlags.NumBitsSet;
