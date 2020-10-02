@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
         {
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseMappedImageReference() },
-            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
+            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
             { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseUpgradeReference() },
             { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseUpgradeReference() },
             { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseUpgradeReference() },
@@ -410,7 +410,7 @@ namespace OpenSage.Logic.Object
         // Art
         public int PlacementViewAngle { get; private set; }
         public LazyAssetReference<MappedImage> SelectPortrait { get; private set; }
-        public string ButtonImage { get; private set; }
+        public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
         public LazyAssetReference<UpgradeTemplate> UpgradeCameo1 { get; private set; }
         public LazyAssetReference<UpgradeTemplate> UpgradeCameo2 { get; private set; }
         public LazyAssetReference<UpgradeTemplate> UpgradeCameo3 { get; private set; }

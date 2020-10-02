@@ -232,6 +232,23 @@ namespace OpenSage.Logic.Object
 
         internal bool CanProduceObject(ObjectDefinition objectDefinition)
         {
+            //if (ProductionQueue.Count >= _moduleData.MaxQueueEntries)
+            //{
+            //    return false;
+            //}
+
+            // only one hero of the same kind can be produced at a time
+            if (objectDefinition.KindOf.Get(ObjectKinds.Hero))
+            {
+                foreach (var job in ProductionQueue)
+                {
+                    if (job.ObjectDefinition.Name == objectDefinition.Name)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
 
             if (_productionExit != null && _productionExit is ParkingPlaceBehaviour parkingPlace)

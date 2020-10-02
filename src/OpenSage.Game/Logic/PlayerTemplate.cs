@@ -102,7 +102,7 @@ namespace OpenSage.Logic
             { "ObjectiveAddedSound", (parser, x) => x.ObjectiveAddedSound = parser.ParseAssetReference() },
             { "ObjectiveCompletedSound", (parser, x) => x.ObjectiveCompletedSound = parser.ParseAssetReference() },
             { "InitialUpgrades", (parser, x) => x.InitialUpgrades = parser.ParseAssetReferenceArray() },
-            { "BuildableHeroesMP", (parser, x) => x.BuildableHeroesMP = parser.ParseAssetReferenceArray() },
+            { "BuildableHeroesMP", (parser, x) => x.BuildableHeroesMP = parser.ParseObjectReferenceArray() },
             { "BuildableRingHeroesMP", (parser, x) => x.BuildableRingHeroesMP = parser.ParseAssetReferenceArray() },
             { "SpellStoreCurrentPowerLabel", (parser, x) => x.SpellStoreCurrentPowerLabel = parser.ParseAssetReference() },
             { "SpellStoreMaximumPowerLabel", (parser, x) => x.SpellStoreMaximumPowerLabel = parser.ParseAssetReference() },
@@ -205,7 +205,7 @@ namespace OpenSage.Logic
         public string[] InitialUpgrades { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string[] BuildableHeroesMP { get; private set; }
+        public LazyAssetReference<ObjectDefinition>[] BuildableHeroesMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string[] BuildableRingHeroesMP { get; private set; }

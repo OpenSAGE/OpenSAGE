@@ -136,9 +136,10 @@ namespace OpenSage.Diagnostics
                         {                           
                             if (ImGui.MenuItem($"{mapCache.Value} ({mapCache.Key.Name})"))
                             {
-                                var playableSides = _context.Game.GetPlayableSides();
-                                var faction1 = playableSides.First();
-                                var faction2 = playableSides.Last();
+                                var random = new Random();
+                                var playableSides = _context.Game.GetPlayableSides().ToList();
+                                var faction1 = playableSides[random.Next(0, playableSides.Count())];
+                                var faction2 = playableSides[random.Next(0, playableSides.Count())];
 
                                 if (mapCache.Key.IsMultiplayer)
                                 {

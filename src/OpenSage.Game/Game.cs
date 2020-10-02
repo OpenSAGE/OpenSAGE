@@ -23,6 +23,7 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
@@ -593,7 +594,7 @@ namespace OpenSage
                 {
                     if (playerSetting?.StartPosition != null)
                     {
-                        int pos = (int) playerSetting?.StartPosition;
+                        var pos = (int) playerSetting?.StartPosition;
                         availablePositions.Remove(pos);
                     }
                 }
@@ -604,7 +605,7 @@ namespace OpenSage
 
                 for (var i = 1; i <= playerSettings.Length; i++)
                 {
-                    PlayerSetting? playerSetting = playerSettings[i - 1];
+                    var playerSetting = playerSettings[i - 1];
                     if (playerSetting == null)
                     {
                         continue;
@@ -613,6 +614,7 @@ namespace OpenSage
                     var gameData = AssetStore.GameData.Current;
                     var playerTemplate = playerSetting?.Template;
                     players[i] = Player.FromTemplate(gameData, playerTemplate, playerSetting);
+                    var player = players[i];
                     var startPos = playerSetting?.StartPosition;
 
                     // startPos seems to be -1 for random, and 0 for observer/civilian
@@ -627,18 +629,38 @@ namespace OpenSage
 
                     if (playerTemplate.StartingBuilding != null)
                     {
-                        var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, players[i]);
+                        var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, player);
                         var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
                         startingBuilding.UpdateTransform(playerStartPosition, rotation);
 
                         Scene3D.Navigation.UpdateAreaPassability(startingBuilding, false);
 
-                        var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, players[i]);
+                        var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, player);
                         var startingUnit0Position = playerStartPosition;
                         startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                         startingUnit0.SetTranslation(startingUnit0Position);
 
-                        Selection.SetSelectedObjects(players[i], new[] { startingBuilding }, playAudio: false);
+                        Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);
+                    }
+                    else
+                    {
+                        var castleBehaviors = new List<(CastleBehaviorModule, Logic.Team)>();
+                        foreach (var gameObject in Scene3D.GameObjects.Items)
+                        {
+                            var team = gameObject.Team;
+                            if (team?.Name == $"Player_{startPos}_Inherit")
+                            {
+                                var castleBehavior = gameObject.FindBehavior<CastleBehaviorModule>();
+                                if (castleBehavior != null)
+                                {
+                                    castleBehaviors.Add((castleBehavior, team));
+                                }
+                            }
+                        }
+                        foreach (var (castleBehavior, team) in castleBehaviors)
+                        {
+                            castleBehavior.Unpack(player, team);
+                        }
                     }
                 }
 
@@ -854,33 +876,33 @@ namespace OpenSage
 
         private void CheckGlobalHotkeys()
         {
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F9))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F9))
             {
                 ToggleLogicRunning();
             }
 
-            if (!IsLogicRunning && Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F10))
+            if (!IsLogicRunning && Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F10))
             {
                 Step();
             }
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F11))
             {
                 DeveloperModeEnabled = !DeveloperModeEnabled;
             }
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Pause))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Pause))
             {
                 Restart?.Invoke();
             }
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Comma))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Comma))
             {
                 var rtsCam = Scene3D.CameraController as RtsCameraController;
                 rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
             }
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
             {
                 Window.Fullscreen = !Window.Fullscreen;
             }

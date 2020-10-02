@@ -8,6 +8,15 @@ namespace OpenSage.Gui.ControlBar
 {
     public sealed class CommandButton : BaseAsset
     {
+        public CommandButton(){ }
+
+        public CommandButton(CommandType commandType, LazyAssetReference<ObjectDefinition> definition)
+        {
+            Command = commandType;
+            Object = definition;
+            ButtonImage = definition.Value.ButtonImage;
+        }
+
         internal static CommandButton Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data;
 using OpenSage.Graphics.Cameras;
@@ -159,7 +158,9 @@ namespace OpenSage.Audio
         private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent)
         {
             if (!ValidateAudioEvent(baseAudioEvent))
+            {
                 return null;
+            }
 
             var audioEvent = baseAudioEvent as AudioEvent;
             var entry = ResolveAudioEventEntry(audioEvent);
@@ -184,9 +185,13 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
         {
+            return;
+
             var source = PlayAudioEventBase(baseAudioEvent);
             if (source == null)
+            {
                 return;
+            }
 
             _3dengine.SetSourcePosition(source, emitter.Translation);
             source.Play();
@@ -196,7 +201,9 @@ namespace OpenSage.Audio
         {
             var source = PlayAudioEventBase(baseAudioEvent);
             if (source == null)
+            {
                 return;
+            }
 
             source.Play();
         }
