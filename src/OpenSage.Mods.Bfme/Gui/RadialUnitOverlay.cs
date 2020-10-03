@@ -69,10 +69,7 @@ namespace OpenSage.Mods.Bfme.Gui
                         if (heroIndex < playerTeamplate.BuildableHeroesMP.Count())
                         {
                             var heroDefinition = playerTeamplate.BuildableHeroesMP[heroIndex++];
-                            if (selectedUnit.CanRecruitHero(heroDefinition.Value))
-                            {
-                                commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
-                            }
+                            commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
                         }
                     }
                     else
@@ -84,7 +81,8 @@ namespace OpenSage.Mods.Bfme.Gui
                 _buttons.Clear();
                 foreach (var commandButton in commandButtons)
                 {
-                    var radialButton = new RadialButton(_game, selectedUnit, commandButton);
+                    var isHeroButton = commandButton.Object?.Value?.KindOf.Get(ObjectKinds.Hero) ?? false;
+                    var radialButton = new RadialButton(_game, selectedUnit, commandButton, isHeroButton);
                     _buttons.Add(radialButton);
                 }
 
@@ -94,6 +92,12 @@ namespace OpenSage.Mods.Bfme.Gui
             var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
             foreach (var radialButton in _buttons)
             {
+                radialButton.IsVisible = true;
+                if (radialButton.IsHeroButton)
+                {
+                    radialButton.IsVisible = selectedUnit.CanRecruitHero(radialButton.CommandButton.Object.Value);
+                }
+
                 var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
                 radialButton.Update(progress, count, selectedUnit.CanEnqueue(radialButton.CommandButton));
             }
@@ -108,12 +112,18 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var radialBorder = _game.GetMappedImage("RadialBorder");
 
-            var radius = (-1 + MathF.Sqrt(_buttons.Count() + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
-            var deltaAngle = MathUtility.TwoPi / _buttons.Count();
+            var numVisibleButtons = _buttons.Where(x => x.IsVisible).Count();
+            var radius = (-1 + MathF.Sqrt(numVisibleButtons + 0.75f)) * (radialBorder.Coords.Width * 0.9f);
+            var deltaAngle = MathUtility.TwoPi / numVisibleButtons;
 
             var i = 0;
             foreach (var button in _buttons)
             {
+                if (!button.IsVisible)
+                {
+                    continue;
+                }
+
                 var posX = _center.X + MathF.Sin(i * deltaAngle) * radius;
                 var posY = _center.Y + -MathF.Cos(i * deltaAngle) * radius;
 

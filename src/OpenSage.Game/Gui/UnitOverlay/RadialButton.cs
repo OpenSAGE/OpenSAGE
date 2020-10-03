@@ -38,13 +38,17 @@ namespace OpenSage.Gui.UnitOverlay
         //private ControlBarScheme _scheme;
 
         public readonly CommandButton CommandButton;
+        public bool IsVisible { get; set; }
+        public bool IsHeroButton { get; }
 
-        public RadialButton(Game game, GameObject owner, CommandButton commandButton)
+        public RadialButton(Game game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
         {
             _game = game;
             _owner = owner;
             CommandButton = commandButton;
             _objectDefinition = commandButton.Object?.Value ?? null;
+
+            IsHeroButton = isHeroButton;
 
             _background = commandButton.ButtonImage.Value;
             _border = _game.GetMappedImage("RadialBorder");
@@ -61,15 +65,6 @@ namespace OpenSage.Gui.UnitOverlay
             _alphaMask = MappedImageUtility.CreateTexture(_game.GraphicsLoadContext, _game.GetMappedImage("RadialClockOverlay1"));
 
             //_scheme = game.AssetStore.ControlBarSchemes.FindBySide(game.Scene3D.LocalPlayer.Side);
-        }
-
-        public bool CorrespondsTo(ObjectDefinition objectDefinition)
-        {
-            if (_objectDefinition == null || objectDefinition == null)
-            {
-                return false;
-            }
-            return _objectDefinition.Name == objectDefinition.Name;
         }
 
         public void Update(float progress, int count, bool enabled)
@@ -118,6 +113,11 @@ namespace OpenSage.Gui.UnitOverlay
 
         public bool HandleMouseCursor(InputMessage message)
         {
+            if (!IsVisible)
+            {
+                return false;
+            }
+
             switch (message.MessageType)
             {
                 case InputMessageType.MouseMove:

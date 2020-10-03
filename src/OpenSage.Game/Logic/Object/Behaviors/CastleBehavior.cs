@@ -24,55 +24,57 @@ namespace OpenSage.Logic.Object
 
         public void Unpack(Player player, Team team)
         {
-            if (!_unpacked)
+            if (_unpacked)
             {
-                var castleEntry = FindCastle(player.Side);
+                return;
+            }
 
-                if (castleEntry != null)
+            var castleEntry = FindCastle(player.Side);
+
+            if (castleEntry != null)
+            {
+                var basePath = $"bases\\{castleEntry.Camp}\\{castleEntry.Camp}.bse";
+
+                var entry = _context.AssetLoadContext.FileSystem.GetFile(basePath);
+                var mapFile = MapFile.FromFileSystemEntry(entry);
+                var mapObjects = mapFile.ObjectsList.Objects.ToList();
+
+                foreach (var castleTemplate in mapFile.CastleTemplates.Templates)
                 {
-                    var basePath = $"bases\\{castleEntry.Camp}\\{castleEntry.Camp}.bse";
+                    var mapObject = mapObjects.Find(x => x.TypeName == castleTemplate.TemplateName);
 
-                    var entry = _context.AssetLoadContext.FileSystem.GetFile(basePath);
-                    var mapFile = MapFile.FromFileSystemEntry(entry);
-                    var mapObjects = mapFile.ObjectsList.Objects.ToList();
+                    var viewAngle = MathUtility.ToRadians(_gameObject.Definition.PlacementViewAngle);
 
-                    foreach (var castleTemplate in mapFile.CastleTemplates.Templates)
+                    var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, viewAngle)).ToVector3();
+
+                    var angle = viewAngle + castleTemplate.Angle;
+                    mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + offset;
+
+                    var baseObject = GameObject.FromMapObject(
+                        mapObject,
+                        _context.AssetLoadContext.AssetStore,
+                        _context.GameObjects,
+                        _context.Terrain.HeightMap,
+                        false,
+                        angle);
+
+                    baseObject.BuildProgress = 1.0f;
+
+                    if (_moduleData.FilterValidOwnedEntries.Matches(baseObject))
                     {
-                        var mapObject = mapObjects.Find(x => x.TypeName == castleTemplate.TemplateName);
-
-                        var viewAngle = MathUtility.ToRadians(_gameObject.Definition.PlacementViewAngle);
-
-                        var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, viewAngle)).ToVector3();
-
-                        var angle = viewAngle + castleTemplate.Angle;
-                        mapObject.Position = new Vector3(_gameObject.Transform.Translation.X, _gameObject.Transform.Translation.Y, 0.0f) + offset;
-
-                        var baseObject = GameObject.FromMapObject(
-                            mapObject,
-                            _context.AssetLoadContext.AssetStore,
-                            _context.GameObjects,
-                            _context.Terrain.HeightMap,
-                            false,
-                            angle);
-
-                        baseObject.BuildProgress = 1.0f;
-
-                        if (_moduleData.FilterValidOwnedEntries.Matches(baseObject))
-                        {
-                            baseObject.Owner = player;
-                            baseObject.Team = team;
-                        }
+                        baseObject.Owner = player;
+                        baseObject.Team = team;
                     }
                 }
-                _gameObject.Destroy();
-                _unpacked = true;
             }
+            _gameObject.Destroy();
+            _unpacked = true;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Figure out the other unpack conditions
-            if (_moduleData.InstantUnpack)
+            if (!_unpacked && _moduleData.InstantUnpack)
             {
                 Unpack(_gameObject.Owner, _gameObject.Team);
             }

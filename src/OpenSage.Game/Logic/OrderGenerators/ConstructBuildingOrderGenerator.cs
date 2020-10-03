@@ -68,12 +68,17 @@ namespace OpenSage.Logic.OrderGenerators
 
         public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
+            if (scene.Game.SageGame == SageGame.Bfme)
+            {
+                return OrderGeneratorResult.Inapplicable();
+            }
+
             // TODO: Probably not right way to get dozer object.
-            //var dozer = scene.LocalPlayer.SelectedUnits.First();
+            var dozer = scene.LocalPlayer.SelectedUnits.First();
 
             if (!IsValidPosition())
             {
-                //scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceNoBuild"]?.Value);
+                scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceNoBuild"]?.Value);
 
                 // TODO: Display correct message:
                 // - GUI:CantBuildRestrictedTerrain
@@ -92,7 +97,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
 
-            //scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceCreate"]?.Value);
+            scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceCreate"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
