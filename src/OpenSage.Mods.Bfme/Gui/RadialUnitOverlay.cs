@@ -93,7 +93,7 @@ namespace OpenSage.Mods.Bfme.Gui
             foreach (var radialButton in _buttons)
             {
                 radialButton.IsVisible = true;
-                if (radialButton.IsHeroButton)
+                if (radialButton.IsRecruitHeroButton)
                 {
                     radialButton.IsVisible = selectedUnit.CanRecruitHero(radialButton.CommandButton.Object.Value);
                 }

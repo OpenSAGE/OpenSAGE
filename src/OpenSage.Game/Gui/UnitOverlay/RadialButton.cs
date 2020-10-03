@@ -39,7 +39,7 @@ namespace OpenSage.Gui.UnitOverlay
 
         public readonly CommandButton CommandButton;
         public bool IsVisible { get; set; }
-        public bool IsHeroButton { get; }
+        public bool IsRecruitHeroButton { get; }
 
         public RadialButton(Game game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
         {
@@ -48,7 +48,7 @@ namespace OpenSage.Gui.UnitOverlay
             CommandButton = commandButton;
             _objectDefinition = commandButton.Object?.Value ?? null;
 
-            IsHeroButton = isHeroButton;
+            IsRecruitHeroButton = isHeroButton;
 
             _background = commandButton.ButtonImage.Value;
             _border = _game.GetMappedImage("RadialBorder");
