@@ -5,7 +5,6 @@ using OpenSage.Data.Apt.Characters;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {

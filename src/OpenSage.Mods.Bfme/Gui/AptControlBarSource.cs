@@ -10,14 +10,14 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Mods.Bfme2.Gui;
+using OpenSage.Mods.Bfme.Gui;
 using SixLabors.Fonts;
 using Veldrid;
 using Geometry = OpenSage.Data.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
-namespace OpenSage.Mods.Bfme2
+namespace OpenSage.Mods.Bfme
 {
     class AptControlBar : IControlBar
     {
@@ -270,8 +270,6 @@ namespace OpenSage.Mods.Bfme2
                         _commandbarVisible = true;
                     }
                 }
-
-                UpdateCommandbuttons();
             }
             else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
             {
@@ -279,13 +277,12 @@ namespace OpenSage.Mods.Bfme2
 
                 if (fadeOut.Type != ValueType.Undefined)
                 {
-                    List<Value> emptyArgs = new List<Value>();
+                    var emptyArgs = new List<Value>();
                     FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
                     _commandbarVisible = true;
                 }
 
                 _commandbarVisible = false;
-                ClearCommandbuttons();
             }
         }
 
@@ -299,12 +296,22 @@ namespace OpenSage.Mods.Bfme2
                 {
                     UpdateSideCommandbar(player);
                 }
+
+                if (player.SelectedUnits.Count > 0)
+                {
+                    UpdateCommandbuttons();
+                }
+                else
+                {
+                    ClearCommandbuttons();
+                }
+
                 UpdatePalantir(player);
             }
         }
     }
 
-    class AptControlBarSource : IControlBarSource
+    public class AptControlBarSource : IControlBarSource
     {
         public IControlBar Create(string side, Game game)
         {
