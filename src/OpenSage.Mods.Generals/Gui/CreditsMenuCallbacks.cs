@@ -140,7 +140,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var rect = item.Rect;
                 rect = rect.WithY(rect.Y + data.CurrentY);
 
-                if (!control.ClientRectangle.ToRectangleF().IntersectsWith(rect))
+                if (!control.ClientRectangle.ToRectangleF().Intersects(rect))
                 {
                     continue;
                 }

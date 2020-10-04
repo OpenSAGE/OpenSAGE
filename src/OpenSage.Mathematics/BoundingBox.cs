@@ -137,7 +137,7 @@ namespace OpenSage.Mathematics
             var width = maxPosition.X - position.X;
             var height = maxPosition.Y - position.Y;
             var rect = new RectangleF(position, width, height);
-            return rect.IntersectsWith(bounds);
+            return rect.Intersects(bounds);
         }
 
         // Based on http://dev.theomader.com/transform-bounding-boxes/

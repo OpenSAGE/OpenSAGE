@@ -167,12 +167,38 @@ namespace OpenSage.Mathematics
                 && rect.Bottom <= Bottom;
         }
 
-        public bool IntersectsWith(in RectangleF rect)
+        public bool Intersects(in RectangleF rect)
         {
             return rect.Left <= Right
                 && rect.Right >= Left
                 && rect.Top <= Bottom
                 && rect.Bottom >= Top;
+        }
+
+        public bool Intersects(in Vector2 center, float radius)
+        {
+            var halfWidth = Width / 2.0f;
+            var halfHeight = Height / 2.0f;
+
+            var circleDistanceX = MathF.Abs(center.X - (X + halfWidth));
+            var circleDistanceY = MathF.Abs(center.Y - (Y + halfHeight));
+
+            if (circleDistanceX > halfWidth + radius ||
+                circleDistanceY > halfHeight + radius)
+            {
+                return false;
+            }
+
+            if (circleDistanceX <= halfWidth ||
+                circleDistanceY <= halfHeight)
+            {
+                return true;
+            }
+
+            var cornerDistanceSquared = MathF.Pow(circleDistanceX - halfWidth, 2) +
+                                        MathF.Pow(circleDistanceY - halfHeight, 2);
+
+            return cornerDistanceSquared <= MathF.Pow(radius, 2);
         }
 
         // TODO: It might make sense to micro-optimize this, as it's a very common operation.
@@ -183,7 +209,7 @@ namespace OpenSage.Mathematics
                 return ContainmentType.Contains;
             }
 
-            if (IntersectsWith(rect))
+            if (Intersects(rect))
             {
                 return ContainmentType.Intersects;
             }

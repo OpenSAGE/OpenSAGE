@@ -62,30 +62,7 @@ namespace OpenSage.Mathematics
             return distance < -Radius ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
         }
 
-        public bool Intersects(RectangleF bounds)
-        {
-            var halfWidth = bounds.Width / 2.0f;
-            var halfHeight = bounds.Height / 2.0f;
-
-            var circleDistanceX = MathF.Abs(Center.X - (bounds.X + halfWidth));
-            var circleDistanceY = MathF.Abs(Center.Y - (bounds.Y + halfHeight));
-
-            if (circleDistanceX > halfWidth + Radius ||
-                circleDistanceY > halfHeight + Radius)
-            {
-                return false;
-            }
-
-            if (circleDistanceX <= halfWidth ||
-                circleDistanceY <= halfHeight)
-            {
-                return true;
-            }
-
-            var cornerDistanceSquared = MathF.Pow((circleDistanceX - halfWidth), 2) +
-                                        MathF.Pow((circleDistanceY - halfHeight), 2);
-
-            return cornerDistanceSquared <= MathF.Pow(Radius, 2);
-        }
+        public bool Intersects(RectangleF bounds) => bounds.Intersects(Center.Vector2XY(), Radius);
+        public bool Intersects(TransformedRectangle bounds) => bounds.Intersects(Center.Vector2XY(), Radius);
     }
 }

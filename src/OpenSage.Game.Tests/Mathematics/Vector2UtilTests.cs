@@ -9,18 +9,18 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void RotationByZeroIsIdentity()
         {
-            var axis = Vector2.Zero;
+            var center = Vector2.Zero;
             var point = new Vector2(1, 0);
-            var rotated = Vector2Utility.RotateAroundPoint(axis, point, 0);
+            var rotated = point.RotateAroundPoint(center, 0);
             VectorsEqual(point, rotated, 3);
         }
 
         [Fact]
         public void RotationBy2PiIsIdentity()
         {
-            var axis = Vector2.Zero;
+            var center = Vector2.Zero;
             var point = new Vector2(30, 30);
-            var rotated = Vector2Utility.RotateAroundPoint(axis, point, MathUtility.TwoPi);
+            var rotated = point.RotateAroundPoint(center, MathUtility.TwoPi);
             VectorsEqual(point, rotated, 3);
         }
 
@@ -28,18 +28,18 @@ namespace OpenSage.Tests.Mathematics
         public void RotationAroundItselfIsIdentity()
         {
             var point = new Vector2(2, 2);
-            var rotated = Vector2Utility.RotateAroundPoint(point, point, MathUtility.PiOver2);
+            var rotated = point.RotateAroundPoint(point, MathUtility.PiOver2);
             VectorsEqual(point, rotated, 3);
         }
 
         [Fact]
         public void RotationForwardsAndBackwardsIsIdentity()
         {
-            var axis = Vector2.Zero;
+            var center = Vector2.Zero;
             var point = new Vector2(1, 3);
 
-            var rotatedCw = Vector2Utility.RotateAroundPoint(axis, point, 0.3f);
-            var rotatedCcw = Vector2Utility.RotateAroundPoint(axis, rotatedCw, -0.3f);
+            var rotatedCw = point.RotateAroundPoint(center, 0.3f);
+            var rotatedCcw = rotatedCw.RotateAroundPoint(center, -0.3f);
             VectorsEqual(point, rotatedCcw, 3);
         }
 
@@ -48,10 +48,10 @@ namespace OpenSage.Tests.Mathematics
         [InlineData(0, 0, 0, 1, -1.5708f, 1, 0)] // 90 degrees counter-clockwise
         public void RotationTheory(float axisX, float axisY, float pointX, float pointY, float angle, float resultX, float resultY)
         {
-            var axis = new Vector2(axisX, axisY);
+            var center = new Vector2(axisX, axisY);
             var point = new Vector2(pointX, pointY);
             var expected = new Vector2(resultX, resultY);
-            var rotated = Vector2Utility.RotateAroundPoint(axis, point, angle);
+            var rotated = point.RotateAroundPoint(center, angle);
             VectorsEqual(expected, rotated, 3);
         }
 
