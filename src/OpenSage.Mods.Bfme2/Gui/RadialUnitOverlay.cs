@@ -53,8 +53,8 @@ namespace OpenSage.Mods.Bfme2.Gui
 
             _visible = true;
 
-            var screenSpaceBoundingRectangle = selectedUnit.Collider.GetBoundingRectangle(_game.Scene3D.Camera);
-            _center = screenSpaceBoundingRectangle.Center;
+            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedUnit.Collider.WorldBounds.Center);
+            _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
             _commandSet = selectedUnit.Definition.CommandSet.Value;
 
             if (_selectedUnit != selectedUnit && _commandSet != null)

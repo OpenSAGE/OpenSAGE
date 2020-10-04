@@ -170,12 +170,12 @@ namespace OpenSage.Logic.Object
 
             if (_locomotorTemplate.CloseEnoughDist > 0.01f && distanceRemaining < _locomotorTemplate.CloseEnoughDist * 2)
             {
-                _gameObject.Transform.Translation = targetPoint;
+                _gameObject.UpdateTransform(targetPoint);
                 return true;
             }
             if (_locomotorTemplate.SlideIntoPlaceTime > 0 && (_locomotorTemplate.SlideIntoPlaceTime / 1000 * _locomotorTemplate.Speed) < distanceRemaining)
             {
-                _gameObject.Transform.Translation = targetPoint;
+                _gameObject.UpdateTransform(targetPoint);
                 return true;
             }
 
