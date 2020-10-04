@@ -189,7 +189,7 @@ namespace OpenSage.Audio
             if (source == null)
                 return;
 
-            _3dengine.SetSourcePosition(source, emitter.Transform.Translation);
+            _3dengine.SetSourcePosition(source, emitter.Translation);
             source.Play();
         }
 

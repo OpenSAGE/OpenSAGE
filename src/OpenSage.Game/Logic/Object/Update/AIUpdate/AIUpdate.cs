@@ -98,7 +98,7 @@ namespace OpenSage.Logic.Object
             }
             else if (GameObject.Definition.KindOf.Get(ObjectKinds.Horde))
             {
-                var targetDirection = targetPoint - GameObject.Transform.Translation;
+                var targetDirection = targetPoint - GameObject.Translation;
                 GameObject.FindBehavior<HordeContainBehavior>()?.SetTargetPoints(targetPoint, targetDirection);
             }
 

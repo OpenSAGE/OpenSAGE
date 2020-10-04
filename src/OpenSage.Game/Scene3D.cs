@@ -509,6 +509,7 @@ namespace OpenSage
                     geometrySize = Math.Max(geometrySize, 15);
                 }
 
+
                 var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 

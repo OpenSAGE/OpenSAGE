@@ -70,8 +70,7 @@ namespace OpenSage.Logic.Object
                     position.Object = createdObject;
                     _payload.Add(createdObject);
 
-                    createdObject.Transform.Translation = _gameObject.Transform.Translation + position.Position;
-                    createdObject.Transform.Rotation = _gameObject.Transform.Rotation;
+                    createdObject.UpdateTransform(_gameObject.Translation + position.Position, _gameObject.Rotation);
                 }
             }
         }
@@ -124,7 +123,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3 GetFormationOffset(GameObject obj)
         {
-            var hordeYaw = _gameObject.Transform.EulerAngles.Z;
+            var hordeYaw = _gameObject.EulerAngles.Z;
             foreach (var rank in _formation.Values)
             {
                 foreach (var position in rank)
