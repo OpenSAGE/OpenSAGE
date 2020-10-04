@@ -80,10 +80,10 @@ namespace OpenSage.Logic.Object
         protected SphereCollider(RectangleF rect)
             : base(new Transform(Matrix4x4.Identity), 0)
         {
-            var radius = Math.Max(rect.Width, rect.Height) / 2.0f;
+            var radius = new Vector2(rect.Width, rect.Height).Length() / 2.0f;
             SphereBounds = new BoundingSphere(Vector3.Zero, radius);
 
-            var center = new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0);
+            var center = new Vector3(rect.X + rect.Width / 2.0f, rect.Y + rect.Height / 2.0f, 0);
             WorldBounds = new BoundingSphere(center, radius);
             AxisAlignedBoundingArea = rect;
             BoundingArea = TransformedRectangle.FromRectangle(rect);
@@ -111,8 +111,21 @@ namespace OpenSage.Logic.Object
         public override bool Intersects(Collider other)
         {
             var distance = (WorldBounds.Center - other.WorldBounds.Center).Length();
-            return (distance <= WorldBounds.Radius + other.WorldBounds.Radius);
-            // TODO: sphere - cylinder, sphere - box
+            if (distance <= WorldBounds.Radius + other.WorldBounds.Radius)
+            {
+                if (other is BoxCollider box)
+                {
+                    return Intersects(box);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public bool Intersects(BoxCollider other)
+        {
+            // TODO: also check for other.BoundingArea (TransformedRectangle)
+            return Intersects(other.AxisAlignedBoundingArea);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
@@ -274,7 +287,20 @@ namespace OpenSage.Logic.Object
             drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
         }
 
+        public override bool Intersects(Collider other)
+        {
+            if (base.Intersects(other))
+            {
+                if (other is BoxCollider box)
+                {
+                    return Intersects(box);
+                }
+                return true;
+            }
+            return false;
+        }
+
         // TODO: This ignores the Z dimension. Does that matter?
-        public bool Intersects(BoxCollider other) => BoundingArea.Intersects(other.BoundingArea);
+        public new bool Intersects(BoxCollider other) => base.Intersects(other) && BoundingArea.Intersects(other.BoundingArea);
     }
 }
