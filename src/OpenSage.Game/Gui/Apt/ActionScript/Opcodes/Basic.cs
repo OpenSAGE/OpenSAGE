@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -30,7 +29,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var pool = context.Scope.Constants;
             pool.Clear();
 
-            for (int i = 0; i < Parameters.Count; ++i)
+            for (var i = 0; i < Parameters.Count; ++i)
             {
                 pool.Add(Parameters[i].ResolveConstant(context));
             }
@@ -101,7 +100,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var value = context.Pop();
+            var varName = context.Pop().ToString();
+            context.Locals.Remove(varName);
         }
     }
 
