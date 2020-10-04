@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
@@ -46,6 +47,14 @@ namespace OpenSage.Scripting
                     condition.WriteTo(writer, assetNames);
                 }
             });
+        }
+
+        public ScriptOrCondition Copy(string appendix)
+        {
+            return new ScriptOrCondition()
+            {
+                Conditions = Conditions.Select(c => c.Copy(appendix)).ToArray()
+            };
         }
     }
 }

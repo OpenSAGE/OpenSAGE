@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
@@ -53,6 +54,18 @@ namespace OpenSage.Scripting
                         writer.WriteBooleanUInt32(IsInverted);
                     }
                 });
+        }
+
+        public ScriptCondition Copy(string appendix)
+        {
+            return new ScriptCondition()
+            {
+                Arguments = Arguments.Select(a => a.Copy(appendix)).ToArray(),
+                ContentType = ContentType,
+                Enabled = Enabled,
+                InternalName = InternalName,
+                IsInverted = IsInverted
+            };
         }
     }
 }

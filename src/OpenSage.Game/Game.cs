@@ -672,8 +672,9 @@ namespace OpenSage
                     }
                 }
 
-                Scene3D.SetPlayers(players, players[localPlayerIndex]);
-                Scripting.LoadDefaultScripts();
+                // TODO: Theoretically, there could be multiple civilian players
+                Scene3D.SetSkirmishPlayers(players, players[localPlayerIndex]);
+                Scripting.InitializeSkirmishGame();
             }
 
             if (Definition.ControlBar != null)

@@ -69,7 +69,7 @@ namespace OpenSage
         public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
-        public ScriptList[] PlayerScripts { get; }
+        public ScriptList[] PlayerScripts { get; private set; }
 
         public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
@@ -362,7 +362,7 @@ namespace OpenSage
             AddDisposeAction(() => inputMessageBuffer.Handlers.Remove(handler));
         }
 
-        public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
+        public void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
         {
             _players = players.ToList();
 

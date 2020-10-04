@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
@@ -19,6 +20,17 @@ namespace OpenSage.Scripting
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteTo(writer, assetNames, MinimumVersionThatHasInternalName, MinimumVersionThatHasEnabledFlag);
+        }
+
+        public ScriptAction Copy(string appendix)
+        {
+            return new ScriptAction()
+            {
+                Arguments = Arguments.Select(a => a.Copy(appendix)).ToArray(),
+                ContentType = ContentType,
+                Enabled = Enabled,
+                InternalName = InternalName
+            };
         }
     }
 }

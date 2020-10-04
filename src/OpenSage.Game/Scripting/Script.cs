@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
@@ -323,6 +324,37 @@ namespace OpenSage.Scripting
         {
             var version = reader.ReadVersion();
             IsActive = reader.ReadBooleanChecked();
+        }
+
+        public Script Copy(string appendix)
+        {
+            return new Script()
+            {
+                ActionsComment = ActionsComment,
+                ActionsFireSequentially = ActionsFireSequentially,
+                ActionsIfFalse = ActionsIfFalse.Select(a => a.Copy(appendix)).ToArray(),
+                ActionsIfTrue = ActionsIfTrue.Select(a => a.Copy(appendix)).ToArray(),
+                ActiveInEasy = ActiveInEasy,
+                ActiveInHard = ActiveInHard,
+                ActiveInMedium = ActiveInMedium,
+                Comment = Comment,
+                ConditionsComment = ConditionsComment,
+                DeactivateUponSuccess = DeactivateUponSuccess,
+                EvaluationInterval = EvaluationInterval,
+                EvaluationIntervalType = EvaluationIntervalType,
+                IsActive = IsActive,
+                IsSubroutine = IsSubroutine,
+                LoopActions = LoopActions,
+                LoopCount = LoopCount,
+                Name = Name + appendix,
+                OrConditions = OrConditions.Select(c => c.Copy(appendix)).ToArray(),
+                SequentialTargetName = SequentialTargetName, // TODO: appendix?
+                SequentialTargetType = SequentialTargetType,
+                Unknown = Unknown,
+                Unknown2 = Unknown2,
+                Unknown3 = Unknown3,
+                UsesEvaluationIntervalType = UsesEvaluationIntervalType,
+            };
         }
     }
 

@@ -113,5 +113,25 @@ namespace OpenSage.Scripting
 
             return $"({ArgumentType}) {value}";
         }
+
+        public ScriptArgument Copy(string appendix)
+        {
+            return new ScriptArgument()
+            {
+                ArgumentType = ArgumentType,
+                FloatValue = FloatValue,
+                PositionValue = PositionValue,
+                IntValue = IntValue,
+                StringValue = ArgumentType switch
+                {
+                    ScriptArgumentType.CounterName => StringValue + appendix,
+                    ScriptArgumentType.FlagName => StringValue + appendix,
+                    ScriptArgumentType.ScriptName => StringValue + appendix,
+                    ScriptArgumentType.SubroutineName => StringValue + appendix,
+                    ScriptArgumentType.TeamName => StringValue + appendix,
+                    _ => StringValue
+                }
+            };
+        }
     }
 }

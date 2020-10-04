@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
@@ -133,6 +134,18 @@ namespace OpenSage.Scripting
             {
                 Scripts[i].Load(reader);
             }
+        }
+
+        public ScriptGroup Copy(string appendix)
+        {
+            return new ScriptGroup()
+            {
+                Groups = Groups.Select(g => g.Copy(appendix)).ToArray(),
+                IsActive = IsActive,
+                IsSubroutine = IsSubroutine,
+                Name = Name + appendix,
+                Scripts = Scripts.Select(s => s.Copy(appendix)).ToArray()
+            };
         }
     }
 }
