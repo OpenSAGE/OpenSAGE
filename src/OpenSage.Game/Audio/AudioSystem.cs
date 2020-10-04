@@ -23,6 +23,9 @@ namespace OpenSage.Audio
 
         private readonly Dictionary<string, int> _musicTrackFinishedCounts = new Dictionary<string, int>();
 
+        private string _currentTrackName;
+        private SoundStream _currentTrack;
+
         public AudioSystem(Game game) : base(game)
         {
             _engine = AudioEngine.CreateDefault();
@@ -48,6 +51,15 @@ namespace OpenSage.Audio
             if (camera != null)
             {
                 UpdateListener(camera);
+            }
+
+            if (_currentTrack != null && !_currentTrack.IsPlaying)
+            {
+                _musicTrackFinishedCounts.TryGetValue(_currentTrackName, out var count);
+                _musicTrackFinishedCounts[_currentTrackName] = count + 1;
+                _currentTrack.Dispose();
+                _currentTrack = null;
+                _currentTrackName = null;
             }
         }
 
@@ -221,11 +233,16 @@ namespace OpenSage.Audio
         {
             // TODO: fading
 
-            var stream = GetStream(musicTrack.File.Value.Entry);
-            stream.Volume = (float) musicTrack.Volume;
-            stream.Play();
+            if (_currentTrack != null)
+            {
+                _currentTrack.Stop();
+                _currentTrack.Dispose();
+            }
 
-            // TODO: how do we know when a track has finished?
+            _currentTrackName = musicTrack.Name;
+            _currentTrack = GetStream(musicTrack.File.Value.Entry);
+            _currentTrack.Volume = (float) musicTrack.Volume;
+            _currentTrack.Play();
         }
 
         public int GetFinishedCount(string musicTrackName)
