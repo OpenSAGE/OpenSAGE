@@ -76,6 +76,19 @@ namespace OpenSage.Mathematics
             return true;
         }
 
+        public bool Intersects(in Vector2 center, float radius)
+        {
+            var width = (LowerRight - LowerLeft).Length();
+            var height = (UpperLeft - LowerLeft).Length();
+            var rectF = new RectangleF(Vector2.Zero, width, height);
+
+            var rectAngle = Vector2Utility.Angle(LowerLeft, LowerRight);
+            var newCenter = center - LowerLeft;
+            newCenter = newCenter.RotateAroundPoint(LowerLeft, -rectAngle);
+
+            return rectF.Intersects(newCenter, radius);
+        }
+
         public bool Contains(Vector2 point)
         {
             return TriangleUtility.IsPointInside(LowerLeft, UpperLeft, UpperRight, point)
@@ -91,10 +104,10 @@ namespace OpenSage.Mathematics
 
             var center = (upperLeft + lowerRight) / 2;
 
-            upperLeft = Vector2Utility.RotateAroundPoint(center, upperLeft, angle);
-            upperRight = Vector2Utility.RotateAroundPoint(center, upperRight, angle);
-            lowerLeft = Vector2Utility.RotateAroundPoint(center, lowerLeft, angle);
-            lowerRight = Vector2Utility.RotateAroundPoint(center, lowerRight, angle);
+            upperLeft = upperLeft.RotateAroundPoint(center, angle);
+            upperRight = upperRight.RotateAroundPoint(center, angle);
+            lowerLeft = lowerLeft.RotateAroundPoint(center, angle);
+            lowerRight = lowerRight.RotateAroundPoint(center, angle);
 
             return new TransformedRectangle(upperLeft, upperRight, lowerLeft, lowerRight);
         }

@@ -104,6 +104,8 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
+        public bool Intersects(TransformedRectangle rect) => WorldBounds.Intersects(rect);
+
         public override bool Intersects(RectangleF bounds) => WorldBounds.Intersects(bounds);
 
         public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects(WorldBounds);
@@ -122,11 +124,7 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        public bool Intersects(BoxCollider other)
-        {
-            // TODO: also check for other.BoundingArea (TransformedRectangle)
-            return Intersects(other.AxisAlignedBoundingArea);
-        }
+        public bool Intersects(BoxCollider other) => Intersects(other.AxisAlignedBoundingArea)/* && Intersects(other.BoundingArea)*/;
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {

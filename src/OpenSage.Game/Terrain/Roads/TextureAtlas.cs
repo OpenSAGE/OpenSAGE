@@ -158,8 +158,8 @@ namespace OpenSage.Terrain.Roads
             var topLeft = new Vector2(uStart, v - halfRoadWidth);
             var bottomLeft = new Vector2(uStart, v + halfRoadWidth + additionalRadius);
 
-            var topRight = Vector2Utility.RotateAroundPoint(center, topLeft, -angle);
-            var bottomRight = Vector2Utility.RotateAroundPoint(center, bottomLeft, -angle);
+            var topRight = topLeft.RotateAroundPoint(center, -angle);
+            var bottomRight = bottomLeft.RotateAroundPoint(center, -angle);
 
             return new TextureCoordinates(
                 topLeft,

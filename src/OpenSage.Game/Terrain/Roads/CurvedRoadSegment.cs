@@ -172,7 +172,7 @@ namespace OpenSage.Terrain.Roads
             while (remainingAngle > 0f)
             {
                 var centerLeft = previousEndPoint.Position;
-                centerLeft = new Vector3(Vector2Utility.RotateAroundPoint(center2, centerLeft.Vector2XY(), overlapRotationAngle), 0f);
+                centerLeft = new Vector3(centerLeft.Vector2XY().RotateAroundPoint(center2, overlapRotationAngle), 0f);
 
                 currentSegment = CreateSegment(centerLeft);
                 currentSegment.Start.ConnectTo(previousSegment, previousDirection);
@@ -198,8 +198,8 @@ namespace OpenSage.Terrain.Roads
 
                 var topLeft = centerLeft + upDirection * halfRoadWidth;
                 var bottomLeft = centerLeft - upDirection * (halfRoadWidth + additionalRadius);
-                var topRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, topLeft.Vector2XY(), segmentAngle), 0f);
-                var bottomRight = new Vector3(Vector2Utility.RotateAroundPoint(center2, bottomLeft.Vector2XY(), segmentAngle), 0f);
+                var topRight = new Vector3(topLeft.Vector2XY().RotateAroundPoint(center2, segmentAngle), 0f);
+                var bottomRight = new Vector3(bottomLeft.Vector2XY().RotateAroundPoint(center2, segmentAngle), 0f);
 
                 var topRightToBottomRight = bottomRight - topRight;
 
