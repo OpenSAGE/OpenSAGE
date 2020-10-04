@@ -7,9 +7,6 @@ using OpenSage.Logic.Object;
 using SharpAudio;
 using SharpAudio.Codec;
 using SharpAudio.Codec.Wave;
-using SharpAudio.Util;
-using SharpAudio.Util.Mp3;
-using SharpAudio.Util.Wave;
 
 namespace OpenSage.Audio
 {
@@ -41,7 +38,10 @@ namespace OpenSage.Audio
 
         public void Update(Camera camera)
         {
-            UpdateListener(camera);
+            if (camera != null)
+            {
+                UpdateListener(camera);
+            }
         }
 
         private void CreateSubmixers()

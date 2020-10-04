@@ -10,11 +10,11 @@ namespace OpenSage.Scripting
         where TContentType : struct
     {
         public TContentType ContentType { get; set; }
-        public AssetPropertyKey InternalName { get; private set; }
+        public AssetPropertyKey InternalName { get; protected set; }
 
         public ScriptArgument[] Arguments { get; set; }
 
-        public bool Enabled { get; private set; }
+        public bool Enabled { get; protected set; }
 
         protected ScriptContent()
         {

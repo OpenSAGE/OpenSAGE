@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
@@ -135,10 +136,11 @@ namespace OpenSage.Scripting
 
         internal ScriptList Copy(string appendix)
         {
-            // TODO
             return new ScriptList()
             {
-
+                Scripts = Scripts.Select(s => s.Copy(appendix)).ToArray(),
+                ScriptGroups = ScriptGroups.Select(s => s.Copy(appendix)).ToArray()
+                // TODO: how to set Version correctly?
             };
         }
     }
