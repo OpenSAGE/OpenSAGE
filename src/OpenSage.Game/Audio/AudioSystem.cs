@@ -21,6 +21,8 @@ namespace OpenSage.Audio
 
         private readonly Random _random;
 
+        private readonly Dictionary<string, int> _musicTrackFinishedCounts = new Dictionary<string, int>();
+
         public AudioSystem(Game game) : base(game)
         {
             _engine = AudioEngine.CreateDefault();
@@ -34,6 +36,11 @@ namespace OpenSage.Audio
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
+        }
+
+        internal override void OnSceneChanged()
+        {
+            _musicTrackFinishedCounts.Clear();
         }
 
         public void Update(Camera camera)
@@ -210,11 +217,20 @@ namespace OpenSage.Audio
             source.Play();
         }
 
-        public void PlayMusicTrack(MusicTrack musicTrack)
+        public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
         {
+            // TODO: fading
+
             var stream = GetStream(musicTrack.File.Value.Entry);
             stream.Volume = (float) musicTrack.Volume;
-            stream.Play();            
+            stream.Play();
+
+            // TODO: how do we know when a track has finished?
+        }
+
+        public int GetFinishedCount(string musicTrackName)
+        {
+            return _musicTrackFinishedCounts.TryGetValue(musicTrackName, out var number) ? number : 0;
         }
     }
 }

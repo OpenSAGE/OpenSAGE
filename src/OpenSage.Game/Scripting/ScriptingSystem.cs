@@ -379,7 +379,6 @@ namespace OpenSage.Scripting
                     }
                 }
             }
-            // Audio.PlayMusicTrack(AssetStore.MusicTracks.GetByName("End_USA_Failure"));
         }
 
         /// <summary>
