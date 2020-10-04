@@ -1,8 +1,65 @@
-﻿using OpenSage.Content;
+﻿using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class SpawnBehaviorModule : BehaviorModule
+    {
+        GameObject _gameObject;
+        SpawnBehaviorModuleData _moduleData;
+
+        private List<GameObject> _spawnedUnits;
+        private bool _initial;
+        private IProductionExit _productionExit;
+  
+        internal SpawnBehaviorModule(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+
+            _spawnedUnits = new List<GameObject>();
+            _initial = true;
+        }
+
+        private void SpawnUnit()
+        {
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+
+            var spawnedObject = _gameObject.Parent.Add(_moduleData.SpawnTemplate.Value);
+            _spawnedUnits.Add(spawnedObject);
+
+            var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
+            if (slavedUpdate != null)
+            {
+                slavedUpdate.Master = _gameObject;
+            }
+
+            if (_productionExit != null)
+            {
+                spawnedObject.Transform.Translation = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
+
+                var rallyPoint = _productionExit.GetNaturalRallyPoint();
+                if (rallyPoint.HasValue)
+                {
+                    spawnedObject.AIUpdate?.AddTargetPoint(_gameObject.ToWorldspace(rallyPoint.Value));
+                }
+            }
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_initial)
+            {
+                for (var i = 0; i < _moduleData.SpawnNumber; i++)
+                {
+                    SpawnUnit();
+                }
+                _initial = false;
+            }
+        }
+    }
+
     public sealed class SpawnBehaviorModuleData : UpgradeModuleData
     {
         internal static SpawnBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -54,5 +111,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool SpawnInsideBuilding { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SpawnBehaviorModule(gameObject, context, this);
+        }
     }
 }
