@@ -8,7 +8,9 @@ namespace OpenSage.Gui.ControlBar
 {
     public sealed class CommandButton : BaseAsset
     {
-        public CommandButton(){ }
+        public CommandButton()
+        {
+        }
 
         public CommandButton(CommandType commandType, LazyAssetReference<ObjectDefinition> definition)
         {

@@ -58,8 +58,6 @@ namespace OpenSage.Logic.Object
                         false,
                         angle);
 
-                    baseObject.BuildProgress = 1.0f;
-
                     if (_moduleData.FilterValidOwnedEntries.Matches(baseObject))
                     {
                         baseObject.Owner = player;

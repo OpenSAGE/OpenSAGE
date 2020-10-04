@@ -92,6 +92,7 @@ namespace OpenSage.Logic.Object
 
             if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))
             {
+                gameObject.BuildProgress = 1.0f;
                 gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
 

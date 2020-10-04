@@ -185,15 +185,14 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
         {
-            return;
-
             var source = PlayAudioEventBase(baseAudioEvent);
             if (source == null)
             {
                 return;
             }
 
-            _3dengine.SetSourcePosition(source, emitter.Translation);
+            // TODO: fix issues with some units
+            //_3dengine.SetSourcePosition(source, emitter.Transform.Translation);
             source.Play();
         }
 
