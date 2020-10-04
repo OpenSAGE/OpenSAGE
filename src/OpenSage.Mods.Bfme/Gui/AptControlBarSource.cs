@@ -110,14 +110,23 @@ namespace OpenSage.Mods.Bfme
         private void ClearCommandbuttons()
         {
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+            if (aptCommandButtons.Constants.Count == 0)
+            {
+                return;
+            }
             for (var i = 1; i <= 6; i++)
             {
-                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
-                var placeHolder = commandButton.GetMember("placeholder").ToObject();
-                placeHolder.Item.Visible = false;
+                var key = "Command" + i;
+                if (_game.SageGame == SageGame.Bfme2)
+                {
+                    key = (i - 1).ToString();
+                    var commandButton = aptCommandButtons.GetMember(key).ToObject();
+                    var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                    placeHolder.Item.Visible = false;
 
-                var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
-                shape.RenderCallback = null;
+                    var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
+                    shape.RenderCallback = null;
+                }
             }
         }
 
@@ -144,7 +153,13 @@ namespace OpenSage.Mods.Bfme
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
             for (var i = 1; i <= 6; i++)
             {
-                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
+                var key = "Command" + i;
+                if (_game.SageGame == SageGame.Bfme2)
+                {
+                    key = (i - 1).ToString();
+                }
+
+                var commandButton = aptCommandButtons.GetMember(key).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;
 

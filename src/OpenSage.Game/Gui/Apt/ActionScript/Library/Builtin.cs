@@ -53,9 +53,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     var hexStr = v.ToString();
                     var hexColor = Convert.ToInt32(hexStr, 16);
 
-                    float b = (hexColor & 0xFF) / 255.0f;
-                    float g = ((hexColor & 0xFF00) >> 8) / 255.0f;
-                    float r = ((hexColor & 0xFF0000) >> 16) / 255.0f;
+                    var b = (hexColor & 0xFF) / 255.0f;
+                    var g = ((hexColor & 0xFF00) >> 8) / 255.0f;
+                    var r = ((hexColor & 0xFF0000) >> 16) / 255.0f;
 
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
