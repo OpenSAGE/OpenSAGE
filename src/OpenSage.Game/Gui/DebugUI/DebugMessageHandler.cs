@@ -33,6 +33,9 @@ namespace OpenSage.Gui.DebugUI
                         case Key.F4:
                             _overlay.ToggleRoadMeshes();
                             return InputMessageResult.Handled;
+                        case Key.F5:
+                            _overlay.ToggleQuadTree();
+                            return InputMessageResult.Handled;
                     }
                     break;
             }

@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Orders
             _game = game;
         }
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void Process(IEnumerable<Order> orders)
         {
@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Orders
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
-                logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
+                Logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
 
                 switch (order.OrderType)
                 {
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;
 
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
                             player.SpendMoney((uint) upgradeDefinition.BuildCost);
 
@@ -148,7 +148,7 @@ namespace OpenSage.Logic.Orders
                         try
                         {
                             var objectIds = order.Arguments.Skip(1)
-                                .Select(x => (int) x.Value.ObjectId)
+                                .Select(x => x.Value.ObjectId)
                                 .Select(_game.Scene3D.GameObjects.GetObjectById)
                                 .ToArray();
 
@@ -156,7 +156,7 @@ namespace OpenSage.Logic.Orders
                         }
                         catch (Exception e)
                         {
-                            logger.Error(e, "Error while setting selection");
+                            Logger.Error(e, "Error while setting selection");
                         }
 
                         break;
@@ -169,7 +169,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.ForceAttackObject:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
 
                             foreach (var unit in player.SelectedUnits)
                             {
@@ -200,7 +200,7 @@ namespace OpenSage.Logic.Orders
                             if (order.Arguments.Count == 2)
                             {
                                 var objId = order.Arguments[0].Value.ObjectId;
-                                var obj = _game.Scene3D.GameObjects.GetObjectById((int) objId);
+                                var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
                                 var rallyPoint = order.Arguments[1].Value.Position;
                                 obj.RallyPoint = rallyPoint;
@@ -208,7 +208,7 @@ namespace OpenSage.Logic.Orders
                             else
                             {
                                 var objIds = order.Arguments.Skip(1)
-                                    .Select(x => (int) x.Value.ObjectId)
+                                    .Select(x => x.Value.ObjectId)
                                     .Select(_game.Scene3D.GameObjects.GetObjectById)
                                     .ToArray();
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
@@ -216,7 +216,7 @@ namespace OpenSage.Logic.Orders
                         }
                         catch (System.Exception e)
                         {
-                            logger.Error(e, "Error while setting rallypoint");
+                            Logger.Error(e, "Error while setting rallypoint");
                         }
                         break;
                     case OrderType.SpecialPower:
@@ -241,7 +241,7 @@ namespace OpenSage.Logic.Orders
                     default:
                         var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
 
-                        logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
+                        Logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
                         break;
                 }
             }

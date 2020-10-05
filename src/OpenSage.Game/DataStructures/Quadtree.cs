@@ -19,7 +19,7 @@ namespace OpenSage.DataStructures
         // If this a tree node, this array is initialized
         private Quadtree<T>[] _children;
 
-        private readonly HashSet<T> _items = new HashSet<T>();
+        private HashSet<T> _items = new HashSet<T>();
 
         private readonly int _depth;
 
@@ -41,11 +41,12 @@ namespace OpenSage.DataStructures
 
             var position = parentBounds.Position;
 
+            // position this 'child'-quadtree according to its Quad position
             switch (quad)
             {
-                case Quad.LowerLeft:
+                case Quad.LowerLeft: // our lower left corner aligns with the parents lower left corner so nothing to do
                     break;
-                case Quad.LowerRight:
+                case Quad.LowerRight: 
                     position.X += halfWidth;
                     break;
                 case Quad.UpperLeft:
@@ -119,8 +120,8 @@ namespace OpenSage.DataStructures
                 new Quadtree<T>(Bounds, Quad.LowerRight, depth)
             };
 
-            var oldItems = _items.ToList();
-            _items.Clear();
+            var oldItems = _items;
+            _items = new HashSet<T>();
 
             foreach (var oldItem in oldItems)
             {

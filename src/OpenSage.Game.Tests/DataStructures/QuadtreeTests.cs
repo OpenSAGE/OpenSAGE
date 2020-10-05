@@ -1,8 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.DataStructures;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using SharpDX;
 using Xunit;
 
 namespace OpenSage.Tests.DataStructures
@@ -38,6 +38,35 @@ namespace OpenSage.Tests.DataStructures
 
             var allItems = quadtree.FindIntersecting(quadtree.Bounds).ToList();
             Assert.Equal(2, allItems.Count);
+        }
+
+        [Fact]
+        public void InsertAndRemoveManyOverlapping()
+        {
+            var items = new List<MockQuadtreeItem>
+            {
+                new MockQuadtreeItem(1, new RectangleF(0, 0, 1, 1)),
+                new MockQuadtreeItem(2, new RectangleF(0, 0, 1.25f, 1.25f)),
+                new MockQuadtreeItem(3, new RectangleF(0, 0, 1.5f, 1.5f)),
+                new MockQuadtreeItem(4, new RectangleF(0, 0, 1.75f, 1.75f)),
+                new MockQuadtreeItem(5, new RectangleF(0, 0, 2f, 2f)),
+            };
+
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 10, 10));
+
+            foreach (var item in items)
+            {
+                quadtree.Insert(item);
+            }
+
+            Assert.Equal(5, quadtree.FindIntersecting(quadtree.Bounds).Count());
+
+            foreach (var item in items)
+            {
+                quadtree.Remove(item);
+            }
+
+            Assert.Empty(quadtree.FindIntersecting(quadtree.Bounds));
         }
 
         [Fact]

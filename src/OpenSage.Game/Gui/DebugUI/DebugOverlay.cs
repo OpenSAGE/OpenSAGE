@@ -13,6 +13,7 @@ namespace OpenSage.Gui.DebugUI
     {
         public bool Enabled { get; set; }
         public bool ShowColliders { get; set; }
+        public bool ShowQuadTree { get; set; }
         public bool ShowRoadMeshes { get; set; }
 
         public Point2D MousePosition { get; internal set; }
@@ -108,8 +109,6 @@ namespace OpenSage.Gui.DebugUI
 
             if (ShowColliders)
             {
-                _scene3D.Quadtree.DebugDraw(context, camera);
-
                 foreach (var gameObject in _scene3D.GameObjects.Items)
                 {
                     // TODO: Reuse frustum culling results.
@@ -141,6 +140,11 @@ namespace OpenSage.Gui.DebugUI
                         }
                     }
                 }
+            }
+
+            if (ShowQuadTree)
+            {
+                _scene3D.Quadtree.DebugDraw(context, camera);
             }
 
             if (_scene3D.ShowRoads && ShowRoadMeshes)
@@ -179,6 +183,11 @@ namespace OpenSage.Gui.DebugUI
         public void ToggleColliders()
         {
             ShowColliders = !ShowColliders;
+        }
+
+        public void ToggleQuadTree()
+        {
+            ShowQuadTree = !ShowQuadTree;
         }
 
         public void ToggleRoadMeshes()
