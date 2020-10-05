@@ -49,6 +49,12 @@ namespace OpenSage.Content.Loaders
             }
             var animation = W3DAnimation.FromW3dFile(w3dFile);
 
+            if (animation == null)
+            {
+                logger.Warn("Failed to load animation (was null): " + key);
+                return null;
+            }
+
             if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
             {
                 logger.Warn("animation name '" + animation.Name + "' does not match '" + key + "'");

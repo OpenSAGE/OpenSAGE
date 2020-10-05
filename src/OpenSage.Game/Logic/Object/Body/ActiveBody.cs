@@ -53,15 +53,18 @@ namespace OpenSage.Logic.Object
             SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
-            var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+            if (armorSet.DamageFX.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
+            {
+                var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
 
-            // TODO: MajorFX
-            var damageFX = damageFXGroup.MinorFX?.Value;
-            damageFX?.Execute(
-                new FXListExecutionContext(
-                    GameObject.Rotation,
-                    GameObject.Translation,
-                    GameObject.GameContext));
+                // TODO: MajorFX
+                var damageFX = damageFXGroup.MinorFX?.Value;
+                damageFX?.Execute(
+                    new FXListExecutionContext(
+                        GameObject.Rotation,
+                        GameObject.Translation,
+                        GameObject.GameContext));
+            }
 
             if (Health <= Fix64.Zero)
             {

@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
             _createList.Clear();
         }
 
-        private void DeleteDestroyed()
+        public void DeleteDestroyed()
         {
             _destroyList.Clear();
             foreach (var (objectId, gameObject) in _items)
