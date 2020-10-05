@@ -81,7 +81,7 @@ namespace OpenSage
             return _scene.Terrain.HeightMap.GetPosition((int) position2D.X, (int) position2D.Y);
         }
 
-        public void AddGameObject(GameObject gameObject)
+        public void AddGameObject(GameObject gameObject, uint objectId)
         {
             switch (gameObject.Definition.RadarPriority)
             {
@@ -99,7 +99,7 @@ namespace OpenSage
 
             items.Add(new RadarItem
             {
-                ObjectId = (uint) _scene.GameObjects.GetObjectId(gameObject),
+                ObjectId = objectId,
                 Color = gameObject.Owner.Color.ToColorRgba()
             });
         }
@@ -166,7 +166,7 @@ namespace OpenSage
             // TODO: Use RadarPriority to decide what gets shown when there are multiple
             // things in the same radar position.
 
-            var gameObject = _scene.GameObjects.GetObjectById((int) item.ObjectId);
+            var gameObject = _scene.GameObjects.GetObjectById(item.ObjectId);
             var gameObjectPosition = gameObject.Translation;
 
             var radarPosition = WorldToRadarSpace(gameObjectPosition, miniMapTransform);

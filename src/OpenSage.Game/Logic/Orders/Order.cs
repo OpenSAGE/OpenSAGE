@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, in Vector3 targetPosition)
+        public static Order CreateSetRallyPointOrder(int playerId, List<uint> objectIds, in Vector3 targetPosition)
         {
             var order = new Order(playerId, OrderType.SetRallyPoint);
 
@@ -143,12 +143,12 @@ namespace OpenSage.Logic.Orders
                 order.AddPositionArgument(targetPosition);
                 foreach (var objId in objectIds)
                 {
-                    order.AddObjectIdArgument((uint) objId);
+                    order.AddObjectIdArgument(objId);
                 }
             }
             else
             {
-                order.AddObjectIdArgument((uint) objectIds.ElementAt(0));
+                order.AddObjectIdArgument(objectIds.ElementAt(0));
                 order.AddPositionArgument(targetPosition);
             }
 

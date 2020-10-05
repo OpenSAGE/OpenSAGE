@@ -395,10 +395,8 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            var currentCount = GameObjects.Items.Count;
-            for (var index = 0; index < currentCount; index++)
+            foreach (var gameObject in GameObjects.Items)
             {
-                var gameObject = GameObjects.Items[index];
                 gameObject.LogicTick(frame, time);
             }
 
@@ -407,9 +405,8 @@ namespace OpenSage
 
         private void DetectCollisions(in TimeInterval time)
         {
-            var numCollisions = 0; //??
-
-            foreach (var current in GameObjects.Items)
+            var items = GameObjects.Items;
+            foreach (var current in items)
             {
                 var intersecting = Quadtree.FindIntersecting(current.Collider);
 
@@ -417,7 +414,6 @@ namespace OpenSage
                 {
                     current.DoCollide(intersect, time);
                     intersect.DoCollide(current, time);
-                    numCollisions++;
                 }
             }
         }
@@ -426,9 +422,8 @@ namespace OpenSage
         {
             _orderGeneratorInputHandler?.Update();
 
-            for (var i = 0; i < GameObjects.Items.Count; i++)
+            foreach (var gameObject in GameObjects.Items)
             {
-                var gameObject = GameObjects.Items[i];
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
             }
 

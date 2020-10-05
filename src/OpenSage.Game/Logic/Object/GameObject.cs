@@ -15,7 +15,6 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Helpers;
-using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;
@@ -339,7 +338,7 @@ namespace OpenSage.Logic.Object
                 AIUpdate = AddDisposable(objectDefinition.AIUpdate.CreateAIUpdate(this));
                 _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
-            
+
             Collider = Collider.Create(objectDefinition, _transform);
 
             ModelConditionStates = drawModules
