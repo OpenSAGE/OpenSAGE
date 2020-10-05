@@ -132,6 +132,7 @@ namespace OpenSage.Logic.Object
             _gameContext.Quadtree.Update(this);
         }
 
+        public float Yaw => _transform.Yaw;
         public Vector3 EulerAngles => _transform.EulerAngles;
         public Vector3 LookDirection => _transform.LookDirection;
         public Vector3 Translation => _transform.Translation;

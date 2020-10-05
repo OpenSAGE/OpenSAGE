@@ -29,8 +29,8 @@ namespace OpenSage.Gui
                     var selectedObject = selection.First();
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
-                    order.AddPositionArgument(selectedObject.Transform.Translation);
-                    order.AddFloatArgument(selectedObject.Transform.Yaw + MathUtility.ToRadians(objectDefinition.PlacementViewAngle));
+                    order.AddPositionArgument(selectedObject.Translation);
+                    order.AddFloatArgument(selectedObject.Yaw + MathUtility.ToRadians(objectDefinition.PlacementViewAngle));
                     break;
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);
