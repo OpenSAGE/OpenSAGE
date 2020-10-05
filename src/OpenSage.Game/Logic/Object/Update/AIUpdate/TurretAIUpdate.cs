@@ -96,8 +96,8 @@ namespace OpenSage.Logic.Object
                         break;
                     }
 
-                    var directionToTarget = (target.TargetPosition - _gameObject.Transform.Translation).Vector2XY();
-                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget) + _gameObject.Transform.EulerAngles.Z;
+                    var directionToTarget = (target.TargetPosition - _gameObject.Translation).Vector2XY();
+                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget) + _gameObject.EulerAngles.Z;
 
                     if (Rotate(targetYaw, deltaTime))
                     {
@@ -186,7 +186,7 @@ namespace OpenSage.Logic.Object
             //TODO: use QuadTree
             foreach (var obj in context.GameContext.GameObjects.Items)
             {
-                var deltaTranslation = _gameObject.Transform.Translation - obj.Transform.Translation;
+                var deltaTranslation = _gameObject.Translation - obj.Translation;
                 var dist = deltaTranslation.Length();
 
                 if (dist < scanRange)
@@ -201,7 +201,7 @@ namespace OpenSage.Logic.Object
                         // TODO: test with GLAVehicleTechnicalChassisOne
                         var direction = deltaTranslation.Vector2XY();
                         var angleToObject = MathUtility.GetYawFromDirection(direction);
-                        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.Transform.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
+                        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
 
                         if (angleDelta < -scanAngleOffset || scanAngleOffset < angleDelta)
                         {
