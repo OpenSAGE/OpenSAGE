@@ -453,8 +453,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var obj in Parent.Items)
             {
-                if (obj.Definition.Name == definition.Name
-                    && obj.Owner == Owner)
+                if (obj.Definition == definition && obj.Owner == Owner)
                 {
                     return false;
                 }

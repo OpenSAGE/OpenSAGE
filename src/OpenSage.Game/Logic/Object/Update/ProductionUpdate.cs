@@ -237,7 +237,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var job in ProductionQueue)
                 {
-                    if (job.ObjectDefinition.Name == objectDefinition.Name)
+                    if (job.ObjectDefinition == objectDefinition)
                     {
                         return false;
                     }
