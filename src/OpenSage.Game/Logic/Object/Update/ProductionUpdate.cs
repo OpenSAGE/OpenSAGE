@@ -376,7 +376,7 @@ namespace OpenSage.Logic.Object
                 hordeContain.Register(_producedUnit);
 
                 var count = _producedUnit.AIUpdate.TargetPoints.Count;
-                var direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.Transform.Translation;
+                var direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.Translation;
                 if (count > 1)
                 {
                     direction = _producedUnit.AIUpdate.TargetPoints[count - 1] - _producedUnit.AIUpdate.TargetPoints[count - 2];
