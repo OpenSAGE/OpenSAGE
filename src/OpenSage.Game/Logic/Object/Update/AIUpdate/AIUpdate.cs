@@ -181,7 +181,12 @@ namespace OpenSage.Logic.Object
                 context.GameContext.Quadtree.Update(GameObject);
             }
 
-            if (_currentLocomotor != null && TargetPoints.Count > 0)
+            if (_currentLocomotor == null)
+            {
+                return;
+            }
+
+            if (TargetPoints.Count > 0)
             {
                 Vector3? nextPoint = null;
 

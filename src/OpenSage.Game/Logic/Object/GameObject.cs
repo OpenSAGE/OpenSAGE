@@ -94,7 +94,6 @@ namespace OpenSage.Logic.Object
 
             if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))
             {
-                gameObject.BuildProgress = 1.0f;
                 gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
             }
 
@@ -528,7 +527,7 @@ namespace OpenSage.Logic.Object
                 var passed = gameTime.TotalTime - ConstructionStart;
                 BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
 
-                if (Math.Abs(BuildProgress - 1.0f) < 0.01f)
+                if (MathF.Abs(BuildProgress - 1.0f) < 0.01f)
                 {
                     FinishConstruction();
                 }
@@ -862,7 +861,7 @@ namespace OpenSage.Logic.Object
 
             var userHasEnoughMoney = Owner.Money >= upgrade.BuildCost;
             var hasQueuedUpgrade = ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
-            var canEnqueue = ProductionUpdate.CanEnque();
+            var canEnqueue = ProductionUpdate.CanEnqueue();
             var hasUpgrade = UpgradeAvailable(upgrade);
             var upgradeIsInvalid = ConflictingUpgradeAvailable(upgrade);
 

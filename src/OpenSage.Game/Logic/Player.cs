@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
-using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -15,7 +14,7 @@ namespace OpenSage.Logic
     [DebuggerDisplay("[Player: {Name}]")]
     public class Player
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly StringSet _sciencesDisabled = new StringSet();
         private readonly StringSet _sciencesHidden = new StringSet();
@@ -71,7 +70,7 @@ namespace OpenSage.Logic
             else
             {
                 // this should not happen since we should check first if we can spend that much
-                logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
+                Logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
                 Money = 0;
             }
         }
