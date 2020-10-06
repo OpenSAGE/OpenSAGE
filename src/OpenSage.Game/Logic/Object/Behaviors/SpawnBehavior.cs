@@ -37,7 +37,7 @@ namespace OpenSage.Logic.Object
 
             if (_productionExit != null)
             {
-                spawnedObject.Transform.Translation = _gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint());
+                spawnedObject.SetTranslation(_gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint()));
 
                 var rallyPoint = _productionExit.GetNaturalRallyPoint();
                 if (rallyPoint.HasValue)
@@ -57,6 +57,8 @@ namespace OpenSage.Logic.Object
                 }
                 _initial = false;
             }
+
+            // TODO: respawn killed/dead units
         }
     }
 

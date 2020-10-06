@@ -42,7 +42,8 @@ namespace OpenSage.Logic.Object
         {
             if (_gameObject.Definition.KindOf.Get(ObjectKinds.Aircraft)
                 || _gameObject.Definition.KindOf.Get(ObjectKinds.Drone)
-                || _gameObject.Definition.KindOf.Get(ObjectKinds.GiantBird))
+                || _gameObject.Definition.KindOf.Get(ObjectKinds.GiantBird)
+                || _gameObject.AIUpdate?.CurrentLocomotor.LocomotorTemplate.Appearance == LocomotorAppearance.GiantBird)
             {
                 if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying) == false) return;
             }

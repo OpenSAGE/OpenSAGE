@@ -450,16 +450,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool CanRecruitHero(ObjectDefinition definition)
+        public bool CanRecruitHero(ObjectDefinition definition, int maxCount)
         {
+            var count = 0;
             foreach (var obj in Parent.Items)
             {
                 if (obj.Definition == definition && obj.Owner == Owner)
                 {
-                    return false;
+                    if (++count >= maxCount)
+                    {
+                        return false;
+                    }
                 }
             }
-            return true;
+            return count < maxCount;
         }
 
         public bool CanProduceObject(ObjectDefinition definition)

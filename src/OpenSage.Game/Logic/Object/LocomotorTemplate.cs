@@ -210,10 +210,10 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float ElevatorCorrectionRate { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float SlowTurnRadius { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float FastTurnRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

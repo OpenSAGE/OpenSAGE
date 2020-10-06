@@ -49,6 +49,7 @@ namespace OpenSage.Mods.Bfme.Gui
                 return;
             }
 
+            var playerTemplate = selectedUnit.Owner.Template;
             _visible = true;
 
             var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedUnit.Collider.WorldBounds.Center);
@@ -58,7 +59,6 @@ namespace OpenSage.Mods.Bfme.Gui
             if (_selectedUnit != selectedUnit && _commandSet != null)
             {
                 //Update button list
-                var playerTeamplate = selectedUnit.Owner.Template;
                 var heroIndex = 0;
 
                 var commandButtons = new List<CommandButton>();
@@ -66,9 +66,9 @@ namespace OpenSage.Mods.Bfme.Gui
                 {
                     if (button.Value.Command == CommandType.Revive)
                     {
-                        if (heroIndex < playerTeamplate.BuildableHeroesMP.Count())
+                        if (heroIndex < playerTemplate.BuildableHeroesMP.Count())
                         {
-                            var heroDefinition = playerTeamplate.BuildableHeroesMP[heroIndex++];
+                            var heroDefinition = playerTemplate.BuildableHeroesMP[heroIndex++];
                             commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
                         }
                     }
@@ -95,7 +95,12 @@ namespace OpenSage.Mods.Bfme.Gui
                 radialButton.IsVisible = true;
                 if (radialButton.IsRecruitHeroButton)
                 {
-                    radialButton.IsVisible = selectedUnit.CanRecruitHero(radialButton.CommandButton.Object.Value);
+                    var definition = radialButton.CommandButton.Object.Value;
+                    var maxSimultaneous = definition.MaxSimultaneousOfType.ExplicitCount;
+                    var maxCount = maxSimultaneous > 0
+                        ? maxSimultaneous
+                        : playerTemplate.BuildableHeroesMP.Where(x => x.Value == definition).Count();
+                    radialButton.IsVisible = selectedUnit.CanRecruitHero(definition, maxCount);
                 }
 
                 var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
