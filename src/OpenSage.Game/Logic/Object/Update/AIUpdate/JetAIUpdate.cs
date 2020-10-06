@@ -169,12 +169,12 @@ namespace OpenSage.Logic.Object
                     base.SetTargetPoint(endPointPosition);
                     AddTargetPoint(_currentTargetPoint);
                     CurrentJetAIState = JetAIState.Starting;
-                    _currentLocomotor.LiftFactor = 0;
+                    CurrentLocomotor.LiftFactor = 0;
                     break;
 
                 case JetAIState.Starting:
-                    var speedPercentage = GameObject.Speed / _currentLocomotor.GetSpeed();
-                    _currentLocomotor.LiftFactor = speedPercentage;
+                    var speedPercentage = GameObject.Speed / CurrentLocomotor.GetSpeed();
+                    CurrentLocomotor.LiftFactor = speedPercentage;
 
                     if (speedPercentage < _moduleData.TakeoffSpeedForMaxLift)
                     {
@@ -187,7 +187,7 @@ namespace OpenSage.Logic.Object
                 case JetAIState.MovingTowardsTarget:
                     if (isMoving)
                     {
-                        if (_afterburnerEnabled && trans.Z - terrainHeight >= _currentLocomotor.GetLocomotorValue(_ => _.PreferredHeight))
+                        if (_afterburnerEnabled && trans.Z - terrainHeight >= CurrentLocomotor.GetLocomotorValue(_ => _.PreferredHeight))
                         {
                             GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, false);
                             _afterburnerEnabled = false;

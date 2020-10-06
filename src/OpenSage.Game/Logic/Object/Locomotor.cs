@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameObject _gameObject;
         private readonly LocomotorSet _locomotorSet;
-        private readonly LocomotorTemplate _locomotorTemplate;
+        public readonly LocomotorTemplate LocomotorTemplate;
 
         public float LiftFactor;
 
@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
         {
             _gameObject = gameObject;
             _locomotorSet = locomotorSet;
-            _locomotorTemplate = locomotorSet.Locomotor.Value;
+            LocomotorTemplate = locomotorSet.Locomotor.Value;
             LiftFactor = 1.0f;
         }
 
@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
         public float GetSpeed()
         {
             // TODO: this is probably not correct for BFME
-            if (_locomotorTemplate.Speed.HasValue)
+            if (LocomotorTemplate.Speed.HasValue)
             {
                 return _gameObject.IsDamaged
                     ? GetScaledLocomotorValue(x => x.SpeedDamaged)
@@ -127,7 +127,7 @@ namespace OpenSage.Logic.Object
             var distanceRemaining = delta.Vector2XY().Length();
             var braking = GetScaledLocomotorValue(_ => _.Braking);
 
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
                     break;
@@ -173,17 +173,6 @@ namespace OpenSage.Logic.Object
             var reachedTurnSpeed = newSpeed >= GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             _gameObject.Speed = Math.Clamp(newSpeed, 0, GetSpeed());
 
-            if (_locomotorTemplate.CloseEnoughDist > 0.01f && distanceRemaining < _locomotorTemplate.CloseEnoughDist * 2)
-            {
-                _gameObject.UpdateTransform(targetPoint);
-                return true;
-            }
-            if (_locomotorTemplate.SlideIntoPlaceTime > 0 && (_locomotorTemplate.SlideIntoPlaceTime / 1000 * _locomotorTemplate.Speed) < distanceRemaining)
-            {
-                _gameObject.UpdateTransform(targetPoint);
-                return true;
-            }
-
             // This locomotor speed is distance/second
             var distance = MathF.Min(_gameObject.Speed * deltaTime, distanceRemaining);
 
@@ -210,18 +199,19 @@ namespace OpenSage.Logic.Object
 
             // height
             var height = heightMap.GetHeight(x, y);
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Thrust:
                     var targetZ = targetPoint.Z;
                     if (nextPoint != null)
                     {
-                        targetZ = height + _locomotorTemplate.PreferredHeight;
+                        targetZ = height + LocomotorTemplate.PreferredHeight;
                     }
 
                     deltaZ = (distance / distanceRemaining) * (targetZ - translation.Z);
                     translation.Z += deltaZ;
                     break;
+                case LocomotorAppearance.GiantBird:
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
                     thrust = GetCurrentThrust(height, deltaTime, translation.Z);
@@ -244,9 +234,15 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
+            if (LocomotorTemplate.SlowTurnRadius == 0
+                && MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f))
+            {
+                distance = 0;
+            }
+
             // moving direction
             var lookingDirection = _gameObject.LookDirection;
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Thrust:
                 case LocomotorAppearance.Treads:
@@ -259,7 +255,7 @@ namespace OpenSage.Logic.Object
             // model roll and pitch
             var modelPitch = 0.0f;
             var modelRoll = 0.0f;
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Thrust:
                     modelPitch = deltaZ;
@@ -270,20 +266,20 @@ namespace OpenSage.Logic.Object
                         break;
                     }
 
-                    modelPitch = -thrust / distance + distance * _locomotorTemplate.ForwardVelocityPitchFactor;
+                    modelPitch = -thrust / distance + distance * LocomotorTemplate.ForwardVelocityPitchFactor;
                     var angle = Math.Clamp(angleDelta, -MathUtility.PiOver4, MathUtility.PiOver4);
-                    modelRoll = angle * distance * _locomotorTemplate.LateralVelocityRollFactor;
+                    modelRoll = angle * distance * LocomotorTemplate.LateralVelocityRollFactor;
                     break;
                 case LocomotorAppearance.Hover:
-                    modelPitch = -distance * _locomotorTemplate.ForwardVelocityPitchFactor;
-                    modelRoll = angleDelta * distance * _locomotorTemplate.LateralVelocityRollFactor;
+                    modelPitch = -distance * LocomotorTemplate.ForwardVelocityPitchFactor;
+                    modelRoll = angleDelta * distance * LocomotorTemplate.LateralVelocityRollFactor;
                     break;
             }
 
             // roll and pitch according to terrain
             var worldPitch = 0.0f;
             var worldRoll = 0.0f;
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Treads:
                 case LocomotorAppearance.FourWheels:
@@ -308,7 +304,7 @@ namespace OpenSage.Logic.Object
 
         public void MaintainPosition(in TimeInterval gameTime, HeightMap heightMap)
         {
-            switch (_locomotorTemplate.Appearance)
+            switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Wings:
                     var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
@@ -346,7 +342,7 @@ namespace OpenSage.Logic.Object
 
         private float GetCurrentThrust(float terrainHeight, float deltaTime, float height)
         {
-            var heightRemaining = (terrainHeight + _locomotorTemplate.PreferredHeight) - height;
+            var heightRemaining = (terrainHeight + LocomotorTemplate.PreferredHeight) - height;
             var lift = GetLift();
             _gameObject.Lift += lift;
             _gameObject.Lift = Math.Clamp(_gameObject.Lift, 0, lift);
@@ -355,9 +351,9 @@ namespace OpenSage.Logic.Object
 
         public float GetScaledLocomotorValue(Func<LocomotorTemplate, float> getValue)
         {
-            return (_locomotorSet.Speed / 100.0f) * getValue(_locomotorTemplate);
+            return (_locomotorSet.Speed / 100.0f) * getValue(LocomotorTemplate);
         }
 
-        public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(_locomotorTemplate);
+        public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(LocomotorTemplate);
     }
 }

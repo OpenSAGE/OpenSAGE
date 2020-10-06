@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly Dictionary<LocomotorSetType, Locomotor> _locomotors;
-        protected Locomotor _currentLocomotor;
+        public Locomotor CurrentLocomotor { get; protected set; }
 
         private readonly AIUpdateModuleData _moduleData;
 
@@ -58,7 +58,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            _currentLocomotor = locomotor;
+            CurrentLocomotor = locomotor;
         }
 
         internal void AddTargetPoint(in Vector3 targetPoint)
@@ -151,7 +151,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_currentLocomotor == null)
+            if (CurrentLocomotor == null)
             {
                 return;
             }
@@ -170,7 +170,7 @@ namespace OpenSage.Logic.Object
                     nextPoint = TargetPoints[1];
                 }
 
-                var reachedPosition = _currentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
+                var reachedPosition = CurrentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
                 // this should be moved to LogicTick
                 if (reachedPosition)
@@ -185,7 +185,7 @@ namespace OpenSage.Logic.Object
             }
             else if (_targetDirection.HasValue)
             {
-                if (!_currentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
+                if (!CurrentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
                 {
                     return;
                 }
@@ -196,7 +196,7 @@ namespace OpenSage.Logic.Object
             else
             {
                 // maintain position (jets etc)
-                _currentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
+                CurrentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
             }
         }
 
