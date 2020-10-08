@@ -41,7 +41,8 @@ namespace OpenSage.Mods.Bfme.Gui
             }
 
             var selectedUnit = player.SelectedUnits.First();
-            if (selectedUnit.BuildProgress < 0.999f
+            if (selectedUnit.Owner != player
+                || selectedUnit.BuildProgress < 0.999f
                 || !selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure)
                 || selectedUnit.Definition.CommandSet == null)
             {

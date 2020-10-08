@@ -70,6 +70,13 @@ namespace OpenSage.Logic.Object
             Update(transform);
         }
 
+        public SphereCollider(Transform transform, float radius)
+            : base(transform, radius)
+        {
+            SphereBounds = new BoundingSphere(Vector3.Zero, radius);
+            Update(transform);
+        }
+
         protected SphereCollider(Transform transform, float radius, float height)
             : base(transform, height)
         {

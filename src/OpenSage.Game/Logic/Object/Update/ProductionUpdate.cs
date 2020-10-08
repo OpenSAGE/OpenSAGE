@@ -304,6 +304,7 @@ namespace OpenSage.Logic.Object
             }
 
             _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
 
             var isHorde = _producedUnit.Definition.KindOf.Get(ObjectKinds.Horde);

@@ -652,13 +652,13 @@ namespace OpenSage
                     }
                     else
                     {
-                        var castleBehaviors = new List<(CastleBehaviorModule, Logic.Team)>();
+                        var castleBehaviors = new List<(CastleBehavior, Logic.Team)>();
                         foreach (var gameObject in Scene3D.GameObjects.Items)
                         {
                             var team = gameObject.Team;
                             if (team?.Name == $"Player_{startPos}_Inherit")
                             {
-                                var castleBehavior = gameObject.FindBehavior<CastleBehaviorModule>();
+                                var castleBehavior = gameObject.FindBehavior<CastleBehavior>();
                                 if (castleBehavior != null)
                                 {
                                     castleBehaviors.Add((castleBehavior, team));
@@ -667,7 +667,7 @@ namespace OpenSage
                         }
                         foreach (var (castleBehavior, team) in castleBehaviors)
                         {
-                            castleBehavior.Unpack(player, team);
+                            castleBehavior.Unpack(player, instant: true);
                         }
                     }
                 }
