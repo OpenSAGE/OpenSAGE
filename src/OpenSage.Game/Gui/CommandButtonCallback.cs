@@ -15,10 +15,19 @@ namespace OpenSage.Gui
             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
             var selection = game.Scene3D.LocalPlayer.SelectedUnits;
+            var selectedObject = selection.FirstOrDefault();
 
             Order order = null;
             switch (commandButton.Command)
             {
+                case CommandType.CastleUnpack:
+                    var castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
+                    if (castleBehavior != null)
+                    {
+                        castleBehavior.Unpack(selectedObject.Owner);
+                    }
+                    break;
+
                 case CommandType.FoundationConstruct:
                     //TODO: figure this out correctly
                     if (selection.Count == 0)
@@ -26,12 +35,12 @@ namespace OpenSage.Gui
                         break;
                     }
 
-                    var selectedObject = selection.First();
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Translation);
                     order.AddFloatArgument(selectedObject.Yaw + MathUtility.ToRadians(objectDefinition.PlacementViewAngle));
                     break;
+
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);
                     break;

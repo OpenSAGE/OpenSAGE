@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpawnBehaviorModule : BehaviorModule
+    public sealed class SpawnBehavior : BehaviorModule
     {
         GameObject _gameObject;
         SpawnBehaviorModuleData _moduleData;
@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
         private bool _initial;
         private IProductionExit _productionExit;
   
-        internal SpawnBehaviorModule(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
+        internal SpawnBehavior(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
@@ -27,6 +27,7 @@ namespace OpenSage.Logic.Object
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
 
             var spawnedObject = _gameObject.Parent.Add(_moduleData.SpawnTemplate.Value);
+            spawnedObject.Owner = _gameObject.Owner;
             _spawnedUnits.Add(spawnedObject);
 
             var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
@@ -47,14 +48,19 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public void SpawnInitial()
+        {
+            for (var i = 0; i < _moduleData.SpawnNumber; i++)
+            {
+                SpawnUnit();
+            }
+        }
+
         internal override void Update(BehaviorUpdateContext context)
         {
             if (_initial)
             {
-                for (var i = 0; i < _moduleData.SpawnNumber; i++)
-                {
-                    SpawnUnit();
-                }
+                SpawnInitial();
                 _initial = false;
             }
 
@@ -116,7 +122,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new SpawnBehaviorModule(gameObject, context, this);
+            return new SpawnBehavior(gameObject, context, this);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -29,7 +30,7 @@ namespace OpenSage.Logic.Object
 
         private SupplyAIUpdateModuleData _moduleData;
 
-        private GameObject _currentSupplySource;
+        protected GameObject _currentSupplySource;
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
         private TimeSpan _waitUntil;
         private int _numBoxes;
@@ -49,6 +50,26 @@ namespace OpenSage.Logic.Object
             base.SetTargetPoint(targetPoint);
         }
 
+        internal virtual List<GameObject> GetNearbySupplySources(BehaviorUpdateContext context)
+        {
+            return context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.SupplySource);
+        }
+
+        internal virtual bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
+        {
+            return dockUpdate?.HasBoxes() ?? false;
+        }
+
+        internal virtual void GetBox(BehaviorUpdateContext context)
+        {
+            _currentSourceDockUpdate?.GetBox();
+        }
+
+        internal virtual List<GameObject> GetNearbySupplyCenters(BehaviorUpdateContext context)
+        {
+            return context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.CashGenerator);
+        }
+
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
@@ -60,10 +81,11 @@ namespace OpenSage.Logic.Object
                 case SupplyGatherStates.SearchForSupplySource:
                     if (isMoving) break;
 
-                    if (_currentSupplySource == null || !_currentSourceDockUpdate.HasBoxes())
+                    if (_currentSupplySource == null
+                        || (_currentSourceDockUpdate != null && !_currentSourceDockUpdate.HasBoxes()))
                     {
                         // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
-                        var supplySources = context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.SupplySource);
+                        var supplySources = GetNearbySupplySources(context);
 
                         var distanceToCurrentSupplySource = float.PositiveInfinity;
                         foreach (var supplySource in supplySources)
@@ -75,7 +97,7 @@ namespace OpenSage.Logic.Object
 
                             var dockUpdate = supplySource.FindBehavior<SupplyWarehouseDockUpdate>() ?? null;
 
-                            if (!dockUpdate?.HasBoxes() ?? false) continue;
+                            if (!SupplySourceHasBoxes(context, dockUpdate, supplySource)) continue;
 
                             _currentSupplySource = supplySource;
                             _currentSourceDockUpdate = dockUpdate;
@@ -96,10 +118,11 @@ namespace OpenSage.Logic.Object
                     }
                     break;
                 case SupplyGatherStates.RequestSupplies:
-                    var boxesAvailable = _currentSourceDockUpdate?.HasBoxes() ?? false;
+                    var boxesAvailable = SupplySourceHasBoxes(context, _currentSourceDockUpdate, _currentSupplySource);
 
                     if (!boxesAvailable)
                     {
+                        _currentSupplySource = null;
                         if (_numBoxes == 0)
                         {
                             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
@@ -109,7 +132,7 @@ namespace OpenSage.Logic.Object
                     }
                     else if (_numBoxes < _moduleData.MaxBoxes)
                     {
-                        _currentSourceDockUpdate.GetBox();
+                        GetBox(context);
                         _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyWarehouseActionDelay);
                         SupplyGatherState = SupplyGatherStates.GatheringSupplies;
                         break;
@@ -129,7 +152,7 @@ namespace OpenSage.Logic.Object
                 case SupplyGatherStates.SearchForSupplyTarget:
                     if (CurrentSupplyTarget == null)
                     {
-                        var supplyTargets = context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.CashGenerator);
+                        var supplyTargets = GetNearbySupplyCenters(context);
 
                         var distanceToCurrentSupplyTarget = float.PositiveInfinity;
                         foreach (var supplyTarget in supplyTargets)
@@ -142,7 +165,7 @@ namespace OpenSage.Logic.Object
                             if (distanceToTarget > _moduleData.SupplyWarehouseScanDistance || distanceToTarget > distanceToCurrentSupplyTarget) continue;
 
                             var dockUpdate = supplyTarget.FindBehavior<SupplyCenterDockUpdate>() ?? null;
-                            if (dockUpdate?.CanApproach() ?? false) continue;
+                            if (!dockUpdate?.CanApproach() ?? false) continue;
                             
                             CurrentSupplyTarget = supplyTarget;
                             _currentTargetDockUpdate = dockUpdate;

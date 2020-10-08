@@ -64,6 +64,10 @@ namespace OpenSage.DataStructures
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
+
+        // TODO
+        //public IEnumerable<T> FindNearby(GameObject obj, float radius) => FindIntersecting(new BoxCollider(bounds));
+
         public IEnumerable<T> FindIntersecting(in Collider collider)
         {
             return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider);

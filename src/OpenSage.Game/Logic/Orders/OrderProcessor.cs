@@ -56,7 +56,7 @@ namespace OpenSage.Logic.Orders
                             player.SpendMoney((uint) objectDefinition.BuildCost);
 
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
-
+                            gameObject.Owner = player;
                             gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                             gameObject.StartConstruction(_game.MapTime);
                         }

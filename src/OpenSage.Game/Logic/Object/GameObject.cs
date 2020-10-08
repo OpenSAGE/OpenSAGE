@@ -132,6 +132,7 @@ namespace OpenSage.Logic.Object
             _gameContext.Quadtree.Update(this);
         }
 
+        public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
         public Vector3 EulerAngles => _transform.EulerAngles;
         public Vector3 LookDirection => _transform.LookDirection;
@@ -192,6 +193,8 @@ namespace OpenSage.Logic.Object
         public Player Owner { get; internal set; }
 
         public GameObject ParentHorde { get; set; }
+
+        public int Supply { get; set; }
 
         private string _name;
 
@@ -364,6 +367,11 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf.Get(ObjectKinds.Projectile))
             {
                 IsProjectile = true;
+            }
+
+            if (Definition.KindOf.Get(ObjectKinds.Tree))
+            {
+                Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
 
             Upgrades = new List<UpgradeTemplate>();
@@ -579,12 +587,10 @@ namespace OpenSage.Logic.Object
         {
             ClearModelConditionFlags();
 
-            foreach (var behavior in Definition.Behaviors.Values)
+            var spawnBehavior = FindBehavior<SpawnBehavior>();
+            if (spawnBehavior != null)
             {
-                if (behavior is SpawnBehaviorModuleData spawnBehaviorModuleData)
-                {
-                    ProductionUpdate.Spawn(spawnBehaviorModuleData.SpawnTemplate.Value);
-                }
+                spawnBehavior.SpawnInitial();
             }
 
             EnergyProduction += Definition.EnergyProduction;

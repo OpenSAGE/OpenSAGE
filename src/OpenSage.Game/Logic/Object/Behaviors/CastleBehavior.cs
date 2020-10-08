@@ -8,21 +8,25 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CastleBehaviorModule : BehaviorModule
+    public sealed class CastleBehavior : BehaviorModule
     {
-        GameObject _gameObject;
-        CastleBehaviorModuleData _moduleData;
-        GameContext _context;
+        private GameObject _gameObject;
+        private CastleBehaviorModuleData _moduleData;
+        private GameContext _context;
         bool _unpacked = false;
 
-        internal CastleBehaviorModule(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
+        private Player _nativePlayer;
+
+        internal CastleBehavior(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
             _context = context;
+
+            _nativePlayer = _gameObject.Owner;
         }
 
-        public void Unpack(Player player, Team team)
+        public void Unpack(Player player, bool instant = false)
         {
             if (_unpacked)
             {
@@ -58,10 +62,15 @@ namespace OpenSage.Logic.Object
                         false,
                         angle);
 
+                    if (!instant)
+                    {
+                        baseObject.StartConstruction(_context.Scene3D.Game.MapTime);
+                        baseObject.BuildProgress = 0.0f;
+                    }
+
                     if (_moduleData.FilterValidOwnedEntries.Matches(baseObject))
                     {
                         baseObject.Owner = player;
-                        baseObject.Team = team;
                     }
                 }
             }
@@ -72,9 +81,35 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Figure out the other unpack conditions
-            if (!_unpacked && _moduleData.InstantUnpack)
+            if (!_unpacked)
             {
-                Unpack(_gameObject.Owner, _gameObject.Team);
+                if (_moduleData.InstantUnpack)
+                {
+                    Unpack(_gameObject.Owner, instant: true);
+                }
+
+                var nearbyUnits = context.GameContext.Quadtree.FindIntersecting(new SphereCollider(_gameObject.Transform, _moduleData.ScanDistance));
+
+                if (nearbyUnits.Count() < 2)
+                {
+                    _gameObject.Owner = _nativePlayer;
+                    return;
+                }
+  
+                foreach (var unit in nearbyUnits)
+                {
+                    if (unit == _gameObject)
+                    {
+                        continue;
+                    }
+
+                    var distance = (unit.Translation - _gameObject.Translation).Length();
+                    if (distance < _moduleData.ScanDistance)
+                    {
+                        _gameObject.Owner = unit.Owner;
+                        return;
+                    }
+                }
             }
         }
 
@@ -137,7 +172,7 @@ namespace OpenSage.Logic.Object
         public List<CastleEntry> CastleToUnpackForFactions { get; } = new List<CastleEntry>();
         public float MaxCastleRadius { get; private set; }
         public float FadeTime { get; private set; }
-        public int ScanDistance { get; private set; }
+        public int ScanDistance { get; private set; } = 100; // TODO: correct?
         public PreBuildObject PreBuiltList { get; private set; }
         public string PreBuiltPlayer { get; private set; }
         public ObjectFilter FilterCrew { get; private set; }
@@ -164,7 +199,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new CastleBehaviorModule(gameObject, context, this);
+            return new CastleBehavior(gameObject, context, this);
         }
     }
 
