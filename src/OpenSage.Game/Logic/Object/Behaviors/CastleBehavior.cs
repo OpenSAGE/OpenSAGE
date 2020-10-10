@@ -88,14 +88,15 @@ namespace OpenSage.Logic.Object
                     Unpack(_gameObject.Owner, instant: true);
                 }
 
-                var nearbyUnits = context.GameContext.Quadtree.FindIntersecting(new SphereCollider(_gameObject.Transform, _moduleData.ScanDistance));
+                var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
 
-                if (nearbyUnits.Count() < 2)
+                if (nearbyUnits.Count() == 0)
                 {
                     _gameObject.Owner = _nativePlayer;
                     return;
                 }
-  
+
+                // TODO: check if all nearby units are from the same owner
                 foreach (var unit in nearbyUnits)
                 {
                     if (unit == _gameObject)

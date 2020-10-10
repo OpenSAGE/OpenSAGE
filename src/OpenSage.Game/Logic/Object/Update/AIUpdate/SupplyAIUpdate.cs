@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -52,7 +53,37 @@ namespace OpenSage.Logic.Object
 
         internal virtual List<GameObject> GetNearbySupplySources(BehaviorUpdateContext context)
         {
-            return context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.SupplySource);
+            var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
+            // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
+            return nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.SupplySource)).ToList();
+        }
+
+        internal virtual void FindNearbySupplySource(BehaviorUpdateContext context)
+        {
+            var supplySources = GetNearbySupplySources(context);
+
+            var distanceToCurrentSupplySource = float.PositiveInfinity;
+            foreach (var supplySource in supplySources)
+            {
+                var offsetToSource = supplySource.Translation - GameObject.Translation;
+                var distanceToSource = offsetToSource.Vector2XY().Length();
+
+                if (distanceToSource > distanceToCurrentSupplySource)
+                {
+                    continue;
+                }
+
+                var dockUpdate = supplySource.FindBehavior<SupplyWarehouseDockUpdate>() ?? null;
+
+                if (!SupplySourceHasBoxes(context, dockUpdate, supplySource))
+                {
+                    continue;
+                }
+
+                _currentSupplySource = supplySource;
+                _currentSourceDockUpdate = dockUpdate;
+                distanceToCurrentSupplySource = distanceToSource;
+            }
         }
 
         internal virtual bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
@@ -67,7 +98,40 @@ namespace OpenSage.Logic.Object
 
         internal virtual List<GameObject> GetNearbySupplyCenters(BehaviorUpdateContext context)
         {
-            return context.GameContext.GameObjects.GetObjectsByKindOf(ObjectKinds.CashGenerator);
+            var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
+            return nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.CashGenerator)).ToList();
+        }
+
+        internal virtual void FindNearbySupplyTarget(BehaviorUpdateContext context)
+        {
+            var supplyTargets = GetNearbySupplyCenters(context);
+
+            var distanceToCurrentSupplyTarget = float.PositiveInfinity;
+            foreach (var supplyTarget in supplyTargets)
+            {
+                if (supplyTarget.Owner != GameObject.Owner)
+                {
+                    continue;
+                }
+
+                var offsetToTarget = supplyTarget.Translation - GameObject.Translation;
+                var distanceToTarget = offsetToTarget.Vector2XY().Length();
+
+                if (distanceToTarget > distanceToCurrentSupplyTarget)
+                {
+                    continue;
+                }
+
+                var dockUpdate = supplyTarget.FindBehavior<SupplyCenterDockUpdate>() ?? null;
+                if (!dockUpdate?.CanApproach() ?? false)
+                {
+                    continue;
+                }
+
+                CurrentSupplyTarget = supplyTarget;
+                _currentTargetDockUpdate = dockUpdate;
+                distanceToCurrentSupplyTarget = distanceToTarget;
+            }
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -84,25 +148,7 @@ namespace OpenSage.Logic.Object
                     if (_currentSupplySource == null
                         || (_currentSourceDockUpdate != null && !_currentSourceDockUpdate.HasBoxes()))
                     {
-                        // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
-                        var supplySources = GetNearbySupplySources(context);
-
-                        var distanceToCurrentSupplySource = float.PositiveInfinity;
-                        foreach (var supplySource in supplySources)
-                        {
-                            var offsetToSource = supplySource.Translation - GameObject.Translation;
-                            var distanceToSource = offsetToSource.Vector2XY().Length();
-
-                            if (distanceToSource > _moduleData.SupplyWarehouseScanDistance || distanceToSource > distanceToCurrentSupplySource) continue;
-
-                            var dockUpdate = supplySource.FindBehavior<SupplyWarehouseDockUpdate>() ?? null;
-
-                            if (!SupplySourceHasBoxes(context, dockUpdate, supplySource)) continue;
-
-                            _currentSupplySource = supplySource;
-                            _currentSourceDockUpdate = dockUpdate;
-                            distanceToCurrentSupplySource = distanceToSource;
-                        }
+                        FindNearbySupplySource(context);
                     }
 
                     if (_currentSupplySource == null) break;
@@ -152,25 +198,7 @@ namespace OpenSage.Logic.Object
                 case SupplyGatherStates.SearchForSupplyTarget:
                     if (CurrentSupplyTarget == null)
                     {
-                        var supplyTargets = GetNearbySupplyCenters(context);
-
-                        var distanceToCurrentSupplyTarget = float.PositiveInfinity;
-                        foreach (var supplyTarget in supplyTargets)
-                        {
-                            if (supplyTarget.Owner != GameObject.Owner) continue;
-
-                            var offsetToTarget = supplyTarget.Translation - GameObject.Translation;
-                            var distanceToTarget = offsetToTarget.Vector2XY().Length();
-
-                            if (distanceToTarget > _moduleData.SupplyWarehouseScanDistance || distanceToTarget > distanceToCurrentSupplyTarget) continue;
-
-                            var dockUpdate = supplyTarget.FindBehavior<SupplyCenterDockUpdate>() ?? null;
-                            if (!dockUpdate?.CanApproach() ?? false) continue;
-                            
-                            CurrentSupplyTarget = supplyTarget;
-                            _currentTargetDockUpdate = dockUpdate;
-                            distanceToCurrentSupplyTarget = distanceToTarget;
-                        }
+                        FindNearbySupplyTarget(context);
                     }
 
                     if (CurrentSupplyTarget == null) break;

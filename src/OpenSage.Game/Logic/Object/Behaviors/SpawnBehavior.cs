@@ -58,7 +58,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_initial)
+            if (_initial && !_gameObject.IsBeingConstructed())
             {
                 SpawnInitial();
                 _initial = false;
