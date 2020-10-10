@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
@@ -8,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataStructures
 {
-    public sealed class Quadtree<T> where T : IHasCollider
+    public sealed class Quadtree<T> where T : class, IHasCollider
     {
         private const int MaxDepth = 8;
         private const int MaxItemsPerLeaf = 2;
@@ -62,18 +63,16 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
+        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersectingInternal(new SphereCollider(transform, radius), obj);
+
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
-
-
-        // TODO
-        //public IEnumerable<T> FindNearby(GameObject obj, float radius) => FindIntersecting(new BoxCollider(bounds));
 
         public IEnumerable<T> FindIntersecting(in Collider collider)
         {
-            return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider);
+            return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, null);
         }
 
-        private IEnumerable<T> FindIntersectingInternal(Collider collider)
+        private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher)
         {
             if (!IsLeaf)
             {
@@ -91,7 +90,7 @@ namespace OpenSage.DataStructures
                         continue;
                     }
 
-                    foreach (var item in subtree.FindIntersectingInternal(collider))
+                    foreach (var item in subtree.FindIntersectingInternal(collider, searcher))
                     {
                         yield return item;
                     }
@@ -106,7 +105,7 @@ namespace OpenSage.DataStructures
 
             foreach (var item in _items)
             {
-                if (item.Collider.Intersects(collider))
+                if (!item.Equals(searcher) && item.Collider.Intersects(collider))
                 {
                     yield return item;
                 }
