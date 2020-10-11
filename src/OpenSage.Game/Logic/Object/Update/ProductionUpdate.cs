@@ -400,7 +400,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchForSupplySource;
+            supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
             supplyUpdate.CurrentSupplyTarget = _gameObject;
         }
 

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
         internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            base.SupplyGatherState = SupplyGatherStates.SearchForSupplySource;
+            base.SupplyGatherState = SupplyGatherStates.SearchingForSupplySource;
         }
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
@@ -75,6 +75,31 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
+
+            //if (!(_moduleData.HarvestTrees && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree)))
+            //{
+            //    return;
+            //}
+
+            //switch (SupplyGatherState)
+            //{
+            //    case SupplyGatherStates.ApproachingSupplySource:
+            //        if ((_currentSupplySource.Translation - GameObject.Translation).Length() < _moduleData.HarvestActivationRange)
+            //        {
+            //            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPrepariation, true);
+            //        }
+            //        break;
+
+            //    case SupplyGatherStates.GatheringSupplies:
+            //        if (context.Time.TotalTime > _waitUntil)
+            //        {
+            //            _numBoxes++;
+            //            SupplyGatherState = SupplyGatherStates.RequestingSupplies;
+            //        }
+
+            //        GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, true);
+            //        break;
+            //}
         }
     }
 
