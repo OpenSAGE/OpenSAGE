@@ -16,15 +16,7 @@ namespace OpenSage.Logic.Object
 
         private uint _nextObjectId;
 
-        public IEnumerable<GameObject> Items
-        {
-            get
-            {
-                InsertCreated();
-                DeleteDestroyed();
-                return _items.Values;
-            }
-        }
+        public IEnumerable<GameObject> Items => _items.Values;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -115,11 +107,11 @@ namespace OpenSage.Logic.Object
             _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
         }
 
-        private void InsertCreated()
+        public void InsertCreated()
         {
             foreach (var gameObject in _createList)
             {
-                _gameContext.Quadtree?.Insert(gameObject);
+                _gameContext.Quadtree.Insert(gameObject);
                 _gameContext.Radar.AddGameObject(gameObject, _nextObjectId);
                 _items.Add(_nextObjectId++, gameObject);
             }
@@ -136,7 +128,7 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                _gameContext.Quadtree?.Remove(gameObject);
+                _gameContext.Quadtree.Remove(gameObject);
                 _gameContext.Radar.RemoveGameObject(gameObject);
                 _destroyList.Add(objectId);
             }

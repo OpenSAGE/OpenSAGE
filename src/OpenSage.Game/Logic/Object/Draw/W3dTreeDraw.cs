@@ -9,7 +9,6 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Logic.Object
 {
