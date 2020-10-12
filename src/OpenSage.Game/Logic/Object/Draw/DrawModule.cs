@@ -27,7 +27,11 @@ namespace OpenSage.Logic.Object
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
-        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS);
+        internal abstract void BuildRenderList(RenderList renderList,
+            Camera camera,
+            bool castsShadow,
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+            List<string> hiddenSubObjects = null);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 

@@ -30,7 +30,12 @@ namespace OpenSage.Logic.Object
             _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
         }
 
-        internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
+        internal override void BuildRenderList(
+                RenderList renderList,
+                Camera camera,
+                bool castsShadow,
+                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> hiddenSubObjects = null)
         {
             foreach (var hideFlag in _moduleData.HideIfModelConditions)
             {
@@ -44,7 +49,8 @@ namespace OpenSage.Logic.Object
                 renderList,
                 camera,
                 castsShadow,
-                renderItemConstantsPS);
+                renderItemConstantsPS,
+                hiddenSubObjects);
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)

@@ -30,10 +30,11 @@ namespace OpenSage.Logic.Object
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
         internal override void BuildRenderList(
-            RenderList renderList,
-            Camera camera,
-            bool castsShadow,
-            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
+                RenderList renderList,
+                Camera camera,
+                bool castsShadow,
+                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> hiddenSubObjects)
         {
             _modelInstance.BuildRenderList(
                 renderList,

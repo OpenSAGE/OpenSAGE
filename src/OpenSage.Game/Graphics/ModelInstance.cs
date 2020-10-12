@@ -132,7 +132,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void Update(in TimeInterval gameTime)
+        public void Update(in TimeInterval gameTime, List<string> hiddenSubObjects = null)
         {
             // TODO: Don't update animations if model isn't visible.
 
@@ -171,7 +171,7 @@ namespace OpenSage.Graphics
 
                     var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
-                    BoneFrameVisibilities[i] = BoneVisibilities[i] && parentVisible && ModelBoneInstances[i].Visible;
+                    BoneFrameVisibilities[i] = BoneVisibilities[i]  && parentVisible && ModelBoneInstances[i].Visible;
                 }
             }
 
@@ -210,11 +210,18 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS,
+            List<string> hiddenSubObjects = null)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
+                var name = subObject.Name.Split('.').Last();
+
+                if (hiddenSubObjects != null && hiddenSubObjects.Contains(name))
+                {
+                    continue;
+                }
 
                 subObject.RenderObject.BuildRenderList(
                     renderList,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;

@@ -196,6 +196,8 @@ namespace OpenSage.Logic.Object
 
         public int Supply { get; set; }
 
+        public List<string> HiddenSubObjects;
+
         private string _name;
 
         public string Name
@@ -374,6 +376,7 @@ namespace OpenSage.Logic.Object
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
 
+            HiddenSubObjects = new List<string>();
             Upgrades = new List<UpgradeTemplate>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
 
@@ -557,12 +560,7 @@ namespace OpenSage.Logic.Object
 
         public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
         {
-            if (upgrade == null)
-            {
-                return false;
-            }
-
-            if (upgrade.Type == UpgradeType.Player)
+            if (upgrade == null || upgrade.Type == UpgradeType.Player)
             {
                 return false; // TODO: player invalid upgrades?
             }
@@ -699,7 +697,8 @@ namespace OpenSage.Logic.Object
                     renderList,
                     camera,
                     castsShadow,
-                    renderItemConstantsPS);
+                    renderItemConstantsPS,
+                    HiddenSubObjects);
             }
 
             if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
