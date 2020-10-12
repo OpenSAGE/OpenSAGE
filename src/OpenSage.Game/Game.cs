@@ -188,7 +188,7 @@ namespace OpenSage
 
                 var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
 
-                var color = new ColorRgb(0, 0, 0);
+                ColorRgb color;
 
                 var colorIndex = (int) slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)

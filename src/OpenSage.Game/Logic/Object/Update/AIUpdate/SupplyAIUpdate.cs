@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
         public GameObject CurrentSupplyTarget;
         private SupplyCenterDockUpdate _currentTargetDockUpdate;
         public SupplyGatherStates SupplyGatherState;
+        protected SupplyGatherStates SupplyGatherStateToResume;
 
         public enum SupplyGatherStates
         {
@@ -21,6 +22,7 @@ namespace OpenSage.Logic.Object
             ApproachingSupplySource,
             RequestingSupplies,
             GatheringSupplies,
+            PickingUpSupplies,
             SearchingForSupplyTarget,
             ApproachingSupplyTarget,
             EnqueuedAtSupplyTarget,
@@ -42,12 +44,15 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             SupplyGatherState = SupplyGatherStates.Default;
+            SupplyGatherStateToResume = SupplyGatherStates.SearchingForSupplySource;
             _numBoxes = 0;
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
+            SupplyGatherStateToResume = SupplyGatherState;
             SupplyGatherState = SupplyGatherStates.Default;
+            ClearConditionFlags();
             base.SetTargetPoint(targetPoint);
         }
 
@@ -56,6 +61,11 @@ namespace OpenSage.Logic.Object
             var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
             // TODO: also use KindOf SUPPLY_SOURCE_ON_PREVIEW ?
             return nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.SupplySource)).ToList();
+        }
+
+        internal virtual void ClearConditionFlags()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
         }
 
         internal virtual void FindNearbySupplySource(BehaviorUpdateContext context)
@@ -87,6 +97,7 @@ namespace OpenSage.Logic.Object
         }
 
         internal virtual float GetHarvestActivationRange() => 0.0f;
+        internal virtual float GetPreparationTime() => 0.0f;
 
         internal virtual bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
         {
@@ -96,6 +107,23 @@ namespace OpenSage.Logic.Object
         internal virtual void GetBox(BehaviorUpdateContext context)
         {
             _currentSourceDockUpdate?.GetBox();
+        }
+
+        internal virtual void SetGatheringConditionFlags()
+        {
+
+        }
+
+        internal virtual float GetPickingUpTime() => 0.0f;
+
+        internal virtual void SetActionConditionFlags()
+        {
+
+        }
+
+        internal virtual void ClearActionConditionFlags()
+        {
+
         }
 
         internal virtual List<GameObject> GetNearbySupplyCenters(BehaviorUpdateContext context)
@@ -191,14 +219,18 @@ namespace OpenSage.Logic.Object
                     else if (_numBoxes < _moduleData.MaxBoxes)
                     {
                         GetBox(context);
-                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.SupplyWarehouseActionDelay);
+                        var waitTime = _moduleData.SupplyWarehouseActionDelay + GetPreparationTime();
+                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(waitTime);
                         SupplyGatherState = SupplyGatherStates.GatheringSupplies;
+                        SetGatheringConditionFlags();
                         break;
                     }
 
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
-                    SupplyGatherState = SupplyGatherStates.SearchingForSupplyTarget;
+                    SetActionConditionFlags();
+                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(GetPickingUpTime());
+                    SupplyGatherState = SupplyGatherStates.PickingUpSupplies;
                     break;
 
                 case SupplyGatherStates.GatheringSupplies:
@@ -206,6 +238,14 @@ namespace OpenSage.Logic.Object
                     {
                         _numBoxes++;
                         SupplyGatherState = SupplyGatherStates.RequestingSupplies;
+                    }
+                    break;
+
+                case SupplyGatherStates.PickingUpSupplies:
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        SupplyGatherState = SupplyGatherStates.SearchingForSupplyTarget;
+                        ClearActionConditionFlags();
                     }
                     break;
 

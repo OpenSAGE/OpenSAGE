@@ -29,21 +29,6 @@ namespace OpenSage.DataStructures
         private bool ReachedDepthLimit => _depth >= MaxDepth;
         private bool IsEmpty => _children == null && _items.Count == 0;
 
-        public List<T> Items()
-        {
-            var result = new List<T>();
-            if (_children != null)
-            {
-                foreach (var child in _children)
-            {
-                result.AddRange(child.Items());
-            }
-            }
-            
-            result.AddRange(_items.ToList());
-            return result;
-        }
-
         public Quadtree(RectangleF bounds)
         {
             Bounds = bounds;

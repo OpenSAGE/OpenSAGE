@@ -369,7 +369,7 @@ namespace OpenSage.Logic.Object
         Wander,
 
         [IniEnum("HARVEST_PREPARATION"), AddedIn(SageGame.Bfme)]
-        HarvestPrepariation,
+        HarvestPreparation,
 
         [IniEnum("HARVEST_ACTION"), AddedIn(SageGame.Bfme)]
         HarvestAction,

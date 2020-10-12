@@ -42,7 +42,7 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var selectedUnit = player.SelectedUnits.First();
             if (selectedUnit.Owner != player
-                || selectedUnit.BuildProgress < 0.999f
+                || selectedUnit.IsBeingConstructed()
                 || !selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure)
                 || selectedUnit.Definition.CommandSet == null)
             {
@@ -97,11 +97,7 @@ namespace OpenSage.Mods.Bfme.Gui
                 if (radialButton.IsRecruitHeroButton)
                 {
                     var definition = radialButton.CommandButton.Object.Value;
-                    var maxSimultaneous = definition.MaxSimultaneousOfType.ExplicitCount;
-                    var maxCount = maxSimultaneous > 0
-                        ? maxSimultaneous
-                        : playerTemplate.BuildableHeroesMP.Where(x => x.Value == definition).Count();
-                    radialButton.IsVisible = selectedUnit.CanRecruitHero(definition, maxCount);
+                    radialButton.IsVisible = selectedUnit.CanRecruitHero(definition);
                 }
 
                 var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);

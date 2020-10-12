@@ -24,22 +24,34 @@ namespace OpenSage.Logic.Object
 
         private bool AnyUpgradeAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
         {
-            if (upgrades == null) return true;
+            if (upgrades == null)
+            {
+                return false;
+            }
 
             foreach (var trigger in upgrades)
             {
-                if (_gameObject.UpgradeAvailable(trigger.Value)) return true;
+                if (_gameObject.UpgradeAvailable(trigger.Value))
+                {
+                    return true;
+                }
             }
             return false;
         }
 
         private bool AllUpgradesAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
         {
-            if (upgrades == null) return true;
+            if (upgrades == null)
+            {
+                return true;
+            }
 
             foreach (var trigger in upgrades)
             {
-                if (_gameObject.UpgradeAvailable(trigger.Value) == false) return false;
+                if (_gameObject.UpgradeAvailable(trigger.Value) == false)
+                {
+                    return false;
+                }
             }
             return true;
         }
@@ -48,9 +60,13 @@ namespace OpenSage.Logic.Object
         {
             var triggered = _moduleData.RequiresAllTriggers ? AllUpgradesAvailable(_moduleData.TriggeredBy) : AnyUpgradeAvailable(_moduleData.TriggeredBy);
             var conflicts = _moduleData.RequiresAllConflictingTriggers ? AllUpgradesAvailable(_moduleData.ConflictsWith) : AnyUpgradeAvailable(_moduleData.ConflictsWith);
-            if (conflicts) triggered = false;
+            if (conflicts)
+            {
+                triggered = false;
+            }
 
-            if (triggered != _triggered || _initial)
+            // what objects do use initial here?
+            if (triggered != _triggered)
             {
                 _initial = false;
                 _triggered = triggered;

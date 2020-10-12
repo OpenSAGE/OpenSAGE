@@ -79,6 +79,10 @@ namespace OpenSage.Logic.Object
             {
                 var start = GameObject.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);
+                if (path.Count > 0)
+                {
+                    path.RemoveAt(0);
+                }
                 TargetPoints.AddRange(path);
                 if (TargetPoints.Count > 0 && endIsPassable)
                 {

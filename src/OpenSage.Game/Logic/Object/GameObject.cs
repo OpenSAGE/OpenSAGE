@@ -380,6 +380,11 @@ namespace OpenSage.Logic.Object
             Upgrades = new List<UpgradeTemplate>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
 
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                Upgrades.Add(GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName("Upgrade_StructureLevel1"));
+            }
+
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
         }
@@ -461,20 +466,16 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool CanRecruitHero(ObjectDefinition definition, int maxCount)
+        public bool CanRecruitHero(ObjectDefinition definition)
         {
-            var count = 0;
             foreach (var obj in Parent.Items)
             {
                 if (obj.Definition == definition && obj.Owner == Owner)
                 {
-                    if (++count >= maxCount)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-            return count < maxCount;
+            return true;
         }
 
         public bool CanProduceObject(ObjectDefinition definition)
@@ -584,13 +585,6 @@ namespace OpenSage.Logic.Object
         internal void FinishConstruction()
         {
             ClearModelConditionFlags();
-
-            var spawnBehavior = FindBehavior<SpawnBehavior>();
-            if (spawnBehavior != null)
-            {
-                spawnBehavior.SpawnInitial();
-            }
-
             EnergyProduction += Definition.EnergyProduction;
         }
 
@@ -822,6 +816,7 @@ namespace OpenSage.Logic.Object
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {
             return objectDefinition != null
+                && Owner.Money >= objectDefinition.BuildCost
                 && Owner.CanProduceObject(Parent, objectDefinition)
                 && CanProduceObject(objectDefinition);
         }

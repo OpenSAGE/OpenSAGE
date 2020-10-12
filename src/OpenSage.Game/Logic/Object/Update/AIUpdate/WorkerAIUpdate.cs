@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -6,9 +7,6 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    //ValuePerSupplyBox = 5
-    //SupplyBoxesPerTree = 90
-
     public class WorkerAIUpdate : SupplyAIUpdate
     {
         private WorkerAIUpdateModuleData _moduleData;
@@ -16,7 +14,13 @@ namespace OpenSage.Logic.Object
         internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            base.SupplyGatherState = SupplyGatherStates.SearchingForSupplySource;
+        }
+
+        internal override void ClearConditionFlags()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPreparation, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, false);
+            base.ClearConditionFlags();
         }
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
@@ -38,6 +42,7 @@ namespace OpenSage.Logic.Object
         }
 
         internal override float GetHarvestActivationRange() => _moduleData.HarvestActivationRange;
+        internal override float GetPreparationTime() => _moduleData.HarvestPreparationTime;
 
         internal override bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
         {
@@ -63,12 +68,30 @@ namespace OpenSage.Logic.Object
             base.GetBox(context);
         }
 
+        internal override void SetGatheringConditionFlags()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPreparation, true);
+        }
+
+        internal override float GetPickingUpTime() => _moduleData.HarvestActionTime;
+
+        internal override void SetActionConditionFlags()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPreparation, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, true);
+        }
+
+        internal override void ClearActionConditionFlags()
+        {
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, false);
+        }
+
         internal override List<GameObject> GetNearbySupplyCenters(BehaviorUpdateContext context)
         {
             var supplyCenters = base.GetNearbySupplyCenters(context);
             if (_moduleData.HarvestTrees)
             {
-                var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance).ToList();
+                var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
                 supplyCenters.AddRange(nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.SupplyGatheringCenter)).ToList());
             }
 
@@ -79,23 +102,17 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            if (!(_moduleData.HarvestTrees
-                && _currentSupplySource != null
-                && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree)))
-            {
-                return;
-            }
+            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
             switch (SupplyGatherState)
             {
-                case SupplyGatherStates.GatheringSupplies:
-                    if (context.Time.TotalTime > _waitUntil)
+                case SupplyGatherStates.Default:
+                    if (!isMoving)
                     {
-                        _numBoxes++;
-                        SupplyGatherState = SupplyGatherStates.RequestingSupplies;
+                        SupplyGatherState = SupplyGatherStateToResume;
+                        break;
                     }
-
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, true);
+                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.BoredTime);
                     break;
             }
         }

@@ -164,10 +164,7 @@ namespace OpenSage.Graphics
                         ? RelativeBoneTransforms[bone.Parent.Index]
                         : Matrix4x4.Identity;
 
-                    RelativeBoneTransforms[i] =
-
-                        ModelBoneInstances[i].Matrix *
-                        parentTransform;
+                    RelativeBoneTransforms[i] = ModelBoneInstances[i].Matrix * parentTransform;
 
                     var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
@@ -185,12 +182,9 @@ namespace OpenSage.Graphics
                 return;
             }
 
-            // If the model has skinned meshes, convert relative bone transforms
-            // to Matrix4x3 to send to shader.
             for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
             {
                 _skinningBones[i] = RelativeBoneTransforms[i];
-                //RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
             }
 
             _graphicsDevice.UpdateBuffer(_skinningBuffer, 0, _skinningBones);

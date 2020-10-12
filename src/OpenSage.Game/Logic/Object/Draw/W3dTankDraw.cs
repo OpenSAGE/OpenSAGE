@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
 
