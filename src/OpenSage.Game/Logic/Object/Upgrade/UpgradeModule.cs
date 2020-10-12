@@ -2,7 +2,6 @@
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object

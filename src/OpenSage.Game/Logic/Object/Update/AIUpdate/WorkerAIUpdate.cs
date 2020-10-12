@@ -37,6 +37,8 @@ namespace OpenSage.Logic.Object
             return supplySources;
         }
 
+        internal override float GetHarvestActivationRange() => _moduleData.HarvestActivationRange;
+
         internal override bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
         {
             if (_moduleData.HarvestTrees && supplySource.Definition.KindOf.Get(ObjectKinds.Tree))
@@ -69,6 +71,7 @@ namespace OpenSage.Logic.Object
                 var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance).ToList();
                 supplyCenters.AddRange(nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.SupplyGatheringCenter)).ToList());
             }
+
             return supplyCenters;
         }
 
@@ -76,30 +79,25 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            //if (!(_moduleData.HarvestTrees && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree)))
-            //{
-            //    return;
-            //}
+            if (!(_moduleData.HarvestTrees
+                && _currentSupplySource != null
+                && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree)))
+            {
+                return;
+            }
 
-            //switch (SupplyGatherState)
-            //{
-            //    case SupplyGatherStates.ApproachingSupplySource:
-            //        if ((_currentSupplySource.Translation - GameObject.Translation).Length() < _moduleData.HarvestActivationRange)
-            //        {
-            //            GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPrepariation, true);
-            //        }
-            //        break;
+            switch (SupplyGatherState)
+            {
+                case SupplyGatherStates.GatheringSupplies:
+                    if (context.Time.TotalTime > _waitUntil)
+                    {
+                        _numBoxes++;
+                        SupplyGatherState = SupplyGatherStates.RequestingSupplies;
+                    }
 
-            //    case SupplyGatherStates.GatheringSupplies:
-            //        if (context.Time.TotalTime > _waitUntil)
-            //        {
-            //            _numBoxes++;
-            //            SupplyGatherState = SupplyGatherStates.RequestingSupplies;
-            //        }
-
-            //        GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, true);
-            //        break;
-            //}
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, true);
+                    break;
+            }
         }
     }
 

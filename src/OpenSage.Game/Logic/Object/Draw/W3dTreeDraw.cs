@@ -30,13 +30,19 @@ namespace OpenSage.Logic.Object
             //TODO: overwrite texture somehow & take care of other fields
         }
 
-        internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow, MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
+        internal override void BuildRenderList(
+                RenderList renderList,
+                Camera camera,
+                bool castsShadow,
+                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> hiddenSubObjects)
         {
             _modelInstance.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
-                renderItemConstantsPS);
+                renderItemConstantsPS,
+                hiddenSubObjects);
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)

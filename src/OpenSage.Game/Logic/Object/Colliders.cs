@@ -100,7 +100,7 @@ namespace OpenSage.Logic.Object
         {
             WorldBounds = BoundingSphere.Transform(SphereBounds, transform.Matrix);
             var width = SphereBounds.Radius * 2.0f;
-            AxisAlignedBoundingArea = new RectangleF(transform.Translation.Vector2XY(), width, width);
+            AxisAlignedBoundingArea = new RectangleF(transform.Translation.Vector2XY() - new Vector2(SphereBounds.Radius, SphereBounds.Radius), width, width);
             BoundingArea = TransformedRectangle.FromRectangle(AxisAlignedBoundingArea);
         }
 

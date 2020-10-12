@@ -86,6 +86,8 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal virtual float GetHarvestActivationRange() => 0.0f;
+
         internal virtual bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
         {
             return dockUpdate?.HasBoxes() ?? false;
@@ -159,7 +161,9 @@ namespace OpenSage.Logic.Object
                         break;
                     }
 
-                    SetTargetPoint(_currentSupplySource.Translation);
+                    var direction = Vector3.Normalize(_currentSupplySource.Translation - GameObject.Translation);
+
+                    SetTargetPoint(_currentSupplySource.Translation - direction * GetHarvestActivationRange());
                     SupplyGatherState = SupplyGatherStates.ApproachingSupplySource;
                     break;
 

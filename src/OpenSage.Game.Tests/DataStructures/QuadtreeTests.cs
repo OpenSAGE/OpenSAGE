@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.DataStructures;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -12,7 +13,7 @@ namespace OpenSage.Tests.DataStructures
         public class MockQuadtreeItem : IHasCollider
         {
             public readonly int Id;
-            public Collider Collider { get; }
+            public Collider Collider { get; set; }
 
             public MockQuadtreeItem(int id, RectangleF bounds)
             {

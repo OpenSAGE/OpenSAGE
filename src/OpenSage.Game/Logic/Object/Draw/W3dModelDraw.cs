@@ -295,7 +295,6 @@ namespace OpenSage.Logic.Object
                     {
                         modelInstance.BoneVisibilities[item.i] = false;
                     }
-
                 }
             }
             if (conditionState.ShowSubObject != null)
@@ -307,7 +306,6 @@ namespace OpenSage.Logic.Object
                     {
                         modelInstance.BoneVisibilities[item.i] = true;
                     }
-
                 }
             }
 
@@ -344,16 +342,18 @@ namespace OpenSage.Logic.Object
         }
 
         internal override void BuildRenderList(
-            RenderList renderList,
-            Camera camera,
-            bool castsShadow,
-            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
+                RenderList renderList,
+                Camera camera,
+                bool castsShadow,
+                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> hiddenSubObjects = null)
         {
             _activeModelDrawConditionState?.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
-                renderItemConstantsPS);
+                renderItemConstantsPS,
+                hiddenSubObjects);
         }
 
         internal override void DrawInspector()
@@ -422,13 +422,15 @@ namespace OpenSage.Logic.Object
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+            List<string> hiddenSubObjects = null)
         {
             Model.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
-                renderItemConstantsPS);
+                renderItemConstantsPS,
+                hiddenSubObjects);
         }
 
         protected override void Dispose(bool disposeManagedResources)

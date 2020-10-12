@@ -29,6 +29,21 @@ namespace OpenSage.DataStructures
         private bool ReachedDepthLimit => _depth >= MaxDepth;
         private bool IsEmpty => _children == null && _items.Count == 0;
 
+        public List<T> Items()
+        {
+            var result = new List<T>();
+            if (_children != null)
+            {
+                foreach (var child in _children)
+            {
+                result.AddRange(child.Items());
+            }
+            }
+            
+            result.AddRange(_items.ToList());
+            return result;
+        }
+
         public Quadtree(RectangleF bounds)
         {
             Bounds = bounds;
@@ -63,13 +78,13 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
-        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersectingInternal(new SphereCollider(transform, radius), obj);
+        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersecting(new SphereCollider(transform, radius), obj);
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
-        public IEnumerable<T> FindIntersecting(in Collider collider)
+        public IEnumerable<T> FindIntersecting(in Collider collider, T searcher = null)
         {
-            return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, null);
+            return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, searcher);
         }
 
         private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher)
@@ -157,21 +172,19 @@ namespace OpenSage.DataStructures
 
                 switch (containment)
                 {
-                    case ContainmentType.Disjoint: continue;
+                    case ContainmentType.Disjoint:
+                        continue;
 
                     case ContainmentType.Contains:
-                    {
                         subTree.Insert(item);
                         return;
-                    }
 
                     // 3. Item fits into multiple subtrees.
                     // In that case, add it to this node while ignoring the item limit.
                     case ContainmentType.Intersects:
-                    {
                         _items.Add(item);
                         return;
-                    }
+
                     // This should be unreachable.
                     default:
                         return;
