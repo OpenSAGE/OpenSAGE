@@ -400,6 +400,7 @@ namespace OpenSage
             }
 
             GameObjects.DeleteDestroyed();
+            GameObjects.InsertCreated();
             DetectCollisions(time);
         }
 

@@ -97,7 +97,7 @@ namespace OpenSage.Logic.Object
                     }
 
                     var directionToTarget = (target.TargetPosition - _gameObject.Translation).Vector2XY();
-                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget) + _gameObject.EulerAngles.Z;
+                    targetYaw = MathUtility.GetYawFromDirection(directionToTarget) - _gameObject.Yaw;
 
                     if (Rotate(targetYaw, deltaTime))
                     {
