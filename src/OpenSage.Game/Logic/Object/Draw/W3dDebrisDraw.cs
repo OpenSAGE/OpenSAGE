@@ -34,13 +34,14 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-                List<string> hiddenSubObjects)
+                List<string> hiddenSubObjects = null)
         {
             _modelInstance.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
-                renderItemConstantsPS);
+                renderItemConstantsPS,
+                hiddenSubObjects);
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)
