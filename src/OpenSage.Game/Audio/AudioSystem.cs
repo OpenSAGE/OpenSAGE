@@ -12,6 +12,8 @@ namespace OpenSage.Audio
 {
     public sealed class AudioSystem : GameSystem
     {
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly List<AudioSource> _sources;
         private readonly Dictionary<string, AudioBuffer> _cached;
         private readonly AudioEngine _engine;
@@ -143,10 +145,9 @@ namespace OpenSage.Audio
         /// </summary>
         public SoundStream GetStream(FileSystemEntry entry)
         {
+            // TODO: Use submixer (currently not possible)
             return new SoundStream(entry.Open(), _engine);
         }
-
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void PlayAudioEvent(string eventName)
         {
@@ -159,7 +160,7 @@ namespace OpenSage.Audio
             }
 
             PlayAudioEvent(audioEvent);
-        }        
+        }
 
         private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
