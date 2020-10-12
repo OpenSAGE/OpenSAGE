@@ -168,7 +168,7 @@ namespace OpenSage.Graphics
 
                     var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
-                    BoneFrameVisibilities[i] = BoneVisibilities[i]  && parentVisible && ModelBoneInstances[i].Visible;
+                    BoneFrameVisibilities[i] = BoneVisibilities[i] && parentVisible && ModelBoneInstances[i].Visible;
                 }
             }
 
