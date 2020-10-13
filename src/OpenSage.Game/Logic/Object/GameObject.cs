@@ -14,6 +14,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
@@ -198,6 +199,8 @@ namespace OpenSage.Logic.Object
 
         public List<string> HiddenSubObjects;
 
+        public RadiusDecalTemplate SelectionDecal;
+
         private string _name;
 
         public string Name
@@ -261,7 +264,8 @@ namespace OpenSage.Logic.Object
         public List<UpgradeTemplate> Upgrades { get; }
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
 
-        public int ExperienceValue { get; private set; }
+        public int Rank { get; set; }
+        public int ExperienceValue { get; set; }
         internal float ExperienceMultiplier { get; set; }
 
         public int EnergyProduction { get; internal set; }
@@ -325,6 +329,9 @@ namespace OpenSage.Logic.Object
             // Probably only those with weapons.
             AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
 
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
+
             foreach (var behaviorData in objectDefinition.Behaviors.Values)
             {
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
@@ -387,6 +394,7 @@ namespace OpenSage.Logic.Object
 
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
+            Rank = 0;
         }
 
         // TODO: This probably shouldn't be here.
@@ -904,7 +912,7 @@ namespace OpenSage.Logic.Object
 
         internal void GainExperience(int experience)
         {
-            ExperienceValue = (int) (ExperienceMultiplier * experience);
+            ExperienceValue += (int) (ExperienceMultiplier * experience);
         }
 
         internal BehaviorModule GetModuleByTag(string tag)

@@ -4,6 +4,28 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
+    public class BannerCarrierUpdate : UpdateModule
+    {
+        private GameObject _gameObject;
+        private BannerCarrierUpdateModuleData _moduleData;
+
+        public BannerCarrierUpdate(GameObject gameObject, BannerCarrierUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        public void NotifyLevelChanged()
+        {
+
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+
+        }
+    }
+
     public sealed class BannerCarrierUpdateModuleData : UpdateModuleData
     {
         internal static BannerCarrierUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -36,6 +58,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string UpgradeRequired { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new BannerCarrierUpdate(gameObject, this);
+        }
     }
 
     public sealed class MorphCondition
