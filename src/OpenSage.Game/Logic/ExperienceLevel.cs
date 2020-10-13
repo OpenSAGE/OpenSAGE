@@ -25,7 +25,7 @@ namespace OpenSage.Logic
             { "ShowLevelUpTint", (parser, x) => x.ShowLevelUpTint = parser.ParseBoolean() },
             { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseAssetReferenceArray() },
             { "Rank", (parser, x) => x.Rank = parser.ParseInteger() },
-            { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseAssetReference() },
+            { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseAssetReference().Replace("FX:", "") },
             { "LevelUpTintColor", (parser, x) => x.LevelUpTintColor = parser.ParseColorRgb() },
             { "LevelUpTintPreColorTime", (parser, x) => x.LevelUpTintPreColorTime = parser.ParseInteger() },
             { "LevelUpTintPostColorTime", (parser, x) => x.LevelUpTintPostColorTime = parser.ParseInteger() },
@@ -38,6 +38,7 @@ namespace OpenSage.Logic
         public int RequiredExperience { get; private set; }
         public int ExperienceAward { get; private set; }
         public int ExperienceAwardOwnGuysDie { get; private set; }
+        // Inform BannerCarrierUpdate about level increase
         public bool InformUpdateModule { get; private set; }
         public string[] Upgrades { get; private set; }
         public bool ShowLevelUpTint { get; private set; }

@@ -93,7 +93,7 @@ namespace OpenSage.Scripting
 
             foreach (var playerScripts in _playerScripts)
             {
-                playerScripts.Execute(_executionContext);
+                playerScripts?.Execute(_executionContext);
             }
 
             OnUpdateFinished?.Invoke(this, this);

@@ -184,6 +184,17 @@ namespace OpenSage.Content
                     }
                     break;
 
+                case Subsystem.ObjectCreation:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\Experiencelevels.ini");
+                            break;
+                    }
+                    break;
+
                 case Subsystem.Players:
                     switch (_gameDefinition.Game)
                     {
