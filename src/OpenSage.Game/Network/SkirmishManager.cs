@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
-using System.Text;
 using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using NLog.LayoutRenderers;
-using OpenSage.Content;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
-using OpenSage.Logic;
 using OpenSage.Network.Packets;
-using SixLabors.ImageSharp.Processing;
 
 namespace OpenSage.Network
 {
@@ -196,13 +188,13 @@ namespace OpenSage.Network
                 SkirmishGame.Slots = packet.Slots;
                 if (SkirmishGame.LocalSlotIndex < 0)
                 {
-                    for (int i = 0; i < packet.Slots.Length; i++)
+                    for (var i = 0; i < packet.Slots.Length; i++)
                     {
                         var endpoint = packet.Slots[i].EndPoint;
                         if (endpoint != null)
                         {
-                            if (endpoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4) &&
-        packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
+                            if (endpoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4)
+                                && packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
                             {
                                 Logger.Info($"New Local slot index is {i}");
                                 SkirmishGame.LocalSlotIndex = i;
@@ -234,10 +226,7 @@ namespace OpenSage.Network
                     _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
                     localSlot.ResetDirty();
                 }
-
             }
-
-
         }
 
         public class Host : SkirmishManager

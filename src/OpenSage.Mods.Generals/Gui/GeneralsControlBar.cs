@@ -212,7 +212,7 @@ namespace OpenSage.Mods.Generals.Gui
             public static ControlBarState Selected { get; } = new SelectedControlBarState();
             public static ControlBarState Construction { get; } = new UnderConstructionControlBarState();
 
-            private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+            private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
             protected void ClearControls(GeneralsControlBar controlBar)
             {
@@ -276,8 +276,8 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
-                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
-                            logger.Debug($"Relevant object: {objectDefinition?.Name}");
+                            Logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
+                            Logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
                             CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
                         };
@@ -336,7 +336,7 @@ namespace OpenSage.Mods.Generals.Gui
                 ClearControls(controlBar);
             }
 
-            private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+            private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
             const int PRODUCTION_QUEUE_SIZE = 9;
 
@@ -371,7 +371,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                         if (queueButton == null)
                         {
-                            logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
+                            _logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
                             continue;
                         }
 

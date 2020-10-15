@@ -16,7 +16,6 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
-using OpenSage.Logic.OrderGenerators;
 using OpenSage.Mathematics;
 using OpenSage.Mathematics.FixedMath;
 using OpenSage.Terrain;

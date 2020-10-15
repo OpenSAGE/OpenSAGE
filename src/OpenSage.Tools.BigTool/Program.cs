@@ -124,9 +124,9 @@ namespace OpenSage.Tools.BigTool
 
         static void AddDirectoryToArchive(BigArchive archive, string dirpath, bool update = false)
         {
-            foreach (string dir in Directory.GetDirectories(dirpath))
+            foreach (var dir in Directory.GetDirectories(dirpath))
             {
-                foreach (string file in Directory.GetFiles(dir))
+                foreach (var file in Directory.GetFiles(dir))
                 {
                     AddFileToArchive(archive, file);
                 }
@@ -150,20 +150,16 @@ namespace OpenSage.Tools.BigTool
                     entry = archive.Entries.First(x => x.FullName == filepath);
                     Console.WriteLine("updating: {0}", filepath);
                 }
-                catch (InvalidOperationException e)
+                catch (InvalidOperationException)
                 {
                     entry = archive.CreateEntry(filepath);
                     Console.WriteLine("adding: {0}", filepath);
                 }
             }
 
-            using (var entryStream = entry.Open())
-            {
-                using (var fileStream = File.OpenRead(filepath))
-                {
-                    fileStream.CopyTo(entryStream);
-                }
-            }
+            using var entryStream = entry.Open();
+            using var fileStream = File.OpenRead(filepath);
+            fileStream.CopyTo(entryStream);
         }
 
         static void UpdateMode(Options opts)

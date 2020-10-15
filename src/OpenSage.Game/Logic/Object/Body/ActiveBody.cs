@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
             SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
-            if (armorSet.DamageFX.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
+            if (armorSet.DamageFX?.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
             {
                 var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
 

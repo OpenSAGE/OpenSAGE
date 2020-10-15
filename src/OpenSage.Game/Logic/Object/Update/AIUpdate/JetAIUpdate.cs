@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         private Queue<string> _pathToStart;
         private Queue<string> _pathToParking;
-        private string? _currentTaxiingTarget;
+        private string _currentTaxiingTarget;
 
         public JetAIState CurrentJetAIState;
 
