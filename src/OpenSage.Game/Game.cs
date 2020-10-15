@@ -298,6 +298,9 @@ namespace OpenSage
                 // TODO: Move this to IGameDefinition?
                 switch (SageGame)
                 {
+                    case SageGame.CncGenerals:
+                        return "Command and Conquer Generals Data";
+
                     case SageGame.CncGeneralsZeroHour:
                         return "Command and Conquer Generals Zero Hour Data";
 
