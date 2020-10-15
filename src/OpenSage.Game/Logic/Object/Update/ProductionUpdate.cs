@@ -365,7 +365,7 @@ namespace OpenSage.Logic.Object
             }
 
             HandleHordeCreation();
-            HandleHarvesterUnitCreation();
+            HandleHarvesterUnitCreation(_gameObject, _producedUnit);
 
             _producedUnit = null;
         }
@@ -395,18 +395,18 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void HandleHarvesterUnitCreation()
+        public static void HandleHarvesterUnitCreation(GameObject producer, GameObject producedUnit)
         {
             // a supply target (supply center etc.) just spawned a harvester object
-            if (!_gameObject.Definition.KindOf.Get(ObjectKinds.CashGenerator) ||
-                !_producedUnit.Definition.KindOf.Get(ObjectKinds.Harvester) ||
-                !(_producedUnit.AIUpdate is SupplyAIUpdate supplyUpdate))
+            if (!producer.Definition.KindOf.Get(ObjectKinds.CashGenerator) && !producer.Definition.KindOf.Get(ObjectKinds.SupplyGatheringCenter)
+                || !producedUnit.Definition.KindOf.Get(ObjectKinds.Harvester)
+                || !(producedUnit.AIUpdate is SupplyAIUpdate supplyUpdate))
             {
                 return;
             }
 
             supplyUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
-            supplyUpdate.CurrentSupplyTarget = _gameObject;
+            supplyUpdate.CurrentSupplyTarget = producer;
         }
 
         internal void QueueProduction(ObjectDefinition objectDefinition)

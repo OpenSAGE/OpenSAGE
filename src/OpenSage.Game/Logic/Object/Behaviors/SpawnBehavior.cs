@@ -46,6 +46,12 @@ namespace OpenSage.Logic.Object
                     spawnedObject.AIUpdate?.AddTargetPoint(_gameObject.ToWorldspace(rallyPoint.Value));
                 }
             }
+
+            var productionUpdate = _gameObject.FindBehavior<ProductionUpdate>();
+            if (productionUpdate != null)
+            {
+                ProductionUpdate.HandleHarvesterUnitCreation(_gameObject, spawnedObject);
+            }
         }
 
         public void SpawnInitial()

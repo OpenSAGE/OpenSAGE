@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
-using OpenSage.Logic.Object;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
