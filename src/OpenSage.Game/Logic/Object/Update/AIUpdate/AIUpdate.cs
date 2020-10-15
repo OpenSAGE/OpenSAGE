@@ -181,7 +181,7 @@ namespace OpenSage.Logic.Object
                 context.GameContext.Quadtree.Update(GameObject);
             }
 
-            if (_currentLocomotor == null)
+            if (CurrentLocomotor == null)
             {
                 return;
             }

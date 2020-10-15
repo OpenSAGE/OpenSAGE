@@ -68,7 +68,7 @@ namespace OpenSage.Content
         /// <param name="dict">The dictionary to be normalized.</param>
         /// <param name="comparer">The <see cref="StringComparer"/> to be used.</param>
         /// <returns>The normalized <paramref name="dict"/></returns>
-        public static Dictionary<string, V> NormalizeDictionary<V>(Dictionary<string, V>? dict, StringComparer comparer)
+        public static Dictionary<string, V> NormalizeDictionary<V>(Dictionary<string, V> dict, StringComparer comparer)
         {
             var nonNulls = dict?.Where(kv => kv.Value != null) ?? Enumerable.Empty<KeyValuePair<string, V>>();
             return new Dictionary<string, V>(nonNulls, comparer);
@@ -119,7 +119,7 @@ namespace OpenSage.Content
         /// <param name="defaultSettings">
         /// The <see cref="LanguageSpecificFontFallbackSettings"/> of default language.
         /// </param>
-        public void Normalize(StringComparer comparer, LanguageSpecificFontFallbackSettings? defaultSettings)
+        public void Normalize(StringComparer comparer, LanguageSpecificFontFallbackSettings defaultSettings)
         {
             if (Normalized)
             {

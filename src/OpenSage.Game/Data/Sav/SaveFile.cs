@@ -271,7 +271,7 @@ namespace OpenSage.Data.Sav
                                     {
                                         var upgradeName = reader.ReadBytePrefixedAsciiString();
                                         var upgrade = game.AssetStore.Upgrades.GetByName(upgradeName);
-                                        gameObject.Upgrades.Add(upgrade);
+                                        gameObject.Upgrade(upgrade);
                                     }
 
                                     var team = reader.ReadBytePrefixedAsciiString(); // teamPlyrAmerica

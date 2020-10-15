@@ -11,7 +11,6 @@ namespace OpenSage.Logic.Object
         protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;
         protected bool _triggered;
-        private bool _initial = true;
 
         internal bool Triggered => _triggered;
 
@@ -68,7 +67,6 @@ namespace OpenSage.Logic.Object
             // what objects do use initial here?
             if (triggered != _triggered)
             {
-                _initial = false;
                 _triggered = triggered;
                 OnTrigger(context, _triggered);
             }

@@ -142,7 +142,7 @@ namespace OpenSage.Terrain
                     handle.Decal.Opacity += opacityDelta;
                     if (handle.Decal.Opacity > 1)
                     {
-                        int j = 0;
+                        // TODO:
                     }
                 }
                 else

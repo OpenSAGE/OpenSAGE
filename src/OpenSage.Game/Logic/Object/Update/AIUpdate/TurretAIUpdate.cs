@@ -136,28 +136,6 @@ namespace OpenSage.Logic.Object
                     }
                     break;
             }
-
-
-            // TODO: MinTargetPitch, MaxTargetPitch, MinPhysicalPitch
-            //if (_moduleData.AllowsPitch)
-            //{
-            //    var pitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
-
-            //    if (target != null)
-            //    {
-            //        if (target.TargetType == WeaponTargetType.Object &&
-            //            !target.TargetObject.Definition.KindOf.Get(ObjectKinds.Aircraft)) // == ground unit??
-            //        {
-            //            pitch = MathUtility.ToRadians(_moduleData.GroundUnitPitch);
-            //        }
-            //    }
-
-            //    var deltaPitch = _gameObject.TurretPitch - pitch;
-            //    if (MathF.Abs(deltaPitch) > 0.05f)
-            //    {
-            //        _gameObject.TurretPitch += deltaTime * MathUtility.ToRadians(_moduleData.TurretPitchRate);
-            //    }
-            //}
         }
 
         private bool Rotate(float targetYaw, float deltaTime)
@@ -183,35 +161,30 @@ namespace OpenSage.Logic.Object
                             (_moduleData.MaxIdleScanAngle - _moduleData.MinIdleScanAngle) +
                             _moduleData.MinIdleScanAngle;
 
-            //TODO: use QuadTree
-            foreach (var obj in context.GameContext.GameObjects.Items)
+            var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(_gameObject, _gameObject.Transform, scanRange);
+            foreach (var obj in nearbyObjects)
             {
-                var deltaTranslation = _gameObject.Translation - obj.Translation;
-                var dist = deltaTranslation.Length();
-
-                if (dist < scanRange)
+                if (obj.Definition.KindOf.Get(ObjectKinds.Structure) && !attacksBuildings)
                 {
-                    if (obj.Definition.KindOf.Get(ObjectKinds.Structure) && !attacksBuildings)
+                    continue;
+                }
+
+                if (restrictedByScanAngle)
+                {
+                    // TODO: test with GLAVehicleTechnicalChassisOne
+                    var deltaTranslation = obj.Translation - _gameObject.Translation;
+                    var direction = deltaTranslation.Vector2XY();
+                    var angleToObject = MathUtility.GetYawFromDirection(direction);
+                    var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
+
+                    if (angleDelta < -scanAngleOffset || scanAngleOffset < angleDelta)
                     {
                         continue;
                     }
-
-                    if (restrictedByScanAngle)
-                    {
-                        // TODO: test with GLAVehicleTechnicalChassisOne
-                        var direction = deltaTranslation.Vector2XY();
-                        var angleToObject = MathUtility.GetYawFromDirection(direction);
-                        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
-
-                        if (angleDelta < -scanAngleOffset || scanAngleOffset < angleDelta)
-                        {
-                            continue;
-                        }
-                    }
-
-                    _gameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
-                    return true;
                 }
+
+                _gameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
+                return true;
             }
             
             return false;
