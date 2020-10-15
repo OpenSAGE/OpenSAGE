@@ -432,7 +432,7 @@ namespace OpenSage.Logic.Object
         public float ShroudClearingRange { get; private set; }
         public int CrusherLevel { get; private set; }
         public int CrushableLevel { get; private set; }
-        public float BuildCost { get; private set; }
+        public float BuildCost { get; private set; } //TODO: should this really be a float?
 
         /// <summary>
         /// Build time in seconds.

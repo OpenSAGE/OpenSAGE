@@ -387,11 +387,6 @@ namespace OpenSage.Logic.Object
             Upgrades = new List<UpgradeTemplate>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
 
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                Upgrades.Add(GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName("Upgrade_StructureLevel1"));
-            }
-
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
             Rank = 0;

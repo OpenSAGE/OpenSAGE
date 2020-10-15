@@ -307,6 +307,11 @@ namespace OpenSage.Logic.Object
             _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
 
+            if (!_moduleData.GiveNoXP)
+            {
+                _gameObject.GainExperience((int)_producedUnit.Definition.BuildCost);
+            }
+
             var isHorde = _producedUnit.Definition.KindOf.Get(ObjectKinds.Horde);
             if (isHorde)
             {
