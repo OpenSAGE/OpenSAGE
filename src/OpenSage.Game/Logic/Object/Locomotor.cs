@@ -234,12 +234,6 @@ namespace OpenSage.Logic.Object
                     break;
             }
 
-            if (LocomotorTemplate.SlowTurnRadius == 0
-                && MathF.Abs(targetYaw - yaw) > MathUtility.ToRadians(2.0f))
-            {
-                distance = 0;
-            }
-
             // moving direction
             var lookingDirection = _gameObject.LookDirection;
             switch (LocomotorTemplate.Appearance)
