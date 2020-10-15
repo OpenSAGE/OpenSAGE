@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace OpenSage.Mathematics
@@ -9,6 +10,7 @@ namespace OpenSage.Mathematics
         public static readonly ColorRgbaF Transparent = new ColorRgbaF();
         public static readonly ColorRgbaF White = new ColorRgbaF(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly ColorRgbaF Black = new ColorRgbaF(0.0f, 0.0f, 0.0f, 1.0f);
+        public static readonly ColorRgbaF Red = new ColorRgbaF(1.0f, 0.0f, 0.0f, 1.0f);
 
         public readonly float R;
         public readonly float G;
@@ -69,6 +71,11 @@ namespace OpenSage.Mathematics
         public override int GetHashCode()
         {
             return HashCode.Combine(R, G, B, A);
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4(R, G, B, A);
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using OpenSage.Gui.Apt;
+﻿using OpenSage.Data.Apt;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
+using Veldrid;
 
 namespace OpenSage.Mods.Bfme2.Gui
 {
@@ -9,10 +11,14 @@ namespace OpenSage.Mods.Bfme2.Gui
         // Called after the initialization has been performed
         public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
         {
-            // Set the logo texture
+            // Set a custom render callback
+            var logoTexture = game.GetMappedImage("LogoWithShadow").Texture.Value;
             var imageSprite = window.Root.ScriptObject.Variables["Image"].ToObject().Item as SpriteItem;
             var shape = imageSprite.Content.Items[1] as RenderItem;
-            shape.Texture = game.GetMappedImage("LogoWithShadow").Texture.Value;
+            shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
+            {
+                renderContext.RenderGeometry(geom, logoTexture);
+            };
         }
 
         // Close the game
@@ -43,6 +49,20 @@ namespace OpenSage.Mods.Bfme2.Gui
         public static void Skirmish(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Skirmish.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
+
+        public static void LAN(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
+
+        public static void Credits(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
 
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }

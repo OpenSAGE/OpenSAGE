@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
+using OpenSage.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -58,65 +59,31 @@ namespace OpenSage.Gui.Wnd.Controls
                 case WndWindowMessageType.KeyDown:
                     if (!IsReadOnly)
                     {
-                        switch (message.Key)
+                        var character = KeyMap.GetCharacter(message.Key);
+
+                        // Not a printable character
+                        if (character == '\0')
                         {
-                            case Veldrid.Key.A:
-                            case Veldrid.Key.B:
-                            case Veldrid.Key.C:
-                            case Veldrid.Key.D:
-                            case Veldrid.Key.E:
-                            case Veldrid.Key.F:
-                            case Veldrid.Key.G:
-                            case Veldrid.Key.H:
-                            case Veldrid.Key.I:
-                            case Veldrid.Key.J:
-                            case Veldrid.Key.K:
-                            case Veldrid.Key.L:
-                            case Veldrid.Key.M:
-                            case Veldrid.Key.N:
-                            case Veldrid.Key.O:
-                            case Veldrid.Key.P:
-                            case Veldrid.Key.Q:
-                            case Veldrid.Key.R:
-                            case Veldrid.Key.S:
-                            case Veldrid.Key.T:
-                            case Veldrid.Key.U:
-                            case Veldrid.Key.V:
-                            case Veldrid.Key.W:
-                            case Veldrid.Key.X:
-                            case Veldrid.Key.Y:
-                            case Veldrid.Key.Z:
-                                Text += message.Key;
-                                break;
-
-                            case Veldrid.Key.Space:
-                                Text += " ";
-                                break;
-
-                            case Veldrid.Key.Minus:
-                                Text += "-";
-                                break;
-
-                            case Veldrid.Key.Number0:
-                            case Veldrid.Key.Number1:
-                            case Veldrid.Key.Number2:
-                            case Veldrid.Key.Number3:
-                            case Veldrid.Key.Number4:
-                            case Veldrid.Key.Number5:
-                            case Veldrid.Key.Number6:
-                            case Veldrid.Key.Number7:
-                            case Veldrid.Key.Number8:
-                            case Veldrid.Key.Number9:
-                                Text += message.Key.ToString().Substring(6, 1);
-                                break;
-
-
-                            case Veldrid.Key.BackSpace:
-                                if(Text != "")
-                                {
-                                    Text = Text.Substring(0, Text.Length - 1);
-                                }
-                                break;
+                            switch (message.Key)
+                            {
+                                case Veldrid.Key.BackSpace:
+                                    if (Text.Length > 0)
+                                    {
+                                        Text = Text.Remove(Text.Length - 1, 1);
+                                    }
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            if(message.Modifiers.HasFlag(Veldrid.ModifierKeys.Shift))
+                            {
+                                Text += char.ToUpperInvariant(character);
+                            }
+                            else
+                            {
+                                Text += char.ToLowerInvariant(character);
+                            }
                         }
                     }
                     break;

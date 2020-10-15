@@ -1,18 +1,19 @@
 ﻿using System;
 using OpenSage.DataStructures;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Benchmarks.DataStructures
 {
-    public class BenchQuadtreeItem : IHasBounds
+    public class BenchQuadtreeItem : IHasCollider
     {
         public readonly int Id;
-        public RectangleF Bounds { get; set; }
+        public Collider Collider { get; set; }
 
         public BenchQuadtreeItem(int id, RectangleF bounds)
         {
             Id = id;
-            Bounds = bounds;
+            Collider = new BoxCollider(bounds);
         }
 
         public static BenchQuadtreeItem Generate(int id, RectangleF bounds, SizeF maxSize, Random random)

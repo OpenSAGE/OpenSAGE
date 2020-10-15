@@ -2,27 +2,31 @@
 
 namespace OpenSage.Logic.Object
 {
-    /// <summary>
-    /// Requires the object to have KindOf = HARVESTER.
-    /// </summary>
-    public sealed class SupplyTruckAIUpdateModuleData : AIUpdateModuleData
+    public class SupplyTruckAIUpdate : SupplyAIUpdate
+    {
+        private SupplyTruckAIUpdateModuleData _moduleData;
+
+        internal SupplyTruckAIUpdate(GameObject gameObject, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+        }
+    }
+
+    public sealed class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
     {
         internal static new SupplyTruckAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData>
-            {
-                { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },
-                { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
-                { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
-                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() }
-            });
+        private static new readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData>{});
 
-        public int MaxBoxes { get; private set; }
-        public int SupplyCenterActionDelay { get; private set; }
-        public int SupplyWarehouseActionDelay { get; private set; }
-        public int SupplyWarehouseScanDistance { get; private set; }
-        public string SuppliesDepletedVoice { get; private set; }
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new SupplyTruckAIUpdate(gameObject, this);
+        }
     }
 }

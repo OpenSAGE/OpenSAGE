@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data.Map;
+using OpenSage.Scripting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -641,6 +642,14 @@ namespace OpenSage.Tests.Data.Map
             var cameraAnimation3 = mapFile.CameraAnimationList.Animations[3];
 
             Assert.Equal("Look-at Animation 2", cameraAnimation3.Name);
+        }
+
+        [Fact]
+        public void CameraFocalLength()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.NamedCameras.Cameras.Length);
         }
 
         [Fact]

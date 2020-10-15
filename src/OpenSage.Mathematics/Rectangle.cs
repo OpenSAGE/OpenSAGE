@@ -12,6 +12,8 @@ namespace OpenSage.Mathematics
         public Point2D Location => new Point2D(X, Y);
         public Size Size => new Size(Width, Height);
 
+        public Point2D Center => new Point2D(X + Width / 2, Y + Height / 2);
+
         public int Left => X;
         public int Right => X + Width;
         public int Top => Y;
@@ -33,29 +35,36 @@ namespace OpenSage.Mathematics
             Height = size.Height;
         }
 
-        public bool Intersects(in Rectangle value)
+        public Rectangle(in RectangleF rect)
         {
-            return value.Left < Right &&
-                Left < value.Right &&
-                value.Top < Bottom &&
-                Top < value.Bottom;
+            X = (int)Math.Round(rect.X);
+            Y = (int) Math.Round(rect.Y);
+            Width = (int) Math.Round(rect.Width);
+            Height = (int) Math.Round(rect.Height);
         }
 
-        public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
-        {
-            if (value1.Intersects(value2))
-            {
-                var rightSide = Math.Min(value1.X + value1.Width, value2.X + value2.Width);
-                var leftSide = Math.Max(value1.X, value2.X);
-                var topSide = Math.Max(value1.Y, value2.Y);
-                var bottomSize = Math.Min(value1.Y + value1.Height, value2.Y + value2.Height);
-                return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSize - topSide);
-            }
-            else
-            {
-                return new Rectangle(0, 0, 0, 0);
-            }
-        }
+        // TODO: remove this?
+        //public bool Intersects(in Rectangle value)
+        //{
+        //    return value.Left < Right &&
+        //        Left < value.Right &&
+        //        value.Top < Bottom &&
+        //        Top < value.Bottom;
+        //}
+
+        
+        //public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
+        //{
+        //    if (value1.Intersects(value2))
+        //    {
+        //        var rightSide = Math.Min(value1.X + value1.Width, value2.X + value2.Width);
+        //        var leftSide = Math.Max(value1.X, value2.X);
+        //        var topSide = Math.Max(value1.Y, value2.Y);
+        //        var bottomSize = Math.Min(value1.Y + value1.Height, value2.Y + value2.Height);
+        //        return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSize - topSide);
+        //    }
+        //    return new Rectangle(0, 0, 0, 0);
+        //}
 
         public static Rectangle FromCorners(in Point2D topLeft, in Point2D bottomRight)
         {
@@ -70,10 +79,9 @@ namespace OpenSage.Mathematics
                 && point.Y <= Bottom;
         }
 
-        public RectangleF ToRectangleF()
-        {
-            return new RectangleF(X, Y, Width, Height);
-        }
+        public Rectangle WithLocation(in Point2D location) => new Rectangle(location, Size);
+
+        public RectangleF ToRectangleF() => new RectangleF(X, Y, Width, Height);
 
         public override bool Equals(object obj)
         {

@@ -34,7 +34,7 @@ namespace OpenSage.Gui.Wnd.Images
                 return;
             }
 
-            _texture = _source.GetTexture(size);
+            _texture = _source.GetTexture(actualSize);
             if(size.Width == 0 || size.Height == 0)
             {
                 return;
@@ -55,6 +55,12 @@ namespace OpenSage.Gui.Wnd.Images
 
         internal void Draw(DrawingContext2D drawingContext, in Rectangle destinationRect)
         {
+            if (_texture == null)
+            {
+                // TODO: crashes in multiplayer mode
+                return;
+                // throw new InvalidOperationException();
+            }
             drawingContext.DrawImage(_texture, null, destinationRect, grayscale: _grayscale);
         }
     }

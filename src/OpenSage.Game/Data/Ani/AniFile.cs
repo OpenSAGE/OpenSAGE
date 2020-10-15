@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -14,13 +15,10 @@ namespace OpenSage.Data.Ani
         /// </summary>
         public uint DefaultFrameDisplayRate { get; private set; }
 
-        public uint IconWidth { get; private set; }
-        public uint IconHeight { get; private set; }
-
         public RateChunkContent Rates { get; private set; }
         public SequenceChunkContent Sequence { get; private set; }
 
-        public AniCursorImage[] Images { get; private set; }
+        public CursorImage[] Images { get; private set; }
 
         public static AniFile FromFileSystemEntry(FileSystemEntry entry)
         {
@@ -65,38 +63,15 @@ namespace OpenSage.Data.Ani
                                     }
 
                                     var iconChunkContent = (IconChunkContent) iconChunk.Content;
-                                    var iconDirEntry = iconChunkContent.IconDirEntries[0];
 
-                                    if (result.IconWidth == 0)
-                                    {
-                                        result.IconWidth = iconDirEntry.Width;
-                                        result.IconHeight = iconDirEntry.Height;
-                                    }
-                                    else
-                                    {
-                                        if (result.IconWidth != iconDirEntry.Width || result.IconHeight != iconDirEntry.Height)
-                                        {
-                                            throw new InvalidDataException();
-                                        }
-                                    }
-
-                                    var icon = iconChunkContent.Images[0];
-
-                                    result.Images[iconIndex] = new AniCursorImage
-                                    {
-                                        ColorTable = icon.ColorTable,
-                                        XorMask = icon.XorMask,
-                                        AndMask = icon.AndMask
-                                    };
-
-                                    iconIndex++;
+                                    result.Images[iconIndex++] = iconChunkContent.GetImage(0);
                                 }
                                 break;
                         }
                         break;
 
                     case AniHeaderChunkContent anih:
-                        result.Images = new AniCursorImage[anih.NumFrames];
+                        result.Images = new CursorImage[anih.NumFrames];
                         result.DefaultFrameDisplayRate = anih.DefaultFrameDisplayRate;
                         break;
 
@@ -137,12 +112,5 @@ namespace OpenSage.Data.Ani
 
             return null;
         }
-    }
-
-    public sealed class AniCursorImage
-    {
-        public BmpColorTable ColorTable { get; internal set; }
-        public BmpRasterData XorMask { get; internal set; }
-        public BmpRasterData AndMask { get; internal set; }
     }
 }

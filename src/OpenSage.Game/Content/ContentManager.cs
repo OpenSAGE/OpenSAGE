@@ -54,8 +54,14 @@ namespace OpenSage.Content
                 TranslationManager = Translation.TranslationManager.Instance;
                 Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
-                TranslationManager.LanguageChanged +=
-                    (sender, e) => throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
+
+                void OnLanguageChanged(object sender, EventArgs e)
+                {
+                    throw new NotImplementedException("Encoding change on LanguageChanged not implemented yet");
+                }
+
+                TranslationManager.LanguageChanged += OnLanguageChanged;
+                AddDisposeAction(() => TranslationManager.LanguageChanged -= OnLanguageChanged);
 
                 IniDataContext = new IniDataContext();
 
@@ -84,7 +90,9 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.Wnd);
                         SubsystemLoader.Load(Subsystem.Terrain);
                         SubsystemLoader.Load(Subsystem.Credits);
-
+                        SubsystemLoader.Load(Subsystem.Damage);
+                        SubsystemLoader.Load(Subsystem.SpecialPower);
+                        SubsystemLoader.Load(Subsystem.InGameUI);
                         break;
 
                     case SageGame.Cnc3:
@@ -140,5 +148,7 @@ namespace OpenSage.Content
                 return FileSystem.GetFile(mapPath);
             }
         }
+
+        internal FileSystemEntry GetScriptEntry(string scriptPath) => FileSystem.GetFile(scriptPath);
     }
 }

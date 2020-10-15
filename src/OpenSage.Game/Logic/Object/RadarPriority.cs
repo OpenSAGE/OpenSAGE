@@ -7,8 +7,8 @@ namespace OpenSage.Logic.Object
         [IniEnum("INVALID")]
         Invalid = 0,
 
-        [IniEnum("LOCAL_UNIT_ONLY")]
-        LocalUnitOnly,
+        [IniEnum("NOT_ON_RADAR")]
+        NotOnRadar,
 
         [IniEnum("STRUCTURE")]
         Structure,
@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
         [IniEnum("UNIT")]
         Unit,
 
-        [IniEnum("NOT_ON_RADAR")]
-        NotOnRadar
+        [IniEnum("LOCAL_UNIT_ONLY")]
+        LocalUnitOnly,
     }
 }

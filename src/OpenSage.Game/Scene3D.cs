@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
+using OpenSage.DataStructures;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -51,7 +53,11 @@ namespace OpenSage
 
         public readonly MapFile MapFile;
 
+        public readonly MapCache MapCache;
+
         public readonly Terrain.Terrain Terrain;
+
+        public readonly Quadtree<GameObject> Quadtree;
         public bool ShowTerrain { get; set; } = true;
 
         public readonly WaterAreaCollection WaterAreas;
@@ -63,7 +69,7 @@ namespace OpenSage
         public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
-        public MapScriptCollection[] PlayerScripts { get; }
+        public ScriptList[] PlayerScripts { get; private set; }
 
         public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
@@ -93,15 +99,18 @@ namespace OpenSage
 
         private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
-        internal Scene3D(Game game, MapFile mapFile, int randomSeed)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile)
+        public readonly Radar Radar;
+
+        public readonly Game Game;
+
+        internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
+            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             var contentManager = game.ContentManager;
 
             _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
 
-            // TODO: This is completely wrong.
-            LocalPlayer = _players.FirstOrDefault();
+            LocalPlayer = _players.First();
 
             _teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
                 .Select(team => Team.FromMapData(team, _players))
@@ -132,11 +141,9 @@ namespace OpenSage
 
             PlayerScripts = mapFile
                 .GetPlayerScriptsList()
-                .ScriptLists
-                .Select(s => new MapScriptCollection(s))
-                .ToArray();
+                .ScriptLists;
 
-            CameraController = new RtsCameraController(game.AssetStore.GameData.Current)
+            CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
             {
                 TerrainPosition = Terrain.HeightMap.GetPosition(
                     Terrain.HeightMap.Width / 2,
@@ -167,8 +174,6 @@ namespace OpenSage
             {
                 var mapObject = mapObjects[i];
 
-                var position = mapObject.Position;
-
                 switch (mapObject.RoadType & RoadType.PrimaryType)
                 {
                     case RoadType.None:
@@ -179,10 +184,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                position.Z += heightMap.GetHeight(position.X, position.Y);
-
-                                GameObject.FromMapObject(mapObject, teams, loadContext.AssetStore, GameObjects, position);
-
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teams: teams);
                                 break;
                         }
                         break;
@@ -216,7 +218,7 @@ namespace OpenSage
                         // We'll skip processing them altogether.
                         if (mapObject.TypeName == "" || roadEnd.TypeName == "")
                         {
-                            Logger.Warn($"Road {mapObject.ToString()} has invalid start- or endpoint, skipping...");
+                            Logger.Warn($"Road {mapObject} has invalid start- or endpoint, skipping...");
                             continue;
                         }
 
@@ -245,7 +247,7 @@ namespace OpenSage
             }
 
             cameras = new CameraCollection(namedCameras?.Cameras);
-            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
+            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap, Terrain.RadiusCursorDecalsResourceSet));
             waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
             bridges = bridgesList.ToArray();
         }
@@ -258,7 +260,7 @@ namespace OpenSage
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null)
+            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             _players = new List<Player>();
             _teams = new List<Team>();
@@ -277,8 +279,10 @@ namespace OpenSage
             CameraController = cameraController;
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile)
+        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
+            Game = game;
+
             Camera = new Camera(getViewport);
 
             SelectionGui = new SelectionGui();
@@ -295,6 +299,20 @@ namespace OpenSage
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 
+            if (mapPath != null)
+            {
+                var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
+                if (mapCache == null)
+                {
+                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(game.UserDataFolder, mapPath).ToLower());
+                }
+                if (mapCache == null)
+                {
+                    throw new Exception($"Failed to load MapCache \"{mapPath}\"");
+                }
+                MapCache = mapCache;
+            }
+
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
@@ -306,11 +324,26 @@ namespace OpenSage
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
 
+            Radar = new Radar(this, game.AssetStore, MapCache);
+
+            if (mapFile != null)
+            {
+                var borderWidth = mapFile.HeightMapData.BorderWidth * HeightMap.HorizontalScale;
+                var width = mapFile.HeightMapData.Width * HeightMap.HorizontalScale;
+                var height = mapFile.HeightMapData.Height * HeightMap.HorizontalScale;
+                Quadtree = new Quadtree<GameObject>(new RectangleF(-borderWidth, -borderWidth, width, height));
+            }
+
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
                 _particleSystemManager,
-                Terrain);
+                new ObjectCreationListManager(),
+                Terrain,
+                Navigation,
+                Radar,
+                Quadtree,
+                this);
 
             GameObjects = AddDisposable(
                 new GameObjectCollection(
@@ -329,7 +362,7 @@ namespace OpenSage
             AddDisposeAction(() => inputMessageBuffer.Handlers.Remove(handler));
         }
 
-        public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
+        public void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
         {
             _players = players.ToList();
 
@@ -361,11 +394,26 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            var currentCount = GameObjects.Items.Count;
-            for (var index = 0; index < currentCount; index++)
+            foreach (var gameObject in GameObjects.Items)
             {
-                var gameObject = GameObjects.Items[index];
                 gameObject.LogicTick(frame, time);
+            }
+
+            DetectCollisions(time);
+        }
+
+        private void DetectCollisions(in TimeInterval time)
+        {
+            var items = GameObjects.Items;
+            foreach (var current in items)
+            {
+                var intersecting = Quadtree.FindIntersecting(current.Collider);
+
+                foreach (var intersect in intersecting)
+                {
+                    current.DoCollide(intersect, time);
+                    intersect.DoCollide(current, time);
+                }
             }
         }
 
@@ -373,9 +421,8 @@ namespace OpenSage
         {
             _orderGeneratorInputHandler?.Update();
 
-            for (int i = 0; i < GameObjects.Items.Count; i++)
+            foreach (var gameObject in GameObjects.Items)
             {
-                var gameObject = GameObjects.Items[i];
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
             }
 
@@ -383,6 +430,13 @@ namespace OpenSage
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
             DebugOverlay.Update(gameTime);
+
+            if (_orderGeneratorInputHandler != null)
+            {
+                _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
+            }
+
+            Terrain?.Update(Waters, gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -436,7 +490,7 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
-                if (gameObject.Definition.Geometry is null)
+                if (gameObject.Definition.Geometry is null || gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
                 {
                     return;
                 }
@@ -449,10 +503,11 @@ namespace OpenSage
                     geometrySize = Math.Max(geometrySize, 15);
                 }
 
-                var boundingSphere = new BoundingSphere(gameObject.Transform.Translation, geometrySize);
+
+                var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
-                var healthBoxWorldSpacePos = gameObject.Transform.Translation.WithZ(gameObject.Transform.Translation.Z + gameObject.Definition.Geometry.Height);
+                var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Height);
                 var healthBoxRect = Camera.WorldToScreenRectangle(
                     healthBoxWorldSpacePos,
                     new SizeF(healthBoxSize, 3));
@@ -477,12 +532,20 @@ namespace OpenSage
                     DrawBar(
                         healthBoxRect.Value,
                         new ColorRgbaF(0, 1, 0, 1),
-                        (float) (gameObject.Body.Health / gameObject.Body.MaxHealth));
+                        (float)gameObject.Body.HealthPercentage);
                 }
 
-                if (gameObject.ProductionUpdate != null)
+                var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.BuildProgress < 0.999f)
                 {
-                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
+                    DrawBar(
+                        productionBoxRect,
+                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
+                        gameObject.BuildProgress);
+                }
+                else if (gameObject.ProductionUpdate != null)
+                {
                     var productionBoxValue = gameObject.ProductionUpdate.IsProducing
                         ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
                         : 0;

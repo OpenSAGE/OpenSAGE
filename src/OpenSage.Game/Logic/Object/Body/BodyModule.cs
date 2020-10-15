@@ -1,19 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using ImGuiNET;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
-        public Fix64 Health { get; protected set; }
+        public Fix64 Health { get; internal set; }
 
-        public abstract Fix64 MaxHealth { get; }
+        public abstract Fix64 MaxHealth { get; internal set; }
+
+        public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+
+        internal override void DrawInspector()
+        {
+            var maxHealth = (float) MaxHealth;
+            if (ImGui.InputFloat("MaxHealth", ref maxHealth))
+            {
+                MaxHealth = (Fix64) maxHealth;
+            }
+
+            var health = (float) Health;
+            if (ImGui.InputFloat("Health", ref health))
+            {
+                Health = (Fix64) health;
+            }
+        }
     }
 
     public abstract class BodyModuleData : BehaviorModuleData
@@ -37,7 +68,7 @@ namespace OpenSage.Logic.Object
             { "UndeadBody", UndeadBodyModuleData.Parse },
         };
 
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject)
+        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             throw new InvalidOperationException();
         }

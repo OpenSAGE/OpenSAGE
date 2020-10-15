@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
+using OpenSage.Logic.OrderGenerators;
 
 namespace OpenSage.Logic
 {
@@ -91,14 +93,40 @@ namespace OpenSage.Logic
             Status = SelectionStatus.NotSelecting;
         }
 
-        public void SetSelectedObjects(Player player, GameObject[] objects)
+        public void SetSelectedObjects(Player player, GameObject[] objects, bool playAudio = true)
         {
             player.SelectUnits(objects);
 
             if (player == Game.Scene3D.LocalPlayer)
             {
-                objects[0].OnLocalSelect(Game.Audio);
+                if (CanSetRallyPoint(objects))
+                {
+                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator();
+                }
+                else
+                {
+                    Game.OrderGenerator.ActiveGenerator = new UnitOrderGenerator(Game);
+                }
+
+                if (playAudio)
+                {
+                    //TODO: handle hordes properly
+                    objects[0].OnLocalSelect(Game.Audio);
+                }
             }
+        }
+
+        private bool CanSetRallyPoint(GameObject[] objects)
+        {
+            foreach (var unit in objects)
+            {
+                if (unit.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void SetRallyPointForSelectedObjects(Player player, GameObject[] objects, Vector3 rallyPoint)
@@ -107,6 +135,11 @@ namespace OpenSage.Logic
             {
                 obj.RallyPoint = rallyPoint;
             }
+        }
+
+        public void ClearSelectedObjectsForLocalPlayer()
+        {
+            ClearSelectedObjects(Game.Scene3D.LocalPlayer);
         }
 
         public void ClearSelectedObjects(Player player)
@@ -155,7 +188,9 @@ namespace OpenSage.Logic
         private void MultiSelect()
         {
             var boxFrustum = GetSelectionFrustum(SelectionRect);
-            var selectedObjectIds = new List<uint>();
+            var selectedObjects = new List<uint>();
+
+            uint? structure = null;
 
             // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
@@ -174,18 +209,25 @@ namespace OpenSage.Logic
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
                     var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
-                    selectedObjectIds.Add(objectId);
+
+                    if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == false)
+                    {
+                        selectedObjects.Add(objectId);
+                    }
+                    else if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == true)
+                    {
+                        structure ??= objectId;
+                    }
                 }
             }
 
+            if (selectedObjects.Count == 0 && structure.HasValue) selectedObjects.Add(structure.Value);
+
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
-
-            if (selectedObjectIds.Count > 0)
-            {
-                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
-            }
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjects));
         }
+
 
         private static bool UseBoxSelection(Rectangle rect)
         {

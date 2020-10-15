@@ -51,7 +51,7 @@ vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPo
 
 void main()
 {
-    gl_ClipDistance[0] = CalculateClippingPlane(in_Position, _GlobalConstantsVS.ClippingPlane);
+    DO_CLIPPING(in_Position)
 
     // Vertex layout:
     // 0 - 1

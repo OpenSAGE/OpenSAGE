@@ -1,11 +1,72 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Logic.Object.Damage;
+using OpenSage.FileFormats;
+using OpenSage.FX;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class TransitionDamageFX : DamageModule
+    {
+        private readonly TransitionDamageFXModuleData _moduleData;
+
+        public TransitionDamageFX(TransitionDamageFXModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage)
+        {
+            List<TransitionDamageParticleSystem> particleSystems = null;
+
+            switch ((fromDamage, toDamage))
+            {
+                case (BodyDamageType.Pristine, BodyDamageType.Damaged):
+                    particleSystems = _moduleData.DamagedParticleSystems;
+                    break;
+
+                case (BodyDamageType.Damaged, BodyDamageType.ReallyDamaged):
+                    particleSystems = _moduleData.ReallyDamagedParticleSystems;
+                    break;
+
+                case (BodyDamageType.ReallyDamaged, BodyDamageType.Rubble):
+                    particleSystems = _moduleData.RubbleParticleSystems;
+                    break;
+            }
+
+            if (particleSystems != null)
+            {
+                var worldMatrix = context.GameObject.TransformMatrix;
+
+                foreach (var particleSystemTemplate in particleSystems)
+                {
+                    context.GameContext.ParticleSystems
+                        .Create(particleSystemTemplate.ParticleSystem.Value, worldMatrix)
+                        .Activate();
+                }
+            }
+
+            // TODO: FXLists
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(192);
+        }
+    }
+
     public sealed class TransitionDamageFXModuleData : DamageModuleData
     {
         internal static TransitionDamageFXModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -22,29 +83,29 @@ namespace OpenSage.Logic.Object
 
             { "DamageParticleTypes", (parser, x) => x.DamageParticleTypes = parser.ParseEnumBitArray<DamageType>() },
 
-            { "DamagedParticleSystem1", (parser, x) => x.DamagedParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
-            { "DamagedParticleSystem2", (parser, x) => x.DamagedParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
-            { "DamagedParticleSystem3", (parser, x) => x.DamagedParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
-            { "DamagedParticleSystem4", (parser, x) => x.DamagedParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
-            { "DamagedParticleSystem5", (parser, x) => x.DamagedParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
-            { "DamagedParticleSystem6", (parser, x) => x.DamagedParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem1", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "DamagedParticleSystem2", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "DamagedParticleSystem3", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "DamagedParticleSystem4", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "DamagedParticleSystem5", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "DamagedParticleSystem6", (parser, x) => x.DamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
 
-            { "ReallyDamagedParticleSystem1", (parser, x) => x.ReallyDamagedParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem2", (parser, x) => x.ReallyDamagedParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem3", (parser, x) => x.ReallyDamagedParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem4", (parser, x) => x.ReallyDamagedParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem5", (parser, x) => x.ReallyDamagedParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem6", (parser, x) => x.ReallyDamagedParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem7", (parser, x) => x.ReallyDamagedParticleSystem7 = TransitionDamageParticleSystem.Parse(parser) },
-            { "ReallyDamagedParticleSystem8", (parser, x) => x.ReallyDamagedParticleSystem8 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem1", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem2", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem3", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem4", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem5", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem6", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem7", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "ReallyDamagedParticleSystem8", (parser, x) => x.ReallyDamagedParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
 
-            { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem2", (parser, x) => x.RubbleParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem3", (parser, x) => x.RubbleParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem4", (parser, x) => x.RubbleParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem5", (parser, x) => x.RubbleParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem6", (parser, x) => x.RubbleParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
-            { "RubbleParticleSystem7", (parser, x) => x.RubbleParticleSystem7 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem2", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem3", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem4", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem5", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem6", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
+            { "RubbleParticleSystem7", (parser, x) => x.RubbleParticleSystems.Add(TransitionDamageParticleSystem.Parse(parser)) },
 
             { "RubbleNeighbor", (parser, x) => x.RubbleNeighbors.Add(RubbleNeighbor.Parse(parser)) },
             { "PristineShowSubObject", (parser, x) => x.PristineShowSubObject = parser.ParseAssetReferenceArray() },
@@ -65,29 +126,11 @@ namespace OpenSage.Logic.Object
 
         public BitArray<DamageType> DamageParticleTypes { get; private set; }
 
-        public TransitionDamageParticleSystem DamagedParticleSystem1 { get; private set; }
-        public TransitionDamageParticleSystem DamagedParticleSystem2 { get; private set; }
-        public TransitionDamageParticleSystem DamagedParticleSystem3 { get; private set; }
-        public TransitionDamageParticleSystem DamagedParticleSystem4 { get; private set; }
-        public TransitionDamageParticleSystem DamagedParticleSystem5 { get; private set; }
-        public TransitionDamageParticleSystem DamagedParticleSystem6 { get; private set; }
+        public List<TransitionDamageParticleSystem> DamagedParticleSystems { get; } = new List<TransitionDamageParticleSystem>();
 
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem1 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem2 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem3 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem4 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem5 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem6 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem7 { get; private set; }
-        public TransitionDamageParticleSystem ReallyDamagedParticleSystem8 { get; private set; }
+        public List<TransitionDamageParticleSystem> ReallyDamagedParticleSystems { get; } = new List<TransitionDamageParticleSystem>();
 
-        public TransitionDamageParticleSystem RubbleParticleSystem1 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem2 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem3 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem4 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem5 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem6 { get; private set; }
-        public TransitionDamageParticleSystem RubbleParticleSystem7 { get; private set; }
+        public List<TransitionDamageParticleSystem> RubbleParticleSystems { get; } = new List<TransitionDamageParticleSystem>();
 
         [AddedIn(SageGame.Bfme)]
         public List<RubbleNeighbor> RubbleNeighbors { get; private set; } = new List<RubbleNeighbor>();
@@ -109,6 +152,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string[] ReallyDamagedHideSubObject { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new TransitionDamageFX(this);
+        }
     }
 
     public sealed class TransitionDamageFXList
@@ -118,12 +166,12 @@ namespace OpenSage.Logic.Object
             return new TransitionDamageFXList
             {
                 Location = parser.ParseAttribute("Loc", () => parser.ParseVector3()),
-                FXList = parser.ParseAttribute("FXList", parser.ScanAssetReference)
+                FXList = parser.ParseAttribute("FXList", parser.ScanFXListReference)
             };
         }
 
         public Vector3 Location { get; private set; }
-        public string FXList { get; private set; }
+        public LazyAssetReference<FXList> FXList { get; private set; }
     }
 
     public sealed class TransitionDamageParticleSystem
@@ -134,13 +182,13 @@ namespace OpenSage.Logic.Object
             {
                 Bone = parser.ParseAttribute("Bone", parser.ScanBoneName),
                 RandomBone = parser.ParseAttributeBoolean("RandomBone"),
-                ParticleSystem = parser.ParseAttribute("PSys", parser.ScanAssetReference)
+                ParticleSystem = parser.ParseAttribute("PSys", parser.ScanFXParticleSystemTemplateReference)
             };
         }
 
         public string Bone { get; private set; }
         public bool RandomBone { get; private set; }
-        public string ParticleSystem { get; private set; }
+        public LazyAssetReference<FXParticleSystemTemplate> ParticleSystem { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

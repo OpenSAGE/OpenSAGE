@@ -13,6 +13,8 @@ namespace OpenSage.Terrain
 {
     public sealed class WaterArea : DisposableBase
     {
+        private readonly string _debugName;
+
         private DeviceBuffer _vertexBuffer;
         private BoundingBox _boundingBox;
 
@@ -107,10 +109,12 @@ namespace OpenSage.Terrain
 
         }
 
-        private WaterArea(AssetLoadContext loadContext)
+        private WaterArea(AssetLoadContext loadContext, string debugName)
         {
             _shaderSet = loadContext.ShaderResources.Water.ShaderSet;
             _pipeline = loadContext.ShaderResources.Water.Pipeline;
+
+            _debugName = debugName;
 
             _beforeRender = (cl, context) =>
             {
@@ -120,7 +124,7 @@ namespace OpenSage.Terrain
 
         private WaterArea(
             AssetLoadContext loadContext,
-            StandingWaveArea area) : this(loadContext)
+            StandingWaveArea area) : this(loadContext, area.Name)
         {
             CreateGeometry(loadContext, area.Points, area.FinalHeight);
             //TODO: add waves
@@ -128,15 +132,16 @@ namespace OpenSage.Terrain
 
         private WaterArea(
             AssetLoadContext loadContext,
-            StandingWaterArea area) : this(loadContext)
+            StandingWaterArea area) : this(loadContext, area.Name)
         {
             CreateGeometry(loadContext, area.Points, area.WaterHeight);
-            //TODO: use depthcolors
+            // TODO: use depthcolors
+            // TODO: use FXShader?
         }
 
         private WaterArea(
             AssetLoadContext loadContext,
-            PolygonTrigger trigger) : this(loadContext)
+            PolygonTrigger trigger) : this(loadContext, trigger.Name)
         {
             var triggerPoints = trigger.Points
                 .Select(x => new Vector2(x.X, x.Y))
@@ -148,6 +153,7 @@ namespace OpenSage.Terrain
         internal void BuildRenderList(RenderList renderList)
         {
             renderList.Water.RenderItems.Add(new RenderItem(
+                _debugName,
                 _shaderSet,
                 _pipeline,
                 _boundingBox,

@@ -4,7 +4,7 @@ using System.Numerics;
 namespace OpenSage.Mathematics
 {
     /// <summary>
-    /// Describes a floating-point rectangle.
+    /// Describes a axis-aligned floating-point rectangle.
     /// </summary>
     public readonly struct RectangleF
     {
@@ -55,6 +55,14 @@ namespace OpenSage.Mathematics
             Height = size.Height;
         }
 
+        public RectangleF(in Vector2 position, float width, float height)
+        {
+            X = position.X;
+            Y = position.Y;
+            Width = width;
+            Height = height;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {
@@ -85,19 +93,19 @@ namespace OpenSage.Mathematics
             scale = ratio;
 
             // Now we can get the new height and width
-            var newWidth = (int) Math.Round(rect.Width * ratio);
-            var newHeight = (int) Math.Round(rect.Height * ratio);
+            var newWidth = (int) MathF.Round(rect.Width * ratio);
+            var newHeight = (int) MathF.Round(rect.Height * ratio);
 
             newWidth = Math.Max(newWidth, 1);
             newHeight = Math.Max(newHeight, 1);
 
-            var newX = (int) Math.Round(rect.X * ratio);
-            var newY = (int) Math.Round(rect.Y * ratio);
+            var newX = (int) MathF.Round(rect.X * ratio);
+            var newY = (int) MathF.Round(rect.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0) + newY;
+            var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
+            var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
 
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
@@ -114,13 +122,13 @@ namespace OpenSage.Mathematics
             // Use whichever multiplier is smaller.
             var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-            var newX = (int) Math.Round(rect.X * ratio);
-            var newY = (int) Math.Round(rect.Y * ratio);
+            var newX = (int) MathF.Round(rect.X * ratio);
+            var newY = (int) MathF.Round(rect.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0) + newY;
+            var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
+            var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
 
             return
                 Matrix3x2.CreateScale(ratio) *
@@ -159,7 +167,7 @@ namespace OpenSage.Mathematics
                 && rect.Bottom <= Bottom;
         }
 
-        public bool IntersectsWith(in RectangleF rect)
+        public bool Intersects(in RectangleF rect)
         {
             return rect.Left <= Right
                 && rect.Right >= Left
@@ -167,7 +175,33 @@ namespace OpenSage.Mathematics
                 && rect.Bottom >= Top;
         }
 
-        // TODO: It might make sense to micro-optimise this, as it's a very common operation.
+        public bool Intersects(in Vector2 center, float radius)
+        {
+            var halfWidth = Width / 2.0f;
+            var halfHeight = Height / 2.0f;
+
+            var circleDistanceX = MathF.Abs(center.X - (X + halfWidth));
+            var circleDistanceY = MathF.Abs(center.Y - (Y + halfHeight));
+
+            if (circleDistanceX > halfWidth + radius ||
+                circleDistanceY > halfHeight + radius)
+            {
+                return false;
+            }
+
+            if (circleDistanceX <= halfWidth ||
+                circleDistanceY <= halfHeight)
+            {
+                return true;
+            }
+
+            var cornerDistanceSquared = MathF.Pow(circleDistanceX - halfWidth, 2) +
+                                        MathF.Pow(circleDistanceY - halfHeight, 2);
+
+            return cornerDistanceSquared <= MathF.Pow(radius, 2);
+        }
+
+        // TODO: It might make sense to micro-optimize this, as it's a very common operation.
         public ContainmentType Intersect(in RectangleF rect)
         {
             if (Contains(rect))
@@ -175,7 +209,7 @@ namespace OpenSage.Mathematics
                 return ContainmentType.Contains;
             }
 
-            if (IntersectsWith(rect))
+            if (Intersects(rect))
             {
                 return ContainmentType.Intersects;
             }
@@ -211,6 +245,15 @@ namespace OpenSage.Mathematics
         public override int GetHashCode()
         {
             return HashCode.Combine(X.GetHashCode(), Y.GetHashCode(), Width.GetHashCode(), Height.GetHashCode());
+        }
+
+        public RectangleF Scale(float factor)
+        {
+            var newWidth = Width * factor;
+            var newHeight = Height * factor;
+            var deltaWidth = Width - newWidth;
+            var deltaHeight = Height - newHeight;
+            return new RectangleF(X + deltaWidth / 2, Y + deltaHeight / 2, newWidth, newHeight);
         }
     }
 }

@@ -161,26 +161,22 @@ namespace OpenSage.Utilities.Extensions
                     var mipMapWidth = Math.Min(calculatedMipWidth, mipMap.Width);
                     var mipMapHeight = Math.Min(calculatedMipHeight, mipMap.Height);
 
-                    fixed (void* pin = mipMap.Data)
-                    {
-                        graphicsDevice.UpdateTexture(
-                            staging,
-                            new IntPtr(pin),
-                            (uint) mipMap.Data.Length,
-                            0, 0, 0,
-                            mipMapWidth,
-                            mipMapHeight,
-                            1,
-                            level,
-                            0);
+                    graphicsDevice.UpdateTexture(
+                        staging,
+                        mipMap.Data,
+                        0, 0, 0,
+                        mipMapWidth,
+                        mipMapHeight,
+                        1,
+                        level,
+                        0);
 
-                        commandList.CopyTexture(
-                            staging, 0, 0, 0, level, 0,
-                            result, 0, 0, 0, level, arrayLayer,
-                            mipMapWidth,
-                            mipMapHeight,
-                            1, 1);
-                    }
+                    commandList.CopyTexture(
+                        staging, 0, 0, 0, level, 0,
+                        result, 0, 0, 0, level, arrayLayer,
+                        mipMapWidth,
+                        mipMapHeight,
+                        1, 1);
 
                     calculatedMipWidth = Math.Max(calculatedMipWidth / 2, 1);
                     calculatedMipHeight = Math.Max(calculatedMipHeight / 2, 1);

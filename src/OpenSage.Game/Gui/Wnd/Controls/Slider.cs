@@ -59,7 +59,7 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 case WndWindowMessageType.MouseUp:
                     var value = message.MousePosition.X / (float) ClientSize.Width;
-                    Value = (int) Math.Round(MinimumValue + (MaximumValue - MinimumValue) * value);
+                    Value = (int) MathF.Round(MinimumValue + (MaximumValue - MinimumValue) * value);
                     break;
             }
         }

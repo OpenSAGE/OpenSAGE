@@ -11,13 +11,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
+            var a = context.Pop();
+            var b = context.Pop();
 
             if (a.Type != ValueType.String || b.Type != ValueType.String)
                 throw new InvalidOperationException();
 
-            context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
+            context.Push(Value.FromString(b.ToString() + a.ToString()));
         }
     }
 
@@ -30,13 +30,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
+            var a = context.Pop();
+            var b = context.Pop();
 
-            if (a.Type != ValueType.String || b.Type != ValueType.String)
-                throw new InvalidOperationException();
-
-            context.Stack.Push(Value.FromBoolean(b.ToString() == a.ToString()));
+            context.Push(Value.FromBoolean(b.ToString() == a.ToString()));
         }
     }
 }

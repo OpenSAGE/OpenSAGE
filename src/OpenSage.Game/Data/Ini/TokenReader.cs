@@ -95,7 +95,7 @@ namespace OpenSage.Data.Ini
 
             // Skip leading trivia.
             while (nextCharIndex < _currentLineText.Length
-                   && separators.Contains(_currentLineText[nextCharIndex]))
+                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
             {
                 nextCharIndex++;
             }
@@ -106,7 +106,7 @@ namespace OpenSage.Data.Ini
             var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
 
             while (nextCharIndex < _currentLineText.Length
-                   && !separators.Contains(_currentLineText[nextCharIndex]))
+                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) == -1)
             {
                 length++;
                 nextCharIndex++;
@@ -114,7 +114,7 @@ namespace OpenSage.Data.Ini
 
             // Skip trailing separator.
             if (nextCharIndex < _currentLineText.Length
-                && separators.Contains(_currentLineText[nextCharIndex]))
+                && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
             {
                 nextCharIndex++;
             }

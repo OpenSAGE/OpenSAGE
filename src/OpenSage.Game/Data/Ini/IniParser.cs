@@ -11,6 +11,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -86,11 +87,9 @@ namespace OpenSage.Data.Ini
 
             if (entry != null)
             {
-                using (var stream = entry.Open())
-                using (var reader = new StreamReader(stream, encoding))
-                {
-                    source = reader.ReadToEnd();
-                }
+                using var stream = entry.Open();
+                using var reader = new StreamReader(stream, encoding);
+                source = reader.ReadToEnd();
             }
             else
             {
@@ -155,7 +154,7 @@ namespace OpenSage.Data.Ini
 
         private static List<byte> ReadEncodedText(string encoded)
         {
-            int ConvertHexNibble(char c)
+            static int ConvertHexNibble(char c)
             {
                 if (c >= '0' && c <= '9')
                 {
@@ -209,6 +208,20 @@ namespace OpenSage.Data.Ini
         }
 
         public string ScanAssetReference(in IniToken token) => token.Text;
+
+        public LazyAssetReference<FXParticleSystemTemplate> ScanFXParticleSystemTemplateReference(in IniToken token)
+        {
+            var name = token.Text;
+            return _assetStore.FXParticleSystemTemplates.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<FXList> ScanFXListReference(in IniToken token)
+        {
+            var name = token.Text;
+            return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
+        }
+
+        public string ScanParticleSystemReference(in IniToken token) => token.Text;
 
         public string ParseAssetReference()
         {
@@ -413,7 +426,7 @@ namespace OpenSage.Data.Ini
 
         public string ParseFileName() => ParseIdentifier();
 
-        public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseInteger());
+        public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
         public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()
@@ -428,10 +441,35 @@ namespace OpenSage.Data.Ini
             return _assetStore.CommandSets.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<SpecialPower> ParseSpecialPowerReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.SpecialPowers.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<CrateData> ParseCrateReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.CrateDatas.GetLazyAssetReferenceByName(name);
+        }
+
         public LazyAssetReference<UpgradeTemplate> ParseUpgradeReference()
         {
             var name = ParseAssetReference();
             return _assetStore.Upgrades.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<UpgradeTemplate>[] ParseUpgradeReferenceArray()
+        {
+            var result = new List<LazyAssetReference<UpgradeTemplate>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                result.Add(_assetStore.Upgrades.GetLazyAssetReferenceByName(token.Value.Text));
+            }
+
+            return result.ToArray();
         }
 
         public LazyAssetReference<MappedImage> ParseMappedImageReference()
@@ -467,17 +505,34 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<FXList> ParseFXListReference()
         {
             var name = ParseAssetReference();
-            return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
+            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.FXLists.GetLazyAssetReferenceByName(name)
+                : null;
+        }
+
+        public LazyAssetReference<DamageFX> ParseDamageFXReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.DamageFXs.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<ObjectCreationList> ParseObjectCreationListReference()
+        {
+            var name = ParseAssetReference();
+            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ObjectCreationLists.GetLazyAssetReferenceByName(name)
+                : null;
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
         {
             var result = new List<LazyAssetReference<Graphics.Animation.W3DAnimation>>();
-
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Value.Text));
+                var name = token.Value.Text;
+                if (!name.Contains('.')) name = ((ModelConditionState)Temp).Skeleton + "." + name;
+                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(name));
             }
 
             return result.ToArray();
@@ -499,7 +554,14 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<BaseAudioEventInfo> ParseAudioEventReference()
         {
             var name = ParseAssetReference();
-            return new LazyAssetReference<BaseAudioEventInfo>(() => _assetStore.AudioEvents.GetByName(name));
+
+            // Do not refactor this! This variable is important.
+            // If we don't copy _assetStore into a new local variable, the callback will capture this by reference
+            // (even though it only needs the asset store), and therefore causes the INI file to stay in memory indefinitely.
+            // By using a local variable the callback will capture the variable instead of the entire object.
+            var assetStore = _assetStore;
+
+            return new LazyAssetReference<BaseAudioEventInfo>(() => assetStore.AudioEvents.GetByName(name));
         }
 
         public LazyAssetReference<AudioFile> ParseAudioFileReference()
@@ -517,16 +579,21 @@ namespace OpenSage.Data.Ini
             {
                 result.Add(new AudioFileWithWeight
                 {
-                    AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
+                       AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
                 });
             }
 
             return result.ToArray();
         }
 
-        public LazyAssetReference<ObjectDefinition> ParseObjectReference()
+        public ObjectDefinition GetDefaultThingTemplate()
         {
-            var name = ParseAssetReference();
+            return _assetStore.ObjectDefinitions.GetByName("DefaultThingTemplate");
+        }
+
+        public LazyAssetReference<ObjectDefinition> ParseObjectReference(string label = null)
+        {
+            var name = label ?? ParseAssetReference();
 
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name)
@@ -752,10 +819,11 @@ namespace OpenSage.Data.Ini
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider,
-            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null,
+            T resultObject = null)
             where T : class, new()
         {
-            var result = new T();
+            var result = resultObject ?? new T();
 
             var name = GetNextToken();
 
@@ -791,10 +859,11 @@ namespace OpenSage.Data.Ini
         }
 
         public T ParseBlock<T>(
-           IIniFieldParserProvider<T> fieldParserProvider)
+           IIniFieldParserProvider<T> fieldParserProvider,
+           T resultObject = null)
            where T : class, new()
         {
-            var result = new T();
+            var result = resultObject ?? new T();
 
             ParseBlockContent(result, fieldParserProvider);
 
@@ -903,6 +972,9 @@ namespace OpenSage.Data.Ini
 
         public void ParseFile()
         {
+            // the 'credits.ini' of ROTWK has a commented out starting block -> invalid
+            if (SageGame == SageGame.Bfme2Rotwk && CurrentPosition.File.EndsWith("credits.ini")) return;
+
             while (!_tokenReader.EndOfFile)
             {
                 _tokenReader.GoToNextLine();
@@ -925,7 +997,11 @@ namespace OpenSage.Data.Ini
                         macroExpansionToken = resolved;
                     }
 
-                    _dataContext.Defines.Add(macroName.ToUpper(), macroExpansionToken.Value);
+                    if (!_dataContext.Defines.TryAdd(macroName.ToUpper(), macroExpansionToken.Value))
+                    {
+                        // Overwrite the existing macro. This is necessary for BFME2 RotWk
+                        _dataContext.Defines[macroName.ToUpper()] = macroExpansionToken.Value;
+                    }
                 }
                 else if (fieldName == "#include")
                 {
@@ -956,3 +1032,4 @@ namespace OpenSage.Data.Ini
         }
     }
 }
+

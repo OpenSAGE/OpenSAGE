@@ -28,7 +28,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionBase GetInstruction()
         {
-            if (_index - 1 > _instructions.Count)
+            if (_index < 0 || _instructions.Count < _index - 1)
             {
                 throw new IndexOutOfRangeException();
             }
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public bool IsFinished()
         {
-            return _index == _instructions.Count;
+            return _index == _instructions.Count || _index == -1;
         }
 
         /// <summary>

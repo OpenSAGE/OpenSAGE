@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Gui;
@@ -14,10 +15,13 @@ namespace OpenSage.Mods.Generals.Gui
 {
     public class GameOptionsUtil
     {
-        private const string ComboBoxTeamPrefix = ":ComboBoxTeam";
-        private const string ComboBoxPlayerTemplatePrefix = ":ComboBoxPlayerTemplate";
-        private const string ComboBoxColorPrefix = ":ComboBoxColor";
-        private const string ComboBoxPlayerPrefix = ":ComboBoxPlayer";
+
+        protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public const string ComboBoxTeamPrefix = ":ComboBoxTeam";
+        public const string ComboBoxPlayerTemplatePrefix = ":ComboBoxPlayerTemplate";
+        public const string ComboBoxColorPrefix = ":ComboBoxColor";
+        public const string ComboBoxPlayerPrefix = ":ComboBoxPlayer";
 
         private readonly string _optionsPath;
         private readonly string _mapSelectPath;
@@ -26,6 +30,7 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Game _game;
 
         public MapCache CurrentMap { get; private set; }
+        public Action<int, string, int> OnSlotIndexChange { get; internal set; }
 
         public GameOptionsUtil(Window window, Game game, string basePrefix)
         {
@@ -73,6 +78,39 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
             });
+            
+            foreach(var prefix in new String[]{
+                ComboBoxTeamPrefix,
+                ComboBoxPlayerTemplatePrefix,
+                ComboBoxColorPrefix,
+                ComboBoxPlayerPrefix
+            })
+            {
+                for(var j = 0; j < 8; j++)
+                {
+                    var i = j;
+                    var key = _optionsPath + prefix + i;
+
+                    var comboBox = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().FirstOrDefault(x => x.Name == key);
+
+                    if (comboBox != null)
+                    {
+                        var listBox = (ListBox) comboBox.Controls[2];
+                        listBox.SelectedIndexChanged += (sender, e) =>
+                        {
+                            OnSlotIndexChange?.Invoke(i, prefix, comboBox.SelectedIndex);
+                        };
+                    }
+                    else
+                    {
+                        Logger.Error($"Did not find control {key}");
+                        continue;
+                    }
+
+
+                }
+                
+            }
         }
 
         public bool HandleSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -93,12 +131,32 @@ namespace OpenSage.Mods.Generals.Gui
                             return true;
                         }
 
-                        context.Game.Scene2D.WndWindowManager.PopWindow();
-                        context.Game.StartMultiPlayerGame(
-                            CurrentMap.Name,
-                            new EchoConnection(),
-                            settings,
-                            0);
+                        if (_optionsPath.StartsWith("LanGame"))
+                        {
+                            context.Game.HostSkirmishGame();
+                        }
+
+                        if (context.Game.SkirmishManager?.SkirmishGame != null)
+                        {
+                            if (context.Game.SkirmishManager.IsHosting)
+                            {
+                                context.Game.Scene2D.WndWindowManager.PopWindow();
+
+                                context.Game.SkirmishManager.StartGame();
+                            }
+                            else
+                            {
+                                context.Game.SkirmishManager.SkirmishGame.LocalSlot.Ready = true;
+                            }
+                        }
+                        else
+                        {
+                            context.Game.StartMultiPlayerGame(
+                                CurrentMap.Name,
+                                new EchoConnection(),
+                                settings,
+                                0);
+                        }
                     }
                     else
                     {

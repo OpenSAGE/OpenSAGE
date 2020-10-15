@@ -1,7 +1,39 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class ExperienceScalarUpgrade : UpgradeModule
+    {
+        private readonly ExperienceScalarUpgradeModuleData _moduleData;
+
+        internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                _gameObject.ExperienceMultiplier += _moduleData.AddXPScalar;
+            }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
     {
         internal static ExperienceScalarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -13,5 +45,10 @@ namespace OpenSage.Logic.Object
             });
 
         public float AddXPScalar { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new ExperienceScalarUpgrade(gameObject, this);
+        }
     }
 }

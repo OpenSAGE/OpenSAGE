@@ -122,50 +122,21 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        protected override void RenderImpl(AptRenderingContext renderingContext)
         {
-            var button = Character as Button;
-            _curTransform = pTransform * Transform;
-            _curTransform.GeometryTranslation *= renderer.Window.GetScaling();
-            _curTransform.GeometryRotation.M11 *= renderer.Window.GetScaling().X;
-            _curTransform.GeometryRotation.M22 *= renderer.Window.GetScaling().Y;
+            _curTransform = renderingContext.CurrentTransform * Transform;
+
+            var windowScaling = renderingContext.Window.GetScaling();
+            _curTransform.GeometryTranslation *= windowScaling;
+            _curTransform.GeometryRotation.M11 *= windowScaling.X;
+            _curTransform.GeometryRotation.M22 *= windowScaling.Y;
         }
-
-        //    var transform = _curTransform.GeometryRotation;
-        //    transform.Translation = _curTransform.GeometryTranslation;
-        //    ApplyCurrentRecord(ref transform);
-
-            //    var verts = button.Vertices;
-
-            //    foreach (var tri in button.Triangles)
-            //    {
-            //        var v1 = Vector2.Transform(verts[tri.IDX0], transform);
-            //        var v2 = Vector2.Transform(verts[tri.IDX1], transform);
-            //        var v3 = Vector2.Transform(verts[tri.IDX2], transform);
-
-            //        var color = ColorRgbaF.White;
-
-            //        if (button.IsMenu)
-            //        {
-            //            color = new ColorRgbaF(1.0f, 0.0f, 0.0f, 1.0f);
-            //        }
-
-            //        if (_isHovered)
-            //        {
-            //            color = new ColorRgbaF(0.0f, 1.0f, 1.0f, 1.0f);
-            //        }
-
-            //        dc.DrawLine(new Line2D(v1, v2), 1.0f, color);
-            //        dc.DrawLine(new Line2D(v2, v3), 1.0f, color);
-            //        dc.DrawLine(new Line2D(v3, v1), 1.0f, color);
-            //    }
-            //}
 
         public override void RunActions(TimeInterval gt)
         {
             foreach (var action in _actionList)
             {
-                Context.Avm.Execute(action, Parent.ScriptObject);
+                Context.Avm.Execute(action, Parent.ScriptObject, Character.Container.Constants.Entries);
             }
             _actionList.Clear();
         }

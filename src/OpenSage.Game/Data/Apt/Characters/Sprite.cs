@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt.Characters
 {
     public sealed class Sprite : Playable
-    {    
+    {
         public static Sprite Parse(BinaryReader reader)
         {
             var sprite = new Sprite();

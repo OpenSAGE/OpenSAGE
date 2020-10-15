@@ -4,6 +4,8 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.UnitOverlay;
+using OpenSage.Mods.Bfme.Gui;
 
 namespace OpenSage.Mods.Bfme2
 {
@@ -29,7 +31,10 @@ namespace OpenSage.Mods.Bfme2
         public string Identifier { get; } = "bfme2";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
-        public IControlBarSource ControlBar { get; }
+        public IControlBarSource ControlBar { get; } = new AptControlBarSource();
+        public IUnitOverlaySource UnitOverlay { get; } = new RadialUnitOverlaySource();
+
+        public uint ScriptingTicksPerSecond => 5;
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
@@ -37,5 +42,7 @@ namespace OpenSage.Mods.Bfme2
         }
 
         public static Bfme2Definition Instance { get; } = new Bfme2Definition();
+
+        public string LauncherExecutable => "lotrbfme2.exe";
     }
 }

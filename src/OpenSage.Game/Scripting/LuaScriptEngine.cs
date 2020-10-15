@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
 using OpenSage.Data.Ini;
@@ -9,19 +8,19 @@ namespace OpenSage.Scripting
 {
     public sealed class LuaScriptEngine : GameSystem
     {
-        public Script MainScript;
+        public MoonSharp.Interpreter.Script MainScript;
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public LuaScriptEngine(Game game) : base(game)
         {
-            Script.DefaultOptions.DebugPrint = text =>
+            MoonSharp.Interpreter.Script.DefaultOptions.DebugPrint = text =>
             {
                 Diagnostics.LuaScriptConsole._scriptConsoleTextAll =
                 string.Concat(Diagnostics.LuaScriptConsole._scriptConsoleTextAll, text, "\n");
             };
 
-            MainScript = new Script();
+            MainScript = new MoonSharp.Interpreter.Script();
 
             FunctionInit();
 
@@ -34,7 +33,7 @@ namespace OpenSage.Scripting
                 var fileEntry = Game.ContentManager.FileSystem.GetFile(filePath);
                 if (fileEntry != null)
                 {
-                    logger.Info($"Executing file {filePath}");
+                    Logger.Info($"Executing file {filePath}");
                     using (var fileStream = fileEntry.Open())
                     {
                         MainScript.DoStream(fileStream);
@@ -43,7 +42,7 @@ namespace OpenSage.Scripting
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Error while loading script file");
+                Logger.Error(ex, "Error while loading script file");
             }
 
             LuaEventHandlerInit();
@@ -53,7 +52,7 @@ namespace OpenSage.Scripting
         {
             try
             {
-                logger.Info($"Executing user code {externalCode}");
+                Logger.Info($"Executing user code {externalCode}");
                 MainScript.DoString(externalCode);
             }
             catch (SyntaxErrorException exeption)
@@ -191,12 +190,12 @@ namespace OpenSage.Scripting
             //Add code here
         }
 
-        public int GetLuaObjectID(string gameObject)
+        public uint GetLuaObjectID(string gameObject)
         {
-            return int.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
+            return uint.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
         }
 
-        public string GetLuaObjectIndex(int ObjectID)
+        public string GetLuaObjectIndex(uint ObjectID)
         {
             return String.Concat("ObjID#", ObjectID.ToString("X8"));
         }
@@ -210,8 +209,8 @@ namespace OpenSage.Scripting
             var spawnUnitPosition = localPlayerStartPosition;
             var playerTemplate = Game.Scene3D.LocalPlayer.Template;
             var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
-            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-            spawnUnit.Transform.Translation = spawnUnitPosition;
+            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+            spawnUnit.SetTranslation(spawnUnitPosition);
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
         }
 
@@ -224,7 +223,7 @@ namespace OpenSage.Scripting
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }
             var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
             spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
-            spawnUnit.Transform.Translation = spawnPosition;
+            spawnUnit.SetTranslation(spawnPosition);
             return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
         }
 
@@ -361,11 +360,11 @@ namespace OpenSage.Scripting
 
         public string ObjectDescription(string gameObject)  //EXAMPLE C&C3: "Object 1187 (_jIWv4) [NODAvatar, owned by player 3 (MetaIdea)]"
         {
-            int ObjectID = Game.Scene3D.GameObjects.GetObjectId(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)));
-            string ObjectNameRef = "TODO";
-            string ObjectTypeName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Definition.Name;
-            string PlayerIndex = "TODO";
-            string PlayerName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Owner.Name;
+            var ObjectID = Game.Scene3D.GameObjects.GetObjectId(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)));
+            var ObjectNameRef = "TODO";
+            var ObjectTypeName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Definition.Name;
+            var PlayerIndex = "TODO";
+            var PlayerName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Owner.Name;
             return $"Object {ObjectID} ({ObjectNameRef} [{ObjectTypeName}, owend by player {PlayerIndex} ({PlayerName})]";
         }
 

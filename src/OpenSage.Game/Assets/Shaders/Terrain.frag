@@ -6,6 +6,7 @@
 #include "Lighting.h"
 #include "Cloud.h"
 #include "Shadows.h"
+#include "RadiusCursorDecals.h"
 
 MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
 
@@ -20,6 +21,7 @@ layout(set = 4, binding = 0) uniform TerrainMaterialConstants
     vec2 MapBorderWidth;
     vec2 MapSize;
     bool IsMacroTextureStretched;
+    int CausticTextureIndex;
 } _TerrainMaterialConstants;
 
 layout(set = 4, binding = 1) uniform utexture2D TileData;
@@ -51,8 +53,12 @@ layout(std430, set = 4, binding = 3) readonly buffer TextureDetails
 
 layout(set = 4, binding = 4) uniform texture2DArray Textures;
 layout(set = 4, binding = 5) uniform texture2D MacroTexture;
-layout(set = 4, binding = 6) uniform texture2D CausticsTexture;
+layout(set = 4, binding = 6) uniform texture2DArray CausticsTextures;
 layout(set = 4, binding = 7) uniform sampler Sampler;
+
+MAKE_RADIUS_CURSOR_DECAL_RESOURCES(5)
+
+#include "RadiusCursorDecalsFunctions.h"
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -237,12 +243,17 @@ float CalculateCausticsDepthFactor(vec3 position, vec4 plane)
 
 vec3 DoCausticsRendering(vec3 textureColor, vec3 blendColor)
 {
-    vec2 causticsUV = vec2(in_WorldPosition.x / 32, in_WorldPosition.y / 32);
-    vec4 causticsColor = texture(sampler2D(CausticsTexture, Sampler), causticsUV);
-    vec3 outputColor = blendColor + causticsColor.xyz;
+    vec3 causticsColor = blendColor;
+    if (_TerrainMaterialConstants.CausticTextureIndex != -1)
+    {
+        vec2 causticsUV = vec2(in_WorldPosition.x / 32, in_WorldPosition.y / 32);
+        vec4 causticsColorTemp = texture(
+            sampler2DArray(CausticsTextures, Sampler),
+            vec3(causticsUV, _TerrainMaterialConstants.CausticTextureIndex));
+        causticsColor += causticsColorTemp.xyz;
+    }
     float depthFactor = CalculateCausticsDepthFactor(in_WorldPosition, in_ClippingPlane);
-    outputColor = textureColor + (outputColor * depthFactor);
-    return outputColor;
+    return textureColor + (causticsColor * depthFactor);
 }
 
 void main()
@@ -284,7 +295,9 @@ void main()
 
     textureColor = DoCausticsRendering(textureColor, diffuseColor);
 
+    vec3 decalColor = GetRadiusCursorDecalColor(in_WorldPosition);
+
     out_Color = vec4(
-        diffuseColor * textureColor * cloudColor * macroTextureColor,
+        (diffuseColor * textureColor * cloudColor * macroTextureColor) + decalColor,
         1);
 }

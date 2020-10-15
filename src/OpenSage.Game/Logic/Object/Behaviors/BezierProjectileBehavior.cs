@@ -1,12 +1,14 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class BezierProjectileBehavior : BehaviorModule
+    public class BezierProjectileBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly BezierProjectileBehaviorData _moduleData;
@@ -22,11 +24,15 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             // TODO: Bezier implementation.
+            if (!_gameObject.IsProjectile)
+            {
+                return;
+            }
 
-            var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.Transform.Matrix);
+            var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
             var velocity = direction * context.GameObject.Speed;
 
-            _gameObject.Transform.Translation += velocity * ((float)Game.LogicUpdateInterval / 1000.0f);
+            _gameObject.SetTranslation(_gameObject.Translation + velocity * ((float) Game.LogicUpdateInterval / 1000.0f)) ;
 
             CheckForHit(
                 context,
@@ -39,27 +45,25 @@ namespace OpenSage.Logic.Object
             bool detonateCallsKill,
             FXList groundHitFX)
         {
-            var transform = context.GameObject.Transform;
-
             // Did we hit an object?
             // TODO
 
             if (DidHitGround(context))
             {
                 // TODO: Interpolate to find actual point we hit the ground?
-                Detonate(context, new WeaponTarget(transform.Translation), detonateCallsKill, groundHitFX);
+                Detonate(context, new WeaponTarget(context.GameObject.Translation), detonateCallsKill, groundHitFX);
             }
         }
 
         private static bool DidHitGround(BehaviorUpdateContext context)
         {
-            var transform = context.GameObject.Transform;
+            var translation = context.GameObject.Translation;
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
-                transform.Translation.X,
-                transform.Translation.Y);
+                translation.X,
+                translation.Y);
 
-            return transform.Translation.Z <= terrainHeight;
+            return translation.Z <= terrainHeight;
         }
 
         private static void Detonate(
@@ -68,39 +72,56 @@ namespace OpenSage.Logic.Object
             bool detonateCallsKill,
             FXList groundHitFX)
         {
-            var transform = context.GameObject.Transform;
-
             // TODO: Should this ever be null?
             if (context.GameObject.CurrentWeapon != null)
             {
                 context.GameObject.CurrentWeapon.SetTarget(target);
-                context.GameObject.CurrentWeapon.Fire(context.Time.TotalTime);
+                context.GameObject.CurrentWeapon.Fire(context.Time);
             }
 
             if (target.TargetType == WeaponTargetType.Position)
             {
-                if (groundHitFX != null)
-                {
-                    groundHitFX.Execute(new FXListExecutionContext(
-                        transform.Rotation,
-                        transform.Translation,
-                        context.GameContext));
-                }
+                groundHitFX?.Execute(new FXListExecutionContext(
+                    context.GameObject.Rotation,
+                    context.GameObject.Translation,
+                    context.GameContext));
             }
 
             if (detonateCallsKill)
             {
-                context.GameObject.Kill(DeathType.Detonated);
+                context.GameObject.Kill(DeathType.Detonated, context.Time);
             }
             else
             {
-                context.GameObject.Die(DeathType.Detonated);
+                context.GameObject.Die(DeathType.Detonated, context.Time);
             }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(12);
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown2 = reader.ReadSingle();
+            }
+
+            var weaponThatFiredThis = reader.ReadBytePrefixedAsciiString();
+
+            var unknown3 = reader.ReadUInt32();
         }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public class BezierProjectileBehaviorData : BehaviorModuleData
+    public class BezierProjectileBehaviorData : UpdateModuleData
     {
         internal static BezierProjectileBehaviorData Parse(IniParser parser) => parser.ParseBlock(BezierProjectileFieldParseTable);
 
@@ -182,7 +203,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool PreLandingEmotionAffectsAllies { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new BezierProjectileBehavior(gameObject, this);
         }

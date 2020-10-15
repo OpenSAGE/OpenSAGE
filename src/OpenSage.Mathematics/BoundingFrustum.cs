@@ -8,10 +8,18 @@ namespace OpenSage.Mathematics
     {
         public const int PlaneCount = 6;
         public const int CornerCount = 8;
+        private readonly Plane[] _planes = new Plane[PlaneCount];
 
         private Matrix4x4 _matrix;
-        private readonly Vector3[] _corners = new Vector3[CornerCount];
-        private readonly Plane[] _planes = new Plane[PlaneCount];
+
+        public BoundingFrustum(in Matrix4x4 value)
+        {
+            _matrix = value;
+            CreatePlanes();
+            CreateCorners();
+        }
+
+        public Vector3[] Corners { get; } = new Vector3[CornerCount];
 
         public Matrix4x4 Matrix
         {
@@ -24,22 +32,19 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public BoundingFrustum(in Matrix4x4 value)
-        {
-            _matrix = value;
-            CreatePlanes();
-            CreateCorners();
-        }
-
         public static bool operator ==(BoundingFrustum a, BoundingFrustum b)
         {
             if (Equals(a, null))
-                return (Equals(b, null));
+            {
+                return Equals(b, null);
+            }
 
             if (Equals(b, null))
-                return (Equals(a, null));
+            {
+                return false;
+            }
 
-            return a._matrix == (b._matrix);
+            return a._matrix == b._matrix;
         }
 
         public static bool operator !=(BoundingFrustum a, BoundingFrustum b)
@@ -49,15 +54,18 @@ namespace OpenSage.Mathematics
 
         public bool Equals(BoundingFrustum other)
         {
-            return (this == other);
+            return this == other;
         }
 
         public override bool Equals(object obj)
         {
-            return (obj is BoundingFrustum) && this == ((BoundingFrustum) obj);
+            return obj is BoundingFrustum frustum && this == frustum;
         }
 
-        public override int GetHashCode() => _matrix.GetHashCode();
+        public override int GetHashCode()
+        {
+            return _matrix.GetHashCode();
+        }
 
         public bool Contains(in Vector3 point)
         {
@@ -88,8 +96,9 @@ namespace OpenSage.Mathematics
                         break;
                 }
             }
-            return intersects 
-                ? ContainmentType.Intersects 
+
+            return intersects
+                ? ContainmentType.Intersects
                 : ContainmentType.Contains;
         }
 
@@ -109,8 +118,9 @@ namespace OpenSage.Mathematics
                         break;
                 }
             }
-            return intersects 
-                ? ContainmentType.Intersects 
+
+            return intersects
+                ? ContainmentType.Intersects
                 : ContainmentType.Contains;
         }
 
@@ -126,31 +136,36 @@ namespace OpenSage.Mathematics
 
         private void CreateCorners()
         {
-            IntersectionPoint(this._planes[0], this._planes[2], this._planes[4], out this._corners[0]);
-            IntersectionPoint(this._planes[0], this._planes[3], this._planes[4], out this._corners[1]);
-            IntersectionPoint(this._planes[0], this._planes[3], this._planes[5], out this._corners[2]);
-            IntersectionPoint(this._planes[0], this._planes[2], this._planes[5], out this._corners[3]);
-            IntersectionPoint(this._planes[1], this._planes[2], this._planes[4], out this._corners[4]);
-            IntersectionPoint(this._planes[1], this._planes[3], this._planes[4], out this._corners[5]);
-            IntersectionPoint(this._planes[1], this._planes[3], this._planes[5], out this._corners[6]);
-            IntersectionPoint(this._planes[1], this._planes[2], this._planes[5], out this._corners[7]);
+            IntersectionPoint(_planes[0], _planes[2], _planes[4], out Corners[0]);
+            IntersectionPoint(_planes[0], _planes[3], _planes[4], out Corners[1]);
+            IntersectionPoint(_planes[0], _planes[3], _planes[5], out Corners[2]);
+            IntersectionPoint(_planes[0], _planes[2], _planes[5], out Corners[3]);
+            IntersectionPoint(_planes[1], _planes[2], _planes[4], out Corners[4]);
+            IntersectionPoint(_planes[1], _planes[3], _planes[4], out Corners[5]);
+            IntersectionPoint(_planes[1], _planes[3], _planes[5], out Corners[6]);
+            IntersectionPoint(_planes[1], _planes[2], _planes[5], out Corners[7]);
         }
 
         private void CreatePlanes()
         {
-            this._planes[0] = new Plane(-this._matrix.M13, -this._matrix.M23, -this._matrix.M33, -this._matrix.M43);
-            this._planes[1] = new Plane(this._matrix.M13 - this._matrix.M14, this._matrix.M23 - this._matrix.M24, this._matrix.M33 - this._matrix.M34, this._matrix.M43 - this._matrix.M44);
-            this._planes[2] = new Plane(-this._matrix.M14 - this._matrix.M11, -this._matrix.M24 - this._matrix.M21, -this._matrix.M34 - this._matrix.M31, -this._matrix.M44 - this._matrix.M41);
-            this._planes[3] = new Plane(this._matrix.M11 - this._matrix.M14, this._matrix.M21 - this._matrix.M24, this._matrix.M31 - this._matrix.M34, this._matrix.M41 - this._matrix.M44);
-            this._planes[4] = new Plane(this._matrix.M12 - this._matrix.M14, this._matrix.M22 - this._matrix.M24, this._matrix.M32 - this._matrix.M34, this._matrix.M42 - this._matrix.M44);
-            this._planes[5] = new Plane(-this._matrix.M14 - this._matrix.M12, -this._matrix.M24 - this._matrix.M22, -this._matrix.M34 - this._matrix.M32, -this._matrix.M44 - this._matrix.M42);
+            _planes[0] = new Plane(-_matrix.M13, -_matrix.M23, -_matrix.M33, -_matrix.M43);
+            _planes[1] = new Plane(_matrix.M13 - _matrix.M14, _matrix.M23 - _matrix.M24, _matrix.M33 - _matrix.M34,
+                _matrix.M43 - _matrix.M44);
+            _planes[2] = new Plane(-_matrix.M14 - _matrix.M11, -_matrix.M24 - _matrix.M21, -_matrix.M34 - _matrix.M31,
+                -_matrix.M44 - _matrix.M41);
+            _planes[3] = new Plane(_matrix.M11 - _matrix.M14, _matrix.M21 - _matrix.M24, _matrix.M31 - _matrix.M34,
+                _matrix.M41 - _matrix.M44);
+            _planes[4] = new Plane(_matrix.M12 - _matrix.M14, _matrix.M22 - _matrix.M24, _matrix.M32 - _matrix.M34,
+                _matrix.M42 - _matrix.M44);
+            _planes[5] = new Plane(-_matrix.M14 - _matrix.M12, -_matrix.M24 - _matrix.M22, -_matrix.M34 - _matrix.M32,
+                -_matrix.M44 - _matrix.M42);
 
-            this.NormalizePlane(ref this._planes[0]);
-            this.NormalizePlane(ref this._planes[1]);
-            this.NormalizePlane(ref this._planes[2]);
-            this.NormalizePlane(ref this._planes[3]);
-            this.NormalizePlane(ref this._planes[4]);
-            this.NormalizePlane(ref this._planes[5]);
+            NormalizePlane(ref _planes[0]);
+            NormalizePlane(ref _planes[1]);
+            NormalizePlane(ref _planes[2]);
+            NormalizePlane(ref _planes[3]);
+            NormalizePlane(ref _planes[4]);
+            NormalizePlane(ref _planes[5]);
         }
 
         private static void IntersectionPoint(in Plane a, in Plane b, in Plane c, out Vector3 result)
@@ -183,7 +198,7 @@ namespace OpenSage.Mathematics
 
         private void NormalizePlane(ref Plane p)
         {
-            float factor = 1f / p.Normal.Length();
+            var factor = 1f / p.Normal.Length();
             p.Normal.X *= factor;
             p.Normal.Y *= factor;
             p.Normal.Z *= factor;
@@ -193,7 +208,7 @@ namespace OpenSage.Mathematics
         // Ported from MonoGame:
         // https://github.com/MonoGame/MonoGame/blob/e517aa9a4449cabf15da6ffad8dc5ebbf0ac4c5f/MonoGame.Framework/Plane.cs#L19
         /// <summary>
-        /// Returns a value indicating what side (positive/negative) of a plane a point is
+        ///     Returns a value indicating what side (positive/negative) of a plane a point is
         /// </summary>
         /// <param name="point">The point to check with</param>
         /// <param name="plane">The plane to check against</param>

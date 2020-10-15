@@ -1,8 +1,44 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class SupplyCenterDockUpdate : DockUpdate
+    {
+        private GameObject _gameObject;
+        private SupplyCenterDockUpdateModuleData _moduleData;
+
+        internal SupplyCenterDockUpdate(GameObject gameObject, SupplyCenterDockUpdateModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        public void DumpBoxes(AssetStore assetStore, ref int numBoxes, int additionalAmountPerBox)
+        {
+            var gameData = assetStore.GameData.Current;
+            var amountPerBox = (gameData.ValuePerSupplyBox + additionalAmountPerBox) * _moduleData.ValueMultiplier;
+
+            if (_moduleData.BonusScience != null)
+            {
+                var bonusUpgradeDefinition = assetStore.Upgrades.GetByName(_moduleData.BonusScience);
+                if (_gameObject.UpgradeAvailable(bonusUpgradeDefinition))
+                {
+                    amountPerBox *= _moduleData.BonusScienceMultiplier;
+                }
+            }
+
+            _gameObject.Owner.ReceiveMoney((uint)(numBoxes * amountPerBox));
+            numBoxes = 0;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+        }
+    }
+
     public sealed class SupplyCenterDockUpdateModuleData : DockUpdateModuleData
     {
         internal static SupplyCenterDockUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -26,6 +62,11 @@ namespace OpenSage.Logic.Object
         public Percentage BonusScienceMultiplier { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float ValueMultiplier { get; private set; }
+        public float ValueMultiplier { get; private set; } = 1.0f;
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SupplyCenterDockUpdate(gameObject, this);
+        }
     }
 }

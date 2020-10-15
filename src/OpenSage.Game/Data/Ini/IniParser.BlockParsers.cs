@@ -12,13 +12,13 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Input;
+using OpenSage.Input.Cursors;
 using OpenSage.LivingWorld;
 using OpenSage.LivingWorld.AutoResolve;
 using OpenSage.Lod;
 using OpenSage.Logic;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
-using OpenSage.Logic.Object.Damage;
 using OpenSage.Logic.Pathfinding;
 using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
@@ -57,7 +57,7 @@ namespace OpenSage.Data.Ini
             { "Bridge", (parser, assetStore) => assetStore.BridgeTemplates.Add(BridgeTemplate.Parse(parser)) },
             { "Campaign", (parser, assetStore) => assetStore.CampaignTemplates.Add(CampaignTemplate.Parse(parser)) },
             { "ChallengeGenerals", (parser, assetStore) => ChallengeGenerals.Parse(parser, assetStore.ChallengeGenerals.Current) },
-            { "ChildObject", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ChildObject.Parse(parser)) },
+            { "ChildObject", (parser, assetStore) => assetStore.ObjectDefinitions.Add(ObjectDefinition.ParseChildObject(parser)) },
             { "CloudEffect", (parser, assetStore) => assetStore.Environment.Current.CloudEffect = CloudEffect.Parse(parser) },
             { "CommandButton", (parser, assetStore) => assetStore.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, assetStore) => assetStore.CommandMaps.Add(CommandMap.Parse(parser)) },

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -14,11 +15,10 @@ namespace OpenSage.Logic.Orders
             _game = game;
         }
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void Process(IEnumerable<Order> orders)
         {
-            
             foreach (var order in orders)
             {
                 Player player = null;
@@ -33,8 +33,7 @@ namespace OpenSage.Logic.Orders
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
-                logger.Log(logLevel, $"Order for player {player}: {order.OrderType}");
-
+                Logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
 
                 switch (order.OrderType)
                 {
@@ -44,7 +43,7 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.SetTargetPoint(targetPosition);
+                                unit.AIUpdate?.SetTargetPoint(targetPosition);
                             }
                         }
                         break;
@@ -54,25 +53,43 @@ namespace OpenSage.Logic.Orders
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
                             var position = order.Arguments[1].Value.Position;
                             var angle = order.Arguments[2].Value.Float;
-                            player.Money -= (uint) objectDefinition.BuildCost;
+                            player.SpendMoney((uint) objectDefinition.BuildCost);
 
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
-                            gameObject.Transform.Translation = position;
-                            gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+                            gameObject.Owner = player;
+                            gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                             gameObject.StartConstruction(_game.MapTime);
                         }
                         break;
 
-                    case OrderType.ObjectUprade:
+                    case OrderType.BeginUpgrade:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;
 
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
-                            player.Money -= (uint) upgradeDefinition.BuildCost;
+                            player.SpendMoney((uint) upgradeDefinition.BuildCost);
 
                             gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
+                        }
+                        break;
+
+                    case OrderType.CancelUpgrade:
+                        {
+                            var upgradeDefinitionId = order.Arguments[0].Value.Integer;
+                            var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
+
+                            player.ReceiveMoney((uint) upgradeDefinition.BuildCost);
+                            // since this is a building and only one at a time can be selected
+                            player.SelectedUnits.First().ProductionUpdate.CancelUpgrade(upgradeDefinition);
+                        }
+                        break;
+
+                    case OrderType.StopMoving:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.AIUpdate.Stop();
                         }
                         break;
 
@@ -80,12 +97,35 @@ namespace OpenSage.Logic.Orders
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
-                            player.Money -= (uint) objectDefinition.BuildCost;
+                            player.SpendMoney((uint) objectDefinition.BuildCost);
                             var placeInQueue = order.Arguments[1].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.ProductionUpdate.QueueProduction(objectDefinition);
+                                // Only units that can produce stuff should produce it
+                                unit.ProductionUpdate?.QueueProduction(objectDefinition);
+                            }
+                        }
+                        break;
+
+                    case OrderType.CancelUnit:
+                        {
+                            var queueIndex = order.Arguments[0].Value.Integer;
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                // Only units that can produce stuff should produce it
+                                if(unit.ProductionUpdate == null)
+                                {
+                                    continue;
+                                }
+
+                                var productionJob = unit.ProductionUpdate.ProductionQueue[queueIndex];
+                                var objectDefinition = productionJob.ObjectDefinition;
+
+                                player.ReceiveMoney((uint) objectDefinition.BuildCost);
+
+                                unit.ProductionUpdate?.CancelProduction(queueIndex);
                             }
                         }
                         break;
@@ -94,7 +134,7 @@ namespace OpenSage.Logic.Orders
                         foreach (var unit in player.SelectedUnits)
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
-                            player.Money += (uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
+                            player.ReceiveMoney((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
                         break;
@@ -108,15 +148,15 @@ namespace OpenSage.Logic.Orders
                         try
                         {
                             var objectIds = order.Arguments.Skip(1)
-                                .Select(x => (int) x.Value.ObjectId)
+                                .Select(x => x.Value.ObjectId)
                                 .Select(_game.Scene3D.GameObjects.GetObjectById)
                                 .ToArray();
 
                             _game.Selection.SetSelectedObjects(player, objectIds);
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
-                            logger.Error(e, "Error while setting selection");
+                            Logger.Error(e, "Error while setting selection");
                         }
 
                         break;
@@ -129,13 +169,13 @@ namespace OpenSage.Logic.Orders
                     case OrderType.ForceAttackObject:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
 
                             foreach (var unit in player.SelectedUnits)
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon.SetTarget(new WeaponTarget(gameObject));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
                                 }
                             }
                         }
@@ -160,7 +200,7 @@ namespace OpenSage.Logic.Orders
                             if (order.Arguments.Count == 2)
                             {
                                 var objId = order.Arguments[0].Value.ObjectId;
-                                var obj = _game.Scene3D.GameObjects.GetObjectById((int) objId);
+                                var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
                                 var rallyPoint = order.Arguments[1].Value.Position;
                                 obj.RallyPoint = rallyPoint;
@@ -168,7 +208,7 @@ namespace OpenSage.Logic.Orders
                             else
                             {
                                 var objIds = order.Arguments.Skip(1)
-                                    .Select(x => (int) x.Value.ObjectId)
+                                    .Select(x => x.Value.ObjectId)
                                     .Select(_game.Scene3D.GameObjects.GetObjectById)
                                     .ToArray();
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
@@ -176,9 +216,13 @@ namespace OpenSage.Logic.Orders
                         }
                         catch (System.Exception e)
                         {
-                            logger.Error(e, "Error while setting rallypoint");
+                            Logger.Error(e, "Error while setting rallypoint");
                         }
                         break;
+                    case OrderType.SpecialPower:
+                    case OrderType.SpecialPowerAtLocation:
+                    case OrderType.SpecialPowerAtObject:
+                        throw new NotImplementedException();
 
                     case OrderType.Unknown27:
                         _game.EndGame();
@@ -197,7 +241,7 @@ namespace OpenSage.Logic.Orders
                     default:
                         var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
 
-                        logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
+                        Logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
                         break;
                 }
             }

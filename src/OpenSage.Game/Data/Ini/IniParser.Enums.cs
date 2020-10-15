@@ -284,7 +284,7 @@ namespace OpenSage.Data.Ini
                     }
 
                     // Ugh.
-                    result.Set((T)(object)enumValue, true);
+                    result.Set((T) enumValue, value);
 
                     break;
             }

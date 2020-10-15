@@ -2,6 +2,42 @@
 
 namespace OpenSage.Logic.Object
 {
+    public class SupplyWarehouseDockUpdate : DockUpdate
+    {
+        private GameObject _gameObject;
+        private SupplyWarehouseDockUpdateModuleData _moduleData;
+        private int _currentBoxes;
+
+        internal SupplyWarehouseDockUpdate(GameObject gameObject, SupplyWarehouseDockUpdateModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+            _currentBoxes = _moduleData.StartingBoxes;
+        }
+
+        public bool HasBoxes() => _currentBoxes > 0;
+
+        public bool GetBox()
+        {
+            if (_currentBoxes > 0)
+            {
+                _currentBoxes--;
+                return true;
+            }
+            return false;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+
+            if (_currentBoxes <= 0)
+            {
+                _gameObject.Die(DeathType.Normal, context.Time);
+            }
+        }
+    }
+
     public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
     {
         internal static SupplyWarehouseDockUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -22,5 +58,10 @@ namespace OpenSage.Logic.Object
         /// True if warehouse should be deleted when depleted.
         /// </summary>
         public bool DeleteWhenEmpty { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SupplyWarehouseDockUpdate(gameObject, this);
+        }
     }
 }

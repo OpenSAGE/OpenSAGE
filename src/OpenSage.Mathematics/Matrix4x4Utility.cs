@@ -13,11 +13,6 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        public static Vector3 GetTranslation(in Matrix4x4 value)
-        {
-            return new Vector3(value.M41, value.M42, value.M43);
-        }
-
         /// <summary>
         /// The backward vector formed from the third row M31, M32, M33 elements.
         /// </summary>

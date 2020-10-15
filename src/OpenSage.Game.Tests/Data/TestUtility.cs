@@ -20,10 +20,18 @@ namespace OpenSage.Tests.Data
                 originalUncompressedBytes = originalUncompressedStream.ToArray();
             }
 
-            T parsedFile;
-            using (var entryStream = new MemoryStream(originalUncompressedBytes, false))
+            T parsedFile = default;
+            try
             {
-                parsedFile = parseCallback(entryStream);
+                using (var entryStream = new MemoryStream(originalUncompressedBytes, false))
+                {
+                    parsedFile = parseCallback(entryStream);
+                }
+            }
+            catch
+            {
+                File.WriteAllBytes("original.bin", originalUncompressedBytes);
+                throw;
             }
 
             byte[] serializedBytes;

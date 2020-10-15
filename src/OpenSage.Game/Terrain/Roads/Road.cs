@@ -15,6 +15,8 @@ namespace OpenSage.Terrain.Roads
 {
     public sealed class Road : DisposableBase
     {
+        private readonly string _debugName;
+
         private readonly DeviceBuffer _vertexBuffer;
         private readonly BoundingBox _boundingBox;
 
@@ -34,8 +36,11 @@ namespace OpenSage.Terrain.Roads
         internal Road(
             AssetLoadContext loadContext,
             HeightMap heightMap,
-            RoadNetwork network)
+            RoadNetwork network,
+            ResourceSet radiusCursorDecalsResourceSet)
         {
+            _debugName = network.Template.Name;
+
             var vertices = new List<RoadShaderResources.RoadVertex>();
             var indices = new List<ushort>();
 
@@ -66,6 +71,7 @@ namespace OpenSage.Terrain.Roads
             _beforeRender = (cl, context) =>
             {
                 cl.SetGraphicsResourceSet(4, _resourceSet);
+                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
 
@@ -87,6 +93,7 @@ namespace OpenSage.Terrain.Roads
         internal void BuildRenderList(RenderList renderList)
         {
             renderList.Road.RenderItems.Add(new RenderItem(
+                _debugName,
                 _shaderSet,
                 _pipeline,
                 _boundingBox,

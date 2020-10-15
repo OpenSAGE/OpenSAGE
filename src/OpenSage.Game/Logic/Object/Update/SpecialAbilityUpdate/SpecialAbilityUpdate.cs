@@ -1,8 +1,28 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public class SpecialAbilityUpdate : UpdateModule
+    {
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBytes(49);
+        }
+    }
+
     /// <summary>
     /// Allows the use of PACKING and UNPACKING condition states.
     /// </summary>
@@ -155,5 +175,10 @@ namespace OpenSage.Logic.Object
         public int TriggerModelConditionDuration { get; private set; }
 
         public int FreezeAfterTriggerDuration { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SpecialAbilityUpdate();
+        }
     }
 }

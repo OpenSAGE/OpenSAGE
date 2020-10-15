@@ -10,10 +10,13 @@ namespace OpenSage.Logic
         private bool _isDragging;
         private Point2D _mousePosition;
         private Point2D _dragEndPosition;
-        private bool _ctrlDown;
+
+        private KeyModifiers _keyModifiers;
 
         public override HandlingPriority Priority => _priority;
         private HandlingPriority _priority = HandlingPriority.Disabled;
+
+        internal KeyModifiers KeyModifiers => _keyModifiers;
 
         public OrderGeneratorInputHandler(OrderGeneratorSystem orderGeneratorSystem)
         {
@@ -41,47 +44,39 @@ namespace OpenSage.Logic
                         _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
                     }
                     break;
-                case InputMessageType.MouseLeftButtonDown:
-                    if (_orderGeneratorSystem.ActiveGenerator == null)
-                    {
-                        break;
-                    }
 
+                case InputMessageType.MouseLeftButtonDown:
                     if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
-                        _orderGeneratorSystem.OnActivate();
+                        if (_orderGeneratorSystem.TryActivate(_keyModifiers))
+                        {
+                            return InputMessageResult.Handled;
+                        }
                         break;
                     }
-
                     _isDragging = true;
                     // Copy initial position to drag end position so that delta is 0 if the drag ends immediately
                     _dragEndPosition = _mousePosition;
-
                     return InputMessageResult.Handled;
-                case InputMessageType.MouseLeftButtonUp:
-                    if (_orderGeneratorSystem.ActiveGenerator == null)
-                    {
-                        break;
-                    }
 
+                case InputMessageType.MouseLeftButtonUp:
                     if (_isDragging)
                     {
-                        _orderGeneratorSystem.OnActivate();
+                        _orderGeneratorSystem.TryActivate(_keyModifiers);
+                        _isDragging = false;
+                        return InputMessageResult.Handled;
                     }
+                    break;
 
-                    _isDragging = false;
-
-                    return InputMessageResult.Handled;
                 case InputMessageType.MouseRightButtonDown:
-                    _orderGeneratorSystem.OnRightClick(_ctrlDown);
-
+                    _orderGeneratorSystem.CancelOrderGenerator();
                     return InputMessageResult.Handled;
 
                 case InputMessageType.KeyDown:
                     if (message.Value.Key == Veldrid.Key.ControlLeft ||
                         message.Value.Key == Veldrid.Key.ControlRight)
                     {
-                        _ctrlDown = true;
+                        _keyModifiers |= KeyModifiers.Ctrl;
                         return InputMessageResult.Handled;
                     }
                     break;
@@ -90,7 +85,7 @@ namespace OpenSage.Logic
                     if (message.Value.Key == Veldrid.Key.ControlLeft ||
                         message.Value.Key == Veldrid.Key.ControlRight)
                     {
-                        _ctrlDown = false;
+                        _keyModifiers &= ~KeyModifiers.Ctrl;
                         return InputMessageResult.Handled;
                     }
                     break;

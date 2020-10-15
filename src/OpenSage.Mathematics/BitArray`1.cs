@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace OpenSage.Mathematics
 {
@@ -7,12 +8,13 @@ namespace OpenSage.Mathematics
         where TEnum : Enum
     {
         private BitArray512 _data;
-        
+
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 
-        public BitArray() {
-            var maxBits = Enum.GetValues(typeof(TEnum)).Length;
+        public BitArray()
+        {
+            var maxBits = GetNumValues();
             if (maxBits >= 512)
             {
                 throw new Exception($"Cannot create a BitArray for enum {typeof(TEnum).Name}, because it has {maxBits} cases (max 512).");
@@ -35,6 +37,15 @@ namespace OpenSage.Mathematics
             }
         }
 
+        public BitArray(BitArray<TEnum> bitArray)
+            : this()
+        {
+            for (var i = 0; i < _data.Length; i++)
+            {
+                _data.Set(i, bitArray._data.Get(i));
+            }
+        }
+
         public bool Get(int bit)
         {
             return _data.Get(bit);
@@ -42,7 +53,9 @@ namespace OpenSage.Mathematics
 
         public bool Get(TEnum bit)
         {
-            return _data.Get((int) (object) bit);
+            // This avoids an object allocation.
+            var bitI = Unsafe.As<TEnum, int>(ref bit);
+            return _data.Get(bitI);
         }
 
         public void Set(int bit, bool value)
@@ -52,7 +65,9 @@ namespace OpenSage.Mathematics
 
         public void Set(TEnum bit, bool value)
         {
-            _data.Set((int) (object) bit, value);
+            // This avoids an object allocation.
+            var bitI = Unsafe.As<TEnum, int>(ref bit);
+            _data.Set(bitI, value);
         }
 
         public void SetAll(bool value)
@@ -68,6 +83,11 @@ namespace OpenSage.Mathematics
         public int CountIntersectionBits(BitArray<TEnum> other)
         {
             return _data.And(other._data).NumBitsSet;
+        }
+
+        public bool Intersects(BitArray<TEnum> other)
+        {
+            return CountIntersectionBits(other) > 0;
         }
 
         public IEnumerable<TEnum> GetSetBits()
@@ -112,6 +132,19 @@ namespace OpenSage.Mathematics
         {
             var result = new BitArray<TEnum>();
             result.CopyFrom(this);
+            return result;
+        }
+
+        private static readonly Dictionary<Type, int> CachedNumValues = new Dictionary<Type, int>();
+
+        private static int GetNumValues()
+        {
+            var key = typeof(TEnum);
+            if (!CachedNumValues.TryGetValue(key, out var result))
+            {
+                result = Enum.GetValues(key).Length;
+                CachedNumValues.Add(key, result);
+            }
             return result;
         }
     }

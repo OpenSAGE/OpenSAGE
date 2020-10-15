@@ -24,7 +24,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Pop();
+            var b = context.Pop();
+
+            context.Push(Value.FromFloat(b.ToFloat() - a.ToFloat()));
         }
     }
 
@@ -38,19 +41,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //Pop two values
-            var va = context.Stack.Pop();
-            var vb = context.Stack.Pop();
+            var a = context.Pop();
+            var b = context.Pop();
 
-            var a = va.ResolveRegister(context);
-            var b = vb.ResolveRegister(context);
-
-            if (a.Type == ValueType.Integer && b.Type == ValueType.Integer)
+            if (a.IsNumericType() && b.IsNumericType())
             {
-                context.Stack.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
+                context.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
             }
             else
             {
-                context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
+                context.Push(Value.FromString(b.ToString() + a.ToString()));
             }
         }
     }
@@ -82,6 +82,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Pop two values from stack, convert them to float and then divide them. Result on stack
+    /// </summary>
+    public sealed class Modulo : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Modulo;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Pop a value from stack, increments it and pushes it back
     /// </summary>
     public sealed class Increment : InstructionBase
@@ -90,7 +103,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var num = context.Pop().ToInteger();
+            context.Push(Value.FromInteger(++num));
         }
     }
 

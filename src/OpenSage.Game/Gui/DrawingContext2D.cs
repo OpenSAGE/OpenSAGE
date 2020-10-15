@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 using Veldrid;
@@ -13,7 +13,6 @@ namespace OpenSage.Gui
     public sealed class DrawingContext2D : DisposableBase
     {
         private readonly ContentManager _contentManager;
-        private readonly GraphicsDevice _graphicsDevice;
         private readonly Texture _solidWhiteTexture;
 
         private readonly SpriteBatch _spriteBatch;
@@ -27,6 +26,8 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
+        private Texture _alphaMask;
+
         internal DrawingContext2D(
             ContentManager contentManager,
             GraphicsLoadContext loadContext,
@@ -34,7 +35,6 @@ namespace OpenSage.Gui
             in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
-            _graphicsDevice = loadContext.GraphicsDevice;
 
             _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
 
@@ -81,7 +81,7 @@ namespace OpenSage.Gui
             }
 
             // Only works for uniform scale.
-            _currentScale = MathUtility.Sqrt(_currentTransform.M11 * _currentTransform.M11 + _currentTransform.M21 * _currentTransform.M21);
+            _currentScale = MathF.Sqrt(_currentTransform.M11 * _currentTransform.M11 + _currentTransform.M21 * _currentTransform.M21);
         }
 
         public void PushOpacity(float opacity)
@@ -105,6 +105,11 @@ namespace OpenSage.Gui
             }
         }
 
+        public void SetAlphaMask(Texture alphaMask)
+        {
+            _alphaMask = alphaMask;
+        }
+
         public void DrawImage(
             Texture texture,
             in Rectangle? sourceRect,
@@ -113,6 +118,15 @@ namespace OpenSage.Gui
             bool grayscale = false)
         {
             DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped, grayscale);
+        }
+
+        public void DrawMappedImage(
+            MappedImage mappedImage,
+            in RectangleF destinationRect,
+            bool flipped = false,
+            bool grayscaled = false)
+        {
+            DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, flipped, grayscaled);
         }
 
         public void DrawImage(
@@ -213,7 +227,7 @@ namespace OpenSage.Gui
             thickness *= _currentScale;
 
             var length = Vector2.Distance(line.V0, line.V1);
-            var angle = MathUtility.Atan2(line.V1.Y - line.V0.Y, line.V1.X - line.V0.X);
+            var angle = MathF.Atan2(line.V1.Y - line.V0.Y, line.V1.X - line.V0.X);
 
             var origin = new Vector2(0, 0.5f);
             var scale = new Vector2(length, thickness);
@@ -225,7 +239,8 @@ namespace OpenSage.Gui
                 angle,
                 origin,
                 scale,
-                GetModifiedColorWithCurrentOpacity(strokeColor));
+                GetModifiedColorWithCurrentOpacity(strokeColor),
+                alphaMask: _alphaMask);
         }
 
         public void FillTriangle(in Triangle2D triangle, in ColorRgbaF fillColor)
@@ -236,7 +251,8 @@ namespace OpenSage.Gui
                 _solidWhiteTexture,
                 new Triangle2D(new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0)),
                 Triangle2D.Transform(triangle, _currentTransform),
-                modifiedFillColor);
+                modifiedFillColor,
+                alphaMask: _alphaMask);
         }
 
         public void FillTriangle(Texture texture, in Triangle2D sourceTriangle, in Triangle2D triangle, in ColorRgbaF tintColor)
@@ -245,7 +261,8 @@ namespace OpenSage.Gui
                 texture,
                 sourceTriangle,
                 Triangle2D.Transform(triangle, _currentTransform),
-                GetModifiedColorWithCurrentOpacity(tintColor));
+                GetModifiedColorWithCurrentOpacity(tintColor),
+                alphaMask: _alphaMask);
         }
 
         public void FillRectangle(in Rectangle rect, in ColorRgbaF fillColor)
@@ -270,7 +287,8 @@ namespace OpenSage.Gui
                 RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
                 GetModifiedColorWithCurrentOpacity(fillColor),
                 fillMethod: SpriteFillMethod.Radial360,
-                fillAmount: progress * MathUtility.TwoPi);
+                fillAmount: progress * MathUtility.TwoPi,
+                alphaMask: _alphaMask);
         }
 
         public void End()

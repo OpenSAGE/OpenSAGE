@@ -107,9 +107,33 @@ namespace OpenSage.Gui.Wnd
                         break;
                     }
 
-                // For the time being, just consume right and middle click events so that they don't go through controls:
-                case InputMessageType.MouseRightButtonUp:
                 case InputMessageType.MouseRightButtonDown:
+                    {
+                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
+                        {
+                            element.InputCallback.Invoke(
+                                element,
+                                new WndWindowMessage(WndWindowMessageType.MouseRightDown, element, mousePosition),
+                                context);
+                            return InputMessageResult.Handled;
+                        }
+                        break;
+                    }
+
+                case InputMessageType.MouseRightButtonUp:
+                    {
+                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
+                        {
+                            element.InputCallback.Invoke(
+                                element,
+                                new WndWindowMessage(WndWindowMessageType.MouseRightUp, element, mousePosition),
+                                context);
+                            return InputMessageResult.Handled;
+                        }
+                        break;
+                    }
+
+                // For the time being, just consume middle click events so that they don't go through controls:
                 case InputMessageType.MouseMiddleButtonDown:
                 case InputMessageType.MouseMiddleButtonUp:
                     {
@@ -125,7 +149,7 @@ namespace OpenSage.Gui.Wnd
                         {
                             control?.InputCallback.Invoke(
                                 control,
-                                new WndWindowMessage(WndWindowMessageType.KeyDown, control, null, message.Value.Key),
+                                new WndWindowMessage(WndWindowMessageType.KeyDown, control, null, message.Value.Key, message.Value.Modifiers),
                                 context
                             );
                             return InputMessageResult.Handled;

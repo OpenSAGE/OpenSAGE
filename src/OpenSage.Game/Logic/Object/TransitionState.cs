@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TransitionState : ModelConditionState
     {
-        internal static new TransitionState Parse(IniParser parser)
+        internal static TransitionState Parse(IniParser parser)
         {
             var from = parser.ParseAssetReference();
             var to = "";

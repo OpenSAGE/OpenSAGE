@@ -10,6 +10,7 @@ namespace OpenSage.Graphics
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<uint, DeviceBuffer> _nullStructuredBuffers;
 
+        public Sampler Aniso4xClampSampler { get; }
         public Sampler LinearClampSampler { get; }
         public Sampler PointClampSampler { get; }
 
@@ -21,6 +22,13 @@ namespace OpenSage.Graphics
         public StandardGraphicsResources(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
+
+            var aniso4xClampSamplerDescription = SamplerDescription.Aniso4x;
+            aniso4xClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+            aniso4xClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+            aniso4xClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+            Aniso4xClampSampler = AddDisposable(
+                graphicsDevice.ResourceFactory.CreateSampler(ref aniso4xClampSamplerDescription));
 
             var linearClampSamplerDescription = SamplerDescription.Linear;
             linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;

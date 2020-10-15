@@ -26,8 +26,8 @@
 
         public override void Execute(ActionContext context)
         {
-            var target = context.Stack.Pop();
-            var url = context.Stack.Pop().ToString();
+            var target = context.Pop();
+            var url = context.Pop().ToString();
 
             context.Apt.Avm.Handle(context, url, target.ToString());
         }

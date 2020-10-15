@@ -15,6 +15,7 @@ namespace OpenSage.Graphics.Shaders
         private readonly ResourceLayout _spriteConstantsResourceLayout;
         private readonly ResourceLayout _samplerResourceLayout;
         private readonly ResourceLayout _textureResourceLayout;
+        private readonly ResourceLayout _alphaMaskResourceLayout;
         private readonly ResourceLayout[] _resourceLayouts;
 
         public SpriteShaderResources(GraphicsDevice graphicsDevice)
@@ -40,11 +41,16 @@ namespace OpenSage.Graphics.Shaders
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
+            _alphaMaskResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("AlphaMask", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+
             _resourceLayouts = new[]
             {
                 _spriteConstantsResourceLayout,
                 _samplerResourceLayout,
-                _textureResourceLayout
+                _textureResourceLayout,
+                _alphaMaskResourceLayout,
             };
         }
 
@@ -139,6 +145,14 @@ namespace OpenSage.Graphics.Shaders
                 new ResourceSetDescription(
                     _textureResourceLayout,
                     texture));
+        }
+
+        public ResourceSet CreateAlphaMaskResourceSet(Texture alphaMask)
+        {
+            return GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    _alphaMaskResourceLayout,
+                    alphaMask));
         }
 
         [StructLayout(LayoutKind.Sequential)]

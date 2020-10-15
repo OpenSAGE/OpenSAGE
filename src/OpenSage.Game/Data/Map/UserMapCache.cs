@@ -181,12 +181,12 @@ namespace OpenSage.Data.Map
                     {
                         // check "normal" objects
                         var definition = assetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
-                        if (definition?.KindOf?.Get(ObjectKinds.SupplySourceOnPreview) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.SupplySourceOnPreview))
                         {
                             mapCache.SupplyPositions.Add(mapObject.Position);
                         }
 
-                        if (definition?.KindOf?.Get(ObjectKinds.TechBuilding) ?? false)
+                        if (definition.KindOf.Get(ObjectKinds.TechBuilding))
                         {
                             mapCache.TechPositions.Add(mapObject.Position);
                         }
@@ -240,7 +240,12 @@ namespace OpenSage.Data.Map
                     Write("numPlayers", mapCache.NumPlayers);
                     WriteVector("extentMin", mapCache.ExtentMin);
                     WriteVector("extentMax", mapCache.ExtentMax);
-                    Write("nameLookupTag", mapCache.NameLookupTag);
+
+                    if (_contentManager.SageGame > SageGame.CncGenerals)
+                    {
+                        Write("nameLookupTag", mapCache.NameLookupTag);
+                    }
+
                     WriteVector("InitialCameraPosition", mapCache.InitialCameraPosition);
 
                     if (mapCache.Player1Start != Vector3.Zero)

@@ -21,17 +21,7 @@ namespace OpenSage.Gui.Wnd.Images
 
         protected override Texture CreateTexture(Size size, GraphicsLoadContext loadContext)
         {
-            return MappedImageUtility.CreateTexture(loadContext, size, spriteBatch =>
-            {
-                var requiresFlip = !loadContext.GraphicsDevice.IsUvOriginTopLeft;
-
-                spriteBatch.DrawImage(
-                    _mappedImage.Texture.Value,
-                    _mappedImage.Coords,
-                    new Rectangle(Point2D.Zero, size).ToRectangleF(),
-                    ColorRgbaF.White,
-                    requiresFlip);
-            });
+            return MappedImageUtility.CreateTexture(loadContext, _mappedImage); 
         }
     }
 }

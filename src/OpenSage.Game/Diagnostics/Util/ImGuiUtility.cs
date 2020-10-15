@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using ImGuiNET;
 using OpenSage.Input;
@@ -8,6 +10,15 @@ namespace OpenSage.Diagnostics.Util
 {
     internal static class ImGuiUtility
     {
+        public static void SetupDocking()
+        {
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+            //TODO: For multi-viewports we need to connect the platform IO callbacks
+            //ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
+            //ImGui.GetPlatformIO().Renderer_CreateWindow = ...
+        }
+
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
         {
             var temp = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
@@ -55,8 +66,8 @@ namespace OpenSage.Diagnostics.Util
                     var pos = message.Value.MousePosition;
                     pos = new Point2D(pos.X - panelFrame.X, pos.Y - panelFrame.Y);
                     pos = new Point2D(
-                        MathUtility.Clamp(pos.X, 0, panelFrame.Width),
-                        MathUtility.Clamp(pos.Y, 0, panelFrame.Height));
+                        Math.Clamp(pos.X, 0, panelFrame.Width),
+                        Math.Clamp(pos.Y, 0, panelFrame.Height));
                     return pos;
                 }
 
@@ -83,6 +94,54 @@ namespace OpenSage.Diagnostics.Util
 
                 yield return translatedMessage;
             }
+        }
+
+        public static void BeginPropertyList()
+        {
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
+            ImGui.Columns(2);
+        }
+
+        public static void EndPropertyList()
+        {
+            ImGui.Columns(1);
+            ImGui.PopStyleVar();
+        }
+
+        public static void PropertyRow(string name, object value)
+        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(name);
+            ImGui.NextColumn();
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(value?.ToString() ?? "<null>");
+            ImGui.NextColumn();
+        }
+
+        public static bool ComboEnum<TEnum>(string label, ref TEnum currentValue)
+            where TEnum : struct, Enum
+        {
+            var currentObjectValue = (Enum) currentValue;
+            var result = ComboEnum(typeof(TEnum), label, ref currentObjectValue);
+            if (result)
+            {
+                currentValue = (TEnum) currentObjectValue;
+            }
+            return result;
+        }
+
+        public static bool ComboEnum(Type enumType, string label, ref Enum currentValue)
+        {
+            var names = Enum.GetNames(enumType);
+            var currentItem = Array.IndexOf(names, currentValue.ToString());
+
+            if (ImGui.Combo(label, ref currentItem, names, names.Length))
+            {
+                currentValue = (Enum) Enum.Parse(enumType, names[currentItem]);
+                return true;
+            }
+
+            return false;
         }
     }
 }

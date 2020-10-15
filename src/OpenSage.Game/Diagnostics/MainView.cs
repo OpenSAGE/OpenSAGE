@@ -36,6 +36,7 @@ namespace OpenSage.Diagnostics
             }
 
             AddView(new GameView(context) { IsVisible = true });
+            AddView(new ObjectListView(context));
             AddView(new AssetListView(context));
             AddView(new MapSettingsView(context));
             AddView(new RenderSettingsView(context));
@@ -47,8 +48,12 @@ namespace OpenSage.Diagnostics
             AddView(new AptGeometryView(context));
             AddView(new WndView(context));
             AddView(new GameLoopView(context));
-			AddView(new LuaScriptConsole(context));
+            AddView(new GameSettingsView(context));
+            AddView(new LuaScriptConsole(context));
             AddView(new LogView(context));
+            AddView(new InspectorView(context));
+            AddView(new PreviewView(context));
+            AddView(new CameraView(context));
         }
 
         private void DrawTimingControls()
@@ -57,7 +62,7 @@ namespace OpenSage.Diagnostics
                 ? ("Pause (F9)", new Vector4(0.980f, 0, 0.243f, 1))
                 : ("Play (F9)", new Vector4(0.066f, 0.654f, 0.066f, 1));
 
-            var buttonSize = new Vector2(80.0f, ImGui.GetWindowHeight());
+            var buttonSize = new Vector2(80.0f, 0);
 
             ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
             ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
@@ -88,9 +93,28 @@ namespace OpenSage.Diagnostics
 
         public void Draw(ref bool isGameViewFocused)
         {
+            var viewport = ImGui.GetMainViewport();
+            ImGui.SetNextWindowPos(viewport.GetWorkPos());
+            ImGui.SetNextWindowSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowViewport(viewport.ID);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+
+            var windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+            windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
+            windowFlags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+            //windowFlags |= ImGuiWindowFlags.NoBackground;
+
+            ImGui.Begin("Root", windowFlags);
+
+            ImGui.PopStyleVar(3);
+
+            ImGui.DockSpace(ImGui.GetID("DockSpace"), Vector2.Zero, ImGuiDockNodeFlags.None);
+
             float menuBarHeight = 0;
 
-            if (ImGui.BeginMainMenuBar())
+            if (ImGui.BeginMenuBar())
             {
                 menuBarHeight = ImGui.GetWindowHeight();
 
@@ -112,9 +136,12 @@ namespace OpenSage.Diagnostics
                         {                           
                             if (ImGui.MenuItem($"{mapCache.Value} ({mapCache.Key.Name})"))
                             {
-                                var playableSides = _context.Game.GetPlayableSides();
-                                var faction1 = playableSides.First();
-                                var faction2 = playableSides.Last();
+                                var random = new Random();
+                                var playableSides = _context.Game.GetPlayableSides().ToList();
+                                //var faction1 = playableSides[random.Next(0, playableSides.Count())];
+                                //var faction2 = playableSides[random.Next(0, playableSides.Count())];
+                                var faction1 = playableSides[3];
+                                var faction2 = playableSides[3];
 
                                 if (mapCache.Key.IsMultiplayer)
                                 {
@@ -123,8 +150,8 @@ namespace OpenSage.Diagnostics
                                         new EchoConnection(),
                                         new PlayerSetting?[]
                                         {
-                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0)),
-                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255)),
+                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0), PlayerOwner.Player),
+                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), PlayerOwner.EasyAi),
                                         },
                                         0
                                     );
@@ -240,7 +267,7 @@ namespace OpenSage.Diagnostics
                 ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - fpsTextSize);
                 ImGui.Text(fpsText);
 
-                ImGui.EndMainMenuBar();
+                ImGui.EndMenuBar();
             }
 
             foreach (var view in _views)
@@ -276,6 +303,8 @@ namespace OpenSage.Diagnostics
                 ImGui.End();
                 ImGui.PopStyleVar();
             }
+
+            ImGui.End();
         }
     }
 }

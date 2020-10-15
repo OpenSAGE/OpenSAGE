@@ -34,6 +34,11 @@ namespace OpenSage.Diagnostics
         private void DrawControlTreeItemRecursive(Control control)
         {
             var treeNodeFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick;
+            if(control.Controls.Count == 0)
+            {
+                treeNodeFlags = ImGuiTreeNodeFlags.Leaf;
+            }
+
             if (control == _selectedControl)
             {
                 treeNodeFlags |= ImGuiTreeNodeFlags.Selected;
@@ -49,7 +54,7 @@ namespace OpenSage.Diagnostics
 
             if (opened)
             {
-                foreach (var child in control.Controls)
+                foreach (var child in control.Controls.AsList())
                 {
                     DrawControlTreeItemRecursive(child);
                 }

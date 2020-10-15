@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Running;
+﻿using System;
+using BenchmarkDotNet.Running;
 
 namespace OpenSage.Benchmarks.DataStructures
 {
@@ -14,6 +15,7 @@ namespace OpenSage.Benchmarks.DataStructures
             BenchmarkRunner.Run<QuadtreeUpdate>();
             BenchmarkRunner.Run<QuadtreeQuery>();
             BenchmarkRunner.Run<PathfindingQuery>();
+            Console.ReadLine();
         }
     }
 }

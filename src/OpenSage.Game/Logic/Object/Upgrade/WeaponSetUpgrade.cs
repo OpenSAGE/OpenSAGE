@@ -1,7 +1,41 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using System.Linq;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class WeaponSetUpgrade : UpgradeModule
+    {
+        internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        {
+        }
+
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (triggered)
+            {
+                var weaponSet = _gameObject.Definition.WeaponSets.Values.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
+                _gameObject.SetWeaponSet(weaponSet);
+            }
+            else
+            {
+                _gameObject.SetDefaultWeapon();
+            }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Triggers use of PLAYER_UPGRADE WeaponSet on this object.
     /// Allows the use of WeaponUpgradeSound within UnitSpecificSounds section of the object.
@@ -18,5 +52,10 @@ namespace OpenSage.Logic.Object
             });
 
         public WeaponSetConditions WeaponCondition { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new WeaponSetUpgrade(gameObject, this);
+        }
     }
 }

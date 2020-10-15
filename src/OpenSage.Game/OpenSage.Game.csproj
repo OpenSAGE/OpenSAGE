@@ -1,27 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.78.0" />
+    <PackageReference Include="LiteNetLib" Version="0.9.3.2" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
+    <PackageReference Include="protobuf-net" Version="2.4.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0003" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0010" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
-    <PackageReference Include="SharpAudio.Util" Version="$(SharpAudioVersion)" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="SharpAudio.Codec" Version="$(SharpAudioVersion)" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
-    <PackageReference Include="Veldrid.RenderDoc" Version="1.0.0" />
+    <PackageReference Include="Veldrid.RenderDoc" Version="1.0.1" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.11" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +34,11 @@
     <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Network\Protocol\lobby.proto" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <EmbeddedResource Include="Content\Fonts\*.ttf" />

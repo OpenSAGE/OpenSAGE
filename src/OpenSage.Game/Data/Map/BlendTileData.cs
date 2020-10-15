@@ -156,7 +156,7 @@ namespace OpenSage.Data.Map
                     result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 18)
+                if (version >= 17)
                 {
                     result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
@@ -315,7 +315,7 @@ namespace OpenSage.Data.Map
                     writer.WriteByteArray2DAsEnum(Flammability);
                 }
 
-                if (Version >= 18)
+                if (Version >= 17)
                 {
                     writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
                 }

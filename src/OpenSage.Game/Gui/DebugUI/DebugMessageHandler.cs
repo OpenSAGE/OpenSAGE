@@ -7,7 +7,7 @@ namespace OpenSage.Gui.DebugUI
     {
         private readonly DebugOverlay _overlay;
 
-        public override HandlingPriority Priority => HandlingPriority.UIPriority;
+        public override HandlingPriority Priority => HandlingPriority.DebugPriority;
 
         public DebugMessageHandler(DebugOverlay overlay)
         {
@@ -32,6 +32,9 @@ namespace OpenSage.Gui.DebugUI
                             return InputMessageResult.Handled;
                         case Key.F4:
                             _overlay.ToggleRoadMeshes();
+                            return InputMessageResult.Handled;
+                        case Key.F5:
+                            _overlay.ToggleQuadTree();
                             return InputMessageResult.Handled;
                     }
                     break;

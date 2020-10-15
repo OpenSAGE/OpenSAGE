@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -10,35 +10,73 @@ namespace OpenSage.Logic.Object
     {
         private readonly W3dTruckDrawModuleData _data;
 
-        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameContext context)
-            : base(data, context)
+        private readonly (string name, bool affectedBySteering)[] _boneList;
+
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
+            : base(data, gameObject, context)
         {
             _data = data;
+            _boneList = new[] {
+                (_data.LeftFrontTireBone, true),
+                (_data.LeftFrontTireBone2, true),
+                (_data.RightFrontTireBone, true),
+                (_data.RightFrontTireBone2, true),
+
+                (_data.MidRightFrontTireBone, false),
+                (_data.MidLeftFrontTireBone, false),
+                (_data.MidRightMidTireBone, false),
+                (_data.MidRightMidTireBone2, false),
+                (_data.MidLeftMidTireBone, false),
+                (_data.MidLeftMidTireBone2, false),
+                (_data.MidRightRearTireBone, false),
+                (_data.MidLeftRearTireBone, false),
+
+                (_data.LeftRearTireBone, false),
+                (_data.LeftRearTireBone2, false),
+                (_data.RightRearTireBone, false),
+                (_data.RightRearTireBone2, false)
+            };
         }
 
-        internal override void Update(in TimeInterval gameTime, GameObject gameObject)
+        internal override void Update(in TimeInterval gameTime)
         {
-            base.Update(gameTime, gameObject);
+            base.Update(gameTime);
 
-            // TODO: Only do this if Locomotor has HasSuspension = true.
-            var roll = _data.TireRotationMultiplier * gameObject.Speed;
-            var boneNames = new string[]
+            // Rotating wheels
+            var roll = _data.TireRotationMultiplier * GameObject.Speed * gameTime.TotalTime.Milliseconds;
+
+            foreach (var (boneName, affectedBySteering) in _boneList)
             {
-                _data.LeftFrontTireBone,
-                _data.RightFrontTireBone,
-                _data.LeftRearTireBone,
-                _data.RightRearTireBone,
-            };
-            foreach (var boneName in boneNames)
-            {
-                if (boneName == null)
+                var yaw = 0.0f;
+
+                if (affectedBySteering)
+                {
+                    yaw = GameObject.SteeringWheelsYaw;
+                }
+
+                var boneInstance = FindBoneInstance(boneName);
+
+                if (boneInstance == null)
                 {
                     continue;
                 }
 
-                var bone = ActiveModelInstance.Model.BoneHierarchy.Bones.First(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase));
-                ActiveModelInstance.ModelBoneInstances[bone.Index].AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
+                boneInstance.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, yaw);
+                boneInstance.AnimatedOffset.Rotation *= Quaternion.CreateFromYawPitchRoll(MathUtility.ToRadians(roll), 0, 0);
             }
+        }
+
+        private ModelBoneInstance FindBoneInstance(string name)
+        {
+            foreach (var bone in ActiveModelInstance.Model.BoneHierarchy.Bones)
+            {
+                if (bone.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ActiveModelInstance.ModelBoneInstances[bone.Index];
+                }
+            }
+
+            return null;
         }
     }
 
@@ -135,9 +173,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameContext context)
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dTruckDraw(this, context);
+            return new W3dTruckDraw(this, gameObject, context);
         }
     }
 }

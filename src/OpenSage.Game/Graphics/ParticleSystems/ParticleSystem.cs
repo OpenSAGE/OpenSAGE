@@ -248,7 +248,10 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             // TODO: Is this right?
             // How about IsOneShot?
-            return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
+            var maxLifetime = Template.SystemLifetime > 0
+                ? Math.Min(Template.Lifetime.High, Template.SystemLifetime)
+                : Template.Lifetime.High;
+            return (int) Template.BurstCount.High + (int) MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
         private bool Update(in TimeInterval gameTime)
@@ -566,6 +569,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             renderList.Transparent.RenderItems.Add(new RenderItem(
+                Template.Name,
                 _shaderSet,
                 _pipeline,
                 BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
@@ -599,7 +603,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
     internal readonly struct ParticleColorKeyframe : IParticleKeyframe
     {
-        public long Time { get; }
+        public uint Time { get; }
         public readonly Vector3 Color;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)
@@ -607,10 +611,16 @@ namespace OpenSage.Graphics.ParticleSystems
             Time = keyframe.Time;
             Color = keyframe.Color.ToVector3();
         }
+
+        public ParticleColorKeyframe(uint time, in Vector3 color)
+        {
+            Time = time;
+            Color = color;
+        }
     }
 
     internal interface IParticleKeyframe
     {
-        long Time { get; }
+        uint Time { get; }
     }
 }

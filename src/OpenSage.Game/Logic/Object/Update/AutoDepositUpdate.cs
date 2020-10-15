@@ -1,8 +1,32 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class AutoDepositUpdate : BehaviorModule
+    {
+        GameObject _gameObject;
+        AutoDepositUpdateModuleData _moduleData;
+
+        private TimeSpan _waitUntil;
+
+        internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_waitUntil == null || context.Time.TotalTime > _waitUntil)
+            {
+                _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
+                _gameObject.Owner.ReceiveMoney((uint)_moduleData.DepositAmount);
+            }
+        }
+    }
+
     public sealed class AutoDepositUpdateModuleData : UpdateModuleData
     {
         internal static AutoDepositUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -51,10 +75,15 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter UpgradeMustBePresent { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool GiveNoXP { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool OnlyWhenGarrisoned { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new AutoDepositUpdate(gameObject, context, this);
+        }
     }
 }

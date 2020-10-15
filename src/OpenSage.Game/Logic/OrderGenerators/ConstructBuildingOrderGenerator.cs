@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
@@ -19,11 +20,8 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly int _definitionIndex;
         private readonly GameData _config;
         private readonly Scene3D _scene;
-        private readonly float _baseAngle;
 
         private readonly GameObject _previewObject;
-
-        private readonly BoxCollider _collider;
 
         private float _angle;
         private Vector3 _position;
@@ -44,23 +42,20 @@ namespace OpenSage.Logic.OrderGenerators
             _scene = scene;
 
             // TODO: Should this be relative to the current camera angle?
-            _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
-            _angle = _baseAngle;
+            _angle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
 
             _previewObject = new GameObject(
                 buildingDefinition,
                 gameContext,
                 player,
-                null,
-                null);
-            _previewObject.IsPlacementPreview = true;
+                null)
+            {
+                IsPlacementPreview = true
+            };
 
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();
             UpdateValidity();
-
-            // TODO: This should work for all collider types.
-            _collider = Collider.Create(_buildingDefinition, _previewObject.Transform) as BoxCollider;
         }
 
         public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -71,14 +66,19 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject.BuildRenderList(renderList, camera, gameTime);
         }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene)
+        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
+            if (scene.Game.SageGame == SageGame.Bfme)
+            {
+                return OrderGeneratorResult.Inapplicable();
+            }
+
             // TODO: Probably not right way to get dozer object.
             var dozer = scene.LocalPlayer.SelectedUnits.First();
 
             if (!IsValidPosition())
             {
-                scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceNoBuild"]?.Value);
+                scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceNoBuild"]?.Value);
 
                 // TODO: Display correct message:
                 // - GUI:CantBuildRestrictedTerrain
@@ -97,7 +97,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
 
-            scene.Audio.PlayAudioEvent(dozer.Definition.UnitSpecificSounds?.Assets["VoiceCreate"]?.Value);
+            scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceCreate"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
@@ -113,30 +113,18 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Check that the builder can reach target position
             // TODO: Check that the terrain is even enough at the target position
 
-            if (_collider != null)
+            if (_previewObject.Collider == null)
             {
-                // TODO: Optimise using a quadtree
-                foreach (var obj in _scene.GameObjects.Items)
-                {
-                    if (!(obj.Collider is BoxCollider otherCollider))
-                    {
-                        continue;
-                    }
-
-                    // TODO: Should use FactoryExitWidth
-                    if (_collider.Intersects(otherCollider))
-                    {
-                        return false;
-                    }
-                }
+                return true;
             }
 
-            return true;
+            _scene.Quadtree.Remove(_previewObject);
+            return !_scene.Quadtree.FindIntersecting(_previewObject.Collider).Any();
         }
 
-        public void UpdatePosition(Vector3 position)
+        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-            _position = position;
+            _position = worldPosition;
 
             UpdatePreviewObjectPosition();
             UpdateValidity();
@@ -144,7 +132,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdatePreviewObjectPosition()
         {
-            _previewObject.Transform.Translation = _position;
+            _previewObject.SetTranslation(_position);
         }
 
         public void UpdateDrag(Vector3 position)
@@ -159,13 +147,17 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdatePreviewObjectAngle()
         {
-            _previewObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle);
+            _previewObject.SetRotation(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
         }
 
         private void UpdateValidity()
         {
+            // TODO: draw collider bounds in debug view when 'showBounds'
             _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
+
+        // Use radial cursor.
+        public string GetCursor(KeyModifiers keyModifiers) => null;
 
         public void Dispose()
         {

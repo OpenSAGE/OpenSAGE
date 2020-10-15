@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -11,19 +12,37 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ObjectContext Global { get; set; }
         public AptContext Apt { get; set; }
         public InstructionStream Stream { get; set; }
-        public Stack<Value> Stack { get; set; }
         public Value[] Registers { get; set; }
         public Dictionary<string, Value> Params { get; set; }
         public Dictionary<string, Value> Locals { get; set; }
         public bool Return { get; set; }
+        public List<ConstantEntry> Constants { get; set; }
+
+        private Stack<Value> _stack;
 
         public ActionContext(int numRegisters = 0)
         {
-            Stack = new Stack<Value>();
+            _stack = new Stack<Value>();
             Registers = new Value[numRegisters];
             Params = new Dictionary<string, Value>();
             Locals = new Dictionary<string, Value>();
+            Constants = new List<ConstantEntry>();
             Return = false;
+        }
+
+        public void Push(Value v)
+        {
+            _stack.Push(v);
+        }
+
+        public Value Peek()
+        {
+            return _stack.Peek().ResolveConstant(this).ResolveRegister(this);
+        }
+
+        public Value Pop()
+        {
+            return _stack.Pop().ResolveConstant(this).ResolveRegister(this);
         }
 
         /// <summary>

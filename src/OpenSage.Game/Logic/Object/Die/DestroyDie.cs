@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -17,6 +19,17 @@ namespace OpenSage.Logic.Object
         {
             _gameObject.Destroy();
         }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
     }
 
     public sealed class DestroyDieModuleData : DieModuleData
@@ -26,7 +39,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<DestroyDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
             .Concat(new IniParseTable<DestroyDieModuleData>());
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new DestroyDie(gameObject, this);
         }

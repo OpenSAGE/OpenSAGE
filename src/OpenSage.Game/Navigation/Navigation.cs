@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        readonly Graph _graph;
-        readonly HeightMap _heightMap;
+        private readonly Graph _graph;
+        private readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -18,9 +20,9 @@ namespace OpenSage.Navigation
             var height = tileData.Impassability.GetLength(1);
             _graph = new Graph(width, height);
 
-            for (int x = 0; x < _graph.Width; x++)
+            for (var x = 0; x < _graph.Width; x++)
             {
-                for (int y = 0; y < _graph.Height; y++)
+                for (var y = 0; y < _graph.Height; y++)
                 {
                     var impassable = tileData.Impassability[x, y];
                     _graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
@@ -49,15 +51,47 @@ namespace OpenSage.Navigation
             return _graph.GetNode(x, y);
         }
 
-        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
+        public bool IsPassable(Vector3 position) => GetClosestNode(position).IsPassable;
+
+        private Node GetNextPassablePosition(Vector3 start, Vector3 end)
         {
+            var offset = end - start;
+            var direction = Vector3.Normalize(offset);
+            var currentNode = GetClosestNode(start);
+
+            var maxSteps = (int) offset.Vector2XY().Length() + 1;
+
+            while(!currentNode.IsPassable && maxSteps > 0)
+            {
+                start += direction;
+                currentNode = GetClosestNode(start);
+                maxSteps--;
+            }
+            return maxSteps > 0 ? currentNode : null;
+        }
+
+        public IList<Vector3> CalculatePath(Vector3 start, Vector3 end, out bool endIsPassable)
+        {
+            var result = new List<Vector3>();
+            endIsPassable = true;
             var startNode = GetClosestNode(start);
             var endNode = GetClosestNode(end);
 
-            if (startNode == null || endNode == null || !startNode.IsPassable || !endNode.IsPassable)
+            if (!startNode.IsPassable)
             {
-                Logger.Info("Aborting pathfinding because start and/or end are null or impassable.");
-                yield break;
+                startNode = GetNextPassablePosition(start, end);
+            }
+
+            if (!endNode.IsPassable)
+            {
+                endNode = GetNextPassablePosition(end, start);
+                endIsPassable = false;
+            }
+
+            if (startNode == null || endNode == null)
+            {
+                Logger.Info("Aborting pathfinding because start and/or end are null");
+                return result;
             }
 
             var route = _graph.Search(startNode, endNode);
@@ -65,15 +99,53 @@ namespace OpenSage.Navigation
             if (route == null)
             {
                 Logger.Warn($"Graph search failed to find a path between {start} and {end}.");
-                yield break;
+                return result;
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
+            PathOptimizer.SmoothPath(route, _graph);
 
             foreach (var node in route)
             {
                 var pos = GetNodePosition(node);
-                yield return new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y));
+                result.Add(new Vector3(pos.X, pos.Y, _heightMap.GetHeight(pos.X, pos.Y)));
+            }
+            return result;
+        }
+
+        public void UpdateAreaPassability(GameObject gameObject, bool passable)
+        {
+            if (gameObject.Collider == null)
+            {
+                return;
+            }
+
+            var axisAlignedBoundingArea = gameObject.Collider.AxisAlignedBoundingArea;
+
+            var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
+            var bottomLeftNode = GetClosestNode(bottomLeft);
+            var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
+            var topRightNode = GetClosestNode(topRight);
+
+            //sometimes map objects are places outside the actual map....
+            if (bottomLeftNode == null || topRightNode == null)
+            {
+                return;
+            }
+
+            var area = gameObject.Collider.BoundingArea;
+
+            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
+            {
+                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
+                {
+                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var position = GetNodePosition(node);
+                    if (area.Contains(position))
+                    {
+                        node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                    }
+                }
             }
         }
     }

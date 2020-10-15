@@ -4,7 +4,6 @@ using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Logic;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -124,12 +123,7 @@ namespace OpenSage.Graphics
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
         {
-            if (Hidden)
-            {
-                return;
-            }
-
-            if (!modelInstance.BoneVisibilities[parentBone.Index])
+            if (Hidden || !modelInstance.BoneFrameVisibilities[parentBone.Index])
             {
                 return;
             }
@@ -177,14 +171,15 @@ namespace OpenSage.Graphics
                 if (!blendEnabled && castsShadow)
                 {
                     renderList.Shadow.RenderItems.Add(new RenderItem(
-                       _depthShaderSet,
-                       _depthPipeline,
-                       meshBoundingBox,
-                       world,
-                       meshPart.StartIndex,
-                       meshPart.IndexCount,
-                       _indexBuffer,
-                       beforeRenderDepth[i]));
+                        Name,
+                        _depthShaderSet,
+                        _depthPipeline,
+                        meshBoundingBox,
+                        world,
+                        meshPart.StartIndex,
+                        meshPart.IndexCount,
+                        _indexBuffer,
+                        beforeRenderDepth[i]));
                 }
 
                 // Standard pass
@@ -194,6 +189,7 @@ namespace OpenSage.Graphics
                     : renderList.Opaque;
 
                 renderQueue.RenderItems.Add(new RenderItem(
+                    Name,
                     _shaderSet,
                     forceBlendEnabled ? meshPart.PipelineBlend : meshPart.Pipeline,
                     meshBoundingBox,

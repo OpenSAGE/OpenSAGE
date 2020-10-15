@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.ParticleSystems
@@ -357,15 +359,25 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             return new RandomAlphaKeyframe
             {
-                Low = parser.ParseFloat(),
-                High = parser.ParseFloat(),
-                Time = parser.ParseInteger()
+                Value = new RandomVariable(
+                    parser.ParseFloat(),
+                    parser.ParseFloat(),
+                    DistributionType.Uniform),
+                Time = parser.ParseUnsignedInteger()
             };
         }
 
-        public float Low;
-        public float High;
-        public int Time;
+        internal static RandomAlphaKeyframe ReadFromSaveFile(BinaryReader reader)
+        {
+            return new RandomAlphaKeyframe
+            {
+                Value = reader.ReadRandomVariable(),
+                Time = reader.ReadUInt32()
+            };
+        }
+
+        public RandomVariable Value;
+        public uint Time;
     }
 
     public sealed class RgbColorKeyframe
@@ -374,13 +386,22 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             return new RgbColorKeyframe
             {
-                Color = parser.ParseColorRgb(),
-                Time = parser.ParseLong()
+                Color = parser.ParseColorRgb().ToColorRgbF(),
+                Time = parser.ParseUnsignedInteger()
             };
         }
 
-        public ColorRgb Color;
-        public long Time;
+        internal static RgbColorKeyframe ReadFromSaveFile(BinaryReader reader)
+        {
+            return new RgbColorKeyframe
+            {
+                Color = reader.ReadColorRgbF(),
+                Time = reader.ReadUInt32()
+            };
+        }
+
+        public ColorRgbF Color;
+        public uint Time;
     }
 
     public enum ParticleSystemShader
@@ -440,19 +461,19 @@ namespace OpenSage.Graphics.ParticleSystems
         None,
 
         [IniEnum("ORTHO")]
-        Ortho,
-
-        [IniEnum("HEMISPHERICAL")]
-        Hemispherical,
-
-        [IniEnum("OUTWARD")]
-        Outward,
+        Ortho = 1,
 
         [IniEnum("SPHERICAL")]
-        Spherical,
+        Spherical = 2,
+
+        [IniEnum("HEMISPHERICAL")]
+        Hemispherical = 3,
 
         [IniEnum("CYLINDRICAL")]
-        Cylindrical
+        Cylindrical = 4,
+
+        [IniEnum("OUTWARD")]
+        Outward = 5
     }
 
     public enum ParticleVolumeType
@@ -466,20 +487,20 @@ namespace OpenSage.Graphics.ParticleSystems
         [IniEnum("LINE")]
         Line,
 
-        [IniEnum("CYLINDER")]
-        Cylinder,
+        [IniEnum("BOX")]
+        Box = 3,
 
         [IniEnum("SPHERE")]
-        Sphere,
+        Sphere = 4,
 
-        [IniEnum("BOX")]
-        Box
+        [IniEnum("CYLINDER")]
+        Cylinder = 5,
     }
 
     public enum ParticleSystemWindMotion
     {
         [IniEnum("Unused")]
-        Unused,
+        Unused = 1,
 
         [IniEnum("PingPong")]
         PingPong,

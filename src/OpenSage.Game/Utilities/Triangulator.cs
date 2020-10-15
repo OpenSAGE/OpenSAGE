@@ -725,7 +725,7 @@ namespace OpenSage.Utilities
                 float ua = uaNum / denom;
                 float ub = ubNum / denom;
 
-                if (MathUtility.Clamp(ua, 0f, 1f) != ua || MathUtility.Clamp(ub, 0f, 1f) != ub)
+                if (Math.Clamp(ua, 0f, 1f) != ua || Math.Clamp(ub, 0f, 1f) != ub)
                     return null;
 
                 return a.A.Position + (a.B.Position - a.A.Position) * ua;

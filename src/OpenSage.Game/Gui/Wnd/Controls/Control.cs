@@ -116,7 +116,23 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected virtual void OnSizeChanged(in Size newSize) { }
 
-        public string Text { get; set; }
+        public delegate void OnTextChangedHandler(object sender, string Text);
+        public event OnTextChangedHandler OnTextChanged;
+
+        private string _text = string.Empty;
+
+        public string Text {
+            get {
+                return _text;
+            }
+            set {
+                if (value != _text)
+                {
+                    _text = value;
+                    OnTextChanged?.Invoke(this, value);
+                }
+            }
+        }
 
         public virtual Font Font { get; set; }
 
@@ -196,6 +212,20 @@ namespace OpenSage.Gui.Wnd.Controls
             DrawCallback = DefaultDraw;
         }
 
+        public virtual Rectangle RectangleToWindow(in Rectangle rectangle)
+        {
+            var result = rectangle;
+
+            var parent = Parent;
+            while (parent != null)
+            {
+                result = result.WithLocation(new Point2D(result.X + Bounds.X, result.Y + Bounds.Y));
+                parent = parent.Parent;
+            }
+
+            return result;
+        }
+
         public virtual Point2D PointToClient(in Point2D point)
         {
             Point2D result;
@@ -255,7 +285,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     return;
                 }
 
-                foreach (var child in control.Controls)
+                foreach (var child in control.Controls.AsList())
                 {
                     findRecursive(child);
                 }
@@ -283,7 +313,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 _needsLayout = false;
             }
 
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 child.Layout();
             }
@@ -456,7 +486,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 child.ParentInternal = null;
                 child.Dispose();
@@ -470,7 +500,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             yield return baseControl;
 
-            foreach (var child in baseControl.Controls)
+            foreach (var child in baseControl.Controls.AsList())
             {
                 if (isRecursive)
                 {

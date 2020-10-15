@@ -67,6 +67,12 @@ namespace OpenSage
             DeltaTime = new TimeSpan((long) (elapsedGameTimeTicks * TickRatio));
         }
 
+        public TimeInterval(TimeSpan totalTime, TimeSpan deltaTime)
+        {
+            TotalTime = totalTime;
+            DeltaTime = deltaTime;
+        }
+
         public static TimeInterval Zero { get; } = new TimeInterval();
 
         // This is the ratio between stopwatch ticks and timespan ticks

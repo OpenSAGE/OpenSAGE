@@ -6,6 +6,36 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Shows/hides sub-objects on this object's model via upgrading.
     /// </summary>
+    public class SubObjectsUpgrade : UpgradeModule
+    {
+        private readonly SubObjectsUpgradeModuleData _moduleData;
+
+        internal SubObjectsUpgrade(GameObject gameObject, SubObjectsUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            if (_moduleData.ShowSubObjects != null)
+            {
+                foreach (var showSubObject in _moduleData.ShowSubObjects)
+                {
+                    _gameObject.HiddenSubObjects.Remove(showSubObject);
+                }
+            }
+
+            if (_moduleData.HideSubObjects != null)
+            {
+                foreach (var hideSubObject in _moduleData.HideSubObjects)
+                {
+                    _gameObject.HiddenSubObjects.Add(hideSubObject);
+                }
+            }
+        }
+    }
+
+
     public sealed class SubObjectsUpgradeModuleData : UpgradeModuleData
     {
         internal static SubObjectsUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -51,5 +81,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool HideSubObjectsOnRemove { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SubObjectsUpgrade(gameObject, this);
+        }
     }
 }

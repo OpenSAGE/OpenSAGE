@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Net;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -47,6 +48,12 @@ namespace OpenSage.Launcher
 
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
             public string ReplayFile { get; set; }
+
+            [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
+            public string GamePath { get; set; }
+
+            [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
+            public string LanIPAddress { get; set; } = "";
         }
 
         public static void Main(string[] args)
@@ -65,11 +72,36 @@ namespace OpenSage.Launcher
         {
             logger.Info("Starting...");
 
-            var definition = GameDefinition.FromGame(opts.Game);
+            var DetectedGame = opts.Game;
+            var GameFolder = opts.GamePath;
+            var UseLocators = true;
 
-            var installation = GameInstallation
-                .FindAll(new[] { definition })
-                .FirstOrDefault();
+            if (GameFolder == null)
+            {
+                GameFolder = Environment.CurrentDirectory;
+            }
+
+            foreach (var gameDef in GameDefinition.All)
+            {
+                if (gameDef.Probe(GameFolder))
+                {
+                    DetectedGame = gameDef.Game;
+                    UseLocators = false;
+                }
+            }
+
+            var definition = GameDefinition.FromGame(DetectedGame);
+            GameInstallation installation;
+            if (UseLocators)
+            {
+                installation = GameInstallation
+                    .FindAll(new[] { definition })
+                    .FirstOrDefault();
+            }
+            else
+            {
+                installation = new GameInstallation(definition, GameFolder);
+            }
 
             if (installation == null)
             {
@@ -107,6 +139,14 @@ namespace OpenSage.Launcher
                 LoadShellMap = !opts.NoShellmap,
             };
 
+            if(opts.LanIPAddress != ""){
+                try {
+                    config.LanIpAddress = IPAddress.Parse(opts.LanIPAddress);
+                }catch(FormatException){
+                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
+                }
+            }
+
             logger.Debug($"Have configuration");
 
             using (var game = new Game(installation, opts.Renderer, config))
@@ -114,6 +154,11 @@ namespace OpenSage.Launcher
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
                 game.DeveloperModeEnabled = opts.DeveloperMode;
+
+                if (opts.DeveloperMode)
+                {
+                    game.Window.Maximized = true;
+                }
 
                 if (opts.ReplayFile != null)
                 {
@@ -128,32 +173,38 @@ namespace OpenSage.Launcher
                 }
                 else if (opts.Map != null)
                 {
-                    var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
-                    if (mapCache == null)
+                    game.Restart = StartMap;
+                    StartMap();
+
+                    void StartMap()
                     {
-                        logger.Debug("Could not find MapCache entry for map " + opts.Map);
-                        game.ShowMainMenu();
-                    }
-                    else if (mapCache.IsMultiplayer)
-                    {
-                        var pSettings = new PlayerSetting?[]
+                        var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
+                        if (mapCache == null)
                         {
-                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0)),
-                            new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(255, 255, 255)),
-                        };
+                            logger.Debug("Could not find MapCache entry for map " + opts.Map);
+                            game.ShowMainMenu();
+                        }
+                        else if (mapCache.IsMultiplayer)
+                        {
+                            var pSettings = new PlayerSetting?[]
+                            {
+                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0), PlayerOwner.Player),
+                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(0, 255, 0), PlayerOwner.EasyAi),
+                            };
 
-                        logger.Debug("Starting multiplayer game");
+                            logger.Debug("Starting multiplayer game");
 
-                        game.StartMultiPlayerGame(opts.Map,
-                            new EchoConnection(),
-                            pSettings,
-                            0);
-                    }
-                    else
-                    {
-                        logger.Debug("Starting singleplayer game");
+                            game.StartMultiPlayerGame(opts.Map,
+                                new EchoConnection(),
+                                pSettings,
+                                0);
+                        }
+                        else
+                        {
+                            logger.Debug("Starting singleplayer game");
 
-                        game.StartSinglePlayerGame(opts.Map);
+                            game.StartSinglePlayerGame(opts.Map);
+                        }
                     }
                 }
                 else

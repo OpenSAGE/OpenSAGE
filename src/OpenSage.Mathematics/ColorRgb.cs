@@ -24,9 +24,19 @@ namespace OpenSage.Mathematics
             return new ColorRgb(r, g, b);
         }
 
+        public ColorRgba ToColorRgba()
+        {
+            return new ColorRgba(R, G, B, 255);
+        }
+
         public Vector3 ToVector3()
         {
             return new Vector3(R / 255.0f, G / 255.0f, B / 255.0f);
+        }
+
+        public ColorRgbF ToColorRgbF()
+        {
+            return new ColorRgbF(R / 255.0f, G / 255.0f, B / 255.0f);
         }
 
         public ColorRgbaF ToColorRgbaF()

@@ -3,6 +3,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.UnitOverlay;
 
 namespace OpenSage.Mods.CnC3
 {
@@ -26,9 +27,14 @@ namespace OpenSage.Mods.CnC3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
+        public IUnitOverlaySource UnitOverlay => null;
+
+        public uint ScriptingTicksPerSecond => 5;
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();
+
+        public string LauncherExecutable => "CNC3EP1.exe";
     }
 }

@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct BoundingSphere
+    public readonly struct BoundingSphere : IBoundingVolume
     {
         public readonly Vector3 Center;
 
@@ -17,8 +17,8 @@ namespace OpenSage.Mathematics
 
         public static BoundingSphere CreateMerged(in BoundingSphere original, in BoundingSphere additional)
         {
-            Vector3 ocenterToaCenter = Vector3.Subtract(additional.Center, original.Center);
-            float distance = ocenterToaCenter.Length();
+            var ocenterToaCenter = Vector3.Subtract(additional.Center, original.Center);
+            var distance = ocenterToaCenter.Length();
             if (distance <= original.Radius + additional.Radius)
             {
                 if (distance <= original.Radius - additional.Radius)
@@ -30,33 +30,20 @@ namespace OpenSage.Mathematics
                     return additional;
                 }
             }
-            float leftRadius = Math.Max(original.Radius - distance, additional.Radius);
-            float Rightradius = Math.Max(original.Radius + distance, additional.Radius);
-            ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);
+            var leftRadius = Math.Max(original.Radius - distance, additional.Radius);
+            var rightRadius = Math.Max(original.Radius + distance, additional.Radius);
+            ocenterToaCenter += ((leftRadius - rightRadius) / (2 * ocenterToaCenter.Length()) * ocenterToaCenter);
 
             return new BoundingSphere(
                 original.Center + ocenterToaCenter,
-                (leftRadius + Rightradius) / 2);
-        }
-
-        public static BoundingSphere CreateFromBoundingBox(BoundingBox box)
-        {
-            // Find the center of the box.
-            Vector3 center = new Vector3((box.Min.X + box.Max.X) / 2.0f,
-                                         (box.Min.Y + box.Max.Y) / 2.0f,
-                                         (box.Min.Z + box.Max.Z) / 2.0f);
-
-            // Find the distance between the center and one of the corners of the box.
-            float radius = Vector3.Distance(center, box.Max);
-
-            return new BoundingSphere(center, radius);
+                (leftRadius + rightRadius) / 2);
         }
 
         public static BoundingSphere Transform(in BoundingSphere sphere, in Matrix4x4 matrix)
         {
             return new BoundingSphere(
                 Vector3.Transform(sphere.Center, matrix),
-                sphere.Radius * (MathUtility.Sqrt(
+                sphere.Radius * (MathF.Sqrt(
                     Math.Max(
                         ((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13),
                         Math.Max(
@@ -72,14 +59,10 @@ namespace OpenSage.Mathematics
             {
                 return PlaneIntersectionType.Front;
             }
-            else if (distance < -Radius)
-            {
-                return PlaneIntersectionType.Back;
-            }
-            else
-            {
-                return PlaneIntersectionType.Intersecting;
-            }
+            return distance < -Radius ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
         }
+
+        public bool Intersects(RectangleF bounds) => bounds.Intersects(Center.Vector2XY(), Radius);
+        public bool Intersects(TransformedRectangle bounds) => bounds.Intersects(Center.Vector2XY(), Radius);
     }
 }

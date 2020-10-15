@@ -7,6 +7,8 @@ namespace OpenSage.Graphics.Cameras
 {
     public sealed class CameraAnimation
     {
+        private readonly RtsCameraController _cameraController;
+
         private readonly IReadOnlyList<Vector3> _points;
 
         private readonly Vector3 _startDirection;
@@ -17,22 +19,29 @@ namespace OpenSage.Graphics.Cameras
         private readonly TimeSpan _duration;
         private readonly TimeSpan _endTime;
 
-        private readonly float _startPitch;
-        private float? _endPitch;
+        private readonly float _startPitchAngle;
+        private float? _endPitchAngle;
 
         private readonly float _startZoom;
         private float? _endZoom;
 
+        private readonly float _startFieldOfView;
+        private float? _endFieldOfView;
+
         public bool Finished { get; internal set; }
 
         public CameraAnimation(
+            RtsCameraController cameraController,
             IReadOnlyList<Vector3> points,
             Vector3 startDirection,
             TimeSpan startTime,
             TimeSpan duration,
-            float startPitch,
-            float startZoom)
+            float startPitchAngle,
+            float startZoom,
+            float startFocalLength)
         {
+            _cameraController = cameraController;
+
             _points = points;
             _startDirection = startDirection;
 
@@ -40,8 +49,9 @@ namespace OpenSage.Graphics.Cameras
             _duration = duration;
             _endTime = startTime + duration;
 
-            _startPitch = startPitch;
+            _startPitchAngle = startPitchAngle;
             _startZoom = startZoom;
+            _startFieldOfView = startFocalLength;
         }
 
         public void SetFinalLookToward(Vector3 lookToward)
@@ -50,14 +60,29 @@ namespace OpenSage.Graphics.Cameras
             _endDirection = Vector3.Normalize(lookToward - endPosition);
         }
 
+        public void SetFinalLookDirection(Vector3 lookDirection)
+        {
+            _endDirection = lookDirection;
+        }
+
         public void SetFinalPitch(float endPitch)
         {
-            _endPitch = endPitch;
+            _endPitchAngle = _cameraController.CalculatePitchAngle(endPitch);
+        }
+
+        public void SetFinalPitchAngle(float endPitchAngle)
+        {
+            _endPitchAngle = endPitchAngle;
         }
 
         public void SetFinalZoom(float endZoom)
         {
             _endZoom = endZoom;
+        }
+
+        public void SetFinalFieldOfView(float fieldOfView)
+        {
+            _endFieldOfView = fieldOfView;
         }
 
         public void SetLookToward(Vector3 lookToward)
@@ -71,7 +96,7 @@ namespace OpenSage.Graphics.Cameras
             currentTimeFraction = Math.Min(currentTimeFraction, 1);
 
             var pos = currentTimeFraction * (_points.Count - 1);
-            var integralPart = (int) Math.Truncate(pos);
+            var integralPart = (int) MathF.Truncate(pos);
             var decimalPart = pos - integralPart;
 
             // TODO: Not sure how right this is
@@ -95,16 +120,18 @@ namespace OpenSage.Graphics.Cameras
             }
             else if (_endDirection != null)
             {
-                var lookDirection = Vector3.Normalize(Vector3Utility.Slerp(_startDirection, _endDirection.Value, currentTimeFraction));
+                var lookDirection = _startDirection != _endDirection.Value
+                    ? Vector3.Normalize(Vector3Utility.Slerp(_startDirection, _endDirection.Value, currentTimeFraction))
+                    : _startDirection;
 
                 camera.SetLookDirection(lookDirection);
             }
 
-            if (_endPitch != null)
+            if (_endPitchAngle != null)
             {
-                var pitch = MathUtility.Lerp(_startPitch, _endPitch.Value, currentTimeFraction);
+                var pitchAngle = MathUtility.Lerp(_startPitchAngle, _endPitchAngle.Value, currentTimeFraction);
 
-                camera.Pitch = pitch;
+                camera.SetPitchAngle(pitchAngle);
             }
 
             if (_endZoom != null)
@@ -112,6 +139,13 @@ namespace OpenSage.Graphics.Cameras
                 var zoom = MathUtility.Lerp(_startZoom, _endZoom.Value, currentTimeFraction);
 
                 camera.Zoom = zoom;
+            }
+
+            if (_endFieldOfView != null)
+            {
+                var fieldOfView = MathUtility.Lerp(_startFieldOfView, _endFieldOfView.Value, currentTimeFraction);
+
+                camera.SetFieldOfView(fieldOfView);
             }
 
             if (gameTime.TotalTime > _endTime)

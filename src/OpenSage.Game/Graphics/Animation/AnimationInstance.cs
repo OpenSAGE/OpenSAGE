@@ -7,6 +7,8 @@ namespace OpenSage.Graphics.Animation
 {
     public sealed class AnimationInstance
     {
+        private GameObject _gameObject;
+
         private readonly int[] _keyframeIndices;
         private readonly ModelBoneInstance[] _boneInstances;
         private readonly W3DAnimation _animation;
@@ -17,20 +19,54 @@ namespace OpenSage.Graphics.Animation
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
 
+        private float _speedFactor;
+
         private bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
         public AnimationInstance(ModelInstance modelInstance, W3DAnimation animation,
-            AnimationMode mode, AnimationFlags flags)
+            AnimationMode mode, AnimationFlags flags, GameObject gameObject)
         {
+            _gameObject = gameObject;
             _animation = animation;
             _mode = mode;
             _flags = flags;
             _boneInstances = modelInstance.ModelBoneInstances;
 
             _keyframeIndices = new int[animation.Clips.Length];
+        }
 
+        public void Play(float speedFactor = 1.0f)
+        {
+            _speedFactor = speedFactor;
+            if (_playing)
+            {
+                return;
+            }
+
+            ResetTimeStamps();
+            ResetBoneTransforms();
+
+            _playing = true;
+        }
+
+        public bool IsPlaying() => _playing;
+
+        public void Stop()
+        {
+            if (!_playing)
+            {
+                return;
+            }
+
+            // TODO: Reset to original transforms and visibilities?
+
+            _playing = false;
+        }
+
+        private void ResetTimeStamps()
+        {
             if (_flags.HasFlag(AnimationFlags.StartFrameFirst) ||
                 _flags == AnimationFlags.None)
             {
@@ -47,30 +83,6 @@ namespace OpenSage.Graphics.Animation
             }
         }
 
-        public void Play()
-        {
-            if (_playing)
-            {
-                return;
-            }
-
-            ResetBoneTransforms();
-
-            _playing = true;
-        }
-
-        public void Stop()
-        {
-            if (!_playing)
-            {
-                return;
-            }
-
-            // TODO: Reset to original transforms and visibilities?
-
-            _playing = false;
-        }
-
         private void ResetBoneTransforms()
         {
             Array.Clear(_keyframeIndices, 0, _keyframeIndices.Length);
@@ -83,12 +95,12 @@ namespace OpenSage.Graphics.Animation
                 }
             }
 
-            for (var i = 0; i < _boneInstances.Length; i++)
+            foreach (var bone in _boneInstances)
             {
-                _boneInstances[i].AnimatedOffset.Translation = Vector3.Zero;
-                _boneInstances[i].AnimatedOffset.Rotation = Quaternion.Identity;
+                bone.AnimatedOffset.Translation = Vector3.Zero;
+                bone.AnimatedOffset.Rotation = Quaternion.Identity;
 
-                _boneInstances[i].Visible = true;
+                bone.Visible = true;
             }
         }
 
@@ -106,16 +118,21 @@ namespace OpenSage.Graphics.Animation
         {
             //TODO: implement ping pong
             var time = _currentTimeValue;
+            var deltaTime = gameTime.DeltaTime * _speedFactor;
 
-            if (!Manual)
+            if (Manual)
+            {
+                time = _animation.Duration * _gameObject.BuildProgress * _speedFactor;
+            }
+            else
             {
                 if (Reverse)
                 {
-                    time -= gameTime.DeltaTime;
+                    time -= deltaTime;
                 }
                 else
                 {
-                    time += gameTime.DeltaTime;
+                    time += deltaTime;
                 }
             }
 
@@ -157,6 +174,7 @@ namespace OpenSage.Graphics.Animation
                 }
                 else
                 {
+                    _playing = false;
                     if (Reverse)
                     {
                         time = TimeSpan.Zero;

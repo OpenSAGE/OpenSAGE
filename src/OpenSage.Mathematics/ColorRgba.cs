@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -26,6 +27,11 @@ namespace OpenSage.Mathematics
             return new ColorRgba((byte) (value.R * scale), (byte) (value.G * scale), (byte) (value.B * scale), (byte) (value.A * scale));
         }
 
+        public Vector4 ToVector4()
+        {
+            return new Vector4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
+        }
+
         public ColorRgbaF ToColorRgbaF()
         {
             return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
@@ -37,6 +43,11 @@ namespace OpenSage.Mathematics
 
             string hex = BitConverter.ToString(data).Replace("-", string.Empty);
             return hex;
+        }
+
+        public override string ToString()
+        {
+            return $"({R},{G},{B},{A})";
         }
 
         public static ColorRgba FromHex(in ColorRgba original, string hexString)

@@ -61,7 +61,7 @@ namespace OpenSage.Data.Ani
 
                     default:
                         var numValuesPerByte = 8 / bitsPerPixel;
-                        var bitMask = 1 << (bitsPerPixel - 1);
+                        var bitMask = (1 << bitsPerPixel) - 1;
                         for (var x = 0; x < width; x += numValuesPerByte)
                         {
                             var byteValue = reader.ReadByte();

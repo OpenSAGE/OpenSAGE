@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct BoundingBox
+    public readonly struct BoundingBox : IBoundingVolume
     {
         public readonly Vector3 Min;
         public readonly Vector3 Max;
@@ -17,6 +18,8 @@ namespace OpenSage.Mathematics
 
         private static readonly Vector3 MaxVector3 = new Vector3(float.MaxValue);
         private static readonly Vector3 MinVector3 = new Vector3(float.MinValue);
+
+        public static BoundingBox CreateFromPoints(params Vector3[] points) => CreateFromPoints(points.AsEnumerable());
 
         public static BoundingBox CreateFromPoints(IEnumerable<Vector3> points)
         {
@@ -57,6 +60,16 @@ namespace OpenSage.Mathematics
         public Vector3 GetCenter()
         {
             return (Min + Max) / 2;
+        }
+
+        public bool Contains(in Vector3 position)
+        {
+            return position.X >= Min.X &&
+                   position.Y >= Min.Y &&
+                   position.Z >= Min.Z &&
+                   position.X <= Max.X &&
+                   position.Y <= Max.Y &&
+                   position.Z <= Max.Z;
         }
 
         public PlaneIntersectionType Intersects(in Plane plane)
@@ -117,6 +130,16 @@ namespace OpenSage.Mathematics
             return PlaneIntersectionType.Intersecting;
         }
 
+        public bool Intersects(RectangleF bounds)
+        {
+            var position = Min.Vector2XY();
+            var maxPosition = Max.Vector2XY();
+            var width = maxPosition.X - position.X;
+            var height = maxPosition.Y - position.Y;
+            var rect = new RectangleF(position, width, height);
+            return rect.Intersects(bounds);
+        }
+
         // Based on http://dev.theomader.com/transform-bounding-boxes/
         public static BoundingBox Transform(in BoundingBox box, in Matrix4x4 matrix)
         {
@@ -132,7 +155,7 @@ namespace OpenSage.Mathematics
             var za = backward * box.Min.Z;
             var zb = backward * box.Max.Z;
 
-            var translation = Matrix4x4Utility.GetTranslation(matrix);
+            var translation = matrix.Translation;
 
             return new BoundingBox(
                 Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + translation,

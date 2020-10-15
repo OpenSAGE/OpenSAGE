@@ -5,62 +5,11 @@ namespace OpenSage.Mathematics
 {
     public static class MathUtility
     {
-        public static readonly float Pi = (float) Math.PI;
-        public static readonly float PiOver2 = Pi / 2;
-        public static readonly float TwoPi = Pi * 2;
+        public static readonly float PiOver4 = MathF.PI / 4.0f;
+        public static readonly float PiOver2 = MathF.PI / 2.0f;
+        public static readonly float TwoPi = MathF.PI * 2.0f;
 
-        public static float Sqrt(float v) => (float) Math.Sqrt(v);
-
-        public static float Pow(float x, float y) => (float) Math.Pow(x, y);
-
-        public static int FloorToInt(float f)
-        {
-            return (int) Math.Floor(f);
-        }
-
-        public static int Clamp(int value, int min, int max)
-        {
-            value = (value > max) ? max : value;
-            value = (value < min) ? min : value;
-            return value;
-        }
-
-        public static float Clamp(float value, float min, float max)
-        {
-            value = (value > max) ? max : value;
-            value = (value < min) ? min : value;
-            return value;
-        }
-
-        public static float Cos(float f) => (float) Math.Cos(f);
-
-        public static float Sin(float f) => (float) Math.Sin(f);
-
-        public static float Atan(float f) => (float) Math.Atan(f);
-
-        /// <summary>
-        /// Returns the angle whose tangent is the quotient of the two specified numbers.
-        /// </summary>
-        public static float Atan2(float y, float x)
-        {
-            return (float) Math.Atan2(y, x);
-        }
-
-        /// <summary>
-        /// Returns the angle whose sine is the specified number.
-        /// </summary>
-        public static float Asin(float a)
-        {
-            return (float) Math.Asin(a);
-        }
-
-        /// <summary>
-        /// Returns the angle whose cosine is the specified number.
-        /// </summary>
-        public static float Acos(float a)
-        {
-            return (float) Math.Acos(a);
-        }
+        public static int FloorToInt(float f) => (int) MathF.Floor(f);
 
         public static float Lerp(float x, float y, float s)
         {
@@ -69,12 +18,12 @@ namespace OpenSage.Mathematics
 
         public static float ToRadians(float degrees)
         {
-            return (degrees * Pi / 180);
+            return (degrees * MathF.PI / 180);
         }
 
         public static float ToDegrees(float radians)
         {
-            return (radians * 180 / Pi);
+            return (radians * 180 / MathF.PI);
         }
 
         /// <summary>
@@ -87,7 +36,7 @@ namespace OpenSage.Mathematics
             return MathF.Atan2(direction.Y, direction.X) - MathF.Atan2(Vector2.UnitX.Y, Vector2.UnitX.X);
         }
 
-        public static float GetPitchFromDirection(Vector3 direction)
+        public static float GetPitchFromDirection(in Vector3 direction)
         {
             return MathF.Acos(Vector3.Dot(direction, Vector3.UnitZ) / direction.Length());
         }
@@ -98,12 +47,12 @@ namespace OpenSage.Mathematics
         /// <param name="alpha">the first angle</param>
         /// <param name="beta">the second angle</param>
         /// <returns>the absolute delta between the two angles in radians.
-        /// The value is between -180 and 180 degrees by definition.
+        /// The value is between -PI and PI degrees by definition.
         /// </returns>
         public static float CalculateAngleDelta(float alpha, float beta)
         {
             var delta = beta - alpha;
-            delta += (delta > Pi) ? -TwoPi : (delta < -Pi) ? TwoPi : 0;
+            delta += (delta > MathF.PI) ? -TwoPi : (delta < -MathF.PI) ? TwoPi : 0;
             return delta;
         }
 

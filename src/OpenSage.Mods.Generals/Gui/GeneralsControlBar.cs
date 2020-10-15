@@ -75,6 +75,25 @@ namespace OpenSage.Mods.Generals.Gui
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
+        private void ApplyProgress(string name, string coordPrefix, float progress = 1.0f)
+        {
+            var control = FindControl(name);
+
+            if (control == null)
+            {
+                return;
+            }
+
+            var schemeType = _scheme.GetType();
+
+            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(_scheme);
+            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(_scheme);
+            var width = (int) (progress * (lr.X - ul.X));
+            lr = new Point2D(ul.X + width, lr.Y);
+
+            control.Bounds = Rectangle.FromCorners(ul - _window.Bounds.Location, lr - _window.Bounds.Location);
+        }
+
         public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
@@ -120,6 +139,9 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             _moneyDisplay.Text = $"$ {player.Money}";
+
+            var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
+            ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
             if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
             {
@@ -194,11 +216,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ClearControls(GeneralsControlBar controlBar)
             {
-                foreach (var control in controlBar._center.Controls)
+                foreach (var control in controlBar._center.Controls.AsList())
                 {
                     if (control.Name == "ControlBar.wnd:CommandWindow")
                     {
-                        foreach (var child in control.Controls)
+                        foreach (var child in control.Controls.AsList())
                         {
                             child.Hide();
                         }
@@ -210,7 +232,7 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                 }
 
-                foreach (var control in controlBar._right.Controls)
+                foreach (var control in controlBar._right.Controls.AsList())
                 {
                     control.Hide();
                 }
@@ -238,60 +260,26 @@ namespace OpenSage.Mods.Generals.Gui
 
                         var objectDefinition = commandButton.Object?.Value;
 
-                        buttonControl.Enabled = objectDefinition == null || selectedUnit.Owner.CanProduceObject(selectedUnit.Parent, objectDefinition);
+                        switch (commandButton.Command)
+                        {
+                            // Disable the button when the unit is not produceable
+                            case CommandType.DozerConstruct:
+                            case CommandType.UnitBuild:
+                                buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition);
+                                break;
+                            // Disable the button when the object already has it etc.
+                            case CommandType.PlayerUpgrade:
+                            case CommandType.ObjectUpgrade:
+                                buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                break;
+                        }
 
                         buttonControl.SystemCallback = (control, message, context) =>
                         {
-                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command.ToString()}");
-
-                            var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
-                            Order CreateOrder(OrderType type) => new Order(playerIndex, type);
-
+                            logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
                             logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
-                            Order order = null;
-                            switch (commandButton.Command)
-                            {
-                                case CommandType.DozerConstruct:
-                                    context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
-                                    break;
-
-                                case CommandType.ToggleOvercharge:
-                                    order = CreateOrder(OrderType.ToggleOvercharge);
-                                    break;
-
-                                case CommandType.Sell:
-                                    order = CreateOrder(OrderType.Sell);
-                                    break;
-
-                                case CommandType.UnitBuild:
-                                    order = CreateOrder(OrderType.CreateUnit);
-                                    order.AddIntegerArgument(objectDefinition.InternalId);
-                                    order.AddIntegerArgument(1);
-                                    break;
-
-                                case CommandType.SetRallyPoint:
-                                    context.Game.OrderGenerator.SetRallyPoint();
-                                    break;
-
-                                case CommandType.ObjectUpgrade:
-                                    order = CreateOrder(OrderType.ObjectUprade);
-                                    //TODO: figure this out correctly
-                                    var selection = context.Game.Scene3D.LocalPlayer.SelectedUnits;
-                                    var objId = context.Game.Scene3D.GameObjects.GetObjectId(selection.First());
-                                    order.AddIntegerArgument(objId);
-                                    var name = commandButton.Upgrade;
-                                    var upgrade = context.Game.AssetStore.Upgrades.GetByName(name);
-                                    order.AddIntegerArgument(upgrade.InternalId);
-                                    break;
-                                default:
-                                    throw new NotImplementedException();
-                            }
-
-                            if (order != null)
-                            {
-                                context.Game.NetworkMessageBuffer.AddLocalOrder(order);
-                            }
+                            CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
                         };
 
                         buttonControl.Show();
@@ -356,6 +344,9 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
+
+                if (unit.Definition.CommandSet == null) return;
+
                 var commandSet = unit.Definition.CommandSet.Value;
 
                 // TODO: Only do this when command set changes.
@@ -413,7 +404,19 @@ namespace OpenSage.Mods.Generals.Gui
 
                                 queueButton.SystemCallback = (control, message, context) =>
                                 {
-                                    unit.ProductionUpdate.CancelProduction(posCopy);
+                                    var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                                    if (job.Type == ProductionJobType.Unit)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUnit);
+                                        order.AddIntegerArgument(posCopy);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
+                                    else if (job.Type == ProductionJobType.Upgrade)
+                                    {
+                                        var order = new Order(playerIndex, OrderType.CancelUpgrade);
+                                        order.AddIntegerArgument(job.UpgradeDefinition.InternalId);
+                                        context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                                    }
                                 };
                             }
                         }
@@ -432,20 +435,24 @@ namespace OpenSage.Mods.Generals.Gui
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
 
-                void ApplyUpgradeImage(string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
+                void ApplyUpgradeImage(GameObject unit, string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
                     var upgrade = upgradeReference?.Value;
                     var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
+
                     upgradeControl.BackgroundImage = upgrade != null
                         ? controlBar._window.ImageLoader.CreateFromMappedImageReference(upgrade.ButtonImage)
                         : null;
+                    upgradeControl.DisabledBackgroundImage = upgradeControl.BackgroundImage?.WithGrayscale(true);
+
+                    upgradeControl.Enabled = unit.UpgradeAvailable(upgrade);
                 }
 
-                ApplyUpgradeImage("UnitUpgrade1", unit.Definition.UpgradeCameo1);
-                ApplyUpgradeImage("UnitUpgrade2", unit.Definition.UpgradeCameo2);
-                ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
-                ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
-                ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
+                ApplyUpgradeImage(unit, "UnitUpgrade1", unit.Definition.UpgradeCameo1);
+                ApplyUpgradeImage(unit, "UnitUpgrade2", unit.Definition.UpgradeCameo2);
+                ApplyUpgradeImage(unit, "UnitUpgrade3", unit.Definition.UpgradeCameo3);
+                ApplyUpgradeImage(unit, "UnitUpgrade4", unit.Definition.UpgradeCameo4);
+                ApplyUpgradeImage(unit, "UnitUpgrade5", unit.Definition.UpgradeCameo5);
             }
         }
 
@@ -521,6 +528,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(scheme);
                 var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(scheme);
+
                 control.Bounds = Rectangle.FromCorners(ul - windowOrigin, lr - windowOrigin);
 
                 return control;
@@ -551,9 +559,6 @@ namespace OpenSage.Mods.Generals.Gui
             ApplyButtonScheme("ButtonGeneral", "General", "GeneralButton");
             // Textures are set by ControlBar
             ApplyBounds("ButtonLarge", "MinMax");
-
-            // TODO: Hide left HUD until we implement the minimap.
-            FindControl("LeftHUD").Hide();
 
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;

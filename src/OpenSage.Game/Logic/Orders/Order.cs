@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateSetRallyPointOrder(int playerId, List<int> objectIds, in Vector3 targetPosition)
+        public static Order CreateSetRallyPointOrder(int playerId, List<uint> objectIds, in Vector3 targetPosition)
         {
             var order = new Order(playerId, OrderType.SetRallyPoint);
 
@@ -143,12 +143,12 @@ namespace OpenSage.Logic.Orders
                 order.AddPositionArgument(targetPosition);
                 foreach (var objId in objectIds)
                 {
-                    order.AddObjectIdArgument((uint) objId);
+                    order.AddObjectIdArgument(objId);
                 }
             }
             else
             {
-                order.AddObjectIdArgument((uint) objectIds.ElementAt(0));
+                order.AddObjectIdArgument(objectIds.ElementAt(0));
                 order.AddPositionArgument(targetPosition);
             }
 
@@ -180,6 +180,30 @@ namespace OpenSage.Logic.Orders
             var order = new Order(playerId, force ? OrderType.ForceAttackObject : OrderType.AttackObject);
 
             order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateSpecialPowerAtObject(int playerId, int specialPowerId)
+        {
+            var order = new Order(playerId, OrderType.SpecialPowerAtObject);
+
+            //TODO: figure out arguments
+
+            return order;
+        }
+
+        public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position)
+        {
+            var order = new Order(playerId, OrderType.SpecialPowerAtLocation);
+
+            order.AddIntegerArgument(specialPowerId);
+            order.AddPositionArgument(position);
+
+            // Figure those out
+            order.AddObjectIdArgument(0);
+            order.AddIntegerArgument(0);
+            order.AddObjectIdArgument(0);
 
             return order;
         }

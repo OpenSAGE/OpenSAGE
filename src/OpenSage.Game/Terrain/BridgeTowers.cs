@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Logic.Object;
 
@@ -15,8 +14,8 @@ namespace OpenSage.Terrain
             MapObject mapObject)
         {
             var worldMatrix =
-                Matrix4x4.CreateFromQuaternion(gameObject.Transform.Rotation)
-                * Matrix4x4.CreateTranslation(gameObject.Transform.Translation);
+                Matrix4x4.CreateFromQuaternion(gameObject.Rotation)
+                * Matrix4x4.CreateTranslation(gameObject.Translation);
 
             var landmarkBridgeTemplate = assetStore.BridgeTemplates.GetByName(mapObject.TypeName);
 
@@ -31,7 +30,7 @@ namespace OpenSage.Terrain
                 -halfLength,
                 halfWidth,
                 halfLength,
-                gameObject.Transform.Rotation);
+                gameObject.Rotation);
         }
 
         public BridgeTowers(
@@ -48,11 +47,11 @@ namespace OpenSage.Terrain
             {
                 var tower = gameObjects.Add(objectDefinition);
 
-                tower.Transform.Translation = Vector3.Transform(
+                var translation = Vector3.Transform(
                     new Vector3(x, y, 0),
                     worldMatrix);
 
-                tower.Transform.Rotation = rotation;
+                tower.UpdateTransform(translation, rotation);
             }
 
             CreateTower(template.TowerObjectNameFromLeft.Value, startX, startY);

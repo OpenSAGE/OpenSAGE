@@ -64,7 +64,7 @@ namespace OpenSage.Logic.Object
             var launchBoneTransform = context.Weapon.ParentGameObject.GetWeaponLaunchBoneTransform(
                 context.Weapon.Slot, context.Weapon.WeaponIndex);
 
-            projectileObject.Transform.CopyFrom(launchBoneTransform.Value);
+            projectileObject.SetTransformMatrix(launchBoneTransform.Value);
 
             projectileObject.SetWeapon(warheadTemplate);
 

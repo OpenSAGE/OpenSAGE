@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FX;
 
-namespace OpenSage.Logic.Object.Damage
+namespace OpenSage.Logic.Object
 {
     public sealed class DamageFX : BaseAsset
     {
@@ -18,13 +20,23 @@ namespace OpenSage.Logic.Object.Damage
         {
             { "ThrottleTime", (parser, x) => x.ParseGroupProperty(parser, g => g.ThrottleTime = parser.ParseInteger()) },
             { "AmountForMajorFX", (parser, x) => x.ParseGroupProperty(parser, g => g.AmountForMajorFX = parser.ParseFloat()) },
-            { "MajorFX", (parser, x) => x.ParseGroupProperty(parser, g => g.MajorFX = parser.ParseAssetReference()) },
-            { "MinorFX", (parser, x) => x.ParseGroupProperty(parser, g => g.MinorFX = parser.ParseAssetReference()) },
-            { "VeterancyMajorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMajorFX = parser.ParseAssetReference()) },
-            { "VeterancyMinorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMinorFX = parser.ParseAssetReference()) },
+            { "MajorFX", (parser, x) => x.ParseGroupProperty(parser, g => g.MajorFX = parser.ParseFXListReference()) },
+            { "MinorFX", (parser, x) => x.ParseGroupProperty(parser, g => g.MinorFX = parser.ParseFXListReference()) },
+            { "VeterancyMajorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMajorFX = parser.ParseFXListReference()) },
+            { "VeterancyMinorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, g => g.VeterancyMinorFX = parser.ParseFXListReference()) },
         };
 
-        public List<DamageFXGroup> Groups { get; } = new List<DamageFXGroup>();
+        public Dictionary<DamageType, DamageFXGroup> Groups { get; } = new Dictionary<DamageType, DamageFXGroup>();
+
+        public DamageFXGroup GetGroup(DamageType damageType)
+        {
+            if (!Groups.TryGetValue(damageType, out var result))
+            {
+                result = Groups[DamageType.Default];
+            }
+
+            return result;
+        }
 
         private void ParseVeterancyGroupProperty(IniParser parser, Action<DamageFXGroup> callback)
         {
@@ -41,10 +53,9 @@ namespace OpenSage.Logic.Object.Damage
         {
             var damageType = parser.ParseEnum<DamageType>();
 
-            var group = Groups.FirstOrDefault(x => x.DamageType == damageType);
-            if (group == null)
+            if (!Groups.TryGetValue(damageType, out var group))
             {
-                Groups.Add(group = new DamageFXGroup(damageType));
+                Groups.Add(damageType, group = new DamageFXGroup(damageType));
             }
 
             callback(group);
@@ -59,11 +70,11 @@ namespace OpenSage.Logic.Object.Damage
 
         public float AmountForMajorFX { get; internal set; }
 
-        public string MajorFX { get; internal set; }
-        public string MinorFX { get; internal set; }
+        public LazyAssetReference<FXList> MajorFX { get; internal set; }
+        public LazyAssetReference<FXList> MinorFX { get; internal set; }
 
-        public string VeterancyMajorFX { get; internal set; }
-        public string VeterancyMinorFX { get; internal set; }
+        public LazyAssetReference<FXList> VeterancyMajorFX { get; internal set; }
+        public LazyAssetReference<FXList> VeterancyMinorFX { get; internal set; }
 
         internal DamageFXGroup(DamageType damageType)
         {

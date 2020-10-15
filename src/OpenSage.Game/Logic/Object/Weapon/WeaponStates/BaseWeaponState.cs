@@ -26,14 +26,14 @@ namespace OpenSage.Logic.Object
 
         public abstract WeaponState? GetNextState(TimeSpan currentTime);
 
-        public void OnEnterState(TimeSpan enterTime)
+        public void OnEnterState(TimeInterval time)
         {
             SetModelConditionFlags(true);
 
-            OnEnterStateImpl(enterTime);
+            OnEnterStateImpl(time);
         }
 
-        protected virtual void OnEnterStateImpl(TimeSpan enterTime) { }
+        protected virtual void OnEnterStateImpl(TimeInterval time) { }
 
         public void OnExitState()
         {

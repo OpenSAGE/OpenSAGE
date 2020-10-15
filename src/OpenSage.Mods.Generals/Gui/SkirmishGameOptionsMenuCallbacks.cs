@@ -1,5 +1,9 @@
-﻿using OpenSage.Gui.Wnd;
+﻿using System;
+using System.Linq;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -7,6 +11,10 @@ namespace OpenSage.Mods.Generals.Gui
     public static class SkirmishGameOptionsMenuCallbacks
     {
         public static GameOptionsUtil GameOptions { get; private set; }
+
+        private static Game _game;
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -19,6 +27,7 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             case "SkirmishGameOptionsMenu.wnd:ButtonBack":
                                 context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                                _game.SkirmishManager.Quit();
                                 // TODO: Go back to Single Player sub-menu
                                 break;
                         }
@@ -29,7 +38,12 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishGameOptionsMenuInit(Window window, Game game)
         {
+
+
+
             GameOptions = new GameOptionsUtil(window, game, "Skirmish");
+
+            _game = game;
         }
     }
 }

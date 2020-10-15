@@ -7,10 +7,11 @@ namespace OpenSage.Graphics.Cameras
 {
     public interface ICameraController
     {
-        float Pitch { get; set; }
         float Zoom { get; set; }
 
         Vector3 TerrainPosition { get; set; }
+
+        void SetPitch(float pitch);
 
         void SetLookDirection(Vector3 lookDirection);
 

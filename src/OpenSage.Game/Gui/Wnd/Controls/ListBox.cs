@@ -257,7 +257,7 @@ namespace OpenSage.Gui.Wnd.Controls
     public sealed class ListBoxDataItem
     {
         public object DataItem { get; }
-        public string[] ColumnData { get; }
+        public string[] ColumnData { get; set; }
         public int ListBoxItemHeight { get; set; }
         public ColorRgbaF TextColor { get; }
 
@@ -388,7 +388,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             var height = 0;
 
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 height += child.GetPreferredSize(proposedSize).Height;
             }
@@ -405,7 +405,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 y = _currentStartIndex * Controls.First().GetPreferredSize(ClientSize).Height * -1;
             }
 
-            foreach (var child in Controls)
+            foreach (var child in Controls.AsList())
             {
                 var childHeight = child.GetPreferredSize(ClientSize).Height;
                 if (y >= 0 && stillVisible > 0)

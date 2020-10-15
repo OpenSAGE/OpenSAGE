@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
             { "Lift", (parser, x) => x.Lift = parser.ParseFloat() },
             { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseFloat() },
             { "Braking", (parser, x) => x.Braking = parser.ParseInteger() },
-            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParsePercentage() },
+            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParseFloat() },
             { "TurnPivotOffset", (parser, x) => x.TurnPivotOffset = parser.ParseFloat() },
             { "AllowAirborneMotiveForce", (parser, x) => x.AllowAirborneMotiveForce = parser.ParseBoolean() },
             { "PreferredHeight", (parser, x) => x.PreferredHeight = parser.ParseFloat() },
@@ -141,7 +141,7 @@ namespace OpenSage.Logic.Object
         public float Lift { get; private set; }
         public float LiftDamaged { get; private set; }
         public int Braking { get; private set; }
-        public Percentage MinTurnSpeed { get; private set; }
+        public float MinTurnSpeed { get; private set; }
         public float TurnPivotOffset { get; private set; }
         public bool AllowAirborneMotiveForce { get; private set; }
         public float PreferredHeight { get; private set; }
@@ -210,10 +210,10 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float ElevatorCorrectionRate { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float SlowTurnRadius { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float FastTurnRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

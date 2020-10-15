@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
 
             context.GameObject.Destroy();
 
-            Matrix4x4.Decompose(context.GameObject.Transform.Matrix, out _, out var rotation, out var translation);
+            Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
             _moduleData.FX?.Value?.Execute(new FXListExecutionContext(
                 rotation,
@@ -52,7 +52,7 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<FXList> FX { get; private set; }
         public string OCL { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new InstantDeathBehavior(gameObject, this);
         }

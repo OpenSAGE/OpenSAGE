@@ -114,6 +114,22 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
+        public bool Matches(GameObject gameObject)
+        {
+            // TODO: should never be null, must be taken from DefaultThings
+            if(gameObject.Definition.KindOf == null)
+            {
+                return false;
+            }
+
+            if(Exclude.Intersects(gameObject.Definition.KindOf))
+            {
+                return false;
+            }
+
+            return Include.Intersects(gameObject.Definition.KindOf);
+        }
+
         public BitArray<ObjectFilterRule> Rules { get; } = new BitArray<ObjectFilterRule>();
         public BitArray<ObjectKinds> Include { get; } = new BitArray<ObjectKinds>();
         public BitArray<ObjectKinds> Exclude { get; } = new BitArray<ObjectKinds>();

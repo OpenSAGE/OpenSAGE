@@ -24,7 +24,7 @@ namespace OpenSage.Data.Ani
             {
                 case 4:
                 case 8:
-                    numColorTableEntries = (int) Math.Pow(2, infoHeader.BitCount);
+                    numColorTableEntries = (int) MathF.Pow(2, infoHeader.BitCount);
                     break;
 
                 case 24:
@@ -48,6 +48,65 @@ namespace OpenSage.Data.Ani
                 XorMask = xorMask,
                 AndMask = andMask
             };
+        }
+
+        public byte[] GetBgraPixels()
+        {
+            var width = Header.Width;
+            var height = Header.Height / 2;
+
+            var pixels = new byte[width * height * 4];
+
+            var dstIndex = 0;
+            var andMaskIndex = 0;
+            var xorMaskIndex = 0;
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var alpha = 255;
+
+                    byte red, green, blue;
+
+                    switch (Header.BitCount)
+                    {
+                        case 4:
+                        case 8:
+                            var color = ColorTable.Entries[XorMask.Pixels[xorMaskIndex++]];
+                            blue = color.Blue;
+                            green = color.Green;
+                            red = color.Red;
+                            break;
+
+                        case 24:
+                            red = XorMask.Pixels[xorMaskIndex++];
+                            green = XorMask.Pixels[xorMaskIndex++];
+                            blue = XorMask.Pixels[xorMaskIndex++];
+                            break;
+
+                        case 32:
+                            red = XorMask.Pixels[xorMaskIndex++];
+                            green = XorMask.Pixels[xorMaskIndex++];
+                            blue = XorMask.Pixels[xorMaskIndex++];
+                            alpha = XorMask.Pixels[xorMaskIndex++];
+                            break;
+
+                        default:
+                            throw new InvalidOperationException();
+                    }
+
+                    pixels[dstIndex++] = blue;
+                    pixels[dstIndex++] = green;
+                    pixels[dstIndex++] = red;
+
+                    var isTransparent = AndMask.Pixels[andMaskIndex++] == 1;
+
+                    pixels[dstIndex++] = isTransparent ? (byte) 0 : (byte) alpha;
+                }
+            }
+
+            return pixels;
         }
     }
 }

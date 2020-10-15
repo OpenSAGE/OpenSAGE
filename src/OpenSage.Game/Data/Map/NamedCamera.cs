@@ -9,8 +9,12 @@ namespace OpenSage.Data.Map
         public Vector3 LookAtPoint { get; private set; }
         public string Name { get; private set; }
 
-        public Vector3 Unknown1 { get; private set; }
-        public Vector3 Unknown2 { get; private set; }
+        public float Pitch { get; private set; }
+        public float Roll { get; private set; }
+        public float Yaw { get; private set; }
+        public float Zoom { get; private set; }
+        public float FieldOfView { get; private set; }
+        public float Unknown { get; private set; }
 
         internal static NamedCamera Parse(BinaryReader reader)
         {
@@ -18,9 +22,12 @@ namespace OpenSage.Data.Map
             {
                 LookAtPoint = reader.ReadVector3(),
                 Name = reader.ReadUInt16PrefixedAsciiString(),
-
-                Unknown1 = reader.ReadVector3(),
-                Unknown2 = reader.ReadVector3()
+                Pitch = reader.ReadSingle(),
+                Roll = reader.ReadSingle(),
+                Yaw = reader.ReadSingle(),
+                Zoom = reader.ReadSingle(),
+                FieldOfView = reader.ReadSingle(),
+                Unknown = reader.ReadSingle()
             };
         }
 
@@ -28,9 +35,12 @@ namespace OpenSage.Data.Map
         {
             writer.Write(LookAtPoint);
             writer.WriteUInt16PrefixedAsciiString(Name);
-
-            writer.Write(Unknown1);
-            writer.Write(Unknown2);
+            writer.Write(Pitch);
+            writer.Write(Roll);
+            writer.Write(Yaw);
+            writer.Write(Zoom);
+            writer.Write(FieldOfView);
+            writer.Write(Unknown);
         }
     }
 }

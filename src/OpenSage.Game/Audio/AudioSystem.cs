@@ -1,28 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Logic.Object;
 using SharpAudio;
-using SharpAudio.Util;
-using SharpAudio.Util.Wave;
+using SharpAudio.Codec;
+using SharpAudio.Codec.Wave;
 
 namespace OpenSage.Audio
 {
     public sealed class AudioSystem : GameSystem
     {
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly List<AudioSource> _sources;
         private readonly Dictionary<string, AudioBuffer> _cached;
         private readonly AudioEngine _engine;
+        private readonly AudioSettings _settings;
+        private readonly Audio3DEngine _3dengine;
+        private readonly Dictionary<AudioVolumeSlider, Submixer> _mixers;
 
         private readonly Random _random;
+
+        private readonly Dictionary<string, int> _musicTrackFinishedCounts = new Dictionary<string, int>();
+
+        private string _currentTrackName;
+        private SoundStream _currentTrack;
 
         public AudioSystem(Game game) : base(game)
         {
             _engine = AudioEngine.CreateDefault();
+            _3dengine = _engine.Create3DEngine();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
+            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
+            _settings = game.AssetStore.AudioSettings.Current;
+
+            CreateSubmixers();
 
             // TODO: Sync RNG seed from replay?
             _random = new Random();
+        }
+
+        internal override void OnSceneChanged()
+        {
+            _musicTrackFinishedCounts.Clear();
+        }
+
+        public void Update(Camera camera)
+        {
+            if (camera != null)
+            {
+                UpdateListener(camera);
+            }
+
+            if (_currentTrack != null && !_currentTrack.IsPlaying)
+            {
+                _musicTrackFinishedCounts.TryGetValue(_currentTrackName, out var count);
+                _musicTrackFinishedCounts[_currentTrackName] = count + 1;
+                _currentTrack.Dispose();
+                _currentTrack = null;
+                _currentTrackName = null;
+            }
+        }
+
+        private void CreateSubmixers()
+        {
+            // Create all available mixers
+            _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.SoundFX].Volume = (float) _settings.DefaultSoundVolume;
+
+            _mixers[AudioVolumeSlider.Music] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Music].Volume = (float) _settings.DefaultMusicVolume;
+
+            _mixers[AudioVolumeSlider.Ambient] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Ambient].Volume = (float) _settings.DefaultAmbientVolume;
+
+            _mixers[AudioVolumeSlider.Voice] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Voice].Volume = (float) _settings.DefaultVoiceVolume;
+
+            _mixers[AudioVolumeSlider.Movie] = _engine.CreateSubmixer();
+            _mixers[AudioVolumeSlider.Movie].Volume = (float) _settings.DefaultMovieVolume;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -30,14 +89,15 @@ namespace OpenSage.Audio
             base.Dispose(disposeManagedResources);
             _sources.Clear();
             _cached.Clear();
-          
+
             _engine.Dispose();
         }
 
         /// <summary>
         /// Opens a cached audio file. Usually used for small audio files (.wav)
         /// </summary>
-        public AudioSource GetSound(FileSystemEntry entry, bool loop = false)
+        public AudioSource GetSound(FileSystemEntry entry,
+            AudioVolumeSlider? vslider = AudioVolumeSlider.None, bool loop = false)
         {
             AudioBuffer buffer;
 
@@ -49,7 +109,7 @@ namespace OpenSage.Audio
 
                 buffer = AddDisposable(_engine.CreateBuffer());
                 buffer.BufferData(data, decoder.Format);
-     
+
                 _cached[entry.FilePath] = buffer;
             }
             else
@@ -57,8 +117,10 @@ namespace OpenSage.Audio
                 buffer = _cached[entry.FilePath];
             }
 
-            var source = AddDisposable(_engine.CreateSource());
-            source.QueryBuffer(buffer);
+            var mixer = (vslider.HasValue && vslider.Value != AudioVolumeSlider.None) ?
+                        _mixers[vslider.Value] : null;
+            var source = AddDisposable(_engine.CreateSource(mixer));
+            source.QueueBuffer(buffer);
             // TODO: Implement looping
 
             _sources.Add(source);
@@ -75,8 +137,7 @@ namespace OpenSage.Audio
 
             // TOOD: Check control flag before choosing at random.
             var sound = ev.Sounds[_random.Next(ev.Sounds.Length)];
-            var audioFile = sound.AudioFile.Value;
-            return audioFile.Entry;
+            return sound.AudioFile.Value?.Entry;
         }
 
         /// <summary>
@@ -84,10 +145,9 @@ namespace OpenSage.Audio
         /// </summary>
         public SoundStream GetStream(FileSystemEntry entry)
         {
+            // TODO: Use submixer (currently not possible)
             return new SoundStream(entry.Open(), _engine);
         }
-
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void PlayAudioEvent(string eventName)
         {
@@ -102,33 +162,93 @@ namespace OpenSage.Audio
             PlayAudioEvent(audioEvent);
         }
 
-        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
             if (baseAudioEvent == null)
             {
-                return;
+                return false;
             }
 
-            if (!(baseAudioEvent is AudioEvent audioEvent))
+            if (!(baseAudioEvent is AudioEvent))
             {
                 // TODO
-                return;
+                return false;
             }
 
+            return true;
+        }
+
+        private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent)
+        {
+            if (!ValidateAudioEvent(baseAudioEvent))
+            {
+                return null;
+            }
+
+            var audioEvent = baseAudioEvent as AudioEvent;
             var entry = ResolveAudioEventEntry(audioEvent);
 
             if (entry == null)
             {
                 logger.Warn($"Missing Audio File: {audioEvent.Name}");
+                return null;
+            }
+
+            var source = GetSound(entry, audioEvent.SubmixSlider, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
+            source.Volume = (float) audioEvent.Volume;
+            return source;
+        }
+
+        private void UpdateListener(Camera camera)
+        {
+            _3dengine.SetListenerPosition(camera.Position);
+            var front = Vector3.Normalize(camera.Target - camera.Position);
+            _3dengine.SetListenerOrientation(camera.Up, front);
+        }
+
+        public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
+        {
+            var source = PlayAudioEventBase(baseAudioEvent);
+            if (source == null)
+            {
                 return;
             }
 
-            var source = GetSound(entry, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
-            _sources.Add(source);
+            // TODO: fix issues with some units
+            //_3dengine.SetSourcePosition(source, emitter.Transform.Translation);
+            source.Play();
+        }
 
-            source.Volume = (float) audioEvent.Volume;
+        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        {
+            var source = PlayAudioEventBase(baseAudioEvent);
+            if (source == null)
+            {
+                return;
+            }
 
             source.Play();
+        }
+
+        public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
+        {
+            // TODO: fading
+
+            if (_currentTrack != null)
+            {
+                _currentTrack.Stop();
+                _currentTrack.Dispose();
+            }
+
+            _currentTrackName = musicTrack.Name;
+            _currentTrack = GetStream(musicTrack.File.Value.Entry);
+            _currentTrack.Volume = (float) musicTrack.Volume;
+            _currentTrack.Play();
+        }
+
+        public int GetFinishedCount(string musicTrackName)
+        {
+            return _musicTrackFinishedCounts.TryGetValue(musicTrackName, out var number) ? number : 0;
         }
     }
 }

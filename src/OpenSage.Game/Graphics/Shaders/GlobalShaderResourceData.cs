@@ -77,10 +77,17 @@ namespace OpenSage.Graphics.Shaders
         public void UpdateGlobalConstantBuffers(
             CommandList commandList,
             in Matrix4x4 viewProjection,
-            in Vector4 clippingPlane)
+            in Vector4? clippingPlane1,
+            in Vector4? clippingPlane2)
         {
             _globalConstantBufferVS.Value.ViewProjection = viewProjection;
-            _globalConstantBufferVS.Value.ClippingPlane = clippingPlane;
+
+            _globalConstantBufferVS.Value.ClippingPlane1 = clippingPlane1 ?? Vector4.Zero;
+            _globalConstantBufferVS.Value.ClippingPlane2 = clippingPlane2 ?? Vector4.Zero;
+
+            _globalConstantBufferVS.Value.HasClippingPlane1 = clippingPlane1 != null;
+            _globalConstantBufferVS.Value.HasClippingPlane2 = clippingPlane2 != null;
+
             _globalConstantBufferVS.Update(commandList);
         }
 

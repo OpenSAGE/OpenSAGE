@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Diagnostics.Util;
 using Veldrid;
 
 namespace OpenSage.Diagnostics
@@ -42,6 +43,7 @@ namespace OpenSage.Diagnostics
             _commandList = AddDisposable(window.GraphicsDevice.ResourceFactory.CreateCommandList());
 
             _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, _imGuiRenderer)));
+            ImGuiUtility.SetupDocking();
         }
 
         public void Tick()

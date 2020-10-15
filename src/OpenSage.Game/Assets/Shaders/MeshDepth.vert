@@ -48,5 +48,5 @@ void main()
         _RenderItemConstantsVS.World,
         _GlobalConstantsVS.ViewProjection);
 
-    gl_ClipDistance[0] = CalculateClippingPlane(worldPosition, _GlobalConstantsVS.ClippingPlane);
+    DO_CLIPPING(worldPosition)
 }

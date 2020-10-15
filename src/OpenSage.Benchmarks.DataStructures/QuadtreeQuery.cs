@@ -53,7 +53,7 @@ namespace OpenSage.Benchmarks.DataStructures
 
             foreach (var item in _items)
             {
-                if (item.Bounds.IntersectsWith(_queryArea))
+                if (item.Collider.Intersects(_queryArea))
                 {
                     items.Add(item);
                 }

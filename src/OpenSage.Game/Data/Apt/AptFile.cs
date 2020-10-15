@@ -43,9 +43,9 @@ namespace OpenSage.Data.Apt
 
             //resolve geometries
             GeometryMap = new Dictionary<uint, Geometry>();
-            foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
+            foreach (Shape shape in Movie.Characters.FindAll((x) => x is Shape))
             {
-                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", + shape.Geometry + ".ru");
+                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", +shape.Geometry + ".ru");
                 var shapeEntry = FileSystem.GetFile(ruPath);
                 var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
                 shapeGeometry.Container = this;

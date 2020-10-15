@@ -5,6 +5,7 @@
 #include "Lighting.h"
 #include "Cloud.h"
 #include "Shadows.h"
+#include "RadiusCursorDecals.h"
 
 MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
 
@@ -16,6 +17,10 @@ MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
 
 layout(set = 4, binding = 0) uniform texture2D Texture;
 layout(set = 4, binding = 1) uniform sampler Sampler;
+
+MAKE_RADIUS_CURSOR_DECAL_RESOURCES(5)
+
+#include "RadiusCursorDecalsFunctions.h"
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -61,7 +66,9 @@ void main()
 
     vec3 cloudColor = GetCloudColor(Global_CloudTexture, Sampler, in_CloudUV);
 
+    vec3 decalColor = GetRadiusCursorDecalColor(in_WorldPosition);
+
     out_Color = vec4(
-        diffuseColor * textureColor.xyz * cloudColor,
+        (diffuseColor * textureColor.xyz * cloudColor) + decalColor,
         textureColor.w);
 }

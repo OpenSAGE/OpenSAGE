@@ -1,10 +1,164 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    [AddedIn(SageGame.Bfme)]
+    public sealed class HordeContainBehavior : UpdateModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly HordeContainModuleData _moduleData;
+
+        private Dictionary<int, List<HordeMemberPosition>> _formation;
+        private List<GameObject> _payload;
+
+        private ProductionUpdate _productionUpdate;
+        private int _pendingRegistrations;
+
+        public HordeContainBehavior(GameObject gameObject, HordeContainModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+
+            _payload = new List<GameObject>();
+            _formation = CreateFormationOffsets();
+        }
+
+        public List<GameObject> SelectAll(bool value)
+        {
+            _gameObject.IsSelected = value;
+            foreach (var obj in _payload)
+            {
+                obj.IsSelected = value;
+            }
+            return _payload;
+        }
+
+        private Dictionary<int, List<HordeMemberPosition>> CreateFormationOffsets()
+        {
+            var result = new Dictionary<int, List<HordeMemberPosition>>();
+            var i = 0;
+            foreach (var rankInfo in _moduleData.RankInfos)
+            {
+                result.Add(i, new List<HordeMemberPosition>());
+                foreach (var pos in rankInfo.Positions)
+                {
+                    result[i].Add(new HordeMemberPosition
+                    {
+                        Definition = rankInfo.UnitType.Value,
+                        Object = null,
+                        Position = new Vector3(pos, 0)
+                    });
+                }
+                i++;
+            }
+            return result;
+        }
+
+        public void Unpack()
+        {
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    var createdObject = _gameObject.Parent.Add(position.Definition, _gameObject.Owner);
+                    createdObject.ParentHorde = _gameObject;
+                    position.Object = createdObject;
+                    _payload.Add(createdObject);
+
+                    createdObject.UpdateTransform(_gameObject.Translation + position.Position, _gameObject.Rotation);
+                }
+            }
+        }
+
+        public void SetTargetPoints(Vector3 targetPosition, Vector3 targetDirection)
+        {
+            var targetYaw = MathUtility.GetYawFromDirection(targetDirection.Vector2XY());
+
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    var offset = Vector3.Transform(position.Position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, targetYaw));
+
+                    position.Object?.AIUpdate?.TargetPoints.Clear();
+                    position.Object?.AIUpdate?.AppendPathToTargetPoint(targetPosition + offset);
+                    position.Object?.AIUpdate?.SetTargetDirection(targetDirection);
+                }
+            }
+        }
+
+        public void Register(GameObject obj)
+        {
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    if (position.Object != null)
+                    {
+                        continue;
+                    }
+
+                    if (position.Definition.Name == obj.Definition.Name)
+                    {
+                        position.Object = obj;
+                        _payload.Add(obj);
+
+                        _pendingRegistrations--;
+                        if (_pendingRegistrations == 0)
+                        {
+                            _productionUpdate.ParentHorde = null;
+                            _productionUpdate.CloseDoor();
+                            _productionUpdate = null;
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        public Vector3 GetFormationOffset(GameObject obj)
+        {
+            var hordeYaw = _gameObject.Yaw;
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    if (position.Object == obj)
+                    {
+                        _payload.Add(obj);
+                        return Vector3.Transform(position.Position, Quaternion.CreateFromYawPitchRoll(hordeYaw, 0, 0));
+                    }
+                }
+            }
+            return Vector3.Zero;
+        }
+
+        public void EnqueuePayload(ProductionUpdate productionUpdate, int delay)
+        {
+            var delay_s = delay / 1000.0f;
+            _productionUpdate = productionUpdate;
+
+            foreach (var rank in _formation.Values)
+            {
+                foreach (var position in rank)
+                {
+                    _productionUpdate.SpawnPayload(position.Definition, delay_s);
+                    _pendingRegistrations++;
+                }
+            }
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+
+        }
+    }
+
     [AddedIn(SageGame.Bfme)]
     public class HordeContainModuleData : BehaviorModuleData
     {
@@ -50,7 +204,7 @@ namespace OpenSage.Logic.Object
             { "UsePorcupineBody", (parser, x) => x.UsePorcupineBody = parser.ParseBoolean() },
             { "SplitHorde", (parser, x) => x.SplitHordes.Add(SplitHorde.Parse(parser)) },
             { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() },
-            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() },
+            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetType>() },
             { "UpdateWeaponSetFlagsOnHordeToo", (parser, x) => x.UpdateWeaponSetFlagsOnHordeToo = parser.ParseBoolean() },
             { "RankSplit", (parser, x) => x.RankSplit = parser.ParseBoolean() },
             { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
@@ -105,7 +259,7 @@ namespace OpenSage.Logic.Object
         public bool UsePorcupineBody { get; private set; }
         public List<SplitHorde> SplitHordes { get; } = new List<SplitHorde>();
         public bool UseMarchingAnims { get; private set; }
-        public LocomotorSetCondition ForcedLocomotorSet { get; private set; }
+        public LocomotorSetType ForcedLocomotorSet { get; private set; }
         public bool UpdateWeaponSetFlagsOnHordeToo { get; private set; }
         public bool RankSplit { get; private set; }
         public int SplitHordeNumber { get; private set; }
@@ -142,6 +296,19 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string LivingWorldOverloadTemplate { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new HordeContainBehavior(gameObject, this);
+        }
+    }
+
+    class HordeMemberPosition
+    {
+        public ObjectDefinition Definition;
+        public GameObject Object { get; set; }
+        public Vector3 Position;
+        public bool Initialized { get; set; } = false;
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -151,14 +318,14 @@ namespace OpenSage.Logic.Object
         {
             var payload = new Payload
             {
-                Name = parser.ParseAssetReference()
+                Object = parser.ParseObjectReference()
             };
 
             payload.Count = parser.GetIntegerOptional();
             return payload;
         }
 
-        public string Name { get; private set; }
+        public LazyAssetReference<ObjectDefinition> Object { get; private set; }
         public int Count { get; private set; }
     }
 
@@ -169,12 +336,12 @@ namespace OpenSage.Logic.Object
         {
             return new BannerCarrierPosition
             {
-                UnitType = parser.ParseAttributeIdentifier("UnitType"),
+                UnitType = parser.ParseAttributeObjectReference("UnitType"),
                 Position = parser.ParseAttributeVector2("Pos")
             };
         }
 
-        public string UnitType { get; private set; }
+        public LazyAssetReference<ObjectDefinition> UnitType { get; private set; }
         public Vector2 Position { get; private set; }
     }
 
@@ -186,7 +353,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<RankInfo> FieldParseTable = new IniParseTable<RankInfo>
         {
             { "RankNumber", (parser, x) => x.RankNumber = parser.ParseInteger() },
-            { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
+            { "UnitType", (parser, x) => x.UnitType = parser.ParseObjectReference() },
             { "Position", (parser, x) => x.Positions.Add(parser.ParseVector2()) },
             { "RevokedWeaponCondition", (parser, x) => x.RevokedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
             { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
@@ -194,7 +361,7 @@ namespace OpenSage.Logic.Object
         };
 
         public int RankNumber { get; private set; }
-        public string UnitType { get; private set; }
+        public LazyAssetReference<ObjectDefinition> UnitType { get; private set; }
         public List<Vector2> Positions { get; } = new List<Vector2>();
         public WeaponSetConditions RevokedWeaponCondition { get; private set; }
         public WeaponSetConditions GrantedWeaponCondition { get; private set; }
@@ -221,7 +388,7 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class SplitHorde 
+    public sealed class SplitHorde
     {
         internal static SplitHorde Parse(IniParser parser)
         {

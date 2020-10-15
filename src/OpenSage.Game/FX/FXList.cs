@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.FX
 {
@@ -57,6 +58,15 @@ namespace OpenSage.FX
             {
                 nugget.Execute(context);
             }
+        }
+
+        internal void Execute(BehaviorUpdateContext context)
+        {
+            Execute(
+                new FXListExecutionContext(
+                    context.GameObject.Rotation,
+                    context.GameObject.Translation,
+                    context.GameContext));
         }
     }
 }

@@ -5,7 +5,25 @@ namespace OpenSage.Logic.Object
 {
     public sealed class InactiveBody : BodyModule
     {
-        public override Fix64 MaxHealth => Fix64.Zero;
+        private readonly GameObject _gameObject;
+
+        internal InactiveBody(GameObject gameObject)
+        {
+            _gameObject = gameObject;
+        }
+
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
+        {
+            // TODO
+
+            _gameObject.Die(deathType, time);
+        }
+        
+        public override Fix64 MaxHealth
+        {
+            get => Fix64.Zero;
+            internal set { }
+        }
     }
 
     /// <summary>
@@ -19,7 +37,7 @@ namespace OpenSage.Logic.Object
 
         internal override BodyModule CreateBodyModule(GameObject gameObject)
         {
-            return new InactiveBody();
+            return new InactiveBody(gameObject);
         }
     }
 }

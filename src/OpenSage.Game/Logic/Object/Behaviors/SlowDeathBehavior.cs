@@ -1,10 +1,154 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using ImGuiNET;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
+using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class SlowDeathBehavior : UpdateModule
+    {
+        private readonly SlowDeathBehaviorModuleData _moduleData;
+
+        private bool _isDying;
+        private SlowDeathPhase? _phase;
+        private bool _passedMidpoint;
+        private TimeSpan _sinkStartTime;
+        private TimeSpan _midpointTime;
+        private TimeSpan _destructionTime;
+
+        public int ProbabilityModifier => _moduleData.ProbabilityModifier;
+
+        internal SlowDeathBehavior(SlowDeathBehaviorModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal bool IsApplicable(DeathType deathType) => _moduleData.DeathTypes?.Get(deathType) ?? false;
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        {
+            if (!IsApplicable(deathType))
+            {
+                return;
+            }
+
+            _isDying = true;
+
+            context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
+
+            // TODO: ProbabilityModifier
+
+            var destructionDelay = GetDelayWithVariance(context, _moduleData.DestructionDelay, _moduleData.DestructionDelayVariance);
+            _midpointTime = context.Time.TotalTime + (destructionDelay / 2.0f);
+            _destructionTime = context.Time.TotalTime + destructionDelay;
+
+            _sinkStartTime = context.Time.TotalTime + GetDelayWithVariance(context, _moduleData.SinkDelay, _moduleData.SinkDelayVariance);
+
+            // TODO: Decay
+            // TODO: Fling
+
+            ExecutePhaseActions(context, SlowDeathPhase.Initial);
+        }
+
+        private static TimeSpan GetDelayWithVariance(BehaviorUpdateContext context, TimeSpan delay, TimeSpan variance)
+        {
+            var randomMultiplier = (context.GameContext.Random.NextDouble() * 2.0) - 1.0;
+            return delay + variance * randomMultiplier;
+        }
+
+        private void ExecutePhaseActions(BehaviorUpdateContext context, SlowDeathPhase phase)
+        {
+            _phase = phase;
+
+            if (_moduleData.OCLs.TryGetValue(phase, out var ocl))
+            {
+                context.GameContext.ObjectCreationLists.Create(ocl.Value, context);
+            }
+
+            if (_moduleData.FXs.TryGetValue(phase, out var fx))
+            {
+                fx.Value.Execute(
+                    new FXListExecutionContext(
+                        context.GameObject.Rotation,
+                        context.GameObject.Translation,
+                        context.GameContext));
+            }
+
+            // TODO: Weapon
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (!_isDying)
+            {
+                return;
+            }
+
+            // TODO: SlowDeathPhase.HitGround
+
+            // Midpoint
+            if (!_passedMidpoint && context.Time.TotalTime > _midpointTime)
+            {
+                ExecutePhaseActions(context, SlowDeathPhase.Midpoint);
+                _passedMidpoint = true;
+            }
+
+            // Destruction
+            if (context.Time.TotalTime > _destructionTime)
+            {
+                ExecutePhaseActions(context, SlowDeathPhase.Final);
+                context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
+                context.GameObject.Destroy();
+                _isDying = false;
+            }
+
+            // Sinking
+            if (context.Time.TotalTime > _sinkStartTime)
+            {
+                context.GameObject.VerticalOffset -= (float)(_moduleData.SinkRate * context.Time.DeltaTime.TotalSeconds);
+            }
+        }
+
+        internal override void DrawInspector()
+        {
+            if (_phase == null)
+            {
+                ImGui.LabelText("Phase", "<not dying>");
+            }
+            else
+            {
+                var phase = _phase.Value;
+                if (ImGuiUtility.ComboEnum("Phase", ref phase))
+                {
+                    _phase = phase;
+                }
+            }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBytes(12);
+
+            var unknown2 = reader.ReadSingle();
+
+            var unknown3 = reader.ReadUInt32();
+        }
+    }
+
     public class SlowDeathBehaviorModuleData : UpdateModuleData
     {
         internal static SlowDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -18,16 +162,16 @@ namespace OpenSage.Logic.Object
             { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
             { "ModifierBonusPerOverkillPercent", (parser, x) => x.ModifierBonusPerOverkillPercent = parser.ParsePercentage() },
             { "SinkRate", (parser, x) => x.SinkRate = parser.ParseFloat() },
-            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseInteger() },
-            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseInteger() },
-            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseInteger() },
-            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseInteger() },
+            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseTimeMilliseconds() },
+            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseTimeMilliseconds() },
+            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseTimeMilliseconds() },
+            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseTimeMilliseconds() },
             { "FlingForce", (parser, x) => x.FlingForce = parser.ParseInteger() },
             { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
             { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
             { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
-            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
-            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
+            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseObjectCreationListReference() },
+            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseFXListReference() },
             { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
@@ -43,17 +187,17 @@ namespace OpenSage.Logic.Object
         public int ProbabilityModifier { get; private set; }
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
-        public int SinkDelay { get; private set; }
-        public int SinkDelayVariance { get; private set; }
-        public int DestructionDelay { get; private set; }
-        public int DestructionDelayVariance { get; private set; }
+        public TimeSpan SinkDelay { get; private set; }
+        public TimeSpan SinkDelayVariance { get; private set; }
+        public TimeSpan DestructionDelay { get; private set; }
+        public TimeSpan DestructionDelayVariance { get; private set; }
         public int FlingForce { get; private set; }
         public int FlingForceVariance { get; private set; }
         public int FlingPitch { get; private set; }
         public int FlingPitchVariance { get; private set; }
 
-        public Dictionary<SlowDeathPhase, string> OCLs { get; } = new Dictionary<SlowDeathPhase, string>();
-        public Dictionary<SlowDeathPhase, string> FXs { get; } = new Dictionary<SlowDeathPhase, string>();
+        public Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>> OCLs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>>();
+        public Dictionary<SlowDeathPhase, LazyAssetReference<FXList>> FXs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<FXList>>();
         public Dictionary<SlowDeathPhase, string> Weapons { get; } = new Dictionary<SlowDeathPhase, string>();
 
         [AddedIn(SageGame.Bfme)]
@@ -76,6 +220,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool DoNotRandomizeMidpoint { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SlowDeathBehavior(this);
+        }
     }
 
     public enum SlowDeathPhase

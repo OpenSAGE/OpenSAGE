@@ -26,7 +26,7 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             uint mask = 0;
             for (int i = start; i <= end; i++)
-                mask |= (uint) Math.Pow(2, i);
+                mask |= (uint) MathF.Pow(2, i);
             return mask;
         }
 

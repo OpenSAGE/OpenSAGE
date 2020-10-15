@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace OpenSage.Utilities
 {
@@ -19,6 +20,22 @@ namespace OpenSage.Utilities
                     return true;
                 default:
                     return false;
+            }
+        }
+
+        public static float GetDefaultDpi()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return 96.0f;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return 72.0f;
+            }
+            else
+            {
+                return 96.0f; // TODO: For GNOME3 the default DPI is 96
             }
         }
     }

@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
         Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+        public int ExitDelay => _moduleData.ExitDelay; 
     }
 
     public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData
@@ -59,7 +61,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool UseReturnToFormation { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new QueueProductionExitUpdate(this);
         }

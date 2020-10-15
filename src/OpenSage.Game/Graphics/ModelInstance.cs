@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
-using OpenSage.Logic;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -33,6 +31,12 @@ namespace OpenSage.Graphics
         /// if their parent bones are hidden.
         /// </summary>
         internal readonly bool[] BoneVisibilities;
+
+        /// <summary>
+        /// Calculated bone visibilities for the current frame. Child bones will be hidden
+        /// if their parent bones are hidden.
+        /// </summary>
+        internal readonly bool[] BoneFrameVisibilities;
 
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegates;
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegatesDepth;
@@ -67,9 +71,12 @@ namespace OpenSage.Graphics
             AbsoluteBoneTransforms = new Matrix4x4[model.BoneHierarchy.Bones.Length];
 
             BoneVisibilities = new bool[model.BoneHierarchy.Bones.Length];
+            BoneFrameVisibilities = new bool[model.BoneHierarchy.Bones.Length];
+
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
             {
                 BoneVisibilities[i] = true;
+                BoneFrameVisibilities[i] = true;
             }
 
             _hasSkinnedMeshes = model.SubObjects.Any(x => x.RenderObject.Skinned);
@@ -125,7 +132,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void Update(in TimeInterval gameTime)
+        public void Update(in TimeInterval gameTime, List<string> hiddenSubObjects = null)
         {
             // TODO: Don't update animations if model isn't visible.
 
@@ -157,15 +164,11 @@ namespace OpenSage.Graphics
                         ? RelativeBoneTransforms[bone.Parent.Index]
                         : Matrix4x4.Identity;
 
-                    RelativeBoneTransforms[i] =
-                        ModelBoneInstances[i].Matrix *
-                        parentTransform;
+                    RelativeBoneTransforms[i] = ModelBoneInstances[i].Matrix * parentTransform;
 
-                    var parentVisible = bone.Parent != null
-                        ? BoneVisibilities[i]
-                        : true;
+                    var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
 
-                    BoneVisibilities[i] = parentVisible && ModelBoneInstances[i].Visible;
+                    BoneFrameVisibilities[i] = BoneVisibilities[i] && parentVisible && ModelBoneInstances[i].Visible;
                 }
             }
 
@@ -179,12 +182,9 @@ namespace OpenSage.Graphics
                 return;
             }
 
-            // If the model has skinned meshes, convert relative bone transforms
-            // to Matrix4x3 to send to shader.
             for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
             {
                 _skinningBones[i] = RelativeBoneTransforms[i];
-                //RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
             }
 
             _graphicsDevice.UpdateBuffer(_skinningBuffer, 0, _skinningBones);
@@ -204,11 +204,18 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             bool castsShadow,
-            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS)
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS,
+            List<string> hiddenSubObjects = null)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
+                var name = subObject.Name.Split('.').Last();
+
+                if (hiddenSubObjects != null && hiddenSubObjects.Contains(name))
+                {
+                    continue;
+                }
 
                 subObject.RenderObject.BuildRenderList(
                     renderList,

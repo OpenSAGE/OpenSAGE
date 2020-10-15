@@ -5,11 +5,7 @@ using System.Text;
 using OpenSage.FileFormats.RefPack;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
-using System.Numerics;
-using OpenSage.Scripting;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Collections.Generic;
+
 
 namespace OpenSage.Data.Map
 {
@@ -86,6 +82,9 @@ namespace OpenSage.Data.Map
 
         [AddedIn(SageGame.Bfme2)]
         public CameraAnimationList CameraAnimationList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public CastleTemplates CastleTemplates { get; private set; }
 
         public WaypointsList WaypointsList { get; private set; }
 
@@ -293,6 +292,10 @@ namespace OpenSage.Data.Map
                         result.CameraAnimationList = CameraAnimationList.Parse(reader, context);
                         break;
 
+                    case CastleTemplates.AssetName:
+                        result.CastleTemplates = CastleTemplates.Parse(reader, context);
+                        break;
+
                     case WaypointsList.AssetName:
                         result.WaypointsList = WaypointsList.Parse(reader, context);
                         break;
@@ -476,6 +479,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(CameraAnimationList.AssetName));
                 CameraAnimationList.WriteTo(writer);
+            }
+
+            if (CastleTemplates != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(CastleTemplates.AssetName));
+                CastleTemplates.WriteTo(writer, assetNames);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));

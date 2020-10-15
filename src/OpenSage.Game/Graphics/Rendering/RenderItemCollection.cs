@@ -17,7 +17,7 @@ namespace OpenSage.Graphics.Rendering
         // The backing storage for render items. 
         private RenderItem[] _items;
 
-        // TODO: Bounds check?
+        // TODO: SphereBounds check?
         internal ref RenderItem this[int i] => ref _items[i];
 
         // An array of flags indicating if a render item should be included in the culling set.
@@ -64,12 +64,14 @@ namespace OpenSage.Graphics.Rendering
             _culled[i] = _culled[i] && _items[i].BoundingBox.Intersects(clippingPlane) != PlaneIntersectionType.Back;
         }
 
-        public void CullAndSort(in BoundingFrustum cameraFrustum, in Plane? clippingPlane, int batchSize)
+        public void CullAndSort(in BoundingFrustum cameraFrustum, in Plane? clippingPlane1, in Plane? clippingPlane2, int batchSize)
         {
             if (Length == 0)
             {
                 return;
             }
+
+            ClearCullingResults();
 
             // Step 1: Compute visibility for each item in _items and store the result _culled.
 
@@ -80,9 +82,13 @@ namespace OpenSage.Graphics.Rendering
                 for (var i = 0; i < Length; i++)
                 {
                     Cull(i, cameraFrustum);
-                    if (clippingPlane != null)
+                    if (clippingPlane1 != null)
                     {
-                        Cull(i, clippingPlane.Value);
+                        Cull(i, clippingPlane1.Value);
+                    }
+                    if (clippingPlane2 != null)
+                    {
+                        Cull(i, clippingPlane2.Value);
                     }
                 }
             }
@@ -91,7 +97,8 @@ namespace OpenSage.Graphics.Rendering
                 // We need a copy of cameraFrustum, as we can't send in parameters to closures. 
                 var frustum = cameraFrustum;
                 // We need a copy of clippingPlane, as we can't send in parameters to closures. 
-                var clip = clippingPlane;
+                var clip1 = clippingPlane1;
+                var clip2 = clippingPlane2;
 
                 // Perform culling using the thread pool, in batches of batchSize.
                 Parallel.ForEach(Partitioner.Create(0, Length, batchSize), range =>
@@ -100,9 +107,13 @@ namespace OpenSage.Graphics.Rendering
                     for (var i = start; i < end; i++)
                     {
                         Cull(i, frustum);
-                        if (clip != null)
+                        if (clip1 != null)
                         {
-                            Cull(i, clip.Value);
+                            Cull(i, clip1.Value);
+                        }
+                        if (clip2 != null)
+                        {
+                            Cull(i, clip2.Value);
                         }
                     }
                 });
@@ -134,10 +145,15 @@ namespace OpenSage.Graphics.Rendering
             });
         }
 
+        private void ClearCullingResults()
+        {
+            _culledItemIndices.Clear();
+        }
+
         public void Clear()
         {
             Length = 0;
-            _culledItemIndices.Clear();
+            ClearCullingResults();
 
             // TODO: Should we provide a different method for actually clearing the item buffer?
             // Otherwise there might be memory leaks when switching between scenes.
