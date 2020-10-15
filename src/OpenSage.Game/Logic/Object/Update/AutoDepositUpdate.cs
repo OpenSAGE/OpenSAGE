@@ -19,14 +19,17 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_waitUntil == null || context.Time.TotalTime > _waitUntil)
+            if (_gameObject.IsBeingConstructed()
+                 || (_waitUntil != null && context.Time.TotalTime < _waitUntil))
             {
-                _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
-                _gameObject.Owner.ReceiveMoney((uint)_moduleData.DepositAmount);
-                if (!_moduleData.GiveNoXP)
-                {
-                    _gameObject.GainExperience(_moduleData.DepositAmount);
-                }
+                return;
+            }
+
+            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
+            _gameObject.Owner.ReceiveMoney((uint) _moduleData.DepositAmount);
+            if (!_moduleData.GiveNoXP)
+            {
+                _gameObject.GainExperience(_moduleData.DepositAmount);
             }
         }
     }

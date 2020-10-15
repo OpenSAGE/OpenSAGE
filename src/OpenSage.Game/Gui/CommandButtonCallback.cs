@@ -22,10 +22,8 @@ namespace OpenSage.Gui
             {
                 case CommandType.CastleUnpack:
                     var castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
-                    if (castleBehavior != null)
-                    {
-                        castleBehavior.Unpack(selectedObject.Owner);
-                    }
+                    castleBehavior.Unpack(selectedObject.Owner);
+                    game.Scene3D.LocalPlayer.DeselectUnits();
                     break;
 
                 case CommandType.FoundationConstruct:
@@ -39,6 +37,8 @@ namespace OpenSage.Gui
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Translation);
                     order.AddFloatArgument(selectedObject.Yaw + MathUtility.ToRadians(objectDefinition.PlacementViewAngle));
+
+                    game.Scene3D.LocalPlayer.DeselectUnits();
                     break;
 
                 case CommandType.DozerConstruct:

@@ -14,6 +14,8 @@ namespace OpenSage.Logic.Object
         private ExperienceLevel _nextLevel;
         private BannerCarrierUpdate _bannerCarrierUpdate;
 
+        public bool ObjectGainsExperience { get; private set; }
+
         internal ExperienceUpdate(GameObject gameObject)
         {
             _gameObject = gameObject;
@@ -32,6 +34,8 @@ namespace OpenSage.Logic.Object
             if (_experienceLevels != null && _experienceLevels.Count > 0)
             {
                 _nextLevel = _experienceLevels.First();
+                _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
+                ObjectGainsExperience = true;
             }
 
             _bannerCarrierUpdate = _gameObject.FindBehavior<BannerCarrierUpdate>();
@@ -53,7 +57,6 @@ namespace OpenSage.Logic.Object
             }
 
             _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
-            _gameObject.GainExperience(_nextLevel.ExperienceAward);
             _gameObject.Rank = _nextLevel.Rank;
 
             if (_nextLevel.Upgrades != null)
@@ -93,6 +96,11 @@ namespace OpenSage.Logic.Object
             if (_experienceLevels.Count > 0)
             {
                 _nextLevel = _experienceLevels.First();
+                _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
+            }
+            else
+            {
+                _gameObject.ExperienceRequiredForNextLevel = int.MaxValue;
             }
         }
 
