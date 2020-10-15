@@ -29,7 +29,10 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var hideSubObject in _moduleData.HideSubObjects)
                 {
-                    _gameObject.HiddenSubObjects.Add(hideSubObject);
+                    if (!_gameObject.HiddenSubObjects.Contains(hideSubObject))
+                    {
+                        _gameObject.HiddenSubObjects.Add(hideSubObject);
+                    }
                 }
             }
         }

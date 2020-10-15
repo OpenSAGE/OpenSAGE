@@ -535,17 +535,20 @@ namespace OpenSage
                         (float)gameObject.Body.HealthPercentage);
                 }
 
-                var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + 4);
-
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.BuildProgress < 0.999f)
+                var yOffset = 0;
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.IsBeingConstructed())
                 {
+                    yOffset += 4;
+                    var constructionProgressBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
                     DrawBar(
-                        productionBoxRect,
+                        constructionProgressBoxRect,
                         new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
                         gameObject.BuildProgress);
                 }
                 else if (gameObject.ProductionUpdate != null)
                 {
+                    yOffset += 4;
+                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
                     var productionBoxValue = gameObject.ProductionUpdate.IsProducing
                         ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
                         : 0;
@@ -554,6 +557,17 @@ namespace OpenSage
                         productionBoxRect,
                         new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
                         productionBoxValue);
+                }
+
+                var gainsExperience = gameObject.FindBehavior<ExperienceUpdate>().ObjectGainsExperience;
+                if (gainsExperience)
+                {
+                    yOffset += 4;
+                    var experienceBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
+                    DrawBar(
+                        experienceBoxRect,
+                        new ColorRgba(255, 255, 0, 255).ToColorRgbaF(),
+                        gameObject.ExperienceValue / (float)gameObject.ExperienceRequiredForNextLevel);
                 }
             }
 

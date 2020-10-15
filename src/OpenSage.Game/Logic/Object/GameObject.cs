@@ -266,6 +266,7 @@ namespace OpenSage.Logic.Object
 
         public int Rank { get; set; }
         public int ExperienceValue { get; set; }
+        public int ExperienceRequiredForNextLevel { get; set; }
         internal float ExperienceMultiplier { get; set; }
 
         public int EnergyProduction { get; internal set; }

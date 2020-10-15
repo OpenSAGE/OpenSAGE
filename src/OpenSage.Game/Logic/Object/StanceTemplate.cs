@@ -51,7 +51,10 @@ namespace OpenSage.Logic.Object
         internal static AttributeModifier Parse(IniParser parser)
         {
             var name = parser.ParseString();
-            if (IsOnlyAReference(name)) return AttributeModifiers[name];
+            if (IsOnlyAReference(name))
+            {
+                return AttributeModifiers[name];
+            }
 
             var result = parser.ParseBlock(FieldParseTable);
             result.Name = name;
