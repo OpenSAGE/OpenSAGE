@@ -49,7 +49,7 @@ namespace OpenSage.Logic.Object
             // Actual amount of damage depends on armor.
             var armor = armorSet.Armor.Value;
             var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
-            var actualDamage = amount * (Fix64) ((float) damagePercent);
+            var actualDamage = amount * (Fix64) (float) damagePercent;
             SetHealth(Health - actualDamage);
 
             // TODO: DamageFX
