@@ -153,6 +153,8 @@ namespace OpenSage.Logic.Object
 
         private bool FoundTargetWhileScanning(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
         {
+            return false;
+
             var attacksBuildings = autoAcquireEnemiesWhenIdle.Get(AutoAcquireEnemiesType.AttackBuildings);
             var scanRange = _gameObject.CurrentWeapon.Template.AttackRange;
 
