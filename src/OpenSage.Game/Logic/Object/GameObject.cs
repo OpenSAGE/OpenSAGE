@@ -545,7 +545,7 @@ namespace OpenSage.Logic.Object
             return new Transform(worldPos);
         }
 
-        internal T FindBehavior<T>()
+        public T FindBehavior<T>()
         {
             // TODO: Cache this?
             return _behaviorModules.OfType<T>().FirstOrDefault();
@@ -561,7 +561,7 @@ namespace OpenSage.Logic.Object
         {
             if (upgrade == null)
             {
-                return false;
+                return true;
             }
 
             return upgrade.Type == UpgradeType.Player ? Owner.Upgrades.Contains(upgrade) : Upgrades.Contains(upgrade);
@@ -825,23 +825,32 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool CanEnqueue(CommandButton button)
+        public bool CanPurchase(CommandButton button)
         {
             if (button.Object != null && button.Object.Value != null)
             {
-                return CanConstructUnit(button.Object.Value);
+                return UpgradeAvailable(button.NeededUpgrade?.Value)
+                    && CanConstructUnit(button.Object.Value);
             }
             if (button.Upgrade != null && button.Upgrade.Value != null)
             {
-                return CanEnqueueUpgrade(button.Upgrade.Value);
+                return UpgradeAvailable(button.NeededUpgrade?.Value)
+                    && CanEnqueueUpgrade(button.Upgrade.Value);
+            }
+            if (button.Command == CommandType.CastleUnpack)
+            {
+                var castleBehavior = FindBehavior<CastleBehavior>();
+                return HasEnoughMoney(castleBehavior.GetUnpackCost(Owner));
             }
             return true;
         }
 
+        public bool HasEnoughMoney(float cost) => Owner.Money >= cost; 
+
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {
             return objectDefinition != null
-                && Owner.Money >= objectDefinition.BuildCost
+                && HasEnoughMoney(objectDefinition.BuildCost)
                 && Owner.CanProduceObject(Parent, objectDefinition)
                 && CanProduceObject(objectDefinition);
         }
@@ -853,7 +862,7 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            var userHasEnoughMoney = Owner.Money >= upgrade.BuildCost;
+            var userHasEnoughMoney = HasEnoughMoney(upgrade.BuildCost);
             var hasQueuedUpgrade = ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
             var canEnqueue = ProductionUpdate.CanEnqueue();
             var hasUpgrade = UpgradeAvailable(upgrade);

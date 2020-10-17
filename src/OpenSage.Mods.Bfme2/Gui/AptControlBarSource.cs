@@ -174,7 +174,7 @@ namespace OpenSage.Mods.Bfme2
                 var texture = button.ButtonImage.Value;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
-                    var enabled = selectedUnit.CanEnqueue(button);
+                    var enabled = selectedUnit.CanPurchase(button);
                     var rect = new Rectangle(renderContext.GetBoundingBox(geom)).ToRectangleF();
                     renderContext.GetActiveDrawingContext().DrawMappedImage(texture, rect, grayscaled: !enabled);
 

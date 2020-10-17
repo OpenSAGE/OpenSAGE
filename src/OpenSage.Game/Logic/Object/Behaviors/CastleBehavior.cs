@@ -4,6 +4,7 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -24,6 +25,12 @@ namespace OpenSage.Logic.Object
             _context = context;
 
             _nativePlayer = _gameObject.Owner;
+        }
+
+        public float GetUnpackCost(Player player)
+        {
+            var castleEntry = FindCastle(player.Side);
+            return castleEntry.UnpackCost;
         }
 
         public void Unpack(Player player, bool instant = false)
@@ -212,14 +219,14 @@ namespace OpenSage.Logic.Object
             {
                 FactionName = parser.ParseString(),
                 Camp = parser.ParseAssetReference(),
-                MaybeStartMoney = parser.GetFloatOptional()
+                UnpackCost = parser.GetFloatOptional()
             };
             return result;
         }
 
         public string FactionName { get; private set; }
         public string Camp { get; private set; }
-        public float MaybeStartMoney { get; private set; }
+        public float UnpackCost { get; private set; }
     }
 
     public sealed class Side

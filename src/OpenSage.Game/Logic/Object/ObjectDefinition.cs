@@ -446,7 +446,7 @@ namespace OpenSage.Logic.Object
         public bool IsPrerequisite { get; private set; }
         public Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet> WeaponSets { get; internal set; } = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>();
         public Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet> ArmorSets { get; internal set; } = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>();
-        public LazyAssetReference<CommandSet> CommandSet { get; private set; }
+        public LazyAssetReference<CommandSet> CommandSet { get; set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
 

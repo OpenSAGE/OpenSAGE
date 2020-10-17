@@ -14,7 +14,7 @@ namespace OpenSage.Gui.UnitOverlay
         private readonly Game _game;
         private readonly int _width;
 
-        private readonly MappedImage _background;
+        private MappedImage _background;
         private readonly MappedImage _border;
         private readonly MappedImage _hover;
         private readonly MappedImage _down;
@@ -67,12 +67,13 @@ namespace OpenSage.Gui.UnitOverlay
             //_scheme = game.AssetStore.ControlBarSchemes.FindBySide(game.Scene3D.LocalPlayer.Side);
         }
 
-        public void Update(float progress, int count, bool enabled)
+        public void Update(float progress, int count, bool enabled, MappedImage image = null)
         {
             _isPushed = false;
             _progress = progress;
             _count = count;
             _enabled = enabled;
+            _background = image ?? _background;
         }
 
         public void Render(DrawingContext2D drawingContext, Vector2 center)

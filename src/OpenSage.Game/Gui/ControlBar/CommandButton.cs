@@ -60,7 +60,7 @@ namespace OpenSage.Gui.ControlBar
             { "CommandTrigger", (parser, x) => x.CommandTrigger = parser.ParseAssetReference() },
             { "WeaponSlotToggle1", (parser, x) => x.WeaponSlotToggle1 = parser.ParseEnum<WeaponSlot>() },
             { "WeaponSlotToggle2", (parser, x) => x.WeaponSlotToggle2 = parser.ParseEnum<WeaponSlot>() },
-            { "NeededUpgrade", (parser, x) => x.NeededUpgrade = parser.ParseAssetReference() },
+            { "NeededUpgrade", (parser, x) => x.NeededUpgrade = parser.ParseUpgradeReference() },
             { "BuildUpgrades", (parser, x) => x.BuildUpgrades = parser.ParseAssetReference() },
             { "Radial", (parser, x) => x.Radial = parser.ParseBoolean() },
             { "IsClickable", (parser, x) => x.IsClickable = parser.ParseBoolean() },
@@ -152,7 +152,7 @@ namespace OpenSage.Gui.ControlBar
         public WeaponSlot? WeaponSlotToggle2 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string NeededUpgrade { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> NeededUpgrade { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string BuildUpgrades { get; private set; }
