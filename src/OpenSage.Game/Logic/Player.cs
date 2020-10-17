@@ -100,6 +100,14 @@ namespace OpenSage.Logic
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
             Upgrades = new List<UpgradeTemplate>();
+
+            if (template?.InitialUpgrades != null)
+            {
+                foreach (var upgrade in template.InitialUpgrades)
+                {
+                    Upgrades.Add(upgrade.Value);
+                }
+            }
         }
 
         internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)

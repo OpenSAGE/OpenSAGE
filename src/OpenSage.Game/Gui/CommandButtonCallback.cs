@@ -21,11 +21,13 @@ namespace OpenSage.Gui
             switch (commandButton.Command)
             {
                 case CommandType.CastleUnpack:
+                    //TODO: proper castleUnpack order & spend money of the player
                     var castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
                     castleBehavior.Unpack(selectedObject.Owner);
                     game.Scene3D.LocalPlayer.DeselectUnits();
                     break;
 
+                case CommandType.CastleUnpackExplicitObject:
                 case CommandType.FoundationConstruct:
                     //TODO: figure this out correctly
                     if (selection.Count == 0)

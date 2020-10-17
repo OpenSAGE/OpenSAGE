@@ -20,7 +20,7 @@ namespace OpenSage.Mods.Bfme.Gui
         private Point2D _center;
         private CommandSet _commandSet;
         List<RadialButton> _buttons;
-        private GameObject _selectedUnit;
+        private GameObject _selectedObject;
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
@@ -36,28 +36,28 @@ namespace OpenSage.Mods.Bfme.Gui
             _visible = false;
             if (player.SelectedUnits.Count != 1)
             {
-                _selectedUnit = null;
+                _selectedObject = null;
                 return;
             }
 
-            var selectedUnit = player.SelectedUnits.First();
-            if (selectedUnit.Owner != player
-                || selectedUnit.IsBeingConstructed()
-                || !selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure)
-                || selectedUnit.Definition.CommandSet == null)
+            var selectedObject = player.SelectedUnits.First();
+            if (selectedObject.Owner != player
+                || selectedObject.IsBeingConstructed()
+                || !selectedObject.Definition.KindOf.Get(ObjectKinds.Structure)
+                || selectedObject.Definition.CommandSet == null)
             {
-                _selectedUnit = null;
+                _selectedObject = null;
                 return;
             }
 
-            var playerTemplate = selectedUnit.Owner.Template;
+            var playerTemplate = selectedObject.Owner.Template;
             _visible = true;
 
-            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedUnit.Collider.WorldBounds.Center);
+            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedObject.Collider.WorldBounds.Center);
             _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
-            _commandSet = selectedUnit.Definition.CommandSet.Value;
+            _commandSet = selectedObject.Definition.CommandSet.Value;
 
-            if (_selectedUnit != selectedUnit && _commandSet != null)
+            if (_selectedObject != selectedObject && _commandSet != null)
             {
                 //Update button list
                 var heroIndex = 0;
@@ -83,25 +83,25 @@ namespace OpenSage.Mods.Bfme.Gui
                 foreach (var commandButton in commandButtons)
                 {
                     var isHeroButton = commandButton.Object?.Value?.KindOf.Get(ObjectKinds.Hero) ?? false;
-                    var radialButton = new RadialButton(_game, selectedUnit, commandButton, isHeroButton);
+                    var radialButton = new RadialButton(_game, selectedObject, commandButton, isHeroButton);
                     _buttons.Add(radialButton);
                 }
 
-                _selectedUnit = selectedUnit;
+                _selectedObject = selectedObject;
             }
 
-            var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
+            var isProducing = selectedObject.ProductionUpdate?.IsProducing ?? false;
             foreach (var radialButton in _buttons)
             {
                 radialButton.IsVisible = true;
                 if (radialButton.IsRecruitHeroButton)
                 {
                     var definition = radialButton.CommandButton.Object.Value;
-                    radialButton.IsVisible = selectedUnit.CanRecruitHero(definition);
+                    radialButton.IsVisible = selectedObject.CanRecruitHero(definition);
                 }
 
-                var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
-                radialButton.Update(progress, count, selectedUnit.CanEnqueue(radialButton.CommandButton));
+                var (count, progress) = isProducing ? selectedObject.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
+                radialButton.Update(progress, count, selectedObject.CanPurchase(radialButton.CommandButton));
             }
         }
 
