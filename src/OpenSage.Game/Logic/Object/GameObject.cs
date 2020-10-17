@@ -526,7 +526,7 @@ namespace OpenSage.Logic.Object
                 var passed = gameTime.TotalTime - ConstructionStart;
                 BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
 
-                if (MathF.Abs(BuildProgress - 1.0f) < 0.01f)
+                if (BuildProgress >= 1.0f)
                 {
                     FinishConstruction();
                 }
@@ -578,10 +578,10 @@ namespace OpenSage.Logic.Object
 
         internal void StartConstruction(in TimeInterval gameTime)
         {
-            if (Definition.KindOf == null)
-            {
-                return;
-            }
+            //if (Definition.KindOf == null)
+            //{
+            //    return;
+            //}
 
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
