@@ -578,11 +578,6 @@ namespace OpenSage.Logic.Object
 
         internal void StartConstruction(in TimeInterval gameTime)
         {
-            //if (Definition.KindOf == null)
-            //{
-            //    return;
-            //}
-
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
                 ModelConditionFlags.SetAll(false);
