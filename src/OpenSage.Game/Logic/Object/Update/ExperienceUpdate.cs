@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
         private List<ExperienceLevel> FindRelevantExperienceLevels(BehaviorUpdateContext context)
         {
             var experienceLevels = context.GameContext.AssetLoadContext.AssetStore.ExperienceLevels;
-            var levels = experienceLevels.Where(x => x.TargetNames.Contains(_gameObject.Definition.Name)).ToList();
+            var levels = experienceLevels.Where(x => x.TargetNames != null && x.TargetNames.Contains(_gameObject.Definition.Name)).ToList();
             levels.Sort((x, y) => x.Rank.CompareTo(y.Rank));
             return levels.Count > 0 ? levels : null;
         }
