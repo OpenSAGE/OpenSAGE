@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
+using OpenSage.FX;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using System;
@@ -41,6 +43,9 @@ namespace OpenSage.Logic
                 }
             }
 
+            TriggerFX(_modifierList.FX, gameObject);
+            TriggerFX(_modifierList.FX2, gameObject);
+            TriggerFX(_modifierList.FX3, gameObject);
 
             Applied = true;
         }
@@ -53,6 +58,31 @@ namespace OpenSage.Logic
             }
 
             return time.TotalTime > _activeUntil;
+        }
+
+        public void Remove(GameObject gameObject)
+        {
+            foreach (var modifier in _modifierList.Modifiers)
+            {
+                switch (modifier.ModifierType)
+                {
+                    case ModifierType.Production:
+                        gameObject.ProductionModifier /= modifier.Amount;
+                        break;
+                }
+            }
+
+            TriggerFX(_modifierList.EndFX, gameObject);
+            TriggerFX(_modifierList.EndFX2, gameObject);
+            TriggerFX(_modifierList.EndFX3, gameObject);
+        }
+
+        private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject)
+        {
+            fx?.Value?.Execute(new FXListExecutionContext(
+                    gameObject.Rotation,
+                    gameObject.Translation,
+                    gameObject.GameContext));
         }
     }
 
@@ -78,12 +108,12 @@ namespace OpenSage.Logic
             { "Duration", (parser, x) => x.Duration = parser.ParseLong() },
             { "ClearModelCondition", (parser, x) => x.ClearModelCondition = parser.ParseEnum<ModelConditionFlag>() },
             { "ModelCondition", (parser, x) => x.ModelCondition = parser.ParseEnum<ModelConditionFlag>() },
-            { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
-            { "FX2", (parser, x) => x.FX2 = parser.ParseAssetReference() },
-            { "FX3", (parser, x) => x.FX3 = parser.ParseAssetReference() },
-            { "EndFX", (parser, x) => x.EndFX = parser.ParseAssetReference() },
-            { "EndFX2", (parser, x) => x.EndFX2 = parser.ParseAssetReference() },
-            { "EndFX3", (parser, x) => x.EndFX3 = parser.ParseAssetReference() },
+            { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
+            { "FX2", (parser, x) => x.FX2 = parser.ParseFXListReference() },
+            { "FX3", (parser, x) => x.FX3 = parser.ParseFXListReference() },
+            { "EndFX", (parser, x) => x.EndFX = parser.ParseFXListReference() },
+            { "EndFX2", (parser, x) => x.EndFX2 = parser.ParseFXListReference() },
+            { "EndFX3", (parser, x) => x.EndFX3 = parser.ParseFXListReference() },
             { "MultiLevelFX", (parser, x) => x.MultiLevelFX = parser.ParseBoolean() },
             { "Upgrade", (parser, x) => x.Upgrade = ModifierUpgrade.Parse(parser) },
             { "ReplaceInCategoryIfLongest", (parser, x) => x.ReplaceInCategoryIfLongest = parser.ParseBoolean() },
@@ -97,12 +127,12 @@ namespace OpenSage.Logic
         public long Duration { get; private set; }
         public ModelConditionFlag ClearModelCondition { get; private set; }
         public ModelConditionFlag ModelCondition { get; private set; }
-        public string FX { get; private set; }
-        public string FX2 { get; private set; }
-        public string FX3 { get; private set; }
-        public string EndFX { get; private set; }
-        public string EndFX2 { get; private set; }
-        public string EndFX3 { get; private set; }
+        public LazyAssetReference<FXList> FX { get; private set; }
+        public LazyAssetReference<FXList> FX2 { get; private set; }
+        public LazyAssetReference<FXList> FX3 { get; private set; }
+        public LazyAssetReference<FXList> EndFX { get; private set; }
+        public LazyAssetReference<FXList> EndFX2 { get; private set; }
+        public LazyAssetReference<FXList> EndFX3 { get; private set; }
         public bool MultiLevelFX { get; private set; }
         public ModifierUpgrade? Upgrade { get; private set; }
 

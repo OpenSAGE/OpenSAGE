@@ -100,9 +100,7 @@ namespace OpenSage.Logic.Object
 
             if (_nextLevel.LevelUpFX != null)
             {
-                var levelUpFx = context.GameContext.AssetLoadContext.AssetStore.FXLists.GetByName(_nextLevel.LevelUpFX);
-
-                levelUpFx?.Execute(new FXListExecutionContext(
+                _nextLevel.LevelUpFX.Value?.Execute(new FXListExecutionContext(
                     context.GameObject.Rotation,
                     context.GameObject.Translation,
                     context.GameContext));

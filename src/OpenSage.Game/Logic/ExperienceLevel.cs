@@ -1,5 +1,6 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FX;
 using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -27,7 +28,7 @@ namespace OpenSage.Logic
             { "ShowLevelUpTint", (parser, x) => x.ShowLevelUpTint = parser.ParseBoolean() },
             { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseModifierListReferenceArray() },
             { "Rank", (parser, x) => x.Rank = parser.ParseInteger() },
-            { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseAssetReference().Replace("FX:", "") },
+            { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseFXListReference() },
             { "LevelUpTintColor", (parser, x) => x.LevelUpTintColor = parser.ParseColorRgb() },
             { "LevelUpTintPreColorTime", (parser, x) => x.LevelUpTintPreColorTime = parser.ParseInteger() },
             { "LevelUpTintPostColorTime", (parser, x) => x.LevelUpTintPostColorTime = parser.ParseInteger() },
@@ -46,7 +47,7 @@ namespace OpenSage.Logic
         public bool ShowLevelUpTint { get; private set; }
         public LazyAssetReference<ModifierList>[] AttributeModifiers { get; private set; }
         public int Rank { get; private set; }
-        public string LevelUpFX { get; private set; }
+        public LazyAssetReference<FXList> LevelUpFX { get; private set; }
         public ColorRgb LevelUpTintColor { get; private set; }
         public int LevelUpTintPreColorTime { get; private set; }
         public int LevelUpTintPostColorTime { get; private set; }

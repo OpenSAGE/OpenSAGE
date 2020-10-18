@@ -507,7 +507,7 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<FXList> ParseFXListReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReference().Replace("FX:", "");
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.FXLists.GetLazyAssetReferenceByName(name)
                 : null;
@@ -525,6 +525,12 @@ namespace OpenSage.Data.Ini
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.ObjectCreationLists.GetLazyAssetReferenceByName(name)
                 : null;
+        }
+
+        public LazyAssetReference<ModifierList> ParseModifierListReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.ModifierLists.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
