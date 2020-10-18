@@ -399,24 +399,6 @@ namespace OpenSage
             {
                 gameObject.LogicTick(frame, time);
             }
-
-            GameObjects.DeleteDestroyed();
-            GameObjects.InsertCreated();
-            DetectCollisions(time);
-        }
-
-        private void DetectCollisions(in TimeInterval time)
-        {
-            foreach (var current in GameObjects.Items)
-            {
-                var intersecting = Quadtree.FindIntersecting(current.Collider);
-
-                foreach (var intersect in intersecting)
-                {
-                    current.DoCollide(intersect, time);
-                    intersect.DoCollide(current, time);
-                }
-            }
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT)

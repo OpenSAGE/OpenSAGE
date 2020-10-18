@@ -130,11 +130,7 @@ namespace OpenSage.Logic.Object
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
 
-        private void UpdateCollider()
-        {
-            Collider.Update(_transform);
-            _gameContext.Quadtree.Update(this);
-        }
+        private bool _objectMoved = false;
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
@@ -147,25 +143,25 @@ namespace OpenSage.Logic.Object
         public void SetTransformMatrix(Matrix4x4 matrix)
         {
             _transform.Matrix = matrix;
-            UpdateCollider();
+            _objectMoved = true;
         }
 
         public void SetTranslation(Vector3 translation)
         {
             _transform.Translation = translation;
-            UpdateCollider();
+            _objectMoved = true;
         }
 
         public void SetRotation(Quaternion rotation)
         {
             _transform.Rotation = rotation;
-            UpdateCollider();
+            _objectMoved = true;
         }
 
         public void SetScale(float scale)
         {
             _transform.Scale = scale;
-            UpdateCollider();
+            _objectMoved = true;
         }
 
         public void UpdateTransform(in Vector3? translation = null, in Quaternion? rotation = null, float scale = 1.0f)
@@ -173,7 +169,7 @@ namespace OpenSage.Logic.Object
             _transform.Translation = translation ?? _transform.Translation;
             _transform.Rotation = rotation ?? _transform.Rotation;
             _transform.Scale = scale;
-            UpdateCollider();
+            _objectMoved = true;
         }
 
         public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
@@ -404,6 +400,10 @@ namespace OpenSage.Logic.Object
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
         {
+            if (_attributeModifiers.ContainsKey(name))
+            {
+                return;
+            }
             _attributeModifiers.Add(name, modifier);
         }
 
@@ -473,6 +473,22 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            if (_objectMoved)
+            {
+                Collider.Update(_transform);
+                _gameContext.Quadtree.Update(this);
+
+                var intersecting = _gameContext.Quadtree.FindIntersecting(Collider);
+
+                foreach (var intersect in intersecting)
+                {
+                    DoCollide(intersect, time);
+                    intersect.DoCollide(this, time);
+                }
+
+                _objectMoved = false;
+            }
+
             // TODO: Should there be a BeforeLogicTick where we update this?
             _behaviorUpdateContext.UpdateTime(time);
 
@@ -496,6 +512,7 @@ namespace OpenSage.Logic.Object
                 }
                 else if (modifier.Invalid || modifier.Expired(time))
                 {
+                    modifier.Remove(this);
                     _attributeModifiers.Remove(key);
                 }
             }
@@ -872,7 +889,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        public bool HasEnoughMoney(float cost) => Owner.Money >= cost; 
+        public bool HasEnoughMoney(float cost) => true; // Owner.Money >= cost; 
 
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {

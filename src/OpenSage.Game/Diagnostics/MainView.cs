@@ -140,8 +140,8 @@ namespace OpenSage.Diagnostics
                                 var playableSides = _context.Game.GetPlayableSides().ToList();
                                 //var faction1 = playableSides[random.Next(0, playableSides.Count())];
                                 //var faction2 = playableSides[random.Next(0, playableSides.Count())];
-                                var faction1 = playableSides[1];
-                                var faction2 = playableSides[1];
+                                var faction1 = playableSides[0];
+                                var faction2 = playableSides[0];
 
                                 if (mapCache.Key.IsMultiplayer)
                                 {
