@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     {
         internal static StanceTemplate Parse(IniParser parser)
         {
-            AttributeModifier.AttributeModifiers.Clear();
+            StanceAttributeModifier.AttributeModifiers.Clear();
             return parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("StanceTemplate", name),
                 FieldParseTable);
@@ -33,22 +33,22 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<Stance> FieldParseTable = new IniParseTable<Stance>
         {
-            { "AttributeModifier", (parser, x) => x.AttributeModifier = AttributeModifier.Parse(parser) },
+            { "AttributeModifier", (parser, x) => x.AttributeModifier = StanceAttributeModifier.Parse(parser) },
             { "MeleeBehavior", (parser, x) => x.MeleeBehavior = MeleeBehavior.Parse(parser) },
         };
 
         public string Name { get; private set; }
-        public AttributeModifier AttributeModifier { get; private set; }
+        public StanceAttributeModifier AttributeModifier { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public MeleeBehavior MeleeBehavior { get; private set; }
     }
 
-    public sealed class AttributeModifier
+    public sealed class StanceAttributeModifier
     {
-        internal static Dictionary<string, AttributeModifier> AttributeModifiers { get; } = new Dictionary<string, AttributeModifier>();
+        internal static Dictionary<string, StanceAttributeModifier> AttributeModifiers { get; } = new Dictionary<string, StanceAttributeModifier>();
 
-        internal static AttributeModifier Parse(IniParser parser)
+        internal static StanceAttributeModifier Parse(IniParser parser)
         {
             var name = parser.ParseString();
             if (IsOnlyAReference(name))
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
             return AttributeModifiers.ContainsKey(name);
         }
 
-        private static readonly IniParseTable<AttributeModifier> FieldParseTable = new IniParseTable<AttributeModifier>
+        private static readonly IniParseTable<StanceAttributeModifier> FieldParseTable = new IniParseTable<StanceAttributeModifier>
         {
             { "MeleeBehavior", (parser, x) => x.MeleeBehavior = parser.ParseString() },
         };

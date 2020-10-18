@@ -1,16 +1,69 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using System;
 using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
+    [AddedIn(SageGame.Bfme)]
+    public class AttributeModifier
+    {
+        private readonly ModifierList _modifierList;
+        private TimeSpan _activeUntil;
+        private readonly bool _selfExpiring;
+
+        public bool Applied { get; private set; }
+        public bool Invalid { get; set; }
+
+        public AttributeModifier(ModifierList modifierList)
+        {
+            _modifierList = modifierList;
+            _selfExpiring = _modifierList.Duration > 0;
+            Invalid = false;
+            Applied = false;
+        }
+
+        public void Apply(GameObject gameObject, in TimeInterval time)
+        {
+            if (_selfExpiring)
+            {
+                _activeUntil = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Duration);
+            }
+
+            foreach (var modifier in _modifierList.Modifiers)
+            {
+                switch (modifier.ModifierType)
+                {
+                    case ModifierType.Production:
+                        gameObject.ProductionModifier *= modifier.Amount;
+                        break;
+                }
+            }
+
+
+            Applied = true;
+        }
+
+        public bool Expired(in TimeInterval time)
+        {
+            if (!_selfExpiring)
+            {
+                return false;
+            }
+
+            return time.TotalTime > _activeUntil;
+        }
+    }
+
     /// <summary>
     /// A set of bonuses that can given together as a package.
     /// </summary>
     [AddedIn(SageGame.Bfme)]
     public sealed class ModifierList : BaseAsset
     {
+        // A ModifierList is a set of bonuses that can be given as a package.  You can't ever be given the same list
+        // twice at the same time, but you can have two different lists that have the same effect.
         internal static ModifierList Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
@@ -37,6 +90,8 @@ namespace OpenSage.Logic
             { "IgnoreIfAnticategoryActive", (parser, x) => x.IgnoreIfAnticategoryActive = parser.ParseBoolean() }
         };
 
+        // Category = LEADERSHIP, SPELL, FORMATION, WEAPON, STRUCTURE, LEVEL
+        // The reason you have this bonus.So things can affect all Leadership bonuses or dispel all spell effects
         public ModifierCategory Category { get; private set; }
         public List<Modifier> Modifiers { get; } = new List<Modifier>();
         public long Duration { get; private set; }
@@ -148,48 +203,66 @@ namespace OpenSage.Logic
     public enum ModifierType
     {
         [IniEnum("ARMOR")]
+        // Additive.  The armor coefficients in Armor.ini go first to multiply the damage.  Then all of these are added together, capped at
+        // GameData's AttributeModifierArmorMaxBonus protection, and then the damage is multiplied by it again.
         Armor,
 
         [IniEnum("DAMAGE_ADD")]
+        // Additive.  'Base' damage gets increased by this before hitting the DamageMult.
         DamageAdd,
 
         [IniEnum("DAMAGE_MULT")]
+        // Multiplicitive.  Then after DamageAdd, the damage is multiplied by all of these.
         DamageMult,
 
         [IniEnum("SPELL_DAMAGE")]
+        // Multiplicitive.  Just like DamageMult bonus, but only applies if damage type is Magic.  REPLACES DamageMult bonus.
         SpellDamage,
 
         [IniEnum("RESIST_FEAR")]
+        // Additive.  Sum of these is a saving throw against fear
         ResistFear,
 
         [IniEnum("EXPERIENCE")]
+        // Multiplicitive.  Experience gained multiplied by this, will compound in multiple bonuses
         Experience,
 
         [IniEnum("RANGE")]
+        // Additive.  Sum of these added to max range.  20% and 10% makes range 130% normal.  (You probably want a vision range boost for targeting too.)
         Range,
 
         [IniEnum("SPEED")]
+        // Multiplicitive.  Multiply your speed by each of these numbers in turn.
         Speed,
 
         [IniEnum("CRUSH_DECELERATE")]
+        // Multiplicitive.  The percentage you slow down when crushing gets multiplied by each of these.
         CrushDecelerate,
 
         [IniEnum("RESIST_KNOCKBACK")]
+        // Additive.  Sum of these is saving through against knockback.
         ResistKnockback,
 
         [IniEnum("RECHARGE_TIME")]
+        // Multiplicitive.  Recharge time for all special powers multiplied by these.
+        // Time is figured at the moment power is used, so this has no effect if gained or lost while power is recharging.
         RechargeTime,
 
         [IniEnum("PRODUCTION")]
+        // Multiplicitive.  Production speed for units and money amount produced by supply centers or money generators multiplied by these.
+        // Again, time is computed at moment production starts.
         Production,
 
         [IniEnum("HEALTH")]
+        // Additive.  The moment you get this upgrade, this many hitpoints are added to both your max and current hitpoint scores.
         Health,
 
         [IniEnum("VISION")]
+        // Additive.  Sum of these is added to vision range, which is used for targeting.
         Vision,
 
         [IniEnum("AUTO_HEAL")]
+        // Additive. Sum of these is added to the AutoHeal value.
         AutoHeal,
 
         [IniEnum("BOUNTY_PERCENTAGE")]
