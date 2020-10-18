@@ -384,9 +384,12 @@ namespace OpenSage.Data.Ini
             return result.ToArray();
         }
 
-        private float ScanPercentage(in IniToken token) => ScanFloat(token);
+        private float ScanPercentage(in IniToken token)
+        {
+            return token.Text.Contains('.') ? ScanFloat(token) : ScanFloat(token) / 100.0f;
+        }
 
-        public Percentage ParsePercentage() => new Percentage(ScanPercentage(GetNextToken(SeparatorsPercent)) / 100.0f);
+        public Percentage ParsePercentage() => new Percentage(ScanPercentage(GetNextToken(SeparatorsPercent)));
 
         private bool ScanBoolean(in IniToken token)
         {
@@ -533,6 +536,18 @@ namespace OpenSage.Data.Ini
                 var name = token.Value.Text;
                 if (!name.Contains('.')) name = ((ModelConditionState)Temp).Skeleton + "." + name;
                 result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(name));
+            }
+
+            return result.ToArray();
+        }
+
+        public LazyAssetReference<ModifierList>[] ParseModifierListReferenceArray()
+        {
+            var result = new List<LazyAssetReference<ModifierList>>();
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                result.Add(_assetStore.ModifierLists.GetLazyAssetReferenceByName(token.Value.Text));
             }
 
             return result.ToArray();

@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
 
         private List<ExperienceLevel> _experienceLevels;
         private bool _initial;
+        private ExperienceLevel _currentLevel;
         private ExperienceLevel _nextLevel;
         private BannerCarrierUpdate _bannerCarrierUpdate;
 
@@ -59,11 +60,41 @@ namespace OpenSage.Logic.Object
             _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
             _gameObject.Rank = _nextLevel.Rank;
 
+            //remove stuff from current level
+            if (_currentLevel != null)
+            {
+                if (_currentLevel.Upgrades != null)
+                {
+                    foreach (var upgrade in _currentLevel.Upgrades)
+                    {
+                        _gameObject.Upgrades.Remove(upgrade.Value);
+                    }
+                }
+
+                if (_currentLevel.AttributeModifiers != null)
+                {
+                    foreach (var modifierList in _currentLevel.AttributeModifiers)
+                    {
+                        _gameObject.RemoveAttributeModifier(modifierList.Value.Name);
+                    }
+                }
+            }
+
+
             if (_nextLevel.Upgrades != null)
             {
-                foreach (var upgradeReference in _nextLevel.Upgrades)
+                foreach (var upgrade in _nextLevel.Upgrades)
                 {
-                    _gameObject.Upgrades.Add(context.GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(upgradeReference));
+                    _gameObject.Upgrades.Add(upgrade.Value);
+                }
+            }
+
+            if (_nextLevel.AttributeModifiers != null)
+            {
+                foreach (var modifierList in _nextLevel.AttributeModifiers)
+                {
+                    var attributeModifier = new AttributeModifier(modifierList.Value);
+                    _gameObject.AddAttributeModifier(modifierList.Value.Name, attributeModifier);
                 }
             }
 
@@ -89,12 +120,12 @@ namespace OpenSage.Logic.Object
 
             // TODO:
             // ExperienceAwardOwnGuysDie -> what is this?
-            // AttributeModifiers
             // EmotionType
 
             _experienceLevels.RemoveAt(0);
             if (_experienceLevels.Count > 0)
             {
+                _currentLevel = _nextLevel;
                 _nextLevel = _experienceLevels.First();
                 _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
             }

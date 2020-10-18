@@ -26,10 +26,11 @@ namespace OpenSage.Logic.Object
             }
 
             _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
-            _gameObject.Owner.ReceiveMoney((uint) _moduleData.DepositAmount);
+            var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
+            _gameObject.Owner.ReceiveMoney(amount);
             if (!_moduleData.GiveNoXP)
             {
-                _gameObject.GainExperience(_moduleData.DepositAmount);
+                _gameObject.GainExperience((int)amount);
             }
         }
     }

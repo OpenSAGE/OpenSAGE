@@ -411,7 +411,7 @@ namespace OpenSage.Logic.Object
 
         internal void QueueProduction(ObjectDefinition objectDefinition)
         {
-            var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime);
+            var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime / _gameObject.ProductionModifier);
             _productionQueue.Add(job);
         }
 
@@ -423,7 +423,7 @@ namespace OpenSage.Logic.Object
 
         internal void SpawnPayload(ObjectDefinition objectDefinition, float buildTime = 0.0f)
         {
-            var job = new ProductionJob(objectDefinition, buildTime);
+            var job = new ProductionJob(objectDefinition, buildTime / _gameObject.ProductionModifier);
             _productionQueue.Insert(1, job);
         }
 
@@ -446,10 +446,16 @@ namespace OpenSage.Logic.Object
             var index = -1;
             for (var i = 0; i < _productionQueue.Count; i++)
             {
-                if (_productionQueue[i].UpgradeDefinition == upgradeDefinition) index = i;
+                if (_productionQueue[i].UpgradeDefinition == upgradeDefinition)
+                {
+                    index = i;
+                }
             }
 
-            if (index < 0 || index > _productionQueue.Count) return;
+            if (index < 0 || index > _productionQueue.Count)
+            {
+                return;
+            }
 
             _productionQueue.RemoveAt(index);
         }

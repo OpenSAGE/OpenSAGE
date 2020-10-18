@@ -110,6 +110,10 @@ namespace OpenSage.Logic.Object
         }
 
         private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
+        private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
+
+        public Percentage ProductionModifier { get; set; } = new Percentage(1);
+
 
         private readonly GameContext _gameContext;
 
@@ -289,6 +293,7 @@ namespace OpenSage.Logic.Object
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
             _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
+            _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
             Owner = owner;
             Parent = parent;
@@ -397,6 +402,16 @@ namespace OpenSage.Logic.Object
             Rank = 0;
         }
 
+        public void AddAttributeModifier(string name, AttributeModifier modifier)
+        {
+            _attributeModifiers.Add(name, modifier);
+        }
+
+        public void RemoveAttributeModifier(string name)
+        {
+            _attributeModifiers[name].Invalid = true;
+        }
+
         // TODO: This probably shouldn't be here.
         public Matrix4x4? GetWeaponFireFXBoneTransform(WeaponSlot slot, int index)
         {
@@ -471,6 +486,18 @@ namespace OpenSage.Logic.Object
             foreach (var behavior in _behaviorModules)
             {
                 behavior.Update(_behaviorUpdateContext);
+            }
+
+            foreach (var (key, modifier) in _attributeModifiers)
+            {
+                if (!modifier.Applied)
+                {
+                    modifier.Apply(this, time);
+                }
+                else if (modifier.Invalid || modifier.Expired(time))
+                {
+                    _attributeModifiers.Remove(key);
+                }
             }
         }
 

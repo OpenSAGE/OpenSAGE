@@ -1,5 +1,7 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Gui.InGame;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
@@ -21,9 +23,9 @@ namespace OpenSage.Logic
             { "ExperienceAward", (parser, x) => x.ExperienceAward = parser.ParseInteger() },
             { "ExperienceAwardOwnGuysDie", (parser, x) => x.ExperienceAwardOwnGuysDie = parser.ParseInteger() },
             { "InformUpdateModule", (parser, x) => x.InformUpdateModule = parser.ParseBoolean() },
-            { "Upgrades", (parser, x) => x.Upgrades = parser.ParseAssetReferenceArray() },
+            { "Upgrades", (parser, x) => x.Upgrades = parser.ParseUpgradeReferenceArray() },
             { "ShowLevelUpTint", (parser, x) => x.ShowLevelUpTint = parser.ParseBoolean() },
-            { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseAssetReferenceArray() },
+            { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseModifierListReferenceArray() },
             { "Rank", (parser, x) => x.Rank = parser.ParseInteger() },
             { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseAssetReference().Replace("FX:", "") },
             { "LevelUpTintColor", (parser, x) => x.LevelUpTintColor = parser.ParseColorRgb() },
@@ -40,9 +42,9 @@ namespace OpenSage.Logic
         public int ExperienceAwardOwnGuysDie { get; private set; }
         // Inform BannerCarrierUpdate about level increase
         public bool InformUpdateModule { get; private set; }
-        public string[] Upgrades { get; private set; }
+        public LazyAssetReference<UpgradeTemplate>[] Upgrades { get; private set; }
         public bool ShowLevelUpTint { get; private set; }
-        public string[] AttributeModifiers { get; private set; }
+        public LazyAssetReference<ModifierList>[] AttributeModifiers { get; private set; }
         public int Rank { get; private set; }
         public string LevelUpFX { get; private set; }
         public ColorRgb LevelUpTintColor { get; private set; }

@@ -190,6 +190,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
+                            _contentManager.LoadIniFile(@"Data\INI\Attributemodifier.ini");
                             _contentManager.LoadIniFile(@"Data\INI\Experiencelevels.ini");
                             break;
                     }
