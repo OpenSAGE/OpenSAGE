@@ -67,6 +67,8 @@ namespace OpenSage.DataStructures
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
+        public IEnumerable<T> FindIntersecting(T searcher) => FindIntersectingInternal(searcher.Collider, searcher);
+
         public IEnumerable<T> FindIntersecting(in Collider collider, T searcher = null)
         {
             return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, searcher);

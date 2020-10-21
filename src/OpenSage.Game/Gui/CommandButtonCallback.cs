@@ -51,6 +51,7 @@ namespace OpenSage.Gui
                     order = CreateOrder(OrderType.ToggleOvercharge);
                     break;
 
+                case CommandType.CancelUnitBuild:
                 case CommandType.Sell:
                     order = CreateOrder(OrderType.Sell);
                     break;

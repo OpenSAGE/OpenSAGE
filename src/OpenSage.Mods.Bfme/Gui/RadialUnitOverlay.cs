@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.UnitOverlay;
@@ -19,6 +20,7 @@ namespace OpenSage.Mods.Bfme.Gui
         private bool _visible;
         private Point2D _center;
         private CommandSet _commandSet;
+        private CommandSet _gettingBuildCommandSet;
         List<RadialButton> _buttons;
         private GameObject _selectedObject;
 
@@ -29,6 +31,14 @@ namespace OpenSage.Mods.Bfme.Gui
             _game = game;
             _game.InputMessageBuffer.Handlers.Add(this);
             _buttons = new List<RadialButton>();
+
+            // there is a note in commandbuttons.ini that this is also hardcoded in original SAGE engine
+            _gettingBuildCommandSet = new CommandSet();
+            var commandButton = game.AssetStore.CommandButtons.GetLazyAssetReferenceByName("Command_CancelUnitCreate");
+            commandButton.Value.ButtonImage = game.AssetStore.MappedImages.GetLazyAssetReferenceByName("BCSell");
+            commandButton.Value.Radial = true;
+            commandButton.Value.InPalantir = true;
+            _gettingBuildCommandSet.Buttons[0] = commandButton;
         }
 
         public void Update(Player player)
@@ -42,7 +52,6 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var selectedObject = player.SelectedUnits.First();
             if (selectedObject.Owner != player
-                || selectedObject.IsBeingConstructed()
                 || !selectedObject.Definition.KindOf.Get(ObjectKinds.Structure)
                 || selectedObject.Definition.CommandSet == null)
             {
@@ -55,7 +64,8 @@ namespace OpenSage.Mods.Bfme.Gui
 
             var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedObject.Collider.WorldBounds.Center);
             _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
-            _commandSet = selectedObject.Definition.CommandSet.Value;
+
+            _commandSet = selectedObject.IsBeingConstructed() ? _gettingBuildCommandSet : selectedObject.Definition.CommandSet.Value;
 
             if (_selectedObject != selectedObject && _commandSet != null)
             {
