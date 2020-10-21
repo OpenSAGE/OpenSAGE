@@ -146,7 +146,7 @@ namespace OpenSage.Logic.Orders
                     order.AddObjectIdArgument(objId);
                 }
             }
-            else
+            else if (objectIds.Count > 0)
             {
                 order.AddObjectIdArgument(objectIds.ElementAt(0));
                 order.AddPositionArgument(targetPosition);

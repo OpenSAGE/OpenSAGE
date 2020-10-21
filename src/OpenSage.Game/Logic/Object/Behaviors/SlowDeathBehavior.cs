@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal bool IsApplicable(DeathType deathType) => _moduleData.DeathTypes?.Get(deathType) ?? false;
+        internal bool IsApplicable(DeathType deathType) => _moduleData.DeathTypes?.Get(deathType) ?? true;
 
         internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
         {

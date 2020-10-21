@@ -241,7 +241,7 @@ namespace OpenSage.Logic.Object
 
         public Team Team { get; set; }
 
-        public bool IsSelectable { get; private set; }
+        public bool IsSelectable { get; set; }
         public bool IsProjectile { get; private set; } = false;
         public bool CanAttack { get; private set; }
 
@@ -258,6 +258,8 @@ namespace OpenSage.Logic.Object
         public float BuildProgress { get; set; }
 
         public bool Destroyed { get; set; }
+
+        public bool Hidden { get; set; }
 
         public bool IsDamaged
         {
@@ -516,6 +518,11 @@ namespace OpenSage.Logic.Object
             {
                 CurrentWeapon?.LogicTick(time);
             }
+            if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
+            {
+                Die(DeathType.Normal, time);
+                ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
+            }
 
             AIUpdate?.Update(_behaviorUpdateContext);
 
@@ -738,7 +745,7 @@ namespace OpenSage.Logic.Object
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
-            if (Destroyed || ModelConditionFlags.Get(ModelConditionFlag.Sold))
+            if (Destroyed || ModelConditionFlags.Get(ModelConditionFlag.Sold) || Hidden)
             {
                 return;
             }

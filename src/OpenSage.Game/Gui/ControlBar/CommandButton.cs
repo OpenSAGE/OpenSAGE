@@ -93,7 +93,7 @@ namespace OpenSage.Gui.ControlBar
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string ConflictingLabel { get; private set; }
 
-        public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
+        public LazyAssetReference<MappedImage> ButtonImage { get; set; }
         public CommandButtonBorderType ButtonBorderType { get; private set; }
         public string DescriptLabel { get; private set; }
         public string RadiusCursorType { get; private set; }
@@ -110,7 +110,7 @@ namespace OpenSage.Gui.ControlBar
         public LazyAssetReference<ObjectDefinition> Object { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public bool InPalantir { get; private set; }
+        public bool InPalantir { get; set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool DoubleClick { get; private set; }
@@ -158,7 +158,7 @@ namespace OpenSage.Gui.ControlBar
         public string BuildUpgrades { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public bool Radial { get; private set; }
+        public bool Radial { get; set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool IsClickable { get; private set; }
