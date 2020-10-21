@@ -14,7 +14,7 @@ namespace OpenSage.Gui.UnitOverlay
         private readonly Game _game;
         private readonly int _width;
 
-        private MappedImage _background;
+        private readonly MappedImage _background;
         private readonly MappedImage _border;
         private readonly MappedImage _hover;
         private readonly MappedImage _down;

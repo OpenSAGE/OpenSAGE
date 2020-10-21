@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using FFmpeg.AutoGen;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;

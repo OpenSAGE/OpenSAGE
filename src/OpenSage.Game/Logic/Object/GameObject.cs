@@ -929,7 +929,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        public bool HasEnoughMoney(float cost) => true; // Owner.Money >= cost; 
+        public bool HasEnoughMoney(float cost) => Owner.Money >= cost; 
 
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {

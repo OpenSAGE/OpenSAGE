@@ -109,7 +109,7 @@ namespace OpenSage.Logic
                         break;
                     case ModifierType.Health:
                         gameObject.HealthModifier -= (Fix64) (int) (modifier.Amount * 100);
-                        // TODO: also reduce healt again by this amount?
+                        // TODO: also reduce health again by this amount?
                         break;
                 }
             }
