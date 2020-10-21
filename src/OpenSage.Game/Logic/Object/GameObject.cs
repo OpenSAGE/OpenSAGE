@@ -42,13 +42,13 @@ namespace OpenSage.Logic.Object
                 return null;
             }
 
-            if (gameObject.Body != null)
+            if (gameObject._body != null)
             {
                 var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
                     ? (uint) health.Value / 100.0f
                     : 1.0f;
 
-                gameObject.Body.SetInitialHealth(healthMultiplier);
+                gameObject._body.SetInitialHealth(healthMultiplier);
             }
 
             if (mapObject.Properties.TryGetValue("objectName", out var objectName))
@@ -113,6 +113,7 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
         public Percentage ProductionModifier { get; set; } = new Percentage(1);
+        public Fix64 HealthModifier { get; set; }
 
 
         private readonly GameContext _gameContext;
@@ -184,7 +185,26 @@ namespace OpenSage.Logic.Object
         public IReadOnlyList<BehaviorModule> BehaviorModules => _behaviorModules;
         private readonly List<BehaviorModule> _behaviorModules;
 
-        public readonly BodyModule Body;
+        private readonly BodyModule _body;
+        public bool HasActiveBody() => _body is ActiveBody;
+
+        public Fix64 Health
+        {
+            get => _body?.Health ?? Fix64.Zero;
+            set => _body.Health = value;
+        }
+
+        public Fix64 MaxHealth
+        {
+            get => _body?.MaxHealth + HealthModifier ?? Fix64.Zero;
+            set => _body.MaxHealth = value;
+        }
+        public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
+
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
+        {
+            _body.DoDamage(damageType, amount, deathType, time);
+        }
 
         public Collider Collider { get; }
 
@@ -243,7 +263,7 @@ namespace OpenSage.Logic.Object
         {
             get
             {
-                var healthPercentage = (float) Body.HealthPercentage;
+                var healthPercentage = (float) _body.HealthPercentage;
                 var damagedThreshold = _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
                 return healthPercentage <= damagedThreshold;
             }
@@ -265,8 +285,8 @@ namespace OpenSage.Logic.Object
         public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
-        public List<UpgradeTemplate> Upgrades { get; }
-        public List<UpgradeTemplate> ConflictingUpgrades { get; }
+        private List<UpgradeTemplate> _upgrades { get; set; }
+        private List<UpgradeTemplate> _conflictingUpgrades { get; }
 
         public int Rank { get; set; }
         public int ExperienceValue { get; set; }
@@ -353,8 +373,8 @@ namespace OpenSage.Logic.Object
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            Body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
-            _tagToModuleLookup.Add(objectDefinition.Body.Tag, Body);
+            _body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
+            _tagToModuleLookup.Add(objectDefinition.Body.Tag, _body);
 
             if (objectDefinition.AIUpdate != null)
             {
@@ -390,8 +410,8 @@ namespace OpenSage.Logic.Object
             }
 
             HiddenSubObjects = new List<string>();
-            Upgrades = new List<UpgradeTemplate>();
-            ConflictingUpgrades = new List<UpgradeTemplate>();
+            _upgrades = new List<UpgradeTemplate>();
+            _conflictingUpgrades = new List<UpgradeTemplate>();
 
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
@@ -515,6 +535,10 @@ namespace OpenSage.Logic.Object
                     modifier.Remove(this);
                     _attributeModifiers.Remove(key);
                 }
+                else
+                {
+                    modifier.Update(this, time);
+                }
             }
         }
 
@@ -608,16 +632,20 @@ namespace OpenSage.Logic.Object
                 return true;
             }
 
-            return upgrade.Type == UpgradeType.Player ? Owner.Upgrades.Contains(upgrade) : Upgrades.Contains(upgrade);
+            return upgrade.Type == UpgradeType.Player ? Owner.Upgrades.Contains(upgrade) : _upgrades.Contains(upgrade);
         }
 
         public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
         {
-            if (upgrade == null || upgrade.Type == UpgradeType.Player)
+            if (upgrade == null)
             {
-                return false; // TODO: player invalid upgrades?
+                return false;
             }
-            return ConflictingUpgrades.Contains(upgrade);
+            if (upgrade.Type == UpgradeType.Player)
+            {
+                return Owner.ConflictingUpgrades.Contains(upgrade);
+            }
+            return _conflictingUpgrades.Contains(upgrade);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -919,9 +947,8 @@ namespace OpenSage.Logic.Object
         {
             switch (upgrade.Type)
             {
-                // TODO: do something
                 case UpgradeType.Object:
-                    Upgrades.Add(upgrade);
+                    _upgrades.Add(upgrade);
                     break;
                 case UpgradeType.Player:
                     Owner.Upgrades.Add(upgrade);
@@ -931,9 +958,57 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public void AddConflictingUpgrade(UpgradeTemplate upgrade)
+        {
+            if (upgrade.Type == UpgradeType.Object)
+            {
+                _conflictingUpgrades.Add(upgrade);
+            }
+            else if (upgrade.Type == UpgradeType.Player)
+            {
+                Owner.ConflictingUpgrades.Add(upgrade);
+            }
+            else
+            {
+                throw new InvalidOperationException("This should not happen");
+            }
+        }
+
+        public void RemoveUpgrade(UpgradeTemplate upgrade)
+        {
+            if (upgrade.Type == UpgradeType.Object)
+            {
+                _upgrades.Remove(upgrade);
+            }
+            else if (upgrade.Type == UpgradeType.Player)
+            {
+                Owner.Upgrades.Remove(upgrade);
+            }
+            else
+            {
+                throw new InvalidOperationException("This should not happen");
+            }
+        }
+
+        public void RemoveConflictingUpgrade(UpgradeTemplate upgrade)
+        {
+            if (upgrade.Type == UpgradeType.Object)
+            {
+                _conflictingUpgrades.Remove(upgrade);
+            }
+            else if (upgrade.Type == UpgradeType.Player)
+            {
+                Owner.ConflictingUpgrades.Remove(upgrade);
+            }
+            else
+            {
+                throw new InvalidOperationException("This should not happen");
+            }
+        }
+
         internal void Kill(DeathType deathType, TimeInterval time)
         {
-            Body.DoDamage(DamageType.Unresistable, Body.Health, deathType, time);
+            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType, time);
         }
 
         internal void Die(DeathType deathType, TimeInterval time)
@@ -1051,9 +1126,9 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            if (ImGui.CollapsingHeader(Body.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+            if (ImGui.CollapsingHeader(_body.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
             {
-                Body.DrawInspector();
+                _body.DrawInspector();
             }
 
             if (CurrentWeapon != null)

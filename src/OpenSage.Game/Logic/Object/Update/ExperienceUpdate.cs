@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
                 {
                     foreach (var upgrade in _currentLevel.Upgrades)
                     {
-                        _gameObject.Upgrades.Remove(upgrade.Value);
+                        _gameObject.RemoveUpgrade(upgrade.Value);
                     }
                 }
 
@@ -85,7 +85,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var upgrade in _nextLevel.Upgrades)
                 {
-                    _gameObject.Upgrades.Add(upgrade.Value);
+                    _gameObject.Upgrade(upgrade.Value);
                 }
             }
 

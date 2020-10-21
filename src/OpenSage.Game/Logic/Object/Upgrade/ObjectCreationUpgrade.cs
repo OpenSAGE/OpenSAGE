@@ -40,8 +40,7 @@ namespace OpenSage.Logic.Object
                     {
                         continue;
                     }
-
-                    _gameObject.ConflictingUpgrades.Add(upgrade.Value);
+                    _gameObject.AddConflictingUpgrade(upgrade.Value);
                 }
             }
         }

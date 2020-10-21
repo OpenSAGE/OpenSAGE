@@ -3,6 +3,7 @@ using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Mathematics.FixedMath;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,8 @@ namespace OpenSage.Logic
         private TimeSpan _activeUntil;
         private readonly bool _selfExpiring;
 
+        private List<(UpgradeTemplate, TimeSpan)> _delayedUpgrades;
+
         public bool Applied { get; private set; }
         public bool Invalid { get; set; }
 
@@ -24,6 +27,7 @@ namespace OpenSage.Logic
             _selfExpiring = _modifierList.Duration > 0;
             Invalid = false;
             Applied = false;
+            _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
         }
 
         public void Apply(GameObject gameObject, in TimeInterval time)
@@ -40,6 +44,27 @@ namespace OpenSage.Logic
                     case ModifierType.Production:
                         gameObject.ProductionModifier *= modifier.Amount;
                         break;
+                    case ModifierType.Health:
+                        var amount = (Fix64) (int) (modifier.Amount * 100);
+                        gameObject.HealthModifier += amount;
+                        gameObject.Health += amount;
+                        break;
+                }
+            }
+
+            if (_modifierList.Upgrade != null)
+            {
+                foreach (var upgrade in _modifierList.Upgrade.Upgrades)
+                {
+                    if (_modifierList.Upgrade.Delay == 0)
+                    {
+                        gameObject.Upgrade(upgrade.Value);
+                    }
+                    else
+                    {
+                        var activatesAt = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Upgrade.Delay);
+                        _delayedUpgrades.Add((upgrade.Value, activatesAt));
+                    }
                 }
             }
 
@@ -60,6 +85,19 @@ namespace OpenSage.Logic
             return time.TotalTime > _activeUntil;
         }
 
+        public void Update(GameObject gameObject, in TimeInterval time)
+        {
+            for (var i = 0; i < _delayedUpgrades.Count; i++)
+            {
+                var (upgrade, activatesAt) = _delayedUpgrades[i];
+                if (time.TotalTime > activatesAt)
+                {
+                    gameObject.Upgrade(upgrade);
+                    _delayedUpgrades.RemoveAt(i);
+                }
+            }
+        }
+
         public void Remove(GameObject gameObject)
         {
             foreach (var modifier in _modifierList.Modifiers)
@@ -69,6 +107,18 @@ namespace OpenSage.Logic
                     case ModifierType.Production:
                         gameObject.ProductionModifier /= modifier.Amount;
                         break;
+                    case ModifierType.Health:
+                        gameObject.HealthModifier -= (Fix64) (int) (modifier.Amount * 100);
+                        // TODO: also reduce healt again by this amount?
+                        break;
+                }
+            }
+
+            if (_modifierList.Upgrade != null)
+            {
+                foreach (var upgrade in _modifierList.Upgrade.Upgrades)
+                {
+                    gameObject.RemoveUpgrade(upgrade.Value);
                 }
             }
 
@@ -134,7 +184,7 @@ namespace OpenSage.Logic
         public LazyAssetReference<FXList> EndFX2 { get; private set; }
         public LazyAssetReference<FXList> EndFX3 { get; private set; }
         public bool MultiLevelFX { get; private set; }
-        public ModifierUpgrade? Upgrade { get; private set; }
+        public ModifierUpgrade Upgrade { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool ReplaceInCategoryIfLongest { get; private set; }
@@ -160,15 +210,15 @@ namespace OpenSage.Logic
     }
 
     [AddedIn(SageGame.Bfme)]
-    public struct ModifierUpgrade
+    public class ModifierUpgrade
     {
         internal static ModifierUpgrade Parse(IniParser parser)
         {
-            var upgrades = new List<string>();
+            var upgrades = new List<LazyAssetReference<UpgradeTemplate>>();
             var token = parser.PeekNextTokenOptional();
             while (token.HasValue && !token.Value.Text.Contains(":"))
             {
-                upgrades.Add(parser.ParseAssetReference());
+                upgrades.Add(parser.ParseUpgradeReference());
                 token = parser.PeekNextTokenOptional();
             }
 
@@ -179,7 +229,7 @@ namespace OpenSage.Logic
             };
         }
 
-        public string[] Upgrades;
+        public LazyAssetReference<UpgradeTemplate>[] Upgrades;
         public int Delay;
     }
 

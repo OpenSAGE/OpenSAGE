@@ -20,18 +20,17 @@ namespace OpenSage.Logic.Object
                 switch (_moduleData.ChangeType)
                 {
                     case MaxHealthChangeType.PreserveRatio:
-                        var ratio = _gameObject.Body.Health / _gameObject.Body.MaxHealth;
-                        _gameObject.Body.Health += ratio * (Fix64) _moduleData.AddMaxHealth;
+                        _gameObject.Health += _gameObject.HealthPercentage * (Fix64) _moduleData.AddMaxHealth;
                         break;
                     case MaxHealthChangeType.AddCurrentHealthToo:
-                        _gameObject.Body.Health += (Fix64) _moduleData.AddMaxHealth;
+                        _gameObject.Health += (Fix64) _moduleData.AddMaxHealth;
                         break;
                     case MaxHealthChangeType.SameCurrentHealth:
                         // Don't add any new health
                         break;
                 }
 
-                _gameObject.Body.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
+                _gameObject.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
             }
         }
     }

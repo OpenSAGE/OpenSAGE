@@ -35,6 +35,7 @@ namespace OpenSage.Logic
 
         public uint Money { get; private set; }
         public List<UpgradeTemplate> Upgrades { get; }
+        public List<UpgradeTemplate> ConflictingUpgrades { get; }
 
         public StringSet Sciences { get; } = new StringSet();
 
@@ -100,6 +101,7 @@ namespace OpenSage.Logic
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
             Upgrades = new List<UpgradeTemplate>();
+            ConflictingUpgrades = new List<UpgradeTemplate>();
 
             if (template?.InitialUpgrades != null)
             {
