@@ -184,18 +184,6 @@ namespace OpenSage.Content
                     }
                     break;
 
-                case Subsystem.ObjectCreation:
-                    switch (_gameDefinition.Game)
-                    {
-                        case SageGame.Bfme:
-                        case SageGame.Bfme2:
-                        case SageGame.Bfme2Rotwk:
-                            _contentManager.LoadIniFile(@"Data\INI\Attributemodifier.ini");
-                            _contentManager.LoadIniFile(@"Data\INI\Experiencelevels.ini");
-                            break;
-                    }
-                    break;
-
                 case Subsystem.Players:
                     switch (_gameDefinition.Game)
                     {
@@ -385,6 +373,12 @@ namespace OpenSage.Content
                     yield break;
                 case Subsystem.InGameUI:
                     yield return "InGameUI";
+                    yield break;
+                case Subsystem.ExperienceLevels:
+                    yield return "TheExperienceLevelSystem";
+                    yield break;
+                case Subsystem.AttributeModifiers:
+                    yield return "TheAttributeModifierStore";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
