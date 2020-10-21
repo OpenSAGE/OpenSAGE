@@ -420,6 +420,7 @@ namespace OpenSage.Logic.Object
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
 
+            Hidden = false;
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
             Rank = 0;
