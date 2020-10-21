@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -33,7 +32,7 @@ namespace OpenSage.Graphics.Animation
             _animation = animation;
             _mode = mode;
             _flags = flags;
-            _boneInstances = modelInstance.ModelBoneInstances.ToList().ToArray();
+            _boneInstances = modelInstance.ModelBoneInstances;
 
             _keyframeIndices = new int[animation.Clips.Length];
         }

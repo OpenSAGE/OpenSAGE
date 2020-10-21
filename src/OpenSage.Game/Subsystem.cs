@@ -85,5 +85,15 @@
         /// Things that need to be loaded in order for the IngameUI to work.
         /// </summary>
         InGameUI,
+
+        /// <summary>
+        /// Definitions of the various levels of an object.
+        /// </summary>
+        ExperienceLevels,
+
+        /// <summary>
+        /// Defines modifications to object properties like health, armor etc.
+        /// </summary>
+        AttributeModifiers,
     }
 }
