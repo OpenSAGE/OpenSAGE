@@ -395,6 +395,9 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
+            GameObjects.DeleteDestroyed();
+            GameObjects.InsertCreated();
+
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.LogicTick(frame, time);
@@ -452,7 +455,11 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    gameObject.BuildRenderList(renderList, camera, gameTime);
+                    // TODO: fix boundingFrustum collision
+                    //if (gameObject.Collider.Intersects(Camera.BoundingFrustum))
+                    //{
+                     gameObject.BuildRenderList(renderList, camera, gameTime);
+                    //}
                 }
             }
 
