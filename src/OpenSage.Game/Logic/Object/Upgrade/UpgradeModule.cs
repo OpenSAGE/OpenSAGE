@@ -6,7 +6,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class UpgradeModule : BehaviorModule
+    internal abstract class UpgradeModule : BehaviorModule
     {
         protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;

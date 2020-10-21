@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ExperienceScalarUpgrade : UpgradeModule
+    internal sealed class ExperienceScalarUpgrade : UpgradeModule
     {
         private readonly ExperienceScalarUpgradeModuleData _moduleData;
 

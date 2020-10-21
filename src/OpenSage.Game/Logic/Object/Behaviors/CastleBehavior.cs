@@ -4,12 +4,11 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CastleBehavior : BehaviorModule
+    internal sealed class CastleBehavior : BehaviorModule
     {
         private GameObject _gameObject;
         private CastleBehaviorModuleData _moduleData;

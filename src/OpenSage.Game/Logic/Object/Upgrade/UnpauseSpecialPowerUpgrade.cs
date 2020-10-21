@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
+    internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
     {
         internal UnpauseSpecialPowerUpgrade(GameObject gameObject, UnpauseSpecialPowerUpgradeModuleData moduleData)
             : base(gameObject, moduleData)

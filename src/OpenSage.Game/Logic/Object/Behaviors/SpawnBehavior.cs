@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpawnBehavior : BehaviorModule
+    internal sealed class SpawnBehavior : BehaviorModule
     {
         GameObject _gameObject;
         SpawnBehaviorModuleData _moduleData;

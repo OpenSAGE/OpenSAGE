@@ -3,7 +3,7 @@ using OpenSage.Mathematics.FixedMath;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class MaxHealthUpgrade : UpgradeModule
+    internal sealed class MaxHealthUpgrade : UpgradeModule
     {
         private readonly MaxHealthUpgradeModuleData _moduleData;
 

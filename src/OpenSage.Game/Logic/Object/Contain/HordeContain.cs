@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -103,7 +104,8 @@ namespace OpenSage.Logic.Object
                         continue;
                     }
 
-                    if (position.Definition.Name == obj.Definition.Name)
+                    if (position.Definition == obj.Definition
+                        || position.Definition.ObjectIsMemberOfBuildVariations(obj.Definition))
                     {
                         position.Object = obj;
                         _payload.Add(obj);

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using FFmpeg.AutoGen;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -51,6 +52,23 @@ namespace OpenSage.Logic.Object
             result.SetNameAndInstanceId("GameObject", name);
 
             return result;
+        }
+
+        internal bool ObjectIsMemberOfBuildVariations(ObjectDefinition definition)
+        {
+            if (BuildVariations == null)
+            {
+                return false;
+            }
+
+            foreach (var def in BuildVariations)
+            {
+                if (def.Value == definition)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
@@ -242,7 +260,9 @@ namespace OpenSage.Logic.Object
                 (parser, x) =>
                 {
                     var behavior = BehaviorModuleData.ParseBehavior(parser);
-                    if (behavior is AIUpdateModuleData aiUpdate)
+                    var aiUpdate = behavior as AIUpdateModuleData;
+
+                    if (aiUpdate != null)
                     {
                         x.AIUpdate = aiUpdate;
                     }
@@ -299,7 +319,7 @@ namespace OpenSage.Logic.Object
             { "ShadowMaxHeight", (parser, x) => x.ShadowMaxHeight = parser.ParseInteger() },
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
-            { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
+            { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseObjectReferenceArray() },
 
             { "ExperienceScalarTable", (parser, x) => x.ExperienceScalarTable = parser.ParseAssetReference() },
 
@@ -869,7 +889,7 @@ namespace OpenSage.Logic.Object
         public int ShadowMaxHeight { get; private set; }
         public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
-        public string[] BuildVariations { get; private set; }
+        public LazyAssetReference<ObjectDefinition>[] BuildVariations { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string ExperienceScalarTable { get; private set; }
