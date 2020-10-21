@@ -80,7 +80,8 @@ namespace OpenSage.Logic.Object
                     }
                 }
             }
-            _gameObject.Destroy();
+            _gameObject.Hidden = true;
+            _gameObject.IsSelectable = false;
             _unpacked = true;
         }
 
