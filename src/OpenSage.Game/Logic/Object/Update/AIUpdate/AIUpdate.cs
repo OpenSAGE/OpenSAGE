@@ -68,7 +68,7 @@ namespace OpenSage.Logic.Object
             CurrentLocomotor = locomotor;
         }
 
-        internal void AddTargetPoint(in Vector3 targetPoint)
+        public void AddTargetPoint(in Vector3 targetPoint)
         {
             TargetPoints.Add(targetPoint);
 
@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
             GameObject.Speed = 0;
         }
 
-        internal void SetTargetDirection(Vector3 targetDirection)
+        public void SetTargetDirection(Vector3 targetDirection)
         {
             _targetDirection = targetDirection;
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
@@ -286,6 +286,7 @@ namespace OpenSage.Logic.Object
         }
     }
 
+
     public class AIUpdateModuleData : UpdateModuleData
     {
         internal static AIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -382,10 +383,7 @@ namespace OpenSage.Logic.Object
             throw new InvalidOperationException();
         }
 
-        internal virtual AIUpdate CreateAIUpdate(GameObject gameObject)
-        {
-            return new AIUpdate(gameObject, this);
-        }
+        internal virtual AIUpdate CreateAIUpdate(GameObject gameObject) => new AIUpdate(gameObject, this);
     }
 
     public enum AutoAcquireEnemiesType

@@ -155,18 +155,18 @@ namespace OpenSage.Gui.Apt
             State = PlayState.PLAYING;
         }
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void Goto(string label)
         {
-            logger.Info($"Goto: {label}");
+            Logger.Info($"Goto: {label}");
             if (FrameLabels.ContainsKey(label))
             {
                 _currentFrame = FrameLabels[label];
             }
             else
             {
-                logger.Warn($"Missing framelabel: {label}");
+                Logger.Warn($"Missing framelabel: {label}");
             }
         }
 

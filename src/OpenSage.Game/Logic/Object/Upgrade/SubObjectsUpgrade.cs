@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Shows/hides sub-objects on this object's model via upgrading.
     /// </summary>
-    public class SubObjectsUpgrade : UpgradeModule
+    internal class SubObjectsUpgrade : UpgradeModule
     {
         private readonly SubObjectsUpgradeModuleData _moduleData;
 

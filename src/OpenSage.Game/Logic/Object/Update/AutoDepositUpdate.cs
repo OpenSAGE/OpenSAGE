@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class AutoDepositUpdate : BehaviorModule
+    internal sealed class AutoDepositUpdate : BehaviorModule
     {
         GameObject _gameObject;
         AutoDepositUpdateModuleData _moduleData;

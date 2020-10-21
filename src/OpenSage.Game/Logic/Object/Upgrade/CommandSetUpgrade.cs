@@ -4,7 +4,7 @@ using OpenSage.Gui.ControlBar;
 
 namespace OpenSage.Logic.Object
 {
-    public class CommandSetUpgrade : UpgradeModule
+    internal class CommandSetUpgrade : UpgradeModule
     {
         private readonly CommandSetUpgradeModuleData _moduleData;
         private readonly LazyAssetReference<CommandSet> _defaultCommandSet;
@@ -35,29 +35,23 @@ namespace OpenSage.Logic.Object
     {
         internal static CommandSetUpgradeModuleData Parse(IniParser parser)
         {
-            var result = parser.ParseBlock(FieldParseTable);
-            if (result.CommandSetAlt != null
-                || result.TriggerAlt != null)
-            {
-                var k = 0;
-            }
-            return result;
+            return parser.ParseBlock(FieldParseTable);
         }
 
         private static new readonly IniParseTable<CommandSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<CommandSetUpgradeModuleData>
             {
-                { "RemovesUpgrades", (parser, x) => x.RemovesUpgrades = parser.ParseAssetReferenceArray() },
+                { "RemovesUpgrades", (parser, x) => x.RemovesUpgrades = parser.ParseUpgradeReferenceArray() },
                 { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
-                { "CommandSetAlt", (parser, x) => x.CommandSetAlt = parser.ParseAssetReference() },
+                { "CommandSetAlt", (parser, x) => x.CommandSetAlt = parser.ParseCommandSetReference() },
                 { "TriggerAlt", (parser, x) => x.TriggerAlt = parser.ParseAssetReference() }
             });
 
-        public string[] RemovesUpgrades { get; private set; }
+        public LazyAssetReference<UpgradeTemplate>[] RemovesUpgrades { get; private set; }
         public LazyAssetReference<CommandSet> CommandSet { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public string CommandSetAlt { get; private set; }
+        public LazyAssetReference<CommandSet> CommandSetAlt { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string TriggerAlt { get; private set; }

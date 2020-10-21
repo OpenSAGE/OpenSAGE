@@ -3,7 +3,7 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class GeometryUpgrade : UpgradeModule
+    internal class GeometryUpgrade : UpgradeModule
     {
         private readonly GeometryUpgradeModuleData _moduleData;
 

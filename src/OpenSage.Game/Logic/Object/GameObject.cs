@@ -308,6 +308,11 @@ namespace OpenSage.Logic.Object
             Player owner,
             GameObjectCollection parent)
         {
+            if (objectDefinition.BuildVariations != null && objectDefinition.BuildVariations.Count() > 0)
+            {
+                objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
+            }
+
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
             _tagToModuleLookup = new Dictionary<string, BehaviorModule>();

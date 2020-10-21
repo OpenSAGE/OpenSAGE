@@ -6,7 +6,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ObjectCreationUpgrade : UpgradeModule
+    internal sealed class ObjectCreationUpgrade : UpgradeModule
     {
         private readonly ObjectCreationUpgradeModuleData _moduleData;
 

@@ -5,7 +5,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSetUpgrade : UpgradeModule
+    internal sealed class WeaponSetUpgrade : UpgradeModule
     {
         private readonly WeaponSetUpgradeModuleData _moduleData;
 

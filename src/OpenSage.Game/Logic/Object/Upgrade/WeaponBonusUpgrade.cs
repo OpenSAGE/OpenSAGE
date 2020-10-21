@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponBonusUpgrade : UpgradeModule
+    internal sealed class WeaponBonusUpgrade : UpgradeModule
     {
         internal WeaponBonusUpgrade(GameObject gameObject, WeaponBonusUpgradeModuleData moduleData) : base(gameObject, moduleData)
         {

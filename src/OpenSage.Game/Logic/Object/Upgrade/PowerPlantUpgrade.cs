@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PowerPlantUpgrade : UpgradeModule
+    internal sealed class PowerPlantUpgrade : UpgradeModule
     {
         internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData) : base(gameObject, moduleData)
         {
