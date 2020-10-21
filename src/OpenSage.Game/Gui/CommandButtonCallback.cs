@@ -29,12 +29,6 @@ namespace OpenSage.Gui
 
                 case CommandType.CastleUnpackExplicitObject:
                 case CommandType.FoundationConstruct:
-                    //TODO: figure this out correctly
-                    if (selection.Count == 0)
-                    {
-                        break;
-                    }
-
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Translation);

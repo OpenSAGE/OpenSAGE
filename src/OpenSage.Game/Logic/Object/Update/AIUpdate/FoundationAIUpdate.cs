@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -6,15 +6,25 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class FoundationAIUpdate : AIUpdate
     {
-        FoundationAIUpdateModuleData _moduleData;
+        private readonly FoundationAIUpdateModuleData _moduleData;
+        private TimeSpan _waitUntil;
+        private int _updateInterval;
 
         internal FoundationAIUpdate(GameObject gameObject, FoundationAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+            _updateInterval = 500; // we do not have to check every frame
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (context.Time.TotalTime < _waitUntil)
+            {
+                return;
+            }
+
+            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_updateInterval);
+
             var collidingObjects = context.GameContext.Quadtree.FindIntersecting(GameObject);
 
             foreach (var collidingObject in collidingObjects)
