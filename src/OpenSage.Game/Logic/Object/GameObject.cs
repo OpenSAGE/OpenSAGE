@@ -131,7 +131,7 @@ namespace OpenSage.Logic.Object
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
 
-        private bool _objectMoved = false;
+        private bool _objectMoved = true;
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
