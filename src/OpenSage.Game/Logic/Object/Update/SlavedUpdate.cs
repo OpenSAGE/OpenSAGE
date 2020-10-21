@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-            var masterHealthPercent = Master.Body.Health / Master.Body.MaxHealth;
+            var masterHealthPercent = Master.HealthPercentage;
 
             var offsetToMaster = Master.Translation - _gameObject.Translation;
             var distanceToMaster = offsetToMaster.Vector2XY().Length();
@@ -111,10 +111,10 @@ namespace OpenSage.Logic.Object
                     case RepairStatus.ZIP_AROUND:
                     case RepairStatus.IN_TRANSITION:
                     case RepairStatus.WELDING:
-                        Master.Body.Health += (Fix64) (_moduleData.RepairRatePerSecond * context.Time.DeltaTime.TotalSeconds);
-                        if (Master.Body.Health > Master.Body.MaxHealth)
+                        Master.Health += (Fix64) (_moduleData.RepairRatePerSecond * context.Time.DeltaTime.TotalSeconds);
+                        if (Master.Health > Master.MaxHealth)
                         {
-                            Master.Body.Health = Master.Body.MaxHealth;
+                            Master.Health = Master.MaxHealth;
                             _repairStatus = RepairStatus.INITIAL;
                             _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
                         }

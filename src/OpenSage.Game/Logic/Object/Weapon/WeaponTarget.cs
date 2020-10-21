@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
         {
             if (TargetType == WeaponTargetType.Object)
             {
-                TargetObject.Body.DoDamage(damageType, amount, deathType, time);
+                TargetObject.DoDamage(damageType, amount, deathType, time);
             }
         }
     }

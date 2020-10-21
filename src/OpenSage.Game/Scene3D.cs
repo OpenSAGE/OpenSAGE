@@ -511,12 +511,12 @@ namespace OpenSage
                 }
 
                 // TODO: Not sure what to draw for InactiveBody?
-                if (gameObject.Body is ActiveBody)
+                if (gameObject.HasActiveBody())
                 {
                     DrawBar(
                         healthBoxRect.Value,
                         new ColorRgbaF(0, 1, 0, 1),
-                        (float)gameObject.Body.HealthPercentage);
+                        (float)gameObject.HealthPercentage);
                 }
 
                 var yOffset = 0;
