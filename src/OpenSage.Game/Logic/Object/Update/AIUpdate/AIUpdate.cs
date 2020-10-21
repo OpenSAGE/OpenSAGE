@@ -68,7 +68,7 @@ namespace OpenSage.Logic.Object
             CurrentLocomotor = locomotor;
         }
 
-        public void AddTargetPoint(in Vector3 targetPoint)
+        internal void AddTargetPoint(in Vector3 targetPoint)
         {
             TargetPoints.Add(targetPoint);
 
@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
             GameObject.Speed = 0;
         }
 
-        public void SetTargetDirection(Vector3 targetDirection)
+        internal void SetTargetDirection(Vector3 targetDirection)
         {
             _targetDirection = targetDirection;
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
@@ -285,7 +285,6 @@ namespace OpenSage.Logic.Object
             var unknown18 = reader.ReadBytes(36);
         }
     }
-
 
     public class AIUpdateModuleData : UpdateModuleData
     {

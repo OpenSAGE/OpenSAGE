@@ -108,6 +108,9 @@ namespace OpenSage.Content
                 case Subsystem.InGameUI:
                     LoadFiles(@"Data\INI\InGameUI.ini");
                     break;
+                case Subsystem.AttributeModifiers:
+                case Subsystem.ExperienceLevels:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
