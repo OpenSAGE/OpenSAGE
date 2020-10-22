@@ -17,6 +17,9 @@ namespace OpenSage.Diagnostics
         private readonly DiagnosticViewContext _context;
         private readonly List<DiagnosticView> _views;
         private readonly IReadOnlyDictionary<MapCache, string> _maps;
+        private readonly List<PlayerTemplate> _playableSides;
+        private PlayerTemplate _faction;
+        private (MapCache, string) _map;
 
         public MainView(DiagnosticViewContext context)
         {
@@ -29,6 +32,10 @@ namespace OpenSage.Diagnostics
                 .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
                 .OrderBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
+            _map = (_maps.First().Key, _maps.First().Value);
+
+            _playableSides = _context.Game.GetPlayableSides().ToList();
+            _faction = _playableSides[0];
 
             void AddView(DiagnosticView view)
             {
@@ -130,40 +137,55 @@ namespace OpenSage.Diagnostics
 
                 if (ImGui.BeginMenu("Jump"))
                 {
-                    if (ImGui.BeginMenu("Map"))
+                    if (ImGui.BeginMenu("Faction: " + _faction.Side))
                     {
-                        foreach (var mapCache in _maps)
-                        {                           
-                            if (ImGui.MenuItem($"{mapCache.Value} ({mapCache.Key.Name})"))
+                        foreach (var side in _playableSides)
+                        {
+                            if (ImGui.MenuItem(side.Side))
                             {
-                                var random = new Random();
-                                var playableSides = _context.Game.GetPlayableSides().ToList();
-                                //var faction1 = playableSides[random.Next(0, playableSides.Count())];
-                                //var faction2 = playableSides[random.Next(0, playableSides.Count())];
-                                var faction1 = playableSides[0];
-                                var faction2 = playableSides[0];
-
-                                if (mapCache.Key.IsMultiplayer)
-                                {
-                                    _context.Game.StartMultiPlayerGame(
-                                        mapCache.Key.Name,
-                                        new EchoConnection(),
-                                        new PlayerSetting?[]
-                                        {
-                                            new PlayerSetting(null, faction1, new ColorRgb(255, 0, 0), PlayerOwner.Player),
-                                            new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), PlayerOwner.EasyAi),
-                                        },
-                                        0
-                                    );
-                                }
-                                else
-                                {
-                                    _context.Game.StartSinglePlayerGame(mapCache.Key.Name);
-                                }
+                                _faction = side;
+                                ImGui.SetWindowFocus(side.Name);
                             }
                         }
 
                         ImGui.EndMenu();
+                    }
+
+                    if (ImGui.BeginMenu("Map: " + _map.Item1.Name))
+                    {
+                        foreach (var mapCache in _maps)
+                        {
+                            if (ImGui.MenuItem(mapCache.Value))
+                            {
+                                _map = (mapCache.Key, mapCache.Value);
+                            }
+                        }
+
+                        ImGui.EndMenu();
+                    }
+
+                    if (ImGui.Button("Go!"))
+                    {
+                        var random = new Random();
+                        var faction2 = _playableSides[random.Next(0, _playableSides.Count())];
+
+                        if (_map.Item1.IsMultiplayer)
+                        {
+                            _context.Game.StartMultiPlayerGame(
+                                _map.Item1.Name,
+                                new EchoConnection(),
+                                new PlayerSetting?[]
+                                {
+                                    new PlayerSetting(null, _faction, new ColorRgb(255, 0, 0), PlayerOwner.Player),
+                                    new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), PlayerOwner.EasyAi),
+                                },
+                                0
+                            );
+                        }
+                        else
+                        {
+                            _context.Game.StartSinglePlayerGame(_map.Item1.Name);
+                        }
                     }
 
                     ImGui.EndMenu();
