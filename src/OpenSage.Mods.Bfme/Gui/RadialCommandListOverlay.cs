@@ -40,13 +40,13 @@ namespace OpenSage.Mods.Bfme.Gui
                 return;
             }
 
-            var selectedUnit = player.SelectedUnits.First();
-            if (!selectedUnit.Definition.KindOf.Get(ObjectKinds.Structure))
+            var selectedStructure = player.SelectedUnits.First();
+            if (!selectedStructure.Definition.KindOf.Get(ObjectKinds.Structure))
             {
                 return;
             }
 
-            if (selectedUnit.Definition.CommandSet == null)
+            if (selectedStructure.Definition.CommandSet == null)
             {
                 _selectedUnit = null;
                 return;
@@ -54,14 +54,14 @@ namespace OpenSage.Mods.Bfme.Gui
 
             _visible = true;
 
-            var screenSpaceBoundingRectangle = selectedUnit.Collider.GetBoundingRectangle(_game.Scene3D.Camera);
-            _center = screenSpaceBoundingRectangle.Center;
-            _commandSet = selectedUnit.Definition.CommandSet.Value;
+            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedStructure.Collider.WorldBounds.Center);
+            _center = new Point2D((int) screenPosition.X, (int) screenPosition.Y);
+            _commandSet = selectedStructure.Definition.CommandSet.Value;
 
-            if (_selectedUnit != selectedUnit && _commandSet != null)
+            if (_selectedUnit != selectedStructure && _commandSet != null)
             {
                 //Update button list
-                var playerTeamplate = selectedUnit.Owner.Template;
+                var playerTeamplate = selectedStructure.Owner.Template;
                 var heroIndex = 0;
 
                 var commandButtons = new List<CommandButton>();
@@ -72,7 +72,7 @@ namespace OpenSage.Mods.Bfme.Gui
                         if (heroIndex < playerTeamplate.BuildableHeroesMP.Count())
                         {
                             var heroDefinition = playerTeamplate.BuildableHeroesMP[heroIndex++];
-                            if (selectedUnit.CanRecruitHero(heroDefinition.Value))
+                            if (selectedStructure.CanRecruitHero(heroDefinition.Value))
                             {
                                 commandButtons.Add(new CommandButton(CommandType.UnitBuild, heroDefinition));
                             }
@@ -87,18 +87,18 @@ namespace OpenSage.Mods.Bfme.Gui
                 _buttons.Clear();
                 foreach (var commandButton in commandButtons)
                 {
-                    var radialButton = new RadialButton(_game, selectedUnit, commandButton);
+                    var radialButton = new RadialButton(_game, selectedStructure, commandButton);
                     _buttons.Add(radialButton);
                 }
 
-                _selectedUnit = selectedUnit;
+                _selectedUnit = selectedStructure;
             }
 
-            var isProducing = selectedUnit.ProductionUpdate?.IsProducing ?? false;
+            var isProducing = selectedStructure.ProductionUpdate?.IsProducing ?? false;
             foreach (var radialButton in _buttons)
             {
-                var (count, progress) = isProducing ? selectedUnit.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
-                radialButton.Update(progress, count, selectedUnit.CanEnqueue(radialButton.CommandButton));
+                var (count, progress) = isProducing ? selectedStructure.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
+                radialButton.Update(progress, count, selectedStructure.CanPurchase(radialButton.CommandButton));
             }
         }
 
