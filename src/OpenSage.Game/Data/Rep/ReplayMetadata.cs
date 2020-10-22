@@ -42,8 +42,8 @@ namespace OpenSage.Data.Rep
                         break;
 
                     case "M":
-                        result.MapFileUnknownInt = Convert.ToInt32(keyValue[1].Substring(0, 2));
-                        result.MapFile = keyValue[1].Substring(2);
+                        result.MapFileUnknownInt = Convert.ToInt32(keyValue[1].Substring(0, 3));
+                        result.MapFile = keyValue[1].Substring(3);
                         break;
 
                     case "MC":

@@ -25,6 +25,10 @@
         Checksum = 1095,
         Unknown1097 = 1097,
 
+        Unknown28 = 1121,
+        Unknown29 = 29,
+
+
         //new from Diamond_Extinction_vs_Squaak_Ammo_cc_vs_cu__[GameReplays.org].rep
 
         Unknown1 = 1,

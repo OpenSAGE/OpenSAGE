@@ -53,7 +53,7 @@ namespace OpenSage.Data.Rep
             {
                 result.NumTimecodes = reader.ReadUInt16();
 
-                var zero = reader.ReadBytes(12);
+                var zero = reader.ReadBytes(20);
                 // TODO
                 //for (var i = 0; i < zero.Length; i++)
                 //{
@@ -62,6 +62,12 @@ namespace OpenSage.Data.Rep
                 //        throw new InvalidDataException();
                 //    }
                 //}
+            }
+            else if (gameType == ReplayGameType.Bfme)
+            {
+                result.NumTimecodes = reader.ReadUInt16();
+
+                var zero = reader.ReadBytes(19);
             }
             else
             {
@@ -79,6 +85,8 @@ namespace OpenSage.Data.Rep
             result.VersionMajor = reader.ReadUInt16();
 
             result.UnknownHash = reader.ReadBytes(8);
+
+            reader.ReadBytes(5);
 
             result.Metadata = ReplayMetadata.Parse(reader);
 

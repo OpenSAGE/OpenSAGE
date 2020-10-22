@@ -631,7 +631,7 @@ namespace OpenSage
                     // startPos seems to be -1 for random, and 0 for observer/civilian
                     if (startPos == null || startPos == -1 || startPos == 0)
                     {
-                        startPos = availablePositions.Last();
+                        startPos = availablePositions.First();
                         availablePositions.Remove((int) startPos);
                     }
 

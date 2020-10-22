@@ -23,13 +23,13 @@ namespace OpenSage.Logic.Orders
             {
                 Player player = null;
 
-                if(order.PlayerIndex==-1)
+                if(order.PlayerIndex == -1)
                 {
                     player = _game.Scene3D.LocalPlayer;
                 }
                 else
                 {
-                    player = _game.Scene3D.Players[(int) order.PlayerIndex];
+                    player = _game.Scene3D.Players[(int) order.PlayerIndex - 1];
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
@@ -170,16 +170,16 @@ namespace OpenSage.Logic.Orders
                     case OrderType.AttackObject:
                     case OrderType.ForceAttackObject:
                         {
-                            var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
+                            //var objectDefinitionId = order.Arguments[0].Value.Integer;
+                            //var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
 
-                            foreach (var unit in player.SelectedUnits)
-                            {
-                                if (unit.CanAttack)
-                                {
-                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
-                                }
-                            }
+                            //foreach (var unit in player.SelectedUnits)
+                            //{
+                            //    if (unit.CanAttack)
+                            //    {
+                            //        unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
+                            //    }
+                            //}
                         }
                         break;
 

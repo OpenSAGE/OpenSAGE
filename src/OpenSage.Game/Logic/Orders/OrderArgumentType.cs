@@ -12,6 +12,6 @@
         ScreenPosition = 7,
         ScreenRectangle = 8,
         Unknown9 = 9,
-        Unknown10 = 10
+        Unknown10 = 10,
     }
 }

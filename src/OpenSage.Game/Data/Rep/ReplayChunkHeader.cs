@@ -12,12 +12,23 @@ namespace OpenSage.Data.Rep
 
         internal static ReplayChunkHeader Parse(BinaryReader reader)
         {
+            var timeCode = reader.ReadUInt32();
+            var orderType = reader.ReadUInt32AsEnum<OrderType>();
+            var number = reader.ReadUInt32();
+
             return new ReplayChunkHeader
             {
-                Timecode = reader.ReadUInt32(),
-                OrderType = reader.ReadUInt32AsEnum<OrderType>(),
-                Number = reader.ReadUInt32()
+                Timecode = timeCode,
+                OrderType = orderType,
+                Number = number
             };
+
+            //return new ReplayChunkHeader
+            //{
+            //    Timecode = reader.ReadUInt32(),
+            //    OrderType = reader.ReadUInt32AsEnum<OrderType>(),
+            //    Number = reader.ReadUInt32()
+            //};
         }
     }
 }

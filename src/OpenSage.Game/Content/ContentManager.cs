@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using OpenSage.Content.Translation;
 using OpenSage.Data;
@@ -164,6 +165,7 @@ namespace OpenSage.Content
             }
             else
             {
+                var maps = FileSystem.Files.Where(x => x.FilePath.Contains("maps"));
                 return FileSystem.GetFile(mapPath);
             }
         }
