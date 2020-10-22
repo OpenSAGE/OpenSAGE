@@ -2,13 +2,13 @@
 {
     public enum OrderType
     {
-        Unknown27 = 27, // Something to do with end of game
         SetSelection = 1001,
         ClearSelection = 1003,
         SpecialPower = 1040,
         SpecialPowerAtLocation = 1041,
         SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
+        ChooseGeneralPromotion = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
         BeginUpgrade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593), also for flashbangs in the barracks (ObjectId:678,Integer:1594)
         CancelUpgrade = 1046,
         CreateUnit = 1047,
@@ -20,14 +20,10 @@
         ForceAttackObject = 1060,
         ForceAttackGround = 1061,
         MoveTo = 1068,
+        StopMoving = 1074,
         ToggleOvercharge = 1078,
         SetCameraPosition = 1092,
         Checksum = 1095,
-        Unknown1097 = 1097,
-
-        Unknown28 = 1121,
-        Unknown29 = 29,
-
 
         //new from Diamond_Extinction_vs_Squaak_Ammo_cc_vs_cu__[GameReplays.org].rep
 
@@ -41,7 +37,8 @@
         Unknown8 = 8,
         Unknown9 = 9,
 
-
+        Unknown27 = 27, // Something to do with end of game
+        Unknown29 = 29, // at end of session in bfme
 
         Unknown1002 = 1002,
 
@@ -87,8 +84,6 @@
 
         Unknown1042 = 1042,
 
-        ChooseGeneralPromotion = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
-
         Unknown1050 = 1050,
         Unknown1051 = 1051,
 
@@ -105,12 +100,11 @@
         Unknown1066 = 1066,
         Unknown1067 = 1067,
 
-        Unknown1069 = 1069,//AttackMove?
-        Unknown1070 = 1070,
+        Unknown1069 = 1069, //AttackMove?
         Unknown1071 = 1071,
         Unknown1072 = 1072,
         Unknown1073 = 1073,
-        StopMoving = 1074,
+
         Unknown1075 = 1075,
         Unknown1076 = 1076,
         Unknown1077 = 1077,
@@ -120,7 +114,6 @@
         Unknown1081 = 1081,
         Unknown1082 = 1082,
         Unknown1083 = 1083,
-        Unknown1084 = 1084,
         Unknown1085 = 1085,
         Unknown1086 = 1086,
         Unknown1087 = 1087, //same as 1068
@@ -133,9 +126,18 @@
         Unknown1094 = 1094,
 
         Unknown1096 = 1096,
+        Unknown1097 = 1097, // this is triggered every 100 timecodes in bfme (101, 201, 301 etc)
 
         Unknown1098 = 1098,
         Unknown1099 = 1099,
+
+        Unknown1121 = 1121, // at start of game in bfme
+
+        // BFME
+        BfmeCreateUnit = 1046,
+        BfmeFoundationConstruct = 1048,
+        BfmeMoveTo = 1070,
+        BfmeCastleUnpackExplicitObject = 1084,
 
         Zero = 0
     }
