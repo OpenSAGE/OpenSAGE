@@ -132,6 +132,7 @@ namespace OpenSage.Mods.Bfme
 
         private void UpdateCommandbuttons()
         {
+            return;
             if (_game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
             {
                 return;
