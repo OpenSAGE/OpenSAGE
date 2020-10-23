@@ -207,8 +207,6 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
         {
-            return;
-
             var source = PlayAudioEventBase(baseAudioEvent);
             if (source == null)
             {
