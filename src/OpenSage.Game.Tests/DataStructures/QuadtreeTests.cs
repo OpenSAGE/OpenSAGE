@@ -10,7 +10,7 @@ namespace OpenSage.Tests.DataStructures
 {
     public class QuadtreeTests
     {
-        public class MockQuadtreeItem : IHasCollider
+        public class MockQuadtreeItem : ICollidable
         {
             public readonly int Id;
             public Collider Collider { get; set; }

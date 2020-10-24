@@ -455,10 +455,9 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    // TODO: fix boundingFrustum collision
-                    //if (gameObject.Collider.Intersects(Camera.BoundingFrustum))
+                    //if (gameObject.RoughCollider.Intersects(Camera.BoundingFrustum))
                     //{
-                     gameObject.BuildRenderList(renderList, camera, gameTime);
+                    gameObject.BuildRenderList(renderList, camera, gameTime);
                     //}
                 }
             }

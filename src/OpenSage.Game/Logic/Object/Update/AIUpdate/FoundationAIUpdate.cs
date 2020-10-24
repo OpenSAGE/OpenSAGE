@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
         private TimeSpan _waitUntil;
         private int _updateInterval;
 
+        //TODO: rather notify this when the corresponding order is processed and update again when the object is dead/destroyed
         internal FoundationAIUpdate(GameObject gameObject, FoundationAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;

@@ -113,13 +113,13 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Check that the builder can reach target position
             // TODO: Check that the terrain is even enough at the target position
 
-            if (_previewObject.Collider == null)
+            if (_previewObject.RoughCollider == null)
             {
                 return true;
             }
 
             _scene.Quadtree.Remove(_previewObject);
-            return !_scene.Quadtree.FindIntersecting(_previewObject.Collider).Any();
+            return !_scene.Quadtree.FindIntersecting(_previewObject.RoughCollider).Any();
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
