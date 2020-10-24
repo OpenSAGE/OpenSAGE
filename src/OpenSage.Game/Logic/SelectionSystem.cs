@@ -156,12 +156,12 @@ namespace OpenSage.Logic
 
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                if (!gameObject.IsSelectable || gameObject.Collider == null)
+                if (!gameObject.IsSelectable || gameObject.RoughCollider == null)
                 {
                     continue;
                 }
 
-                if (gameObject.Collider.Intersects(ray, out var depth) && depth < closestDepth)
+                if (gameObject.RoughCollider.Intersects(ray, out var depth) && depth < closestDepth)
                 {
                     closestDepth = depth;
                     closestObject = gameObject;
@@ -192,10 +192,10 @@ namespace OpenSage.Logic
 
             uint? structure = null;
 
-            // TODO: Optimize with frustum culling?
+            // TODO: Optimize with quadtree
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                if (!gameObject.IsSelectable || gameObject.Collider == null)
+                if (!gameObject.IsSelectable || gameObject.RoughCollider == null)
                 {
                     continue;
                 }
@@ -206,9 +206,9 @@ namespace OpenSage.Logic
                     continue;
                 }
 
-                if (gameObject.Collider.Intersects(boxFrustum))
+                if (gameObject.RoughCollider.Intersects(boxFrustum))
                 {
-                    var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
+                    var objectId = Game.Scene3D.GameObjects.GetObjectId(gameObject);
 
                     if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == false)
                     {

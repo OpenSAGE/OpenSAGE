@@ -9,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataStructures
 {
-    public sealed class Quadtree<T> where T : class, IHasCollider
+    public sealed class Quadtree<T> where T : class, ICollidable
     {
         private const int MaxDepth = 8;
         private const int MaxItemsPerLeaf = 2;
@@ -63,18 +63,32 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
-        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersecting(new SphereCollider(transform, radius), obj);
+        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius)
+        {
+            // TODO: use cylinder collider here (how high is high enough?)
+            var intersectingObjects = FindIntersectingInternal(new SphereCollider(transform, radius), obj, twoDimensional: true);
+            var pos2D = obj.Translation.Vector2XY();
+
+            foreach (var intersectingObject in intersectingObjects)
+            {
+                var dist = (pos2D - intersectingObject.RoughCollider.Transform.Translation.Vector2XY()).Length();
+                if (dist <= radius)
+                {
+                    yield return intersectingObject;
+                }
+            }
+        }
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
-        public IEnumerable<T> FindIntersecting(T searcher) => FindIntersectingInternal(searcher.Collider, searcher);
+        public IEnumerable<T> FindIntersecting(T searcher) => FindIntersectingInternal(searcher.RoughCollider, searcher);
 
         public IEnumerable<T> FindIntersecting(in Collider collider, T searcher = null)
         {
             return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, searcher);
         }
 
-        private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher)
+        private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher, bool twoDimensional = false)
         {
             if (!IsLeaf)
             {
@@ -107,8 +121,13 @@ namespace OpenSage.DataStructures
 
             foreach (var item in _items)
             {
-                if (!item.Equals(searcher) && item.Collider.Intersects(collider))
+                if (!item.Equals(searcher)
+                    && item.RoughCollider.Intersects(collider, twoDimensional))
                 {
+                    if (searcher != null && !item.CollidesWith(item, twoDimensional))
+                    {
+                        continue;
+                    }
                     yield return item;
                 }
             }
@@ -155,7 +174,7 @@ namespace OpenSage.DataStructures
             // 2. Check if the item fully fits into any of the children.
             foreach (var subTree in _children)
             {
-                var containment = subTree.Bounds.Intersect(item.Collider.AxisAlignedBoundingArea);
+                var containment = subTree.Bounds.Intersect(item.RoughCollider.AxisAlignedBoundingArea);
 
                 switch (containment)
                 {
@@ -238,8 +257,12 @@ namespace OpenSage.DataStructures
         }
     }
 
-    public interface IHasCollider
+    public interface ICollidable
     {
-        Collider Collider { get; }
+        Collider RoughCollider { get; }
+        List<Collider> Colliders { get; }
+        Vector3 Translation { get; }
+
+        bool CollidesWith(ICollidable other, bool twoDimensional);
     }
 }

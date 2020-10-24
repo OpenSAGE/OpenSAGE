@@ -5,7 +5,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Benchmarks.DataStructures
 {
-    public class BenchQuadtreeItem : IHasCollider
+    public class BenchQuadtreeItem : ICollidable
     {
         public readonly int Id;
         public Collider Collider { get; set; }

@@ -115,12 +115,13 @@ namespace OpenSage.Navigation
 
         public void UpdateAreaPassability(GameObject gameObject, bool passable)
         {
-            if (gameObject.Collider == null)
+            if (gameObject.RoughCollider == null)
             {
                 return;
             }
 
-            var axisAlignedBoundingArea = gameObject.Collider.AxisAlignedBoundingArea;
+            // TODO: for each collider of the object
+            var axisAlignedBoundingArea = gameObject.RoughCollider.AxisAlignedBoundingArea;
 
             var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
             var bottomLeftNode = GetClosestNode(bottomLeft);
@@ -133,7 +134,7 @@ namespace OpenSage.Navigation
                 return;
             }
 
-            var area = gameObject.Collider.BoundingArea;
+            var area = gameObject.RoughCollider.BoundingArea;
 
             for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
             {

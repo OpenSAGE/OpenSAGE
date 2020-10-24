@@ -3,6 +3,23 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public class StructureCollapseUpdate : UpdateModule
+    {
+        private readonly StructureCollapseUpdateModuleData _moduleData;
+        private readonly GameObject _gameObject;
+
+        public StructureCollapseUpdate(GameObject gameObject, StructureCollapseUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            var k = 0;
+        }
+    }
+
     public sealed class StructureCollapseUpdateModuleData : UpdateModuleData
     {
         internal static StructureCollapseUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -39,6 +56,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int CollapseHeight { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new StructureCollapseUpdate(gameObject, this);
+        }
     }
 
     public enum StructureCollapsePhase

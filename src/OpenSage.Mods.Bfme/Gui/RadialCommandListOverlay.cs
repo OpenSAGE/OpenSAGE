@@ -62,7 +62,7 @@ namespace OpenSage.Mods.Bfme.Gui
             var playerTemplate = selectedStructure.Owner.Template;
             _visible = true;
 
-            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedStructure.Collider.WorldBounds.Center);
+            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedStructure.RoughCollider.WorldBounds.Center);
             _center = new Point2D((int) screenPosition.X, (int) screenPosition.Y);
 
             _commandSet = selectedStructure.IsBeingConstructed() ? _gettingBuildCommandSet : selectedStructure.Definition.CommandSet.Value;

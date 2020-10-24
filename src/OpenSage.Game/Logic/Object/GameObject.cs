@@ -23,7 +23,7 @@ using OpenSage.Terrain;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : DisposableBase, IInspectable, IHasCollider
+    public sealed class GameObject : DisposableBase, IInspectable, ICollidable
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -206,7 +206,8 @@ namespace OpenSage.Logic.Object
             _body.DoDamage(damageType, amount, deathType, time);
         }
 
-        public Collider Collider { get; }
+        public Collider RoughCollider { get; }
+        public List<Collider> Colliders { get; }
 
         public float VerticalOffset;
 
@@ -470,7 +471,12 @@ namespace OpenSage.Logic.Object
                 _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
 
-            Collider = Collider.Create(objectDefinition, _transform);
+            var geometryCollider = Collider.Create(objectDefinition, _transform);
+            Colliders = new List<Collider>
+            {
+                geometryCollider
+            };
+            RoughCollider = geometryCollider;
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)
@@ -566,6 +572,16 @@ namespace OpenSage.Logic.Object
             return (null, null);
         }
 
+
+        private void UpdateColliders()
+        {
+            RoughCollider.Update(_transform);
+            foreach (var collider in Colliders)
+            {
+                collider.Update(_transform);
+            }
+        }
+
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
             if (Destroyed)
@@ -575,10 +591,10 @@ namespace OpenSage.Logic.Object
 
             if (_objectMoved)
             {
-                Collider.Update(_transform);
+                UpdateColliders();
                 _gameContext.Quadtree.Update(this);
 
-                var intersecting = _gameContext.Quadtree.FindIntersecting(Collider);
+                var intersecting = _gameContext.Quadtree.FindIntersecting(this);
 
                 foreach (var intersect in intersecting)
                 {
@@ -645,20 +661,29 @@ namespace OpenSage.Logic.Object
             return ProductionUpdate?.CanProduceObject(definition) ?? true;
         }
 
-        internal bool Intersects(GameObject other)
+        public bool CollidesWith(ICollidable other, bool twoDimensional = false)
         {
-            if (Collider == null || other.Collider == null)
+            if (RoughCollider == null || other.RoughCollider == null)
             {
                 return false;
             }
 
-            if (Definition.KindOf.Get(ObjectKinds.Immobile)
-                && other.Definition.KindOf.Get(ObjectKinds.Immobile))
+            if (!RoughCollider.Intersects(other.RoughCollider))
             {
                 return false;
             }
 
-            return Collider.Intersects(other.Collider);
+            foreach (var collider in Colliders)
+            {
+                foreach (var otherCollider in other.Colliders)
+                {
+                    if (collider.Intersects(otherCollider, twoDimensional))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         internal void DoCollide(GameObject collidingObject, in TimeInterval time)
