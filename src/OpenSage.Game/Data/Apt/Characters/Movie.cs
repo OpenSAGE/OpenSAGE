@@ -30,5 +30,10 @@ namespace OpenSage.Data.Apt.Characters
 
             return movie;
         }
+
+        public Movie ShallowClone()
+        {
+            return (Movie)MemberwiseClone();
+        }
     }
 }

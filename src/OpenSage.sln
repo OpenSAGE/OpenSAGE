@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.BigTool", "OpenSage.Tools.BigTool\OpenSage.Tools.BigTool.csproj", "{09B2C509-4033-433F-9442-4D81B930C715}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.AptEditor", "OpenSage.Tools.AptEditor\OpenSage.Tools.AptEditor.csproj", "{CC67942B-862D-48DA-B2A5-BD61B924E4D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,6 +134,10 @@ Global
 		{09B2C509-4033-433F-9442-4D81B930C715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09B2C509-4033-433F-9442-4D81B930C715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09B2C509-4033-433F-9442-4D81B930C715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC67942B-862D-48DA-B2A5-BD61B924E4D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC67942B-862D-48DA-B2A5-BD61B924E4D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC67942B-862D-48DA-B2A5-BD61B924E4D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC67942B-862D-48DA-B2A5-BD61B924E4D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

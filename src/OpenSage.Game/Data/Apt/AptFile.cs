@@ -14,7 +14,7 @@ namespace OpenSage.Data.Apt
         internal bool IsEmpty = true;
         internal string MovieName;
         internal FileSystem FileSystem;
-        internal ImageMap ImageMap;
+        public ImageMap ImageMap { get; private set; }
         internal Dictionary<uint, Geometry> GeometryMap;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
@@ -66,7 +66,12 @@ namespace OpenSage.Data.Apt
                 }
                 else
                 {
-                    var importEntry = FileSystem.GetFile(Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt")));
+                    var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                    var importEntry = FileSystem.GetFile(importPath);
+                    if(importEntry == null)
+                    {
+                        throw new FileNotFoundException(importPath);
+                    }
                     importApt = AptFile.FromFileSystemEntry(importEntry);
                     importDict[import.Movie] = importApt;
                 }
@@ -102,6 +107,16 @@ namespace OpenSage.Data.Apt
 
                 return apt;
             }
+        }
+
+        public AptFile ShallowClone(bool shallowCloneMovie)
+        {
+            var shallowClone = (AptFile)MemberwiseClone();
+            if(shallowCloneMovie)
+            {
+                shallowClone.Movie = shallowClone.Movie.ShallowClone();
+            }
+            return shallowClone;
         }
     }
 }
