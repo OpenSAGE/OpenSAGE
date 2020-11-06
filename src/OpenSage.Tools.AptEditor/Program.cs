@@ -6,6 +6,10 @@ using OpenSage.Tools.AptEditor.UI;
 using OpenSage.Tools.AptEditor.Util;
 using Veldrid;
 using Veldrid.StartupUtilities;
+using OpenSage.Data;
+using OpenSage.Data.Apt;
+using OpenSage.Tools.AptEditor.Apt.Writer;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Tools.AptEditor
 {
@@ -22,7 +26,7 @@ namespace OpenSage.Tools.AptEditor
 
             graphicsDevice.SyncToVerticalBlank = true;
 
-            var resultPath = (string)null;
+            var resultPath = (string) null;
 
             using (var commandList = graphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))
@@ -39,7 +43,7 @@ namespace OpenSage.Tools.AptEditor
 
                 gameTimer.Start();
                 byte[] rootPathBuffer = new byte[1024];
-                System.Text.Encoding.UTF8.GetBytes("C:\\Users\\lanyi\\Desktop\\RA3Mods\\ARSDK2\\Mods\\test\\Data\\AptUI\\").CopyTo(rootPathBuffer, 0);
+                System.Text.Encoding.UTF8.GetBytes("D:\\lanyi\\Desktop\\RA3Mods\\ARSDK2\\Mods\\test\\Data\\AptUI\\").CopyTo(rootPathBuffer, 0);
                 while (windowOpen)
                 {
                     commandList.Begin();
@@ -52,16 +56,16 @@ namespace OpenSage.Tools.AptEditor
 
                     commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
-                    imGuiRenderer.Update((float)gameTimer.CurrentGameTime.DeltaTime.TotalSeconds, inputSnapshot);
+                    imGuiRenderer.Update((float) gameTimer.CurrentGameTime.DeltaTime.TotalSeconds, inputSnapshot);
 
                     ImGui.SetNextWindowPos(new Vector2(0, 0));
                     ImGui.SetNextWindowSize(new Vector2(initialWidth, initialHeight));
                     var open = true;
-                    if(ImGui.Begin("Launcher", ref open, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
+                    if (ImGui.Begin("Launcher", ref open, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
                     {
                         ImGui.Text("Start OpenSage Apt Editor by providing a root path.");
                         ImGuiUtility.InputText("", rootPathBuffer, out var inputRootPath);
-                        if(ImGui.Button("Load"))
+                        if (ImGui.Button("Load"))
                         {
                             resultPath = inputRootPath;
                             window.Close();
@@ -85,31 +89,28 @@ namespace OpenSage.Tools.AptEditor
 
         static void GameWindowAdapter(string rootPath)
         {
-            using (var system = new AptGameSystem(rootPath))
-            using (var imGuiRenderer = new ImGuiRenderer(system.Game.GraphicsDevice, 
-                                                         system.Game.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription,
-                                                         system.Game.Window.ClientBounds.Width, system.Game.Window.ClientBounds.Height))
-            using (var gameCommandList = system.Game.Window.GraphicsDevice.ResourceFactory.CreateCommandList())
-            using (var mainForm = new MainForm(system))
+            var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
+            using var game = new Game(installation, null);
+            var device = game.GraphicsDevice;
+            var window = game.Window;
+            using var imGuiRenderer = new ImGuiRenderer(device,
+                                                  RenderPipeline.GameOutputDescription,
+                                                  window.ClientBounds.Width,
+                                                  window.ClientBounds.Height);
+            using var mainForm = new MainForm(game);
+            void OnClientSizeChanged(object sender, EventArgs args)
             {
-                void OnClientSizeChanged(object sender, EventArgs args)
-                {
-                    imGuiRenderer.WindowResized(system.Game.Window.ClientBounds.Width, system.Game.Window.ClientBounds.Height);
-                }
-                system.Game.Window.ClientSizeChanged += OnClientSizeChanged;
-
-                var tickActions = new Action<Game, CommandList>[]{
-                    (game, commandList) => {
-                        imGuiRenderer.Update((float)game.RenderTime.DeltaTime.TotalSeconds, game.Window.CurrentInputSnapshot);
-                        mainForm.Draw(commandList);
-                        imGuiRenderer.Render(game.GraphicsDevice, commandList);
-                    }
-                };
-
-                while(system.CustomGameTick(gameCommandList, tickActions));
-
-                system.Game.Window.ClientSizeChanged -= OnClientSizeChanged;
+                imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
             }
+            window.ClientSizeChanged += OnClientSizeChanged;
+            game.Graphics.RenderPipeline.Rendering2D += (s, e) => 
+            {
+                imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
+                mainForm.Draw();
+                imGuiRenderer.Render(game.GraphicsDevice, e.RawCommandList);
+            };
+            game.Run();
+            window.ClientSizeChanged -= OnClientSizeChanged;
         }
 
         static void Main(string[] args)
@@ -117,7 +118,7 @@ namespace OpenSage.Tools.AptEditor
             Platform.Start();
 
             var rootPath = Launcher();
-            if(rootPath != null)
+            if (rootPath != null)
             {
                 GameWindowAdapter(rootPath);
             }

@@ -209,7 +209,7 @@ namespace OpenSage.Gui.Apt
                 return false;
         }
 
-        private void HandleFrameItem(FrameItem item)
+        public void HandleFrameItem(FrameItem item)
         {
             switch (item)
             {

@@ -1,25 +1,21 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Gui.Apt;
-using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
-using Veldrid;
-using Veldrid.Sdl2;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
     internal sealed class MainForm : DisposableBase
     {
-        private byte[] _filePathBuffer;
-        private AptGameSystem _system;
-        private AptSceneManager _manager;
-        private List<IWidget> _widgets;
-        private List<ImGuiUtility.ModalPopUp> _popUps;
+        private readonly byte[] _filePathBuffer;
+        private readonly GameWindow _window;
+        private readonly AptSceneManager _manager;
+        private readonly List<IWidget> _widgets;
+        private readonly List<ImGuiUtility.ModalPopUp> _popUps;
         private bool _menuOpenClicked;
         private string _inputAptPath;
         private string _lastErrorMessageForModalPopUp;
@@ -27,14 +23,14 @@ namespace OpenSage.Tools.AptEditor.UI
         private double _lastFps;
         private DateTime _lastUpdate;
         private DateTime _lastFpsUpdate;
-        public MainForm(AptGameSystem system)
+        public MainForm(Game game)
         {
             _filePathBuffer = new byte[1024];
             var defaultValue = System.Text.Encoding.UTF8.GetBytes("fe_shared_mainMenuLib.apt");
             defaultValue.CopyTo(_filePathBuffer, 0);
 
-            _system = system;
-            _manager = new AptSceneManager(system);
+            _window = game.Window;
+            _manager = new AptSceneManager(game);
             _widgets = new List<IWidget>();
             _popUps = new List<ImGuiUtility.ModalPopUp>();
 
@@ -53,9 +49,9 @@ namespace OpenSage.Tools.AptEditor.UI
             _lastUpdate = DateTime.Now;
         }
 
-        public void Draw(CommandList commandList)
+        public void Draw()
         {
-            if((DateTime.Now - _lastFpsUpdate).TotalMilliseconds > 300)
+            if ((DateTime.Now - _lastFpsUpdate).TotalMilliseconds > 300)
             {
                 _lastFpsUpdate = DateTime.Now;
                 _lastFps = 1000 / (DateTime.Now - _lastUpdate).TotalMilliseconds;
@@ -63,10 +59,10 @@ namespace OpenSage.Tools.AptEditor.UI
             _lastUpdate = DateTime.Now;
 
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
-            ImGui.SetNextWindowSize(new Vector2(_system.Game.Window.ClientBounds.Width, 0), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(_window.ClientBounds.Width, 0), ImGuiCond.Always);
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0);
-            bool open = false;
+            var open = false;
             ImGui.Begin("OpenSAGE Apt Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
 
 
@@ -89,7 +85,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     if (ImGui.MenuItem("Add Search paths..."))
                     {
-                        
+
                     }
 
                     ImGui.Separator();
@@ -105,26 +101,26 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
 
-            if(_inputAptPath != null)
+            if (_inputAptPath != null)
             {
                 try
                 {
                     _manager.LoadApt(_inputAptPath);
                 }
-                catch(AptLoadFailure loadFailure)
+                catch (AptLoadFailure loadFailure)
                 {
                     _lastErrorMessageForModalPopUp =
                         $"Failed to open apt file {loadFailure.Message}.\n" +
                         "Consider add more search paths (File Menu > Add Search Path).";
                 }
-                catch(Exception unhandleled)
+                catch (Exception unhandleled)
                 {
                     _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
                 }
                 _inputAptPath = null;
             }
 
-            if(_manager.AptManager == null)
+            if (_manager.AptManager == null)
             {
                 ImGui.Text("Open a .apt file to see its contents.");
             }
@@ -134,28 +130,26 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Text($"FPS: {_lastFps, 5:N2}");
+            ImGui.Text($"FPS: {_lastFps,5:N2}");
 
             ImGui.End();
 
             try
             {
-                if(_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)
+                if (_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)
                 {
-                    _manager.Render(commandList);
-
-                    foreach(var widget in _widgets)
+                    foreach (var widget in _widgets)
                     {
                         widget.Draw(_manager);
                     }
                 }
             }
-            catch(Exception unhandleled)
+            catch (Exception unhandleled)
             {
                 _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
             }
 
-            foreach(var popUp in _popUps)
+            foreach (var popUp in _popUps)
             {
                 popUp.Update();
             }

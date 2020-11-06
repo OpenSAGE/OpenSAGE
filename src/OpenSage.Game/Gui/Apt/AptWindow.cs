@@ -39,7 +39,7 @@ namespace OpenSage.Gui.Apt
         /// </summary>
         public MappedImage BackgroundImage { get; set; }
 
-        internal AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
+        public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
             _game = game;
             ContentManager = contentManager;

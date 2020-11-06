@@ -7,7 +7,7 @@ using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    internal class ButtonItem : DisplayItem
+    public class ButtonItem : DisplayItem
     {
         private bool _isHovered = false;
         private bool _isDown = false;
@@ -15,6 +15,7 @@ namespace OpenSage.Gui.Apt
         private List<InstructionCollection> _actionList;
         public Texture Texture { get; set; }
 
+        internal ButtonItem() { }
         public override void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             Character = chararacter;

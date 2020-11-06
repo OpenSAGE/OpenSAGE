@@ -310,9 +310,9 @@ namespace OpenSage
             }
         }
 
-        public string UserDataFolder => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            UserDataLeafName);
+        public string UserDataFolder => UserDataLeafName != null
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), UserDataLeafName)
+            : null;
 
         public GameWindow Window { get; }
 
@@ -431,7 +431,7 @@ namespace OpenSage
                 // This has to be done after the ContentManager is initialized and
                 // the GameData.ini file has been parsed because we don't know
                 // the UserDataFolder before then.
-                if (Directory.Exists(UserDataFolder))
+                if (UserDataFolder != null && Directory.Exists(UserDataFolder))
                 {
                     _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
                     ContentManager.UserDataFileSystem = _userDataFileSystem;

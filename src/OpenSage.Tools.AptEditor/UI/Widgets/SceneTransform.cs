@@ -1,4 +1,4 @@
-using ImGuiNET;
+﻿using ImGuiNET;
 using System;
 using System.Numerics;
 using OpenSage.Mathematics;
@@ -18,7 +18,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.InputFloat("Scale (does not work for now)", ref scale);
                 ImGui.Spacing();
 
-                var windowSize = manager.System.Game.Window.ClientBounds;
+                var windowSize = manager.Game.Window.ClientBounds;
                 var offset = manager.CurrentOffset;
                 var x = offset.X;
                 var y = offset.Y;
@@ -27,12 +27,12 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Spacing();
 
                 
-                var previousColor = manager.DisplayBackgroundColor;
-                Vector3 color = new Vector3(previousColor.R, previousColor.G, previousColor.B);
-                ImGui.ColorEdit3("Background (display only)", ref color);
+                // var previousColor = manager.DisplayBackgroundColor;
+                // Vector3 color = new Vector3(previousColor.R, previousColor.G, previousColor.B);
+                // ImGui.ColorEdit3("Background (display only)", ref color);
 
                 manager.Transform(scale, new Vector2(x, y));
-                manager.DisplayBackgroundColor = new ColorRgbaF(color.X, color.Y, color.Z, 1);
+                // manager.DisplayBackgroundColor = new ColorRgbaF(color.X, color.Y, color.Z, 1);
             }
             ImGui.End();
         }

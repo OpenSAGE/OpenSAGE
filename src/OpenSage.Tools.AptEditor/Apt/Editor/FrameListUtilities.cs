@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
@@ -35,7 +35,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             return true;
         }
 
-        public void DeleteFrame(uint frameNumber)
+        public void DeleteFrame(int frameNumber)
         {
             if(_storedFrames.Count <= 1)
             {
@@ -45,7 +45,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             // if it's last frame, switch to the previous frame first
             if(frameNumber == _storedFrames.Count - 1)
             {
-                _manager.PlayToFrame((uint)(_storedFrames.Count - 1));
+                _manager.PlayToFrame(_storedFrames.Count - 1);
             }
             else
             {
@@ -57,16 +57,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             editAction.Do = (_, framesAndFrame) =>
             {
                 var (frames, frame) = framesAndFrame;
-                frames.RemoveAt((int)frameNumber);
+                frames.RemoveAt(frameNumber);
                 return framesAndFrame;
             };
             editAction.Undo = (_, framesAndFrame) =>
             {
                 var (frames, frame) = framesAndFrame;
-                frames.Insert((int)frameNumber, frame);
+                frames.Insert(frameNumber, frame);
                 return framesAndFrame;
             };
-            editAction.TargetValue = (_storedFrames, _storedFrames[(int)frameNumber]);
+            editAction.TargetValue = (_storedFrames, _storedFrames[frameNumber]);
 
             _manager.AptManager.Edit(editAction);
         }

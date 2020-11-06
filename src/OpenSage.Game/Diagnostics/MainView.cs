@@ -32,10 +32,13 @@ namespace OpenSage.Diagnostics
                 .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
                 .OrderBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
-            _map = (_maps.First().Key, _maps.First().Value);
+            if (_maps.FirstOrDefault() is KeyValuePair<MapCache, string> kv)
+            {
+                _map = (kv.Key, kv.Value);
+            }
 
             _playableSides = _context.Game.GetPlayableSides().ToList();
-            _faction = _playableSides[0];
+            _faction = _playableSides.FirstOrDefault();
 
             void AddView(DiagnosticView view)
             {
@@ -137,7 +140,7 @@ namespace OpenSage.Diagnostics
 
                 if (ImGui.BeginMenu("Jump"))
                 {
-                    if (ImGui.BeginMenu("Faction: " + _faction.Side))
+                    if (ImGui.BeginMenu("Faction: " + _faction?.Side ?? "<null reference>"))
                     {
                         foreach (var side in _playableSides)
                         {
@@ -151,7 +154,7 @@ namespace OpenSage.Diagnostics
                         ImGui.EndMenu();
                     }
 
-                    if (ImGui.BeginMenu("Map: " + _map.Item1.Name))
+                    if (ImGui.BeginMenu("Map: " + _map != null ? _map.Item1.Name : "<null reference>"))
                     {
                         foreach (var mapCache in _maps)
                         {
@@ -278,7 +281,7 @@ namespace OpenSage.Diagnostics
                     {
                         renderDoc.LaunchReplayUI();
                     }
-                  
+
                     ImGui.EndMenu();
                 }
 

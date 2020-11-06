@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Tools.AptEditor.UI;
@@ -9,7 +9,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     internal class FrameList : IWidget
     {
         const string Name = "Frame List";
-        private FrameListUtilities _frameListUtilities;
+        private readonly FrameListUtilities _frameListUtilities;
         private int _inputFrameNumber;
         private DateTime _lastPlayUpdate;
         private bool _playing;
@@ -44,11 +44,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 _inputFrameNumber = Math.Abs(_inputFrameNumber);
                 if(ImGui.Button("Play to frame"))
                 {
-                    manager.PlayToFrame((uint)_inputFrameNumber);
-                }
-                if(ImGui.Button("Switch to frame"))
-                {
-                    manager.SwitchToFrame((uint)_inputFrameNumber);
+                    manager.PlayToFrame(_inputFrameNumber);
                 }
 
                 ImGui.Separator();
@@ -60,7 +56,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     {
                         digits = (int)Math.Log10(manager.NumberOfFrames.Value - 1) + 1;
                     }
-                    for (var i = 0u; i < manager.NumberOfFrames; ++i)
+                    for (var i = 0; i < manager.NumberOfFrames; ++i)
                     {
                         var selected = (i == manager.CurrentFrameWrapped);
                         ImGui.Selectable($"Frame {i.ToString($"D{digits}")}", ref selected);
@@ -94,10 +90,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
 
                 var interval = (DateTime.UtcNow - _lastPlayUpdate).TotalMilliseconds;
-                for (var i = 0u; i < interval; i += manager.AptManager.AptFile.Movie.MillisecondsPerFrame)
+                for (var i = 0; i < interval; i += manager.MillisecondsPerFrame)
                 {
                     ++_inputFrameNumber;
-                    manager.PlayToFrame((uint)_inputFrameNumber);
+                    manager.PlayToFrame(_inputFrameNumber);
                     _lastPlayUpdate = DateTime.UtcNow;
                 }
                 
