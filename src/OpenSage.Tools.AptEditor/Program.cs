@@ -10,6 +10,7 @@ using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Graphics.Rendering;
+using System.Diagnostics;
 
 namespace OpenSage.Tools.AptEditor
 {
@@ -91,26 +92,49 @@ namespace OpenSage.Tools.AptEditor
         {
             var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
             using var game = new Game(installation, null);
+            // should be the ImGui context created by DeveloperModeView
+            var initialContext = ImGui.GetCurrentContext();
             var device = game.GraphicsDevice;
             var window = game.Window;
             using var imGuiRenderer = new ImGuiRenderer(device,
-                                                  RenderPipeline.GameOutputDescription,
-                                                  window.ClientBounds.Width,
-                                                  window.ClientBounds.Height);
+                                                        RenderPipeline.GameOutputDescription,
+                                                        window.ClientBounds.Width,
+                                                        window.ClientBounds.Height);
+            var ourContext = ImGui.GetCurrentContext();
+            // reset ImGui Context to initial one
+            ImGui.SetCurrentContext(initialContext);
+
             using var mainForm = new MainForm(game);
-            void OnClientSizeChanged(object sender, EventArgs args)
+            void OnClientSizeChanged(object? sender, EventArgs args)
             {
                 imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
             }
-            window.ClientSizeChanged += OnClientSizeChanged;
-            game.Graphics.RenderPipeline.Rendering2D += (s, e) => 
+            void OnRendering2D(object? sender, Rendering2DEventArgs e)
             {
-                imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
-                mainForm.Draw();
-                imGuiRenderer.Render(game.GraphicsDevice, e.RawCommandList);
-            };
-            game.Run();
-            window.ClientSizeChanged -= OnClientSizeChanged;
+                var previousContext = ImGui.GetCurrentContext();
+                ImGui.SetCurrentContext(ourContext);
+                try
+                {
+                    imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
+                    mainForm.Draw();
+                    imGuiRenderer.Render(game.GraphicsDevice, e.RawCommandList);
+                }
+                finally
+                {
+                    ImGui.SetCurrentContext(previousContext);
+                }
+            }
+            window.ClientSizeChanged += OnClientSizeChanged;
+            game.Graphics.RenderPipeline.Rendering2D += OnRendering2D;
+            try
+            {
+                game.Run();
+            }
+            finally
+            {
+                game.Graphics.RenderPipeline.Rendering2D -= OnRendering2D;
+                window.ClientSizeChanged -= OnClientSizeChanged;
+            }
         }
 
         static void Main(string[] args)
