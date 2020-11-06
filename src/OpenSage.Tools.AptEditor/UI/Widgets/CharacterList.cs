@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using ImGuiNET;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
@@ -9,16 +9,21 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     internal class CharacterList : IWidget
     {
         public uint Id { get; set; }
-        private CharacterUtilities _utilities;
-        private int lastSelectedCharacter;
+        private CharacterUtilities? _utilities;
+        private int _lastSelectedCharacter;
         public CharacterList()
         {
-            _utilities = new CharacterUtilities();
-            lastSelectedCharacter = -1;
+            _utilities = null;
+            _lastSelectedCharacter = -1;
         }
         public void Draw(AptSceneManager manager)
         {
-            _utilities.Reset(manager.AptManager);
+            if(_utilities?.Manager != manager.AptManager)
+            {
+                _utilities = manager.AptManager is null
+                    ? null
+                    : new CharacterUtilities(manager.AptManager);
+            }
             if(ImGui.Begin("Characters"))
             {
                 ImGui.Text("Characters");
@@ -36,39 +41,48 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
                 ImGui.NewLine();
 
-                foreach(var (index, typeName, descName) in _utilities.GetActiveCharactersDescription())
+                if(_utilities != null)
                 {
-                    Vector4 indexColor = new Vector4(0, 1, 1, 1);
-                    Vector4 typeColor = new Vector4(0, 0.8f, 0.2f, 1);
-                    ImGui.SameLine(0, 5);
-                    ImGui.TextColored(indexColor, index.ToString());
-                    ImGui.SameLine(35, 5);
-                    ImGui.TextColored(typeColor, typeName);
-                    ImGui.SameLine(100, 5);
-
-                    bool wasSelected = (lastSelectedCharacter == index);
-                    bool selected = wasSelected;
-                    ImGui.Selectable(descName, ref selected);
-                    if(selected)
-                    {
-                        lastSelectedCharacter = index;
-                        var selectedCharacter = _utilities.GetCharacterByIndex(index);
-                        if(manager.CurrentCharacter != selectedCharacter)
-                        {
-                            System.Console.WriteLine($"Setting new character {index} {selectedCharacter.GetType().Name}");
-                            manager.SetCharacter(selectedCharacter);
-                        }
-                        
-                    }
-                    else if(wasSelected)
-                    {
-                        lastSelectedCharacter = -1;
-                    }
-                    ImGui.NewLine();
+                    ListCharacterDescription(manager, ref _lastSelectedCharacter, _utilities);
                 }
-                
             }
             ImGui.End();
+        }
+
+        private static void ListCharacterDescription(AptSceneManager manager,
+                                                     ref int lastSelectedCharacter,
+                                                     CharacterUtilities utilities)
+        {
+            foreach (var (index, typeName, descName) in utilities.GetActiveCharactersDescription())
+            {
+                Vector4 indexColor = new Vector4(0, 1, 1, 1);
+                Vector4 typeColor = new Vector4(0, 0.8f, 0.2f, 1);
+                ImGui.SameLine(0, 5);
+                ImGui.TextColored(indexColor, index.ToString());
+                ImGui.SameLine(35, 5);
+                ImGui.TextColored(typeColor, typeName);
+                ImGui.SameLine(100, 5);
+
+                bool wasSelected = (lastSelectedCharacter == index);
+                bool selected = wasSelected;
+                ImGui.Selectable(descName, ref selected);
+                if (selected)
+                {
+                    lastSelectedCharacter = index;
+                    var selectedCharacter = utilities.GetCharacterByIndex(index);
+                    if (manager.CurrentCharacter != selectedCharacter)
+                    {
+                        System.Console.WriteLine($"Setting new character {index} {selectedCharacter.GetType().Name}");
+                        manager.SetCharacter(selectedCharacter);
+                    }
+
+                }
+                else if (wasSelected)
+                {
+                    lastSelectedCharacter = -1;
+                }
+                ImGui.NewLine();
+            }
         }
 
         public void NewCharacter()

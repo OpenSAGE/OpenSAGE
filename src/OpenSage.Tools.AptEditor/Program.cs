@@ -16,7 +16,7 @@ namespace OpenSage.Tools.AptEditor
 {
     class Program
     {
-        static string Launcher()
+        static string? Launcher()
         {
             const int initialWidth = 640;
             const int initialHeight = 360;
@@ -27,7 +27,7 @@ namespace OpenSage.Tools.AptEditor
 
             graphicsDevice.SyncToVerticalBlank = true;
 
-            var resultPath = (string) null;
+            string? resultPath = null;
 
             using (var commandList = graphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))

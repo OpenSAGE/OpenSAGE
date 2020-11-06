@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +23,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             }
         }
 
-        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TValue : new()
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TKey: notnull where TValue : new()
         {
             if (!dict.ContainsKey(key))
             {
@@ -70,21 +70,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBase InnerInstruction { get; private set; }
         public LogicalDestination Destination { get; private set; }
 
-        public LogicalBranch(InstructionBase instruction)
+        public LogicalBranch(InstructionBase instruction, string labelName)
         {
             Parameters = new List<Value>();
             InnerInstruction = instruction;
-            Destination = null;
-        }
-
-        public LogicalDestination CreateDestination(string labelName)
-        {
-            if (Destination != null)
-            {
-                throw new InvalidOperationException();
-            }
             Destination = new LogicalDestination(this, labelName);
-            return Destination;
         }
     }
 
@@ -258,9 +248,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         public ValueTypePattern(ValueType[] firstTypes, ValueType[] repeatingTypes, ValueType[] lastTypes)
         {
-            FirstTypes = firstTypes ?? new ValueType[] { };
-            RepeatingTypes = repeatingTypes ?? new ValueType[] { };
-            LastTypes = lastTypes ?? new ValueType[] { };
+            FirstTypes = firstTypes;
+            RepeatingTypes = repeatingTypes;
+            LastTypes = lastTypes;
         }
     }
 
@@ -285,7 +275,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var fixeds = RetrieveFixedSizeInstructionMetaData();
             foreach (var (name, type, valueTypes) in fixeds)
             {
-                _fixedInstructionsParameterTypes.Add(type, valueTypes ?? new ValueType[] { });
+                _fixedInstructionsParameterTypes.Add(type, valueTypes);
                 _instructionTypes.Add(name, type);
                 _instructionNames.Add(name);
             }
@@ -302,7 +292,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         }
 
         public static InstructionBase NewLogicalInstruction(Type type, List<Value> parameters,
-                                                            out InstructionBase pairedInstruction)
+                                                            out InstructionBase? pairedInstruction)
         {
             var instruction = NewInstruction(type, parameters);
             pairedInstruction = null;
@@ -310,8 +300,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             {
                 case var _ when type == typeof(BranchAlways):
                 case var _ when type == typeof(BranchIfTrue):
-                    var logicalBranch = new LogicalBranch(instruction);
-                    pairedInstruction = logicalBranch.CreateDestination(_getName);
+                    var logicalBranch = new LogicalBranch(instruction, _getName);
+                    pairedInstruction = logicalBranch.Destination;
                     return logicalBranch;
                 case var _ when type == typeof(DefineFunction):
                 case var _ when type == typeof(DefineFunction2):
@@ -325,15 +315,18 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         private static InstructionBase NewInstruction(Type type, List<Value> parameters)
         {
-            var instance = (InstructionBase)Activator.CreateInstance(type);
-
-            if (!CheckParameterType(instance, parameters))
+            var instance = Activator.CreateInstance(type);
+            if(instance is InstructionBase instruction)
             {
-                throw new InvalidOperationException("Parameter type mismatch");
-            }
+                if (!CheckParameterType(instruction, parameters))
+                {
+                    throw new InvalidOperationException("Parameter type mismatch");
+                }
 
-            instance.Parameters = parameters.Select(value => DeepCopyInstructionParameters(value)).ToList();
-            return instance;
+                instruction.Parameters = parameters.Select(value => DeepCopyInstructionParameters(value)).ToList();
+                return instruction;
+            }
+            throw new InvalidCastException(type.Name);
         }
 
         private static Value DeepCopyInstructionParameters(Value existing)
@@ -415,60 +408,61 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         private static (string, Type, ValueType[])[] RetrieveFixedSizeInstructionMetaData()
         {
+            var none = Array.Empty<ValueType>();
             return new (string, Type, ValueType[])[]
             {
-                ("ToNumber",            typeof(ToNumber),           null),
-                ("NextFrame",           typeof(NextFrame),          null),
-                ("Play",                typeof(Play),               null),
-                ("Stop",                typeof(Stop),               null),
-                ("Add",                 typeof(Add),                null),
-                ("Subtract",            typeof(Subtract),           null),
-                ("Multiply",            typeof(Multiply),           null),
-                ("Divide",              typeof(Divide),             null),
-                ("Not",                 typeof(Not),                null),
-                ("StringEquals",        typeof(StringEquals),       null),
-                ("Pop",                 typeof(Pop),                null),
-                ("ToInteger",           typeof(ToInteger),          null),
-                ("GetVariable",         typeof(GetVariable),        null),
-                ("SetVariable",         typeof(SetVariable),        null),
-                ("StringConcat",        typeof(StringConcat),       null),
-                ("GetProperty",         typeof(GetProperty),        null),
-                ("SetProperty",         typeof(SetProperty),        null),
-                ("Trace",               typeof(Trace),              null),
-                ("Delete",              typeof(Delete),             null),
-                ("Delete2",             typeof(Delete2),            null),
-                ("DefineLocal",         typeof(DefineLocal),        null),
-                ("CallFunction",        typeof(CallFunction),       null),
-                ("Return",              typeof(Return),             null),
-                ("NewObject",           typeof(NewObject),          null),
-                ("InitArray",           typeof(InitArray),          null),
-                ("InitObject",          typeof(InitObject),         null),
-                ("TypeOf",              typeof(TypeOf),             null),
-                ("Add2",                typeof(Add2),               null),
-                ("LessThan2",           typeof(LessThan2),          null),
-                ("Equals2",             typeof(Equals2),            null),
-                ("ToString",            typeof(ToString),           null),
-                ("PushDuplicate",       typeof(PushDuplicate),      null),
-                ("GetMember",           typeof(GetMember),          null),
-                ("SetMember",           typeof(SetMember),          null),
-                ("Increment",           typeof(Increment),          null),
-                ("Decrement",           typeof(Decrement),          null),
-                ("CallMethod",          typeof(CallMethod),         null),
-                ("Enumerate2",          typeof(Enumerate2),         null),
-                ("PushThis",            typeof(PushThis),           null),
-                ("PushZero",            typeof(PushZero),           null),
-                ("PushOne",             typeof(PushOne),            null),
-                ("CallFunc",            typeof(CallFunc),           null),
-                ("CallMethodPop",       typeof(CallMethodPop),      null),
-                ("BitwiseXOr",          typeof(BitwiseXOr),         null),
-                ("Greater",             typeof(Greater),            null),
-                ("PushThisVar",         typeof(PushThisVar),        null),
-                ("PushGlobalVar",       typeof(PushGlobalVar),      null),
-                ("ZeroVar",             typeof(ZeroVar),            null),
-                ("PushTrue",            typeof(PushTrue),           null),
-                ("PushFalse",           typeof(PushFalse),          null),
-                ("PushNull",            typeof(PushNull),           null),
-                ("PushUndefined",       typeof(PushUndefined),      null),
+                ("ToNumber",            typeof(ToNumber),           none),
+                ("NextFrame",           typeof(NextFrame),          none),
+                ("Play",                typeof(Play),               none),
+                ("Stop",                typeof(Stop),               none),
+                ("Add",                 typeof(Add),                none),
+                ("Subtract",            typeof(Subtract),           none),
+                ("Multiply",            typeof(Multiply),           none),
+                ("Divide",              typeof(Divide),             none),
+                ("Not",                 typeof(Not),                none),
+                ("StringEquals",        typeof(StringEquals),       none),
+                ("Pop",                 typeof(Pop),                none),
+                ("ToInteger",           typeof(ToInteger),          none),
+                ("GetVariable",         typeof(GetVariable),        none),
+                ("SetVariable",         typeof(SetVariable),        none),
+                ("StringConcat",        typeof(StringConcat),       none),
+                ("GetProperty",         typeof(GetProperty),        none),
+                ("SetProperty",         typeof(SetProperty),        none),
+                ("Trace",               typeof(Trace),              none),
+                ("Delete",              typeof(Delete),             none),
+                ("Delete2",             typeof(Delete2),            none),
+                ("DefineLocal",         typeof(DefineLocal),        none),
+                ("CallFunction",        typeof(CallFunction),       none),
+                ("Return",              typeof(Return),             none),
+                ("NewObject",           typeof(NewObject),          none),
+                ("InitArray",           typeof(InitArray),          none),
+                ("InitObject",          typeof(InitObject),         none),
+                ("TypeOf",              typeof(TypeOf),             none),
+                ("Add2",                typeof(Add2),               none),
+                ("LessThan2",           typeof(LessThan2),          none),
+                ("Equals2",             typeof(Equals2),            none),
+                ("ToString",            typeof(ToString),           none),
+                ("PushDuplicate",       typeof(PushDuplicate),      none),
+                ("GetMember",           typeof(GetMember),          none),
+                ("SetMember",           typeof(SetMember),          none),
+                ("Increment",           typeof(Increment),          none),
+                ("Decrement",           typeof(Decrement),          none),
+                ("CallMethod",          typeof(CallMethod),         none),
+                ("Enumerate2",          typeof(Enumerate2),         none),
+                ("PushThis",            typeof(PushThis),           none),
+                ("PushZero",            typeof(PushZero),           none),
+                ("PushOne",             typeof(PushOne),            none),
+                ("CallFunc",            typeof(CallFunc),           none),
+                ("CallMethodPop",       typeof(CallMethodPop),      none),
+                ("BitwiseXOr",          typeof(BitwiseXOr),         none),
+                ("Greater",             typeof(Greater),            none),
+                ("PushThisVar",         typeof(PushThisVar),        none),
+                ("PushGlobalVar",       typeof(PushGlobalVar),      none),
+                ("ZeroVar",             typeof(ZeroVar),            none),
+                ("PushTrue",            typeof(PushTrue),           none),
+                ("PushFalse",           typeof(PushFalse),          none),
+                ("PushNull",            typeof(PushNull),           none),
+                ("PushUndefined",       typeof(PushUndefined),      none),
                 // with parameters
                 ("GotoFrame",           typeof(GotoFrame),          new[] { ValueType.Integer }),
                 ("GetUrl",              typeof(GetUrl),             new[] { ValueType.String, ValueType.String }),
@@ -478,7 +472,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 // ("DefineFunction2",     typeof(DefineFunction2),    new[] { (ValueType) }),
                 // ("PushData",            typeof(PushData),           new[] { () }),
                 ("BranchAlways",        typeof(BranchAlways),       new[] { ValueType.Integer }),
-                ("GetUrl2",             typeof(GetUrl2),            null),
+                ("GetUrl2",             typeof(GetUrl2),            none),
                 // ("DefineFunction",      typeof(DefineFunction),     new[] { () }),
                 ("BranchIfTrue",        typeof(BranchIfTrue),       new[] { ValueType.Integer }),
                 ("GotoFrame2",          typeof(GotoFrame2),         new[] { ValueType.Integer }),
@@ -496,18 +490,20 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushFloat",           typeof(PushFloat),          new[] { ValueType.Float }),
                 ("PushByte",            typeof(PushByte),           new[] { ValueType.Integer }),
                 ("PushShort",           typeof(PushShort),          new[] { ValueType.Integer }),
-                ("End",                 typeof(End),                null),
+                ("End",                 typeof(End),                none),
                 ("CallNamedMethod",     typeof(CallNamedMethod),    new[] { ValueType.Constant }),
-                ("Var",                 typeof(Var),                null),
+                ("Var",                 typeof(Var),                none),
                 ("PushRegister",        typeof(PushRegister),       new[] { ValueType.Integer }),
                 ("PushConstantWord",    typeof(PushConstantWord),   new[] { ValueType.Constant }),
-                ("CallFunctionPop",     typeof(CallFunctionPop),    null),
-                ("StrictEquals",        typeof(StrictEquals),       null),
+                ("CallFunctionPop",     typeof(CallFunctionPop),    none),
+                ("StrictEquals",        typeof(StrictEquals),       none),
             };
         }
 
         private static (string, Type, ValueTypePattern)[] RetrieveNonFixedSizeInstructionMetaData()
         {
+            var none = Array.Empty<ValueType>();
+
             var defineFunctionPattern = new ValueTypePattern(
                 new[] { ValueType.String, ValueType.Integer },
                 new[] { ValueType.String },
@@ -524,8 +520,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             {
                 ("DefineFunction", typeof(DefineFunction), defineFunctionPattern),
                 ("DefineFunction2", typeof(DefineFunction2), defineFunction2Pattern),
-                ("ConstantPool", typeof(ConstantPool), new ValueTypePattern(null, new[] { ValueType.Constant }, null)),
-                ("PushData", typeof(PushData), new ValueTypePattern(null, new[] { ValueType.Constant }, null)),
+                ("ConstantPool", typeof(ConstantPool), new ValueTypePattern(none, new[] { ValueType.Constant }, none)),
+                ("PushData", typeof(PushData), new ValueTypePattern(none, new[] { ValueType.Constant }, none)),
             };
         }
     }

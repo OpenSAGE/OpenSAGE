@@ -5,19 +5,12 @@ using System.Numerics;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
-using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.UI.SpriteItemExtensions;
-using Veldrid;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    namespace SpriteItemExtensions
-    {
-    }
-
     internal class AptLoadFailure : Exception
     {
         public AptLoadFailure(string message) : base(message) { }
@@ -25,19 +18,19 @@ namespace OpenSage.Tools.AptEditor.UI
 
     internal class AptSceneManager : DisposableBase
     {
-        public int MillisecondsPerFrame => (int) _renderAptFile.Movie.MillisecondsPerFrame;
+        public int MillisecondsPerFrame => (int) (_renderAptFile?.Movie.MillisecondsPerFrame ?? 30);
         public bool HasApt => AptManager != null;
-        public Character CurrentCharacter { get; private set; }
-        public string CurrentAptPath { get; private set; }
+        public Character? CurrentCharacter { get; private set; }
+        public string? CurrentAptPath { get; private set; }
         public int? NumberOfFrames { get; private set; }
         public int? CurrentFrameWrapped => CurrentFrame % NumberOfFrames;
         public int? CurrentFrame { get; private set; }
         public Vector2 CurrentOffset { get; private set; }
         public float CurrentScale { get; private set; }
         public Game Game { get; }
-        public AptObjectsManager AptManager { get; private set; }
-        private AptFile _renderAptFile;
-        private AptWindow _currentWindow;
+        public AptObjectsManager? AptManager { get; private set; }
+        private AptFile? _renderAptFile;
+        private AptWindow? _currentWindow;
 
         public AptSceneManager(Game game)
         {
@@ -84,6 +77,11 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void SetCharacter(Character character)
         {
+            if(_renderAptFile is null)
+            {
+                throw new InvalidOperationException();
+            }
+
             CopyFrames(_renderAptFile, character);
             NumberOfFrames = _renderAptFile.Movie.Frames.Count;
 
