@@ -31,7 +31,7 @@ namespace OpenSage.Data.Apt.Characters
     public class Character
     {
         public const uint SIGNATURE = 0x09876543;
-        public AptFile Container { get; private set; }
+        public AptFile Container { get; protected set; }
 
         public static Character Create(BinaryReader reader, AptFile container)
         {

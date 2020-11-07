@@ -15,7 +15,7 @@ namespace OpenSage.Data.Apt
         internal string MovieName;
         internal FileSystem FileSystem;
         public ImageMap ImageMap { get; private set; }
-        internal Dictionary<uint, Geometry> GeometryMap;
+        public Dictionary<uint, Geometry> GeometryMap { get; private set; }
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -47,8 +47,7 @@ namespace OpenSage.Data.Apt
             {
                 var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", +shape.Geometry + ".ru");
                 var shapeEntry = FileSystem.GetFile(ruPath);
-                var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
-                shapeGeometry.Container = this;
+                var shapeGeometry = Geometry.FromFileSystemEntry(this, shapeEntry);
                 GeometryMap[shape.Geometry] = shapeGeometry;
             }
 
@@ -109,14 +108,16 @@ namespace OpenSage.Data.Apt
             }
         }
 
-        public AptFile ShallowClone(bool shallowCloneMovie)
+        public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)
         {
-            var shallowClone = (AptFile)MemberwiseClone();
-            if(shallowCloneMovie)
+            var constData = new ConstantData();
+            var apt = new AptFile(constData, null, name)
             {
-                shallowClone.Movie = shallowClone.Movie.ShallowClone();
-            }
-            return shallowClone;
+                ImageMap = new ImageMap(),
+                GeometryMap = new Dictionary<uint, Geometry>()
+            };
+            apt.Movie = Movie.CreateEmpty(apt, width, height, millisecondsPerFrame);
+            return apt;
         }
     }
 }

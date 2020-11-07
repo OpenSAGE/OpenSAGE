@@ -6,6 +6,7 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt;
+using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.UI.SpriteItemExtensions;
 
@@ -90,6 +91,7 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 manager.PopWindow();
             }
+            manager.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, ColorRgba.DimGray));
             _currentWindow = new AptWindow(Game, Game.ContentManager, _renderAptFile);
             _currentWindow.Root.Create(character, _currentWindow.Context);
             manager.PushWindow(_currentWindow);

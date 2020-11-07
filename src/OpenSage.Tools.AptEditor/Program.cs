@@ -44,7 +44,7 @@ namespace OpenSage.Tools.AptEditor
 
                 gameTimer.Start();
                 byte[] rootPathBuffer = new byte[1024];
-                System.Text.Encoding.UTF8.GetBytes("D:\\lanyi\\Desktop\\RA3Mods\\ARSDK2\\Mods\\test\\Data\\AptUI\\").CopyTo(rootPathBuffer, 0);
+                System.Text.Encoding.UTF8.GetBytes(@"D:\lanyi\Desktop\RA3Mods\ARSDK2\Mods\Armor Rush\DATA\APTUI\fe_shared_mainMenuLib\").CopyTo(rootPathBuffer, 0);
                 while (windowOpen)
                 {
                     commandList.Begin();
@@ -91,15 +91,16 @@ namespace OpenSage.Tools.AptEditor
         static void GameWindowAdapter(string rootPath)
         {
             var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
-            using var game = new Game(installation, null);
+            using var game = new Game(installation, null, new Configuration { LoadShellMap = false });
             // should be the ImGui context created by DeveloperModeView
             var initialContext = ImGui.GetCurrentContext();
             var device = game.GraphicsDevice;
             var window = game.Window;
             using var imGuiRenderer = new ImGuiRenderer(device,
-                                                        RenderPipeline.GameOutputDescription,
+                                                        game.Panel.OutputDescription,
                                                         window.ClientBounds.Width,
                                                         window.ClientBounds.Height);
+            using var commandList = device.ResourceFactory.CreateCommandList();
             var ourContext = ImGui.GetCurrentContext();
             // reset ImGui Context to initial one
             ImGui.SetCurrentContext(initialContext);
@@ -109,15 +110,19 @@ namespace OpenSage.Tools.AptEditor
             {
                 imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
             }
-            void OnRendering2D(object? sender, Rendering2DEventArgs e)
+            void OnRendering2D(object? sender, EventArgs e)
             {
                 var previousContext = ImGui.GetCurrentContext();
                 ImGui.SetCurrentContext(ourContext);
                 try
                 {
+                    commandList.Begin();
+                    commandList.SetFramebuffer(game.Panel.Framebuffer);
                     imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
                     mainForm.Draw();
-                    imGuiRenderer.Render(game.GraphicsDevice, e.RawCommandList);
+                    imGuiRenderer.Render(game.GraphicsDevice, commandList);
+                    commandList.End();
+                    device.SubmitCommands(commandList);
                 }
                 finally
                 {
@@ -125,14 +130,15 @@ namespace OpenSage.Tools.AptEditor
                 }
             }
             window.ClientSizeChanged += OnClientSizeChanged;
-            game.Graphics.RenderPipeline.Rendering2D += OnRendering2D;
+            game.RenderCompleted += OnRendering2D;
             try
             {
+                game.ShowMainMenu();
                 game.Run();
             }
             finally
             {
-                game.Graphics.RenderPipeline.Rendering2D -= OnRendering2D;
+                game.RenderCompleted -= OnRendering2D;
                 window.ClientSizeChanged -= OnClientSizeChanged;
             }
         }

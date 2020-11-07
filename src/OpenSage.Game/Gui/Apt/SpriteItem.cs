@@ -200,7 +200,7 @@ namespace OpenSage.Gui.Apt
             if (State == PlayState.STOPPED)
                 return false;
 
-            if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Context.MillisecondsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
