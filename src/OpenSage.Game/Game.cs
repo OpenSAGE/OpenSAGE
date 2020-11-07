@@ -126,6 +126,14 @@ namespace OpenSage
         /// </summary>
         public bool InGame { get; private set; } = false;
 
+        /// <summary>
+        /// Fired when a <see cref="Render"/> completes, but before
+        /// <see cref="Panel"/>'s <see cref="GamePanel.Framebuffer"/>
+        /// is copied to <see cref="GraphicsDevice.SwapchainFramebuffer"/>.
+        /// Useful for drawing additional overlays.
+        /// </summary>
+        public event EventHandler RenderCompleted;
+
         public void LoadSaveFile(FileSystemEntry entry)
         {
             SaveFile.Load(entry, this);
@@ -953,6 +961,7 @@ namespace OpenSage
         internal void Render()
         {
             Graphics.Draw(RenderTime);
+            RenderCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void Dispose(bool disposeManagedResources)
