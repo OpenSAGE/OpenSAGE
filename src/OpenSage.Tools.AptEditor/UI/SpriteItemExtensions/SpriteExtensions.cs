@@ -16,12 +16,7 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
             // reset to initial state
             sprite.Reset();
 
-            if (frameNumber > sprite.GetFrames().Count)
-            {
-                frameNumber = sprite.GetFrames().Count;
-            }
-
-            while (sprite.CurrentFrame <= frameNumber)
+            for(var i = 0; i <= frameNumber; ++i)
             {
                 sprite.UpdateNextFrameNoActions();
             }
@@ -31,9 +26,13 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
         {
             // reset to initial state
             display.Create(display.Character, display.Context, display.Parent);
-            // reset all subitems
             if (display is SpriteItem sprite)
             {
+                // stop the sprite, otherwise OpenSage may execute some
+                // actionscript which we might not be able to handle yet
+                sprite.Stop();
+
+                // reset all subitems
                 foreach (var item in sprite.Content.Items.Values)
                 {
                     item.Reset();
@@ -41,7 +40,7 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
             }
         }
 
-        private static void UpdateNextFrameNoActions(this SpriteItem sprite)
+        public static void UpdateNextFrameNoActions(this SpriteItem sprite)
         {
             //get the current frame
             var frame = sprite.GetFrames()[sprite.CurrentFrame];
@@ -51,8 +50,8 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
             {
                 switch (item)
                 {
-                    case FrameLabel frameLabel:
-                    case Action action: // no actions
+                    case FrameLabel _:
+                    case Action _: // no actions
                         break;
                     default:
                         sprite.HandleFrameItem(item);
@@ -60,19 +59,11 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
                 }
             }
 
-            if (sprite.State == PlayState.PLAYING)
+            sprite.NextFrame();
+            //reset to the start, we are looping by default
+            if (sprite.CurrentFrame >= sprite.GetFrames().Count)
             {
-                sprite.NextFrame();
-
-                //reset to the start, we are looping by default
-                if (sprite.CurrentFrame >= sprite.GetFrames().Count)
-                {
-                    sprite.GotoFrame(0);
-                }
-            }
-            else if (sprite.State == PlayState.PENDING_STOPPED)
-            {
-                sprite.Stop(false);
+                sprite.GotoFrame(0);
             }
 
             //update all subItems
@@ -92,6 +83,8 @@ namespace OpenSage.Tools.AptEditor.UI.SpriteItemExtensions
                         throw new NotImplementedException();
                 }
             }
+
+            sprite.Stop();
         }
 
         private static List<Frame> GetFrames(this SpriteItem sprite)

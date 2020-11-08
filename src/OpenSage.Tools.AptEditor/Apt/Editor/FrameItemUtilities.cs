@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,43 +26,43 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         public LogicalPlaceObject(FrameItem frameItem)
         {
-            if(frameItem is RemoveObject)
+            if (frameItem is RemoveObject)
             {
                 IsRemoveObject = true;
                 return;
             }
 
-            var placeObject = (PlaceObject)frameItem;
+            var placeObject = (PlaceObject) frameItem;
             ModifyingExisting = placeObject.Flags.HasFlag(PlaceObjectFlags.Move);
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasCharacter))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasCharacter))
             {
                 Character = placeObject.Character;
             }
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
             {
                 var mx22 = placeObject.RotScale;
                 var v2 = placeObject.Translation;
                 Transform = new Matrix3x2(mx22.M11, mx22.M12, mx22.M21, mx22.M22, v2.X, v2.Y);
             }
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
             {
                 ColorTransform = placeObject.Color;
             }
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasRatio))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasRatio))
             {
                 Ratio = placeObject.Ratio;
             }
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasName))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
                 Name = placeObject.Name;
             }
 
-            if(placeObject.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
+            if (placeObject.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
             {
                 ClipEvents = placeObject.ClipEvents;
             }
@@ -91,7 +91,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal class FrameItemUtilities
     {
-        public bool Active => _manager.CurrentCharacter is Playable;
+        public bool Active => _manager.CurrentCharacter is Playable p && p.Frames.Count > 0;
         public List<FrameItem> CurrentItems => _storedFrame.FrameItems;
         public IReadOnlyList<(int, LogicalPlaceObject)> PlaceObjects => _placeObjects;
         public IReadOnlyList<FrameLabel> FrameLabels => _frameLabels;
@@ -106,18 +106,23 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private List<BackgroundColor> _backgroundColors;
         private AptSceneManager _manager;
         private Frame _storedFrame;
-        
+
         // Return true if it's a new frame
         public bool Reset(AptSceneManager manager, bool force = false)
         {
             _manager = manager;
-            if(!Active)
+            if (!Active)
             {
                 return false;
             }
 
-            var currentFrame = ((Playable)_manager.CurrentCharacter).Frames[(int)_manager.CurrentFrameWrapped];
-            if(!force && ReferenceEquals(currentFrame, _storedFrame))
+            if (!(_manager.CurrentCharacter is Playable p && _manager.CurrentFrameWrapped.HasValue))
+            {
+                return false;
+            }
+
+            var currentFrame = p.Frames[_manager.CurrentFrameWrapped.Value];
+            if (!force && ReferenceEquals(currentFrame, _storedFrame))
             {
                 return false;
             }
@@ -128,9 +133,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             _frameActions = new List<LogicalAction>();
             _initActions = new List<LogicalInitAction>();
             _backgroundColors = new List<BackgroundColor>();
-            foreach(var frameItem in CurrentItems)
+            foreach (var frameItem in CurrentItems)
             {
-                switch(frameItem)
+                switch (frameItem)
                 {
                     case PlaceObject placeObject:
                         _placeObjects.Add((placeObject.Depth, new LogicalPlaceObject(placeObject)));
@@ -157,13 +162,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             return true;
         }
-        
+
         private static Vector2 Projection(Vector2 vector, Vector2 projectOn) => Vector2.Dot(projectOn, vector) * projectOn / projectOn.LengthSquared();
 
         private static float MatrixMaxDifference(in Matrix3x2 m1, in Matrix3x2 m2, bool checkTranslation)
         {
             var diff = m1 - m2;
-            if(checkTranslation == false)
+            if (checkTranslation == false)
             {
                 diff.Translation = Vector2.Zero;
             }
@@ -191,7 +196,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var rMatrix = new Matrix3x2(Vector2.Dot(c1, e1), Vector2.Dot(c2, e1), 0, Vector2.Dot(c2, e2), 0, 0);
 
             var largestDifference = MatrixMaxDifference(qMatrix * rMatrix, matrix, false);
-            if(largestDifference > errorTolerance)
+            if (largestDifference > errorTolerance)
             {
                 throw new ArithmeticException();
             }
@@ -202,7 +207,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             var check = CreateTransformation(rotation, skew, scale, matrix.Translation);
             var checkDifference = MatrixMaxDifference(check, matrix, false);
-            if(largestDifference > errorTolerance)
+            if (largestDifference > errorTolerance)
             {
                 throw new ArithmeticException();
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
@@ -17,20 +18,19 @@ namespace OpenSage.Tools.AptEditor.UI
         public AptLoadFailure(string message) : base(message) { }
     }
 
-    internal class AptSceneManager : DisposableBase
+    internal class AptSceneManager
     {
-        public int MillisecondsPerFrame => (int) (_renderAptFile?.Movie.MillisecondsPerFrame ?? 30);
-        public bool HasApt => AptManager != null;
+        public int MillisecondsPerFrame => (int) (AptManager?.AptFile.Movie.MillisecondsPerFrame ?? 30);
         public Character? CurrentCharacter { get; private set; }
         public string? CurrentAptPath { get; private set; }
-        public int? NumberOfFrames { get; private set; }
-        public int? CurrentFrameWrapped => CurrentFrame % NumberOfFrames;
-        public int? CurrentFrame { get; private set; }
+        public int NumberOfFrames { get; private set; }
+        public int? CurrentFrameWrapped => NumberOfFrames == 0 ? new int?() : CurrentFrame % NumberOfFrames;
+        public int CurrentFrame { get; private set; }
         public Vector2 CurrentOffset { get; private set; }
         public float CurrentScale { get; private set; }
+        public ColorRgbaF DisplayBackgroundColor { get; private set; }
         public Game Game { get; }
         public AptObjectsManager? AptManager { get; private set; }
-        private AptFile? _renderAptFile;
         private AptWindow? _currentWindow;
 
         public AptSceneManager(Game game)
@@ -42,12 +42,11 @@ namespace OpenSage.Tools.AptEditor.UI
         public void UnloadApt()
         {
             CurrentAptPath = null;
-            NumberOfFrames = null;
-            CurrentFrame = null;
+            NumberOfFrames = 0;
+            CurrentFrame = 0;
             CurrentOffset = Vector2.Zero;
             CurrentScale = 1;
             AptManager = null;
-            _renderAptFile = null;
             _currentWindow = null;
         }
 
@@ -72,29 +71,49 @@ namespace OpenSage.Tools.AptEditor.UI
 
             CurrentAptPath = path;
             AptManager = new AptObjectsManager(aptFile);
-            _renderAptFile = AptManager.AptFile.ShallowClone(true);
-            _renderAptFile.Movie.Frames.Clear();
+        }
+
+        public void ChangeDisplayBackgroundColor(ColorRgbaF newColor)
+        {
+            if (DisplayBackgroundColor == newColor)
+            {
+                return;
+            }
+
+            DisplayBackgroundColor = newColor;
+            ResetAptWindow();
+        }
+
+        public void ResetAptWindow()
+        {
+            _currentWindow = null;
+
+            var windows = Game.Scene2D.AptWindowManager;
+            while (windows.OpenWindowCount > 0)
+            {
+                windows.PopWindow();
+            }
+
+            var multiplied = DisplayBackgroundColor.ToVector4() * 255;
+            var color = new ColorRgba((byte) multiplied.X, (byte) multiplied.Y, (byte) multiplied.Z, (byte) multiplied.W);
+            windows.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, color));
+            if (AptManager != null)
+            {
+                _currentWindow = new AptWindow(Game, Game.ContentManager, AptManager.AptFile);
+                windows.PushWindow(_currentWindow);
+                _currentWindow.Root.PlayToFrameNoActions(0);
+            }
         }
 
         public void SetCharacter(Character character)
         {
-            if(_renderAptFile is null)
+            if(AptManager is null)
             {
                 throw new InvalidOperationException();
             }
-
-            CopyFrames(_renderAptFile, character);
-            NumberOfFrames = _renderAptFile.Movie.Frames.Count;
-
-            var manager = Game.Scene2D.AptWindowManager;
-            while (manager.OpenWindowCount > 0)
-            {
-                manager.PopWindow();
-            }
-            manager.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, ColorRgba.DimGray));
-            _currentWindow = new AptWindow(Game, Game.ContentManager, _renderAptFile);
-            _currentWindow.Root.Create(character, _currentWindow.Context);
-            manager.PushWindow(_currentWindow);
+            ShowCharacter(character);
+            NumberOfFrames = AptManager.AptFile.Movie.Frames.Count;
+            ResetAptWindow();
 
             CurrentCharacter = character;
             CurrentFrame = 0;
@@ -107,18 +126,24 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void PlayToFrame(int frame)
         {
-
-            if (!CurrentFrame.HasValue)
-            {
-                throw new InvalidOperationException();
-            }
-
             if (_currentWindow == null)
             {
                 throw new InvalidOperationException();
             }
 
-            _currentWindow.Root.PlayToFrameNoActions(frame);
+            CurrentFrame = frame;
+            _currentWindow.Root.PlayToFrameNoActions(CurrentFrame);
+        }
+
+        public void NextFrame()
+        {
+            if (_currentWindow == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            ++CurrentFrame;
+            _currentWindow.Root.UpdateNextFrameNoActions();
         }
 
         public void Transform(float scale, Vector2 offset)
@@ -130,16 +155,35 @@ namespace OpenSage.Tools.AptEditor.UI
             throw new NotImplementedException();
         }
 
-        static private void CopyFrames(AptFile renderAptFile, Character character)
+        /// <summary>
+        /// Display the <paramref name="character"/> by replacing frames in
+        /// the current <see cref="AptFile.Movie"/> with character's frames.
+        /// <br/>
+        /// If <paramref name="character"/> isn't a <see cref="Playable"/>,
+        /// i.e. it doesn't have <see cref="Playable.Frames"/>,
+        /// then a <see cref="Frame"/> containing the character as the
+        /// <see cref="FrameItem"/> will be automatically created.
+        /// </summary>
+        /// <param name="character">
+        /// The <see cref="Character"/> which needs to be displayed.
+        /// </param>
+        private void ShowCharacter(Character character)
         {
+            var movie = AptManager!.AptFile.Movie;
+            if (ReferenceEquals(character, movie))
+            {
+                movie.Frames.Clear();
+                movie.Frames.AddRange(AptManager.RealMovieFrames);
+            }
+
             List<Frame> frames;
             switch (character)
             {
                 case Playable playable:
-                    frames = playable.Frames;
+                    frames = playable.Frames.ToList();
                     break;
                 default:
-                    var characterIndex = renderAptFile.Movie.Characters.IndexOf(character);
+                    var characterIndex = movie.Characters.IndexOf(character);
                     if (characterIndex == -1)
                     {
                         throw new IndexOutOfRangeException();
@@ -156,8 +200,8 @@ namespace OpenSage.Tools.AptEditor.UI
                     break;
             }
 
-            renderAptFile.Movie.Frames.Clear();
-            renderAptFile.Movie.Frames.AddRange(frames);
+            movie.Frames.Clear();
+            movie.Frames.AddRange(frames);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Tools.AptEditor.UI.Widgets;
@@ -65,9 +64,11 @@ namespace OpenSage.Tools.AptEditor.UI
             var open = false;
             ImGui.Begin("OpenSAGE Apt Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
 
-
+            foreach (var popUp in _popUps)
+            {
+                popUp.Update();
+            }
             _menuOpenClicked = false;
-
 
             if (ImGui.BeginMenuBar())
             {
@@ -107,13 +108,13 @@ namespace OpenSage.Tools.AptEditor.UI
                 {
                     _manager.LoadApt(_inputAptPath);
                 }
-                catch (AptLoadFailure loadFailure)
+                catch (AptLoadFailure loadFailure) when (!Debugger.IsAttached)
                 {
                     _lastErrorMessageForModalPopUp =
                         $"Failed to open apt file {loadFailure.Message}.\n" +
                         "Consider add more search paths (File Menu > Add Search Path).";
                 }
-                catch (Exception unhandleled)
+                catch (Exception unhandleled) when (!Debugger.IsAttached)
                 {
                     _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
                 }
@@ -144,14 +145,9 @@ namespace OpenSage.Tools.AptEditor.UI
                     }
                 }
             }
-            catch (Exception unhandleled)
+            catch (Exception unhandleled) when (!Debugger.IsAttached)
             {
                 _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
-            }
-
-            foreach (var popUp in _popUps)
-            {
-                popUp.Update();
             }
 
             ImGui.PopStyleVar();

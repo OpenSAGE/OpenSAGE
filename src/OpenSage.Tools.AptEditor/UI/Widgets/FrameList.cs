@@ -52,9 +52,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 if(ImGui.BeginChild("Real Frame List"))
                 {
                     var digits = 1;
-                    if(manager.NumberOfFrames.Value > 10)
+                    if(manager.NumberOfFrames > 10)
                     {
-                        digits = (int)Math.Log10(manager.NumberOfFrames.Value - 1) + 1;
+                        digits = (int)Math.Log10(manager.NumberOfFrames - 1) + 1;
                     }
                     for (var i = 0; i < manager.NumberOfFrames; ++i)
                     {
@@ -80,6 +80,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     _playing = true;
                     _lastPlayUpdate = DateTime.UtcNow;
+                    manager.PlayToFrame(_inputFrameNumber);
                 }
             }
             else
@@ -88,16 +89,26 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     _playing = false;
                 }
-
-                var interval = (DateTime.UtcNow - _lastPlayUpdate).TotalMilliseconds;
-                for (var i = 0; i < interval; i += manager.MillisecondsPerFrame)
-                {
-                    ++_inputFrameNumber;
-                    manager.PlayToFrame(_inputFrameNumber);
-                    _lastPlayUpdate = DateTime.UtcNow;
-                }
-                
             }
+
+            var interval = (DateTime.UtcNow - _lastPlayUpdate).TotalMilliseconds;
+            for (var i = 0; i < interval; i += manager.MillisecondsPerFrame)
+            {
+                if(manager.CurrentFrame != _inputFrameNumber)
+                {
+                    _playing = false;
+                }
+                if (!_playing)
+                {
+                    break;
+                }
+
+                ++_inputFrameNumber;
+                manager.NextFrame();
+                _lastPlayUpdate = DateTime.UtcNow;
+            }
+
+            
             ImGui.TextWrapped("Played frames might differ from real ones because AptEditor won't execute any actionscript.");
         }
     }

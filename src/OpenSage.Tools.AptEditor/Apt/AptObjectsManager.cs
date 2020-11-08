@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
@@ -21,18 +21,15 @@ namespace OpenSage.Tools.AptEditor.Apt
 
     public sealed class AptObjectsManager
     {
-        private Stack<IEditAction> _undoStack;
-        private Dictionary<int, int> _characterIdMap;
-        
-
+        private readonly Stack<IEditAction> _undoStack = new Stack<IEditAction>();
+        private readonly Dictionary<int, int> _characterIdMap = new Dictionary<int, int>();
         public AptFile AptFile { get; private set; }
+        public List<Frame> RealMovieFrames { get; }
         // TODO: Store a copy of AptFile instead of a reference to an extern AptFile
         public AptObjectsManager(AptFile aptFile)
         {
             AptFile = aptFile;
-
-            _undoStack = new Stack<IEditAction>();
-            _characterIdMap = new Dictionary<int, int>();
+            RealMovieFrames = AptFile.Movie.Frames.ToList();
         }
 
         public static AptObjectsManager Load(string rootPath, string aptPath)
