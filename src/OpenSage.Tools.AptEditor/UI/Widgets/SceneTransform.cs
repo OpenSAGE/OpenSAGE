@@ -26,12 +26,12 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.SliderFloat("SceneView Offset Y", ref y, MathF.Min(0, y) - 100, MathF.Max(windowSize.Height, y) + 100);
                 ImGui.Spacing();
 
-                
                 var previousColor = manager.DisplayBackgroundColor;
                 Vector3 color = new Vector3(previousColor.R, previousColor.G, previousColor.B);
                 ImGui.ColorEdit3("Background (display only)", ref color);
 
-                manager.Transform(scale, new Vector2(x, y));
+                manager.CurrentScale = scale;
+                manager.CurrentOffset = new Vector2(x, y);
                 manager.ChangeDisplayBackgroundColor(new ColorRgbaF(color.X, color.Y, color.Z, 1));
             }
             ImGui.End();

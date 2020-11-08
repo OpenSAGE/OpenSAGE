@@ -26,8 +26,16 @@ namespace OpenSage.Tools.AptEditor.UI
         public int NumberOfFrames { get; private set; }
         public int? CurrentFrameWrapped => NumberOfFrames == 0 ? new int?() : CurrentFrame % NumberOfFrames;
         public int CurrentFrame { get; private set; }
-        public Vector2 CurrentOffset { get; private set; }
-        public float CurrentScale { get; private set; }
+        public Vector2 CurrentOffset
+        {
+            get => _currentWindow?.WindowTransform.GeometryTranslation ?? Vector2.Zero;
+            set => SetTransform((ref ItemTransform t) => t.GeometryTranslation = value);
+        }
+        public float CurrentScale
+        {
+            get => _currentWindow?.WindowTransform.GeometryRotation.M11 ?? 1;
+            set => SetTransform((ref ItemTransform t) => t.GeometryRotation = Matrix3x2.CreateScale(value));
+        }
         public ColorRgbaF DisplayBackgroundColor { get; private set; }
         public Game Game { get; }
         public AptObjectsManager? AptManager { get; private set; }
@@ -107,7 +115,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void SetCharacter(Character character)
         {
-            if(AptManager is null)
+            if (AptManager is null)
             {
                 throw new InvalidOperationException();
             }
@@ -117,7 +125,8 @@ namespace OpenSage.Tools.AptEditor.UI
 
             CurrentCharacter = character;
             CurrentFrame = 0;
-            Transform(0.5f, new Vector2(200, 200));
+            CurrentScale = 0.5f;
+            CurrentOffset = new Vector2(200, 200);
             if (NumberOfFrames > 0)
             {
                 PlayToFrame(0);
@@ -146,13 +155,20 @@ namespace OpenSage.Tools.AptEditor.UI
             _currentWindow.Root.UpdateNextFrameNoActions();
         }
 
-        public void Transform(float scale, Vector2 offset)
-        {
-        }
-
         public void SubmitError(string message)
         {
             throw new NotImplementedException();
+        }
+
+        private delegate void TransformAction(ref ItemTransform t);
+        private void SetTransform(TransformAction action)
+        {
+            if (_currentWindow == null)
+            {
+                return;
+            }
+
+            action(ref _currentWindow.WindowTransform);
         }
 
         /// <summary>

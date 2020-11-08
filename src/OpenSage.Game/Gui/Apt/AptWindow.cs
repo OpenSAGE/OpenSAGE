@@ -24,6 +24,8 @@ namespace OpenSage.Gui.Apt
         /// <see cref="Data.Apt.FrameItems.BackgroundColor"/>
         /// </summary>
         private ColorRgbaF _backgroundColor { get; set; }
+        private ItemTransform _windowTransform = ItemTransform.None;
+        public ref ItemTransform WindowTransform => ref _windowTransform;
 
         public AptFile AptFile { get; }
         public string Name => AptFile.MovieName;
@@ -107,7 +109,7 @@ namespace OpenSage.Gui.Apt
 
             _renderingContext.SetWindowSize(destinationSize);
             _renderingContext.SetDrawingContext(drawingContext);
-            _renderingContext.PushTransform(ItemTransform.None);
+            _renderingContext.PushTransform(WindowTransform);
 
             Root.Render(_renderingContext);
 
