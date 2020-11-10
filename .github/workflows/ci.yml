@@ -27,6 +27,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Install Kerberos5
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get update && sudo apt-get install libkrb5-dev
+
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
       with:

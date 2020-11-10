@@ -52,7 +52,7 @@ namespace OpenSage.Terrain.Roads
                 Connect(edge.Start, edge.Start.Position - edge.End.Position);
                 Connect(edge.End, edge.End.Position - edge.Start.Position);
 
-                void Connect(RoadTopologyNode node, in Vector3 direction)
+                void Connect(RoadTopologyNode node, Vector3 direction)
                 {
                     foreach (var connectedEdge in node.Edges)
                     {

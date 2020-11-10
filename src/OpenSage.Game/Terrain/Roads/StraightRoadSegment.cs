@@ -12,7 +12,7 @@ namespace OpenSage.Terrain.Roads
         public bool MirrorTexture => false;
         public RoadTextureType Type => RoadTextureType.Straight;
 
-        public StraightRoadSegment(in Vector3 start, in Vector3 end)
+        public StraightRoadSegment(Vector3 start, Vector3 end)
         {
             Start = new RoadSegmentEndPoint(start);
             End = new RoadSegmentEndPoint(end);

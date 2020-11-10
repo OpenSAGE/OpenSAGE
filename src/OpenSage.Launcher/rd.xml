@@ -1,0 +1,56 @@
+﻿<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <Assembly Name="OpenSage.Launcher">
+      <Type Name="OpenSage.Launcher.Program+Options" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="SharpDX" >
+      <Type Name="SharpDX.ShadowAttribute" Dynamic="Required All" />
+      <Type Name="SharpDX.ShadowContainer" Dynamic="Required All" />
+      <Type Name="SharpDX.ComObjectShadow" Dynamic="Required All" />
+      <Type Name="SharpDX.CppObjectShadow" Dynamic="Required All" />
+      <Type Name="SharpDX.ComObject" Dynamic="Required All" />
+      <Type Name="SharpDX.CppObject" Dynamic="Required All" />
+      <Type Name="SharpDX.Win32.ComStreamProxy" Dynamic="Required All" />
+      <Type Name="SharpDX.Win32.ComStreamShadow" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="SharpDX.DXGI">
+      <Type Name="SharpDX.DXGI.Device" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="SharpDX.Direct3D11">
+      <Type Name="SharpDX.Direct3D11.Texture2D" Dynamic="Required All" />
+      <Type Name="SharpDX.Direct3D11.DeviceContext1" Dynamic="Required All" />
+      <Type Name="SharpDX.Direct3D11.DeviceDebug" Dynamic="Required All" />
+      <Type Name="SharpDX.Direct3D11.UserDefinedAnnotation" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="System.ComponentModel.TypeConverter" Dynamic="Required All" />
+    <Assembly Name="System.Linq.Expressions">
+      <Type Name="System.Linq.Expressions.ExpressionCreator`1[[System.Func`2[[System.Object,System.Private.CoreLib],[System.Object,System.Private.CoreLib]],System.Private.CoreLib]]" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="CommandLine" Dynamic="Required All" />
+    <Assembly Name="NLog" Dynamic="Required All" />
+    <Assembly Name="MoonSharp.Interpreter" Dynamic="Required All" />
+
+    <Assembly Name="OpenSage.Game">
+      <Type Name="OpenSage.Gui.Wnd.DefaultCallbacks" Dynamic="Required All" />
+    </Assembly>
+
+    <Assembly Name="OpenSage.Mods.Generals">
+      <Type Name="OpenSage.Mods.Generals.Gui.MainMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.CreditsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.LanGameOptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.LanLobbyMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.NetworkDirectConnectCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.OptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.QuitMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.QuitMessageBoxCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.ReplayMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.SkirmishGameOptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.SkirmishMapSelectMenuCallbacks" Dynamic="Required All" />
+    </Assembly>
+  </Application>
+</Directives>

@@ -18,15 +18,15 @@ namespace OpenSage.Terrain.Roads
         public Vector3 TopRight { get; }
         public Vector3 BottomLeft { get; }
         public Vector3 BottomRight { get; }
-        
+
         public bool MirrorTexture => false;
         public RoadTextureType Type { get; }
-        
+
         public CurvedRoadSegment(
-            in Vector3 topLeft,
-            in Vector3 topRight,
-            in Vector3 bottomLeft,
-            in Vector3 bottomRight,
+            Vector3 topLeft,
+            Vector3 topRight,
+            Vector3 bottomLeft,
+            Vector3 bottomRight,
             RoadSegmentEndPoint start,
             RoadSegmentEndPoint end,
             RoadTextureType type)
@@ -56,7 +56,7 @@ namespace OpenSage.Terrain.Roads
 
         public static void CreateCurve(
             IReadOnlyList<IncomingRoadData> incomingRoadData,
-            in Vector3 position,
+            Vector3 position,
             RoadTemplate template,
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
@@ -75,7 +75,7 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static RoadTextureType ChooseCurveType(RoadTopologyEdge startEdge, RoadTopologyEdge endEdge, in Vector3 position)
+        private static RoadTextureType ChooseCurveType(RoadTopologyEdge startEdge, RoadTopologyEdge endEdge, Vector3 position)
         {
             // This algorithm seems weird and I'm pretty sure this is not how it's done in the original games.
             // While it does seem to produce the same results, there's probably a less arbitrary and more concise
@@ -123,7 +123,7 @@ namespace OpenSage.Terrain.Roads
                 // render as angled connection
                 return;
             }
-            
+
             var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
 
             var radius = (type == RoadTextureType.TightCurve ? RoadConstants.TightCurveRadius : 3.3f) * halfRoadWidth;
@@ -204,7 +204,7 @@ namespace OpenSage.Terrain.Roads
                 var topRightToBottomRight = bottomRight - topRight;
 
                 var startPoint = new RoadSegmentEndPoint(centerLeft);
-                var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth); 
+                var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth);
 
                 return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint, type);
             }
