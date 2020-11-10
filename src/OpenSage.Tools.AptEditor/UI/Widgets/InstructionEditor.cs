@@ -1,14 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
-using System.Text;
 using ImGuiNET;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.Util;
-using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
@@ -50,23 +46,23 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
     internal class InputComboBox
     {
-        public string ID { get; set; }
+        public string ID { get; set; } = Guid.NewGuid().ToString();
         public string PopUpID => $"##{ID}.Suggestions";
         public IEnumerable<string> Suggestions { get; set; }
-        private byte[] _buffer;
-        private string _current;
+        private readonly ImGuiTextBox _textBox = new ImGuiTextBox();
+        private string _current = string.Empty;
         private bool _listing;
 
         public InputComboBox(IEnumerable<string> suggestions)
         {
-            _buffer = new byte[32];
             Suggestions = suggestions;
         }
 
         public void Draw()
         {
-            ImGuiUtility.InputText($"##{ID}", _buffer, out _current);
-            if(ImGui.IsItemActive() && _current.Any())
+            _textBox.InputText($"##{ID}", out _current);
+            _textBox.Hint = null;
+            if (ImGui.IsItemActive() && _current.Any())
             {
                 var inputPosition = ImGui.GetItemRectMin();
                 var inputSize = ImGui.GetItemRectSize();
@@ -121,8 +117,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     if(ImGui.Selectable(suggestion))
                     {
-                        Encoding.UTF8.GetBytes(suggestion).CopyTo(_buffer, 0);
-                        // ImGui::SetScrollHere();
+                        _textBox.Hint = suggestion;
                     }
                 }
                 ImGui.PopAllowKeyboardFocus();

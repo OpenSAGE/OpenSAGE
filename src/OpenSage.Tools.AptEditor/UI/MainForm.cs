@@ -8,42 +8,44 @@ using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal sealed class MainForm : DisposableBase
+    internal sealed class MainForm
     {
-        private readonly byte[] _filePathBuffer;
+        private readonly ImGuiTextBox _filePathInput = new ImGuiTextBox(1024)
+        {
+            Hint = "fe_shared_mainMenuLib.apt"
+        };
+        private readonly List<IWidget> _widgets = new List<IWidget>
+        {
+            new CharacterList(),
+            new SceneTransform(),
+            new FrameList(),
+            new FrameItemList()
+        };
+        private readonly List<ImGuiModalPopUp> _popUps;
         private readonly GameWindow _window;
         private readonly AptSceneManager _manager;
-        private readonly List<IWidget> _widgets;
-        private readonly List<ImGuiUtility.ModalPopUp> _popUps;
+        
         private bool _menuOpenClicked;
-        private string _inputAptPath;
-        private string _lastErrorMessageForModalPopUp;
-        private string _lastSeriousError;
+        private string? _inputAptPath;
+        private string? _lastErrorMessageForModalPopUp;
+        private string? _lastSeriousError;
         private double _lastFps;
         private DateTime _lastUpdate;
         private DateTime _lastFpsUpdate;
+
         public MainForm(Game game)
         {
-            _filePathBuffer = new byte[1024];
-            var defaultValue = System.Text.Encoding.UTF8.GetBytes("fe_shared_mainMenuLib.apt");
-            defaultValue.CopyTo(_filePathBuffer, 0);
-
             _window = game.Window;
             _manager = new AptSceneManager(game);
-            _widgets = new List<IWidget>();
-            _popUps = new List<ImGuiUtility.ModalPopUp>();
-
-            _widgets.Add(new CharacterList());
-            _widgets.Add(new SceneTransform());
-            _widgets.Add(new FrameList());
-            _widgets.Add(new FrameItemList());
-
-            _popUps.Add(new ImGuiUtility.ModalPopUp("OpenAptFilePopUp", () => _menuOpenClicked, DrawOpenFileDialog));
-            _popUps.Add(new ImGuiUtility.ModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt));
-            _popUps.Add(new ImGuiUtility.ModalPopUp("CriticalErrorPrompt",
-                                                    () => _lastSeriousError != null,
-                                                    DrawCriticalErrorPrompt,
-                                                    ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar));
+            _popUps = new List<ImGuiModalPopUp>
+            {
+                new ImGuiModalPopUp("OpenAptFilePopUp", () => _menuOpenClicked, DrawOpenFileDialog),
+                new ImGuiModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt),
+                new ImGuiModalPopUp("CriticalErrorPrompt",
+                                    () => _lastSeriousError != null,
+                                    DrawCriticalErrorPrompt,
+                                    ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar)
+            };
 
             _lastUpdate = DateTime.Now;
         }
@@ -155,7 +157,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
         private void DrawOpenFileDialog()
         {
-            ImGuiUtility.InputText("Apt File Path", _filePathBuffer, out var inputPath);
+            _filePathInput.InputText("Apt File Path", out var inputPath);
 
             if (ImGui.Button("Open"))
             {
