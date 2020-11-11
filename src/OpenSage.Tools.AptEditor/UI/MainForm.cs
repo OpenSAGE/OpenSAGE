@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Data;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
 
@@ -10,10 +12,7 @@ namespace OpenSage.Tools.AptEditor.UI
 {
     internal sealed class MainForm
     {
-        private readonly ImGuiTextBox _filePathInput = new ImGuiTextBox(1024)
-        {
-            Hint = "fe_shared_mainMenuLib.apt"
-        };
+        private readonly ImGuiTextBox _filePathInput = new ImGuiTextBox(1024);
         private readonly List<IWidget> _widgets = new List<IWidget>
         {
             new CharacterList(),
@@ -21,9 +20,11 @@ namespace OpenSage.Tools.AptEditor.UI
             new FrameList(),
             new FrameItemList()
         };
-        private readonly List<ImGuiModalPopUp> _popUps;
+        private readonly SearchPathAdder _searchPathAdder;
+        private readonly List<ImGuiModalPopUp> _popups;
         private readonly GameWindow _window;
         private readonly AptSceneManager _manager;
+        private readonly FileSystem _fileSystem;
         
         private bool _menuOpenClicked;
         private string? _inputAptPath;
@@ -37,17 +38,18 @@ namespace OpenSage.Tools.AptEditor.UI
         {
             _window = game.Window;
             _manager = new AptSceneManager(game);
-            _popUps = new List<ImGuiModalPopUp>
+            _searchPathAdder = new SearchPathAdder(game);
+            _popups = new List<ImGuiModalPopUp>
             {
-                new ImGuiModalPopUp("OpenAptFilePopUp", () => _menuOpenClicked, DrawOpenFileDialog),
-                new ImGuiModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt),
                 new ImGuiModalPopUp("CriticalErrorPrompt",
                                     () => _lastSeriousError != null,
                                     DrawCriticalErrorPrompt,
-                                    ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar)
+                                    ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar),
+                new ImGuiModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt),
+                new ImGuiModalPopUp("OpenAptFilePopUp", () => _menuOpenClicked, DrawOpenFileDialog),
             };
-
             _lastUpdate = DateTime.Now;
+            _fileSystem = game.ContentManager.FileSystem;
         }
 
         public void Draw()
@@ -66,9 +68,12 @@ namespace OpenSage.Tools.AptEditor.UI
             var open = false;
             ImGui.Begin("OpenSAGE Apt Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
 
-            foreach (var popUp in _popUps)
+            foreach (var popup in _popups)
             {
-                popUp.Update();
+                if (popup.Update())
+                {
+                    break;
+                }
             }
             _menuOpenClicked = false;
 
@@ -78,6 +83,10 @@ namespace OpenSage.Tools.AptEditor.UI
                 {
                     if (ImGui.MenuItem("Open...", "Ctrl+O", false, true))
                     {
+                        _filePathInput.Hint = _fileSystem
+                            .FindFiles(entry => entry.FilePath.EndsWith(".apt", StringComparison.OrdinalIgnoreCase))
+                            .FirstOrDefault()
+                            ?.FilePath;
                         _menuOpenClicked = true;
                     }
 
@@ -88,14 +97,14 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     if (ImGui.MenuItem("Add Search paths..."))
                     {
-
+                        _searchPathAdder.Visible = true;
                     }
 
                     ImGui.Separator();
 
                     if (ImGui.MenuItem("Exit", "Alt+F4", false, true))
                     {
-                        Environment.Exit(0);
+                        _window.Close();
                     }
 
                     ImGui.EndMenu();
@@ -110,11 +119,11 @@ namespace OpenSage.Tools.AptEditor.UI
                 {
                     _manager.LoadApt(_inputAptPath);
                 }
-                catch (AptLoadFailure loadFailure) when (!Debugger.IsAttached)
+                catch (AptLoadFailure loadFailure)// when (!Debugger.IsAttached)
                 {
                     _lastErrorMessageForModalPopUp =
                         $"Failed to open apt file {loadFailure.Message}.\n" +
-                        "Consider add more search paths (File Menu > Add Search Path).";
+                        "Consider adding more search paths (File Menu > Add Search Path).";
                 }
                 catch (Exception unhandleled) when (!Debugger.IsAttached)
                 {
@@ -139,6 +148,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
             try
             {
+                _searchPathAdder.Draw();
                 if (_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)
                 {
                     foreach (var widget in _widgets)
@@ -198,7 +208,7 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 _lastSeriousError = null;
                 ImGui.CloseCurrentPopup();
-                Environment.Exit(1);
+                _window.Close();
             }
 
             ImGui.SetItemDefaultFocus();
