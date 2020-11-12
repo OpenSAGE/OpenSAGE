@@ -191,7 +191,7 @@ namespace OpenSage.Gui.Apt
 
         private bool IsNewFrame(TimeInterval gt)
         {
-            if (_lastUpdate.TotalTime.Milliseconds == 0)
+            if (_lastUpdate.TotalTime.TotalMilliseconds == 0)
             {
                 _lastUpdate = gt;
                 return true;
