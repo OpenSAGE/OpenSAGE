@@ -9,6 +9,14 @@ namespace OpenSage.Tools.AptEditor.Util
 {
     internal abstract class InputComboBox
     {
+        private enum ShowState
+        {
+            Hidden,
+            FocusTextBox,
+            Visible,
+            FocusMenu,
+            
+        }
         public string ID { get; set; } = Guid.NewGuid().ToString();
         public string PopUpID => $"##{ID}.Suggestions";
         public string Value => _current;
@@ -16,70 +24,101 @@ namespace OpenSage.Tools.AptEditor.Util
         private string[] _cached = Array.Empty<string>();
         private string _last = string.Empty;
         private string _current = string.Empty;
-        private bool _listing;
+        private Vector2 _position;
+        private Vector2 _size;
+        private float _lastWidth;
+        private float _lastHeight;
+        private bool _hasOverflow;
+        private ShowState _show;
 
-        protected abstract string[] GetSuggestions();
+        protected abstract IEnumerable<string> GetSuggestions();
 
         public void Draw()
         {
-            ImGui.InputText($"##{ID}", ref _current, 1024);
-
-            _listing = _listing || ImGui.IsItemActive();
-            if (_listing)
+            switch (_show)
             {
-                var isFocused = ImGui.IsWindowFocused();
-                var inputSize = ImGui.GetItemRectSize();
-                var popUpPosition = new Vector2(ImGui.GetItemRectMin().X, ImGui.GetItemRectMax().Y);
-                var popUpSize = new Vector2(inputSize.X, 0);
-                DrawSuggestions(isFocused, popUpPosition, popUpSize);
-            }
+                case ShowState.FocusMenu:
+                case ShowState.Visible:
+                    DrawSuggestions();
+                    break;
+                case ShowState.FocusTextBox:
+                    ImGui.SetKeyboardFocusHere();
+                    goto case ShowState.Hidden;
+                case ShowState.Hidden:
+                    ImGui.InputText($"##{ID}", ref _current, 1024);
+                    if (ImGui.IsItemActive())
+                    {
+                        _show = ShowState.FocusMenu;
+                    }
+                    _position = ImGui.GetItemRectMin();
+                    _size = ImGui.GetItemRectSize();
+                    break;
 
-            _last = _current;
+            }
         }
 
         /// Inspired by Harold Brenes' auto complete widget https://github.com/ocornut/imgui/issues/718
-        private void DrawSuggestions(bool isFocused, Vector2 position, Vector2 size)
+        private void DrawSuggestions()
         {
             if (_last != _current)
             {
-                _cached = GetSuggestions();
+                _cached = GetSuggestions().ToArray();
             }
+            _last = _current;
 
-            if (!_cached.Any())
+            if (_show == ShowState.FocusMenu)
             {
-                return;
+                ImGui.SetNextWindowFocus();
             }
 
-            if (!_listing)
-            {
-                _listing = true;
-            }
-
-            ImGui.SetNextWindowPos(position);
-            ImGui.SetNextWindowSize(size);
-
+            ImGui.SetNextWindowPos(_position);
+            ImGui.SetNextWindowSize(new Vector2(_size.X, _lastHeight > _size.Y * 12 ? _size.Y * 8 : 0));
             const ImGuiWindowFlags flags =
                 ImGuiWindowFlags.NoTitleBar |
                 ImGuiWindowFlags.NoResize |
                 ImGuiWindowFlags.NoMove |
-                ImGuiWindowFlags.Tooltip |
                 ImGuiWindowFlags.HorizontalScrollbar |
                 ImGuiWindowFlags.NoSavedSettings;
 
-            ImGui.BeginTooltip();
+            if (ImGui.Begin($"##{ID}.Tooltip", flags))
             {
-                isFocused = isFocused || ImGui.IsWindowFocused();
+                var width = _size.X - 16;
+                if (_hasOverflow)
+                {
+                    ImGui.SetCursorPos(new Vector2(_lastWidth - width + 8, ImGui.GetCursorPosY()));
+                }
+                ImGui.SetNextItemWidth(width);
+                if (_show == ShowState.FocusMenu)
+                {
+                    ImGui.SetKeyboardFocusHere();
+                }
+                ImGui.InputText($"##{ID}", ref _current, 1024);
+                _show = ImGui.IsWindowFocused() ? ShowState.Visible : ShowState.Hidden;
+                var lastWidth = _lastWidth;
+                _lastWidth = _size.X;
                 foreach (var suggestion in _cached)
                 {
+                    width = ImGui.CalcTextSize(suggestion).X;
+                    if (_hasOverflow)
+                    {
+                        ImGui.SetCursorPos(new Vector2(Math.Max(8, lastWidth - width + 8), ImGui.GetCursorPosY()));
+                    }
                     if (ImGui.Selectable(suggestion))
                     {
+                        _show = ShowState.FocusTextBox;
                         _current = suggestion;
-                        _listing = false;
                     }
+                    _lastWidth = Math.Max(width + 16, _lastWidth);
                 }
+                _hasOverflow = _lastWidth - ImGui.GetWindowSize().X > 1;
+                if (_hasOverflow)
+                {
+                    ImGui.TextUnformatted(string.Empty);
+                    ImGui.SetScrollX(ImGui.GetScrollMaxX());
+                }
+                _lastHeight = ImGui.GetCursorPosY();
             }
             ImGui.End();
-            _listing = _listing && isFocused;
         }
     }
 
@@ -87,19 +126,19 @@ namespace OpenSage.Tools.AptEditor.Util
     {
         public IEnumerable<string> Suggestions { get; set; } = Enumerable.Empty<string>();
 
-        protected override string[] GetSuggestions()
+        protected override IEnumerable<string> GetSuggestions()
         {
             const StringComparison noCase = StringComparison.OrdinalIgnoreCase;
             var topSuggestions = Suggestions.Where(input => input.StartsWith(Value, noCase));
             var otherSuggestions = Suggestions.Except(topSuggestions).Where(input => input.Contains(Value, noCase));
-            return topSuggestions.Concat(otherSuggestions).ToArray();
+            return topSuggestions.Concat(otherSuggestions);
         }
     }
 
     internal sealed class FileSuggestionBox : InputComboBox
     {
         public bool DirectoryOnly { get; set; }
-        protected override string[] GetSuggestions()
+        protected override IEnumerable<string> GetSuggestions()
         {
             var @base = Path.GetDirectoryName(Value);
             if (string.IsNullOrWhiteSpace(@base))
@@ -116,7 +155,16 @@ namespace OpenSage.Tools.AptEditor.Util
             var func = DirectoryOnly
                 ? (Func<string, string, string[]>)Directory.GetDirectories
                 : Directory.GetFileSystemEntries;
-            return func(@base, $"{input}*").Take(10).ToArray();
+            return func(@base, $"{input}*").Take(16);
+        }
+    }
+
+    internal sealed class CustomSuggestionBox : InputComboBox
+    {
+        public Func<string, IEnumerable<string>> SuggestionsProvider { get; set; } = _ => Array.Empty<string>();
+        protected override IEnumerable<string> GetSuggestions()
+        {
+            return SuggestionsProvider(Value);
         }
     }
 }

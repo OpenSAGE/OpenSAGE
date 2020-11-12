@@ -83,6 +83,7 @@ namespace OpenSage.Tools.AptEditor
                         if (ImGui.Button("Load"))
                         {
                             rootPath = inputRootPath;
+                            window.Close();
                         }
                     }
                     ImGui.End();

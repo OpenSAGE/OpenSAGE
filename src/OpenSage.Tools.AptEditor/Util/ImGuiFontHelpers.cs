@@ -15,7 +15,7 @@ namespace OpenSage.Tools.AptEditor.Util
                 return null;
             }
             var fontPath = Path.Combine(windows, "Fonts", fontFileName);
-            var font = ImGui.GetIO().Fonts.AddFontFromFileTTF(fontPath, 14);
+            var font = ImGui.GetIO().Fonts.AddFontFromFileTTF(fontPath, 13);
             if (!font.IsNull())
             {
                 renderer.RecreateFontDeviceTexture();

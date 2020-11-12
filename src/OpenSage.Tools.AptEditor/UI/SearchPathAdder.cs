@@ -15,12 +15,13 @@ namespace OpenSage.Tools.AptEditor.UI
     internal sealed class SearchPathAdder
     {
         public FileSystem TargetFileSystem { get; set; }
-        public bool Visible { get; set; }
+        public ref bool Visible => ref _open;
         public int MaxCount { get; set; } = 1000;
 
-        private readonly FileSuggestionBox _inputBox = new FileSuggestionBox();
+        private readonly FileSuggestionBox _inputBox = new FileSuggestionBox { DirectoryOnly = true };
         private readonly ConcurrentQueue<string> _list = new ConcurrentQueue<string>();
         private readonly List<string> _mapped = new List<string>();
+        private bool _open;
         private string? _lastInput = null;
         private string _mappedPath = string.Empty;
         private CancellationTokenSource? _cancellation;
@@ -39,11 +40,9 @@ namespace OpenSage.Tools.AptEditor.UI
                 return;
             }
 
-            var open = Visible;
-            if (ImGui.Begin("Add Search paths...", ref open))
+            var draw = ImGui.Begin("Add Search paths...", ref Visible);
+            if (draw)
             {
-                Visible = open;
-
                 ImGui.Columns(2);
                 ImGui.Text("Load files from path: ");
                 _inputBox.Draw();
@@ -108,7 +107,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }
             Reset(directory);
 
-            if (string.IsNullOrWhiteSpace(directory))
+            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
             {
                 return;
             }
