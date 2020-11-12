@@ -61,12 +61,15 @@ namespace OpenSage.Gui.Apt
                             t.Content = val.ToString();
                     }
 
-                    //localize our content
+                    // localize our content
+                    var original = t.Content;
                     t.Content = t.Content.Replace("$", "APT:"); // All string values begin with $
                     t.Content = t.Content.Split('&').First();   // Query strings after ampersand
                     t.Content = t.Content.Translate();
 
                     renderingContext.RenderText(t);
+                    // restore original text
+                    t.Content = original;
                     break;
             }
 
