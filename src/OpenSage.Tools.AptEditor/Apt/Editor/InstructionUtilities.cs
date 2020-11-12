@@ -497,6 +497,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushConstantWord",    typeof(PushConstantWord),   new[] { ValueType.Constant }),
                 ("CallFunctionPop",     typeof(CallFunctionPop),    none),
                 ("StrictEquals",        typeof(StrictEquals),       none),
+                ("Extends",             typeof(Extends),            none),
+                ("InstanceOf",          typeof(InstanceOf),         none),
             };
         }
 
