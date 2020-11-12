@@ -39,14 +39,16 @@ namespace OpenSage.Tools.AptEditor.Util
             {
                 case ShowState.FocusMenu:
                 case ShowState.Visible:
+                    ImGui.Dummy(_size);
                     DrawSuggestions();
                     break;
                 case ShowState.FocusTextBox:
+                    ImGui.SetWindowFocus();
                     ImGui.SetKeyboardFocusHere();
+                    _show = ShowState.Hidden;
                     goto case ShowState.Hidden;
                 case ShowState.Hidden:
-                    ImGui.InputText($"##{ID}", ref _current, 1024);
-                    if (ImGui.IsItemActive())
+                    if (ImGui.InputText($"##{ID}", ref _current, 1024) || ImGui.IsItemClicked())
                     {
                         _show = ShowState.FocusMenu;
                     }
