@@ -69,7 +69,7 @@ namespace OpenSage.Data.Apt
                     var importEntry = FileSystem.GetFile(importPath);
                     if(importEntry == null)
                     {
-                        throw new FileNotFoundException(importPath);
+                        throw new FileNotFoundException("Cannot find imported file", importPath);
                     }
                     importApt = AptFile.FromFileSystemEntry(importEntry);
                     importDict[import.Movie] = importApt;

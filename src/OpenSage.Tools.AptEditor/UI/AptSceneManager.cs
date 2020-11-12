@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +15,11 @@ namespace OpenSage.Tools.AptEditor.UI
 {
     internal class AptLoadFailure : Exception
     {
-        public AptLoadFailure(string message) : base(message) { }
+        public string? File { get; }
+        public AptLoadFailure(string? file) : base(file is null ? "Apt Load failed" : $"Cannot load {file}")
+        {
+            File = file;
+        }
     }
 
     internal class AptSceneManager
@@ -74,7 +78,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }
             catch (FileNotFoundException fileNotFound)
             {
-                throw new AptLoadFailure(fileNotFound.Message);
+                throw new AptLoadFailure(fileNotFound.FileName);
             }
 
             CurrentAptPath = path;

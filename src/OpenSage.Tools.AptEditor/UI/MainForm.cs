@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -24,7 +25,7 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly List<ImGuiModalPopUp> _popups;
         private readonly GameWindow _window;
         private readonly AptSceneManager _manager;
-        
+
         private string? _lastErrorMessageForModalPopUp;
         private string? _lastSeriousError;
         private double _lastFps;
@@ -37,7 +38,7 @@ namespace OpenSage.Tools.AptEditor.UI
             _manager = new AptSceneManager(game);
             _aptFileSelector = new AptFileSelector(game.ContentManager.FileSystem);
             _searchPathAdder = new SearchPathAdder(game);
-            
+
             _popups = new List<ImGuiModalPopUp>
             {
                 new ImGuiModalPopUp("CriticalErrorPrompt",
@@ -109,13 +110,40 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 try
                 {
-                    _manager.LoadApt(inputAptPath);
-                }
-                catch (AptLoadFailure loadFailure)// when (!Debugger.IsAttached)
-                {
-                    _lastErrorMessageForModalPopUp =
-                        $"Failed to open apt file {loadFailure.Message}.\n" +
-                        "Consider adding more search paths (File Menu > Add Search Path).";
+                    string? lastFailed = null;
+                    while (true)
+                    {
+                        try
+                        {
+                            _searchPathAdder.AutoLoad(inputAptPath); // here it's used to prepare art folder
+                            _manager.LoadApt(inputAptPath);
+                        }
+                        catch (AptLoadFailure loadFailure)
+                        {
+                            if (loadFailure.File is string file)
+                            {
+                                if (file != lastFailed)
+                                {
+                                    lastFailed = file;
+                                    if (_searchPathAdder.AutoLoad(file))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Path.GetDirectoryName(file) is string directory)
+                                {
+                                    _searchPathAdder.MappedPath = directory;
+                                }
+                            }
+                            _lastErrorMessageForModalPopUp =
+                                $"Failed to open apt file {loadFailure.File ?? "?"} - {loadFailure.Message}.\n" +
+                                "Consider adding more search paths (File Menu > Add Search Path).";
+                            _searchPathAdder.Visible = true;
+                            _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
+                        }
+                        break;
+                    }
                 }
                 catch (Exception unhandleled) when (!Debugger.IsAttached)
                 {
@@ -157,7 +185,7 @@ namespace OpenSage.Tools.AptEditor.UI
             ImGui.PopStyleVar();
         }
 
-        
+
 
         private void DrawErrorPrompt()
         {

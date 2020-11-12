@@ -25,8 +25,6 @@ namespace OpenSage.Tools.AptEditor.UI
             };
         }
 
-        public void Open() => _open = true;
-
         public string? GetValue()
         {
             var value = _value;

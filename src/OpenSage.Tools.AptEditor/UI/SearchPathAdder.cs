@@ -16,14 +16,18 @@ namespace OpenSage.Tools.AptEditor.UI
     {
         public FileSystem TargetFileSystem { get; set; }
         public ref bool Visible => ref _open;
-        public int MaxCount { get; set; } = 1000;
+        public ref int MaxCount => ref _maxCount;
+        public string MappedPath { get; set; } = string.Empty;
+        public Action? Next { get; set; }
 
         private readonly FileSuggestionBox _inputBox = new FileSuggestionBox { DirectoryOnly = true };
+        private readonly HashSet<string> _autoDetect = new HashSet<string>();
         private readonly ConcurrentQueue<string> _list = new ConcurrentQueue<string>();
         private readonly List<string> _mapped = new List<string>();
         private bool _open;
+        private int _maxCount = 1000;
+        private int _truncatedTo = 0;
         private string? _lastInput = null;
-        private string _mappedPath = string.Empty;
         private CancellationTokenSource? _cancellation;
         private Task? _loadingTask;
 
@@ -45,55 +49,187 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 ImGui.Columns(2);
                 ImGui.Text("Load files from path: ");
+
                 _inputBox.Draw();
                 TryGetFiles();
+
                 ImGui.Text("File list");
-                if (_list.Count >= MaxCount)
+                if (_list.Count >= _truncatedTo && _list.Any())
                 {
                     ImGui.SameLine();
-                    ImGui.TextColored(ColorRgbaF.Red.ToVector4(), $"File count exceeded {MaxCount}!");
+                    var message = $"File count exceeded {_truncatedTo}! Only first {_truncatedTo} files will be loaded";
+                    ImGui.TextColored(ColorRgbaF.Red.ToVector4(), message);
                 }
+
+                if (_loadingTask?.IsCompleted != false && _list.Any())
+                {
+                    if(ImGui.Button("Enable Autoload in following files"))
+                    {
+                        // _inputBox.Value is valid, becasue TryGetFiles() is called after _inputBox.Draw()s
+                        _autoDetect.UnionWith(_list.Select(path => Path.Combine(_inputBox.Value, path)));
+                    }
+                    if (_autoDetect.Any())
+                    {
+                        ImGui.SameLine();
+                    }
+                }
+                if (_autoDetect.Any())
+                {
+                    if(ImGui.Button($"Clear {_autoDetect.Count} items in autoload list"))
+                    {
+                        _autoDetect.Clear();
+                    }
+                }
+
+                var beginY = ImGui.GetCursorPosY();
                 var list = _list.Take(MaxCount);
+                var wasVisible = true;
                 foreach (var path in list)
                 {
-                    ImGui.TextUnformatted(path);
+                    ImGui.TextUnformatted(wasVisible ? path : string.Empty);
+                    wasVisible = ImGui.IsItemVisible();
                 }
 
                 ImGui.NextColumn();
                 ImGui.Text("Alias load path as: ");
-                var lastMappedPath = _mappedPath;
-                ImGui.InputText("##mapedPath", ref _mappedPath, 1024);
+
+                var newMappedPath = MappedPath;
+                ImGui.InputText("##mapedPath", ref newMappedPath, 1024);
                 ImGui.SameLine();
                 var load = ImGui.Button("Load");
-                ImGui.Text("Mapped files");
-                if (lastMappedPath != _mappedPath)
+
+                if (newMappedPath != MappedPath)
                 {
+                    MappedPath = newMappedPath;
                     _mapped.Clear();
                 }
                 var newPaths = list.Skip(_mapped.Count);
                 foreach (var path in newPaths)
                 {
-                    _mapped.Add(string.IsNullOrWhiteSpace(_mappedPath) ? path : Path.Combine(_mappedPath, path));
+                    _mapped.Add(string.IsNullOrWhiteSpace(MappedPath) ? path : Path.Combine(MappedPath, path));
                 }
+
+                ImGui.InputInt("Max count", ref MaxCount);
+
+                ImGui.Text($"Mapped files ({_mapped.Count})");
+                
+                ImGui.SetCursorPosY(Math.Max(beginY, ImGui.GetCursorPosY()));
+                wasVisible = true;
                 foreach (var path in _mapped)
                 {
-                    ImGui.TextUnformatted(path);
+                    ImGui.TextUnformatted(wasVisible ? path : string.Empty);
+                    wasVisible = ImGui.IsItemVisible();
                 }
 
                 if (load)
                 {
-                    foreach (var (from, to) in list.Zip(_mapped))
-                    {
-                        var info = new FileInfo(Path.Combine(_inputBox.Value, from));
-                        TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                                    FileSystem.NormalizeFilePath(to),
-                                                                    (uint) info.Length,
-                                                                    () => info.OpenRead()));
-                    }
+                    // _inputBox.Value is valid, becasue TryGetFiles() is called after _inputBox.Draw()
+                    Load(list.Select(from => Path.Combine(_inputBox.Value, from)).Zip(_mapped), true);
                     Visible = false;
+                    Next?.Invoke();
+                    Next = null;
                 }
             }
             ImGui.End();
+        }
+
+        public bool AutoLoad(string requiredAptFile)
+        {
+            requiredAptFile = FileSystem.NormalizeFilePath(requiredAptFile);
+            var mappedPath = Path.GetDirectoryName(requiredAptFile);
+            var name = Path.GetFileName(requiredAptFile);
+
+            var detectedFromGameFileSystem = TargetFileSystem
+                .FindFiles(entry => Path.GetFileName(entry.FilePath) == name)
+                .Select(entry => entry.FilePath)
+                .ToArray();
+            var detectedFromCustomFiles = _autoDetect
+                .Where(path => FileSystem.NormalizeFilePath(Path.GetFileName(path)) == name);
+            if (!detectedFromGameFileSystem.Any() && detectedFromCustomFiles.Any())
+            {
+                return false;
+            }
+
+            foreach(var gameFile in detectedFromGameFileSystem)
+            {
+                var sourcePath = Path.GetDirectoryName(gameFile);
+                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: true);
+                
+                Console.WriteLine($"Automaticaling loaded game:{sourcePath} => game:{mappedPath} for {requiredAptFile}");
+            }
+
+            foreach (var file in detectedFromCustomFiles)
+            {
+                var sourcePath = Path.GetDirectoryName(file);
+                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: false);
+                Console.WriteLine($"Automaticaling loaded file:{sourcePath} => game:{mappedPath} for {requiredAptFile}");
+            }
+
+            return true;
+        }
+
+        private void AutoLoadImpl(string sourcePath, string? mappedPath, bool isFromGameFileSystem)
+        {
+            if (Path.EndsInDirectorySeparator(sourcePath))
+            {
+                sourcePath += Path.DirectorySeparatorChar;
+            }
+            var paths = isFromGameFileSystem
+                ? TargetFileSystem.FindFiles(_ => true).Select(entry => entry.FilePath)
+                : _autoDetect;
+            var normalizedSourcePath = FileSystem.NormalizeFilePath(sourcePath);
+            var filtered = from path in paths
+                           let normalized = FileSystem.NormalizeFilePath(path)
+                           where normalized.StartsWith(normalizedSourcePath)
+                           let relative = normalized.Substring(normalizedSourcePath.Length + 1)
+                           let mapped = mappedPath is null ? relative : Path.Combine(mappedPath, relative)
+                           select (path, mapped);
+            Load(filtered.ToArray(), !isFromGameFileSystem);
+        }
+
+        private void Load(IEnumerable<(string, string)> listAndMapped, bool isPhysicalFile)
+        {
+            var art1 = FileSystem.NormalizeFilePath("/art/textures/");
+            var art2 = FileSystem.NormalizeFilePath("art/textures/");
+            foreach (var (from, to) in listAndMapped)
+            {
+                var (open, length) = GetFile(from, isPhysicalFile);
+                TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
+                                                            FileSystem.NormalizeFilePath(to),
+                                                            length,
+                                                            open));
+                // load art
+                var normalizedArt = FileSystem.NormalizeFilePath(from);
+                var index = normalizedArt.IndexOf(art1);
+                if (index == -1)
+                {
+                    index = normalizedArt.IndexOf(art2);
+                    if (index != 0)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    index += 1;
+                }
+                TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
+                                                            normalizedArt.Substring(index),
+                                                            length,
+                                                            open));
+            }
+            
+        }
+
+        private (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)
+        {
+            if (isPhysicalFile)
+            {
+                var info = new FileInfo(path);
+                return (info.OpenRead, (uint) info.Length);
+            }
+            var entry = TargetFileSystem.GetFile(path);
+            return (entry.Open, entry.Length);
         }
 
         private void TryGetFiles()
@@ -101,7 +237,7 @@ namespace OpenSage.Tools.AptEditor.UI
             var directory = Directory.Exists(_inputBox.Value)
                 ? _inputBox.Value
                 : Path.GetDirectoryName(_inputBox.Value);
-            if (_lastInput == directory)
+            if (_lastInput == directory && _truncatedTo == MaxCount)
             {
                 return;
             }
@@ -114,7 +250,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
             _cancellation = new CancellationTokenSource();
             var token = _cancellation.Token;
-            var max = MaxCount;
+            var max = _truncatedTo = MaxCount;
             _loadingTask = Task.Run(() =>
             {
                 var files = Directory.EnumerateFiles(directory, "*", new EnumerationOptions
@@ -138,7 +274,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
         private void Reset(string? directory)
         {
-            if (_lastInput == directory)
+            if (_lastInput == directory && _truncatedTo == MaxCount)
             {
                 return;
             }
