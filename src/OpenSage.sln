@@ -48,9 +48,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core", "OpenSage.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.RefPack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.BigTool", "OpenSage.Tools.BigTool\OpenSage.Tools.BigTool.csproj", "{09B2C509-4033-433F-9442-4D81B930C715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigTool", "OpenSage.Tools.BigTool\OpenSage.Tools.BigTool.csproj", "{09B2C509-4033-433F-9442-4D81B930C715}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.AptEditor", "OpenSage.Tools.AptEditor\OpenSage.Tools.AptEditor.csproj", "{CC67942B-862D-48DA-B2A5-BD61B924E4D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.AptEditor", "OpenSage.Tools.AptEditor\OpenSage.Tools.AptEditor.csproj", "{CC67942B-862D-48DA-B2A5-BD61B924E4D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +153,7 @@ Global
 		{C2F25BA9-74F0-484A-B305-B8D67AC0F398} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 		{8483402D-4DB2-4E7B-AEAA-9091A3F0255C} = {FFC49638-8FFE-4C6E-B2B2-AC7D942498D6}
 		{09B2C509-4033-433F-9442-4D81B930C715} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
+		{CC67942B-862D-48DA-B2A5-BD61B924E4D0} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DBD83F1E-3F41-45D9-AACC-62E00826AD5C}
