@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
@@ -7,7 +7,7 @@ using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    public sealed class RenderItem : DisplayItem
+    public sealed class RenderItem : TexturedItem
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private TimeInterval _lastUpdate;
@@ -15,7 +15,7 @@ namespace OpenSage.Gui.Apt
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
         public CustomRenderCallback RenderCallback;
-
+        
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             Character = character;
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Apt
             if (t.Value.Length > 0)
             {
                 try
-            {
+                {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
                     if (val.Type != ValueType.Undefined)
                         t.Content = val.ToString();

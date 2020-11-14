@@ -3,19 +3,16 @@ using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    public class ButtonItem : DisplayItem
+    public class ButtonItem : TexturedItem
     {
         private bool _isHovered = false;
         private bool _isDown = false;
         private ItemTransform _curTransform;
         private List<InstructionCollection> _actionList;
-        public Texture Texture { get; set; }
 
-        internal ButtonItem() { }
         public override void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             Character = chararacter;

@@ -52,11 +52,11 @@ namespace OpenSage.Gui.Apt
             _context = new AptContext(this);
 
             //First thing to do here is to initialize the display list
-            Root = new SpriteItem
+            Root = AddDisposable(new SpriteItem
             {
                 Transform = ItemTransform.None,
                 SetBackgroundColor = (c) => _backgroundColor = c
-            };
+            });
             Root.Create(aptFile.Movie, _context);
 
             _context.Root = Root;

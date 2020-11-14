@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt
 {
-    public sealed class DisplayList
+    public sealed class DisplayList : DisposableBase
     {
-        private SortedDictionary<int, DisplayItem> _items;
-        private SortedDictionary<int, DisplayItem> _reverseItems;
+        private readonly SortedDictionary<int, DisplayItem> _items;
+
+        // should we replace this with LINQ or a specially designated IEnumerable?
+        private readonly SortedDictionary<int, DisplayItem> _reverseItems;
 
         public IReadOnlyDictionary<int, DisplayItem> Items => _items;
-        public IReadOnlyDictionary<int, DisplayItem> ReverseItems => _reverseItems;
+        public IReadOnlyDictionary<int, DisplayItem> ReverseItems => _reverseItems; 
 
         class DescendingComparer<T> : IComparer<T> where T : IComparable<T>
         {
@@ -27,12 +29,21 @@ namespace OpenSage.Gui.Apt
 
         public void AddItem(int depth, DisplayItem item)
         {
-            _items[depth] = item;
+            if (_items.TryGetValue(depth, out var previous))
+            {
+                RemoveAndDispose(ref previous);
+            }
+            _items[depth] = AddDisposable(item);
             _reverseItems[depth] = item;
         }
 
         public void RemoveItem(int depth)
         {
+            if (!_items.TryGetValue(depth, out var previous))
+            {
+                return;
+            }
+            RemoveAndDispose(ref previous);
             _items.Remove(depth);
             _reverseItems.Remove(depth);
         }
