@@ -13,6 +13,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private int _inputFrameNumber;
         private DateTime _lastPlayUpdate;
         private bool _playing;
+        private float _playSpeed;
 
         public FrameList()
         {
@@ -21,20 +22,22 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         public void Draw(AptSceneManager manager)
         {
-            if(_frameListUtilities.Reset(manager))
+            if (_frameListUtilities.Reset(manager))
             {
                 // if this is a different frame (imply _utilities.Active == true)
-                ImGui.SetNextWindowSize(new Vector2(0, 0));
-                _inputFrameNumber = (int)manager.CurrentFrame;
+                ImGui.SetNextWindowSize(Vector2.Zero);
+                _inputFrameNumber = manager.CurrentFrame;
                 _playing = false;
+                _playSpeed = 1f;
             }
-            else if(!_frameListUtilities.Active)
+            else if (!_frameListUtilities.Active)
             {
                 return;
             }
 
-            if(ImGui.Begin(Name))
+            if (ImGui.Begin(Name))
             {
+                ImGui.InputFloat("Speed multiplier", ref _playSpeed);
                 ImGui.Text($"Current Frame: {manager.CurrentFrameWrapped}");
                 ProcessPlay(manager);
 
@@ -42,27 +45,28 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ImGui.InputInt($" / {manager.NumberOfFrames}", ref _inputFrameNumber);
                 _inputFrameNumber = Math.Abs(_inputFrameNumber);
-                if(ImGui.Button("Play to frame"))
+                if (ImGui.Button("Play to frame"))
                 {
                     manager.PlayToFrame(_inputFrameNumber);
                 }
 
                 ImGui.Separator();
 
-                if(ImGui.BeginChild("Real Frame List"))
+                if (ImGui.BeginChild("Real Frame List"))
                 {
                     var digits = 1;
-                    if(manager.NumberOfFrames > 10)
+                    if (manager.NumberOfFrames > 10)
                     {
-                        digits = (int)Math.Log10(manager.NumberOfFrames - 1) + 1;
+                        digits = (int) Math.Log10(manager.NumberOfFrames - 1) + 1;
                     }
                     for (var i = 0; i < manager.NumberOfFrames; ++i)
                     {
                         var selected = (i == manager.CurrentFrameWrapped);
                         ImGui.Selectable($"Frame {i.ToString($"D{digits}")}", ref selected);
-                        if(selected && i != manager.CurrentFrameWrapped)
+                        if (selected && i != manager.CurrentFrameWrapped)
                         {
                             manager.PlayToFrame(i);
+                            _inputFrameNumber = i;
                         }
                     }
                 }
@@ -74,27 +78,32 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private void ProcessPlay(AptSceneManager manager)
         {
-            if(!_playing)
+            if (!_playing)
             {
-                if(ImGui.Button("Play"))
+                if (ImGui.Button("Play"))
                 {
                     _playing = true;
                     _lastPlayUpdate = DateTime.UtcNow;
-                    manager.PlayToFrame(_inputFrameNumber);
+                    if (manager.CurrentFrame != _inputFrameNumber)
+                    {
+                        manager.PlayToFrame(0);
+                        _inputFrameNumber = 0;
+                    }
                 }
             }
             else
             {
-                if(ImGui.Button("Stop"))
+                if (ImGui.Button("Stop"))
                 {
                     _playing = false;
                 }
             }
 
-            var interval = (DateTime.UtcNow - _lastPlayUpdate).TotalMilliseconds;
-            for (var i = 0; i < interval; i += manager.MillisecondsPerFrame)
+            var now = DateTime.UtcNow;
+            var mspf = manager.MillisecondsPerFrame / _playSpeed;
+            while ((now - _lastPlayUpdate).TotalMilliseconds >= mspf)
             {
-                if(manager.CurrentFrame != _inputFrameNumber)
+                if (manager.CurrentFrame != _inputFrameNumber)
                 {
                     _playing = false;
                 }
@@ -105,10 +114,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ++_inputFrameNumber;
                 manager.NextFrame();
-                _lastPlayUpdate = DateTime.UtcNow;
+                _lastPlayUpdate += TimeSpan.FromMilliseconds(mspf);
             }
 
-            
             ImGui.TextWrapped("Played frames might differ from real ones because AptEditor won't execute any actionscript.");
         }
     }

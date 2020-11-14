@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
-using OpenSage.Tools.AptEditor.UI.SpriteItemExtensions;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
@@ -44,6 +42,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public Game Game { get; }
         public AptObjectsManager? AptManager { get; private set; }
         private AptWindow? _currentWindow;
+        private WrappedDisplayItem? _currentDisplay;
 
         public AptSceneManager(Game game)
         {
@@ -60,6 +59,7 @@ namespace OpenSage.Tools.AptEditor.UI
             CurrentScale = 1;
             AptManager = null;
             _currentWindow = null;
+            _currentDisplay = null;
         }
 
         public void LoadApt(string path)
@@ -99,6 +99,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public void ResetAptWindow()
         {
             _currentWindow = null;
+            _currentDisplay = null;
 
             var windows = Game.Scene2D.AptWindowManager;
             while (windows.OpenWindowCount > 0)
@@ -112,8 +113,30 @@ namespace OpenSage.Tools.AptEditor.UI
             if (AptManager != null)
             {
                 _currentWindow = new AptWindow(Game, Game.ContentManager, AptManager.AptFile);
+                var root = _currentWindow.Root;
+                // hack: an AptWindow will always be updated by the game when it's loaded
+                // because AptWindow.Root.IsNewFrame() will return true if the private member
+                // _lastUpdate.TotalTime is zero.
+                // By manually setting it to a non-zero value, and by stopping the sripte,
+                // it won't be updated by the game anymore
+                var field = root.GetType().GetField("_lastUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
+                field!.SetValue(root, new TimeInterval(1, 0));
+                _currentWindow.Root.Stop();
+
+                // set display list
+                var list = _currentWindow.Root.Content;
+                while (list.Items.Any())
+                {
+                    list.RemoveItem(list.Items.Keys.First());
+                }
+                if (CurrentCharacter != null)
+                {
+                    _currentDisplay = new WrappedDisplayItem(CurrentCharacter, _currentWindow.Context, _currentWindow.Root);
+                    list.AddItem(default, _currentDisplay);
+                }
+
                 windows.PushWindow(_currentWindow);
-                _currentWindow.Root.PlayToFrameNoActions(0);
+                _currentDisplay?.PlayToFrameNoActions(0);
             }
         }
 
@@ -123,14 +146,12 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 throw new InvalidOperationException();
             }
-            ShowCharacter(character);
-            NumberOfFrames = AptManager.AptFile.Movie.Frames.Count;
-            ResetAptWindow();
 
             CurrentCharacter = character;
-            CurrentFrame = 0;
-            CurrentScale = 0.5f;
+            NumberOfFrames = (CurrentCharacter as Playable)?.Frames.Count ?? 0;
+            CurrentScale = 1f;
             CurrentOffset = new Vector2(200, 200);
+            ResetAptWindow();
             if (NumberOfFrames > 0)
             {
                 PlayToFrame(0);
@@ -139,24 +160,24 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void PlayToFrame(int frame)
         {
-            if (_currentWindow == null)
+            if (_currentDisplay is null)
             {
                 throw new InvalidOperationException();
             }
 
             CurrentFrame = frame;
-            _currentWindow.Root.PlayToFrameNoActions(CurrentFrame);
+            _currentDisplay.PlayToFrameNoActions(CurrentFrame);
         }
 
         public void NextFrame()
         {
-            if (_currentWindow == null)
+            if (_currentDisplay is null)
             {
                 throw new InvalidOperationException();
             }
 
             ++CurrentFrame;
-            _currentWindow.Root.UpdateNextFrameNoActions();
+            _currentDisplay.UpdateNextFrameNoActions();
         }
 
         public void SubmitError(string message)
@@ -173,55 +194,6 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             action(ref _currentWindow.WindowTransform);
-        }
-
-        /// <summary>
-        /// Display the <paramref name="character"/> by replacing frames in
-        /// the current <see cref="AptFile.Movie"/> with character's frames.
-        /// <br/>
-        /// If <paramref name="character"/> isn't a <see cref="Playable"/>,
-        /// i.e. it doesn't have <see cref="Playable.Frames"/>,
-        /// then a <see cref="Frame"/> containing the character as the
-        /// <see cref="FrameItem"/> will be automatically created.
-        /// </summary>
-        /// <param name="character">
-        /// The <see cref="Character"/> which needs to be displayed.
-        /// </param>
-        private void ShowCharacter(Character character)
-        {
-            var movie = AptManager!.AptFile.Movie;
-            if (ReferenceEquals(character, movie))
-            {
-                movie.Frames.Clear();
-                movie.Frames.AddRange(AptManager.RealMovieFrames);
-            }
-
-            List<Frame> frames;
-            switch (character)
-            {
-                case Playable playable:
-                    frames = playable.Frames.ToList();
-                    break;
-                default:
-                    var characterIndex = movie.Characters.IndexOf(character);
-                    if (characterIndex == -1)
-                    {
-                        throw new IndexOutOfRangeException();
-                    }
-                    var placeObject = PlaceObject.CreatePlace(1, characterIndex);
-                    var frameItems = new List<FrameItem>
-                    {
-                        placeObject
-                    };
-                    frames = new List<Frame>
-                    {
-                        Frame.Create(frameItems)
-                    };
-                    break;
-            }
-
-            movie.Frames.Clear();
-            movie.Frames.AddRange(frames);
         }
     }
 }

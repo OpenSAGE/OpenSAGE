@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -84,6 +84,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 // initActions
                 ImGui.Button("Add InitAction");
                 var indexColor = new Vector4(0, 1, 1, 1);
+                var typeColor = new Vector4(0, 1, 0, 1);
                 foreach(var item in _utilities.InitActions)
                 {
                     ImGui.TextColored(indexColor, $"{item.Sprite}");
@@ -112,7 +113,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         continue;
                     }
 
-                    ImGui.TextColored(indexColor, "Character");
+                    ImGui.TextColored(typeColor, "Character");
+                    
                     ProcessPlaceCharacter(manager, placeObject);
                     ImGui.Spacing();
                     ProcessTransform(placeObject);

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -10,75 +10,82 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal class FrameListUtilities
     {
-        public bool Active => _manager.CurrentCharacter is Playable;
-        public IReadOnlyList<Frame> CurrentFrames => _storedFrames;
-        private AptSceneManager _manager;
-        private Character _currentCharacter => _manager.CurrentCharacter;
-        private List<Frame> _storedFrames;
+        public bool Active => Frames != null;
+        public Playable? CurrentCharacter { get; private set; }
+        public List<Frame>? Frames => CurrentCharacter?.Frames;
+        private AptSceneManager? _manager;
 
         // return true if they are new frames
         public bool Reset(AptSceneManager manager, bool force = false)
         {
-            _manager = manager;
-            if(!Active)
+            _manager ??= manager;
+            if(_manager != manager)
             {
-                return false;
+                throw new NotSupportedException();
             }
 
-            var currentFrames = ((Playable)_manager.CurrentCharacter).Frames;
-            if(!force && ReferenceEquals(currentFrames, _storedFrames))
+            var newCharacter = _manager?.CurrentCharacter as Playable;
+            if(CurrentCharacter != newCharacter)
             {
-                return false;
+                CurrentCharacter = newCharacter;
+                return CurrentCharacter != null;
             }
 
-            _storedFrames = currentFrames;
-            return true;
+            return false;
         }
 
         public void DeleteFrame(int frameNumber)
         {
-            if(_storedFrames.Count <= 1)
+            if(Frames is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if(Frames.Count <= 1)
             {
                 throw new AptEditorException(ErrorType.PlayableMustHaveAtLeastOneFrame);
             }
-            
+
             // if it's last frame, switch to the previous frame first
-            if(frameNumber == _storedFrames.Count - 1)
-            {
-                _manager.PlayToFrame(_storedFrames.Count - 1);
-            }
-            else
-            {
-                _manager.PlayToFrame(frameNumber);
-            }
+            var nextFrame = frameNumber == Frames.Count - 1
+                ? Frames.Count - 1
+                : frameNumber;
+            _manager!.PlayToFrame(nextFrame);
 
-            var editAction = new NonSymmetricEditAction<(List<Frame>, Frame)>();
-            editAction.Description = "Remove frame";
-            editAction.Do = (_, framesAndFrame) =>
+            var editAction = new NonSymmetricEditAction<(List<Frame>, Frame)>
             {
-                var (frames, frame) = framesAndFrame;
-                frames.RemoveAt(frameNumber);
-                return framesAndFrame;
+                Description = "Remove frame",
+                Do = (_, framesAndFrame) =>
+                {
+                    var (frames, frame) = framesAndFrame;
+                    frames.RemoveAt(frameNumber);
+                    return framesAndFrame;
+                },
+                Undo = (_, framesAndFrame) =>
+                {
+                    var (frames, frame) = framesAndFrame;
+                    frames.Insert(frameNumber, frame);
+                    return framesAndFrame;
+                },
+                TargetValue = (Frames, Frames[frameNumber])
             };
-            editAction.Undo = (_, framesAndFrame) =>
-            {
-                var (frames, frame) = framesAndFrame;
-                frames.Insert(frameNumber, frame);
-                return framesAndFrame;
-            };
-            editAction.TargetValue = (_storedFrames, _storedFrames[frameNumber]);
 
-            _manager.AptManager.Edit(editAction);
+            _manager.AptManager!.Edit(editAction);
         }
 
         public void AppendFrame()
         {
+            if (Frames is null)
+            {
+                throw new InvalidOperationException();
+            }
+
             var editAction = new ListAddAction<Frame>(Frame.Create(new List<FrameItem>()));
-            var editingFrames = _storedFrames;
+            var editingFrames = Frames;
             editAction.Description = "Add new frame";
             editAction.FindList = (_) => { return editingFrames; };
 
-            _manager.AptManager.Edit(editAction);
+            _manager!.AptManager!.Edit(editAction);
         }
 
     }
