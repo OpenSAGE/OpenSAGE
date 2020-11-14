@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.IO;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
@@ -18,6 +16,8 @@ namespace OpenSage.Data.Apt.Characters
         public bool WordWrap { get; private set; }
         public string Content { get; internal set; }
         public string Value { get; private set; }
+
+        internal string LocalizedContent { get; set; }
 
         public static Text Parse(BinaryReader reader)
         {

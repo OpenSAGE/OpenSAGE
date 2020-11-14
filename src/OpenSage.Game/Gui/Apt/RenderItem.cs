@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
@@ -9,8 +9,8 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class RenderItem : DisplayItem
     {
-        public Texture Texture { get; set; }
-
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private TimeInterval _lastUpdate;
         private bool IsHovered { get; set; }
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
@@ -25,6 +25,42 @@ namespace OpenSage.Gui.Apt
             Name = "";
             Visible = true;
             IsHovered = false;
+        }
+
+        public override void Update(TimeInterval gt)
+        {
+            // Currently only Text needs to be updated
+            if (!(Character is Text t))
+            {
+                return;
+            }
+
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds < Context.MillisecondsPerFrame)
+            {
+                return;
+            }
+
+            _lastUpdate = gt;
+            if (t.Value.Length > 0)
+            {
+                try
+            {
+                    var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
+                    if (val.Type != ValueType.Undefined)
+                        t.Content = val.ToString();
+                }
+                catch (System.Exception e)
+                {
+                    Logger.Warn($"Failed to resolve text value: {e}");
+                }
+
+            }
+
+            // localize our content
+            t.LocalizedContent = t.Content
+                .Replace("$", "APT:") // All string values begin with $
+                .Split('&').First()   // Query strings after ampersand
+                .Translate();
         }
 
         protected override void RenderImpl(AptRenderingContext renderingContext)
@@ -47,29 +83,14 @@ namespace OpenSage.Gui.Apt
                         renderingContext.RenderGeometry(geometry, Texture);
                     }
 
-                    if(Highlight)
+                    if (Highlight)
                     {
                         renderingContext.RenderOutline(geometry);
                     }
                     break;
 
                 case Text t:
-                    if (t.Value.Length > 0)
-                    {
-                        var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
-                        if (val.Type != ValueType.Undefined)
-                            t.Content = val.ToString();
-                    }
-
-                    // localize our content
-                    var original = t.Content;
-                    t.Content = t.Content.Replace("$", "APT:"); // All string values begin with $
-                    t.Content = t.Content.Split('&').First();   // Query strings after ampersand
-                    t.Content = t.Content.Translate();
-
                     renderingContext.RenderText(t);
-                    // restore original text
-                    t.Content = original;
                     break;
             }
 

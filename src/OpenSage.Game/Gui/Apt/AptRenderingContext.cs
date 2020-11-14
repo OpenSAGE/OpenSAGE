@@ -135,7 +135,7 @@ namespace OpenSage.Gui.Apt
             CalculateTransform(ref transform);
 
             _drawingContext.DrawText(
-                text.Content,
+                text.LocalizedContent,
                 font,
                 TextAlignment.Center,
                 text.Color.ToColorRgbaF() * transform.ColorTransform,
