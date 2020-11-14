@@ -6,6 +6,8 @@ using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data;
+using OpenSage.Tools.AptEditor.Apt;
+using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
 
@@ -20,6 +22,7 @@ namespace OpenSage.Tools.AptEditor.UI
             new FrameList(),
             new FrameItemList()
         };
+        private readonly ExportPathSelector _exportPathSelector = new ExportPathSelector();
         private readonly AptFileSelector _aptFileSelector;
         private readonly SearchPathAdder _searchPathAdder;
         private readonly List<ImGuiModalPopUp> _popups;
@@ -28,9 +31,6 @@ namespace OpenSage.Tools.AptEditor.UI
 
         private string? _lastErrorMessageForModalPopUp;
         private string? _lastSeriousError;
-        private double _lastFps;
-        private DateTime _lastUpdate;
-        private DateTime _lastFpsUpdate;
 
         public MainForm(Game game)
         {
@@ -47,18 +47,10 @@ namespace OpenSage.Tools.AptEditor.UI
                                     ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar),
                 new ImGuiModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt)
             };
-            _lastUpdate = DateTime.Now;
         }
 
         public void Draw()
         {
-            if ((DateTime.Now - _lastFpsUpdate).TotalMilliseconds > 300)
-            {
-                _lastFpsUpdate = DateTime.Now;
-                _lastFps = 1000 / (DateTime.Now - _lastUpdate).TotalMilliseconds;
-            }
-            _lastUpdate = DateTime.Now;
-
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(_window.ClientBounds.Width, 0), ImGuiCond.Always);
 
@@ -83,6 +75,11 @@ namespace OpenSage.Tools.AptEditor.UI
                         _aptFileSelector.Visible = true;
                     }
 
+                    if (ImGui.MenuItem("Export", null, false, _manager.AptManager != null))
+                    {
+                        _exportPathSelector.Visible = true;
+                    }
+
                     if (ImGui.MenuItem("Close", null, false, _manager.AptManager != null))
                     {
                         _manager.UnloadApt();
@@ -105,6 +102,13 @@ namespace OpenSage.Tools.AptEditor.UI
                 ImGui.EndMenuBar();
             }
 
+            if (_exportPathSelector.GetValue() is string exportPath)
+            {
+                if(_manager.AptManager != null)
+                {
+                    _manager.AptManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
+                }
+            }
 
             if (_aptFileSelector.GetValue() is string inputAptPath)
             {
@@ -161,12 +165,13 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Text($"FPS: {_lastFps,5:N2}");
+            ImGui.Text($"FPS: {ImGui.GetIO().DeltaTime,5:N2}");
 
             ImGui.End();
 
             try
             {
+                _exportPathSelector.Draw();
                 _aptFileSelector.Draw();
                 _searchPathAdder.Draw();
                 if (_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)

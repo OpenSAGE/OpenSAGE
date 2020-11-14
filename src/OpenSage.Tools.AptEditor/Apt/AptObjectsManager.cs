@@ -3,22 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    public sealed class AptDataDump
-    {
-        public byte[] AptData;
-        public byte[] ConstantData;
-        public byte[] ImageMapData;
-        public Dictionary<string, byte[]> GeometryData;
-        public List<AptDataDump> ReferencedAptData;
-    }
-
     public sealed class AptObjectsManager
     {
         private readonly Stack<IEditAction> _undoStack = new Stack<IEditAction>();
@@ -57,12 +46,7 @@ namespace OpenSage.Tools.AptEditor.Apt
 
         public AptDataDump GetAptDataDump()
         {
-            var dataDump = new AptDataDump();
-            var aptData = AptDataWriter.Write(AptFile.Movie);
-            dataDump.AptData = aptData.Data;
-            dataDump.ConstantData = ConstantDataWriter.Write(aptData.EntryOffset, AptFile.Constants);
-            dataDump.ImageMapData = ImageMapWriter.Write(AptFile.ImageMap);
-            return dataDump;
+            return new AptDataDump(AptFile);
         }
 
     }
