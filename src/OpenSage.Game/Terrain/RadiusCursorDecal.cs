@@ -11,9 +11,9 @@ namespace OpenSage.Terrain
 
         public uint DecalTextureIndex;
 
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0169 // Remove unused private members
         private readonly Vector3 _padding;
-#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore CS0169 // Remove unused private members
 
         public float Opacity;
     }
