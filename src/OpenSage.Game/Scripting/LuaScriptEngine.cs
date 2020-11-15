@@ -50,23 +50,8 @@ namespace OpenSage.Scripting
 
         public void ExecuteUserCode(string externalCode)
         {
-            try
-            {
-                Logger.Info($"Executing user code {externalCode}");
-                MainScript.DoString(externalCode);
-            }
-            catch (SyntaxErrorException exeption)
-            {
-                throw (exeption);
-            }
-            catch (ScriptRuntimeException exeption)
-            {
-                throw (exeption);
-            }
-            catch (Exception exeption)
-            {
-                throw (exeption);
-            }
+            Logger.Info($"Executing user code {externalCode}");
+            MainScript.DoString(externalCode);
         }
 
         public void FunctionInit()
