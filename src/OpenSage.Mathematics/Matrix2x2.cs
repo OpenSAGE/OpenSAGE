@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace OpenSage.Mathematics
 {
@@ -16,6 +17,14 @@ namespace OpenSage.Mathematics
             M21 = m21;
             M12 = m12;
             M22 = m22;
+        }
+
+        public Matrix2x2(in Matrix3x2 mat)
+        {
+            M11 = mat.M11;
+            M21 = mat.M21;
+            M12 = mat.M12;
+            M22 = mat.M22;
         }
     }
 }

@@ -19,20 +19,28 @@ namespace OpenSage.Data.Apt.Characters
             return shape;
         }
 
-        public static int Create(AptFile container, Vector4 bounds, uint geometry)
+        public static int Create(AptFile container, uint geometryId)
         {
-            if (!container.GeometryMap.ContainsKey(geometry))
+            if (!container.GeometryMap.TryGetValue(geometryId, out var geometry))
             {
-                throw new ArgumentException(nameof(geometry));
+                throw new ArgumentException(nameof(geometryId));
             }
-            var shape = new Shape
+            var box = geometry.BoundingBox;
+            var bounds = new Vector4
+            {
+                X = box.Left,
+                Y = box.Top,
+                Z = box.Right,
+                W = box.Bottom
+            };
+            var characters = container.Movie.Characters;
+            var shapeIndex = characters.Count;
+            characters.Add(new Shape
             {
                 Container = container,
                 Bounds = bounds,
-                Geometry = geometry
-            };
-            var shapeIndex = container.Movie.Characters.Count;
-            container.Movie.Characters.Add(shape);
+                Geometry = geometryId
+            });
             return shapeIndex;
         }
     }

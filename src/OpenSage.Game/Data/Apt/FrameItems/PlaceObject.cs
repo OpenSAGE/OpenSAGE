@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
@@ -137,11 +138,23 @@ namespace OpenSage.Data.Apt.FrameItems
 
         public static PlaceObject CreatePlace(int depth, int character)
         {
-            var placeObject = new PlaceObject();
-            placeObject.Flags = PlaceObjectFlags.HasCharacter;
-            placeObject.Depth = depth;
-            placeObject.Character = character;
+            var placeObject = new PlaceObject
+            {
+                Flags = PlaceObjectFlags.HasCharacter,
+                Depth = depth,
+                Character = character
+            };
             return placeObject;
+        }
+
+        public void SetTransform(in ItemTransform transform)
+        {
+            RotScale = new Matrix2x2(transform.GeometryRotation);
+            Translation = transform.GeometryTranslation;
+            Color = transform.ColorTransform.ToColorRgba();
+
+            Flags |= PlaceObjectFlags.HasMatrix;
+            Flags |= PlaceObjectFlags.HasColorTransform;
         }
     }
 }

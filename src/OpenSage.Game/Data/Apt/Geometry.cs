@@ -30,7 +30,7 @@ namespace OpenSage.Data.Apt
         public RectangleF BoundingBox { get; private set; }
         public AptFile Container { get; private set; }
 
-        public Geometry(AptFile container)
+        private Geometry(AptFile container)
         {
             Entries = new List<IGeometryEntry>();
             Container = container;

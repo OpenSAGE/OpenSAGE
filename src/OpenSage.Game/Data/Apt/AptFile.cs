@@ -11,11 +11,12 @@ namespace OpenSage.Data.Apt
     {
         public ConstantData Constants { get; private set; }
         public Movie Movie { get; private set; }
-        internal bool IsEmpty = true;
-        internal string MovieName;
-        internal FileSystem FileSystem;
+        public string MovieName { get; internal set; }
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
+
+        internal bool IsEmpty = true;
+        internal FileSystem FileSystem;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
