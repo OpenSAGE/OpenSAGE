@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -7,8 +8,9 @@ using OpenSage.Gui.Apt;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    class WrappedDisplayItem : DisplayItem
+    internal class WrappedDisplayItem : DisplayItem
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public DisplayItem Item { get; }
 
         public WrappedDisplayItem(Character character, AptContext context, SpriteItem parent)
@@ -37,7 +39,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         // Play frames without executing actions, since currently we can't handle all actions properly anyway.
         public void PlayToFrameNoActions(int frameNumber)
         {
-            if(!(Item is SpriteItem))
+            if (!(Item is SpriteItem))
             {
                 return;
             }
@@ -78,6 +80,12 @@ namespace OpenSage.Tools.AptEditor.Apt
 
         private static void UpdateNextFrameNoActions(SpriteItem sprite)
         {
+            if (!((Playable) sprite.Character).Frames.Any())
+            {
+                Logger.Warn("Detected playable without any frames!");
+                return;
+            }
+
             //get the current frame
             var frame = GetFrames(sprite)[sprite.CurrentFrame];
 

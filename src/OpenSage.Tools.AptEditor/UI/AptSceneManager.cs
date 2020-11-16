@@ -85,6 +85,14 @@ namespace OpenSage.Tools.AptEditor.UI
             AptManager = new AptObjectsManager(aptFile);
         }
 
+        public void LoadApt(AptFile aptFile, string? name = null)
+        {
+            UnloadApt();
+            
+            CurrentAptPath = name ?? aptFile.MovieName;
+            AptManager = new AptObjectsManager(aptFile);
+        }
+
         public void ChangeDisplayBackgroundColor(ColorRgbaF newColor)
         {
             if (DisplayBackgroundColor == newColor)

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
-using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.Apt
@@ -11,14 +9,13 @@ namespace OpenSage.Tools.AptEditor.Apt
     public sealed class AptObjectsManager
     {
         private readonly Stack<IEditAction> _undoStack = new Stack<IEditAction>();
-        private readonly Dictionary<int, int> _characterIdMap = new Dictionary<int, int>();
-        public AptFile AptFile { get; private set; }
-        public List<Frame> RealMovieFrames { get; }
-        // TODO: Store a copy of AptFile instead of a reference to an extern AptFile
+        private readonly Stack<IEditAction> _redoStack = new Stack<IEditAction>();
+
+        public AptFile AptFile { get; }
+
         public AptObjectsManager(AptFile aptFile)
         {
             AptFile = aptFile;
-            RealMovieFrames = AptFile.Movie.Frames.ToList();
         }
 
         public static AptObjectsManager Load(string rootPath, string aptPath)
@@ -30,18 +27,33 @@ namespace OpenSage.Tools.AptEditor.Apt
 
         public void Edit(IEditAction editAction)
         {
-            editAction.Execute(AptFile);
+            _redoStack.Clear();
+            editAction.Edit();
             _undoStack.Push(editAction);
         }
 
-        public string GetUndoDescription()
+        public string? GetUndoDescription()
         {
-            return _undoStack.Peek().Description;
+            throw new NotImplementedException();
+            /*if (_undoStack.TryPeek(out var editAction))
+            {
+                return editAction.Description;
+            }
+            return null;*/
         }
 
         public void Undo()
         {
-            _undoStack.Pop().Execute(AptFile);
+            var editAction = _undoStack.Pop();
+            editAction.Undo();
+            _redoStack.Push(editAction);
+        }
+
+        public void Redo()
+        {
+            var editAction = _redoStack.Pop();
+            editAction.Edit();
+            _undoStack.Push(editAction);
         }
 
         public AptDataDump GetAptDataDump()

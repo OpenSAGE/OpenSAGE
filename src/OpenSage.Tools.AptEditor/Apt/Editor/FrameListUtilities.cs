@@ -19,13 +19,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public bool Reset(AptSceneManager manager, bool force = false)
         {
             _manager ??= manager;
-            if(_manager != manager)
+            if (_manager != manager)
             {
                 throw new NotSupportedException();
             }
 
             var newCharacter = _manager?.CurrentCharacter as Playable;
-            if(CurrentCharacter != newCharacter)
+            if (CurrentCharacter != newCharacter)
             {
                 CurrentCharacter = newCharacter;
                 return CurrentCharacter != null;
@@ -36,12 +36,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         public void DeleteFrame(int frameNumber)
         {
-            if(Frames is null)
+            if (Frames is null)
             {
                 throw new InvalidOperationException();
             }
 
-            if(Frames.Count <= 1)
+            if (Frames.Count <= 1)
             {
                 throw new AptEditorException(ErrorType.PlayableMustHaveAtLeastOneFrame);
             }
@@ -52,24 +52,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 : frameNumber;
             _manager!.PlayToFrame(nextFrame);
 
-            var editAction = new NonSymmetricEditAction<(List<Frame>, Frame)>
-            {
-                Description = "Remove frame",
-                Do = (_, framesAndFrame) =>
-                {
-                    var (frames, frame) = framesAndFrame;
-                    frames.RemoveAt(frameNumber);
-                    return framesAndFrame;
-                },
-                Undo = (_, framesAndFrame) =>
-                {
-                    var (frames, frame) = framesAndFrame;
-                    frames.Insert(frameNumber, frame);
-                    return framesAndFrame;
-                },
-                TargetValue = (Frames, Frames[frameNumber])
-            };
-
+            var frameToBeRemoved = Frames[frameNumber];
+            var editAction = new EditAction(() => Frames.RemoveAt(frameNumber),
+                                            () => Frames.Insert(frameNumber, frameToBeRemoved),
+                                            "Remove frame");
             _manager.AptManager!.Edit(editAction);
         }
 
@@ -80,11 +66,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 throw new InvalidOperationException();
             }
 
-            var editAction = new ListAddAction<Frame>(Frame.Create(new List<FrameItem>()));
-            var editingFrames = Frames;
-            editAction.Description = "Add new frame";
-            editAction.FindList = (_) => { return editingFrames; };
-
+            var newFrame = Frame.Create(new List<FrameItem>());
+            var editAction = new EditAction(() => Frames.Add(newFrame),
+                                            () => Frames.RemoveAt(Frames.Count - 1),
+                                            "Add new frame");
             _manager!.AptManager!.Edit(editAction);
         }
 

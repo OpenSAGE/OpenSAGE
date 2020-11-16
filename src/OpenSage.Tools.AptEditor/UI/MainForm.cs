@@ -75,6 +75,12 @@ namespace OpenSage.Tools.AptEditor.UI
                         _aptFileSelector.Visible = true;
                     }
 
+                    if (ImGui.MenuItem("Open example...", null, false, true))
+                    {
+                        var name = "feg_m_mainmenu3d";
+                        _manager.LoadApt(SampleApt.Create(name, new Mathematics.ColorRgba(0, 255, 0, 255)), name);
+                    }
+
                     if (ImGui.MenuItem("Export", null, false, _manager.AptManager != null))
                     {
                         _exportPathSelector.Visible = true;
@@ -165,7 +171,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Text($"FPS: {ImGui.GetIO().DeltaTime,5:N2}");
+            ImGui.Text($"FPS: {ImGui.GetIO().Framerate,5:N2}");
 
             ImGui.End();
 
