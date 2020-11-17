@@ -42,7 +42,7 @@ namespace OpenSage.Tools.AptEditor
     {
         public void AddToScene(Game game, Scene2D scene, bool useShellMap)
         {
-            scene.AptWindowManager.PushWindow(CreateBackgroundAptWindow(game, new ColorRgba(0, 0, 255, 255)));
+            scene.AptWindowManager.PushWindow(CreateBackgroundAptWindow(game, new ColorRgba(0, 96, 0, 255)));
         }
 
         public static AptWindow CreateBackgroundAptWindow(Game game, in ColorRgba color)
@@ -55,19 +55,13 @@ namespace OpenSage.Tools.AptEditor
             const int width = 100;
             const int height = 100;
             var aptFile = AptFile.CreateEmpty("bg", width, height, 1000);
-
-            using var geometryCommands = new StringReader(string.Join('\n', new[]
+            var placeBackground = PlaceObject.CreatePlace(0, SampleApt.CreateShape(aptFile, new[]
             {
                 "c",
                 $"s s:{color.R}:{color.G}:{color.B}:{color.A}",
                 $"t 0:0:{width}:{height}:0:{height}",
                 $"t 0:0:{width}:{height}:{width}:0"
             }));
-
-            var geometry = 0u;
-            aptFile.GeometryMap.Add(geometry, Geometry.Parse(aptFile, geometryCommands));
-            var backgroundShape = Shape.Create(aptFile, geometry);
-            var placeBackground = PlaceObject.CreatePlace(0, backgroundShape);
             var frame = Frame.Create(new List<FrameItem> { placeBackground });
             aptFile.Movie.Frames.Add(frame);
 
