@@ -181,7 +181,7 @@ namespace OpenSage.Tools.AptEditor.UI
             var filtered = from path in paths
                            let normalized = FileSystem.NormalizeFilePath(path)
                            where normalized.StartsWith(normalizedSourcePath)
-                           let relative = normalized.Substring(normalizedSourcePath.Length + 1)
+                           let relative = normalized[(normalizedSourcePath.Length + 1)..]
                            let mapped = mappedPath is null ? relative : Path.Combine(mappedPath, relative)
                            select (path, mapped);
             Load(filtered.ToArray(), !isFromGameFileSystem);
@@ -214,7 +214,7 @@ namespace OpenSage.Tools.AptEditor.UI
                     index += 1;
                 }
                 TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                            normalizedArt.Substring(index),
+                                                            normalizedArt[index..],
                                                             length,
                                                             open));
             }

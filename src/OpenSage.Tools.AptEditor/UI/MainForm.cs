@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Tools.AptEditor.Apt;
@@ -29,7 +30,8 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly GameWindow _window;
         private readonly AptSceneManager _manager;
 
-        private string? _lastErrorMessageForModalPopUp;
+        private readonly List<(Task, string)> _tasks = new List<(Task, string)>();
+        private string? _loadAptError;
         private string? _lastSeriousError;
 
         public MainForm(Game game)
@@ -38,14 +40,14 @@ namespace OpenSage.Tools.AptEditor.UI
             _manager = new AptSceneManager(game);
             _aptFileSelector = new AptFileSelector(game.ContentManager.FileSystem);
             _searchPathAdder = new SearchPathAdder(game);
-
             _popups = new List<ImGuiModalPopUp>
             {
-                new ImGuiModalPopUp("CriticalErrorPrompt",
-                                    () => _lastSeriousError != null,
+                new ImGuiModalPopUp("Critical Error",
+                                    () => _lastSeriousError is string,
                                     DrawCriticalErrorPrompt,
                                     ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar),
-                new ImGuiModalPopUp("ErrorPrompt", () => _lastErrorMessageForModalPopUp != null, DrawErrorPrompt)
+                new ImGuiModalPopUp("Failed to load Apt file", () => _loadAptError is string, DrawErrorPrompt),
+                new ImGuiModalPopUp("Please wait...", () => _tasks.Any(), DrawLoadingPrompt)
             };
         }
 
@@ -112,7 +114,9 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 if(_manager.AptManager != null)
                 {
-                    _manager.AptManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
+                    var dump = _manager.AptManager.GetAptDataDump();
+                    var task = _manager.AptManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
+                    _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }
 
@@ -146,7 +150,7 @@ namespace OpenSage.Tools.AptEditor.UI
                                     _searchPathAdder.MappedPath = directory;
                                 }
                             }
-                            _lastErrorMessageForModalPopUp =
+                            _loadAptError =
                                 $"Failed to open apt file {loadFailure.File ?? "?"} - {loadFailure.Message}.\n" +
                                 "Consider adding more search paths (File Menu > Add Search Path).";
                             _searchPathAdder.Visible = true;
@@ -180,7 +184,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 _exportPathSelector.Draw();
                 _aptFileSelector.Draw();
                 _searchPathAdder.Draw();
-                if (_lastSeriousError == null && _lastErrorMessageForModalPopUp == null && _manager.AptManager != null)
+                if (_lastSeriousError == null && _loadAptError == null && _manager.AptManager != null)
                 {
                     foreach (var widget in _widgets)
                     {
@@ -196,15 +200,35 @@ namespace OpenSage.Tools.AptEditor.UI
             ImGui.PopStyleVar();
         }
 
-
+        private void DrawLoadingPrompt()
+        {
+            _tasks.RemoveAll(((Task Task, string _) t) =>
+            {
+                if (!t.Task.IsCompleted)
+                {
+                    return false;
+                }
+                t.Task.Dispose();
+                return true;
+            });
+            if (!_tasks.Any())
+            {
+                ImGui.CloseCurrentPopup();
+            }
+            foreach (var (_, description) in _tasks)
+            {
+                ImGui.Text(description);
+            }
+            
+        }
 
         private void DrawErrorPrompt()
         {
-            ImGui.TextColored(new Vector4(1, 0.2f, 0.2f, 1), _lastErrorMessageForModalPopUp);
+            ImGui.TextColored(new Vector4(1, 0.2f, 0.2f, 1), _loadAptError);
 
             if (ImGui.Button("Ok"))
             {
-                _lastErrorMessageForModalPopUp = null;
+                _loadAptError = null;
                 ImGui.CloseCurrentPopup();
             }
 

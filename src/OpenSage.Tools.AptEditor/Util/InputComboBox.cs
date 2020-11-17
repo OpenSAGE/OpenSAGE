@@ -87,7 +87,8 @@ namespace OpenSage.Tools.AptEditor.Util
                 var width = _size.X - 16;
                 if (_hasOverflow)
                 {
-                    ImGui.SetCursorPos(new Vector2(_lastWidth - width + 8, ImGui.GetCursorPosY()));
+                    ImGui.SetCursorPos(new Vector2(ImGui.GetScrollX() + 4, ImGui.GetCursorPosY()));
+                    width -= 12;
                 }
                 ImGui.SetNextItemWidth(width);
                 if (_show == ShowState.FocusMenu)

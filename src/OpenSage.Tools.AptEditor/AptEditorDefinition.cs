@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
@@ -18,6 +17,7 @@ namespace OpenSage.Tools.AptEditor
 {
     internal class AptEditorDefinition : IGameDefinition
     {
+        public static IPathResolver TexturePathResolver => PathResolvers.Bfme2Texture;
         public SageGame Game => SageGame.Ra3;
         public string DisplayName => "Apt Editor";
         public IGameDefinition? BaseGame => null;
@@ -34,7 +34,7 @@ namespace OpenSage.Tools.AptEditor
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
-            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.Bfme2Texture);
+            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, TexturePathResolver);
         }
     }
 
@@ -66,7 +66,7 @@ namespace OpenSage.Tools.AptEditor
 
             var geometry = 0u;
             aptFile.GeometryMap.Add(geometry, Geometry.Parse(aptFile, geometryCommands));
-            var backgroundShape = Shape.Create(aptFile, new Vector4(0, 0, width, height), geometry);
+            var backgroundShape = Shape.Create(aptFile, geometry);
             var placeBackground = PlaceObject.CreatePlace(0, backgroundShape);
             var frame = Frame.Create(new List<FrameItem> { placeBackground });
             aptFile.Movie.Frames.Add(frame);

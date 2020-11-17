@@ -9,14 +9,16 @@ namespace OpenSage.Data.Apt
 {
     public sealed class AptFile
     {
-        public ConstantData Constants { get; private set; }
+        public FileSystem FileSystem { get; }
+        public ConstantData Constants { get; }
+        public string MovieName { get; }
+
         public Movie Movie { get; private set; }
-        public string MovieName { get; internal set; }
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
 
         internal bool IsEmpty = true;
-        internal FileSystem FileSystem;
+        
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
