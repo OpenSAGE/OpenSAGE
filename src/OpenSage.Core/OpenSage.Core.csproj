@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
-    <PackageReference Include="NLog.Config" Version="4.6.8" />
+    <PackageReference Include="NLog.Config" Version="4.7.5" />
   </ItemGroup>
 
   <ItemGroup>

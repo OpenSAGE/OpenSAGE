@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
         internal override void Update(BehaviorUpdateContext context)
         {
             if (_gameObject.IsBeingConstructed()
-                 || (_waitUntil != null && context.Time.TotalTime < _waitUntil))
+                 || (context.Time.TotalTime < _waitUntil))
             {
                 return;
             }
