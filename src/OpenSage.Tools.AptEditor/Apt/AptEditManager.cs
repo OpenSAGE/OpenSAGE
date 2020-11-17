@@ -1,45 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    public sealed class AptObjectsManager
+    public sealed class AptEditManager
     {
         private readonly Stack<IEditAction> _undoStack = new Stack<IEditAction>();
         private readonly Stack<IEditAction> _redoStack = new Stack<IEditAction>();
 
         public AptFile AptFile { get; }
 
-        public AptObjectsManager(AptFile aptFile)
+        public AptEditManager(AptFile aptFile)
         {
             AptFile = aptFile;
         }
 
-        public static AptObjectsManager Load(string rootPath, string aptPath)
+        public static AptEditManager Load(string rootPath, string aptPath)
         {
             var fs = new FileSystem(rootPath);
             var entry = fs.GetFile(aptPath);
-            return new AptObjectsManager(AptFile.FromFileSystemEntry(entry));
+            return new AptEditManager(AptFile.FromFileSystemEntry(entry));
         }
 
         public void Edit(IEditAction editAction)
         {
             _redoStack.Clear();
-            editAction.Edit();
-            _undoStack.Push(editAction);
+            if (_undoStack.TryPeek(out var previous) && previous.TryMerge(editAction))
+            {
+                previous.Edit();
+            }
+            else
+            {
+                editAction.Edit();
+                _undoStack.Push(editAction);
+            }
         }
 
         public string? GetUndoDescription()
         {
-            throw new NotImplementedException();
-            /*if (_undoStack.TryPeek(out var editAction))
+            if (!_undoStack.TryPeek(out var editAction))
             {
-                return editAction.Description;
+                return null;
             }
-            return null;*/
+            return editAction.Description is string description
+                ? $"Undo {description}"
+                : "Undo";
         }
 
         public void Undo()
@@ -60,7 +67,6 @@ namespace OpenSage.Tools.AptEditor.Apt
         {
             return new AptDataDump(AptFile);
         }
-
     }
 
 }

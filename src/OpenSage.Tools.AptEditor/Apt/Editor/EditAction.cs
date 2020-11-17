@@ -12,6 +12,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         string? Description { get; }
         void Edit();
         void Undo();
+        bool TryMerge(IEditAction edit);
     }
 
     public sealed class EditAction : IEditAction
@@ -39,11 +40,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             _undo();
             OnEdit?.Invoke(this, EventArgs.Empty);
         }
+
+        public bool TryMerge(IEditAction edit) => false;
     }
 
     public sealed class EditAction<T> : IEditAction
     {
-        public string? Description { get; }
+        public string? Description { get; set; }
         public event EventHandler? OnEdit;
         /// <summary>
         /// Executes the edit action, <see cref="AptFile"/> and
@@ -88,6 +91,79 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             _state = _undo(_state);
             OnEdit?.Invoke(this, EventArgs.Empty);
+        }
+
+        public bool TryMerge(IEditAction edit) => false;
+    }
+
+    public sealed class MergeableEdit : IEditAction
+    {
+        public string? Description { get; set; }
+        public DateTimeOffset Time { get; private set; }
+        public string EditTypeId { get; }
+
+        public event EventHandler? OnEdit;
+        private bool _valid;
+        private Action _edit;
+        private Action _restore;
+
+        public MergeableEdit(string editTypeId, Action edit, Action restore, string? description = null)
+        {
+            Description = description;    
+            Time = DateTimeOffset.UtcNow;
+            EditTypeId = editTypeId;
+            _valid = true;
+            _edit = edit;
+            _restore = restore;
+        }
+
+        public void Edit()
+        {
+            CheckState();
+            _edit();
+            OnEdit?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Undo()
+        {
+            CheckState();
+            _restore();
+            OnEdit?.Invoke(this, EventArgs.Empty);
+        }
+
+        public bool TryMerge(IEditAction edit)
+        {
+            if (edit is not MergeableEdit other)
+            {
+                return false;
+            }
+            CheckState();
+            other.CheckState();
+            var interval = other.Time - Time;
+            if (interval.Ticks < 0)
+            {
+                throw new InvalidOperationException();
+            }
+            if (interval.TotalSeconds > 1)
+            {
+                return false;
+            }
+            if (EditTypeId != other.EditTypeId)
+            {
+                return false;
+            }
+            Time += (interval / 2);
+            _edit = other._edit;
+            other._valid = false;
+            return true;
+        }
+
+        private void CheckState()
+        {
+            if(!_valid)
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

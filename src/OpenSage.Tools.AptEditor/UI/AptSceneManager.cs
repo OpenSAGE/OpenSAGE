@@ -40,7 +40,7 @@ namespace OpenSage.Tools.AptEditor.UI
         }
         public ColorRgbaF DisplayBackgroundColor { get; private set; }
         public Game Game { get; }
-        public AptObjectsManager? AptManager { get; private set; }
+        public AptEditManager? AptManager { get; private set; }
         private AptWindow? _currentWindow;
         private WrappedDisplayItem? _currentDisplay;
 
@@ -82,7 +82,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             CurrentAptPath = path;
-            AptManager = new AptObjectsManager(aptFile);
+            AptManager = new AptEditManager(aptFile);
         }
 
         public void LoadApt(AptFile aptFile, string? name = null)
@@ -90,7 +90,7 @@ namespace OpenSage.Tools.AptEditor.UI
             UnloadApt();
             
             CurrentAptPath = name ?? aptFile.MovieName;
-            AptManager = new AptObjectsManager(aptFile);
+            AptManager = new AptEditManager(aptFile);
         }
 
         public void ChangeDisplayBackgroundColor(ColorRgbaF newColor)
