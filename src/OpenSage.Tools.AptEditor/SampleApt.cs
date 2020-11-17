@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using System.Text;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;

@@ -2,17 +2,20 @@
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
-    internal class CharacterList : IWidget
+    internal sealed class CharacterList : IWidget
     {
         private CharacterUtilities? _utilities = null;
         private int _lastSelectedCharacter = -1;
         private string? _decidingExportName = null;
+        private string? _newCharacterName = null;
+        private int? _newShapeGeometry = null;
 
         public void Draw(AptSceneManager manager)
         {
@@ -24,29 +27,67 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     ? null
                     : new CharacterUtilities(manager.AptManager);
             }
+
+            if (_utilities is null)
+            {
+                return;
+            }
+
             if (ImGui.Begin("Characters"))
             {
                 ImGui.Text("Characters");
-                ImGui.NewLine();
 
-                ImGui.SameLine();
-                if (ImGui.Button("New"))
-                {
-                    NewCharacter();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Delete"))
-                {
-                    DeleteCharacter();
-                }
-                ImGui.NewLine();
+                ImGui.PushID(1);
+                DrawCharacterCreationForm();
+                ImGui.PopID();
 
-                if (_utilities != null)
-                {
-                    ListCharacterDescription(manager);
-                }
+                ImGui.PushID(2);
+                ListCharacterDescription(manager);
+                ImGui.PopID();
             }
             ImGui.End();
+        }
+
+        private void DrawCharacterCreationForm()
+        {
+            if (_newCharacterName is null)
+            {
+                if (ImGui.Button("New Character"))
+                {
+                    _newCharacterName = string.Empty;
+                }
+                return;
+            }
+
+            if (ImGui.RadioButton("Shape", _newShapeGeometry.HasValue))
+            {
+                _newShapeGeometry ??= 0;
+            }
+            ImGui.SameLine();
+            if (ImGui.RadioButton("Sprite", !_newShapeGeometry.HasValue))
+            {
+                _newShapeGeometry = null;
+            }
+
+            ImGui.InputText("Name", ref _newCharacterName, 64);
+
+            if (_newShapeGeometry is int value)
+            {
+                if (InputGeometry(ref value).HasValue)
+                {
+                    if (ImGui.Button("Create"))
+                    {
+                        _utilities!.CreateShape(_newCharacterName, value);
+                        CleanCreationData();
+                    }
+                }
+                _newShapeGeometry = value;
+            }
+            else if (ImGui.Button("Create"))
+            {
+                _utilities!.CreateSprite(_newCharacterName);
+                CleanCreationData();
+            }
         }
 
         private void ListCharacterDescription(AptSceneManager manager)
@@ -80,53 +121,74 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 var selected = wasSelected;
                 ImGui.Selectable(desc.Name, ref selected);
-                if (selected)
+                if (!selected)
                 {
-                    _lastSelectedCharacter = desc.Index;
-                    if (!wasSelected)
+                    if (wasSelected)
                     {
                         _decidingExportName = null;
                     }
+                }
+                else
+                {
+                    _lastSelectedCharacter = desc.Index;
                     var selectedCharacter = _utilities.GetCharacterByIndex(desc.Index);
                     if (manager.CurrentCharacter != selectedCharacter)
                     {
                         System.Console.WriteLine($"Setting new character {desc.Index} {selectedCharacter.GetType().Name}");
                         manager.SetCharacter(selectedCharacter);
                     }
-
                     _decidingExportName ??= desc.ExportedName ?? desc.Name;
-                    ImGui.InputText("Exported name", ref _decidingExportName, 64);
-                    if (desc.ExportedName == null)
-                    {
-                        if (ImGui.Button("Export"))
-                        {
-                            _utilities.ExportCharacter(desc.Index, _decidingExportName);
-                        }
-                    }
-                    else
-                    {
-                        if (ImGui.Button("Cancel export"))
-                        {
-                            _utilities.CancelExport(desc.Index);
-                        }
-                    }
-
+                    DrawSelectedCharacterDescription(desc);
                 }
-
                 ImGui.Separator();
             }
         }
 
-        public void NewCharacter()
+        private void DrawSelectedCharacterDescription(CharacterUtilities.Description desc)
         {
+            ImGui.InputText("Exported name", ref _decidingExportName, 64);
+            ImGui.SameLine();
+            if (desc.ExportedName == null)
+            {
+                if (ImGui.Button("Export"))
+                {
+                    _utilities!.ExportCharacter(desc.Index, _decidingExportName);
+                }
+            }
+            else
+            {
+                if (ImGui.Button("Cancel export"))
+                {
+                    _utilities!.CancelExport(desc.Index);
+                }
+            }
 
-            //action.
+            if (desc.ShapeGeometry is int geometry)
+            {
+                ImGui.Text($"Bounds: {desc.ShapeBounds}");
+                if (InputGeometry(ref geometry) is true)
+                {
+                    _utilities!.SetShapeGeometry(desc.Index, geometry);
+                }
+                desc.ShapeGeometry = geometry;
+            }
         }
 
-        public void DeleteCharacter()
+        private bool? InputGeometry(ref int geometryId)
         {
-
+            var changed = ImGui.InputInt("Geometry ID", ref geometryId);
+            if (_utilities!.IsGeometryIdValid(geometryId))
+            {
+                return changed;
+            }
+            ImGui.TextColored(new Vector4(1, 1, 0, 1), "Invalid Geometry ID");
+            return null;
         }
 
+        private void CleanCreationData()
+        {
+            _newCharacterName = null;
+            _newShapeGeometry = null;
+        }
     }
 }

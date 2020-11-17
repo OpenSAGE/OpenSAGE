@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
@@ -10,13 +10,20 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         CannotDisableCharacterInUse,
         IncorrectValueType,
         PlayableMustHaveAtLeastOneFrame,
+        FailedToParseGeometry
     }
 
     public class AptEditorException : Exception
     {
-        public readonly ErrorType ErrorType;
-        public virtual bool CanBeDownCasted { get { return false; } }
-        public AptEditorException(ErrorType type) : base("AptEditorException") {
+        public ErrorType ErrorType { get; }
+        public AptEditorException(ErrorType type, Exception innerException) :
+            base("AptEditorException", innerException)
+        {
+            ErrorType = type;
+        }
+
+        public AptEditorException(ErrorType type) : base("AptEditorException")
+        {
             ErrorType = type;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 
@@ -15,25 +16,33 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             public int Index { get; }
             public string Type { get; }
             public string Name { get; }
+            public Vector4? ShapeBounds { get; }
+            public int? ShapeGeometry { get; set; }
 
             public Description(Movie movie, int index, string name)
             {
+                var character = movie.Characters[index];
                 Import = movie.Imports.FirstOrDefault(i => i.Character == index);
                 ExportedName = movie.Exports.FirstOrDefault(e => e.Character == index)?.Name;
                 Index = index;
-                Type = movie.Characters[index].GetType().Name;
+                Type = character.GetType().Name;
                 Name = name;
+                if (character is Shape shape)
+                {
+                    ShapeBounds = shape.Bounds;
+                    ShapeGeometry = (int) shape.Geometry;
+                }
             }
         }
-        
+
         private readonly Dictionary<int, string> _characterNames = new Dictionary<int, string>(); // will be useful if user can assign arbitrary identifier name to character
         private Description[]? _cachedDescriptions;
 
         public IReadOnlyDictionary<int, string> CharacterNames => _characterNames;
-        public AptObjectsManager Manager { get; }
+        public AptEditManager Manager { get; }
         private Movie Movie => Manager.AptFile.Movie;
 
-        public CharacterUtilities(AptObjectsManager manager)
+        public CharacterUtilities(AptEditManager manager)
         {
             Manager = manager;
             for (var i = 0; i < Movie.Characters.Count; ++i)
@@ -59,26 +68,44 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             return Movie.Characters[index];
         }
 
-        public void CreateShape(string name, int geometryId)
+        public bool IsGeometryIdValid(int geometryId)
         {
-            CreateCharacter(name, () => Shape.Create(Manager.AptFile, (uint) geometryId));
+            return geometryId >= 0 && Manager.AptFile.GeometryMap.ContainsKey((uint) geometryId);
         }
 
-        public void CreateSprite(string name)
+        public void SetShapeGeometry(int shapeIndex, int geometryId)
         {
-            CreateCharacter(name, () => Sprite.Create(Manager.AptFile, new List<Frame>()));
+            var shape = (Shape) GetCharacterByIndex(shapeIndex);
+            var current = shape.Geometry;
+            var edit = new EditAction(() => shape.Modify((uint) geometryId),
+                                      () => shape.Modify(current),
+                                      "Set Shape Geometry");
+            edit.OnEdit += InvalidateCache;
+            Manager.Edit(edit);
         }
 
-        private void CreateCharacter(string name, Action characterCreation)
+        public void CreateShape(string? name, int geometryId)
         {
+            CreateCharacter(name, "Shape", () => Shape.Create(Manager.AptFile, (uint) geometryId));
+        }
+
+        public void CreateSprite(string? name)
+        {
+            CreateCharacter(name, "Sprite", () => Sprite.Create(Manager.AptFile, new List<Frame>()));
+        }
+
+        private void CreateCharacter(string? name, string type, Action characterCreation)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = $"#{_characterNames.Count} {type}";
+            }
             var expectedIndex = Movie.Characters.Count;
             var edit = new EditAction(characterCreation,
-                                      () => Movie.Characters.RemoveAt(expectedIndex));
-            edit.OnEdit += delegate
-            {
-                _cachedDescriptions = null;
-                _characterNames[expectedIndex] = name;
-            };
+                                      () => Movie.Characters.RemoveAt(expectedIndex),
+                                      $"Create {type}");
+            edit.OnEdit += delegate { _characterNames[expectedIndex] = name; };
+            edit.OnEdit += InvalidateCache;
             Manager.Edit(edit);
         }
 
@@ -90,7 +117,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var edit = exportIndex == -1
                 ? new EditAction<Export>(exports.Add, e => exports.Remove(e), newExport)
                 : new EditAction<Export>(e => exports[exportIndex] = e, newExport);
-            edit.OnEdit += delegate { _cachedDescriptions = null; };
+            edit.Description = "Export";
+            edit.OnEdit += InvalidateCache;
             Manager.Edit(edit);
         }
 
@@ -100,9 +128,15 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var exportIndex = exports.FindIndex(e => e.Character == index);
             var export = exports[exportIndex];
             var edit = new EditAction(() => exports.RemoveAt(exportIndex),
-                                      () => exports.Insert(exportIndex, export));
-            edit.OnEdit += delegate { _cachedDescriptions = null; };
+                                      () => exports.Insert(exportIndex, export),
+                                      "Cancel Export");
+            edit.OnEdit += InvalidateCache;
             Manager.Edit(edit);
+        }
+
+        private void InvalidateCache(object? sender, EventArgs e)
+        {
+            _cachedDescriptions = null;
         }
     }
 }

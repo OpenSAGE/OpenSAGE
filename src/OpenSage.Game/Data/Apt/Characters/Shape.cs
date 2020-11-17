@@ -23,7 +23,7 @@ namespace OpenSage.Data.Apt.Characters
         {
             if (!container.GeometryMap.TryGetValue(geometryId, out var geometry))
             {
-                throw new ArgumentException(nameof(geometryId));
+                throw new ArgumentException(null, nameof(geometryId));
             }
             var box = geometry.BoundingBox;
             var bounds = new Vector4
@@ -42,6 +42,30 @@ namespace OpenSage.Data.Apt.Characters
                 Geometry = geometryId
             });
             return shapeIndex;
+        }
+
+        public void Modify(uint newGeometryId, bool modifyBounds = false, Vector4? newBounds = null)
+        {
+            if (!Container.GeometryMap.TryGetValue(newGeometryId, out var geometry))
+            {
+                throw new ArgumentException(null, nameof(newGeometryId));
+            }
+            if (modifyBounds)
+            {
+                if (!newBounds.HasValue)
+                {
+                    var box = geometry.BoundingBox;
+                    newBounds = new Vector4
+                    {
+                        X = box.Left,
+                        Y = box.Top,
+                        Z = box.Right,
+                        W = box.Bottom
+                    };
+                }
+                Bounds = newBounds.Value;
+            }
+            Geometry = newGeometryId;
         }
     }
 }
