@@ -28,9 +28,17 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             _undo = undo;
         }
 
-        public void Edit() => _edit();
+        public void Edit()
+        {
+            _edit();
+            OnEdit?.Invoke(this, EventArgs.Empty);
+        }
 
-        public void Undo() => _undo();
+        public void Undo()
+        {
+            _undo();
+            OnEdit?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     public sealed class EditAction<T> : IEditAction
@@ -45,14 +53,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private readonly Func<T, T> _edit;
         private readonly Func<T, T> _undo;
         private T _state;
-
-        public EditAction(Action edit, Action undo, string? description = null)
-        {
-            Description = description;
-            _edit = _ => { edit(); return default!; };
-            _undo = _ => { undo(); return default!; };
-            _state = default!;
-        }
 
         public EditAction(Action<T> edit, Action<T> undo, T state, string? description = null)
         {

@@ -7,7 +7,6 @@ using OpenSage.Tools.AptEditor.UI;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
-
     internal class FrameListUtilities
     {
         public bool Active => Frames != null;

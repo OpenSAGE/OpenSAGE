@@ -6,7 +6,7 @@ using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
-    public sealed class CharacterUtilities
+    internal sealed class CharacterUtilities
     {
         public sealed class Description
         {
