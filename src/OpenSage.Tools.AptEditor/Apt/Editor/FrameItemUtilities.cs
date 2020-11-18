@@ -91,7 +91,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal class FrameItemUtilities
     {
-        public bool Active => _manager.CurrentCharacter is Playable p && p.Frames.Count > 0;
         public List<FrameItem> CurrentItems => _storedFrame.FrameItems;
         public IReadOnlyList<(int, LogicalPlaceObject)> PlaceObjects => _placeObjects;
         public IReadOnlyList<FrameLabel> FrameLabels => _frameLabels;
@@ -99,34 +98,15 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public IReadOnlyList<LogicalInitAction> InitActions => _initActions;
         public IReadOnlyList<BackgroundColor> BackgroundColors => _backgroundColors;
 
-        private List<(int, LogicalPlaceObject)> _placeObjects;
-        private List<FrameLabel> _frameLabels;
-        private List<LogicalAction> _frameActions;
-        private List<LogicalInitAction> _initActions;
-        private List<BackgroundColor> _backgroundColors;
-        private AptSceneManager _manager;
-        private Frame _storedFrame;
+        private readonly Frame _storedFrame;
+        private readonly List<(int, LogicalPlaceObject)> _placeObjects;
+        private readonly List<FrameLabel> _frameLabels;
+        private readonly List<LogicalAction> _frameActions;
+        private readonly List<LogicalInitAction> _initActions;
+        private readonly List<BackgroundColor> _backgroundColors;
 
-        // Return true if it's a new frame
-        public bool Reset(AptSceneManager manager, bool force = false)
+        private FrameItemUtilities(Frame currentFrame)
         {
-            _manager = manager;
-            if (!Active)
-            {
-                return false;
-            }
-
-            if (!(_manager.CurrentCharacter is Playable p && _manager.CurrentFrameWrapped.HasValue))
-            {
-                return false;
-            }
-
-            var currentFrame = p.Frames[_manager.CurrentFrameWrapped.Value];
-            if (!force && ReferenceEquals(currentFrame, _storedFrame))
-            {
-                return false;
-            }
-
             _storedFrame = currentFrame;
             _placeObjects = new List<(int, LogicalPlaceObject)>();
             _frameLabels = new List<FrameLabel>();
@@ -159,8 +139,33 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         throw new NotImplementedException();
                 }
             }
+        }
 
-            return true;
+        public static FrameItemUtilities? Reset(AptSceneManager manager, FrameItemUtilities? current)
+        {
+            if (manager.IsCurrentCharacterImported)
+            {
+                return null;
+            }
+
+            if(manager.CurrentCharacter is not Playable p)
+            {
+                return null;
+            }
+
+            if(manager.CurrentFrameWrapped is not int frameNumber)
+            {
+                return null;
+            }
+
+            var currentFrame = p.Frames[frameNumber];
+            if (ReferenceEquals(currentFrame, current?._storedFrame))
+            {
+                return current;
+            }
+
+            return new FrameItemUtilities(currentFrame);
+
         }
 
         private static Vector2 Projection(Vector2 vector, Vector2 projectOn) => Vector2.Dot(projectOn, vector) * projectOn / projectOn.LengthSquared();
@@ -184,7 +189,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public static (float, float, Vector2) GetRotationSkewAndScale(in Matrix3x2 matrix, float errorTolerance = float.Epsilon)
         {
             // QR Decomposition
-
             var c1 = new Vector2(matrix.M11, matrix.M21);
             var c2 = new Vector2(matrix.M12, matrix.M22);
 
@@ -207,7 +211,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             var check = CreateTransformation(rotation, skew, scale, matrix.Translation);
             var checkDifference = MatrixMaxDifference(check, matrix, false);
-            if (largestDifference > errorTolerance)
+            if (checkDifference > errorTolerance)
             {
                 throw new ArithmeticException();
             }

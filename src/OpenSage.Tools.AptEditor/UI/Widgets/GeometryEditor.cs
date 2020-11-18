@@ -90,7 +90,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             {
                 ImGui.TextColored(ColorRgbaF.Red.ToVector4(), _lastError);
             }
-            var input = ImGui.InputTextMultiline(inputId, ref _currentInput, 1024, Vector2.Zero);
+            var input = ImGui.InputTextMultiline(inputId, ref _currentInput, 1024, Vector2.One * -1);
 
             if (input)
             {

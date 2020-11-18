@@ -24,6 +24,7 @@ namespace OpenSage.Tools.AptEditor.UI
     {
         public int MillisecondsPerFrame => (int) (AptManager?.AptFile.Movie.MillisecondsPerFrame ?? 30);
         public Character? CurrentCharacter { get; private set; }
+        public bool IsCurrentCharacterImported => CurrentCharacter?.Container != AptManager?.AptFile;
         public string? CurrentAptPath { get; private set; }
         public int NumberOfFrames { get; private set; }
         public int? CurrentFrameWrapped => NumberOfFrames == 0 ? new int?() : CurrentFrame % NumberOfFrames;

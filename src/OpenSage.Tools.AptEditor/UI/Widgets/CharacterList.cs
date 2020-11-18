@@ -1,10 +1,6 @@
-﻿using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Mathematics;
-using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
@@ -13,7 +9,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         private CharacterUtilities? _utilities = null;
         private int _lastSelectedCharacter = -1;
-        private string? _decidingExportName = null;
+        private string _decidingExportName = string.Empty;
         private string? _newCharacterName = null;
         private int? _newShapeGeometry = null;
 
@@ -22,7 +18,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             if (_utilities?.Manager != manager.AptManager)
             {
                 _lastSelectedCharacter = -1;
-                _decidingExportName = null;
+                _decidingExportName = string.Empty;
                 _utilities = manager.AptManager is null
                     ? null
                     : new CharacterUtilities(manager.AptManager);
@@ -121,14 +117,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 var selected = wasSelected;
                 ImGui.Selectable(desc.Name, ref selected);
-                if (!selected)
-                {
-                    if (wasSelected)
-                    {
-                        _decidingExportName = null;
-                    }
-                }
-                else
+                if (selected)
                 {
                     _lastSelectedCharacter = desc.Index;
                     var selectedCharacter = _utilities.GetCharacterByIndex(desc.Index);
@@ -136,8 +125,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     {
                         System.Console.WriteLine($"Setting new character {desc.Index} {selectedCharacter.GetType().Name}");
                         manager.SetCharacter(selectedCharacter);
+                        _decidingExportName = desc.ExportedName ?? desc.Name;
                     }
-                    _decidingExportName ??= desc.ExportedName ?? desc.Name;
                     DrawSelectedCharacterDescription(desc);
                 }
                 ImGui.Separator();
@@ -146,8 +135,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private void DrawSelectedCharacterDescription(CharacterUtilities.Description desc)
         {
-            ImGui.InputText("Exported name", ref _decidingExportName, 64);
-            ImGui.SameLine();
+            _decidingExportName ??= string.Empty;
             if (desc.ExportedName == null)
             {
                 if (ImGui.Button("Export"))
@@ -161,6 +149,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     _utilities!.CancelExport(desc.Index);
                 }
+            }
+            ImGui.SameLine();
+            ImGui.InputText("Exported name", ref _decidingExportName, 64);
+
+            if (desc.Import is not null)
+            {
+                // imported characters should not be modified
+                return;
             }
 
             if (desc.ShapeGeometry is int geometry)

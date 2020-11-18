@@ -1,39 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Tools.AptEditor.Apt.Editor;
-using OpenSage.Tools.AptEditor.Util;
-using Action = System.Action;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
     internal class FrameItemList : IWidget
     {
         public const string Name = "Frame Properties";
-        private FrameItemUtilities _utilities;
-        private InstructionEditor _currentFrameAction;
-        public FrameItemList()
-        {
-            _utilities = new FrameItemUtilities();
-        }
+        private FrameItemUtilities? _utilities;
+        private InstructionEditor? _currentFrameAction;
 
         public void Draw(AptSceneManager manager)
         {
-            if(_utilities.Reset(manager))
+            var maybeNew = FrameItemUtilities.Reset(manager, _utilities);
+            if (maybeNew is null)
+            {
+                return;
+            }
+            if (!ReferenceEquals(_utilities, maybeNew))
             {
                 // if this is a different frame (imply _utilities.Active == true)
                 ImGui.SetNextWindowSize(new Vector2(0, 0));
-            }
-            else if(!_utilities.Active)
-            {
-                _currentFrameAction = null;
-                return;
+                _utilities = maybeNew;
             }
 
-            if(ImGui.Begin(Name))
+            if (ImGui.Begin(Name))
             {
                 // frame label
                 ImGui.Text("Frame labels");
@@ -53,11 +46,11 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Separator();
 
                 // background color
-                if(!_utilities.BackgroundColors.Any())
+                if (!_utilities.BackgroundColors.Any())
                 {
                     ImGui.Button("Set background color");
                 }
-                foreach(var color in _utilities.BackgroundColors)
+                foreach (var color in _utilities.BackgroundColors)
                 {
                     ImGui.Text("Background Color");
                     ImGui.SameLine();
@@ -68,13 +61,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Separator();
 
                 // actions
-                if(!_utilities.FrameActions.Any())
+                if (!_utilities.FrameActions.Any())
                 {
                     ImGui.Button("Add frame Action");
                 }
-                foreach(var item in _utilities.FrameActions)
+                foreach (var item in _utilities.FrameActions)
                 {
-                    if(ImGui.Button("Frame Action"))
+                    if (ImGui.Button("Frame Action"))
                     {
                         _currentFrameAction = new InstructionEditor(item.Instructions);
                     }
@@ -85,11 +78,11 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Button("Add InitAction");
                 var indexColor = new Vector4(0, 1, 1, 1);
                 var typeColor = new Vector4(0, 1, 0, 1);
-                foreach(var item in _utilities.InitActions)
+                foreach (var item in _utilities.InitActions)
                 {
                     ImGui.TextColored(indexColor, $"{item.Sprite}");
                     ImGui.SameLine(35, 5);
-                    if(ImGui.Button("Sprite InitAction"))
+                    if (ImGui.Button("Sprite InitAction"))
                     {
                         _currentFrameAction = new InstructionEditor(item.Instructions);
                     }
@@ -100,21 +93,21 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Text("Place commands");
                 ImGui.Button("New");
                 ImGui.Indent(10);
-                foreach(var (depth, placeObject) in _utilities.PlaceObjects)
+                foreach (var (depth, placeObject) in _utilities.PlaceObjects)
                 {
                     ImGui.Separator();
                     ImGui.Text($"Depth: {depth}");
                     ImGui.SameLine(ImGui.GetWindowWidth() - 100);
                     ImGui.Button("Remove");
 
-                    if(placeObject.IsRemoveObject)
+                    if (placeObject.IsRemoveObject)
                     {
                         ImGui.Text("Remove character in the current depth.");
                         continue;
                     }
 
                     ImGui.TextColored(typeColor, "Character");
-                    
+
                     ProcessPlaceCharacter(manager, placeObject);
                     ImGui.Spacing();
                     ProcessTransform(placeObject);
@@ -133,22 +126,19 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             ImGui.End();
 
             // Draw Frame's Action / InitAction
-            if(_currentFrameAction != null)
-            {
-                _currentFrameAction.Draw(manager);
-            }
+            _currentFrameAction?.Draw(manager);
         }
 
         private static void ProcessPlaceCharacter(AptSceneManager manager, LogicalPlaceObject placeObject)
         {
             // Initialize: non null
             // Edit: -> replace if non null
-            if(!placeObject.ModifyingExisting)
+            if (!placeObject.ModifyingExisting)
             {
                 ImGui.Button("Initialize");
                 ImGui.SameLine();
                 ImGui.Button(ToStringOrDefault(placeObject.Character, "Invalid"));
-                if(!placeObject.Character.HasValue)
+                if (!placeObject.Character.HasValue)
                 {
                     manager.SubmitError("A character ID must be set");
                 }
@@ -156,11 +146,12 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
             else
             {
-                if(!placeObject.Character.HasValue)
+                if (!placeObject.Character.HasValue)
                 {
                     ImGui.Button("Edit");
                 }
-                else{
+                else
+                {
                     ImGui.Button("Replace with");
                 }
                 ImGui.SameLine();
@@ -171,7 +162,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private static void ProcessTransform(LogicalPlaceObject placeObject)
         {
-            if(!placeObject.Transform.HasValue)
+            if (!placeObject.Transform.HasValue)
             {
                 ImGui.Button("Add Transformation");
                 return;
@@ -197,7 +188,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private static void ProcessColorTransform(LogicalPlaceObject placeObject)
         {
-            if(!placeObject.ColorTransform.HasValue)
+            if (!placeObject.ColorTransform.HasValue)
             {
                 ImGui.Button("Add Color Transform");
                 return;
@@ -216,21 +207,21 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private static void ProcessName(LogicalPlaceObject placeObject)
         {
-            if(placeObject.Name == null)
+            if (placeObject.Name == null)
             {
                 ImGui.Button("Add Name");
                 return;
             }
 
             var name = placeObject.Name;
-            ImGui.InputText("Name", ref name, (uint)(name.Length + 10));
+            ImGui.InputText("Name", ref name, (uint) (name.Length + 10));
             ImGui.SameLine(ImGui.GetWindowWidth() - 100);
             ImGui.Button("Remove");
         }
 
         private static void ProcessClipEvents(LogicalPlaceObject placeObject)
         {
-            if(placeObject.ClipEvents == null)
+            if (placeObject.ClipEvents == null)
             {
                 ImGui.Button("Add Ciip Events");
                 return;
@@ -242,9 +233,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         private static string ToStringOrDefault<T>(T? item, string defaultValue) where T : struct
         {
-            if(item.HasValue)
+            if (item is T t)
             {
-                return item.ToString();
+                return t.ToString() ?? defaultValue;
             }
             return defaultValue;
         }
