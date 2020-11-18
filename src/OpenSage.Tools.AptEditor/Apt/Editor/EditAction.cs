@@ -100,6 +100,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     {
         public string? Description { get; set; }
         public DateTimeOffset Time { get; private set; }
+        public TimeSpan Threshold { get; set; }
         public string EditTypeId { get; }
 
         public event EventHandler? OnEdit;
@@ -107,14 +108,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private Action _edit;
         private Action _restore;
 
-        public MergeableEdit(string editTypeId, Action edit, Action restore, string? description = null)
+        public MergeableEdit(TimeSpan threshold, string editTypeId, Action edit, Action restore, string? description = null)
         {
-            Description = description;    
+            Description = description;
             Time = DateTimeOffset.UtcNow;
+            Threshold = threshold;
             EditTypeId = editTypeId;
             _valid = true;
             _edit = edit;
             _restore = restore;
+            
         }
 
         public void Edit()
@@ -144,7 +147,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             {
                 throw new InvalidOperationException();
             }
-            if (interval.TotalSeconds > 1)
+            if (interval > Threshold)
             {
                 return false;
             }
@@ -152,7 +155,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             {
                 return false;
             }
-            Time += (interval / 2);
+            Time += (interval * 0.75);
+            Threshold = (Threshold + other.Threshold) / 2;
             _edit = other._edit;
             other._valid = false;
             return true;

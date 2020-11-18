@@ -10,19 +10,20 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         CannotDisableCharacterInUse,
         IncorrectValueType,
         PlayableMustHaveAtLeastOneFrame,
-        FailedToParseGeometry
+        FailedToParseGeometry,
+        InvalidTextureIdInGeometry
     }
 
     public class AptEditorException : Exception
     {
         public ErrorType ErrorType { get; }
         public AptEditorException(ErrorType type, Exception innerException) :
-            base("AptEditorException", innerException)
+            base(innerException.Message, innerException)
         {
             ErrorType = type;
         }
 
-        public AptEditorException(ErrorType type) : base("AptEditorException")
+        public AptEditorException(ErrorType type, string message = "AptEditorException") : base(message)
         {
             ErrorType = type;
         }

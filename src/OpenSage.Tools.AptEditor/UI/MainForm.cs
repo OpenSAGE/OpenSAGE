@@ -21,7 +21,8 @@ namespace OpenSage.Tools.AptEditor.UI
             new CharacterList(),
             new SceneTransform(),
             new FrameList(),
-            new FrameItemList()
+            new FrameItemList(),
+            new GeometryEditor(),
         };
         private readonly ExportPathSelector _exportPathSelector = new ExportPathSelector();
         private readonly AptFileSelector _aptFileSelector;
