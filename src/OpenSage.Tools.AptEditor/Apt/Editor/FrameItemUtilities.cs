@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt;
@@ -148,12 +149,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 return null;
             }
 
-            if(manager.CurrentCharacter is not Playable p)
+            if (manager.CurrentCharacter is not Playable p)
             {
                 return null;
             }
 
-            if(manager.CurrentFrameWrapped is not int frameNumber)
+            if (manager.CurrentFrameWrapped is not int frameNumber)
             {
                 return null;
             }
@@ -170,7 +171,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         private static Vector2 Projection(Vector2 vector, Vector2 projectOn) => Vector2.Dot(projectOn, vector) * projectOn / projectOn.LengthSquared();
 
-        private static float MatrixMaxDifference(in Matrix3x2 m1, in Matrix3x2 m2, bool checkTranslation)
+        private static float MatrixAbsDifference(in Matrix3x2 m1, in Matrix3x2 m2, bool checkTranslation)
         {
             var diff = m1 - m2;
             if (checkTranslation == false)
@@ -178,7 +179,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 diff.Translation = Vector2.Zero;
             }
             var diffs = new[] { diff.M11, diff.M12, diff.M21, diff.M22, diff.M31, diff.M32 };
-            return diffs.Select(value => MathF.Abs(value)).Max();
+            return diffs.Select(value => MathF.Abs(value)).Sum();
         }
 
         public static Matrix3x2 CreateTransformation(float rotation, float skew, Vector2 scale, Vector2 translation)
@@ -196,21 +197,24 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var e1 = Vector2.Normalize(c1);
             var e2 = Vector2.Normalize(c2 - Projection(c2, c1));
 
+            var xSign = 1;
             var qMatrix = new Matrix3x2(e1.X, e2.X, e1.Y, e2.Y, 0, 0);
+            if (qMatrix.GetDeterminant() == -1)
+            {
+                qMatrix *= new Matrix3x2(-1, 0, 0, 1, 0, 0);
+                xSign = -1;
+                Debug.Assert(qMatrix.GetDeterminant() == 1);
+            }
             var rMatrix = new Matrix3x2(Vector2.Dot(c1, e1), Vector2.Dot(c2, e1), 0, Vector2.Dot(c2, e2), 0, 0);
 
-            var largestDifference = MatrixMaxDifference(qMatrix * rMatrix, matrix, false);
-            if (largestDifference > errorTolerance)
-            {
-                throw new ArithmeticException();
-            }
-
+            // the Q matrix is an orthogonal matrix
+            // The set of orthogonal matrix is formed by rotation matrix and inversion matrix
             var rotation = MathF.Atan2(qMatrix.M12, qMatrix.M11);
+            var scale = new Vector2(rMatrix.M11 * xSign, rMatrix.M22);
             var skew = rMatrix.M12;
-            var scale = new Vector2(rMatrix.M11, rMatrix.M22);
 
-            var check = CreateTransformation(rotation, skew, scale, matrix.Translation);
-            var checkDifference = MatrixMaxDifference(check, matrix, false);
+            var check = CreateTransformation(rotation, skew, scale, Vector2.Zero);
+            var checkDifference = MatrixAbsDifference(check, matrix, false);
             if (checkDifference > errorTolerance)
             {
                 throw new ArithmeticException();
