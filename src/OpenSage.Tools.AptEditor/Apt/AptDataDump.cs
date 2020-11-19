@@ -37,7 +37,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         {
             target.Create();
             // TODO: use a true XML serializer
-            using var xml = new StreamWriter(File.OpenWrite(Path.Combine(target.FullName, $"{Name}.xml")));
+            using var xml = new StreamWriter(File.Create(Path.Combine(target.FullName, $"{Name}.xml")));
             await xml.WriteLineAsync("<?xml version='1.0' encoding='utf-8'?>");
             await xml.WriteLineAsync("<AssetDeclaration xmlns=\"uri:ea.com:eala:asset\">");
             var list = new[]
@@ -87,7 +87,7 @@ namespace OpenSage.Tools.AptEditor.Apt
             xml.WriteLine("</AssetDeclaration>");
         }
 
-        private FileSystemEntry FindTexture(FileSystem fileSystem, string name)
+        private static FileSystemEntry FindTexture(FileSystem fileSystem, string name)
         {
             foreach (var path in AptEditorDefinition.TexturePathResolver.GetPaths(name, string.Empty))
             {

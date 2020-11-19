@@ -139,7 +139,7 @@ namespace OpenSage.Tools.AptEditor.UI
                     {
                         try
                         {
-                            _searchPathAdder.AutoLoad(inputAptPath); // here it's used to prepare art folder
+                            _searchPathAdder.AutoLoad(inputAptPath, loadArtOnly: true); // here it's used to prepare art folder
                             _manager.LoadApt(inputAptPath);
                         }
                         catch (AptLoadFailure loadFailure)
@@ -149,7 +149,7 @@ namespace OpenSage.Tools.AptEditor.UI
                                 if (file != lastFailed)
                                 {
                                     lastFailed = file;
-                                    if (_searchPathAdder.AutoLoad(file))
+                                    if (_searchPathAdder.AutoLoad(file, loadArtOnly: false))
                                     {
                                         continue;
                                     }

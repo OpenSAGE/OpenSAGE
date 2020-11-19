@@ -225,6 +225,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             edit.OnEdit += delegate
             {
+                if (_manager.CurrentCharacter != _character)
+                {
+                    return; // to do: swtich to character
+                }
                 _manager.PlayToFrame(_manager.CurrentFrameWrapped!.Value);
             };
             _manager.AptManager!.Edit(edit);

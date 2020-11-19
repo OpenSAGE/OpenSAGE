@@ -63,7 +63,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
                 if (_loadingTask?.IsCompleted != false && _list.Any())
                 {
-                    if(ImGui.Button("Enable Autoload in following files"))
+                    if (ImGui.Button("Enable Autoload in following files"))
                     {
                         // _inputBox.Value is valid, becasue TryGetFiles() is called after _inputBox.Draw()s
                         _autoDetect.UnionWith(_list.Select(path => Path.Combine(_inputBox.Value, path)));
@@ -75,7 +75,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 }
                 if (_autoDetect.Any())
                 {
-                    if(ImGui.Button($"Clear {_autoDetect.Count} items in autoload list"))
+                    if (ImGui.Button($"Clear {_autoDetect.Count} items in autoload list"))
                     {
                         _autoDetect.Clear();
                     }
@@ -112,7 +112,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 ImGui.InputInt("Max count", ref MaxCount);
 
                 ImGui.Text($"Mapped files ({_mapped.Count})");
-                
+
                 ImGui.SetCursorPosY(Math.Max(beginY, ImGui.GetCursorPosY()));
                 wasVisible = true;
                 foreach (var path in _mapped)
@@ -124,7 +124,9 @@ namespace OpenSage.Tools.AptEditor.UI
                 if (load)
                 {
                     // _inputBox.Value is valid, becasue TryGetFiles() is called after _inputBox.Draw()
-                    Load(list.Select(from => Path.Combine(_inputBox.Value, from)).Zip(_mapped), true);
+                    Load(list.Select(from => Path.Combine(_inputBox.Value, from)).Zip(_mapped),
+                         isPhysicalFile: true,
+                         loadArtOnly: false);
                     Visible = false;
                     Next?.Invoke();
                     Next = null;
@@ -133,7 +135,7 @@ namespace OpenSage.Tools.AptEditor.UI
             ImGui.End();
         }
 
-        public bool AutoLoad(string requiredAptFile)
+        public bool AutoLoad(string requiredAptFile, bool loadArtOnly)
         {
             requiredAptFile = FileSystem.NormalizeFilePath(requiredAptFile);
             var mappedPath = Path.GetDirectoryName(requiredAptFile);
@@ -145,32 +147,40 @@ namespace OpenSage.Tools.AptEditor.UI
                 .ToArray();
             var detectedFromCustomFiles = _autoDetect
                 .Where(path => FileSystem.NormalizeFilePath(Path.GetFileName(path)) == name);
-            if (!detectedFromGameFileSystem.Any() && detectedFromCustomFiles.Any())
+            if (!detectedFromGameFileSystem.Any() && !detectedFromCustomFiles.Any())
             {
                 return false;
             }
 
-            foreach(var gameFile in detectedFromGameFileSystem)
+            void Trace(string sourcePath, string from)
             {
-                var sourcePath = Path.GetDirectoryName(gameFile);
-                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: true);
-                
-                Console.WriteLine($"Automaticaling loaded game:{sourcePath} => game:{mappedPath} for {requiredAptFile}");
+                var text = $"Automatically loaded game:{sourcePath}  => game:{mappedPath} for {requiredAptFile}";
+                Console.WriteLine(text + (loadArtOnly ? " (art)" : string.Empty));
             }
 
             foreach (var file in detectedFromCustomFiles)
             {
                 var sourcePath = Path.GetDirectoryName(file);
-                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: false);
-                Console.WriteLine($"Automaticaling loaded file:{sourcePath} => game:{mappedPath} for {requiredAptFile}");
+                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: false, loadArtOnly);
+                Trace(sourcePath!, "file");
+            }
+
+            foreach (var gameFile in detectedFromGameFileSystem)
+            {
+                var sourcePath = Path.GetDirectoryName(gameFile);
+                AutoLoadImpl(sourcePath!, mappedPath, isFromGameFileSystem: true, loadArtOnly);
+                Trace(sourcePath!, "game");
             }
 
             return true;
         }
 
-        private void AutoLoadImpl(string sourcePath, string? mappedPath, bool isFromGameFileSystem)
+        private void AutoLoadImpl(string sourcePath,
+                                  string? mappedPath,
+                                  bool isFromGameFileSystem,
+                                  bool loadArtOnly)
         {
-            if (Path.EndsInDirectorySeparator(sourcePath))
+            if (!Path.EndsInDirectorySeparator(sourcePath))
             {
                 sourcePath += Path.DirectorySeparatorChar;
             }
@@ -181,44 +191,42 @@ namespace OpenSage.Tools.AptEditor.UI
             var filtered = from path in paths
                            let normalized = FileSystem.NormalizeFilePath(path)
                            where normalized.StartsWith(normalizedSourcePath)
-                           let relative = normalized[(normalizedSourcePath.Length + 1)..]
-                           let mapped = mappedPath is null ? relative : Path.Combine(mappedPath, relative)
+                           let relative = normalized[(normalizedSourcePath.Length)..]
+                           let mapped = mappedPath is null
+                               ? relative
+                               : Path.Combine(mappedPath, relative)
                            select (path, mapped);
-            Load(filtered.ToArray(), !isFromGameFileSystem);
+            Load(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
         }
 
-        private void Load(IEnumerable<(string, string)> listAndMapped, bool isPhysicalFile)
+        private void Load(IEnumerable<(string, string)> listAndMapped,
+                          bool isPhysicalFile,
+                          bool loadArtOnly)
         {
-            var art1 = FileSystem.NormalizeFilePath("/art/textures/");
-            var art2 = FileSystem.NormalizeFilePath("art/textures/");
+            var art = FileSystem.NormalizeFilePath("art/textures/");
             foreach (var (from, to) in listAndMapped)
             {
                 var (open, length) = GetFile(from, isPhysicalFile);
-                TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                            FileSystem.NormalizeFilePath(to),
-                                                            length,
-                                                            open));
+                if (!loadArtOnly)
+                {
+                    TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
+                                                                FileSystem.NormalizeFilePath(to),
+                                                                length,
+                                                                open));
+                }
+
                 // load art
                 var normalizedArt = FileSystem.NormalizeFilePath(from);
-                var index = normalizedArt.IndexOf(art1);
+                var index = normalizedArt.IndexOf(art);
                 if (index == -1)
                 {
-                    index = normalizedArt.IndexOf(art2);
-                    if (index != 0)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    index += 1;
+                    continue;
                 }
                 TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
                                                             normalizedArt[index..],
                                                             length,
                                                             open));
             }
-            
         }
 
         private (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)

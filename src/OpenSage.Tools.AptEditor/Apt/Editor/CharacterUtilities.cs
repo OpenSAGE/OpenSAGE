@@ -91,7 +91,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         public void CreateSprite(string? name)
         {
-            CreateCharacter(name, "Sprite", () => Sprite.Create(Manager.AptFile, new List<Frame>()));
+            var frames = new List<Frame> { Frame.Create(new List<Data.Apt.FrameItems.FrameItem>()) };
+            CreateCharacter(name, "Sprite", () => Sprite.Create(Manager.AptFile, frames));
         }
 
         private void CreateCharacter(string? name, string type, Action characterCreation)
