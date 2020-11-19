@@ -108,12 +108,21 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     ImGui.EndMenu();
                 }
+                if (_manager.AptManager is AptEditManager manager && ImGui.BeginMenu("Edit"))
+                {
+                    var description = manager.GetUndoDescription();
+                    if (ImGui.MenuItem(description ?? "Undo", description is not null))
+                    {
+                        manager.Undo();
+                    }
+                    ImGui.EndMenu();
+                }
                 ImGui.EndMenuBar();
             }
 
             if (_exportPathSelector.GetValue() is string exportPath)
             {
-                if(_manager.AptManager != null)
+                if (_manager.AptManager != null)
                 {
                     var dump = _manager.AptManager.GetAptDataDump();
                     var task = _manager.AptManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
@@ -220,7 +229,7 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 ImGui.Text(description);
             }
-            
+
         }
 
         private void DrawErrorPrompt()
