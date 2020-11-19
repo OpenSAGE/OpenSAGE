@@ -10,6 +10,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     public interface IEditAction
     {
         string? Description { get; }
+        public event EventHandler? OnEdit;
         void Edit();
         void Undo();
         bool TryMerge(IEditAction edit);
@@ -106,7 +107,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public event EventHandler? OnEdit;
         private bool _valid;
         private Action _edit;
-        private Action _restore;
+        private readonly Action _restore;
 
         public MergeableEdit(TimeSpan threshold, string editTypeId, Action edit, Action restore, string? description = null)
         {
@@ -158,6 +159,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Time += (interval * 0.75);
             Threshold = (Threshold + other.Threshold) / 2;
             _edit = other._edit;
+            OnEdit = other.OnEdit;
             other._valid = false;
             return true;
         }

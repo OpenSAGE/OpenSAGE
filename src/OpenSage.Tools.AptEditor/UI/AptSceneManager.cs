@@ -189,11 +189,6 @@ namespace OpenSage.Tools.AptEditor.UI
             _currentDisplay.UpdateNextFrameNoActions();
         }
 
-        public void SubmitError(string message)
-        {
-            throw new NotImplementedException();
-        }
-
         private delegate void TransformAction(ref ItemTransform t);
         private void SetTransform(TransformAction action)
         {

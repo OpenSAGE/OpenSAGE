@@ -27,7 +27,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Spacing();
 
                 var previousColor = manager.DisplayBackgroundColor;
-                Vector3 color = new Vector3(previousColor.R, previousColor.G, previousColor.B);
+                var color = new Vector3(previousColor.R, previousColor.G, previousColor.B);
                 ImGui.ColorEdit3("Background (display only)", ref color);
 
                 manager.CurrentScale = scale;

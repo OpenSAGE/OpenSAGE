@@ -15,7 +15,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private AptSceneManager? _manager;
 
         // return true if they are new frames
-        public bool Reset(AptSceneManager manager, bool force = false)
+        public bool Reset(AptSceneManager manager)
         {
             _manager ??= manager;
             if (_manager != manager)

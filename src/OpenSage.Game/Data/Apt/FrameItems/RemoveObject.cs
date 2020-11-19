@@ -8,9 +8,18 @@ namespace OpenSage.Data.Apt.FrameItems
 
         public static RemoveObject Parse(BinaryReader reader)
         {
-            var removeObject = new RemoveObject();
-            removeObject.Depth = reader.ReadInt32();
-            return removeObject;
+            return new RemoveObject
+            {
+                Depth = reader.ReadInt32()
+            };
+        }
+
+        public static RemoveObject Create(int depth)
+        {
+            return new RemoveObject
+            {
+                Depth = depth
+            };
         }
     }
 }

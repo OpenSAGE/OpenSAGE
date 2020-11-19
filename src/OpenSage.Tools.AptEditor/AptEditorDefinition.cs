@@ -55,7 +55,7 @@ namespace OpenSage.Tools.AptEditor
             const int width = 100;
             const int height = 100;
             var aptFile = AptFile.CreateEmpty("bg", width, height, 1000);
-            var placeBackground = PlaceObject.CreatePlace(0, SampleApt.CreateShape(aptFile, new[]
+            var placeBackground = PlaceObject.Create(0, SampleApt.CreateShape(aptFile, new[]
             {
                 "c",
                 $"s s:{color.R}:{color.G}:{color.B}:{color.A}",

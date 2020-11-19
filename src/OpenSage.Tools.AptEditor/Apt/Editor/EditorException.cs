@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
@@ -11,7 +10,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         IncorrectValueType,
         PlayableMustHaveAtLeastOneFrame,
         FailedToParseGeometry,
-        InvalidTextureIdInGeometry
+        InvalidTextureIdInGeometry,
+        PlaceObjectDepthAlreadyTaken,
+        InvalidPlaceObjectDepth,
+        InvalidCharacterId,
+        PlaceObjectCircularDependency,
+        InvalidCharacterInDependency
     }
 
     public class AptEditorException : Exception

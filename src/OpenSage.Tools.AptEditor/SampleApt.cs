@@ -42,7 +42,7 @@ namespace OpenSage.Tools.AptEditor
                 $"s s:{white.R}:{white.G}:{white.B}:{white.A}",
                 $"t 0:{triSize / 2}:{triSize / 2}:0:{triSize}:{triSize / 2}",
             });
-            var translatedPlace = PlaceObject.CreatePlace(1, triangle);
+            var translatedPlace = PlaceObject.Create(1, triangle);
             translatedPlace.SetTransform(new ItemTransform
             {
                 GeometryRotation = Matrix3x2.Identity,
@@ -53,12 +53,12 @@ namespace OpenSage.Tools.AptEditor
             {
                 Frame.Create(new List<FrameItem>
                 {
-                    PlaceObject.CreatePlace(0, triangle),
+                    PlaceObject.Create(0, triangle),
                     translatedPlace,
                 })
             });
 
-            var rotatedSprite = PlaceObject.CreatePlace(1, sprite);
+            var rotatedSprite = PlaceObject.Create(1, sprite);
             rotatedSprite.SetTransform(new ItemTransform
             {
                 GeometryRotation = Matrix3x2.CreateRotation(MathF.PI / 2),
@@ -70,7 +70,7 @@ namespace OpenSage.Tools.AptEditor
             {
                 Frame.Create(new List<FrameItem>
                 {
-                    PlaceObject.CreatePlace(0, backgroundShape),
+                    PlaceObject.Create(0, backgroundShape),
                     rotatedSprite
                 })
             });
@@ -78,14 +78,14 @@ namespace OpenSage.Tools.AptEditor
             {
                 Frame.Create(new List<FrameItem>
                 {
-                    PlaceObject.CreatePlace(0, backgroundShape2),
+                    PlaceObject.Create(0, backgroundShape2),
                     rotatedSprite
                 })
             });
             var frame = Frame.Create(new List<FrameItem>
             {
-                PlaceObject.CreatePlace(0, example1),
-                PlaceObject.CreatePlace(1, example2),
+                PlaceObject.Create(0, example1),
+                PlaceObject.Create(1, example2),
             });
             aptFile.Movie.Frames.Add(frame);
 

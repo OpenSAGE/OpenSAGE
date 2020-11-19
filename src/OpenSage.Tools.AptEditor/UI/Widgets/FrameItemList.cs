@@ -1,16 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt.Editor;
+using OpenSage.Tools.AptEditor.Apt.Editor.FrameItems;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
     internal class FrameItemList : IWidget
     {
+        private ref struct ImGuiIDHelper
+        {
+            private int _id;
+
+            public ImGuiIDHelper(string type, ref int id)
+            {
+                _id = ++id;
+                ImGui.PushID(type.GetHashCode());
+                ImGui.PushID(_id);
+            }
+
+            public void Dispose()
+            {
+                ImGui.PopID();
+                ImGui.PopID();
+            }
+        }
+
         public const string Name = "Frame Properties";
         private FrameItemUtilities? _utilities;
         private InstructionEditor? _currentFrameAction;
+        private int? _newPlaceObjectDepth;
+        private int? _newPlaceCharacter;
+        private ErrorType? _whyCannotPlaceCharacter;
 
         public void Draw(AptSceneManager manager)
         {
@@ -24,15 +48,19 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 // if this is a different frame (imply _utilities.Active == true)
                 ImGui.SetNextWindowSize(new Vector2(0, 0));
                 _utilities = maybeNew;
+                ResetCreatePlaceObjectForm();
             }
 
             if (ImGui.Begin(Name))
             {
+                var id = _utilities.GetHashCode();
+
                 // frame label
                 ImGui.Text("Frame labels");
                 ImGui.Button("New Frame label");
                 foreach (var label in _utilities.FrameLabels)
                 {
+                    using var _ = new ImGuiIDHelper("Frame labels", ref id);
                     ImGui.Text($"{label.FrameId}");
                     ImGui.SameLine();
                     ImGui.TextColored(new Vector4(1, 1, 0, 1), label.Name);
@@ -52,6 +80,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
                 foreach (var color in _utilities.BackgroundColors)
                 {
+                    using var _ = new ImGuiIDHelper("Background colors", ref id);
                     ImGui.Text("Background Color");
                     ImGui.SameLine();
                     ImGui.ColorButton("Background color", color.Color.ToColorRgbaF().ToVector4());
@@ -61,12 +90,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Separator();
 
                 // actions
-                if (!_utilities.FrameActions.Any())
-                {
-                    ImGui.Button("Add frame Action");
-                }
+                ImGui.Button("Add frame Action");
                 foreach (var item in _utilities.FrameActions)
                 {
+                    using var _ = new ImGuiIDHelper("Frame actions", ref id);
                     if (ImGui.Button("Frame Action"))
                     {
                         _currentFrameAction = new InstructionEditor(item.Instructions);
@@ -80,6 +107,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 var typeColor = new Vector4(0, 1, 0, 1);
                 foreach (var item in _utilities.InitActions)
                 {
+                    using var _ = new ImGuiIDHelper("Init actions", ref id);
                     ImGui.TextColored(indexColor, $"{item.Sprite}");
                     ImGui.SameLine(35, 5);
                     if (ImGui.Button("Sprite InitAction"))
@@ -91,16 +119,21 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 // placeobjects
                 ImGui.Text("Place commands");
-                ImGui.Button("New");
+                DrawCreatePlaceObjectForm();
+                ImGui.Separator();
                 ImGui.Indent(10);
+                int? remove = null;
                 foreach (var (depth, placeObject) in _utilities.PlaceObjects)
                 {
-                    ImGui.Separator();
+                    using var _ = new ImGuiIDHelper("PlaceObjects", ref id);
                     ImGui.Text($"Depth: {depth}");
-                    ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-                    ImGui.Button("Remove");
+                    ImGui.SameLine();
+                    if (ImGui.Button("Remove"))
+                    {
+                        remove = depth;
+                    }
 
-                    if (placeObject.IsRemoveObject)
+                    if (placeObject is null)
                     {
                         ImGui.Text("Remove character in the current depth.");
                         continue;
@@ -108,7 +141,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                     ImGui.TextColored(typeColor, "Character");
 
-                    ProcessPlaceCharacter(manager, placeObject);
+                    ProcessPlaceCharacter(placeObject);
                     ImGui.Spacing();
                     ProcessTransform(placeObject);
                     ImGui.Spacing();
@@ -119,9 +152,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     ProcessName(placeObject);
                     ImGui.Spacing();
                     ProcessClipEvents(placeObject);
-
+                    ImGui.Separator();
                 }
                 ImGui.Unindent();
+
+                if (remove is int removeValue)
+                {
+                    _utilities.RemovePlaceObject(removeValue);
+                }
             }
             ImGui.End();
 
@@ -129,20 +167,100 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             _currentFrameAction?.Draw(manager);
         }
 
-        private static void ProcessPlaceCharacter(AptSceneManager manager, LogicalPlaceObject placeObject)
+        private void DrawCreatePlaceObjectForm()
         {
-            // Initialize: non null
-            // Edit: -> replace if non null
+            if (_utilities is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (_newPlaceObjectDepth is not int depth)
+            {
+                if (ImGui.Button("New"))
+                {
+                    _newPlaceObjectDepth = default(int);
+                }
+                return;
+            }
+
+            if (ImGui.RadioButton("Place", _newPlaceCharacter is int))
+            {
+                _newPlaceCharacter = default(int);
+                _utilities.IsCharacterPlaceable(_newPlaceCharacter.Value,
+                                                out _whyCannotPlaceCharacter);
+            }
+            ImGui.SameLine();
+            if (ImGui.RadioButton("Remove", _newPlaceCharacter is null))
+            {
+                _newPlaceCharacter = null;
+            }
+            ImGui.InputInt("Depth", ref depth);
+            _newPlaceObjectDepth = depth;
+            if (_newPlaceCharacter is int character)
+            {
+                if (ImGui.InputInt("Character", ref character))
+                {
+                    _newPlaceCharacter = character;
+                    if (_utilities.IsCharacterPlaceable(character,
+                                                        out _whyCannotPlaceCharacter))
+                    {
+                        _whyCannotPlaceCharacter = null;
+                    }
+                }
+            }
+            var currentError = _utilities.PlaceObjects.ContainsKey(depth)
+                ? ErrorType.PlaceObjectDepthAlreadyTaken
+                : _whyCannotPlaceCharacter;
+            if (currentError is ErrorType error)
+            {
+                var reason = string.Empty;
+                foreach (var c in error.ToString())
+                {
+                    reason += reason.Any() && char.IsUpper(c)
+                        ? $" {char.ToLower(c)}"
+                        : c;
+                }
+
+                ImGui.TextColored(ColorRgbaF.Red.ToVector4(), reason);
+            }
+            else if (ImGui.Button("Create"))
+            {
+                _utilities.AddPlaceObject(depth, _newPlaceCharacter);
+                ResetCreatePlaceObjectForm();
+            }
+        }
+
+        private void ResetCreatePlaceObjectForm()
+        {
+            _newPlaceObjectDepth = null;
+            _newPlaceCharacter = null;
+            _whyCannotPlaceCharacter = null;
+        }
+
+        private void ProcessPlaceCharacter(LogicalPlaceObject placeObject)
+        {
             if (!placeObject.ModifyingExisting)
             {
                 ImGui.Button("Initialize");
                 ImGui.SameLine();
-                ImGui.Button(ToStringOrDefault(placeObject.Character, "Invalid"));
-                if (!placeObject.Character.HasValue)
+                if(placeObject.Character is int character)
                 {
-                    manager.SubmitError("A character ID must be set");
+                    if (ImGui.InputInt("##place character", ref character))
+                    {
+                        if(_utilities!.IsCharacterPlaceable(character, out var whyNot))
+                        {
+                            placeObject.SetCharacter(character);
+                        }
+                        else
+                        {
+                            ImGui.TextColored(ColorRgbaF.Red.ToVector4(), whyNot.ToString());
+                        }
+                    }
                 }
-                ImGui.NewLine();
+                else
+                {
+                    ImGui.TextColored(ColorRgbaF.Red.ToVector4(), "Invalid character");
+                }
             }
             else
             {
@@ -156,48 +274,75 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
                 ImGui.SameLine();
                 ImGui.Button(ToStringOrDefault(placeObject.Character, "Existing"));
-                ImGui.NewLine();
             }
         }
 
         private static void ProcessTransform(LogicalPlaceObject placeObject)
         {
-            if (!placeObject.Transform.HasValue)
+            if (!placeObject.HasTransfrom)
             {
-                ImGui.Button("Add Transformation");
+                if (ImGui.Button("Add Transformation"))
+                {
+                    placeObject.InitTransform();
+                }
                 return;
             }
 
             ImGui.Text("Transformation");
-            ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Button("Remove");
+            ImGui.SameLine();
+            if (ImGui.Button("Remove"))
+            {
+                placeObject.DisableTransform();
+            }
 
-            var (rotation, skew, scale) = FrameItemUtilities.GetRotationSkewAndScale(placeObject.Transform.Value, 0.0001f);
+            const float radToDeg = (180 / MathF.PI);
 
-            var rotationInDegrees = rotation * (180 / MathF.PI);
-            ImGui.InputFloat("Rotation", ref rotationInDegrees, 1, 10, "%f deg");
+            var rotationInDegrees = placeObject.Rotation * radToDeg;
+            if (ImGui.InputFloat("Rotation", ref rotationInDegrees, 1, 10, "%.3f deg"))
+            {
+                placeObject.SetRotation(rotationInDegrees / radToDeg);
+            }
 
-            var skewInDegrees = skew * (180 / MathF.PI);
-            ImGui.InputFloat("Skew", ref skewInDegrees, 1, 10, "%f deg");
+            var skewInDegrees = placeObject.Skew * (180 / MathF.PI);
+            if (ImGui.InputFloat("Skew", ref skewInDegrees, 1, 10, "%.3f deg"))
+            {
+                placeObject.SetSkew(skewInDegrees / radToDeg);
+            }
 
-            ImGui.InputFloat2("Scale", ref scale);
+            var scale = placeObject.Scale;
+            if (ImGui.InputFloat2("Scale", ref scale))
+            {
+                placeObject.SetScale(scale);
+            }
 
-            var translation = placeObject.Transform.Value.Translation;
-            ImGui.InputFloat2("Translation", ref translation);
+            var translation = placeObject.Translation;
+            if (ImGui.InputFloat2("Translation", ref translation))
+            {
+                placeObject.SetTranslation(translation);
+            }
         }
 
         private static void ProcessColorTransform(LogicalPlaceObject placeObject)
         {
-            if (!placeObject.ColorTransform.HasValue)
+            if (placeObject.ColorTransform is not Vector4 value)
             {
-                ImGui.Button("Add Color Transform");
+                if (ImGui.Button("Add Color Transform"))
+                {
+                    placeObject.SetColor(Vector4.One);
+                }
                 return;
             }
             ImGui.Text("Color Transform");
             ImGui.SameLine();
-            ImGui.ColorButton("Color Transform", placeObject.ColorTransform.Value.ToColorRgbaF().ToVector4());
-            ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Button("Remove");
+            if (ImGui.ColorEdit4("Color Transform", ref value))
+            {
+                placeObject.SetColor(value);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Remove"))
+            {
+                placeObject.SetColor(null);
+            }
         }
 
         private static void ProcessRatio(LogicalPlaceObject placeObject)
@@ -209,14 +354,31 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         {
             if (placeObject.Name == null)
             {
-                ImGui.Button("Add Name");
+                if (ImGui.Button("Add Name"))
+                {
+                    placeObject.SetName($"Place {placeObject.Character},{placeObject.GetHashCode()}");
+                }
                 return;
             }
 
             var name = placeObject.Name;
-            ImGui.InputText("Name", ref name, (uint) (name.Length + 10));
-            ImGui.SameLine(ImGui.GetWindowWidth() - 100);
-            ImGui.Button("Remove");
+            var edited = ImGui.InputText("Name", ref name, (uint) (name.Length + 10));
+            ImGui.SameLine();
+            if (ImGui.Button("Remove"))
+            {
+                placeObject.SetName(null);
+            }
+            else if (edited)
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    ImGui.TextColored(ColorRgbaF.Red.ToVector4(), "Prefer a non-empty name.");
+                }
+                else
+                {
+                    placeObject.SetName(name);
+                }
+            }
         }
 
         private static void ProcessClipEvents(LogicalPlaceObject placeObject)
