@@ -10,6 +10,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         private GeometryUtilities? _utilities;
         private KeyValuePair<int, string>? _selected;
+        private int _newGeometryId = 0;
         private string _currentInput = string.Empty;
         private string? _lastError;
 
@@ -38,9 +39,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     ImGui.Value("Geometry", _selected.Value.Key);
                 }
 
-                if (ImGui.Button("New geometry"))
+                ImGui.InputInt("New geomery id", ref _newGeometryId);
+                if (_utilities.HasGeometry(_newGeometryId))
                 {
-                    _utilities.AddGeometry(string.Empty);
+                    ImGui.Text($"Geometry #{_newGeometryId} already exists.");
+                }
+                else if (ImGui.Button("New geometry"))
+                {
+                    _utilities.AddGeometry(_newGeometryId);
                 }
 
                 DrawGeometryList();

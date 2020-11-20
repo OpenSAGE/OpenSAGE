@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt;
@@ -17,7 +18,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             public string Type { get; }
             public string Name { get; }
             public Vector4? ShapeBounds { get; }
-            public int? ShapeGeometry { get; set; }
+            public int? ShapeGeometry { get; }
 
             public Description(Movie movie, int index, string name)
             {
@@ -84,27 +85,48 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Manager.Edit(edit);
         }
 
-        public void CreateShape(string? name, int geometryId)
+        public void CreateShape(string? name)
         {
-            CreateCharacter(name, "Shape", () => Shape.Create(Manager.AptFile, (uint) geometryId));
+            var apt = Manager.AptFile;
+            var geometry = Geometry.Parse(apt, TextReader.Null);
+            var uKey = (uint) Movie.Characters.Count;
+            apt.GeometryMap.TryAdd(uKey, geometry);
+            void SetupGeometry()
+            {
+                apt.GeometryMap.TryAdd(uKey, geometry);
+            }
+            void UndoGeometry()
+            {
+                if (apt.GeometryMap.TryGetValue(uKey, out var stored) &&
+                    stored == geometry &&
+                    !stored.RawText.Any())
+                {
+                    apt.GeometryMap.Remove(uKey);
+                }
+            }
+            CreateCharacter(name,
+                            Shape.Create(Manager.AptFile, uKey),
+                            SetupGeometry,
+                            UndoGeometry);
         }
 
         public void CreateSprite(string? name)
         {
-            var frames = new List<Frame> { Frame.Create(new List<Data.Apt.FrameItems.FrameItem>()) };
-            CreateCharacter(name, "Sprite", () => Sprite.Create(Manager.AptFile, frames));
+            CreateCharacter(name, Sprite.Create(Manager.AptFile));
         }
 
-        private void CreateCharacter(string? name, string type, Action characterCreation)
+        private void CreateCharacter(string? name, Character created, Action? beforeEdit = null, Action? beforeUndo = null)
         {
+            var type = created.GetType().Name;
             if (string.IsNullOrWhiteSpace(name))
             {
                 name = $"#{_characterNames.Count} {type}";
             }
-            var expectedIndex = Movie.Characters.Count;
-            var edit = new EditAction(characterCreation,
-                                      () => Movie.Characters.RemoveAt(expectedIndex),
-                                      $"Create {type}");
+            var characters = Movie.Characters;
+            var expectedIndex = characters.Count;
+            beforeEdit += () => characters.Add(created);
+            beforeUndo += () => characters.RemoveAt(expectedIndex);
+            var edit = new EditAction(beforeEdit, beforeUndo, $"Create {type}");
             edit.OnEdit += delegate { _characterNames[expectedIndex] = name; };
             edit.OnEdit += InvalidateCache;
             Manager.Edit(edit);

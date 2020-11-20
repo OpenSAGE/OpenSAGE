@@ -19,7 +19,7 @@ namespace OpenSage.Data.Apt.Characters
             return shape;
         }
 
-        public static int Create(AptFile container, uint geometryId)
+        public static Shape Create(AptFile container, uint geometryId)
         {
             if (!container.GeometryMap.TryGetValue(geometryId, out var geometry))
             {
@@ -33,15 +33,12 @@ namespace OpenSage.Data.Apt.Characters
                 Z = box.Right,
                 W = box.Bottom
             };
-            var characters = container.Movie.Characters;
-            var shapeIndex = characters.Count;
-            characters.Add(new Shape
+            return new Shape
             {
                 Container = container,
                 Bounds = bounds,
                 Geometry = geometryId
-            });
-            return shapeIndex;
+            };
         }
 
         public void Modify(uint newGeometryId, bool modifyBounds = false, Vector4? newBounds = null)

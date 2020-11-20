@@ -49,13 +49,10 @@ namespace OpenSage.Tools.AptEditor
                 GeometryTranslation = new Vector2(20, 0),
                 ColorTransform = ColorRgbaF.Red
             });
-            var sprite = Sprite.Create(aptFile, new List<Frame>
+            var sprite = CreateSprite(aptFile, new[]
             {
-                Frame.Create(new List<FrameItem>
-                {
-                    PlaceObject.Create(0, triangle),
-                    translatedPlace,
-                })
+                PlaceObject.Create(0, triangle),
+                translatedPlace
             });
 
             var rotatedSprite = PlaceObject.Create(1, sprite);
@@ -66,21 +63,15 @@ namespace OpenSage.Tools.AptEditor
                 ColorTransform = ColorRgbaF.White
             });
 
-            var example1 = Sprite.Create(aptFile, new List<Frame>
+            var example1 = CreateSprite(aptFile, new[]
             {
-                Frame.Create(new List<FrameItem>
-                {
-                    PlaceObject.Create(0, backgroundShape),
-                    rotatedSprite
-                })
+                PlaceObject.Create(0, backgroundShape),
+                rotatedSprite
             });
-            var example2 = Sprite.Create(aptFile, new List<Frame>
+            var example2 = CreateSprite(aptFile, new[]
             {
-                Frame.Create(new List<FrameItem>
-                {
-                    PlaceObject.Create(0, backgroundShape2),
-                    rotatedSprite
-                })
+                PlaceObject.Create(0, backgroundShape2),
+                rotatedSprite
             });
             var frame = Frame.Create(new List<FrameItem>
             {
@@ -92,13 +83,26 @@ namespace OpenSage.Tools.AptEditor
             return aptFile;
         }
 
+        public static int CreateSprite(AptFile apt, IEnumerable<FrameItem> items)
+        {
+            var characters = apt.Movie.Characters;
+            var spriteIndex = characters.Count;
+            var sprite = Sprite.Create(apt);
+            characters.Add(sprite);
+            sprite.Frames[0].FrameItems.AddRange(items);
+            return spriteIndex;
+        }
+
         public static int CreateShape(AptFile apt, string[] geometryCommands)
         {
             using var reader = new StringReader(string.Join('\n', geometryCommands));
             var geometry = Geometry.Parse(apt, reader);
-            var geometryId = (uint) apt.GeometryMap.Count;
-            apt.GeometryMap.Add(geometryId, geometry);
-            return Shape.Create(apt, geometryId);
+            var characters = apt.Movie.Characters;
+            var shapeIndex = (uint) characters.Count;
+            apt.GeometryMap.Add(shapeIndex, geometry);
+            var shape = Shape.Create(apt, shapeIndex);
+            characters.Add(shape);
+            return (int) shapeIndex;
         }
     }
 }

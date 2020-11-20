@@ -11,7 +11,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private int _lastSelectedCharacter = -1;
         private string _decidingExportName = string.Empty;
         private string? _newCharacterName = null;
-        private int? _newShapeGeometry = null;
+        private bool _isCreatingNewShape = true;
 
         public void Draw(AptSceneManager manager)
         {
@@ -55,29 +55,26 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 return;
             }
 
-            if (ImGui.RadioButton("Shape", _newShapeGeometry.HasValue))
+            if (ImGui.RadioButton("Shape", _isCreatingNewShape))
             {
-                _newShapeGeometry ??= 0;
+                _isCreatingNewShape = true;
             }
             ImGui.SameLine();
-            if (ImGui.RadioButton("Sprite", !_newShapeGeometry.HasValue))
+            if (ImGui.RadioButton("Sprite", !_isCreatingNewShape))
             {
-                _newShapeGeometry = null;
+                _isCreatingNewShape = false;
             }
 
             ImGui.InputText("Name", ref _newCharacterName, 64);
 
-            if (_newShapeGeometry is int value)
+            if (_isCreatingNewShape)
             {
-                if (InputGeometry(ref value).HasValue)
+
+                if (ImGui.Button("Create"))
                 {
-                    if (ImGui.Button("Create"))
-                    {
-                        _utilities!.CreateShape(_newCharacterName, value);
-                        CleanCreationData();
-                    }
+                    _utilities!.CreateShape(_newCharacterName);
+                    CleanCreationData();
                 }
-                _newShapeGeometry = value;
             }
             else if (ImGui.Button("Create"))
             {
@@ -162,29 +159,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             if (desc.ShapeGeometry is int geometry)
             {
                 ImGui.Text($"Bounds: {desc.ShapeBounds}");
-                if (InputGeometry(ref geometry) is true)
-                {
-                    _utilities!.SetShapeGeometry(desc.Index, geometry);
-                }
-                desc.ShapeGeometry = geometry;
+                ImGui.Text($"Geometry: {geometry}");
             }
-        }
-
-        private bool? InputGeometry(ref int geometryId)
-        {
-            var changed = ImGui.InputInt("Geometry ID", ref geometryId);
-            if (_utilities!.IsGeometryIdValid(geometryId))
-            {
-                return changed;
-            }
-            ImGui.TextColored(new Vector4(1, 1, 0, 1), "Invalid Geometry ID");
-            return null;
         }
 
         private void CleanCreationData()
         {
             _newCharacterName = null;
-            _newShapeGeometry = null;
+            _isCreatingNewShape = true;
         }
     }
 }

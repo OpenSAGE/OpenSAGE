@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt.Characters
@@ -8,21 +9,19 @@ namespace OpenSage.Data.Apt.Characters
     {
         public static Sprite Parse(BinaryReader reader)
         {
-            var sprite = new Sprite();
-            sprite.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
-            return sprite;
+            return new Sprite
+            {
+                Frames = reader.ReadListAtOffset(() => Frame.Parse(reader))
+            };
         }
 
-        public static int Create(AptFile container, List<Frame> frames)
+        public static Sprite Create(AptFile container)
         {
-            var characters = container.Movie.Characters;
-            var spriteIndex = characters.Count;
-            characters.Add(new Sprite
+            return new Sprite
             {
                 Container = container,
-                Frames = frames
-            });
-            return spriteIndex;
+                Frames = new List<Frame> { Frame.Create(new List<FrameItem>()) }
+            };
         }
     }
 }

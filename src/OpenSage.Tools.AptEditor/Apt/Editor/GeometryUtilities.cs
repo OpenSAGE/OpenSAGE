@@ -20,13 +20,17 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Manager = manager;
         }
 
-        public void AddGeometry(string commands)
+        public bool HasGeometry(int key)
         {
-            var max = Geometries.Any() ? Geometries.Keys.Max() : default;
-            var key = max + 1;
-            var newGeometry = GetGeometry(commands);
-            var edit = new EditAction(() => Geometries.Add(key, newGeometry),
-                                      () => Geometries.Remove(key));
+            return Geometries.ContainsKey((uint) key);
+        }
+
+        public void AddGeometry(int key)
+        {
+            var uKey = (uint) key;
+            var newGeometry = GetGeometry(string.Empty);
+            var edit = new EditAction(() => Geometries.Add(uKey, newGeometry),
+                                      () => Geometries.Remove(uKey));
             Manager.Edit(edit);
         }
 
@@ -42,7 +46,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public void UpdateGeometry(string editId, int key, string commands)
         {
             var uKey = (uint) key;
-            var oldGeometry = Geometries[uKey];
+            if (!Geometries.TryGetValue(uKey, out var oldGeometry))
+            {
+                return;
+            }
             var newGeometry = GetGeometry(commands);
             var edit = new MergeableEdit(TimeSpan.FromSeconds(1.5),
                                          editId,
