@@ -27,6 +27,7 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly ExportPathSelector _exportPathSelector = new ExportPathSelector();
         private readonly AptFileSelector _aptFileSelector;
         private readonly SearchPathAdder _searchPathAdder;
+        private readonly FileListWindow _fileListWindow;
         private readonly List<ImGuiModalPopUp> _popups;
         private readonly GameWindow _window;
         private readonly AptSceneManager _manager;
@@ -41,6 +42,8 @@ namespace OpenSage.Tools.AptEditor.UI
             _manager = new AptSceneManager(game);
             _aptFileSelector = new AptFileSelector(game.ContentManager.FileSystem);
             _searchPathAdder = new SearchPathAdder(game);
+            _fileListWindow = new FileListWindow(game, _aptFileSelector);
+            _fileListWindow.Visible = true;
             _popups = new List<ImGuiModalPopUp>
             {
                 new ImGuiModalPopUp("Critical Error",
@@ -97,6 +100,11 @@ namespace OpenSage.Tools.AptEditor.UI
                     if (ImGui.MenuItem("Add Search paths..."))
                     {
                         _searchPathAdder.Visible = true;
+                    }
+
+                    if (ImGui.MenuItem("File List Window"))
+                    {
+                        _fileListWindow.Visible = true;
                     }
 
                     ImGui.Separator();
@@ -194,6 +202,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 _exportPathSelector.Draw();
                 _aptFileSelector.Draw();
                 _searchPathAdder.Draw();
+                _fileListWindow.Draw();
                 if (_lastSeriousError == null && _loadAptError == null && _manager.AptManager != null)
                 {
                     foreach (var widget in _widgets)
