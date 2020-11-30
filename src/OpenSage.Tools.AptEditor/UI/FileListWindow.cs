@@ -57,7 +57,7 @@ namespace OpenSage.Tools.AptEditor.UI
             var draw = ImGui.Begin("File List", ref Visible);
             if (draw)
             {
-                ImGui.Text("Apt Files");
+
 
                 TryGetFiles();
 
@@ -88,7 +88,9 @@ namespace OpenSage.Tools.AptEditor.UI
                     }
                 }
 
-                TryGetFiles();
+                ImGui.Text("Apt Files");
+                ImGui.Separator();
+
                 var beginY = ImGui.GetCursorPosY();
                 var list = _list.Take(MaxCount);
                 var wasVisible = true;
