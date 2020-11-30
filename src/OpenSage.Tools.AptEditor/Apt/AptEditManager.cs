@@ -48,6 +48,16 @@ namespace OpenSage.Tools.AptEditor.Apt
                 ? $"Undo {description}"
                 : "Undo";
         }
+        public string? GetRedoDescription()
+        {
+            if (!_redoStack.TryPeek(out var editAction))
+            {
+                return null;
+            }
+            return editAction.Description is string description
+                ? $"Redo {description}"
+                : "Redo";
+        }
 
         public void Undo()
         {

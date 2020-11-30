@@ -123,6 +123,11 @@ namespace OpenSage.Tools.AptEditor.UI
                     {
                         manager.Undo();
                     }
+                    description = manager.GetRedoDescription();
+                    if (ImGui.MenuItem(description ?? "Redo", description is not null))
+                    {
+                        manager.Redo();
+                    }
                     ImGui.EndMenu();
                 }
                 ImGui.EndMenuBar();
