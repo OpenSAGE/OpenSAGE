@@ -122,5 +122,20 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 _currentInput = selected.Value;
             }
         }
+
+        public void RefreshInput()
+        {
+            foreach (var data in _utilities!.Data)
+            {
+                var wasSelected = data.Key == _selected?.Key;
+                if (wasSelected)
+                {
+                    _selected = data;
+                    _lastError = null;
+                    _currentInput = data.Value;
+                }
+            }
+        }
+
     }
 }

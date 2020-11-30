@@ -122,11 +122,13 @@ namespace OpenSage.Tools.AptEditor.UI
                     if (ImGui.MenuItem(description ?? "Undo", description is not null))
                     {
                         manager.Undo();
+                        RefreshDisplay(description);
                     }
                     description = manager.GetRedoDescription();
                     if (ImGui.MenuItem(description ?? "Redo", description is not null))
                     {
                         manager.Redo();
+                        RefreshDisplay(description);
                     }
                     ImGui.EndMenu();
                 }
@@ -222,6 +224,19 @@ namespace OpenSage.Tools.AptEditor.UI
             }
 
             ImGui.PopStyleVar();
+        }
+
+        private void RefreshDisplay(string? description)
+        {
+            if(description != null)
+            {
+                if(description.Contains("Edit Geometry"))
+                {
+                    //refresh GeometryEditor when undo/redo
+                    _widgets.OfType<GeometryEditor>().First().RefreshInput();
+                }
+            }
+
         }
 
         private void DrawLoadingPrompt()
