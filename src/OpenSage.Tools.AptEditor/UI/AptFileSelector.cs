@@ -31,6 +31,11 @@ namespace OpenSage.Tools.AptEditor.UI
             _value = null;
             return value;
         }
+        public void SetValue(string? value)
+        {
+            _value = value;
+            return;
+        }
 
         public void Draw()
         {
