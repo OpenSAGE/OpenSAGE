@@ -4,7 +4,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.UnitOverlay;
+using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Gui.Wnd;
 using OpenSage.Mods.Generals.Gui;
 
@@ -37,7 +37,7 @@ namespace OpenSage.Mods.Generals
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
-        public IUnitOverlaySource UnitOverlay => null;
+        public ICommandListOverlaySource UnitOverlay => null;
 
         public uint ScriptingTicksPerSecond => 30;
 

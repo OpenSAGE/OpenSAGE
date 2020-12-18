@@ -313,6 +313,15 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
+            HiddenSubObjects = new List<string>();
+            _upgrades = new List<UpgradeTemplate>();
+            _conflictingUpgrades = new List<UpgradeTemplate>();
+
+            Hidden = false;
+            ExperienceMultiplier = 1.0f;
+            ExperienceValue = 0;
+            Rank = 0;
+
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
             _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
@@ -368,12 +377,21 @@ namespace OpenSage.Logic.Object
             foreach (var behaviorData in objectDefinition.Behaviors.Values)
             {
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
+
+                // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
                 {
-                    // TODO: This will never be null once we've implemented all the behaviors.
-                    AddBehavior(behaviorData.Tag, module);
+                    if (module is CreateModule)
+                    {
+                        ((CreateModule) module).Execute(_behaviorUpdateContext);
+                    }
+                    else
+                    {
+                        AddBehavior(behaviorData.Tag, module);
+                    }
                 }
             }
+
             _behaviorModules = behaviors;
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
@@ -415,15 +433,6 @@ namespace OpenSage.Logic.Object
             {
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
-
-            HiddenSubObjects = new List<string>();
-            _upgrades = new List<UpgradeTemplate>();
-            _conflictingUpgrades = new List<UpgradeTemplate>();
-
-            Hidden = false;
-            ExperienceMultiplier = 1.0f;
-            ExperienceValue = 0;
-            Rank = 0;
         }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)

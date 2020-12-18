@@ -3,7 +3,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.UnitOverlay;
+using OpenSage.Gui.CommandListOverlay;
 
 namespace OpenSage.Mods.Ra3
 {
@@ -27,7 +27,7 @@ namespace OpenSage.Mods.Ra3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
-        public IUnitOverlaySource UnitOverlay => null;
+        public ICommandListOverlaySource UnitOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 
