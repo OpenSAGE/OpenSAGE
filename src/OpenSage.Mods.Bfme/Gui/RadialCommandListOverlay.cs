@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
@@ -13,7 +12,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
-    public class RadialUnitOverlay : InputMessageHandler, ICommandListOverlay
+    public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
     {
         Game _game;
 
@@ -26,7 +25,7 @@ namespace OpenSage.Mods.Bfme.Gui
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
-        public RadialUnitOverlay(Game game)
+        public RadialCommandListOverlay(Game game)
         {
             _game = game;
             _game.InputMessageBuffer.Handlers.Add(this);
@@ -162,6 +161,6 @@ namespace OpenSage.Mods.Bfme.Gui
 
     public class RadialUnitOverlaySource : ICommandListOverlaySource
     {
-        public ICommandListOverlay Create(Game game) => new RadialUnitOverlay(game);
+        public ICommandListOverlay Create(Game game) => new RadialCommandListOverlay(game);
     }
 }
