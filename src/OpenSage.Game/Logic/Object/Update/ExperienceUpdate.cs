@@ -37,6 +37,11 @@ namespace OpenSage.Logic.Object
                 _nextLevel = _experienceLevels.First();
                 _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
                 ObjectGainsExperience = true;
+
+                while (_gameObject.Rank >= _nextLevel.Rank)
+                {
+                    levelUp();
+                }
             }
 
             _bannerCarrierUpdate = _gameObject.FindBehavior<BannerCarrierUpdate>();
@@ -50,52 +55,10 @@ namespace OpenSage.Logic.Object
                 Initialize(context);
             }
 
-            if (_experienceLevels == null
-                || _experienceLevels.Count == 0
+            if (_experienceLevels == null || _experienceLevels.Count == 0
                 || _gameObject.ExperienceValue < _nextLevel.RequiredExperience)
             {
                 return;
-            }
-
-            _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
-            _gameObject.Rank = _nextLevel.Rank;
-
-            //remove stuff from current level
-            if (_currentLevel != null)
-            {
-                if (_currentLevel.Upgrades != null)
-                {
-                    foreach (var upgrade in _currentLevel.Upgrades)
-                    {
-                        _gameObject.RemoveUpgrade(upgrade.Value);
-                    }
-                }
-
-                if (_currentLevel.AttributeModifiers != null)
-                {
-                    foreach (var modifierList in _currentLevel.AttributeModifiers)
-                    {
-                        _gameObject.RemoveAttributeModifier(modifierList.Value.Name);
-                    }
-                }
-            }
-
-
-            if (_nextLevel.Upgrades != null)
-            {
-                foreach (var upgrade in _nextLevel.Upgrades)
-                {
-                    _gameObject.Upgrade(upgrade.Value);
-                }
-            }
-
-            if (_nextLevel.AttributeModifiers != null)
-            {
-                foreach (var modifierList in _nextLevel.AttributeModifiers)
-                {
-                    var attributeModifier = new AttributeModifier(modifierList.Value);
-                    _gameObject.AddAttributeModifier(modifierList.Value.Name, attributeModifier);
-                }
             }
 
             if (_nextLevel.LevelUpFX != null)
@@ -105,6 +68,17 @@ namespace OpenSage.Logic.Object
                     context.GameObject.Translation,
                     context.GameContext));
             }
+
+            _gameObject.ExperienceValue -= _nextLevel.RequiredExperience; _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
+            _gameObject.Rank = _nextLevel.Rank; _gameObject.Rank = _nextLevel.Rank;
+
+            levelUp();
+        }
+
+        private void levelUp()
+        {
+            RemoveUpgradesAndAttributeModifiersOfCurrentLevel();
+            ApplyUpgradesAndAttributeModifiersForNextLevel();
 
             if (_nextLevel.InformUpdateModule)
             {
@@ -130,6 +104,50 @@ namespace OpenSage.Logic.Object
             else
             {
                 _gameObject.ExperienceRequiredForNextLevel = int.MaxValue;
+            }
+        }
+
+        private void RemoveUpgradesAndAttributeModifiersOfCurrentLevel()
+        {
+            if (_currentLevel == null)
+            {
+                return;
+            }
+
+            if (_currentLevel.Upgrades != null)
+            {
+                foreach (var upgrade in _currentLevel.Upgrades)
+                {
+                    _gameObject.RemoveUpgrade(upgrade.Value);
+                }
+            }
+
+            if (_currentLevel.AttributeModifiers != null)
+            {
+                foreach (var modifierList in _currentLevel.AttributeModifiers)
+                {
+                    _gameObject.RemoveAttributeModifier(modifierList.Value.Name);
+                }
+            }
+        }
+
+        private void ApplyUpgradesAndAttributeModifiersForNextLevel()
+        {
+            if (_nextLevel.Upgrades != null)
+            {
+                foreach (var upgrade in _nextLevel.Upgrades)
+                {
+                    _gameObject.Upgrade(upgrade.Value);
+                }
+            }
+
+            if (_nextLevel.AttributeModifiers != null)
+            {
+                foreach (var modifierList in _nextLevel.AttributeModifiers)
+                {
+                    var attributeModifier = new AttributeModifier(modifierList.Value);
+                    _gameObject.AddAttributeModifier(modifierList.Value.Name, attributeModifier);
+                }
             }
         }
 

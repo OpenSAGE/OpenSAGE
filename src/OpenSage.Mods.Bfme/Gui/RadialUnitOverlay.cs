@@ -5,7 +5,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.UnitOverlay;
+using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -13,7 +13,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
-    public class RadialUnitOverlay : InputMessageHandler, IUnitOverlay
+    public class RadialUnitOverlay : InputMessageHandler, ICommandListOverlay
     {
         Game _game;
 
@@ -160,8 +160,8 @@ namespace OpenSage.Mods.Bfme.Gui
         }
     }
 
-    public class RadialUnitOverlaySource : IUnitOverlaySource
+    public class RadialUnitOverlaySource : ICommandListOverlaySource
     {
-        public IUnitOverlay Create(Game game) => new RadialUnitOverlay(game);
+        public ICommandListOverlay Create(Game game) => new RadialUnitOverlay(game);
     }
 }

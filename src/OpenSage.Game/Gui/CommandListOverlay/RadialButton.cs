@@ -6,7 +6,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
-namespace OpenSage.Gui.UnitOverlay
+namespace OpenSage.Gui.CommandListOverlay
 {
     public class RadialButton
     {
