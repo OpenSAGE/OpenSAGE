@@ -34,6 +34,7 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> shownSubObjects = null,
                 List<string> hiddenSubObjects = null)
         {
             _modelInstance.BuildRenderList(
@@ -41,6 +42,7 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 

@@ -31,6 +31,7 @@ namespace OpenSage.Data.Ini
         private static readonly char[] SeparatorsPercent = { ' ', '\n', '\r', '\t', '=', '%' };
         public static readonly char[] SeparatorsColon = { ' ', '\n', '\r', '\t', '=', ':' };
         private static readonly char[] SeparatorsQuote = { '"', '\n', '=' };
+        private static readonly char[] SeparatorsLine = { ' ', '\n', '\r', '\t'};
 
         public const string EndToken = "END";
 
@@ -100,6 +101,17 @@ namespace OpenSage.Data.Ini
         }
 
         public void GoToNextLine() => _tokenReader.GoToNextLine();
+
+        public string ParseLine()
+        {
+            var result = "";
+            IniToken? token;
+            while ((token = _tokenReader.NextToken(SeparatorsLine)) != null)
+            {
+                result += token.Value.Text + " ";
+            }
+            return result;
+        }
 
         public string ParseQuotedString()
         {

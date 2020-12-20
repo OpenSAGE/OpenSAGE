@@ -12,11 +12,14 @@ namespace OpenSage.Logic.Object
 {
     public abstract class DrawModule : DisposableBase
     {
+        public GameObject GameObject { get; protected set; }
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
         // TODO: Probably shouldn't have this here.
         internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
         internal abstract string GetWeaponLaunchBone(WeaponSlot slot);
+
+        public AnimationState PrevAnimationState { get; }
 
         public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
@@ -31,6 +34,7 @@ namespace OpenSage.Logic.Object
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+            List<string> shownSubObjects = null,
             List<string> hiddenSubObjects = null);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
