@@ -19,20 +19,17 @@ namespace OpenSage.Logic.Object
         {
             if (_moduleData.ShowSubObjects != null)
             {
-                foreach (var showSubObject in _moduleData.ShowSubObjects)
+                foreach (var subObject in _moduleData.ShowSubObjects)
                 {
-                    _gameObject.HiddenSubObjects.Remove(showSubObject);
+                    _gameObject.ShowSubObject(subObject);
                 }
             }
 
             if (_moduleData.HideSubObjects != null)
             {
-                foreach (var hideSubObject in _moduleData.HideSubObjects)
+                foreach (var subObject in _moduleData.HideSubObjects)
                 {
-                    if (!_gameObject.HiddenSubObjects.Contains(hideSubObject))
-                    {
-                        _gameObject.HiddenSubObjects.Add(hideSubObject);
-                    }
+                    _gameObject.HideSubObject(subObject);
                 }
             }
         }

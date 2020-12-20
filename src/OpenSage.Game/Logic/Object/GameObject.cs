@@ -216,7 +216,26 @@ namespace OpenSage.Logic.Object
 
         public int Supply { get; set; }
 
-        public List<string> HiddenSubObjects;
+        private List<string> _hiddenSubObjects;
+        private List<string> _shownSubObjects;
+
+        public void HideSubObject(string subObject)
+        {
+            if (!_hiddenSubObjects.Contains(subObject))
+            {
+                _hiddenSubObjects.Add(subObject);
+            }
+            _shownSubObjects.Remove(subObject);
+        }
+
+        public void ShowSubObject(string subObject)
+        {
+            if (!_shownSubObjects.Contains(subObject))
+            {
+                _shownSubObjects.Add(subObject);
+            }
+            _hiddenSubObjects.Remove(subObject);
+        }
 
         public RadiusDecalTemplate SelectionDecal;
 
@@ -313,7 +332,8 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
-            HiddenSubObjects = new List<string>();
+            _hiddenSubObjects = new List<string>();
+            _shownSubObjects = new List<string>();
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
 
@@ -803,7 +823,8 @@ namespace OpenSage.Logic.Object
                     camera,
                     castsShadow,
                     renderItemConstantsPS,
-                    HiddenSubObjects);
+                    _shownSubObjects,
+                    _hiddenSubObjects);
             }
 
             if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)

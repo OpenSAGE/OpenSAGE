@@ -20,8 +20,6 @@ namespace OpenSage.Logic.Object
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
 
-        protected readonly GameObject GameObject;
-
         private readonly List<IConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
 
@@ -32,6 +30,8 @@ namespace OpenSage.Logic.Object
 
         private ModelConditionState _activeConditionState;
         private AnimationState _activeAnimationState;
+
+        public new AnimationState PrevAnimationState { get; private set; }
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -161,7 +161,12 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            PrevAnimationState = _activeAnimationState;
             _activeAnimationState = animationState;
+            if (_activeAnimationState != null && _activeAnimationState.Script != null)
+            {
+                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, _activeAnimationState.Script.Code);
+            }
 
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
@@ -359,6 +364,7 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                List<string> shownSubObjects = null,
                 List<string> hiddenSubObjects = null)
         {
             _activeModelDrawConditionState?.BuildRenderList(
@@ -366,6 +372,7 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 
@@ -436,6 +443,7 @@ namespace OpenSage.Logic.Object
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+            List<string> shownSubObjects = null,
             List<string> hiddenSubObjects = null)
         {
             Model.BuildRenderList(
@@ -443,6 +451,7 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 
@@ -547,7 +556,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAliasConditionState(IniParser parser)
         {
-            if (!(parser.Temp is ModelConditionState lastConditionState))
+            if (parser.Temp is not ModelConditionState lastConditionState)
             {
                 throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);
             }

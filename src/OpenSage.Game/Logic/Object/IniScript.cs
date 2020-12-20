@@ -11,14 +11,14 @@ namespace OpenSage.Logic.Object
             var result = new IniScript();
             string line;
             parser.GoToNextLine();
-            while ((line = parser.ParseString()) != "EndScript")
+            while (!(line = parser.ParseLine()).Contains("EndScript"))
             {
-                result.Commands.Add(line);
+                result.Code += line/* + "\r\n"*/;
                 parser.GoToNextLine();
             }
             return result;
         }
 
-        public List<string> Commands { get; private set; } = new List<string>();
+        public string Code { get; private set; }
     }
 }
