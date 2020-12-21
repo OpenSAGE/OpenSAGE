@@ -17,6 +17,8 @@ namespace OpenSage.Logic.Object
 {
     public class W3dModelDraw : DrawModule
     {
+        public override string Tag => _data.Tag;
+
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
 
@@ -143,12 +145,16 @@ namespace OpenSage.Logic.Object
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
-            if (animationState == null
-                || animationState.Animations.Count == 0
-                || _activeModelDrawConditionState == null
-                || animationState == _activeAnimationState && _activeModelDrawConditionState.StillActive())
+            if (animationState == _activeAnimationState && _activeModelDrawConditionState.StillActive())
             {
                 return false;
+            }
+
+            if (animationState == null
+                || animationState.Animations.Count == 0
+                || _activeModelDrawConditionState == null)
+            {
+                return true;
             }
 
             var modelInstance = _activeModelDrawConditionState.Model;

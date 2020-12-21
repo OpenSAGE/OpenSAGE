@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
 
             PrevAnimationState = _activeAnimationState;
             _activeAnimationState = animationState;
-            if (animationState.Script != null)
+            if (animationState != null && animationState.Script != null)
             {
                 _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, _activeAnimationState.Script);
             }

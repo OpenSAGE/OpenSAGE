@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -13,6 +14,11 @@ namespace OpenSage.Logic.Object
             GameContext context) : base(data, gameObject, context)
         {
         }
+
+        protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
+        {
+            return base.SetActiveAnimationState(animationState, random);
+        }
     }
 
     public class W3dHordeModelDrawModuleData : W3dScriptedModelDrawModuleData
@@ -26,6 +32,11 @@ namespace OpenSage.Logic.Object
             });
 
         public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
+
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        {
+            return new W3dHordeModelDraw(this, gameObject, context);
+        }
     }
 
     public sealed class LodOption

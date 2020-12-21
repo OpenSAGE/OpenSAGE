@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class DrawModule : DisposableBase
     {
+        public abstract string Tag { get; }
         public GameObject GameObject { get; protected set; }
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
