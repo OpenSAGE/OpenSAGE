@@ -29,14 +29,12 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
 
         private ModelConditionState _activeConditionState;
-        private AnimationState _activeAnimationState;
-
-        public new AnimationState PrevAnimationState { get; private set; }
+        protected AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
-
+ 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
             get
@@ -143,33 +141,19 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
-        private void SetActiveAnimationState(AnimationState animationState, Random random)
+        protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
             if (animationState == null
                 || animationState.Animations.Count == 0
-                || _activeModelDrawConditionState == null)
+                || _activeModelDrawConditionState == null
+                || animationState == _activeAnimationState && _activeModelDrawConditionState.StillActive())
             {
-                return;
-            }
-
-            if (_activeModelDrawConditionState.StillActive() == false)
-            {
-                _activeAnimationState = null;
-            }
-            else if (animationState == _activeAnimationState)
-            {
-                return;
-            }
-
-            PrevAnimationState = _activeAnimationState;
-            _activeAnimationState = animationState;
-            if (_activeAnimationState != null && _activeAnimationState.Script != null)
-            {
-                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, _activeAnimationState.Script.Code);
+                return false;
             }
 
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
+            _activeAnimationState = animationState;
 
             var animationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
             if (animationBlock != null)
@@ -189,6 +173,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
             }
+            return true;
         }
 
         private IConditionState FindBestFittingConditionState(IConditionState defaultState, List<IConditionState> conditionStates, BitArray<ModelConditionFlag> flags)
@@ -364,8 +349,8 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-                List<string> shownSubObjects = null,
-                List<string> hiddenSubObjects = null)
+                Dictionary<string, bool> shownSubObjects = null,
+                Dictionary<string, bool> hiddenSubObjects = null)
         {
             _activeModelDrawConditionState?.BuildRenderList(
                 renderList,
@@ -443,8 +428,8 @@ namespace OpenSage.Logic.Object
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-            List<string> shownSubObjects = null,
-            List<string> hiddenSubObjects = null)
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null)
         {
             Model.BuildRenderList(
                 renderList,

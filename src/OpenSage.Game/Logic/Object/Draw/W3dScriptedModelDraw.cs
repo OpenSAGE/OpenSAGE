@@ -6,11 +6,43 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class W3dScriptedModelDrawModuleData : W3dModelDrawModuleData
+    public class W3dScriptedModelDraw : W3dModelDraw
+    {
+        private readonly GameContext _context;
+        public AnimationState PrevAnimationState { get; private set; }
+
+        internal W3dScriptedModelDraw(
+            W3dScriptedModelDrawModuleData data,
+            GameObject gameObject,
+            GameContext context) : base(data, gameObject, context)
+        {
+            _context = context;
+        }
+
+        protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
+        {
+            if (!base.SetActiveAnimationState(animationState, random))
+            {
+                return false;
+            }
+
+            PrevAnimationState = _activeAnimationState;
+            _activeAnimationState = animationState;
+            if (animationState.Script != null)
+            {
+                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, _activeAnimationState.Script);
+            }
+
+            return true;
+        }
+    }
+
+
+    public class W3dScriptedModelDrawModuleData : W3dModelDrawModuleData
     {
         internal static W3dScriptedModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<W3dScriptedModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
+        internal static new readonly IniParseTable<W3dScriptedModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
             .Concat(new IniParseTable<W3dScriptedModelDrawModuleData>
             {
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
@@ -65,17 +97,27 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool RandomTextureFixedRandomIndex { get; private set; }
+
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        {
+            return new W3dScriptedModelDraw(this, gameObject, context);
+        }
     }
 
     public sealed class RandomTexture
     {
         internal static RandomTexture Parse(IniParser parser)
         {
-            var result = new RandomTexture();
-            result.First = parser.ParseAssetReference();
-            result.Unknown = parser.ParseInteger();
+            var result = new RandomTexture
+            {
+                First = parser.ParseAssetReference(),
+                Unknown = parser.ParseInteger()
+            };
             if (result.Unknown != 0)
+            {
                 throw new Exception();
+            }
+
             var second = parser.GetNextTokenOptional();
             if (second.HasValue)
             {

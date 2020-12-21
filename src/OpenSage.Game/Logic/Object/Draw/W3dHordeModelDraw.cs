@@ -1,35 +1,31 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class W3dHordeModelDrawModuleData : W3dModelDrawModuleData
-    {
-        internal static W3dHordeModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static new readonly IniParseTable<W3dHordeModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
+    public class W3dHordeModelDraw : W3dScriptedModelDraw
+    {
+        internal W3dHordeModelDraw(
+            W3dHordeModelDrawModuleData data,
+            GameObject gameObject,
+            GameContext context) : base(data, gameObject, context)
+        {
+        }
+    }
+
+    public class W3dHordeModelDrawModuleData : W3dScriptedModelDrawModuleData
+    {
+        internal static new W3dHordeModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static new readonly IniParseTable<W3dHordeModelDrawModuleData> FieldParseTable = W3dScriptedModelDrawModuleData.FieldParseTable
             .Concat(new IniParseTable<W3dHordeModelDrawModuleData>
             {
-                { "StaticModelLODMode", (parser, x) => x.StaticModelLodMode = parser.ParseBoolean() },
-                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) },
-                { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
-                { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) },
-                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
-                { "RandomTextureFixedRandomIndex", (parser, x) => x.RandomTextureFixedRandomIndex = parser.ParseBoolean() }
+                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) }
             });
 
-        public bool StaticModelLodMode { get; private set; }
         public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
-        public string WadingParticleSys { get; private set; }
-        public List<RandomTexture> RandomTextures { get; private set; } = new List<RandomTexture>();
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public bool RandomTextureFixedRandomIndex { get; private set; }
     }
 
     public sealed class LodOption

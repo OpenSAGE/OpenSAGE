@@ -53,8 +53,8 @@ namespace OpenSage.Scripting
             MainScript.DoString(externalCode);
         }
 
-        private DrawModule _currentDrawModule;
-        public void ExecuteDrawModuleLuaCode(DrawModule drawModule, string luaCode)
+        private W3dScriptedModelDraw _currentDrawModule;
+        public void ExecuteDrawModuleLuaCode(W3dScriptedModelDraw drawModule, string luaCode)
         {
             _currentDrawModule = drawModule;
             Logger.Info($"Executing ini code {luaCode}");
@@ -113,7 +113,8 @@ namespace OpenSage.Scripting
             MainScript.Globals["CurDrawablePlaySound"] = (Action<string>) CurDrawablePlaySound;
             MainScript.Globals["CurDrawableShowSubObject"] = (Action<string>) CurDrawableShowSubObject;
             MainScript.Globals["CurDrawableHideSubObject"] = (Action<string>) CurDrawableHideSubObject;
-            MainScript.Globals["CurDrawableHideSubObjectPermanently"] = (Action<string>) CurDrawableHideSubObject;
+            MainScript.Globals["CurDrawableShowSubObjectPermanently"] = (Action<string>) CurDrawableHideSubObjectPermanently;
+            MainScript.Globals["CurDrawableHideSubObjectPermanently"] = (Action<string>) CurDrawableHideSubObjectPermanently;
             //addititional custom and testing functions
             MainScript.Globals["Spawn"] = (Func<string, string>) Spawn;
             MainScript.Globals["Spawn2"] = (Func<string, float, float, float, float, string>) Spawn2;
@@ -444,6 +445,10 @@ namespace OpenSage.Scripting
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
         public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
         public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);
+
+        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject, true);
+        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject, true);
+       
 
         public double GetRandomNumber()  //attention for multiplayer sync
         {

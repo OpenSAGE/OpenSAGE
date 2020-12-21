@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
         public string EnteringStateFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniScript Script { get; private set; }
+        public string Script { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();

@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
         public AnimationFlags Flags { get; private set; }
-        public IniScript Script { get; private set; }
+        public string Script { get; private set; }
         public string StateName { get; private set; }
         public int FrameForPristineBonePositions { get; private set; }
         public bool SimilarRestart { get; private set; }
