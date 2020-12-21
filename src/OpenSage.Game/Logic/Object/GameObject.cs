@@ -216,23 +216,23 @@ namespace OpenSage.Logic.Object
 
         public int Supply { get; set; }
 
-        private List<string> _hiddenSubObjects;
-        private List<string> _shownSubObjects;
+        private Dictionary<string, bool> _hiddenSubObjects;
+        private Dictionary<string, bool> _shownSubObjects;
 
-        public void HideSubObject(string subObject)
+        public void HideSubObject(string subObject, bool permanent = false)
         {
-            if (!_hiddenSubObjects.Contains(subObject))
+            if (!_hiddenSubObjects.ContainsKey(subObject))
             {
-                _hiddenSubObjects.Add(subObject);
+                _hiddenSubObjects.Add(subObject, permanent);
             }
             _shownSubObjects.Remove(subObject);
         }
 
-        public void ShowSubObject(string subObject)
+        public void ShowSubObject(string subObject, bool permanent = false)
         {
-            if (!_shownSubObjects.Contains(subObject))
+            if (!_shownSubObjects.ContainsKey(subObject))
             {
-                _shownSubObjects.Add(subObject);
+                _shownSubObjects.Add(subObject, permanent);
             }
             _hiddenSubObjects.Remove(subObject);
         }

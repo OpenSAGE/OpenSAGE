@@ -19,8 +19,6 @@ namespace OpenSage.Logic.Object
         internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
         internal abstract string GetWeaponLaunchBone(WeaponSlot slot);
 
-        public AnimationState PrevAnimationState { get; }
-
         public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
 
@@ -34,8 +32,8 @@ namespace OpenSage.Logic.Object
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-            List<string> shownSubObjects = null,
-            List<string> hiddenSubObjects = null);
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 
@@ -56,7 +54,7 @@ namespace OpenSage.Logic.Object
             { "W3DHordeModelDraw", W3dHordeModelDrawModuleData.Parse },
             { "W3DLaserDraw", W3dLaserDrawModuleData.Parse },
             { "W3DLightDraw", W3dLightDrawModuleData.Parse },
-            { "W3DModelDraw", W3dModelDrawModuleData.ParseModel },
+            { "W3DModelDraw", W3dScriptedModelDrawModuleData.ParseModel },
             { "W3DOverlordAircraftDraw", W3dOverlordAircraftDraw.Parse },
             { "W3DOverlordTankDraw", W3dOverlordTankDrawModuleData.Parse },
             { "W3DOverlordTruckDraw", W3dOverlordTruckDrawModuleData.Parse },

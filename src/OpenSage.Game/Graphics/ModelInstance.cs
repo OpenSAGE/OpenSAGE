@@ -205,16 +205,16 @@ namespace OpenSage.Graphics
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS,
-            List<string> shownSubObjects = null,
-            List<string> hiddenSubObjects = null)
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
                 var name = subObject.Name.Split('.').Last();
 
-                if ((subObject.RenderObject.Hidden && !(shownSubObjects?.Contains(name) ?? false))
-                    || (hiddenSubObjects?.Contains(name) ?? false))
+                if ((subObject.RenderObject.Hidden && !(shownSubObjects?.ContainsKey(name) ?? false))
+                    || (hiddenSubObjects?.ContainsKey(name) ?? false))
                 {
                     continue;
                 }

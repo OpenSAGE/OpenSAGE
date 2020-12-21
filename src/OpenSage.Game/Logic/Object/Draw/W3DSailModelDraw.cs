@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     {
         internal static  W3dSailModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static new readonly IniParseTable< W3dSailModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
+        internal static new readonly IniParseTable<W3dSailModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
             .Concat(new IniParseTable< W3dSailModelDrawModuleData>
             {
                 { "MaxRotationDegrees", (parser, x) => x.MaxRotationDegrees = parser.ParseInteger() },
