@@ -237,6 +237,21 @@ namespace OpenSage.Logic.Object
             _hiddenSubObjects.Remove(subObject);
         }
 
+        private List<string> _hiddenDrawModules;
+
+        public void HideDrawModule(string module)
+        {
+            if (!_hiddenDrawModules.Contains(module))
+            {
+                _hiddenDrawModules.Add(module);
+            }
+        }
+
+        public void ShowDrawModule(string module)
+        {
+            _hiddenDrawModules.Remove(module);
+        }
+
         public RadiusDecalTemplate SelectionDecal;
 
         private string _name;
@@ -334,6 +349,7 @@ namespace OpenSage.Logic.Object
 
             _hiddenSubObjects = new List<string>();
             _shownSubObjects = new List<string>();
+            _hiddenDrawModules = new List<string>();
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
 
@@ -785,21 +801,6 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            UpdateDrawModuleConditionStates();
-
-            // Update all draw modules
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.Update(gameTime);
-            }
-
-            // This must be done after processing anything that might update this object's transform.
-            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.SetWorldMatrix(worldMatrix);
-            }
-
             var castsShadow = false;
             switch (Definition.Shadow)
             {
@@ -816,8 +817,20 @@ namespace OpenSage.Logic.Object
                 TintColor = IsPlacementInvalid ? new Vector3(1, 0.3f, 0.3f) : Vector3.One,
             };
 
+            // This must be done after processing anything that might update this object's transform.
+            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
+            // Update all draw modules
             foreach (var drawModule in _drawModules)
             {
+                if (_hiddenDrawModules.Contains(drawModule.Tag))
+                {
+                    continue;
+                }
+
+                // TODO: skip hidden DrawModules
+                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
+                drawModule.Update(gameTime);
+                drawModule.SetWorldMatrix(worldMatrix);
                 drawModule.BuildRenderList(
                     renderList,
                     camera,
@@ -839,15 +852,6 @@ namespace OpenSage.Logic.Object
         public void ClearModelConditionFlags()
         {
             ModelConditionFlags.SetAll(false);
-        }
-
-        private void UpdateDrawModuleConditionStates()
-        {
-            // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
-            }
         }
 
         public void OnLocalSelect(AudioSystem gameAudio)

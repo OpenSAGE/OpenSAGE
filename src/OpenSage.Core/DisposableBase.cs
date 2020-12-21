@@ -64,8 +64,12 @@ namespace OpenSage
         protected virtual void Dispose(bool disposeManagedResources)
         {
             if (disposeManagedResources)
+            {
                 for (var i = _disposables.Count - 1; i >= 0; i--)
+                {
                     _disposables[i].Dispose();
+                }
+            }
         }
 
         /// <summary>
@@ -76,7 +80,10 @@ namespace OpenSage
             where T : IDisposable
         {
             if (!ReferenceEquals(toDisposeArg, null))
+            {
                 _disposables.Add(toDisposeArg);
+            }
+
             return toDisposeArg;
         }
 
@@ -127,7 +134,9 @@ namespace OpenSage
             where T : IDisposable
         {
             if (!ReferenceEquals(toDisposeArg, null))
+            {
                 _disposables.Remove(toDisposeArg);
+            }
         }
     }
 }

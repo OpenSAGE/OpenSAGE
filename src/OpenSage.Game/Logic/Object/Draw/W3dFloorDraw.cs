@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class W3dFloorDraw : DrawModule
     {
+        public override string Tag => _moduleData.Tag;
+
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
         private readonly ModelInstance _modelInstance;

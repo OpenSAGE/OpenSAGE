@@ -12,11 +12,15 @@ namespace OpenSage.Logic.Object
 {
     public sealed class W3dDebrisDraw : DrawModule
     {
+        public override string Tag => _data.Tag;
+
+        private readonly W3dDebrisDrawModuleData _data;
         private readonly GameContext _gameContext;
         private ModelInstance _modelInstance;
 
-        internal W3dDebrisDraw(GameContext context)
+        internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameContext context)
         {
+            _data = data;
             _gameContext = context;
         }
 
@@ -85,7 +89,7 @@ namespace OpenSage.Logic.Object
 
         internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            return new W3dDebrisDraw(context);
+            return new W3dDebrisDraw(this, context);
         }
     }
 }
