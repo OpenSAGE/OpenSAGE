@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Gui;
@@ -8,6 +9,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class Collider
     {
+        public string Name { get; protected set; }
         protected internal Transform Transform;
         public BoundingSphere WorldBounds { get; protected set; }
         public TransformedRectangle BoundingArea { get; protected set; }
@@ -29,23 +31,23 @@ namespace OpenSage.Logic.Object
 
         public abstract bool Intersects(Collider collider, bool twoDimensional = false);
 
-        public static Collider Create(ObjectDefinition definition, Transform transform)
+        public static Collider Create(Geometry geometry, Transform transform)
         {
-            if (definition.Geometry == null)
+            if (geometry == null)
             {
                 return null;
             }
 
-            switch (definition.Geometry.Type)
+            switch (geometry.Type)
             {
                 case ObjectGeometry.Box:
-                    return new BoxCollider(definition, transform);
+                    return new BoxCollider(geometry, transform);
 
                 case ObjectGeometry.Sphere:
-                    return new SphereCollider(definition, transform);
+                    return new SphereCollider(geometry, transform);
 
                 case ObjectGeometry.Cylinder:
-                    return new CylinderCollider(definition, transform);
+                    return new CylinderCollider(geometry, transform);
 
                 case ObjectGeometry.None:
                     return null;
@@ -55,18 +57,46 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public static Collider Create(List<Collider> colliders)
+        {
+            var min = new Vector3(int.MaxValue, int.MaxValue, int.MaxValue);
+            var max = new Vector3(int.MinValue, int.MinValue, int.MinValue);
+
+            foreach (var collider in colliders)
+            {
+                var bounds = ((SphereCollider) collider).SphereBounds;
+                var bottomLeft = bounds.Center - new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
+                var topRight = bounds.Center + new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
+
+                if (bottomLeft.X < min.X) min.X = bottomLeft.X;
+                if (bottomLeft.Y < min.Y) min.Y = bottomLeft.Y;
+                if (bottomLeft.Z < min.Z) min.Z = bottomLeft.Z;
+
+                if (topRight.X > max.X) max.X = topRight.X;
+                if (topRight.Y > max.Y) max.Y = topRight.Y;
+                if (topRight.Z > max.Z) max.Z = topRight.Z;
+            }
+            var delta = max - min;
+            var center = min + delta * 0.5f;
+            var radius = (delta * 0.5f).Length();
+
+            return new SphereCollider(new Transform(in center, Quaternion.Identity), radius);
+        }
+
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
     }
 
     public class SphereCollider : Collider
     {
-        protected readonly BoundingSphere SphereBounds;
+        public readonly BoundingSphere SphereBounds;
 
-        public SphereCollider(ObjectDefinition def, Transform transform)
-            : base(transform, def.Geometry.Height)
+        public SphereCollider(Geometry geometry, Transform transform)
+            : base(transform, geometry.Height)
         {
-            var radius = def.Geometry.MajorRadius;
-            SphereBounds = new BoundingSphere(Vector3.Zero, radius);
+            var radius = geometry.MajorRadius;
+            Name = geometry.Name;
+            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
+            SphereBounds = new BoundingSphere(offset, radius);
             Update(transform);
         }
 
@@ -166,8 +196,8 @@ namespace OpenSage.Logic.Object
 
     public class CylinderCollider : SphereCollider
     {
-        public CylinderCollider(ObjectDefinition def, Transform transform)
-             : base(transform, def.Geometry.MajorRadius, def.Geometry.Height)
+        public CylinderCollider(Geometry geometry, Transform transform)
+             : base(geometry, transform)
         {
         }
 
@@ -213,12 +243,13 @@ namespace OpenSage.Logic.Object
         private readonly BoundingBox _boxBounds; // axis aligned!
         private BoundingBox _worldBoxBounds; // axis aligned!
 
-        public BoxCollider(ObjectDefinition def, Transform transform)
-            : base(transform, def.Geometry.MajorRadius, def.Geometry.Height)
+        public BoxCollider(Geometry geometry, Transform transform)
+            : base(geometry, transform)
         {
-            var min = new Vector3(-def.Geometry.MajorRadius, -def.Geometry.MinorRadius, 0);
-            var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
-            _boxBounds = new BoundingBox(min, max);
+            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
+            var min = new Vector3(-geometry.MajorRadius, -geometry.MinorRadius, 0);
+            var max = new Vector3(geometry.MajorRadius, geometry.MinorRadius, geometry.Height);
+            _boxBounds = new BoundingBox(min + offset, max + offset);
             Update(transform);
         }
 

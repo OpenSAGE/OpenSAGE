@@ -120,31 +120,33 @@ namespace OpenSage.Navigation
                 return;
             }
 
-            // TODO: for each collider of the object
-            var axisAlignedBoundingArea = gameObject.RoughCollider.AxisAlignedBoundingArea;
-
-            var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
-            var bottomLeftNode = GetClosestNode(bottomLeft);
-            var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
-            var topRightNode = GetClosestNode(topRight);
-
-            //sometimes map objects are places outside the actual map....
-            if (bottomLeftNode == null || topRightNode == null)
+            foreach (var collider in gameObject.Colliders)
             {
-                return;
-            }
+                var axisAlignedBoundingArea = collider.AxisAlignedBoundingArea;
 
-            var area = gameObject.RoughCollider.BoundingArea;
+                var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
+                var bottomLeftNode = GetClosestNode(bottomLeft);
+                var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
+                var topRightNode = GetClosestNode(topRight);
 
-            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
-            {
-                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
+                //sometimes map objects are places outside the actual map....
+                if (bottomLeftNode == null || topRightNode == null)
                 {
-                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
-                    var position = GetNodePosition(node);
-                    if (area.Contains(position))
+                    return;
+                }
+
+                var area = gameObject.RoughCollider.BoundingArea;
+
+                for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
+                {
+                    for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
                     {
-                        node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                        var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                        var position = GetNodePosition(node);
+                        if (area.Contains(position))
+                        {
+                            node.Passability = passable ? Passability.Passable : Passability.Impassable;
+                        }
                     }
                 }
             }
