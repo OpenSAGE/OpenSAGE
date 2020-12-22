@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
 
-        private bool _objectMoved = true;
+        private bool _objectMoved;
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
@@ -376,6 +376,7 @@ namespace OpenSage.Logic.Object
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
 
+            _objectMoved = true;
             Hidden = false;
             ExperienceMultiplier = 1.0f;
             ExperienceValue = 0;
@@ -516,6 +517,7 @@ namespace OpenSage.Logic.Object
                 _gameContext.Navigation.UpdateAreaPassability(this, false);
             }
             RoughCollider = Collider.Create(Colliders);
+            UpdateColliders();
         }
 
         public void RemoveCollider(Geometry geometry)
@@ -535,6 +537,7 @@ namespace OpenSage.Logic.Object
                 _gameContext.Navigation.UpdateAreaPassability(this, false);
             }
             RoughCollider = Collider.Create(Colliders);
+            UpdateColliders();
         }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
@@ -613,6 +616,7 @@ namespace OpenSage.Logic.Object
             {
                 collider.Update(_transform);
             }
+            _gameContext.Quadtree.Update(this);
         }
 
         internal void LogicTick(ulong frame, in TimeInterval time)
@@ -625,7 +629,6 @@ namespace OpenSage.Logic.Object
             if (_objectMoved)
             {
                 UpdateColliders();
-                _gameContext.Quadtree.Update(this);
 
                 var intersecting = _gameContext.Quadtree.FindIntersecting(this);
 
@@ -701,7 +704,7 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            if (!RoughCollider.Intersects(other.RoughCollider))
+            if (!RoughCollider.Intersects(other.RoughCollider, twoDimensional))
             {
                 return false;
             }

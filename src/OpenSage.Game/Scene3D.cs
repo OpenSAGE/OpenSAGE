@@ -69,6 +69,8 @@ namespace OpenSage
         public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
 
+        public bool FrustumCulling { get; set; } = false;
+
         public ScriptList[] PlayerScripts { get; private set; }
 
         public readonly GameObjectCollection GameObjects;
@@ -455,10 +457,12 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    if (gameObject.RoughCollider.Intersects(Camera.BoundingFrustum))
-                    {
-                        gameObject.BuildRenderList(renderList, camera, gameTime);
-                    }
+                    //if (!FrustumCulling
+                    //    || gameObject.Definition.KindOf.Get(ObjectKinds.NoCollide)
+                    //    || gameObject.RoughCollider.Intersects(Camera.BoundingFrustum))
+                    //{
+                    gameObject.BuildRenderList(renderList, camera, gameTime);
+                    //}
                 }
             }
 

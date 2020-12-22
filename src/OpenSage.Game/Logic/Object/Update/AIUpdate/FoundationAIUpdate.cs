@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
 
             _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_updateInterval);
 
-            var collidingObjects = context.GameContext.Quadtree.FindIntersecting(GameObject);
+            var collidingObjects = context.GameContext.Quadtree.FindNearby(GameObject, GameObject.Transform, GameObject.RoughCollider.WorldBounds.Radius);
 
             foreach (var collidingObject in collidingObjects)
             {

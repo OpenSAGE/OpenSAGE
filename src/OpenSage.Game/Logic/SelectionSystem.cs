@@ -163,8 +163,14 @@ namespace OpenSage.Logic
 
                 if (gameObject.RoughCollider.Intersects(ray, out var depth) && depth < closestDepth)
                 {
-                    closestDepth = depth;
-                    closestObject = gameObject;
+                    foreach (var collider in gameObject.Colliders)
+                    {
+                        if (collider.Intersects(ray, out var depth2) && depth2 < closestDepth)
+                        {
+                            closestDepth = depth2;
+                            closestObject = gameObject;
+                        }
+                    }
                 }
             }
 

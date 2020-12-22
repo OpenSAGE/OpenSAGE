@@ -53,8 +53,7 @@ namespace OpenSage.Mathematics
 
         public PlaneIntersectionType Intersects(in Plane plane)
         {
-            var distance = Vector3.Dot(plane.Normal, Center);
-            distance += plane.D;
+            var distance = Vector3.Dot(plane.Normal, Center) + plane.D;
             if (distance > Radius)
             {
                 return PlaneIntersectionType.Front;

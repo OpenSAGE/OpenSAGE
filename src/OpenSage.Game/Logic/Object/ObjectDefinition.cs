@@ -858,7 +858,7 @@ namespace OpenSage.Logic.Object
         public ColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
 
-        public Geometry Geometry { get; private set; } = new Geometry();
+        public Geometry Geometry { get; private set; }
 
         public Vector2 RotationAnchorOffset { get; set; }
 
@@ -1204,6 +1204,10 @@ namespace OpenSage.Logic.Object
             result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
             result.Geometry = result.Geometry.Clone();
+            result.AdditionalGeometries = new List<Geometry>(result.AdditionalGeometries);
+            result.OtherGeometries = new List<Geometry>(result.OtherGeometries);
+            result.AttackContactPoints = new List<ContactPoint>(result.AttackContactPoints);
+            result.GeometryContactPoints = new List<ContactPoint>(result.GeometryContactPoints);
             result.Behaviors = new Dictionary<string, BehaviorModuleData>();
             result.Draws = new Dictionary<string, DrawModuleData>();
             result.ClientUpdates = new List<ClientUpdateModuleData>();
@@ -1230,6 +1234,10 @@ namespace OpenSage.Logic.Object
             result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
             result.Geometry = result.Geometry.Clone();
+            result.AdditionalGeometries = new List<Geometry>(result.AdditionalGeometries);
+            result.OtherGeometries = new List<Geometry>(result.OtherGeometries);
+            result.AttackContactPoints = new List<ContactPoint>(result.AttackContactPoints);
+            result.GeometryContactPoints = new List<ContactPoint>(result.GeometryContactPoints);
             result.Behaviors = new Dictionary<string, BehaviorModuleData>(result.Behaviors);
             result.Draws = new Dictionary<string, DrawModuleData>(result.Draws);
             result.ClientUpdates = new List<ClientUpdateModuleData>(result.ClientUpdates);
