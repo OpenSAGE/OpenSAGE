@@ -597,6 +597,8 @@ namespace OpenSage
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
             }
 
+            Scene3D.FrustumCulling = true;
+
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             if (isMultiPlayer)

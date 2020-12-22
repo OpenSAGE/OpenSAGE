@@ -33,11 +33,6 @@ namespace OpenSage.Logic.Object
 
         public static Collider Create(Geometry geometry, Transform transform)
         {
-            if (geometry == null)
-            {
-                return null;
-            }
-
             switch (geometry.Type)
             {
                 case ObjectGeometry.Box:
@@ -59,6 +54,11 @@ namespace OpenSage.Logic.Object
 
         public static Collider Create(List<Collider> colliders)
         {
+            if (colliders.Count == 1)
+            {
+                return colliders[0];
+            }
+
             var min = new Vector3(int.MaxValue, int.MaxValue, int.MaxValue);
             var max = new Vector3(int.MinValue, int.MinValue, int.MinValue);
 
@@ -90,13 +90,13 @@ namespace OpenSage.Logic.Object
     {
         public readonly BoundingSphere SphereBounds;
 
-        public SphereCollider(Geometry geometry, Transform transform)
+        public SphereCollider(Geometry geometry, Transform transform, float? radius = null, float offsetZ = 0.0f)
             : base(transform, geometry.Height)
         {
-            var radius = geometry.MajorRadius;
+            radius ??= geometry.MajorRadius;
             Name = geometry.Name;
-            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
-            SphereBounds = new BoundingSphere(offset, radius);
+            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, offsetZ);
+            SphereBounds = new BoundingSphere(offset, radius.Value);
             Update(transform);
         }
 
@@ -155,10 +155,10 @@ namespace OpenSage.Logic.Object
 
             if (distance <= WorldBounds.Radius + other.WorldBounds.Radius)
             {
-                if (other is BoxCollider box)
-                {
-                    return Intersects(box, twoDimensional);
-                }
+                //if (other is BoxCollider box)
+                //{
+                //    return Intersects(box, twoDimensional);
+                //}
                 return true;
             }
             return false;
@@ -167,14 +167,11 @@ namespace OpenSage.Logic.Object
         // TODO: actual box - sphere collision
         public bool Intersects(BoxCollider other, bool twoDimensional = false) => Intersects(other.AxisAlignedBoundingArea) && Intersects(other.BoundingArea);
 
-        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        protected void DebugDrawAxisAlignedBoundingArea(DrawingContext2D drawingContext, Camera camera)
         {
             var strokeColor = new ColorRgbaF(0, 0, 220, 255);
-
             var worldPos = Transform.Translation;
-            //var rotation = Transform.Rotation;
 
-            // AxisAlignedBoundingArea 
             var bottomLeft = new Vector3(AxisAlignedBoundingArea.X, AxisAlignedBoundingArea.Y, worldPos.Z);
             var bottomRight = new Vector3(AxisAlignedBoundingArea.X + AxisAlignedBoundingArea.Width, AxisAlignedBoundingArea.Y, worldPos.Z);
             var topLeft = new Vector3(AxisAlignedBoundingArea.X, AxisAlignedBoundingArea.Y + AxisAlignedBoundingArea.Height, worldPos.Z);
@@ -189,22 +186,13 @@ namespace OpenSage.Logic.Object
             drawingContext.DrawLine(new Line2D(lbScreen, rbScreen), 1, strokeColor);
             drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
             drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
-
-            //TODO implement BoundingSphere
-        }
-    }
-
-    public class CylinderCollider : SphereCollider
-    {
-        public CylinderCollider(Geometry geometry, Transform transform)
-             : base(geometry, transform)
-        {
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
-            base.DebugDraw(drawingContext, camera);
+            //DebugDrawAxisAlignedBoundingArea(drawingContext, camera);
 
+            // Bounding Sphere
             const int sides = 8;
             var lineColor = new ColorRgbaF(220, 220, 220, 255);
 
@@ -214,8 +202,8 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < sides; i++)
             {
                 var angle = 2 * MathF.PI * i / sides;
-                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * SphereBounds.Radius;
-                var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
+                var point = camera.WorldToScreenPoint(WorldBounds.Center + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * SphereBounds.Radius);
+                var screenPoint = point.Vector2XY();
 
                 // No line gets drawn on the first iteration
                 if (i == 0)
@@ -227,13 +215,100 @@ namespace OpenSage.Logic.Object
 
                 drawingContext.DrawLine(new Line2D(previousPoint, screenPoint), 1, lineColor);
 
-                // If this is the last point, complete the cylinder
+                // If this is the last point, complete the circle
                 if (i == sides - 1)
                 {
                     drawingContext.DrawLine(new Line2D(screenPoint, firstPoint), 1, lineColor);
                 }
 
                 previousPoint = screenPoint;
+
+                var firstPoint2 = Vector2.Zero;
+                var previousPoint2 = Vector2.Zero;
+                for (var j = 0; j < sides; j++)
+                {
+                    var angle2 = 2 * MathF.PI * j / sides;
+                    var point2 = camera.WorldToScreenPoint(WorldBounds.Center + new Vector3(MathF.Sin(angle2) * MathF.Cos(angle), MathF.Sin(angle2) * MathF.Sin(angle), MathF.Cos(angle2)) * SphereBounds.Radius);
+                    var screenPoint2 = point2.Vector2XY();
+
+                    // No line gets drawn on the first iteration
+                    if (j == 0)
+                    {
+                        firstPoint2 = screenPoint2;
+                        previousPoint2 = screenPoint2;
+                        continue;
+                    }
+
+                    drawingContext.DrawLine(new Line2D(previousPoint2, screenPoint2), 1, lineColor);
+
+                    // If this is the last point, complete the circle
+                    if (j == sides - 1)
+                    {
+                        drawingContext.DrawLine(new Line2D(screenPoint2, firstPoint2), 1, lineColor);
+                    }
+
+                    previousPoint2 = screenPoint2;
+                }
+            }
+        }
+    }
+
+    public class CylinderCollider : SphereCollider
+    {
+        public float LowerRadius { get; private set; }
+        public float UpperRadius { get; private set; }
+
+        public CylinderCollider(Geometry geometry, Transform transform)
+             : base(geometry, transform, geometry.Height / 2.0f, geometry.Height / 2.0f)
+        {
+            LowerRadius = geometry.MajorRadius;
+            UpperRadius = geometry.MinorRadius;
+        }
+
+        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        {
+            //base.DebugDraw(drawingContext, camera);
+
+            const int sides = 8;
+            var lineColor = new ColorRgbaF(220, 220, 220, 255);
+
+            var firstPoint = Vector2.Zero;
+            var previousPoint = Vector2.Zero;
+            var firstPointTop = Vector2.Zero;
+            var previousPointTop = Vector2.Zero;
+
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = 2 * MathF.PI * i / sides;
+                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * LowerRadius;
+                var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
+                var pointTop = Transform.Translation + new Vector3(0, 0, Height) + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * UpperRadius;
+                var screenPointTop = camera.WorldToScreenPoint(pointTop).Vector2XY();
+
+                // No line gets drawn on the first iteration
+                if (i == 0)
+                {
+                    firstPoint = screenPoint;
+                    previousPoint = screenPoint;
+                    firstPointTop = screenPointTop;
+                    previousPointTop = screenPointTop;
+                    continue;
+                }
+
+                drawingContext.DrawLine(new Line2D(previousPoint, screenPoint), 1, lineColor);
+                drawingContext.DrawLine(new Line2D(previousPointTop, screenPointTop), 1, lineColor);
+                drawingContext.DrawLine(new Line2D(previousPoint, previousPointTop), 1, lineColor);
+
+                // If this is the last point, complete the cylinder
+                if (i == sides - 1)
+                {
+                    drawingContext.DrawLine(new Line2D(screenPoint, firstPoint), 1, lineColor);
+                    drawingContext.DrawLine(new Line2D(screenPointTop, firstPointTop), 1, lineColor);
+                    drawingContext.DrawLine(new Line2D(screenPoint, screenPointTop), 1, lineColor);
+                }
+
+                previousPoint = screenPoint;
+                previousPointTop = screenPointTop;
             }
         }
     }
@@ -296,7 +371,7 @@ namespace OpenSage.Logic.Object
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
-            base.DebugDraw(drawingContext, camera);
+            //base.DebugDraw(drawingContext, camera);
 
             var strokeColor = new ColorRgbaF(220, 220, 220, 255);
 
@@ -325,16 +400,37 @@ namespace OpenSage.Logic.Object
             drawingContext.DrawLine(new Line2D(lbScreen, rbScreen), 1, strokeColor);
             drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
             drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
+
+            var height = new Vector3(0, 0, Height);
+            var ltWorldTop = worldPos + (leftSide - topSide) + height;
+            var rtWorldTop = worldPos + (rightSide - topSide) + height;
+            var rbWorldTop = worldPos + (rightSide - bottomSide) + height;
+            var lbWorldTop = worldPos + (leftSide - bottomSide) + height;
+
+            var ltScreenTop = camera.WorldToScreenPoint(ltWorldTop).Vector2XY();
+            var rtScreenTop = camera.WorldToScreenPoint(rtWorldTop).Vector2XY();
+            var rbScreenTop = camera.WorldToScreenPoint(rbWorldTop).Vector2XY();
+            var lbScreenTop = camera.WorldToScreenPoint(lbWorldTop).Vector2XY();
+
+            drawingContext.DrawLine(new Line2D(ltScreenTop, lbScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(lbScreenTop, rbScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rbScreenTop, rtScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rtScreenTop, ltScreenTop), 1, strokeColor);
+
+            drawingContext.DrawLine(new Line2D(ltScreen, ltScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(lbScreen, lbScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rbScreen, rbScreenTop), 1, strokeColor);
+            drawingContext.DrawLine(new Line2D(rtScreen, rtScreenTop), 1, strokeColor);
         }
 
         public override bool Intersects(Collider other, bool twoDimensional = false)
         {
             if (base.Intersects(other, twoDimensional))
             {
-                if (other is BoxCollider box)
-                {
-                    return Intersects(box, twoDimensional);
-                }
+                //if (other is BoxCollider box)
+                //{
+                //    return Intersects(box, twoDimensional);
+                //}
                 return true;
             }
             return false;

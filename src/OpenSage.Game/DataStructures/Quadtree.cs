@@ -62,21 +62,7 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
-        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius)
-        {
-            // TODO: use cylinder collider here (how high is high enough?)
-            var intersectingObjects = FindIntersectingInternal(new SphereCollider(transform, radius), obj, twoDimensional: true);
-            var pos2D = obj.Translation.Vector2XY();
-
-            foreach (var intersectingObject in intersectingObjects)
-            {
-                var dist = (pos2D - intersectingObject.RoughCollider.Transform.Translation.Vector2XY()).Length();
-                if (dist <= radius)
-                {
-                    yield return intersectingObject;
-                }
-            }
-        }
+        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersectingInternal(new SphereCollider(transform, radius), obj, twoDimensional: true);
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
@@ -120,10 +106,9 @@ namespace OpenSage.DataStructures
 
             foreach (var item in _items)
             {
-                if (!item.Equals(searcher)
-                    && item.RoughCollider.Intersects(collider, twoDimensional))
+                if (!item.Equals(searcher))
                 {
-                    if (searcher != null && !item.CollidesWith(item, twoDimensional))
+                    if (searcher != null && !searcher.CollidesWith(item, twoDimensional))
                     {
                         continue;
                     }

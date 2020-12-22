@@ -154,7 +154,7 @@ namespace OpenSage.Diagnostics
                         ImGui.EndMenu();
                     }
 
-                    if (ImGui.BeginMenu("Map: " + _map != null ? _map.Item1.Name : "<null reference>"))
+                    if (ImGui.BeginMenu("Map: " + _map.Item2))
                     {
                         foreach (var mapCache in _maps)
                         {
