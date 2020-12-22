@@ -16,7 +16,6 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            var k = 0;
         }
     }
 

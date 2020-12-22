@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Linq;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,15 +15,45 @@ namespace OpenSage.Logic.Object
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
         {
-            // TODO:
-            //foreach (var showGeometry in _moduleData.ShowGeometry)
-            //{
+            if (_moduleData.ShowGeometry != null)
+            {
+                foreach (var showGeometry in _moduleData.ShowGeometry)
+                {
+                    if (_gameObject.Definition.Geometry.Name.Equals(showGeometry))
+                    {
+                        _gameObject.AddCollider(_gameObject.Definition.Geometry);
+                    }
+                    else if (_gameObject.Definition.AdditionalGeometries.Any(x => x.Name == showGeometry))
+                    {
+                        _gameObject.AddCollider(_gameObject.Definition.AdditionalGeometries.Where(x => x.Name == showGeometry).First());
+                    }
+                    else if (_gameObject.Definition.OtherGeometries.Any(x => x.Name == showGeometry))
+                    {
+                        _gameObject.AddCollider(_gameObject.Definition.OtherGeometries.Where(x => x.Name == showGeometry).First());
+                    }
+                }
+            }
+            
+            if (_moduleData.HideGeometry != null)
+            {
+                foreach (var hideGeometry in _moduleData.HideGeometry)
+                {
+                    if (_gameObject.Definition.Geometry.Name.Equals(hideGeometry))
+                    {
+                        _gameObject.RemoveCollider(_gameObject.Definition.Geometry);
+                    }
+                    else if (_gameObject.Definition.AdditionalGeometries.Any(x => x.Name == hideGeometry))
+                    {
+                        _gameObject.RemoveCollider(_gameObject.Definition.AdditionalGeometries.Where(x => x.Name == hideGeometry).First());
+                    }
+                    else if (_gameObject.Definition.OtherGeometries.Any(x => x.Name == hideGeometry))
+                    {
+                        _gameObject.RemoveCollider(_gameObject.Definition.OtherGeometries.Where(x => x.Name == hideGeometry).First());
+                    }
+                }
+            }
 
-            //}
-            //foreach (var hideGeometry in _moduleData.HideGeometry)
-            //{
-
-            //}
+            //TODO: WallBoundsMesh, RampMesh1, RampMesh2
         }
     }
 
@@ -43,9 +74,9 @@ namespace OpenSage.Logic.Object
 
         public string[] ShowGeometry { get; private set; }
         public string[] HideGeometry { get; private set; }
-        public string WallBoundsMesh { get; private set; }
-        public string RampMesh1 { get; private set; }
-        public string RampMesh2 { get; private set; }
+        public string WallBoundsMesh { get; private set; } // e.g. P4 where is that defined?
+        public string RampMesh1 { get; private set; } // e.g. P2 where is that defined?
+        public string RampMesh2 { get; private set; } // e.g. P3 where is that defined?
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

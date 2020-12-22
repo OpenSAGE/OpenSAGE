@@ -91,11 +91,6 @@ namespace OpenSage.Logic.Object
                 BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
             }
 
-            if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                gameObject._gameContext.Navigation.UpdateAreaPassability(gameObject, false);
-            }
-
             if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
             {
                 gameObject.FindBehavior<HordeContainBehavior>().Unpack();
@@ -206,7 +201,7 @@ namespace OpenSage.Logic.Object
             _body.DoDamage(damageType, amount, deathType, time);
         }
 
-        public Collider RoughCollider { get; }
+        public Collider RoughCollider { get; private set; }
         public List<Collider> Colliders { get; }
 
         public float VerticalOffset;
@@ -471,7 +466,7 @@ namespace OpenSage.Logic.Object
                 _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
 
-            var geometryCollider = Collider.Create(objectDefinition, _transform);
+            var geometryCollider = Collider.Create(objectDefinition.Geometry, _transform);
             Colliders = new List<Collider>
             {
                 geometryCollider
@@ -502,6 +497,44 @@ namespace OpenSage.Logic.Object
             {
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
+
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                _gameContext.Navigation.UpdateAreaPassability(this, false);
+            }
+        }
+
+        public void AddCollider(Geometry geometry)
+        {
+            if (!Colliders.Any(x => x.Name == geometry.Name))
+            {
+                return;
+            }
+            Colliders.Add(Collider.Create(geometry, _transform));
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                _gameContext.Navigation.UpdateAreaPassability(this, false);
+            }
+            RoughCollider = Collider.Create(Colliders);
+        }
+
+        public void RemoveCollider(Geometry geometry)
+        {
+            if (!Colliders.Any(x => x.Name == geometry.Name))
+            {
+                return;
+            }
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                _gameContext.Navigation.UpdateAreaPassability(this, true);
+            }
+            var collider = Colliders.Where(x => x.Name == geometry.Name).First();
+            Colliders.Remove(collider);
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                _gameContext.Navigation.UpdateAreaPassability(this, false);
+            }
+            RoughCollider = Collider.Create(Colliders);
         }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
