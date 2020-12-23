@@ -14,7 +14,7 @@ namespace OpenSage.Mathematics
             Direction = direction;
         }
 
-        public bool Intersects(in BoundingBox box, out float t)
+        public bool Intersects(in AxisAlignedBoundingBox box, out float t)
         {
             // Based on https://tavianator.com/fast-branchless-raybounding-box-intersections/
 

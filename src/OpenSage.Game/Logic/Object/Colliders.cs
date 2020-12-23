@@ -12,7 +12,6 @@ namespace OpenSage.Logic.Object
         public string Name { get; protected set; }
         protected internal Transform Transform;
         public BoundingSphere WorldBounds { get; protected set; }
-        public TransformedRectangle BoundingArea { get; protected set; }
         public RectangleF AxisAlignedBoundingArea { get; protected set; }
         public float Height { get; protected set; }
 
@@ -26,10 +25,10 @@ namespace OpenSage.Logic.Object
 
         public abstract bool Intersects(in BoundingFrustum frustum);
         public abstract bool Intersects(in Ray ray, out float depth);
-
         public abstract bool Intersects(RectangleF bounds);
-
         public abstract bool Intersects(Collider collider, bool twoDimensional = false);
+
+        public abstract bool Contains(Vector2 point);
 
         public static Collider Create(Geometry geometry, Transform transform)
         {
@@ -64,7 +63,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var collider in colliders)
             {
-                var bounds = ((SphereCollider) collider).SphereBounds;
+                var bounds = collider.WorldBounds;
                 var bottomLeft = bounds.Center - new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
                 var topRight = bounds.Center + new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
 
@@ -85,6 +84,7 @@ namespace OpenSage.Logic.Object
 
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
     }
+
 
     public class SphereCollider : Collider
     {
@@ -124,7 +124,6 @@ namespace OpenSage.Logic.Object
             var center = new Vector3(rect.X + rect.Width / 2.0f, rect.Y + rect.Height / 2.0f, 0);
             WorldBounds = new BoundingSphere(center, radius);
             AxisAlignedBoundingArea = rect;
-            BoundingArea = TransformedRectangle.FromRectangle(rect);
         }
 
         public override void Update(Transform transform)
@@ -133,7 +132,6 @@ namespace OpenSage.Logic.Object
             WorldBounds = BoundingSphere.Transform(SphereBounds, Transform.Matrix);
             var width = SphereBounds.Radius * 2.0f;
             AxisAlignedBoundingArea = new RectangleF(Transform.Translation.Vector2XY() - new Vector2(SphereBounds.Radius, SphereBounds.Radius), width, width);
-            BoundingArea = TransformedRectangle.FromRectangle(AxisAlignedBoundingArea);
         }
 
         public override bool Intersects(in Ray ray, out float depth)
@@ -157,21 +155,30 @@ namespace OpenSage.Logic.Object
 
             if (distance <= WorldBounds.Radius + other.WorldBounds.Radius)
             {
-                //if (other is BoxCollider box)
-                //{
-                //    return Intersects(box, twoDimensional);
-                //}
+                if (other is BoxCollider box)
+                {
+                    return Intersects(box, twoDimensional);
+                }
                 return true;
             }
             return false;
         }
 
-        // TODO: actual box - sphere collision
-        public bool Intersects(BoxCollider other, bool twoDimensional = false) => Intersects(other.AxisAlignedBoundingArea) && Intersects(other.BoundingArea);
+        private bool Intersects(BoxCollider other, bool twoDimensional = false)
+        {
+            if (!Intersects(other.AxisAlignedBoundingArea) || !Intersects(other.BoundingArea))
+            {
+                return false;
+            }
+            // TODO: consider non-AA bounds of box collider
+            return twoDimensional || WorldBounds.Intersects(other.WorldAABox);
+        }
+
+        public override bool Contains(Vector2 point) => WorldBounds.Contains(point);
 
         protected void DebugDrawAxisAlignedBoundingArea(DrawingContext2D drawingContext, Camera camera)
         {
-            var strokeColor = new ColorRgbaF(0, 0, 220, 255);
+            var strokeColor = new ColorRgbaF(0, 0, 0, 255);
             var worldPos = Transform.Translation;
 
             var bottomLeft = new Vector3(AxisAlignedBoundingArea.X, AxisAlignedBoundingArea.Y, worldPos.Z);
@@ -192,7 +199,7 @@ namespace OpenSage.Logic.Object
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
-            //DebugDrawAxisAlignedBoundingArea(drawingContext, camera);
+            DebugDrawAxisAlignedBoundingArea(drawingContext, camera);
 
             // Bounding Sphere
             const int sides = 8;
@@ -257,23 +264,27 @@ namespace OpenSage.Logic.Object
 
     public class BoxCollider : SphereCollider
     {
-        protected BoundingBox _boxBounds { get; set; } // axis aligned!
-        private BoundingBox _worldBoxBounds;
+        protected AxisAlignedBoundingBox _AABox { get; set; }
+        public AxisAlignedBoundingBox WorldAABox { get; private set; }
+        private BoundingBox _worldBox;
+
+        public TransformedRectangle BoundingArea { get; protected set; }
 
         public BoxCollider(Geometry geometry, Transform transform)
             : base(geometry, transform)
         {
             var min = new Vector3(-geometry.MajorRadius, -geometry.MinorRadius, 0);
             var max = new Vector3(geometry.MajorRadius, geometry.MinorRadius, geometry.Height);
-            _boxBounds = new BoundingBox(min, max);
+            _AABox = new AxisAlignedBoundingBox(min, max);
             SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, geometry.Height / 2.0f), (max - min).Length() / 2.0f);
             Update(transform);
         }
 
         public BoxCollider(RectangleF rect) : base(rect)
         {
-            _boxBounds = new BoundingBox(Vector3.Zero, new Vector3(rect.Width, rect.Height, 0));
-            _worldBoxBounds = new BoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0));
+            _AABox = new AxisAlignedBoundingBox(Vector3.Zero, new Vector3(rect.Width, rect.Height, 0));
+            _worldBox = new BoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0));
+            WorldAABox = new AxisAlignedBoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0));
             BoundingArea = TransformedRectangle.FromRectangle(rect);
             AxisAlignedBoundingArea = rect;
         }
@@ -281,15 +292,20 @@ namespace OpenSage.Logic.Object
         public sealed override void Update(Transform transform)
         {
             base.Update(transform);
-            _worldBoxBounds = BoundingBox.Transform(_boxBounds, Transform.Matrix);
-            var width = _worldBoxBounds.Max.X - _worldBoxBounds.Min.X;
-            var height = _worldBoxBounds.Max.Y - _worldBoxBounds.Min.Y;
-            AxisAlignedBoundingArea = new RectangleF(_worldBoxBounds.Min.X, _worldBoxBounds.Min.Y, width, height);
+            var min = Vector3.Transform(_AABox.Min, transform.Matrix);
+            var max = Vector3.Transform(_AABox.Max, transform.Matrix);
+            _worldBox = new BoundingBox(min, max);
+            WorldAABox = AxisAlignedBoundingBox.Transform(_AABox, Transform.Matrix);
 
-            width = _boxBounds.Max.X - _boxBounds.Min.X;
-            height = _boxBounds.Max.Y - _boxBounds.Min.Y;
-            var rect = new RectangleF(_boxBounds.Min.X + Transform.Translation.X, _boxBounds.Min.Y + Transform.Translation.Y, width, height);
-            BoundingArea = TransformedRectangle.FromRectangle(rect, Transform.Rotation.Z);
+            // TODO: improve this
+            var width = WorldAABox.Max.X - WorldAABox.Min.X;
+            var height = WorldAABox.Max.Y - WorldAABox.Min.Y;
+            AxisAlignedBoundingArea = new RectangleF(WorldAABox.Min.X, WorldAABox.Min.Y, width, height);
+
+            width = _AABox.Max.X - _AABox.Min.X;
+            height = _AABox.Max.Y - _AABox.Min.Y;
+            var rect = new RectangleF(_AABox.Min.X + Transform.Translation.X, _AABox.Min.Y + Transform.Translation.Y, width, height);
+            BoundingArea = TransformedRectangle.FromRectangle(rect, Transform.Yaw);
         }
 
         public override bool Intersects(in Ray ray, out float depth)
@@ -299,30 +315,46 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            var result = ray.Intersects(_worldBoxBounds, out depth);
+            var result = ray.Intersects(WorldAABox, out depth);
             depth *= Transform.Scale; // Assumes uniform scaling
             return result;
         }
 
-        public override bool Intersects(RectangleF bounds)
+        public override bool Intersects(RectangleF bounds) => base.Intersects(bounds) && WorldAABox.Intersects(bounds);
+
+        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects(WorldAABox);
+
+        public override bool Intersects(Collider other, bool twoDimensional = false)
         {
-            return base.Intersects(bounds) && _worldBoxBounds.Intersects(bounds);
+            if (base.Intersects(other, twoDimensional))
+            {
+                if (other is BoxCollider box)
+                {
+                    return Intersects(box, twoDimensional);
+                }
+                return true;
+            }
+            return false;
         }
 
-        public override bool Intersects(in BoundingFrustum frustum) => frustum.Intersects(_worldBoxBounds);
-
-        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        private bool Intersects(BoxCollider other, bool twoDimensional = false)
         {
-            //base.DebugDraw(drawingContext, camera);
+            if (!base.Intersects(other, twoDimensional) || !BoundingArea.Intersects(other.BoundingArea))
+            {
+                return false;
+            }
 
-            var strokeColor = new ColorRgbaF(220, 220, 220, 255);
+            // TODO: also consider non-AA box _worldBox
+            return twoDimensional || WorldAABox.Intersects(other.WorldAABox);
+        }
 
-            var worldPos = Transform.Translation;
-            var rotation = Transform.Rotation;
+        public override bool Contains(Vector2 point)
+        {
+            return base.Contains(point) && AxisAlignedBoundingArea.Contains(point) && BoundingArea.Contains(point);
+        }
 
-            var xLine = Vector3.Transform(new Vector3(_boxBounds.Max.X, 0, 0), rotation);
-            var yLine = Vector3.Transform(new Vector3(0, _boxBounds.Max.Y, 0), rotation);
-
+        private void DrawBox(DrawingContext2D drawingContext, Camera camera, ColorRgbaF strokeColor, Vector3 worldPos, Vector3 xLine, Vector3 yLine)
+        {
             var leftSide = xLine;
             var rightSide = -xLine;
             var topSide = yLine;
@@ -365,33 +397,31 @@ namespace OpenSage.Logic.Object
             drawingContext.DrawLine(new Line2D(rtScreen, rtScreenTop), 1, strokeColor);
         }
 
-        public override bool Intersects(Collider other, bool twoDimensional = false)
+        private void DebugDrawAxisAlignedBoundingBox(DrawingContext2D drawingContext, Camera camera)
         {
-            if (base.Intersects(other, twoDimensional))
-            {
-                //if (other is BoxCollider box)
-                //{
-                //    return Intersects(box, twoDimensional);
-                //}
-                return true;
-            }
-            return false;
+            var strokeColor = new ColorRgbaF(0, 0, 255, 255);
+
+            var xLine = new Vector3((WorldAABox.Max.X - WorldAABox.Min.X) / 2.0f, 0, 0);
+            var yLine = new Vector3(0, (WorldAABox.Max.Y - WorldAABox.Min.Y) / 2.0f, 0);
+
+            DrawBox(drawingContext, camera, strokeColor, Transform.Translation, xLine, yLine);
         }
 
-        public new bool Intersects(BoxCollider other, bool twoDimensional = false)
+        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
-            if (!base.Intersects(other, twoDimensional) || !BoundingArea.Intersects(other.BoundingArea))
-            {
-                return false;
-            }
+            //base.DebugDraw(drawingContext, camera);
+            //DebugDrawAxisAlignedBoundingArea(drawingContext, camera);
 
-            if (twoDimensional)
-            {
-                return true;
-            }
+            DebugDrawAxisAlignedBoundingBox(drawingContext, camera);
 
-            // TODO: do not ignore Z axis
-            return true;
+            var strokeColor = new ColorRgbaF(220, 220, 220, 255);
+
+            var rotation = Transform.Rotation;
+
+            var xLine = Vector3.Transform(new Vector3((_AABox.Max.X - _AABox.Min.X) / 2.0f, 0, 0), rotation);
+            var yLine = Vector3.Transform(new Vector3(0, (_AABox.Max.Y - _AABox.Min.Y) / 2.0f, 0), rotation);
+
+            DrawBox(drawingContext, camera, strokeColor, Transform.Translation, xLine, yLine);
         }
     }
 
@@ -409,9 +439,19 @@ namespace OpenSage.Logic.Object
             var dimension = Math.Max(geometry.MinorRadius, geometry.MajorRadius);
             var min = new Vector3(-dimension, -dimension, 0);
             var max = new Vector3(dimension, dimension, geometry.Height);
-            _boxBounds = new BoundingBox(min, max);
+            _AABox = new AxisAlignedBoundingBox(min, max);
             SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, geometry.Height / 2.0f), (max - min).Length() / 2.0f);
             Update(transform);
+        }
+
+        public override bool Contains(Vector2 point)
+        {
+            if (!base.Contains(point))
+            {
+                return false;
+            }
+            var distance = (Transform.Translation.Vector2XY() - point).Length();
+            return distance <= LowerRadius;
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)

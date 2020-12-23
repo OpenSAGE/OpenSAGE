@@ -17,18 +17,26 @@ namespace OpenSage.Gui
             var selection = game.Scene3D.LocalPlayer.SelectedUnits;
             var selectedObject = selection.FirstOrDefault();
 
+            CastleBehavior castleBehavior;
+
             Order order = null;
             switch (commandButton.Command)
             {
                 case CommandType.CastleUnpack:
                     //TODO: proper castleUnpack order & spend money of the player
-                    var castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
+                    castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
                     castleBehavior.Unpack(selectedObject.Owner);
                     game.Scene3D.LocalPlayer.DeselectUnits();
                     break;
 
                 case CommandType.CastleUnpackExplicitObject:
                 case CommandType.FoundationConstruct:
+                    castleBehavior = selectedObject.FindBehavior<CastleBehavior>();
+                    if (castleBehavior != null)
+                    {
+                        castleBehavior.IsUnpacked = true;
+                    }
+
                     order = CreateOrder(OrderType.BuildObject);
                     order.AddIntegerArgument(objectDefinition.InternalId);
                     order.AddPositionArgument(selectedObject.Translation);

@@ -36,7 +36,7 @@ namespace OpenSage.Graphics
         internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
         internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
 
-        public readonly BoundingBox BoundingBox;
+        public readonly AxisAlignedBoundingBox BoundingBox;
 
         public readonly List<ModelMeshPart> MeshParts;
 
@@ -156,7 +156,7 @@ namespace OpenSage.Graphics
                 world = meshWorldMatrix;
             }
 
-            var meshBoundingBox = BoundingBox.Transform(BoundingBox, world); // TODO: Not right for skinned meshes
+            var meshBoundingBox = AxisAlignedBoundingBox.Transform(BoundingBox, world); // TODO: Not right for skinned meshes
 
             for (var i = 0; i < MeshParts.Count; i++)
             {

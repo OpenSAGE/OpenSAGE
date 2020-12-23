@@ -16,7 +16,7 @@ namespace OpenSage.Terrain
         private readonly string _debugName;
 
         private DeviceBuffer _vertexBuffer;
-        private BoundingBox _boundingBox;
+        private AxisAlignedBoundingBox _boundingBox;
 
         private DeviceBuffer _indexBuffer;
         private uint _numIndices;
@@ -92,7 +92,7 @@ namespace OpenSage.Terrain
                     })
                 .ToArray();
 
-            _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
+            _boundingBox = AxisAlignedBoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
             _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 vertices,

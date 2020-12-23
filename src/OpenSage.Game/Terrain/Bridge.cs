@@ -72,7 +72,7 @@ namespace OpenSage.Terrain
 
             float GetLength(ModelSubObject subObject)
             {
-                var transformedBounds = BoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
+                var transformedBounds = AxisAlignedBoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
                 return transformedBounds.Max.X - transformedBounds.Min.X;
             }
 
@@ -115,7 +115,7 @@ namespace OpenSage.Terrain
             var currentOffset = 0f;
             Matrix4x4 GetLocalTranslation(ModelSubObject subObject)
             {
-                var transformedBounds = BoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
+                var transformedBounds = AxisAlignedBoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
                 var w3dOffset = transformedBounds.Min.X;
 
                 var result =
@@ -138,7 +138,7 @@ namespace OpenSage.Terrain
 
             meshes.Add(Tuple.Create(bridgeRight, GetLocalTranslation(bridgeRight)));
 
-            var transformedLeftBounds = BoundingBox.Transform(bridgeLeft.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.Bone.Index]);
+            var transformedLeftBounds = AxisAlignedBoundingBox.Transform(bridgeLeft.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.Bone.Index]);
 
             new BridgeTowers(
                 template,

@@ -102,7 +102,7 @@ namespace OpenSage.Terrain.Roads
                 var totalLength = toCornerLength + additionalLength;
                 var toCorner = toCornerDirection * totalLength;
                 
-                var boundingBox = BoundingBox.CreateFromPoints(
+                var boundingBox = AxisAlignedBoundingBox.CreateFromPoints(
                     segment.StartPosition + toCorner,
                     segment.StartPosition - toCorner,
                     segment.EndPosition + toCorner,

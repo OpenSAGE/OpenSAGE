@@ -9,7 +9,7 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        private readonly Graph _graph;
+        public readonly Graph Graph;
         private readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -18,21 +18,21 @@ namespace OpenSage.Navigation
         {
             var width = tileData.Impassability.GetLength(0);
             var height = tileData.Impassability.GetLength(1);
-            _graph = new Graph(width, height);
+            Graph = new Graph(width, height);
 
-            for (var x = 0; x < _graph.Width; x++)
+            for (var x = 0; x < Graph.Width; x++)
             {
-                for (var y = 0; y < _graph.Height; y++)
+                for (var y = 0; y < Graph.Height; y++)
                 {
                     var impassable = tileData.Impassability[x, y];
-                    _graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
+                    Graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
                 }
             }
 
             _heightMap = heightMap;
         }
 
-        private Vector2 GetNodePosition(Node node)
+        public Vector2 GetNodePosition(Node node)
         {
             var xyz =_heightMap.GetPosition(node.X, node.Y);
             return new Vector2(xyz.X, xyz.Y);
@@ -48,7 +48,7 @@ namespace OpenSage.Navigation
             }
 
             var (x, y) = coords.Value;
-            return _graph.GetNode(x, y);
+            return Graph.GetNode(x, y);
         }
 
         public bool IsPassable(Vector3 position) => GetClosestNode(position).IsPassable;
@@ -94,7 +94,7 @@ namespace OpenSage.Navigation
                 return result;
             }
 
-            var route = _graph.Search(startNode, endNode);
+            var route = Graph.Search(startNode, endNode);
 
             if (route == null)
             {
@@ -103,7 +103,7 @@ namespace OpenSage.Navigation
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
-            PathOptimizer.SmoothPath(route, _graph);
+            PathOptimizer.SmoothPath(route, Graph);
 
             foreach (var node in route)
             {
@@ -136,15 +136,13 @@ namespace OpenSage.Navigation
                 return;
             }
 
-            var area = collider.BoundingArea;
-
             for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
             {
                 for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
                 {
-                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var node = Graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
                     var position = GetNodePosition(node);
-                    if (area.Contains(position))
+                    if (collider.Contains(position))
                     {
                         node.Passability = passable ? Passability.Passable : Passability.Impassable;
                     }

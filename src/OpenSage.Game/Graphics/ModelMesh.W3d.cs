@@ -73,7 +73,7 @@ namespace OpenSage.Graphics
                 }
             }
 
-            BoundingBox = new BoundingBox(
+            BoundingBox = new AxisAlignedBoundingBox(
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
 

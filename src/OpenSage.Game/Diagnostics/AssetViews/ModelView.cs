@@ -43,14 +43,14 @@ namespace OpenSage.Diagnostics.AssetViews
             AddDisposeAction(() => _renderedView.RenderPipeline.BuildingRenderList -= OnBuildingRenderList);
         }
 
-        private static BoundingBox GetEnclosingBoundingBox(ModelInstance modelInstance)
+        private static AxisAlignedBoundingBox GetEnclosingBoundingBox(ModelInstance modelInstance)
         {
-            var boundingBox = default(BoundingBox);
+            var boundingBox = default(AxisAlignedBoundingBox);
 
             var first = true;
             foreach (var subObject in modelInstance.Model.SubObjects)
             {
-                var transformedBoundingBox = BoundingBox.Transform(subObject.RenderObject.BoundingBox,
+                var transformedBoundingBox = AxisAlignedBoundingBox.Transform(subObject.RenderObject.BoundingBox,
                     modelInstance.ModelBoneInstances[subObject.Bone.Index].Matrix);
 
                 if (first)
@@ -60,7 +60,7 @@ namespace OpenSage.Diagnostics.AssetViews
                 }
                 else
                 {
-                    boundingBox = BoundingBox.CreateMerged(
+                    boundingBox = AxisAlignedBoundingBox.CreateMerged(
                         boundingBox,
                         transformedBoundingBox);
                 }

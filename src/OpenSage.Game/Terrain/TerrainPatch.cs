@@ -19,7 +19,7 @@ namespace OpenSage.Terrain
 
         public Rectangle Bounds { get; }
 
-        public BoundingBox BoundingBox { get; }
+        public AxisAlignedBoundingBox BoundingBox { get; }
 
         public Triangle[] Triangles { get; }
 
@@ -64,7 +64,7 @@ namespace OpenSage.Terrain
            HeightMap heightMap,
            Rectangle patchBounds,
            ushort[] indices,
-           out BoundingBox boundingBox,
+           out AxisAlignedBoundingBox boundingBox,
            out Triangle[] triangles)
         {
             var numVertices = patchBounds.Width * patchBounds.Height;
@@ -88,7 +88,7 @@ namespace OpenSage.Terrain
                 }
             }
 
-            boundingBox = BoundingBox.CreateFromPoints(points);
+            boundingBox = AxisAlignedBoundingBox.CreateFromPoints(points);
 
             triangles = new Triangle[(patchBounds.Width - 1) * (patchBounds.Height) * 2];
 

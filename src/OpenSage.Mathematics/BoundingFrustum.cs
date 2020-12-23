@@ -80,7 +80,7 @@ namespace OpenSage.Mathematics
             return true;
         }
 
-        public ContainmentType Contains(in BoundingBox box)
+        public ContainmentType Contains(in AxisAlignedBoundingBox box)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
@@ -124,7 +124,7 @@ namespace OpenSage.Mathematics
                 : ContainmentType.Contains;
         }
 
-        public bool Intersects(in BoundingBox box)
+        public bool Intersects(in AxisAlignedBoundingBox box)
         {
             return Contains(box) != ContainmentType.Disjoint;
         }

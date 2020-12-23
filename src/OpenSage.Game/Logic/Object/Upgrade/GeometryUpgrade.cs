@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -7,10 +8,18 @@ namespace OpenSage.Logic.Object
     internal class GeometryUpgrade : UpgradeModule
     {
         private readonly GeometryUpgradeModuleData _moduleData;
+        private readonly List<Geometry> _allGeometries;
 
         internal GeometryUpgrade(GameObject gameObject, GeometryUpgradeModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+
+            _allGeometries = new List<Geometry>
+            {
+                _gameObject.Definition.Geometry
+            };
+            _allGeometries.AddRange(_gameObject.Definition.AdditionalGeometries);
+            _allGeometries.AddRange(_gameObject.Definition.OtherGeometries);
         }
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
@@ -19,7 +28,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var showGeometry in _moduleData.ShowGeometry)
                 {
-                    _gameObject.ShowCollider(showGeometry);
+                    ShowCollider(context, showGeometry);
                 }
             }
             
@@ -27,11 +36,63 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var hideGeometry in _moduleData.HideGeometry)
                 {
-                    _gameObject.HideCollider(hideGeometry);
+                    HideCollider(context, hideGeometry);
                 }
             }
 
             //TODO: WallBoundsMesh, RampMesh1, RampMesh2
+        }
+
+        private void ShowCollider(BehaviorUpdateContext context, string name)
+        {
+            if (_gameObject.Colliders.Any(x => x.Name.Equals(name)))
+            {
+                return;
+            }
+
+            var newColliders = new List<Collider>();
+            foreach (var geometry in _allGeometries)
+            {
+                if (geometry.Name.Equals(name))
+                {
+                    newColliders.Add(Collider.Create(geometry, _gameObject.Transform));
+                }
+            }
+
+            if (_gameObject.AffectsAreaPassability)
+            {
+                foreach (var collider in newColliders)
+                {
+                    context.GameContext.Navigation.UpdateAreaPassability(collider, false);
+                }
+            }
+            _gameObject.Colliders.AddRange(newColliders);
+            _gameObject.RoughCollider = Collider.Create(_gameObject.Colliders);
+            context.GameContext.Quadtree.Update(_gameObject);
+        }
+
+        private void HideCollider(BehaviorUpdateContext context, string name)
+        {
+            if (!_gameObject.Colliders.Any(x => x.Name.Equals(name)))
+            {
+                return;
+            }
+            
+            for (var i = _gameObject.Colliders.Count - 1; i >= 0; i--)
+            {
+                var collider = _gameObject.Colliders[i];
+                if (!collider.Name.Equals(name))
+                {
+                    continue;
+                }
+                if (_gameObject.AffectsAreaPassability)
+                {
+                    context.GameContext.Navigation.UpdateAreaPassability(collider, true);
+                }
+                _gameObject.Colliders.RemoveAt(i);
+            }
+            _gameObject.RoughCollider = Collider.Create(_gameObject.Colliders);
+            context.GameContext.Quadtree.Update(_gameObject);
         }
     }
 

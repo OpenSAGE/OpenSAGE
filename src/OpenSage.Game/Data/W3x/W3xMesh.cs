@@ -9,7 +9,7 @@ namespace OpenSage.Data.W3x
     {
         public W3xMeshVertexData VertexData { get; private set; }
         public MeshGeometryType GeometryType { get; private set; }
-        public BoundingBox BoundingBox { get; private set; }
+        public AxisAlignedBoundingBox BoundingBox { get; private set; }
         public BoundingSphere BoundingSphere { get; private set; }
         public W3xTriangle[] Triangles { get; private set; }
         public FXShaderMaterial FXShader { get; private set; }
@@ -24,7 +24,7 @@ namespace OpenSage.Data.W3x
             {
                 VertexData = reader.ReadAtOffset(() => W3xMeshVertexData.Parse(reader, header)),
                 GeometryType = reader.ReadUInt32AsEnum<MeshGeometryType>(),
-                BoundingBox = new BoundingBox(reader.ReadVector3(), reader.ReadVector3())
+                BoundingBox = new AxisAlignedBoundingBox(reader.ReadVector3(), reader.ReadVector3())
             };
 
             var sphereRadius = reader.ReadSingle();
