@@ -58,7 +58,6 @@ namespace OpenSage.Scripting
         {
             _currentDrawModule = drawModule;
             Logger.Info($"Executing ini code {luaCode}");
-            //luaCode = luaCode.Replace("\"", "");
             MainScript.DoString(luaCode);
         }
 
