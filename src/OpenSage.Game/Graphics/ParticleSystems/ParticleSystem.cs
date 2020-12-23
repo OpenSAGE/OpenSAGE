@@ -572,7 +572,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 Template.Name,
                 _shaderSet,
                 _pipeline,
-                BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
+                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,
                 0,
                 _numIndices,

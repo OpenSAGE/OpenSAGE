@@ -5,10 +5,10 @@ namespace OpenSage.Navigation
 {
     public class Graph
     {
-        readonly Node[,] _nodes;
+        public readonly Node[,] Nodes;
 
-        public int Width => _nodes.GetLength(0);
-        public int Height => _nodes.GetLength(1);
+        public int Width => Nodes.GetLength(0);
+        public int Height => Nodes.GetLength(1);
 
         private readonly FastPriorityQueue<Node> _unexpandedNodes;
         private readonly List<(Node, int)> _adjacentNodes;
@@ -16,14 +16,14 @@ namespace OpenSage.Navigation
 
         public Node GetNode(int x, int y)
         {
-            return _nodes[x, y];
+            return Nodes[x, y];
         }
 
         public bool TryGetNode(int x, int y, out Node node)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height)
             {
-                node = _nodes[x, y];
+                node = Nodes[x, y];
                 return true;
             }
 
@@ -33,12 +33,12 @@ namespace OpenSage.Navigation
 
         public Graph(int w, int h)
         {
-            _nodes = new Node[w, h];
+            Nodes = new Node[w, h];
             for (var x = 0; x < w; x++)
             {
                 for (var y = 0; y < h; y++)
                 {
-                    _nodes[x, y] = new Node(this, x, y);
+                    Nodes[x, y] = new Node(this, x, y);
                 }
             }
 

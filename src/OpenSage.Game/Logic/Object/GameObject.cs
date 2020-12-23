@@ -201,7 +201,7 @@ namespace OpenSage.Logic.Object
             _body.DoDamage(damageType, amount, deathType, time);
         }
 
-        public Collider RoughCollider { get; private set; }
+        public Collider RoughCollider { get; set; }
         public List<Collider> Colliders { get; }
 
         public float VerticalOffset;
@@ -467,16 +467,15 @@ namespace OpenSage.Logic.Object
                 _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
 
-            var geometryCollider = Collider.Create(objectDefinition.Geometry, _transform);
-            Colliders = new List<Collider>
+            var allGeometries = new List<Geometry>
             {
-                geometryCollider
+                Definition.Geometry
             };
-            foreach (var geometry in objectDefinition.AdditionalGeometries)
-            {
-                Colliders.Add(Collider.Create(geometry, _transform));
-            }
-            foreach (var geometry in objectDefinition.OtherGeometries)
+            allGeometries.AddRange(Definition.AdditionalGeometries);
+            allGeometries.AddRange(Definition.OtherGeometries);
+
+            Colliders = new List<Collider>();
+            foreach (var geometry in allGeometries)
             {
                 Colliders.Add(Collider.Create(geometry, _transform));
             }
@@ -507,47 +506,9 @@ namespace OpenSage.Logic.Object
             {
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
-
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                _gameContext.Navigation.UpdateAreaPassability(this, false);
-            }
         }
 
-        public void ShowCollider(string name)
-        {
-            if (Colliders.Any(x => x.Name.Equals(name)))
-            {
-                return;
-            }
-
-            var newColliders = new List<Collider>();
-            var allGeometries = new List<Geometry>
-            {
-                Definition.Geometry
-            };
-            allGeometries.AddRange(Definition.AdditionalGeometries);
-            allGeometries.AddRange(Definition.OtherGeometries);
-
-            foreach (var geometry in allGeometries)
-            {
-                if (geometry.Name.Equals(name))
-                {
-                    newColliders.Add(Collider.Create(geometry, _transform));
-                }
-            }
-
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                foreach (var collider in newColliders)
-                {
-                    _gameContext.Navigation.UpdateAreaPassability(collider, false);
-                }
-            }
-            Colliders.AddRange(newColliders);
-            RoughCollider = Collider.Create(Colliders);
-            UpdateColliders();
-        }
+        public bool AffectsAreaPassability => Definition.KindOf.Get(ObjectKinds.Structure) && !Definition.KindOf.Get(ObjectKinds.NoCollide);
 
         public void HideCollider(string name)
         {
@@ -555,7 +516,7 @@ namespace OpenSage.Logic.Object
             {
                 return;
             }
-            var isStructure = Definition.KindOf.Get(ObjectKinds.Structure);
+            var updatePassability = Definition.KindOf.Get(ObjectKinds.Structure) && !Definition.KindOf.Get(ObjectKinds.NoCollide); 
             for (var i = Colliders.Count - 1; i >= 0; i--)
             {
                 var collider = Colliders[i];
@@ -563,14 +524,14 @@ namespace OpenSage.Logic.Object
                 {
                     continue;
                 }
-                if (isStructure)
+                if (updatePassability)
                 {
                     _gameContext.Navigation.UpdateAreaPassability(collider, true);
                 }
                 Colliders.RemoveAt(i);
             }
             RoughCollider = Collider.Create(Colliders);
-            UpdateColliders();
+            _gameContext.Quadtree.Update(this);
         }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
@@ -669,6 +630,11 @@ namespace OpenSage.Logic.Object
                 {
                     DoCollide(intersect, time);
                     intersect.DoCollide(this, time);
+                }
+
+                if (AffectsAreaPassability)
+                {
+                    _gameContext.Navigation.UpdateAreaPassability(this, false);
                 }
 
                 _objectMoved = false;
@@ -839,7 +805,7 @@ namespace OpenSage.Logic.Object
                 ConstructionStart = gameTime.TotalTime;
             }
 
-            _gameContext.Navigation.UpdateAreaPassability(this, false);
+            //_gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 
         internal void FinishConstruction()

@@ -19,27 +19,32 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (context.Time.TotalTime < _waitUntil)
+            CheckForStructure(context, GameObject, ref _waitUntil, _updateInterval);
+        }
+
+        internal static void CheckForStructure(BehaviorUpdateContext context, GameObject obj, ref TimeSpan waitUntil, int interval)
+        {
+            if (context.Time.TotalTime < waitUntil)
             {
                 return;
             }
 
-            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_updateInterval);
+            waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(interval);
 
-            var collidingObjects = context.GameContext.Quadtree.FindNearby(GameObject, GameObject.Transform, GameObject.RoughCollider.WorldBounds.Radius);
+            var collidingObjects = context.GameContext.Quadtree.FindNearby(obj, obj.Transform, obj.RoughCollider.WorldBounds.Radius);
 
             foreach (var collidingObject in collidingObjects)
             {
                 if (collidingObject.Definition.KindOf.Get(ObjectKinds.Structure))
                 {
-                    GameObject.IsSelectable = false;
-                    GameObject.Hidden = true;
+                    obj.IsSelectable = false;
+                    obj.Hidden = true;
                     return;
                 }
             }
 
-            GameObject.IsSelectable = true;
-            GameObject.Hidden = false;
+            obj.IsSelectable = true;
+            obj.Hidden = false;
         }
     }
 

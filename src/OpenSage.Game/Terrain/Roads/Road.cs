@@ -18,7 +18,7 @@ namespace OpenSage.Terrain.Roads
         private readonly string _debugName;
 
         private readonly DeviceBuffer _vertexBuffer;
-        private readonly BoundingBox _boundingBox;
+        private readonly AxisAlignedBoundingBox _boundingBox;
 
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
@@ -50,7 +50,7 @@ namespace OpenSage.Terrain.Roads
                 mesher.GenerateMesh(heightMap, vertices, indices);
             }
 
-            _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
+            _boundingBox = AxisAlignedBoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
             _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 vertices.ToArray(),

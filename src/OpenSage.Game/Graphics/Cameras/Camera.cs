@@ -204,7 +204,7 @@ namespace OpenSage.Graphics.Cameras
         /// <summary>
         /// Converts the bounding box from world space into a screen space bounding rectangle.
         /// </summary>
-        public Rectangle GetBoundingRectangle(in BoundingBox boundingBox)
+        public Rectangle GetBoundingRectangle(in AxisAlignedBoundingBox boundingBox)
         {
             var topLeft = new Vector3(float.MaxValue);
             var bottomRight = new Vector3(float.MinValue);

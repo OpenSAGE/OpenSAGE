@@ -12,7 +12,7 @@ namespace OpenSage.Graphics.Rendering
 
         public readonly ShaderSet ShaderSet;
         public readonly Pipeline Pipeline;
-        public readonly BoundingBox BoundingBox;
+        public readonly AxisAlignedBoundingBox BoundingBox;
         public readonly Matrix4x4 World;
         public readonly MeshShaderResources.RenderItemConstantsPS? RenderItemConstantsPS;
         public readonly BeforeRenderDelegate BeforeRenderCallback;
@@ -26,7 +26,7 @@ namespace OpenSage.Graphics.Rendering
             string debugName,
             ShaderSet shaderSet,
             Pipeline pipeline,
-            in BoundingBox boundingBox,
+            in AxisAlignedBoundingBox boundingBox,
             in Matrix4x4 world,
             uint startIndex,
             uint indexCount,

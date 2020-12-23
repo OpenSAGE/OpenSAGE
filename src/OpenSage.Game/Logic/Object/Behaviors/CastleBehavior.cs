@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -13,16 +14,19 @@ namespace OpenSage.Logic.Object
         private GameObject _gameObject;
         private CastleBehaviorModuleData _moduleData;
         private GameContext _context;
-        bool _unpacked = false;
-
+        private TimeSpan _waitUntil;
+        private int _updateInterval;
         private Player _nativePlayer;
+
+        public bool IsUnpacked { get; set; }
 
         internal CastleBehavior(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
         {
+            IsUnpacked = false;
             _moduleData = moduleData;
             _gameObject = gameObject;
             _context = context;
-
+            _updateInterval = 500;
             _nativePlayer = _gameObject.Owner;
         }
 
@@ -34,7 +38,7 @@ namespace OpenSage.Logic.Object
 
         public void Unpack(Player player, bool instant = false)
         {
-            if (_unpacked)
+            if (IsUnpacked)
             {
                 return;
             }
@@ -82,41 +86,44 @@ namespace OpenSage.Logic.Object
             }
             _gameObject.Hidden = true;
             _gameObject.IsSelectable = false;
-            _unpacked = true;
+            IsUnpacked = true;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            // TODO: Figure out the other unpack conditions
-            if (!_unpacked)
+            if (IsUnpacked)
             {
-                if (_moduleData.InstantUnpack)
+                FoundationAIUpdate.CheckForStructure(context, _gameObject, ref _waitUntil, _updateInterval);
+                return;
+            }
+
+            // TODO: Figure out the other unpack conditions
+            if (_moduleData.InstantUnpack)
+            {
+                Unpack(_gameObject.Owner, instant: true);
+            }
+
+            var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
+
+            if (nearbyUnits.Count() == 0)
+            {
+                _gameObject.Owner = _nativePlayer;
+                return;
+            }
+
+            // TODO: check if all nearby units are from the same owner
+            foreach (var unit in nearbyUnits)
+            {
+                if (unit == _gameObject)
                 {
-                    Unpack(_gameObject.Owner, instant: true);
+                    continue;
                 }
 
-                var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
-
-                if (nearbyUnits.Count() == 0)
+                var distance = (unit.Translation - _gameObject.Translation).Length();
+                if (distance < _moduleData.ScanDistance)
                 {
-                    _gameObject.Owner = _nativePlayer;
+                    _gameObject.Owner = unit.Owner;
                     return;
-                }
-
-                // TODO: check if all nearby units are from the same owner
-                foreach (var unit in nearbyUnits)
-                {
-                    if (unit == _gameObject)
-                    {
-                        continue;
-                    }
-
-                    var distance = (unit.Translation - _gameObject.Translation).Length();
-                    if (distance < _moduleData.ScanDistance)
-                    {
-                        _gameObject.Owner = unit.Owner;
-                        return;
-                    }
                 }
             }
         }
@@ -139,7 +146,7 @@ namespace OpenSage.Logic.Object
             //var entry = FindCastle();
 
             //ImGui.LabelText("Camp", entry.Camp);
-            ImGui.LabelText("Unpacked", _unpacked.ToString());
+            ImGui.LabelText("Unpacked", IsUnpacked.ToString());
         }
     }
 
