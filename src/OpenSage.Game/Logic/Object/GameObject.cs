@@ -827,7 +827,6 @@ namespace OpenSage.Logic.Object
                     continue;
                 }
 
-                // TODO: skip hidden DrawModules
                 drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
                 drawModule.Update(gameTime);
                 drawModule.SetWorldMatrix(worldMatrix);
