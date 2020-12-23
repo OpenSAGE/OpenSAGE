@@ -347,8 +347,8 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
-            _hiddenSubObjects = new List<string>();
-            _shownSubObjects = new List<string>();
+            _hiddenSubObjects = new Dictionary<string, bool>();
+            _shownSubObjects = new Dictionary<string, bool>();
             _hiddenDrawModules = new List<string>();
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
