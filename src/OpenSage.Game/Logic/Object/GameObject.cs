@@ -472,7 +472,16 @@ namespace OpenSage.Logic.Object
             {
                 geometryCollider
             };
-            RoughCollider = geometryCollider;
+            foreach (var geometry in objectDefinition.AdditionalGeometries)
+            {
+                Colliders.Add(Collider.Create(geometry, _transform));
+            }
+            foreach (var geometry in objectDefinition.OtherGeometries)
+            {
+                Colliders.Add(Collider.Create(geometry, _transform));
+            }
+
+            RoughCollider = Collider.Create(Colliders);
 
             ModelConditionStates = drawModules
                 .SelectMany(x => x.ModelConditionStates)
@@ -505,36 +514,60 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void AddCollider(Geometry geometry)
+        public void ShowCollider(string name)
         {
-            if (!Colliders.Any(x => x.Name == geometry.Name))
+            if (Colliders.Any(x => x.Name.Equals(name)))
             {
                 return;
             }
-            Colliders.Add(Collider.Create(geometry, _transform));
+
+            var newColliders = new List<Collider>();
+            var allGeometries = new List<Geometry>
+            {
+                Definition.Geometry
+            };
+            allGeometries.AddRange(Definition.AdditionalGeometries);
+            allGeometries.AddRange(Definition.OtherGeometries);
+
+            foreach (var geometry in allGeometries)
+            {
+                if (geometry.Name.Equals(name))
+                {
+                    newColliders.Add(Collider.Create(geometry, _transform));
+                }
+            }
+
             if (Definition.KindOf.Get(ObjectKinds.Structure))
             {
-                _gameContext.Navigation.UpdateAreaPassability(this, false);
+                foreach (var collider in newColliders)
+                {
+                    _gameContext.Navigation.UpdateAreaPassability(collider, false);
+                }
             }
+            Colliders.AddRange(newColliders);
             RoughCollider = Collider.Create(Colliders);
             UpdateColliders();
         }
 
-        public void RemoveCollider(Geometry geometry)
+        public void HideCollider(string name)
         {
-            if (!Colliders.Any(x => x.Name == geometry.Name))
+            if (!Colliders.Any(x => x.Name.Equals(name)))
             {
                 return;
             }
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            var isStructure = Definition.KindOf.Get(ObjectKinds.Structure);
+            for (var i = Colliders.Count - 1; i >= 0; i--)
             {
-                _gameContext.Navigation.UpdateAreaPassability(this, true);
-            }
-            var collider = Colliders.Where(x => x.Name == geometry.Name).First();
-            Colliders.Remove(collider);
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                _gameContext.Navigation.UpdateAreaPassability(this, false);
+                var collider = Colliders[i];
+                if (!collider.Name.Equals(name))
+                {
+                    continue;
+                }
+                if (isStructure)
+                {
+                    _gameContext.Navigation.UpdateAreaPassability(collider, true);
+                }
+                Colliders.RemoveAt(i);
             }
             RoughCollider = Collider.Create(Colliders);
             UpdateColliders();

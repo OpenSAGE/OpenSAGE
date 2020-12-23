@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Gui;
@@ -163,6 +162,13 @@ namespace OpenSage.Logic
 
                 if (gameObject.RoughCollider.Intersects(ray, out var depth) && depth < closestDepth)
                 {
+                    if (gameObject.Colliders.Count == 1)
+                    {
+                        closestDepth = depth;
+                        closestObject = gameObject;
+                        continue;
+                    }
+
                     foreach (var collider in gameObject.Colliders)
                     {
                         if (collider.Intersects(ray, out var depth2) && depth2 < closestDepth)

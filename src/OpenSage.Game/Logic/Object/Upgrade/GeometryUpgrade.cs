@@ -19,18 +19,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var showGeometry in _moduleData.ShowGeometry)
                 {
-                    if (_gameObject.Definition.Geometry.Name.Equals(showGeometry))
-                    {
-                        _gameObject.AddCollider(_gameObject.Definition.Geometry);
-                    }
-                    else if (_gameObject.Definition.AdditionalGeometries.Any(x => x.Name == showGeometry))
-                    {
-                        _gameObject.AddCollider(_gameObject.Definition.AdditionalGeometries.Where(x => x.Name == showGeometry).First());
-                    }
-                    else if (_gameObject.Definition.OtherGeometries.Any(x => x.Name == showGeometry))
-                    {
-                        _gameObject.AddCollider(_gameObject.Definition.OtherGeometries.Where(x => x.Name == showGeometry).First());
-                    }
+                    _gameObject.ShowCollider(showGeometry);
                 }
             }
             
@@ -38,18 +27,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var hideGeometry in _moduleData.HideGeometry)
                 {
-                    if (_gameObject.Definition.Geometry.Name.Equals(hideGeometry))
-                    {
-                        _gameObject.RemoveCollider(_gameObject.Definition.Geometry);
-                    }
-                    else if (_gameObject.Definition.AdditionalGeometries.Any(x => x.Name == hideGeometry))
-                    {
-                        _gameObject.RemoveCollider(_gameObject.Definition.AdditionalGeometries.Where(x => x.Name == hideGeometry).First());
-                    }
-                    else if (_gameObject.Definition.OtherGeometries.Any(x => x.Name == hideGeometry))
-                    {
-                        _gameObject.RemoveCollider(_gameObject.Definition.OtherGeometries.Where(x => x.Name == hideGeometry).First());
-                    }
+                    _gameObject.HideCollider(hideGeometry);
                 }
             }
 
