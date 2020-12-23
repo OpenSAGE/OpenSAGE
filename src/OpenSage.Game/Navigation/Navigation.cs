@@ -115,38 +115,38 @@ namespace OpenSage.Navigation
 
         public void UpdateAreaPassability(GameObject gameObject, bool passable)
         {
-            if (gameObject.RoughCollider == null)
+            foreach (var collider in gameObject.Colliders)
+            {
+                UpdateAreaPassability(collider, passable);
+            }
+        }
+
+        public void UpdateAreaPassability(Collider collider, bool passable)
+        {
+            var axisAlignedBoundingArea = collider.AxisAlignedBoundingArea;
+
+            var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
+            var bottomLeftNode = GetClosestNode(bottomLeft);
+            var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
+            var topRightNode = GetClosestNode(topRight);
+
+            //sometimes map objects are places outside the actual map....
+            if (bottomLeftNode == null || topRightNode == null)
             {
                 return;
             }
 
-            foreach (var collider in gameObject.Colliders)
+            var area = collider.BoundingArea;
+
+            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
             {
-                var axisAlignedBoundingArea = collider.AxisAlignedBoundingArea;
-
-                var bottomLeft = new Vector3(axisAlignedBoundingArea.X, axisAlignedBoundingArea.Y, 0);
-                var bottomLeftNode = GetClosestNode(bottomLeft);
-                var topRight = new Vector3(axisAlignedBoundingArea.X + axisAlignedBoundingArea.Width, axisAlignedBoundingArea.Y + axisAlignedBoundingArea.Height, 0);
-                var topRightNode = GetClosestNode(topRight);
-
-                //sometimes map objects are places outside the actual map....
-                if (bottomLeftNode == null || topRightNode == null)
+                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
                 {
-                    return;
-                }
-
-                var area = gameObject.RoughCollider.BoundingArea;
-
-                for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
-                {
-                    for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
+                    var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var position = GetNodePosition(node);
+                    if (area.Contains(position))
                     {
-                        var node = _graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
-                        var position = GetNodePosition(node);
-                        if (area.Contains(position))
-                        {
-                            node.Passability = passable ? Passability.Passable : Passability.Impassable;
-                        }
+                        node.Passability = passable ? Passability.Passable : Passability.Impassable;
                     }
                 }
             }

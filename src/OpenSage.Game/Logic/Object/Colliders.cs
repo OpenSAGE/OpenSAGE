@@ -88,15 +88,16 @@ namespace OpenSage.Logic.Object
 
     public class SphereCollider : Collider
     {
-        public readonly BoundingSphere SphereBounds;
+        private readonly Vector3 _offset;
+        public BoundingSphere SphereBounds { get; protected set; }
 
         public SphereCollider(Geometry geometry, Transform transform, float? radius = null, float offsetZ = 0.0f)
             : base(transform, geometry.Height)
         {
             radius ??= geometry.MajorRadius;
             Name = geometry.Name;
-            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, offsetZ);
-            SphereBounds = new BoundingSphere(offset, radius.Value);
+            _offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
+            SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, offsetZ), radius.Value);
             Update(transform);
         }
 
@@ -128,9 +129,10 @@ namespace OpenSage.Logic.Object
 
         public override void Update(Transform transform)
         {
-            WorldBounds = BoundingSphere.Transform(SphereBounds, transform.Matrix);
+            Transform = new Transform(transform.Translation + Vector3.Transform(_offset, transform.Rotation), transform.Rotation);
+            WorldBounds = BoundingSphere.Transform(SphereBounds, Transform.Matrix);
             var width = SphereBounds.Radius * 2.0f;
-            AxisAlignedBoundingArea = new RectangleF(transform.Translation.Vector2XY() - new Vector2(SphereBounds.Radius, SphereBounds.Radius), width, width);
+            AxisAlignedBoundingArea = new RectangleF(Transform.Translation.Vector2XY() - new Vector2(SphereBounds.Radius, SphereBounds.Radius), width, width);
             BoundingArea = TransformedRectangle.FromRectangle(AxisAlignedBoundingArea);
         }
 
@@ -253,78 +255,18 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public class CylinderCollider : SphereCollider
-    {
-        public float LowerRadius { get; private set; }
-        public float UpperRadius { get; private set; }
-
-        public CylinderCollider(Geometry geometry, Transform transform)
-             : base(geometry, transform, geometry.Height / 2.0f, geometry.Height / 2.0f)
-        {
-            LowerRadius = geometry.MajorRadius;
-            UpperRadius = geometry.MinorRadius;
-        }
-
-        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
-        {
-            //base.DebugDraw(drawingContext, camera);
-
-            const int sides = 8;
-            var lineColor = new ColorRgbaF(220, 220, 220, 255);
-
-            var firstPoint = Vector2.Zero;
-            var previousPoint = Vector2.Zero;
-            var firstPointTop = Vector2.Zero;
-            var previousPointTop = Vector2.Zero;
-
-            for (var i = 0; i < sides; i++)
-            {
-                var angle = 2 * MathF.PI * i / sides;
-                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * LowerRadius;
-                var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
-                var pointTop = Transform.Translation + new Vector3(0, 0, Height) + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * UpperRadius;
-                var screenPointTop = camera.WorldToScreenPoint(pointTop).Vector2XY();
-
-                // No line gets drawn on the first iteration
-                if (i == 0)
-                {
-                    firstPoint = screenPoint;
-                    previousPoint = screenPoint;
-                    firstPointTop = screenPointTop;
-                    previousPointTop = screenPointTop;
-                    continue;
-                }
-
-                drawingContext.DrawLine(new Line2D(previousPoint, screenPoint), 1, lineColor);
-                drawingContext.DrawLine(new Line2D(previousPointTop, screenPointTop), 1, lineColor);
-                drawingContext.DrawLine(new Line2D(previousPoint, previousPointTop), 1, lineColor);
-
-                // If this is the last point, complete the cylinder
-                if (i == sides - 1)
-                {
-                    drawingContext.DrawLine(new Line2D(screenPoint, firstPoint), 1, lineColor);
-                    drawingContext.DrawLine(new Line2D(screenPointTop, firstPointTop), 1, lineColor);
-                    drawingContext.DrawLine(new Line2D(screenPoint, screenPointTop), 1, lineColor);
-                }
-
-                previousPoint = screenPoint;
-                previousPointTop = screenPointTop;
-            }
-        }
-    }
-
     public class BoxCollider : SphereCollider
     {
-        private readonly BoundingBox _boxBounds; // axis aligned!
-        private BoundingBox _worldBoxBounds; // axis aligned!
+        protected BoundingBox _boxBounds { get; set; } // axis aligned!
+        private BoundingBox _worldBoxBounds;
 
         public BoxCollider(Geometry geometry, Transform transform)
             : base(geometry, transform)
         {
-            var offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
             var min = new Vector3(-geometry.MajorRadius, -geometry.MinorRadius, 0);
             var max = new Vector3(geometry.MajorRadius, geometry.MinorRadius, geometry.Height);
-            _boxBounds = new BoundingBox(min + offset, max + offset);
+            _boxBounds = new BoundingBox(min, max);
+            SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, geometry.Height / 2.0f), (max - min).Length() / 2.0f);
             Update(transform);
         }
 
@@ -339,15 +281,15 @@ namespace OpenSage.Logic.Object
         public sealed override void Update(Transform transform)
         {
             base.Update(transform);
-            _worldBoxBounds = BoundingBox.Transform(_boxBounds, transform.Matrix);
+            _worldBoxBounds = BoundingBox.Transform(_boxBounds, Transform.Matrix);
             var width = _worldBoxBounds.Max.X - _worldBoxBounds.Min.X;
             var height = _worldBoxBounds.Max.Y - _worldBoxBounds.Min.Y;
             AxisAlignedBoundingArea = new RectangleF(_worldBoxBounds.Min.X, _worldBoxBounds.Min.Y, width, height);
 
             width = _boxBounds.Max.X - _boxBounds.Min.X;
             height = _boxBounds.Max.Y - _boxBounds.Min.Y;
-            var rect = new RectangleF(_boxBounds.Min.X + transform.Translation.X, _boxBounds.Min.Y + transform.Translation.Y, width, height);
-            BoundingArea = TransformedRectangle.FromRectangle(rect, transform.Rotation.Z);
+            var rect = new RectangleF(_boxBounds.Min.X + Transform.Translation.X, _boxBounds.Min.Y + Transform.Translation.Y, width, height);
+            BoundingArea = TransformedRectangle.FromRectangle(rect, Transform.Rotation.Z);
         }
 
         public override bool Intersects(in Ray ray, out float depth)
@@ -450,6 +392,73 @@ namespace OpenSage.Logic.Object
 
             // TODO: do not ignore Z axis
             return true;
+        }
+    }
+
+    public class CylinderCollider : BoxCollider
+    {
+        public float LowerRadius { get; private set; }
+        public float UpperRadius { get; private set; }
+
+        public CylinderCollider(Geometry geometry, Transform transform)
+            : base(geometry, transform)
+        {
+            LowerRadius = geometry.MajorRadius;
+            UpperRadius = geometry.MinorRadius;
+
+            var dimension = Math.Max(geometry.MinorRadius, geometry.MajorRadius);
+            var min = new Vector3(-dimension, -dimension, 0);
+            var max = new Vector3(dimension, dimension, geometry.Height);
+            _boxBounds = new BoundingBox(min, max);
+            SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, geometry.Height / 2.0f), (max - min).Length() / 2.0f);
+            Update(transform);
+        }
+
+        public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        {
+            //base.DebugDraw(drawingContext, camera);
+
+            const int sides = 8;
+            var lineColor = new ColorRgbaF(220, 220, 220, 255);
+
+            var firstPoint = Vector2.Zero;
+            var previousPoint = Vector2.Zero;
+            var firstPointTop = Vector2.Zero;
+            var previousPointTop = Vector2.Zero;
+
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = 2 * MathF.PI * i / sides;
+                var point = Transform.Translation + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * LowerRadius;
+                var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
+                var pointTop = Transform.Translation + new Vector3(0, 0, Height) + new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0) * UpperRadius;
+                var screenPointTop = camera.WorldToScreenPoint(pointTop).Vector2XY();
+
+                // No line gets drawn on the first iteration
+                if (i == 0)
+                {
+                    firstPoint = screenPoint;
+                    previousPoint = screenPoint;
+                    firstPointTop = screenPointTop;
+                    previousPointTop = screenPointTop;
+                    continue;
+                }
+
+                drawingContext.DrawLine(new Line2D(previousPoint, screenPoint), 1, lineColor);
+                drawingContext.DrawLine(new Line2D(previousPointTop, screenPointTop), 1, lineColor);
+                drawingContext.DrawLine(new Line2D(previousPoint, previousPointTop), 1, lineColor);
+
+                // If this is the last point, complete the cylinder
+                if (i == sides - 1)
+                {
+                    drawingContext.DrawLine(new Line2D(screenPoint, firstPoint), 1, lineColor);
+                    drawingContext.DrawLine(new Line2D(screenPointTop, firstPointTop), 1, lineColor);
+                    drawingContext.DrawLine(new Line2D(screenPoint, screenPointTop), 1, lineColor);
+                }
+
+                previousPoint = screenPoint;
+                previousPointTop = screenPointTop;
+            }
         }
     }
 }
