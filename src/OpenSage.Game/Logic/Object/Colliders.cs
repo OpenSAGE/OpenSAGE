@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
 
         protected Collider(Transform transform, float height)
         {
+            Name = "";
             Height = height;
             Transform = transform;
         }
@@ -95,7 +96,7 @@ namespace OpenSage.Logic.Object
             : base(transform, geometry.Height)
         {
             radius ??= geometry.MajorRadius;
-            Name = geometry.Name;
+            Name = geometry.Name ?? "";
             _offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
             SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, offsetZ), radius.Value);
             Update(transform);

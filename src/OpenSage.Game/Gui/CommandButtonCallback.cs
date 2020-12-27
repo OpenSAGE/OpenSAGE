@@ -131,6 +131,12 @@ namespace OpenSage.Gui
                     }
                     break;
 
+                case CommandType.ToggleGate:
+                    //TODO: proper toggle gate order
+                    var gateOpenAndCloseBehavior = selectedObject.FindBehavior<GateOpenAndCloseBehavior>();
+                    gateOpenAndCloseBehavior.Toggle();
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }
