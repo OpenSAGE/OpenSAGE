@@ -111,8 +111,8 @@ namespace OpenSage.Logic.Object
         {
             foreach (var gameObject in _createList)
             {
-                _gameContext.Quadtree.Insert(gameObject);
-                _gameContext.Radar.AddGameObject(gameObject, _nextObjectId);
+                _gameContext.Quadtree?.Insert(gameObject);
+                _gameContext.Radar?.AddGameObject(gameObject, _nextObjectId);
                 _items.Add(_nextObjectId++, gameObject);
             }
             _createList.Clear();
