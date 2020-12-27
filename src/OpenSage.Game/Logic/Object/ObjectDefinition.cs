@@ -858,9 +858,9 @@ namespace OpenSage.Logic.Object
         public ColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
 
-        public Geometry Geometry { get; private set; }
-
         public Vector2 RotationAnchorOffset { get; set; }
+
+        public Geometry Geometry { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();

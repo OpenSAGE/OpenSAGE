@@ -20,17 +20,14 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var def = new ObjectDefinition
+            var geometry = new Geometry
             {
-                Geometry =
-                {
-                    Type = ObjectGeometry.Sphere,
-                    Height = 10,
-                    MajorRadius = radius
-                }
+                Type = ObjectGeometry.Sphere,
+                Height = 10,
+                MajorRadius = radius
             };
 
-            var collider = Collider.Create(def, transform);
+            var collider = Collider.Create(geometry, transform);
 
             Assert.Equal(expected, collider.Intersects(rect));
         }
@@ -42,18 +39,15 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var def = new ObjectDefinition
-            {
-                Geometry =
+            var geometry = new Geometry
                 {
                     Type = ObjectGeometry.Box,
                     Height = 10,
                     MajorRadius = width,
                     MinorRadius = height
-                }
-            };
+                };
 
-            var collider = Collider.Create(def, transform);
+            var collider = Collider.Create(geometry, transform);
             Assert.Equal(expected, collider.Intersects(rect));
         }
     }

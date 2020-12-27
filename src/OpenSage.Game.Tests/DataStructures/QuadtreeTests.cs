@@ -15,10 +15,23 @@ namespace OpenSage.Tests.DataStructures
             public readonly int Id;
             public Collider Collider { get; set; }
 
+            public Collider RoughCollider { get; }
+
+            public List<Collider> Colliders { get; }
+
+            public Vector3 Translation => throw new System.NotImplementedException();
+
             public MockQuadtreeItem(int id, RectangleF bounds)
             {
                 Id = id;
-                Collider = new BoxCollider(bounds);
+                var collider = new BoxCollider(bounds);
+                RoughCollider = collider;
+                Colliders = new List<Collider> { collider };
+            }
+
+            public bool CollidesWith(ICollidable other, bool twoDimensional)
+            {
+                throw new System.NotImplementedException();
             }
         }
 
