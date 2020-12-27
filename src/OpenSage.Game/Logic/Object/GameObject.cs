@@ -510,30 +510,6 @@ namespace OpenSage.Logic.Object
 
         public bool AffectsAreaPassability => Definition.KindOf.Get(ObjectKinds.Structure) && !Definition.KindOf.Get(ObjectKinds.NoCollide);
 
-        public void HideCollider(string name)
-        {
-            if (!Colliders.Any(x => x.Name.Equals(name)))
-            {
-                return;
-            }
-            var updatePassability = Definition.KindOf.Get(ObjectKinds.Structure) && !Definition.KindOf.Get(ObjectKinds.NoCollide); 
-            for (var i = Colliders.Count - 1; i >= 0; i--)
-            {
-                var collider = Colliders[i];
-                if (!collider.Name.Equals(name))
-                {
-                    continue;
-                }
-                if (updatePassability)
-                {
-                    _gameContext.Navigation.UpdateAreaPassability(collider, true);
-                }
-                Colliders.RemoveAt(i);
-            }
-            RoughCollider = Collider.Create(Colliders);
-            _gameContext.Quadtree.Update(this);
-        }
-
         public void AddAttributeModifier(string name, AttributeModifier modifier)
         {
             if (_attributeModifiers.ContainsKey(name))
@@ -602,6 +578,68 @@ namespace OpenSage.Logic.Object
             return (null, null);
         }
 
+
+        public void ShowCollider(string name)
+        {
+            if (Colliders.Any(x => x.Name.Equals(name)))
+            {
+                return;
+            }
+
+            var allGeometries = new List<Geometry>
+            {
+                Definition.Geometry
+            };
+            allGeometries.AddRange(Definition.AdditionalGeometries);
+            allGeometries.AddRange(Definition.OtherGeometries);
+
+            var newColliders = new List<Collider>();
+            foreach (var geometry in allGeometries)
+            {
+                if (geometry.Name.Equals(name))
+                {
+                    newColliders.Add(Collider.Create(geometry, Transform));
+                }
+            }
+
+            if (AffectsAreaPassability)
+            {
+                foreach (var collider in newColliders)
+                {
+                    _gameContext.Navigation.UpdateAreaPassability(collider, false);
+                }
+            }
+            Colliders.AddRange(newColliders);
+            RoughCollider = Collider.Create(Colliders);
+            _gameContext.Quadtree.Update(this);
+        }
+
+        public void HideCollider(string name)
+        {
+            if (!Colliders.Any(x => x.Name.Equals(name)))
+            {
+                return;
+            }
+
+            for (var i = Colliders.Count - 1; i >= 0; i--)
+            {
+                if (Colliders[i].Name.Equals(name))
+                {
+                    if (AffectsAreaPassability)
+                    {
+                        _gameContext.Navigation.UpdateAreaPassability(Colliders[i], true);
+                    }
+                    Colliders.RemoveAt(i);
+                }
+            }
+            RoughCollider = Collider.Create(Colliders);
+            _gameContext.Quadtree.Update(this);
+
+            if (AffectsAreaPassability)
+            {
+                _gameContext.Navigation.UpdateAreaPassability(this, false);
+            }
+        }
 
         private void UpdateColliders()
         {

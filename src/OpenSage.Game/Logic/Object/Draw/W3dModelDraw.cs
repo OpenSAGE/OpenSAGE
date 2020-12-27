@@ -186,21 +186,19 @@ namespace OpenSage.Logic.Object
         {
             var bestConditionState = defaultState;
             var bestIntersections = 0;
-            var bestBitCount = 0;
 
             foreach (var conditionState in conditionStates)
             {
                 var numStateBits = conditionState.ConditionFlags.NumBitsSet;
                 var numIntersectionBits = conditionState.ConditionFlags.CountIntersectionBits(flags);
 
-                if (numIntersectionBits <= bestIntersections &&
-                    ((numIntersectionBits != bestIntersections) || numStateBits >= bestBitCount))
+                if (numIntersectionBits < bestIntersections
+                    || numStateBits > numIntersectionBits)
                 {
                     continue;
                 }
 
                 bestConditionState = conditionState;
-                bestBitCount = numStateBits;
                 bestIntersections = numIntersectionBits;
             }
 

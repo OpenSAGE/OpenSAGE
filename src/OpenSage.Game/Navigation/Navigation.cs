@@ -136,11 +136,11 @@ namespace OpenSage.Navigation
                 return;
             }
 
-            for (var x = 0; x < topRightNode.X - bottomLeftNode.X; x++)
+            for (var x = bottomLeftNode.X; x < topRightNode.X; x++)
             {
-                for (var y = 0; y < topRightNode.Y - bottomLeftNode.Y; y++)
+                for (var y = bottomLeftNode.Y; y < topRightNode.Y; y++)
                 {
-                    var node = Graph.GetNode(bottomLeftNode.X + x, bottomLeftNode.Y + y);
+                    var node = Graph.GetNode(x, y);
                     var position = GetNodePosition(node);
                     if (collider.Contains(position))
                     {
