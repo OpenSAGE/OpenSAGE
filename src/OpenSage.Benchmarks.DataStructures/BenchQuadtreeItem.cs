@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.DataStructures;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -8,12 +10,19 @@ namespace OpenSage.Benchmarks.DataStructures
     public class BenchQuadtreeItem : ICollidable
     {
         public readonly int Id;
-        public Collider Collider { get; set; }
+
+        public Collider RoughCollider { get; set; }
+
+        public List<Collider> Colliders { get; set; }
+
+        public Vector3 Translation => throw new NotImplementedException();
 
         public BenchQuadtreeItem(int id, RectangleF bounds)
         {
             Id = id;
-            Collider = new BoxCollider(bounds);
+            var collider = new BoxCollider(bounds);
+            RoughCollider = collider;
+            Colliders = new List<Collider> { collider };
         }
 
         public static BenchQuadtreeItem Generate(int id, RectangleF bounds, SizeF maxSize, Random random)
@@ -30,6 +39,11 @@ namespace OpenSage.Benchmarks.DataStructures
         public BenchQuadtreeItem Clone()
         {
             return (BenchQuadtreeItem) MemberwiseClone();
+        }
+
+        public bool CollidesWith(ICollidable other, bool twoDimensional)
+        {
+            throw new NotImplementedException();
         }
     }
 }
