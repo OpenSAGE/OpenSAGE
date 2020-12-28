@@ -217,6 +217,8 @@ namespace OpenSage.Logic.Object
 
         public void HideSubObject(string subObject)
         {
+            if (subObject == null) return;
+
             if (!_hiddenSubObjects.ContainsKey(subObject))
             {
                 _hiddenSubObjects.Add(subObject, false);
@@ -226,6 +228,8 @@ namespace OpenSage.Logic.Object
 
         public void HideSubObjectPermanently(string subObject)
         {
+            if (subObject == null) return;
+
             if (!_hiddenSubObjects.ContainsKey(subObject))
             {
                 _hiddenSubObjects.Add(subObject, true);
@@ -240,6 +244,8 @@ namespace OpenSage.Logic.Object
 
         public void ShowSubObject(string subObject)
         {
+            if (subObject == null) return;
+
             if (!_shownSubObjects.ContainsKey(subObject))
             {
                 _shownSubObjects.Add(subObject, false);
@@ -249,6 +255,8 @@ namespace OpenSage.Logic.Object
 
         public void ShowSubObjectPermanently(string subObject)
         {
+            if (subObject == null) return;
+
             if (!_shownSubObjects.ContainsKey(subObject))
             {
                 _shownSubObjects.Add(subObject, true);
