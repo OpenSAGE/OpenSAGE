@@ -29,11 +29,11 @@ namespace OpenSage.Mods.Bfme
         private bool _minimapInitialized = false;
         private GameObject _selectedUnit;
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private Font _font;
-        private int _fontSize = 11;
-        private ColorRgbaF _fontColor;
+        private readonly Font _font;
+        private readonly int _fontSize = 11;
+        private readonly ColorRgbaF _fontColor;
 
         public AptControlBar(Game game)
         {
@@ -93,7 +93,7 @@ namespace OpenSage.Mods.Bfme
         {
             if (!_palantirInitialized)
             {
-                logger.Info("Initialize Palantir!");
+                Logger.Info("Initialize Palantir!");
 
                 var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
                 if (showCommandInterface.Type != ValueType.Undefined)
@@ -114,25 +114,20 @@ namespace OpenSage.Mods.Bfme
             {
                 return;
             }
+
             for (var i = 1; i <= 6; i++)
             {
-                var key = "Command" + i;
-                if (_game.SageGame == SageGame.Bfme2)
-                {
-                    key = (i - 1).ToString();
-                    var commandButton = aptCommandButtons.GetMember(key).ToObject();
-                    var placeHolder = commandButton.GetMember("placeholder").ToObject();
-                    placeHolder.Item.Visible = false;
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
+                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                placeHolder.Item.Visible = false;
 
-                    var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
-                    shape.RenderCallback = null;
-                }
+                var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
+                shape.RenderCallback = null;
             }
         }
 
         private void UpdateCommandbuttons()
         {
-            return;
             if (_game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
             {
                 return;
@@ -154,13 +149,7 @@ namespace OpenSage.Mods.Bfme
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
             for (var i = 1; i <= 6; i++)
             {
-                var key = "Command" + i;
-                if (_game.SageGame == SageGame.Bfme2)
-                {
-                    key = (i - 1).ToString();
-                }
-
-                var commandButton = aptCommandButtons.GetMember(key).ToObject();
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;
 
@@ -175,9 +164,11 @@ namespace OpenSage.Mods.Bfme
                 }
 
                 var createContent = commandButton.GetMember("CreateContent");
-                var args = new List<Value>();
-                args.Add(Value.FromString("bttn"));
-                args.Add(Value.FromString("CommandButton"));
+                var args = new List<Value>
+                {
+                    Value.FromString("bttn"),
+                    Value.FromString("CommandButton")
+                };
 
                 //TODO: fix so this works
                 FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
