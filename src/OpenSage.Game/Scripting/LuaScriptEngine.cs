@@ -446,8 +446,8 @@ namespace OpenSage.Scripting
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
         public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
         public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);
-        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject, true);
-        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject, true);
+        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.ShowSubObjectPermanently(subObject);
+        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObjectPermanently(subObject);
         public void CurDrawableShowModule(string module) => _currentDrawModule.GameObject.ShowDrawModule(module);
         public void CurDrawableHideModule(string module) => _currentDrawModule.GameObject.HideDrawModule(module);
 

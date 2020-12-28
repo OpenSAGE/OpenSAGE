@@ -219,20 +219,47 @@ namespace OpenSage.Logic.Object
         private Dictionary<string, bool> _hiddenSubObjects;
         private Dictionary<string, bool> _shownSubObjects;
 
-        public void HideSubObject(string subObject, bool permanent = false)
+        public void HideSubObject(string subObject)
         {
             if (!_hiddenSubObjects.ContainsKey(subObject))
             {
-                _hiddenSubObjects.Add(subObject, permanent);
+                _hiddenSubObjects.Add(subObject, false);
             }
             _shownSubObjects.Remove(subObject);
         }
 
-        public void ShowSubObject(string subObject, bool permanent = false)
+        public void HideSubObjectPermanently(string subObject)
+        {
+            if (!_hiddenSubObjects.ContainsKey(subObject))
+            {
+                _hiddenSubObjects.Add(subObject, true);
+            }
+            else
+            {
+                _hiddenSubObjects[subObject] = true;
+            }
+            _shownSubObjects.Remove(subObject);
+        }
+
+
+        public void ShowSubObject(string subObject)
         {
             if (!_shownSubObjects.ContainsKey(subObject))
             {
-                _shownSubObjects.Add(subObject, permanent);
+                _shownSubObjects.Add(subObject, false);
+            }
+            _hiddenSubObjects.Remove(subObject);
+        }
+
+        public void ShowSubObjectPermanently(string subObject)
+        {
+            if (!_shownSubObjects.ContainsKey(subObject))
+            {
+                _shownSubObjects.Add(subObject, true);
+            }
+            else
+            {
+                _shownSubObjects[subObject] = true;
             }
             _hiddenSubObjects.Remove(subObject);
         }
