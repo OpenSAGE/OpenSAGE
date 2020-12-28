@@ -31,7 +31,7 @@ namespace OpenSage.Mods.Bfme2
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
-        public ICommandListOverlaySource UnitOverlay => null;
+        public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 

@@ -27,7 +27,7 @@ namespace OpenSage.Mods.CnC3
 
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
-        public ICommandListOverlaySource UnitOverlay => null;
+        public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 

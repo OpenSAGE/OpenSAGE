@@ -37,7 +37,7 @@ namespace OpenSage.Mods.Generals
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
-        public ICommandListOverlaySource UnitOverlay => null;
+        public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 30;
 

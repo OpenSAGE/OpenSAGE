@@ -32,7 +32,7 @@ namespace OpenSage.Mods.Bfme
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; } = new AptControlBarSource();
-        public IUnitOverlaySource UnitOverlay { get; } = new RadialUnitOverlaySource();
+        public ICommandListOverlaySource CommandListOverlay { get; } = new RadialUnitOverlaySource();
 
         public uint ScriptingTicksPerSecond => 5;
 
