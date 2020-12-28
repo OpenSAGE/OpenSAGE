@@ -23,7 +23,7 @@ namespace OpenSage
         
         IMainMenuSource MainMenu { get; }
         IControlBarSource ControlBar { get; }
-        ICommandListOverlaySource UnitOverlay { get; }
+        ICommandListOverlaySource CommandListOverlay { get; }
 
         string Identifier { get; }
 
