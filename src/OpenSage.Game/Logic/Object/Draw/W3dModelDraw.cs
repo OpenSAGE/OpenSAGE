@@ -145,7 +145,7 @@ namespace OpenSage.Logic.Object
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
-            if (animationState == _activeAnimationState && _activeModelDrawConditionState.StillActive())
+            if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
             {
                 return false;
             }
