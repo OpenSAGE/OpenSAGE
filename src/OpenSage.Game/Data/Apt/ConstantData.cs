@@ -46,8 +46,6 @@ namespace OpenSage.Data.Apt
                 };
 
                 //read the number/ string offset
-
-
                 switch (constEntry.Type)
                 {
                     case ConstantEntryType.Undef:
