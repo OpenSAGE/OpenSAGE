@@ -40,49 +40,38 @@ namespace OpenSage.Mods.Bfme.Gui
         public static void CreateAHero(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("CreateAHero.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void Options(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Options.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void Skirmish(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Skirmish.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void LAN(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void Credits(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
-
-            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void OnTutorial(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("Skirmish.apt");
-
-            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void MultiplayerButtonPressed(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("MPGameSetup.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 

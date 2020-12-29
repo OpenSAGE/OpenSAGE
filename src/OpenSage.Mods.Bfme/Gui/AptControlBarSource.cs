@@ -117,6 +117,9 @@ namespace OpenSage.Mods.Bfme
 
             for (var i = 1; i <= 6; i++)
             {
+                // we do not know how bfme handles this yet
+                if (_game.SageGame == SageGame.Bfme) continue;
+
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;
@@ -149,6 +152,9 @@ namespace OpenSage.Mods.Bfme
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
             for (var i = 1; i <= 6; i++)
             {
+                // we do not know how bfme handles this yet
+                if (_game.SageGame == SageGame.Bfme) continue;
+
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;

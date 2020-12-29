@@ -14,13 +14,12 @@ namespace OpenSage.Mods.Bfme.Gui
         public static void Exit(string param, ActionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("MainMenu.apt");
-
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
         public static void DisableComponents(string param, ActionContext context, AptWindow window, Game game)
         {
-            //TODO: no idea
+            // do we need to hide the buttons from MainMenu here?
         }
     }
 }
