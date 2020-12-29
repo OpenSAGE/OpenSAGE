@@ -16,12 +16,13 @@ namespace OpenSage.Graphics.Animation
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
+        private bool _finished;
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
 
         private float _speedFactor;
 
-        private bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
+        public bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
@@ -33,12 +34,12 @@ namespace OpenSage.Graphics.Animation
             _mode = mode;
             _flags = flags;
             _boneInstances = modelInstance.ModelBoneInstances;
-
             _keyframeIndices = new int[animation.Clips.Length];
         }
 
         public void Play(float speedFactor = 1.0f)
         {
+            _finished = false;
             _speedFactor = speedFactor;
             if (_playing)
             {
@@ -51,7 +52,8 @@ namespace OpenSage.Graphics.Animation
             _playing = true;
         }
 
-        public bool IsPlaying() => _playing;
+        public bool IsPlaying => _playing;
+        public bool IsFinished => _finished;
 
         public void Stop()
         {
@@ -67,14 +69,18 @@ namespace OpenSage.Graphics.Animation
 
         private void ResetTimeStamps()
         {
-            if (_flags.HasFlag(AnimationFlags.StartFrameFirst) ||
-                _flags == AnimationFlags.None)
+            if (_flags == AnimationFlags.None ||
+                _flags.HasFlag(AnimationFlags.StartFrameFirst) ||
+                _flags.HasFlag(AnimationFlags.StartFrameLast))
             {
-                _currentTimeValue = TimeSpan.Zero;
-            }
-            else if (_flags.HasFlag(AnimationFlags.StartFrameLast))
-            {
-                _currentTimeValue = _animation.Duration;
+                if (Reverse)
+                {
+                    _currentTimeValue = _animation.Duration;
+                }
+                else
+                {
+                    _currentTimeValue = TimeSpan.Zero;
+                }
             }
             else
             {
@@ -175,6 +181,7 @@ namespace OpenSage.Graphics.Animation
                 else
                 {
                     _playing = false;
+                    _finished = true;
                     if (Reverse)
                     {
                         time = TimeSpan.Zero;

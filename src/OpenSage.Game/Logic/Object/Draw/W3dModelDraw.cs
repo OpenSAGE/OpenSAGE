@@ -145,9 +145,10 @@ namespace OpenSage.Logic.Object
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
-            if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
+            if (animationState == _activeAnimationState)
             {
-                return false;
+                if (_activeModelDrawConditionState?.StillActive() ?? false) return false;
+                //if (_activeModelDrawConditionState?.Finished() ?? false) return false;
             }
 
             if (animationState == null
@@ -402,7 +403,8 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying());
+        public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying);
+        public bool Finished() => Model.AnimationInstances.All(x => x.IsFinished);
 
         public void Deactivate()
         {
