@@ -442,7 +442,11 @@ namespace OpenSage.Scripting
         {
         }
 
-        public string CurDrawableGetPrevAnimationState() => _currentDrawModule.PrevAnimationState?.StateName ?? "";
+        public string CurDrawableGetPrevAnimationState()
+        {
+            var val = _currentDrawModule.ActiveAnimationState?.StateName ?? "";
+            return val;
+        }
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
         public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
         public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);

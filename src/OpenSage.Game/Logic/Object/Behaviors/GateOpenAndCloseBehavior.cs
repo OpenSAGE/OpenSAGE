@@ -3,6 +3,7 @@ using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
+using SharpAudio;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,10 +20,12 @@ namespace OpenSage.Logic.Object
 
         private DoorState _state;
 
-        protected TimeSpan _toggleFinishedTime;
-        protected TimeSpan _pathingToggleTime;
-        protected TimeSpan _finishedSoundTime;
+        private TimeSpan _toggleFinishedTime;
+        private TimeSpan _pathingToggleTime;
+        private TimeSpan _finishedSoundTime;
 
+        private AudioSource _openingSoundLoop;
+        private AudioSource _closingSoundLoop;
 
         internal GateOpenAndCloseBehavior(GameObject gameObject, GateOpenAndCloseBehaviorModuleData moduleData)
         {
@@ -35,17 +38,25 @@ namespace OpenSage.Logic.Object
 
         public void Toggle()
         {
-            if (_state != DoorState.Idle)
+            switch(_state)
             {
-                return;
+                case DoorState.Idle:
+                    _state = _open ? DoorState.StartClosing : DoorState.StartOpening;
+                    break;
+                case DoorState.StartOpening:
+                case DoorState.Opening:
+                    _state = DoorState.StartClosing;
+                    break;
+                case DoorState.StartClosing:
+                case DoorState.Closing:
+                    _state = DoorState.StartOpening;
+                    break;
             }
-
-            _state = _open ? DoorState.StartClosing : DoorState.StartOpening;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            BaseAudioEventInfo audioEvent = null;
+            var audioSystem = context.GameContext.AudioSystem;
 
             switch (_state)
             {
@@ -53,21 +64,15 @@ namespace OpenSage.Logic.Object
                     return;
 
                 case DoorState.StartOpening:
+                    audioSystem.DisposeSource(_closingSoundLoop);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
                     _toggleFinishedTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ResetTimeInMilliseconds);
                     _pathingToggleTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ResetTimeInMilliseconds * _moduleData.PercentOpenForPathing);
 
-                    if (_open)
-                    {
-                        audioEvent = _moduleData.SoundClosingGateLoop?.Value;
-                        _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingClosedSound);
-                    }
-                    else
-                    {
-                        audioEvent = _moduleData.SoundOpeningGateLoop?.Value;
-                        _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingOpenSound);
-                    }
+                    _openingSoundLoop = audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundOpeningGateLoop?.Value, true);
+                    _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingOpenSound);
+                    
                     _state = DoorState.Opening;
                     _toggledColliders = false;
                     _playedFinishedSound = false;
@@ -85,7 +90,8 @@ namespace OpenSage.Logic.Object
                     }
                     if (!_playedFinishedSound && context.Time.TotalTime > _finishedSoundTime)
                     {
-                        audioEvent = _moduleData.SoundFinishedOpeningGate?.Value;
+                        audioSystem.DisposeSource(_openingSoundLoop);
+                        audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundFinishedOpeningGate?.Value);
                         _playedFinishedSound = true;
                     }
                     if (context.Time.TotalTime > _toggleFinishedTime)
@@ -96,21 +102,15 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case DoorState.StartClosing:
+                    audioSystem.DisposeSource(_openingSoundLoop);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
                     _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
                     _toggleFinishedTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ResetTimeInMilliseconds);
                     _pathingToggleTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ResetTimeInMilliseconds * _moduleData.PercentOpenForPathing);
 
-                    if (_open)
-                    {
-                        audioEvent = _moduleData.SoundClosingGateLoop?.Value;
-                        _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingClosedSound);
-                    }
-                    else
-                    {
-                        audioEvent = _moduleData.SoundOpeningGateLoop?.Value;
-                        _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingOpenSound);
-                    }
+                    _closingSoundLoop = audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundClosingGateLoop?.Value, true);
+                    _finishedSoundTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TimeBeforePlayingClosedSound);
+
                     _state = DoorState.Closing;
                     _toggledColliders = false;
                     _playedFinishedSound = false;
@@ -128,7 +128,8 @@ namespace OpenSage.Logic.Object
                     }
                     if (!_playedFinishedSound && context.Time.TotalTime > _finishedSoundTime)
                     {
-                        audioEvent = _moduleData.SoundFinishedOpeningGate?.Value;
+                        audioSystem.DisposeSource(_closingSoundLoop);
+                        audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundFinishedClosingGate?.Value);
                         _playedFinishedSound = true;
                     }
                     if (context.Time.TotalTime > _toggleFinishedTime)
@@ -137,11 +138,6 @@ namespace OpenSage.Logic.Object
                         _state = DoorState.Idle;
                     }
                     break;
-            }
-
-            if (audioEvent != null)
-            {
-                context.GameContext.AudioSystem.PlayAudioEvent(_gameObject, audioEvent);
             }
         }
     }
@@ -183,7 +179,7 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<BaseAudioEventInfo> SoundFinishedClosingGate { get; private set; }
         public int TimeBeforePlayingOpenSound { get; private set; }
         public int TimeBeforePlayingClosedSound { get; private set; }
-        public string Proxy { get; private set; }
+        public string Proxy { get; private set; } // what is this?
 
         [AddedIn(SageGame.Bfme2)]
         public bool RepelCollidingUnits { get; private set; }

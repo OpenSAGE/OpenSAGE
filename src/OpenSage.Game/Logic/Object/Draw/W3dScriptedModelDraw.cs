@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
     public class W3dScriptedModelDraw : W3dModelDraw
     {
         private readonly GameContext _context;
-        public AnimationState PrevAnimationState { get; private set; }
+        public AnimationState ActiveAnimationState => _activeAnimationState;
 
         internal W3dScriptedModelDraw(
             W3dScriptedModelDrawModuleData data,
@@ -26,13 +26,11 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            PrevAnimationState = _activeAnimationState;
-            _activeAnimationState = animationState;
             if (animationState != null && animationState.Script != null)
             {
-                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, _activeAnimationState.Script);
+                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
-
+            _activeAnimationState = animationState;
             return true;
         }
     }

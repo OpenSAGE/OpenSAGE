@@ -161,6 +161,20 @@ namespace OpenSage.Audio
             PlayAudioEvent(audioEvent);
         }
 
+        public void DisposeSource(AudioSource source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            if (source.IsPlaying())
+            {
+                source.Stop();
+            }
+            _sources.Remove(source);
+        }
+
         private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
         {
             if (baseAudioEvent == null)
@@ -177,7 +191,7 @@ namespace OpenSage.Audio
             return true;
         }
 
-        private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent)
+        private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent, bool looping = false)
         {
             if (!ValidateAudioEvent(baseAudioEvent))
             {
@@ -193,7 +207,7 @@ namespace OpenSage.Audio
                 return null;
             }
 
-            var source = GetSound(entry, audioEvent.SubmixSlider, audioEvent.Control.HasFlag(AudioControlFlags.Loop));
+            var source = GetSound(entry, audioEvent.SubmixSlider, looping || audioEvent.Control.HasFlag(AudioControlFlags.Loop));
             source.Volume = (float) audioEvent.Volume;
             return source;
         }
@@ -205,28 +219,30 @@ namespace OpenSage.Audio
             _3dengine.SetListenerOrientation(camera.Up, front);
         }
 
-        public void PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent)
+        public AudioSource PlayAudioEvent(GameObject emitter, BaseAudioEventInfo baseAudioEvent, bool looping = false)
         {
-            var source = PlayAudioEventBase(baseAudioEvent);
+            var source = PlayAudioEventBase(baseAudioEvent, looping);
             if (source == null)
             {
-                return;
+                return null;
             }
 
             // TODO: fix issues with some units
             //_3dengine.SetSourcePosition(source, emitter.Transform.Translation);
             source.Play();
+            return source;
         }
 
-        public void PlayAudioEvent(BaseAudioEventInfo baseAudioEvent)
+        public AudioSource PlayAudioEvent(BaseAudioEventInfo baseAudioEvent, bool looping = false)
         {
-            var source = PlayAudioEventBase(baseAudioEvent);
+            var source = PlayAudioEventBase(baseAudioEvent, looping);
             if (source == null)
             {
-                return;
+                return null;
             }
 
             source.Play();
+            return source;
         }
 
         public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
