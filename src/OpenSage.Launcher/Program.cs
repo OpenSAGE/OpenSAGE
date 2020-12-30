@@ -146,7 +146,10 @@ namespace OpenSage.Launcher
             else
             {
                 IPAddress.Local = System.Net.IPAddress.Parse(NetUtils.GetLocalIp(LocalAddrType.IPv4));
-                logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
+                if (!string.IsNullOrEmpty(opts.LanIPAddress))
+                {
+                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
+                }
             }
 
             logger.Debug($"Have configuration");
