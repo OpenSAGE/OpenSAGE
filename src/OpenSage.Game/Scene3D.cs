@@ -457,12 +457,12 @@ namespace OpenSage
             {
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    //if (!FrustumCulling
-                    //    || gameObject.Definition.KindOf.Get(ObjectKinds.NoCollide)
-                    //    || gameObject.RoughCollider.Intersects(Camera.BoundingFrustum))
-                    //{
-                    gameObject.BuildRenderList(renderList, camera, gameTime);
-                    //}
+                    if (!FrustumCulling
+                        || gameObject.Definition.KindOf.Get(ObjectKinds.NoCollide)
+                        || gameObject.RoughCollider.Intersects(Camera.BoundingFrustum))
+                    {
+                        gameObject.BuildRenderList(renderList, camera, gameTime);
+                    }
                 }
             }
 

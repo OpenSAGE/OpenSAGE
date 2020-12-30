@@ -754,17 +754,18 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            foreach (var collider in Colliders)
-            {
-                foreach (var otherCollider in other.Colliders)
-                {
-                    if (collider.Intersects(otherCollider, twoDimensional))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            //foreach (var collider in Colliders)
+            //{
+            //    foreach (var otherCollider in other.Colliders)
+            //    {
+            //        if (collider.Intersects(otherCollider, twoDimensional))
+            //        {
+            //            return true;
+            //        }
+            //    }
+            //}
+            //return false;
+            return true;
         }
 
         internal void DoCollide(GameObject collidingObject, in TimeInterval time)
@@ -850,8 +851,6 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
                 ConstructionStart = gameTime.TotalTime;
             }
-
-            //_gameContext.Navigation.UpdateAreaPassability(this, false);
         }
 
         internal void FinishConstruction()

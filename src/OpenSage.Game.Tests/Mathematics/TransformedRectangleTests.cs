@@ -51,5 +51,20 @@ namespace OpenSage.Tests.Mathematics
             var rect = TransformedRectangle.FromRectangle(new RectangleF(0, 0, 5, 5), 0.75f);
             Assert.Equal(expected, rect.Intersects(new Vector2(x, y), radius));
         }
+
+        [Theory]
+        [InlineData(0, 0, false)]
+        [InlineData(2, 0, true)]
+        [InlineData(4, 0, false)]
+        [InlineData(4, 4, false)]
+        [InlineData(0, 4, false)]
+        [InlineData(2, 2, true)]
+        [InlineData(0, 2, true)]
+        [InlineData(2.1f, 2, true)]
+        public void Contains(float x, float y, bool expected)
+        {
+            var sut = TransformedRectangle.FromRectangle(new RectangleF(0, 0, 4, 4), 0.75f);
+            Assert.Equal(expected, sut.Contains(new Vector2(x, y)));
+        }
     }
 }

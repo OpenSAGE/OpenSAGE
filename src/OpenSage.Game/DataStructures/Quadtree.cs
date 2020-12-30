@@ -84,12 +84,12 @@ namespace OpenSage.DataStructures
                         continue;
                     }
 
-                    var containment = subtree.Bounds.Intersect(collider.AxisAlignedBoundingArea);
+                    //var containment = subtree.Bounds.Intersect(collider.AxisAlignedBoundingArea);
 
-                    if (containment == ContainmentType.Disjoint)
-                    {
-                        continue;
-                    }
+                    //if (containment == ContainmentType.Disjoint)
+                    //{
+                    //    continue;
+                    //}
 
                     foreach (var item in subtree.FindIntersectingInternal(collider, searcher))
                     {
@@ -97,10 +97,10 @@ namespace OpenSage.DataStructures
                     }
 
                     // If the rect is entirely contained in the subtree, we don't need to check other subtrees.
-                    if (containment == ContainmentType.Contains)
-                    {
-                        yield break;
-                    }
+                    //if (containment == ContainmentType.Contains)
+                    //{
+                    //    yield break;
+                    //}
                 }
             }
 
