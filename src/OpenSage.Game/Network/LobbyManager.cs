@@ -23,7 +23,20 @@ namespace OpenSage.Network
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public IReadOnlyCollection<LobbyPlayer> Players => _players;
-        public string LocalAddress => NetUtils.GetLocalIp(LocalAddrType.IPv4);
+        public IPAddress LocalAddress
+        {
+            get
+            {
+                if (_game.Configuration.LanIpAddress != IPAddress.Any)
+                {
+                    return _game.Configuration.LanIpAddress;
+                }
+                else
+                {
+                    return IPAddress.Parse(NetUtils.GetLocalIp(LocalAddrType.IPv4));
+                }
+            }
+        }    
 
         public LobbyManager(Game game)
         {
@@ -49,13 +62,7 @@ namespace OpenSage.Network
         {
             if (_game.Configuration.LanIpAddress != IPAddress.Any)
             {
-                Logger.Trace($"Starting network manager using configured IP Address { _game.Configuration.LanIpAddress }");
-                _manager.Start(_game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.LobbyScan); // TODO: what about IPV6
-            }
-            else
-            {
-                Logger.Trace($"Starting network manager using default IP Address.");
-                _manager.Start(Ports.LobbyScan);
+                _manager.Start(LocalAddress, IPAddress.IPv6Any, Ports.LobbyScan); // TODO: what about IPV6
             }
 
             _isRunning = true;

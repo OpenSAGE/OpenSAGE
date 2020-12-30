@@ -21,18 +21,17 @@ namespace OpenSage.Mods.Generals.Gui
                     {
                         case "NetworkDirectConnect.wnd:ButtonBack":
                             context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-                            // TODO: Go back to Multiplayer sub-menu
                             break;
                         case "NetworkDirectConnect.wnd:ButtonHost":
-                            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
+                            NetworkUtils.HostGame(context);
                             break;
                         case "NetworkDirectConnect.wnd:ButtonJoin":
                             var comboboxRemoteIp = (ComboBox) control.Window.Controls.FindControl(ComboboxRemoteIPPrefix);
-                            var text = comboboxRemoteIp.Controls[0].Text;
-                            // TODO: Connect to the currently selected game
-                            var endPoint = new IPEndPoint(IPAddress.Parse(text), Ports.SkirmishHost);
-                            context.Game.SkirmishManager = new SkirmishManager.Client(context.Game, endPoint);
-                            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
+                            if (IPAddress.TryParse(comboboxRemoteIp.Controls[0].Text, out var ipAddress))
+                            {
+                                var endPoint = new IPEndPoint(ipAddress, Ports.SkirmishHost);
+                                NetworkUtils.JoinGame(context, endPoint);
+                            }
                             break;
                     }
                     break;
@@ -47,7 +46,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = game.LobbyManager.LocalAddress;
+            staticLocalIp.Text = game.LobbyManager.LocalAddress.ToString();
         }
     }
 }
