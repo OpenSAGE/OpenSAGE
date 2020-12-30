@@ -59,28 +59,15 @@ namespace OpenSage.Logic.Object
                 return colliders[0];
             }
 
-            var min = new Vector3(int.MaxValue, int.MaxValue, int.MaxValue);
-            var max = new Vector3(int.MinValue, int.MinValue, int.MinValue);
+            var combinedSphere = colliders[0].WorldBounds;
 
-            foreach (var collider in colliders)
+            for (var i = 1; i < colliders.Count; i++)
             {
-                var bounds = collider.WorldBounds;
-                var bottomLeft = bounds.Center - new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
-                var topRight = bounds.Center + new Vector3(bounds.Radius, bounds.Radius, bounds.Radius);
-
-                if (bottomLeft.X < min.X) min.X = bottomLeft.X;
-                if (bottomLeft.Y < min.Y) min.Y = bottomLeft.Y;
-                if (bottomLeft.Z < min.Z) min.Z = bottomLeft.Z;
-
-                if (topRight.X > max.X) max.X = topRight.X;
-                if (topRight.Y > max.Y) max.Y = topRight.Y;
-                if (topRight.Z > max.Z) max.Z = topRight.Z;
+                combinedSphere = BoundingSphere.CreateMerged(combinedSphere, colliders[i].WorldBounds);
             }
-            var delta = max - min;
-            var center = min + delta * 0.5f;
-            var radius = (delta * 0.5f).Length();
 
-            return new SphereCollider(new Transform(in center, Quaternion.Identity), radius);
+            var transform = new Transform(combinedSphere.Center, Quaternion.Identity);
+            return new SphereCollider(transform, combinedSphere.Radius);
         }
 
         public abstract void DebugDraw(DrawingContext2D drawingContext, Camera camera);
@@ -116,31 +103,27 @@ namespace OpenSage.Logic.Object
             Update(transform);
         }
 
-        protected SphereCollider(RectangleF rect)
-            : base(new Transform(Matrix4x4.Identity), 0)
+        protected SphereCollider(RectangleF rect, float height)
+            : base(new Transform(Matrix4x4.Identity), height)
         {
-            var radius = new Vector2(rect.Width, rect.Height).Length() / 2.0f;
-            SphereBounds = new BoundingSphere(Vector3.Zero, radius);
+            var diagonal = new Vector3(rect.Width, rect.Height, height);
+            var radius = diagonal.Length() / 2.0f;
+            SphereBounds = new BoundingSphere(diagonal * 0.5f, radius);
 
-            var center = new Vector3(rect.X + rect.Width / 2.0f, rect.Y + rect.Height / 2.0f, 0);
+            var center = new Vector3(rect.X, rect.Y, 0) + SphereBounds.Center;
             WorldBounds = new BoundingSphere(center, radius);
             AxisAlignedBoundingArea = rect;
         }
 
         public override void Update(Transform transform)
         {
-            Transform = new Transform(transform.Translation + Vector3.Transform(_offset, transform.Rotation), transform.Rotation);
+            Transform = new Transform(transform.Translation + Vector3.Transform(_offset, transform.Rotation), Quaternion.Identity);
             WorldBounds = BoundingSphere.Transform(SphereBounds, Transform.Matrix);
-            var width = SphereBounds.Radius * 2.0f;
+            var width = WorldBounds.Radius * 2.0f;
             AxisAlignedBoundingArea = new RectangleF(Transform.Translation.Vector2XY() - new Vector2(SphereBounds.Radius, SphereBounds.Radius), width, width);
         }
 
-        public override bool Intersects(in Ray ray, out float depth)
-        {
-            var result = ray.Intersects(WorldBounds, out depth);
-            depth *= Transform.Scale; // Assumes uniform scaling
-            return result;
-        }
+        public override bool Intersects(in Ray ray, out float depth) => ray.Intersects(WorldBounds, out depth);
 
         public bool Intersects(TransformedRectangle rect) => WorldBounds.Intersects(rect);
 
@@ -167,6 +150,8 @@ namespace OpenSage.Logic.Object
 
         private bool Intersects(BoxCollider other, bool twoDimensional = false)
         {
+            var val = !Intersects(other.AxisAlignedBoundingArea);
+            var val2 = !Intersects(other.BoundingArea);
             if (!Intersects(other.AxisAlignedBoundingArea) || !Intersects(other.BoundingArea))
             {
                 return false;
@@ -281,11 +266,11 @@ namespace OpenSage.Logic.Object
             Update(transform);
         }
 
-        public BoxCollider(RectangleF rect) : base(rect)
+        public BoxCollider(RectangleF rect, float height = 1.0f) : base(rect, height)
         {
-            _AABox = new AxisAlignedBoundingBox(Vector3.Zero, new Vector3(rect.Width, rect.Height, 0));
-            _worldBox = new BoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0));
-            WorldAABox = new AxisAlignedBoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0));
+            _AABox = new AxisAlignedBoundingBox(Vector3.Zero, new Vector3(rect.Width, rect.Height, height));
+            _worldBox = new BoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, height));
+            WorldAABox = new AxisAlignedBoundingBox(new Vector3(rect.X, rect.Y, 0), new Vector3(rect.X + rect.Width, rect.Y + rect.Height, height));
             BoundingArea = TransformedRectangle.FromRectangle(rect);
             AxisAlignedBoundingArea = rect;
         }

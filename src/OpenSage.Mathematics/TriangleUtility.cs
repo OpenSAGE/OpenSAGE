@@ -16,12 +16,16 @@ namespace OpenSage.Mathematics
 
         public static bool IsPointInside(in Vector2 v1, in Vector2 v2, in Vector2 v3, in float pointX, in float pointY)
         {
+            const float epsilon = 0.005f;
+            const float onePlusEpsilon = 1 + epsilon;
             var denominator = ((v2.Y - v3.Y) * (v1.X - v3.X) + (v3.X - v2.X) * (v1.Y - v3.Y));
             var a = ((v2.Y - v3.Y) * (pointX - v3.X) + (v3.X - v2.X) * (pointY - v3.Y)) / denominator;
             var b = ((v3.Y - v1.Y) * (pointX - v3.X) + (v1.X - v3.X) * (pointY - v3.Y)) / denominator;
             var c = 1 - a - b;
 
-            return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
+            return -epsilon <= a && a <= onePlusEpsilon &&
+                -epsilon <= b && b <= onePlusEpsilon &&
+                -epsilon <= c && c <= onePlusEpsilon;
         }
     }
 }

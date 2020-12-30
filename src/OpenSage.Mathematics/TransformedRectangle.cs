@@ -97,12 +97,12 @@ namespace OpenSage.Mathematics
 
         public static TransformedRectangle FromRectangle(in RectangleF rect, float angle = 0)
         {
-            var upperLeft = new Vector2(rect.X, rect.Y);
-            var upperRight = upperLeft + new Vector2(rect.Width, 0);
-            var lowerLeft = upperLeft + new Vector2(0, rect.Height);
-            var lowerRight = upperLeft + new Vector2(rect.Width, rect.Height);
+            var lowerLeft = new Vector2(rect.X, rect.Y);
+            var lowerRight = lowerLeft + new Vector2(rect.Width, 0);
+            var upperLeft = lowerLeft + new Vector2(0, rect.Height);
+            var upperRight = lowerLeft + new Vector2(rect.Width, rect.Height);
 
-            var center = (upperLeft + lowerRight) / 2;
+            var center = (lowerLeft + upperRight) / 2;
 
             upperLeft = upperLeft.RotateAroundPoint(center, angle);
             upperRight = upperRight.RotateAroundPoint(center, angle);

@@ -143,21 +143,17 @@ namespace OpenSage.Mathematics
             return new RectangleF(position.X, position.Y, size.X, size.Y);
         }
 
-        public bool Contains(in Point2D point)
+        public bool Contains(in Point2D point) => Contains(point.X, point.Y);
+        public bool Contains(in Vector2 point) => Contains(point.X, point.Y);
+
+        public bool Contains(float x, float y)
         {
-            return point.X >= X
-                && point.X <= Right
-                && point.Y >= Y
-                && point.Y <= Bottom;
+            return x >= X
+                && x <= Right
+                && y >= Y
+                && y <= Bottom;
         }
 
-        public bool Contains(Vector2 point)
-        {
-            return point.X >= X
-                && point.X <= Right
-                && point.Y >= Y
-                && point.Y <= Bottom;
-        }
 
         public bool Contains(in RectangleF rect)
         {
@@ -234,7 +230,7 @@ namespace OpenSage.Mathematics
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -247,13 +243,13 @@ namespace OpenSage.Mathematics
             return HashCode.Combine(X.GetHashCode(), Y.GetHashCode(), Width.GetHashCode(), Height.GetHashCode());
         }
 
-        public RectangleF Scale(float factor)
+        public static RectangleF Scale(in RectangleF rect, float factor)
         {
-            var newWidth = Width * factor;
-            var newHeight = Height * factor;
-            var deltaWidth = Width - newWidth;
-            var deltaHeight = Height - newHeight;
-            return new RectangleF(X + deltaWidth / 2, Y + deltaHeight / 2, newWidth, newHeight);
+            var newWidth = rect.Width * factor;
+            var newHeight = rect.Height * factor;
+            var deltaWidth = rect.Width - newWidth;
+            var deltaHeight = rect.Height - newHeight;
+            return new RectangleF(rect.X + deltaWidth / 2, rect.Y + deltaHeight / 2, newWidth, newHeight);
         }
     }
 }

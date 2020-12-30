@@ -93,6 +93,7 @@ namespace OpenSage.Logic.Object
         {
             if (IsUnpacked)
             {
+                // not sure if this is correct, or does any object with BASE_FOUNDATION or BASE_SITE automatically get a FoundationAIUpdate?
                 FoundationAIUpdate.CheckForStructure(context, _gameObject, ref _waitUntil, _updateInterval);
                 return;
             }

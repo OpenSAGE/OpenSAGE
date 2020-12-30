@@ -8,6 +8,40 @@ namespace OpenSage.Tests.Logic
     public class ColliderTests
     {
         [Theory]
+        [InlineData(0, 0, 0, 1, true)]
+        [InlineData(1, 0, 0, 1, true)]
+        [InlineData(2, 0, 0, 1, true)]
+        [InlineData(-2, 0, 0, 1, true)]
+        [InlineData(0, -2, 0, 1, true)]
+        [InlineData(0, 0, -2, 1, true)]
+        [InlineData(2.01f, 0, 0, 1, false)]
+        [InlineData(-2.01f, 0, 0, 1, false)]
+        [InlineData(0, -2.01f, 0, 1, false)]
+        [InlineData(0, 0, -2.01f, 1, false)]
+        public void SphereIntersectsSphere(float x, float y, float z, float radius, bool expected)
+        {
+            var sphere = new SphereCollider(new Transform(Vector3.Zero, Quaternion.Identity), 1);
+            var sphere2 = new SphereCollider(new Transform(new Vector3(x, y, z), Quaternion.Identity), radius);
+
+            Assert.Equal(expected, sphere.Intersects(sphere2));
+        }
+
+        [Theory]
+        [InlineData(0, 0, 1, 1, 1, true)]
+        [InlineData(0.9f, 0, 1, 1, 1, true)]
+        [InlineData(1, 0, 1, 1, 1, false)]
+        [InlineData(0, 1, 1, 1, 1, false)]
+        [InlineData(-2, 0, 1, 1, 1, false)]
+        [InlineData(0, -2, 1, 1, 1, false)]
+        public void SphereIntersectsBox_AA(float x, float y, float width, float height, float boxHeight, bool expected)
+        {
+            var sphere = new SphereCollider(new Transform(Vector3.Zero, Quaternion.Identity), 1);
+            var box = new BoxCollider(new RectangleF(x, y, width, height), boxHeight);
+
+            Assert.Equal(expected, sphere.Intersects(box));
+        }
+
+        [Theory]
         [InlineData(0, 0, 2, true)]
         [InlineData(-2, -2, 1, false)]
         [InlineData(8, 6, 1, false)]

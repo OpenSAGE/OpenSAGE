@@ -80,7 +80,7 @@ namespace OpenSage.Mathematics
                                      (y - Center.Y) * (y - Center.Y) +
                                      (z - Center.Z) * (z - Center.Z));
 
-            return distance < Radius;
+            return distance <= Radius;
         }
 
         public bool Contains(Vector2 point)

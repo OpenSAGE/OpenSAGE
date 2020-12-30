@@ -79,7 +79,7 @@ namespace OpenSage.Gui.CommandListOverlay
         {
             _center = center;
             var rect = new RectangleF(center.X - _width / 2, center.Y - _width / 2, _width, _width);
-            drawingContext.DrawMappedImage(_background, rect.Scale(0.9f), grayscaled: !_enabled);
+            drawingContext.DrawMappedImage(_background, RectangleF.Scale(rect, 0.9f), grayscaled: !_enabled);
 
             if (_count > 0)
             {
