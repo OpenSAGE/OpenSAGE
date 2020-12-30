@@ -13,7 +13,5 @@ namespace OpenSage
         public bool LoadShellMap { get; set; } = true;
         public bool UseRenderDoc { get; set; } = false;
         public bool UseFullscreen { get; set; } = false;
-
-        public IPAddress LanIpAddress { get; set; } = IPAddress.Any;
     }
 }
