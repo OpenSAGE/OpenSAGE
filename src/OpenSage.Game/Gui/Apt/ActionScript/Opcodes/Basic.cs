@@ -80,9 +80,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var nArgs = context.Pop().ToInteger();
-            Value[] args = new Value[nArgs];
+            var args = new Value[nArgs];
 
-            for (int i = 0; i < nArgs; ++i)
+            for (var i = 0; i < nArgs; ++i)
             {
                 args[i] = context.Pop();
             }
@@ -100,9 +100,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var value = context.Pop();
-            var varName = context.Pop().ToString();
-            context.Locals.Remove(varName);
         }
     }
 
