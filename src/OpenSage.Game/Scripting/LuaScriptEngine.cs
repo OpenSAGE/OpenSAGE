@@ -116,6 +116,8 @@ namespace OpenSage.Scripting
             MainScript.Globals["CurDrawableHideSubObjectPermanently"] = (Action<string>) CurDrawableHideSubObjectPermanently;
             MainScript.Globals["CurDrawableShowModule"] = (Action<string>) CurDrawableShowModule;
             MainScript.Globals["CurDrawableHideModule"] = (Action<string>) CurDrawableHideModule;
+            MainScript.Globals["CurDrawableSetTransitionAnimState"] = (Action<string>) CurDrawableSetTransitionAnimState;
+            MainScript.Globals["CurDrawableModelcondition"] = (Func<string, bool>) CurDrawableModelcondition;
             //addititional custom and testing functions
             MainScript.Globals["Spawn"] = (Func<string, string>) Spawn;
             MainScript.Globals["Spawn2"] = (Func<string, float, float, float, float, string>) Spawn2;
@@ -275,12 +277,12 @@ namespace OpenSage.Scripting
 
         public void ObjectSetModelCondition(string gameObject, string modelCondition)
         {
-            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).CopyModelConditionFlags(IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None));
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).CopyModelConditionFlags(IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None));
         }
 
         public bool ObjectTestModelCondition(string gameObject, string modelCondition)
         {
-            var modelConditionBitArray = IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None);
+            var modelConditionBitArray = IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None);
             var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {
@@ -294,7 +296,7 @@ namespace OpenSage.Scripting
 
         public void ObjectClearModelCondition(string gameObject, string modelCondition)
         {
-            var modelConditionBitArray = IniParser.ParseEnumBitArray<Logic.Object.ModelConditionFlag>(modelCondition, IniTokenPosition.None);
+            var modelConditionBitArray = IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None);
             var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {
@@ -326,15 +328,17 @@ namespace OpenSage.Scripting
 
         public void ObjectSetGeometryActive(string gameObject, string geometryName, string state)
         {
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ShowCollider(geometryName);
         }
 
         public void ObjectHideSubObject(string gameObject, string subObject, string state)
         {
-            //Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).DrawModules
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).HideSubObject(subObject);
         }
 
         public void ObjectHideSubObjectPermanently(string gameObject, string subObject, string state)
         {
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).HideSubObjectPermanently(subObject);
         }
 
         public int ObjectCountNearbyEnemies(string gameObject, string radius)
@@ -442,11 +446,7 @@ namespace OpenSage.Scripting
         {
         }
 
-        public string CurDrawableGetPrevAnimationState()
-        {
-            var val = _currentDrawModule.ActiveAnimationState?.StateName ?? "";
-            return val;
-        }
+        public string CurDrawableGetPrevAnimationState() => _currentDrawModule.PreviousAnimationState?.StateName ?? "";
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
         public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
         public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);
@@ -454,6 +454,12 @@ namespace OpenSage.Scripting
         public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObjectPermanently(subObject);
         public void CurDrawableShowModule(string module) => _currentDrawModule.GameObject.ShowDrawModule(module);
         public void CurDrawableHideModule(string module) => _currentDrawModule.GameObject.HideDrawModule(module);
+        public void CurDrawableSetTransitionAnimState(string state) => _currentDrawModule.SetTransitionState(state);
+        public bool CurDrawableModelcondition(string conditionString)
+        {
+            var conditionFlag = IniParser.ParseEnum<ModelConditionFlag>(conditionString);
+            return conditionFlag != 0 && _currentDrawModule.GameObject.ModelConditionFlags.Get(conditionFlag);
+        }
 
         public double GetRandomNumber()  //attention for multiplayer sync
         {

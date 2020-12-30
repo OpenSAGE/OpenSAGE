@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
                 { "LeftFrontFootBone", (parser, x) => x.LeftFrontFootBone = parser.ParseAssetReference() },
                 { "RightFrontFootBone", (parser, x) => x.RightFrontFootBone = parser.ParseAssetReference() },
                 { "LeftRearFootBone", (parser, x) => x.LeftRearFootBone = parser.ParseAssetReference() },
-                { "RightRearFootBone", (parser, x) => x.RightRearFootBone = parser.ParseAssetReference() },
+                { "RightRearFootBone", (parser, x) => x.RightRearFootBone = parser.ParseAssetReference() }
             });
 
         public bool StaticModelLODMode { get; private set; }

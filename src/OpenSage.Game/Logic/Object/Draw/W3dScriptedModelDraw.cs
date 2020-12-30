@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -9,7 +10,7 @@ namespace OpenSage.Logic.Object
     public class W3dScriptedModelDraw : W3dModelDraw
     {
         private readonly GameContext _context;
-        public AnimationState ActiveAnimationState => _activeAnimationState;
+        public AnimationState PreviousAnimationState { get; private set; }
 
         internal W3dScriptedModelDraw(
             W3dScriptedModelDrawModuleData data,
@@ -21,6 +22,7 @@ namespace OpenSage.Logic.Object
 
         protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
+            PreviousAnimationState = _activeAnimationState;
             if (!base.SetActiveAnimationState(animationState, random))
             {
                 return false;
@@ -32,6 +34,12 @@ namespace OpenSage.Logic.Object
             }
             _activeAnimationState = animationState;
             return true;
+        }
+
+        public void SetTransitionState(string state)
+        {
+            var transitionState = _transitionStates.Where(x => x.Name == state).FirstOrDefault();
+            SetActiveAnimationState(transitionState, _context.Random);
         }
     }
 
