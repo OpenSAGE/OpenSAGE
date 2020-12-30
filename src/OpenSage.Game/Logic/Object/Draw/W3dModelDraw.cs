@@ -28,6 +28,8 @@ namespace OpenSage.Logic.Object
         private readonly List<IConditionState> _animationStates;
         private readonly AnimationState _idleAnimationState;
 
+        protected readonly List<TransitionState> _transitionStates;
+
         private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
 
         private ModelConditionState _activeConditionState;
@@ -110,6 +112,13 @@ namespace OpenSage.Logic.Object
             foreach (var animationState in data.AnimationStates)
             {
                 _animationStates.Add(animationState);
+            }
+
+            _transitionStates = new List<TransitionState>();
+
+            foreach (var transitionState in data.TransitionStates)
+            {
+                _transitionStates.Add(transitionState);
             }
         }
 

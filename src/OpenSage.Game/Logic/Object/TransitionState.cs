@@ -3,9 +3,9 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class TransitionState : ModelConditionState
+    public sealed class TransitionState : AnimationState
     {
-        internal static TransitionState Parse(IniParser parser)
+        internal static new TransitionState Parse(IniParser parser)
         {
             var from = parser.ParseAssetReference();
             var to = "";
@@ -16,31 +16,21 @@ namespace OpenSage.Logic.Object
             }
             
             var result = parser.ParseBlock(FieldParseTable);
-
+            result.Name = from;
             result.FromTransitionKey = from;
             result.ToTransitionKey = to;
 
             return result;
         }
 
-        private static new readonly IniParseTable<TransitionState> FieldParseTable = ModelConditionState.FieldParseTable
+        private static new readonly IniParseTable<TransitionState> FieldParseTable = AnimationState.FieldParseTable
             .Concat(new IniParseTable<TransitionState>()
             {
-                { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
-                { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
-                { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
             });
+
+        public string Name { get; private set; }
 
         public string FromTransitionKey { get; private set; }
         public string ToTransitionKey { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string EnteringStateFX { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string Script { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();
     }
 }

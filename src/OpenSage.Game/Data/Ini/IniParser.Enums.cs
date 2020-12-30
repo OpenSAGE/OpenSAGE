@@ -160,6 +160,18 @@ namespace OpenSage.Data.Ini
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
         }
 
+        public static T ParseEnum<T>(string value)
+            where T : Enum
+        {
+            var stringToValueMap = GetEnumMap<T>();
+
+            if (stringToValueMap.TryGetValue(value.ToUpperInvariant(), out var enumValue))
+            {
+                return (T) enumValue;
+            }
+            return default;
+        }
+
         public T ParseEnumFlags<T>()
             where T : Enum
         {
