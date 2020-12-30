@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using System;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Network;
@@ -12,7 +12,7 @@ namespace OpenSage.Mods.Generals.Gui
         private const string EditPlayerNamePrefix = "NetworkDirectConnect.wnd:EditPlayerName";
         private const string ComboboxRemoteIPPrefix = "NetworkDirectConnect.wnd:ComboboxRemoteIP";
 
-        public static void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
             {
@@ -23,13 +23,18 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                             break;
                         case "NetworkDirectConnect.wnd:ButtonHost":
+                            if (UPnP.Status == UPnPStatus.Enabled)
+                            {
+                                await UPnP.ForwardPortsAsync();
+                            }
+
                             NetworkUtils.HostGame(context);
                             break;
                         case "NetworkDirectConnect.wnd:ButtonJoin":
                             var comboboxRemoteIp = (ComboBox) control.Window.Controls.FindControl(ComboboxRemoteIPPrefix);
-                            if (IPAddress.TryParse(comboboxRemoteIp.Controls[0].Text, out var ipAddress))
+                            if (System.Net.IPAddress.TryParse(comboboxRemoteIp.Controls[0].Text, out var ipAddress))
                             {
-                                var endPoint = new IPEndPoint(ipAddress, Ports.SkirmishHost);
+                                var endPoint = new System.Net.IPEndPoint(ipAddress, Ports.SkirmishHost);
                                 NetworkUtils.JoinGame(context, endPoint);
                             }
                             break;
@@ -38,15 +43,20 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public static void NetworkDirectConnectInit(Window window, Game game)
+        public static async void NetworkDirectConnectInit(Window window, Game game)
         {
             // Initialize player name
             var editPlayerName = (TextBox) window.Controls.FindControl(EditPlayerNamePrefix);
             editPlayerName.Text = game.LobbyManager.Username;
 
+            if (UPnP.Status == UPnPStatus.Uninitialized)
+            {
+                await UPnP.InitializeAsync(TimeSpan.FromSeconds(5));
+            }
+
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = game.LobbyManager.LocalAddress.ToString();
+            staticLocalIp.Text = (UPnP.Status == UPnPStatus.Enabled ? IPAddress.External : IPAddress.Local).ToString();
         }
     }
 }

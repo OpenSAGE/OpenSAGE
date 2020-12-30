@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Net;
 using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
@@ -12,6 +11,7 @@ using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
+using LiteNetLib;
 
 namespace OpenSage.Launcher
 {
@@ -139,12 +139,14 @@ namespace OpenSage.Launcher
                 LoadShellMap = !opts.NoShellmap,
             };
 
-            if(opts.LanIPAddress != ""){
-                try {
-                    config.LanIpAddress = IPAddress.Parse(opts.LanIPAddress);
-                }catch(FormatException){
-                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
-                }
+            if (System.Net.IPAddress.TryParse(opts.LanIPAddress, out var address))
+            {
+                IPAddress.Local = address;
+            }
+            else
+            {
+                IPAddress.Local = System.Net.IPAddress.Parse(NetUtils.GetLocalIp(LocalAddrType.IPv4));
+                logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
             }
 
             logger.Debug($"Have configuration");

@@ -101,6 +101,11 @@ namespace OpenSage.Network
             _thread?.Interrupt();
             _thread?.Join();
             _thread = null;
+
+            if (UPnP.Status == UPnPStatus.PortsForwarded)
+            {
+                UPnP.RemovePortForwardingAsync().Wait();
+            }
         }
 
         protected Thread _thread;
@@ -132,20 +137,9 @@ namespace OpenSage.Network
 
             public Client(Game game, IPEndPoint endPoint) : base(game, false)
             {
-
                 _processor.SubscribeReusable<SkirmishSlotStatusPacket>(SkirmishStatusPacketReceived);
 
-
-                if (_game.Configuration.LanIpAddress != IPAddress.Any)
-                {
-                    Logger.Trace($"Starting network manager using configured IP Address { _game.Configuration.LanIpAddress }");
-                    _manager.Start(_game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.SkirmishClient); // TODO: what about IPV6
-                }
-                else
-                {
-                    Logger.Trace($"Starting network manager using default IP Address.");
-                    _manager.Start(Ports.SkirmishClient);
-                }
+                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishClient); // TODO: what about IPV6
 
                 _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
                 {
@@ -254,7 +248,6 @@ namespace OpenSage.Network
 
             public Host(Game game) : base(game, true)
             {
-
                 _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
                 _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
 
@@ -308,17 +301,8 @@ namespace OpenSage.Network
                 };
 
 
-                if (_game.Configuration.LanIpAddress != IPAddress.Any)
-                {
-                    Logger.Trace($"Starting network manager using configured IP Address { _game.Configuration.LanIpAddress }");
-                    _manager.Start(_game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
-                }
-                else
-                {
-                    Logger.Trace($"Starting network manager using default IP Address.");
-                    _manager.Start(Ports.SkirmishHost);
-                }
-
+                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
+                
                 SkirmishGame.LocalSlotIndex = 0;
 
                 var localSlot = SkirmishGame.LocalSlot;
@@ -348,11 +332,8 @@ namespace OpenSage.Network
                     {
                         slot.ResetDirty();
                     }
-
                 }
-
             }
-
         }
     }
 }

@@ -76,18 +76,7 @@ namespace OpenSage.Network
 
         public Task InitializeAsync(Game game)
         {
-            // TODO the same code is used in SkirmishManager
-            if (game.Configuration.LanIpAddress != IPAddress.Any)
-            {
-                Logger.Trace($"Initializing network connection using configured IP Address { game.Configuration.LanIpAddress }");
-                _manager.Start(game.Configuration.LanIpAddress, IPAddress.IPv6Any, Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex); // TODO: what about IPV6
-            }
-            else
-            {
-                Logger.Trace($"Initializing network connection using default IP Address: {Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex}.");
-                _manager.Start(Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex);
-            }
-
+            _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex); // TODO: what about IPV6
             _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)

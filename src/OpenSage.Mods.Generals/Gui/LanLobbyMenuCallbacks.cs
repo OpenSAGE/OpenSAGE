@@ -21,7 +21,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
 
             switch (message.MessageType)
