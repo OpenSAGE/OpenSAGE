@@ -32,9 +32,12 @@ namespace OpenSage.Network
 
             var natDiscoverer = new NatDiscoverer();
             var token = new CancellationTokenSource(timeout);
-            NatDevice = await natDiscoverer.DiscoverDeviceAsync(PortMapper.Upnp, token);
 
-            if (NatDevice == null)
+            try
+            {
+                NatDevice = await natDiscoverer.DiscoverDeviceAsync(PortMapper.Upnp, token);
+            }
+            catch (NatDeviceNotFoundException)
             {
                 Logger.Info("Failed to find UPnP device.");
                 Status = UPnPStatus.Disabled;
