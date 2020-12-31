@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -134,12 +135,13 @@ namespace OpenSage.Network
 
         public class Client : SkirmishManager
         {
+            private string _playerId;
 
             public Client(Game game, IPEndPoint endPoint) : base(game, false)
             {
                 _processor.SubscribeReusable<SkirmishSlotStatusPacket>(SkirmishStatusPacketReceived);
 
-                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishClient); // TODO: what about IPV6
+                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
 
                 _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
                 {
@@ -164,17 +166,20 @@ namespace OpenSage.Network
 
                 Logger.Trace($"Joining game at {endPoint}");
 
+                _playerId = Guid.NewGuid().ToString();
+
                 _writer.Reset();
                 _processor.Write(_writer, new SkirmishClientConnectPacket()
                 {
                     PlayerName = _game.LobbyManager.Username,
+                    PlayerId = _playerId,
                     ProcessId = Process.GetCurrentProcess().Id
-                });
+                }); ; ;
+
                 _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
                 Start();
             }
-
 
             private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet)
             {
@@ -182,27 +187,13 @@ namespace OpenSage.Network
                 SkirmishGame.Slots = packet.Slots;
                 if (SkirmishGame.LocalSlotIndex < 0)
                 {
-                    for (var i = 0; i < packet.Slots.Length; i++)
-                    {
-                        var endpoint = packet.Slots[i].EndPoint;
-                        if (endpoint != null)
-                        {
-                            if (endpoint.Address.ToString() == NetUtils.GetLocalIp(LocalAddrType.IPv4)
-                                && packet.Slots[i].ProcessId == Process.GetCurrentProcess().Id)
-                            {
-                                Logger.Info($"New Local slot index is {i}");
-                                SkirmishGame.LocalSlotIndex = i;
-                                break;
-                            }
-                        }
-
-                    }
+                    SkirmishGame.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.PlayerId == _playerId);
+                    Logger.Info($"New Local slot index is {SkirmishGame.LocalSlotIndex}");
                 }
             }
 
             protected override void Loop()
             {
-
                 var localSlot = SkirmishGame.LocalSlot;
                 if (localSlot != null && localSlot.IsDirty)
                 {
@@ -242,8 +233,8 @@ namespace OpenSage.Network
 
             private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
             {
-                slot.ProcessId = packet.ProcessId;
                 slot.PlayerName = packet.PlayerName;
+                slot.PlayerId = packet.PlayerId;
             }
 
             public Host(Game game) : base(game, true)
@@ -252,9 +243,19 @@ namespace OpenSage.Network
                 _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
 
                 _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
-                _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
-                _listener.PeerDisconnectedEvent += (peer, info) => _slotLookup.Remove(peer.Id);
+                _listener.PeerDisconnectedEvent += (peer, info) =>
+                {
+                    Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+
+                    var slot = _slotLookup[peer.Id];
+                    slot.State = SkirmishSlotState.Open;
+                    slot.PlayerId = null;
+                    slot.PlayerName = null;
+                    slot.Ready = false;
+
+                    _slotLookup.Remove(peer.Id);
+                };
 
                 _listener.ConnectionRequestEvent += request =>
                 {

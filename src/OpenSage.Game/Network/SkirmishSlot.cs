@@ -1,14 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Net;
 using LiteNetLib.Utils;
-using SixLabors.ImageSharp.Processing;
 
 namespace OpenSage.Network
 {
@@ -120,12 +111,8 @@ namespace OpenSage.Network
             }
         }
 
-        public IPEndPoint EndPoint;
-
-        /// <summary>
-        /// We need this during development to be able to run two games on the same machine.
-        /// </summary>
-        public int ProcessId { get; set; }
+        public IPEndPoint EndPoint { get; set; }
+        public string PlayerId { get; set; }
 
         public bool IsDirty { get; private set; }
 
@@ -140,7 +127,6 @@ namespace OpenSage.Network
             {
                 Index = reader.GetInt(),
                 State = (SkirmishSlotState) reader.GetByte(),
-                PlayerName = reader.GetString(),
                 ColorIndex = reader.GetByte(),
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetByte(),
@@ -149,8 +135,9 @@ namespace OpenSage.Network
 
             if (slot.State == SkirmishSlotState.Human)
             {
+                slot.PlayerId = reader.GetString();
+                slot.PlayerName = reader.GetString();
                 slot.EndPoint = reader.GetNetEndPoint();
-                slot.ProcessId = reader.GetInt();
             }
 
             return slot;
@@ -160,15 +147,15 @@ namespace OpenSage.Network
         {
             writer.Put(slot.Index);
             writer.Put((byte) slot.State);
-            writer.Put(slot.PlayerName);
             writer.Put(slot.ColorIndex);
             writer.Put(slot.FactionIndex);
             writer.Put(slot.Team);
             writer.Put(slot.Ready);
             if (slot.State == SkirmishSlotState.Human)
             {
+                writer.Put(slot.PlayerId);
+                writer.Put(slot.PlayerName);
                 writer.Put(slot.EndPoint);
-                writer.Put(slot.ProcessId);
             }
         }
     }

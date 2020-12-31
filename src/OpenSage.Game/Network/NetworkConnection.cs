@@ -76,21 +76,22 @@ namespace OpenSage.Network
 
         public Task InitializeAsync(Game game)
         {
-            _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishGame + game.SkirmishManager.SkirmishGame.LocalSlotIndex); // TODO: what about IPV6
+            _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
             _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
                 if (slot.State == SkirmishSlotState.Human && slot.Index > game.SkirmishManager.SkirmishGame.LocalSlotIndex)
                 {
-                    Logger.Trace($"Connecting to {slot.EndPoint.Address}:{Ports.SkirmishGame + slot.Index}");
-                    _manager.Connect(slot.EndPoint.Address.ToString(), Ports.SkirmishGame + slot.Index, string.Empty);
+                    Logger.Trace($"Connecting to {slot.EndPoint}");
+                    _manager.Connect(slot.EndPoint, string.Empty);
                 }
             }
 
             return Task.Run(async () =>
             {
-                while (_manager.ConnectedPeersCount < game.SkirmishManager.SkirmishGame.Slots.Count(s => s.State == SkirmishSlotState.Human) - 1)
+                var humanPlayers = game.SkirmishManager.SkirmishGame.Slots.Count(s => s.State == SkirmishSlotState.Human);
+                while (_manager.ConnectedPeersCount < humanPlayers - 1)
                 {
                     _manager.PollEvents();
                     await Task.Delay(10);
