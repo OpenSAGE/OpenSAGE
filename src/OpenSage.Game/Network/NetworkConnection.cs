@@ -77,7 +77,6 @@ namespace OpenSage.Network
         public Task InitializeAsync(Game game)
         {
             _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishGame); // TODO: what about IPV6
-            _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
