@@ -68,7 +68,7 @@ namespace OpenSage.Network
                 SkirmishHostMapping = new Mapping(Protocol.Udp, IPAddress.Local, Ports.SkirmishHost, Ports.SkirmishHost, 0, "OpenSAGE Skirmish Host");
                 await NatDevice.CreatePortMapAsync(SkirmishHostMapping);
 
-                SkirmishGameMapping = new Mapping(Protocol.Udp, IPAddress.Local, Ports.SkirmishHost, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
+                SkirmishGameMapping = new Mapping(Protocol.Udp, IPAddress.Local, Ports.SkirmishGame, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
                 await NatDevice.CreatePortMapAsync(SkirmishGameMapping);
 
                 Status = UPnPStatus.PortsForwarded;

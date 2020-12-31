@@ -37,15 +37,11 @@ namespace OpenSage.Network
 
                 Loop();
 
-                try
-                {
-                    Thread.Sleep(100);
-                }
-                catch (ThreadInterruptedException)
-                {
-                    //ignore it, should be stopped by _isRunning
-                }
+                Thread.Sleep(100);
             }
+
+            _manager.DisconnectAll();
+            _manager.Stop();
         }
 
         protected abstract void Loop();
@@ -69,7 +65,6 @@ namespace OpenSage.Network
             IsHosting = isHosting;
 
             SkirmishGame = new SkirmishGame(isHost: IsHosting);
-
         }
 
         public SkirmishGame SkirmishGame { get; private set; }
@@ -84,24 +79,14 @@ namespace OpenSage.Network
 
         public void Stop()
         {
-            _manager.DisconnectAll();
-            _manager.Stop();
-
-            StopThread();
-        }
-
-        private void StopThread()
-        {
             _isRunning = false;
-            _thread?.Interrupt();
-            _thread?.Join();
             _thread = null;
         }
 
         protected Thread _thread;
         protected bool _isRunning;
 
-        protected void Start()
+        protected void StartThread()
         {
             _isRunning = true;
             _thread = new Thread(ThreadProc)
@@ -129,8 +114,6 @@ namespace OpenSage.Network
             {
                 _processor.SubscribeReusable<SkirmishSlotStatusPacket, IPEndPoint>(SkirmishStatusPacketReceived);
 
-                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
-
                 _listener.NetworkReceiveEvent += async (fromPeer, dataReader, deliveryMethod) =>
                 {
                     var type = (PacketType) dataReader.GetByte();
@@ -155,6 +138,8 @@ namespace OpenSage.Network
 
                 Logger.Trace($"Joining game at {endPoint}");
 
+                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
+
                 _playerId = Guid.NewGuid().ToString();
 
                 _writer.Reset();
@@ -167,7 +152,7 @@ namespace OpenSage.Network
 
                 _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
-                Start();
+                StartThread();
             }
 
             private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet, IPEndPoint host)
@@ -289,9 +274,6 @@ namespace OpenSage.Network
                     }
                 };
 
-
-                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
-                
                 SkirmishGame.LocalSlotIndex = 0;
 
                 var localSlot = SkirmishGame.LocalSlot;
@@ -299,7 +281,9 @@ namespace OpenSage.Network
                 localSlot.State = SkirmishSlotState.Human;
                 localSlot.EndPoint = new IPEndPoint(IPAddress.External, Ports.SkirmishHost);
 
-                Start();
+                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
+
+                StartThread();
             }
 
             public async Task StartGameAsync()
