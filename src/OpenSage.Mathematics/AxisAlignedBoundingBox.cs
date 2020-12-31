@@ -16,6 +16,23 @@ namespace OpenSage.Mathematics
             Max = max;
         }
 
+        public AxisAlignedBoundingBox(in BoundingBox box)
+        {
+            Min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+            foreach (var vertex in box.Vertices)
+            {
+                if (vertex.X < Min.X) Min.X = vertex.X;
+                if (vertex.Y < Min.Y) Min.Y = vertex.Y;
+                if (vertex.Z < Min.Z) Min.Z = vertex.Z;
+
+                if (vertex.X > Max.X) Max.X = vertex.X;
+                if (vertex.Y > Max.Y) Max.Y = vertex.Y;
+                if (vertex.Z > Max.Z) Max.Z = vertex.Z;
+            }
+        }
+
         private static readonly Vector3 MaxVector3 = new Vector3(float.MaxValue);
         private static readonly Vector3 MinVector3 = new Vector3(float.MinValue);
 
@@ -57,20 +74,20 @@ namespace OpenSage.Mathematics
                 sphere.Center + corner);
         }
 
-        public Vector3 GetCenter()
-        {
-            return (Min + Max) / 2;
-        }
+        public Vector3 GetCenter() => (Min + Max) / 2;
 
         public bool Contains(in Vector3 position)
         {
-            return position.X >= Min.X &&
-                   position.Y >= Min.Y &&
-                   position.Z >= Min.Z &&
-                   position.X <= Max.X &&
-                   position.Y <= Max.Y &&
-                   position.Z <= Max.Z;
+            const float epsilon = 0.01f;
+            return position.X >= Min.X - epsilon &&
+                   position.Y >= Min.Y - epsilon &&
+                   position.Z >= Min.Z - epsilon &&
+                   position.X <= Max.X + epsilon &&
+                   position.Y <= Max.Y + epsilon &&
+                   position.Z <= Max.Z + epsilon;
         }
+
+        public bool Intersects(in BoundingSphere sphere) => sphere.Intersects(this);
 
         public PlaneIntersectionType Intersects(in Plane plane)
         {

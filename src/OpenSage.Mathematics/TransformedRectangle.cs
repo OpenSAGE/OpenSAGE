@@ -82,12 +82,14 @@ namespace OpenSage.Mathematics
             var height = (UpperLeft - LowerLeft).Length();
             var rectF = new RectangleF(Vector2.Zero, width, height);
 
-            var rectAngle = Vector2Utility.Angle(LowerLeft, LowerRight);
+            var rectAngle = Vector2Utility.Angle(LowerRight, LowerLeft);
             var newCenter = center - LowerLeft;
-            newCenter = newCenter.RotateAroundPoint(LowerLeft, -rectAngle);
+            newCenter = newCenter.RotateAroundPoint(Vector2.Zero, -rectAngle);
 
             return rectF.Intersects(newCenter, radius);
         }
+
+        public bool Intersects(in RectangleF rect) => rect.Intersects(this);
 
         public bool Contains(Vector2 point)
         {

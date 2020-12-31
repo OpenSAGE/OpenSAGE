@@ -754,18 +754,17 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            //foreach (var collider in Colliders)
-            //{
-            //    foreach (var otherCollider in other.Colliders)
-            //    {
-            //        if (collider.Intersects(otherCollider, twoDimensional))
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //}
-            //return false;
-            return true;
+            foreach (var collider in Colliders)
+            {
+                foreach (var otherCollider in other.Colliders)
+                {
+                    if (collider.Intersects(otherCollider, twoDimensional))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         internal void DoCollide(GameObject collidingObject, in TimeInterval time)
