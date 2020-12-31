@@ -139,7 +139,7 @@ namespace OpenSage.Network
 
             public Client(Game game, IPEndPoint endPoint) : base(game, false)
             {
-                _processor.SubscribeReusable<SkirmishSlotStatusPacket>(SkirmishStatusPacketReceived);
+                _processor.SubscribeReusable<SkirmishSlotStatusPacket, IPEndPoint>(SkirmishStatusPacketReceived);
 
                 _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
 
@@ -150,7 +150,7 @@ namespace OpenSage.Network
                     switch (type)
                     {
                         case PacketType.SkirmishSlotStatus:
-                            _processor.ReadPacket(dataReader);
+                            _processor.ReadPacket(dataReader, fromPeer.EndPoint);
                             break;
 
                         case PacketType.SkirmishClientUpdate:
@@ -174,16 +174,20 @@ namespace OpenSage.Network
                     PlayerName = _game.LobbyManager.Username,
                     PlayerId = _playerId,
                     ProcessId = Process.GetCurrentProcess().Id
-                }); ; ;
+                });
 
                 _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
                 Start();
             }
 
-            private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet)
+            private void SkirmishStatusPacketReceived(SkirmishSlotStatusPacket packet, IPEndPoint host)
             {
                 Logger.Info($"New skirmish slot status");
+
+                // the host may not know its external IP, but we know it
+                packet.Slots[0].EndPoint = host;
+
                 SkirmishGame.Slots = packet.Slots;
                 if (SkirmishGame.LocalSlotIndex < 0)
                 {
@@ -309,7 +313,7 @@ namespace OpenSage.Network
                 var localSlot = SkirmishGame.LocalSlot;
                 localSlot.PlayerName = _game.LobbyManager.Username;
                 localSlot.State = SkirmishSlotState.Human;
-                localSlot.EndPoint = NetUtils.MakeEndPoint(NetUtils.GetLocalIp(LocalAddrType.IPv4), Ports.SkirmishHost);
+                localSlot.EndPoint = new IPEndPoint(IPAddress.External, Ports.SkirmishHost);
 
                 Start();
             }

@@ -76,15 +76,16 @@ namespace OpenSage.Network
 
         public Task InitializeAsync(Game game)
         {
-            _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
+            _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishGame); // TODO: what about IPV6
             _listener.PeerConnectedEvent += peer => Logger.Trace($"Connected to {peer.EndPoint}"); ;
 
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
-                if (slot.State == SkirmishSlotState.Human && slot.Index > game.SkirmishManager.SkirmishGame.LocalSlotIndex)
+                if (slot.State == SkirmishSlotState.Human && slot.Index < game.SkirmishManager.SkirmishGame.LocalSlotIndex)
                 {
-                    Logger.Trace($"Connecting to {slot.EndPoint}");
-                    _manager.Connect(slot.EndPoint, string.Empty);
+                    var endPoint = new IPEndPoint(slot.EndPoint.Address, Ports.SkirmishGame);
+                    Logger.Trace($"Connecting to {endPoint}");
+                    _manager.Connect(endPoint, string.Empty);
                 }
             }
 
