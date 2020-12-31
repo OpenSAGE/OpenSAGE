@@ -29,7 +29,7 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
-                                context.Game.SkirmishManager.Quit();
+                                context.Game.SkirmishManager.Stop();
 
                                 //this should be called by the OnStop callback
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");

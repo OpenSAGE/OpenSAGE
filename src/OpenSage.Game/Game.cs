@@ -960,6 +960,11 @@ namespace OpenSage
         {
             base.Dispose(disposeManagedResources);
 
+            if (UPnP.Status == UPnPStatus.PortsForwarded)
+            {
+                UPnP.RemovePortForwardingAsync().Wait();
+            }
+
             GC.Collect();
         }
 
