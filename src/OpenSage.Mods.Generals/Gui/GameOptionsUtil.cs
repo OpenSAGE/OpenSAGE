@@ -138,11 +138,10 @@ namespace OpenSage.Mods.Generals.Gui
 
                         if (context.Game.SkirmishManager?.SkirmishGame != null)
                         {
-                            if (context.Game.SkirmishManager.IsHosting)
+                            if (context.Game.SkirmishManager.IsHosting && context.Game.SkirmishManager is SkirmishManager.Host host)
                             {
+                                host.StartGameAsync().Wait();
                                 context.Game.Scene2D.WndWindowManager.PopWindow();
-
-                                context.Game.SkirmishManager.StartGame();
                             }
                             else
                             {

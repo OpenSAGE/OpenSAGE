@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using OpenSage.Network.Packets;
@@ -81,32 +82,20 @@ namespace OpenSage.Network
             }
         }
 
-        public void StartGame()
-        {
-            _manager.SendToAll(new[] { (byte) PacketType.SkirmishStartGame }, DeliveryMethod.ReliableUnordered);
-
-            CreateNetworkConnection();
-        }
-
-        public void Quit()
+        public void Stop()
         {
             _manager.DisconnectAll();
             _manager.Stop();
 
-            Stop();
+            StopThread();
         }
 
-        private void Stop()
+        private void StopThread()
         {
             _isRunning = false;
             _thread?.Interrupt();
             _thread?.Join();
             _thread = null;
-
-            if (UPnP.Status == UPnPStatus.PortsForwarded)
-            {
-                UPnP.RemovePortForwardingAsync().Wait();
-            }
         }
 
         protected Thread _thread;
@@ -123,13 +112,12 @@ namespace OpenSage.Network
             _thread.Start();
         }
 
-        private async void CreateNetworkConnection()
+        private async Task CreateNetworkConnectionAsync()
         {
             var connection = new NetworkConnection();
             await connection.InitializeAsync(_game);
 
             Connection = connection;
-
             SkirmishGame.ReadyToStart = true;
         }
 
@@ -143,7 +131,7 @@ namespace OpenSage.Network
 
                 _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
 
-                _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
+                _listener.NetworkReceiveEvent += async (fromPeer, dataReader, deliveryMethod) =>
                 {
                     var type = (PacketType) dataReader.GetByte();
                     Logger.Info($"Have packet with type {type}");
@@ -159,7 +147,8 @@ namespace OpenSage.Network
 
                         case PacketType.SkirmishStartGame:
                             Logger.Trace($"Received start game packet");
-                            CreateNetworkConnection();
+                            Stop();
+                            await CreateNetworkConnectionAsync();
                             break;
                     }
                 };
@@ -220,7 +209,6 @@ namespace OpenSage.Network
 
         public class Host : SkirmishManager
         {
-
             private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
 
             private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, SkirmishSlot slot)
@@ -291,16 +279,12 @@ namespace OpenSage.Network
                     var slot = _slotLookup[fromPeer.Id];
                     switch (type)
                     {
-                        case PacketType.SkirmishSlotStatus:
-                            Logger.Error($"Host should never receive slot status updates");
-                            break;
                         case PacketType.SkirmishClientUpdate:
                             _processor.ReadPacket(dataReader, slot);
                             break;
-                        case PacketType.SkirmishStartGame:
-                            Logger.Trace($"Received start game packet");
-                            Debug.Assert(false, "Host should never receive SkirmishStartGame");
-                            CreateNetworkConnection();
+                        default:
+                            Debug.Assert(false, $"Host should never receive {type} packages");
+                            Logger.Error($"Host should never receive {type} packages");
                             break;
                     }
                 };
@@ -316,6 +300,15 @@ namespace OpenSage.Network
                 localSlot.EndPoint = new IPEndPoint(IPAddress.External, Ports.SkirmishHost);
 
                 Start();
+            }
+
+            public async Task StartGameAsync()
+            {
+                _manager.SendToAll(new[] { (byte) PacketType.SkirmishStartGame }, DeliveryMethod.ReliableUnordered);
+                _manager.Flush();
+
+                Stop();
+                await CreateNetworkConnectionAsync();
             }
 
             protected override void Loop()
