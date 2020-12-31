@@ -46,7 +46,7 @@ namespace OpenSage.Network
 
             try
             {
-                IPAddress.External = await NatDevice.GetExternalIPAsync();
+                IPAddress.NatExternal = await NatDevice.GetExternalIPAsync();
                 Status = UPnPStatus.Enabled;
             }
             catch (Exception e)
