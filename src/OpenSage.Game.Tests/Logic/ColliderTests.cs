@@ -1,7 +1,7 @@
-﻿using System.Numerics;
+﻿using Xunit;
+using System.Numerics;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using Xunit;
 
 namespace OpenSage.Tests.Logic
 {
@@ -29,16 +29,36 @@ namespace OpenSage.Tests.Logic
         [Theory]
         [InlineData(0, 0, 1, 1, 1, true)]
         [InlineData(0.9f, 0, 1, 1, 1, true)]
-        [InlineData(1, 0, 1, 1, 1, false)]
-        [InlineData(0, 1, 1, 1, 1, false)]
-        [InlineData(-2, 0, 1, 1, 1, false)]
-        [InlineData(0, -2, 1, 1, 1, false)]
+        [InlineData(1, 0, 1, 1, 1, true)]
+        [InlineData(0, 1, 1, 1, 1, true)]
+        [InlineData(-2, 0, 1, 1, 1, true)]
+        [InlineData(0, -2, 1, 1, 1, true)]
+        [InlineData(1.1f, 0, 1, 1, 1, false)]
+        [InlineData(0, 1.1f, 1, 1, 1, false)]
+        [InlineData(-2.1f, 0, 1, 1, 1, false)]
+        [InlineData(0, -2.1f, 1, 1, 1, false)]
         public void SphereIntersectsBox_AA(float x, float y, float width, float height, float boxHeight, bool expected)
         {
             var sphere = new SphereCollider(new Transform(Vector3.Zero, Quaternion.Identity), 1);
             var box = new BoxCollider(new RectangleF(x, y, width, height), boxHeight);
 
             Assert.Equal(expected, sphere.Intersects(box));
+        }
+
+        [Theory]
+        [InlineData(-2, 0, 0, 1, 0, 0, true, 1)]
+        [InlineData(0, -2, 0, 0, 1, 0, true, 1)]
+        [InlineData(0, 0, -2, 0, 0, 1, true, 1)]
+        [InlineData(-2, 0, 0, -1, 0, 0, false, 0)]
+        [InlineData(0, -2, 0, 0, -1, 0, false, 0)]
+        [InlineData(0, 0, -2, 0, 0, -1, false, 0)]
+        public void SphereColliderIntersectsRay(float x, float y, float z, float dirX, float dirY, float dirZ, bool expected, float expectedDepth)
+        {
+            var sphere = new SphereCollider(new Transform(Vector3.Zero, Quaternion.Identity), 1);
+            var ray = new Ray(new Vector3(x, y, z), new Vector3(dirX, dirY, dirZ));
+
+            Assert.Equal(expected, sphere.Intersects(ray, out var depth));
+            Assert.Equal(expectedDepth, depth);
         }
 
         [Theory]

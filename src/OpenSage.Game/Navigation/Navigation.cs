@@ -142,7 +142,10 @@ namespace OpenSage.Navigation
                 {
                     var node = Graph.GetNode(x, y);
                     var position = GetNodePosition(node);
-                    if (collider.Contains(position))
+                    var terrainHeight = _heightMap.GetHeight(position.X, position.Y);
+                    if (collider.Transform.Translation.Z <= terrainHeight
+                        && terrainHeight <= collider.Transform.Translation.Z + collider.Height
+                        && collider.Contains(position))
                     {
                         node.Passability = passable ? Passability.Passable : Passability.Impassable;
                     }

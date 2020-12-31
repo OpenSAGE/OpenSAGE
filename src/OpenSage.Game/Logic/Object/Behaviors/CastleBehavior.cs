@@ -43,6 +43,9 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
+            _gameObject.Hidden = true;
+            _gameObject.IsSelectable = false;
+
             var castleEntry = FindCastle(player.Side);
 
             if (castleEntry != null)
@@ -84,8 +87,6 @@ namespace OpenSage.Logic.Object
                     }
                 }
             }
-            _gameObject.Hidden = true;
-            _gameObject.IsSelectable = false;
             IsUnpacked = true;
         }
 

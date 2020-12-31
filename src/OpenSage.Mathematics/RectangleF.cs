@@ -197,6 +197,8 @@ namespace OpenSage.Mathematics
             return cornerDistanceSquared <= MathF.Pow(radius, 2);
         }
 
+        public bool Intersects(in TransformedRectangle rect) => rect.Intersects(TransformedRectangle.FromRectangle(this));
+
         // TODO: It might make sense to micro-optimize this, as it's a very common operation.
         public ContainmentType Intersect(in RectangleF rect)
         {
