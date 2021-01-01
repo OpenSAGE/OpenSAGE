@@ -15,7 +15,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            logger.Info($"Have message {message.MessageType} for control {message.Element.DisplayName}");
+            logger.Trace($"Have message {message.MessageType} for control {message.Element.DisplayName}");
         }
 
         public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)

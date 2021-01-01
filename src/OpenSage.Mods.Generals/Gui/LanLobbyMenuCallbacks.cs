@@ -23,11 +23,10 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static async void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
-                    logger.Info($"Have message {message.MessageType} for control {message.Element.Name}");
+                    logger.Trace($"Have message {message.MessageType} for control {message.Element.Name}");
                     switch (message.Element.Name)
                     {
                         case "LanLobbyMenu.wnd:ButtonBack":
@@ -119,7 +118,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanLobbyMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            logger.Info($"Have message {message.MessageType} for control {control.Name}");
+            logger.Trace($"Have message {message.MessageType} for control {control.Name}");
         }
 
         private static void TextEditPlayerName_OnTextChanged(object sender, string text)
