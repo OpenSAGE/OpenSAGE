@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class TransitionState : AnimationState
+    public class GeneralsTransitionState : ModelConditionState
     {
-        internal static new TransitionState Parse(IniParser parser)
+        internal static GeneralsTransitionState Parse(IniParser parser)
         {
             var from = parser.ParseAssetReference();
             var to = "";
@@ -14,23 +13,38 @@ namespace OpenSage.Logic.Object
             {
                 to = parser.ScanAssetReference(token.Value);
             }
-            
+
             var result = parser.ParseBlock(FieldParseTable);
-            result.Name = from;
             result.FromTransitionKey = from;
             result.ToTransitionKey = to;
-
             return result;
         }
 
-        private static new readonly IniParseTable<TransitionState> FieldParseTable = AnimationState.FieldParseTable
-            .Concat(new IniParseTable<TransitionState>()
+        private static readonly new IniParseTable<GeneralsTransitionState> FieldParseTable = ModelConditionState.FieldParseTable
+            .Concat(new IniParseTable<GeneralsTransitionState>
+            {
+            });
+
+        public string FromTransitionKey { get; private set; }
+        public string ToTransitionKey { get; private set; }
+    }
+
+
+    public class BfmeTransitionState : AnimationState
+    {
+        internal static new BfmeTransitionState Parse(IniParser parser)
+        {
+            var name = parser.ParseString();
+            var result = parser.ParseBlock(FieldParseTable);
+            result.Name = name;
+            return result;
+        }
+
+        private static readonly new IniParseTable<BfmeTransitionState> FieldParseTable = AnimationState.FieldParseTable
+            .Concat(new IniParseTable<BfmeTransitionState>
             {
             });
 
         public string Name { get; private set; }
-
-        public string FromTransitionKey { get; private set; }
-        public string ToTransitionKey { get; private set; }
     }
 }

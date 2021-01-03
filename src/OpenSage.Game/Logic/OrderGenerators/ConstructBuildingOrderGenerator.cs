@@ -53,6 +53,8 @@ namespace OpenSage.Logic.OrderGenerators
                 IsPlacementPreview = true
             };
 
+            _scene.BuildPreviewObject = _previewObject;
+
             UpdatePreviewObjectPosition();
             UpdatePreviewObjectAngle();
             UpdateValidity();
@@ -118,8 +120,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return true;
             }
 
-            _scene.Quadtree.Remove(_previewObject);
-            return !_scene.Quadtree.FindIntersecting(_previewObject.RoughCollider).Any();
+            return !_scene.Quadtree.FindIntersecting(_previewObject).Any();
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
@@ -133,6 +134,7 @@ namespace OpenSage.Logic.OrderGenerators
         private void UpdatePreviewObjectPosition()
         {
             _previewObject.SetTranslation(_position);
+            _previewObject.UpdateColliders();
         }
 
         public void UpdateDrag(Vector3 position)
@@ -152,7 +154,6 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdateValidity()
         {
-            // TODO: draw collider bounds in debug view when 'showBounds'
             _previewObject.IsPlacementInvalid = !IsValidPosition();
         }
 
@@ -161,7 +162,9 @@ namespace OpenSage.Logic.OrderGenerators
 
         public void Dispose()
         {
+            _scene.Quadtree.Remove(_previewObject);
             _previewObject.Dispose();
+            _scene.BuildPreviewObject = null;
         }
     }
 }

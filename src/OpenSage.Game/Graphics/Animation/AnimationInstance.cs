@@ -16,13 +16,12 @@ namespace OpenSage.Graphics.Animation
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
-        private bool _finished;
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
 
         private float _speedFactor;
 
-        public bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
+        private bool Looping => _mode == AnimationMode.Loop || _mode == AnimationMode.LoopBackwards;
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
@@ -39,7 +38,6 @@ namespace OpenSage.Graphics.Animation
 
         public void Play(float speedFactor = 1.0f)
         {
-            _finished = false;
             _speedFactor = speedFactor;
             if (_playing)
             {
@@ -53,7 +51,6 @@ namespace OpenSage.Graphics.Animation
         }
 
         public bool IsPlaying => _playing;
-        public bool IsFinished => _finished;
 
         public void Stop()
         {
@@ -181,7 +178,6 @@ namespace OpenSage.Graphics.Animation
                 else
                 {
                     _playing = false;
-                    _finished = true;
                     if (Reverse)
                     {
                         time = TimeSpan.Zero;

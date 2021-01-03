@@ -62,18 +62,32 @@ namespace OpenSage.DataStructures
             _depth = depth;
         }
 
-        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersectingInternal(new SphereCollider(transform, radius), obj, twoDimensional: true);
+        public IEnumerable<T> FindNearby(T obj, Transform transform, float radius) => FindIntersectingInternal(new SphereCollider(transform, radius), obj, twoDimensional: true, false);
 
         public IEnumerable<T> FindIntersecting(in RectangleF bounds) => FindIntersecting(new BoxCollider(bounds));
 
-        public IEnumerable<T> FindIntersecting(T searcher) => FindIntersectingInternal(searcher.RoughCollider, searcher);
+        public IEnumerable<T> FindIntersecting(T searcher)
+        {
+            var result = FindIntersectingInternal(searcher.RoughCollider, searcher);
+            if (searcher.Colliders.Count == 1)
+            {
+                return result;
+            }
+
+            for (var i = 1; i < searcher.Colliders.Count; i++)
+            {
+                var intersections = FindIntersectingInternal(searcher.Colliders[i], searcher);
+                foreach (var intersection in intersections) result.Append(intersection);
+            }
+            return result;
+        }
 
         public IEnumerable<T> FindIntersecting(in Collider collider, T searcher = null)
         {
             return !collider.Intersects(Bounds) ? Enumerable.Empty<T>() : FindIntersectingInternal(collider, searcher);
         }
 
-        private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher, bool twoDimensional = false)
+        private IEnumerable<T> FindIntersectingInternal(Collider collider, T searcher, bool twoDimensional = false, bool hasToCollideWithSearcher = true)
         {
             if (!IsLeaf)
             {
@@ -91,7 +105,7 @@ namespace OpenSage.DataStructures
                         continue;
                     }
 
-                    foreach (var item in subtree.FindIntersectingInternal(collider, searcher))
+                    foreach (var item in subtree.FindIntersectingInternal(collider, searcher, twoDimensional, hasToCollideWithSearcher))
                     {
                         yield return item;
                     }
@@ -108,7 +122,7 @@ namespace OpenSage.DataStructures
             {
                 if (!item.Equals(searcher))
                 {
-                    if (searcher != null && !searcher.CollidesWith(item, twoDimensional))
+                    if (searcher != null && hasToCollideWithSearcher && !searcher.CollidesWith(item, twoDimensional))
                     {
                         continue;
                     }

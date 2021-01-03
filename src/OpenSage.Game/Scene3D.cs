@@ -105,6 +105,8 @@ namespace OpenSage
 
         public readonly Game Game;
 
+        public GameObject BuildPreviewObject;
+
         internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
