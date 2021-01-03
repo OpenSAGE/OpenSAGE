@@ -47,7 +47,6 @@ namespace OpenSage.Scripting
                             {
                                 if (action.Arguments.Length > parameters.Length - 1)
                                 {
-                                    return;
                                     throw new InvalidOperationException();
                                 }
 
