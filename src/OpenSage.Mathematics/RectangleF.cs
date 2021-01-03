@@ -215,15 +215,9 @@ namespace OpenSage.Mathematics
             return ContainmentType.Disjoint;
         }
 
-        public RectangleF WithY(float y)
-        {
-            return new RectangleF(X, y, Width, Height);
-        }
+        public RectangleF WithY(float y) => new RectangleF(X, y, Width, Height);
 
-        public RectangleF WithWidth(float width)
-        {
-            return new RectangleF(X, Y, width, Height);
-        }
+        public RectangleF WithWidth(float width) => new RectangleF(X, Y, width, Height);
 
         public bool Equals(in RectangleF other)
         {

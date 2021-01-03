@@ -74,6 +74,8 @@ namespace OpenSage.Mathematics
             return Contains(x, y, z);
         }
 
+        public bool Intersects(in BoundingBox box) => box.Intersects(this);
+
         public bool Contains(float x, float y, float z)
         {
             var distance = MathF.Sqrt((x - Center.X) * (x - Center.X) +

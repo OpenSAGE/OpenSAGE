@@ -15,22 +15,22 @@ namespace OpenSage.Mathematics
 
         public readonly Vector3[] Vertices;
 
-        public BoundingBox(in RectangleF rect, float height)
+        public BoundingBox(in RectangleF rect, float height, float z = 0.0f)
         {
             _matrix = Matrix4x4.Identity;
             _size = new Vector3(rect.Width, rect.Height, height);
-            _center = new Vector3(rect.X + rect.Width / 2.0f, rect.Y + rect.Height / 2.0f, height / 2.0f);
+            _center = new Vector3(rect.X + rect.Width / 2.0f, rect.Y + rect.Height / 2.0f, z + (height / 2.0f));
             Vertices = new[]
             {
-                new Vector3(rect.X, rect.Y, 0),
-                new Vector3(rect.X + rect.Width, rect.Y, 0),
-                new Vector3(rect.X, rect.Y + rect.Height, 0),
-                new Vector3(rect.X + rect.Width, rect.Y + rect.Height, 0),
+                new Vector3(rect.X, rect.Y, z),
+                new Vector3(rect.X + rect.Width, rect.Y, z),
+                new Vector3(rect.X, rect.Y + rect.Height, z),
+                new Vector3(rect.X + rect.Width, rect.Y + rect.Height, z),
 
-                new Vector3(rect.X, rect.Y, height),
-                new Vector3(rect.X + rect.Width, rect.Y, height),
-                new Vector3(rect.X, rect.Y + rect.Height, height),
-                new Vector3(rect.X + rect.Width, rect.Y + rect.Height, height),
+                new Vector3(rect.X, rect.Y, z + height),
+                new Vector3(rect.X + rect.Width, rect.Y, z + height),
+                new Vector3(rect.X, rect.Y + rect.Height, z + height),
+                new Vector3(rect.X + rect.Width, rect.Y + rect.Height, z + height),
             };
 
             _aaBox = new AxisAlignedBoundingBox(Vertices[0], Vertices[7]);
@@ -40,7 +40,7 @@ namespace OpenSage.Mathematics
         }
 
         public BoundingBox(in AxisAlignedBoundingBox box, Matrix4x4 matrix) :
-            this(new RectangleF(box.Min.X, box.Min.Y, box.Max.X - box.Min.X, box.Max.Y - box.Min.Y), box.Max.Z - box.Min.Z)
+            this(new RectangleF(box.Min.X, box.Min.Y, box.Max.X - box.Min.X, box.Max.Y - box.Min.Y), box.Max.Z - box.Min.Z, box.Min.Z)
         {
             _matrix = matrix;
             if (Matrix4x4.Decompose(matrix, out var scale, out var rotation, out _))
@@ -61,7 +61,7 @@ namespace OpenSage.Mathematics
 
         public bool Intersects(in BoundingBox box)
         {
-            // https://gamedev.stackexchange.com/questions/44500/how-many-and-which-axes-to-use-for-3d-obb-collision-with-sat
+            // Based on https://gamedev.stackexchange.com/questions/44500/how-many-and-which-axes-to-use-for-3d-obb-collision-with-sat
             if (Separated(Vertices, box.Vertices, _right)) return false;
             if (Separated(Vertices, box.Vertices, _up)) return false;
             if (Separated(Vertices, box.Vertices, _forward)) return false;
@@ -83,6 +83,13 @@ namespace OpenSage.Mathematics
             if (Separated(Vertices, box.Vertices, Vector3.Cross(_forward, box._forward))) return false;
 
             return true;
+        }
+
+        public bool Intersects(BoundingSphere sphere)
+        {
+            Matrix4x4.Invert(_matrix, out var inverted);
+            var localSpaceSphereCenter = Vector3.Transform(sphere.Center, inverted);
+            return new BoundingSphere(localSpaceSphereCenter, sphere.Radius).Intersects(_aaBox);
         }
 
         public bool Contains(Vector3 point)

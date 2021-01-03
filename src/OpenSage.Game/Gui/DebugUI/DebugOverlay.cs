@@ -109,6 +109,8 @@ namespace OpenSage.Gui.DebugUI
 
             if (ShowColliders)
             {
+                _scene3D.Navigation.DebugDraw(context, camera);
+
                 foreach (var gameObject in _scene3D.GameObjects.Items)
                 {
                     // TODO: Reuse frustum culling results.
@@ -160,20 +162,6 @@ namespace OpenSage.Gui.DebugUI
                 foreach (var road in _scene3D.Roads)
                 {
                     road.DebugDraw(context, camera);
-                }
-            }
-
-
-            // display impassable area
-            foreach (var node in _scene3D.Navigation.Graph.Nodes)
-            {
-                if (!node.IsPassable)
-                {
-                    var xy = _scene3D.Navigation.GetNodePosition(node);
-                    var xyz = camera.WorldToScreenPoint(new Vector3(xy, _scene3D.Terrain.HeightMap.GetHeight(xy.X, xy.Y)));
-                    var pos = xyz.Vector2XY();
-                    if (pos.X < 0.0 || pos.Y < 0.0 || pos.X > 1920 || pos.Y > 1080) continue;
-                    context.DrawRectangle(new RectangleF(xyz.Vector2XY(), new SizeF(10.0f)), ColorRgbaF.Red, 10.0f);
                 }
             }
 
