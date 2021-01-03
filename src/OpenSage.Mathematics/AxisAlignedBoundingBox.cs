@@ -18,8 +18,8 @@ namespace OpenSage.Mathematics
 
         public AxisAlignedBoundingBox(in BoundingBox box)
         {
-            Min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Min = MaxVector3;
+            Max = MinVector3;
 
             foreach (var vertex in box.Vertices)
             {

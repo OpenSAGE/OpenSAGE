@@ -254,6 +254,8 @@ namespace OpenSage.Logic.Object
         public AxisAlignedBoundingBox WorldAABox { get; private set; }
         private BoundingBox _worldBox;
 
+        // TODO: this is not a good representation for boxes with pitch and roll
+        // but it works well for buildings (only have yaw) and updating the terrain passability
         public TransformedRectangle BoundingArea { get; protected set; }
 
         public BoxCollider(Geometry geometry, Transform transform)

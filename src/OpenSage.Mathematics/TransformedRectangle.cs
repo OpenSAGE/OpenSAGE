@@ -11,15 +11,15 @@ namespace OpenSage.Mathematics
         public readonly Vector2 UpperRight;
         public readonly Vector2 LowerLeft;
         public readonly Vector2 LowerRight;
+        public readonly Vector2 Center;
 
-        public Vector2 Center => (UpperLeft + LowerRight) / 2; 
-
-        public TransformedRectangle(Vector2 upperLeft, Vector2 upperRight, Vector2 lowerLeft, Vector2 lowerRight)
+        public TransformedRectangle(Vector2 upperLeft, Vector2 upperRight, Vector2 lowerLeft, Vector2 lowerRight, Vector2? center = null)
         {
             UpperLeft = upperLeft;
             UpperRight = upperRight;
             LowerLeft = lowerLeft;
             LowerRight = lowerRight;
+            Center = center ?? (upperLeft + lowerRight) / 2.0f;
         }
 
         // Based on
@@ -111,7 +111,7 @@ namespace OpenSage.Mathematics
             lowerLeft = lowerLeft.RotateAroundPoint(center, angle);
             lowerRight = lowerRight.RotateAroundPoint(center, angle);
 
-            return new TransformedRectangle(upperLeft, upperRight, lowerLeft, lowerRight);
+            return new TransformedRectangle(upperLeft, upperRight, lowerLeft, lowerRight, center);
         }
     }
 }

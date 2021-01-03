@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Mathematics;
 using Priority_Queue;
 
 namespace OpenSage.Navigation

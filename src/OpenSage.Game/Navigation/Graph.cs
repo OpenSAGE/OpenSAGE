@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Gui;
+using OpenSage.Mathematics;
 using Priority_Queue;
 
 namespace OpenSage.Navigation
 {
     public class Graph
     {
-        public readonly Node[,] Nodes;
+        private readonly Node[,] _nodes;
 
-        public int Width => Nodes.GetLength(0);
-        public int Height => Nodes.GetLength(1);
+        public int Width => _nodes.GetLength(0);
+        public int Height => _nodes.GetLength(1);
 
         private readonly FastPriorityQueue<Node> _unexpandedNodes;
         private readonly List<(Node, int)> _adjacentNodes;
@@ -16,14 +21,14 @@ namespace OpenSage.Navigation
 
         public Node GetNode(int x, int y)
         {
-            return Nodes[x, y];
+            return _nodes[x, y];
         }
 
         public bool TryGetNode(int x, int y, out Node node)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height)
             {
-                node = Nodes[x, y];
+                node = _nodes[x, y];
                 return true;
             }
 
@@ -33,12 +38,12 @@ namespace OpenSage.Navigation
 
         public Graph(int w, int h)
         {
-            Nodes = new Node[w, h];
+            _nodes = new Node[w, h];
             for (var x = 0; x < w; x++)
             {
                 for (var y = 0; y < h; y++)
                 {
-                    Nodes[x, y] = new Node(this, x, y);
+                    _nodes[x, y] = new Node(this, x, y);
                 }
             }
 
@@ -118,6 +123,22 @@ namespace OpenSage.Navigation
             }
 
             return null;
+        }
+
+        public void DebugDraw(DrawingContext2D context, Camera camera, Func<Node, Vector2> getNodePosition, Func<float, float, float> getHeight)
+        {
+            foreach (var node in _nodes)
+            {
+                if (node.IsPassable) continue;
+
+                var xy = getNodePosition(node);
+                var xyz = new Vector3(xy, getHeight(xy.X, xy.Y));
+                
+                if (!camera.BoundingFrustum.Contains(xyz)) continue;
+
+                var xy_screen = camera.WorldToScreenPoint(xyz).Vector2XY();
+                context.DrawRectangle(new RectangleF(xy_screen, new SizeF(10.0f)), ColorRgbaF.Red, 1.0f);
+            }
         }
     }
 }

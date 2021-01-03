@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
@@ -9,7 +11,7 @@ namespace OpenSage.Navigation
 {
     public class Navigation
     {
-        public readonly Graph Graph;
+        private readonly Graph _graph;
         private readonly HeightMap _heightMap;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -18,14 +20,14 @@ namespace OpenSage.Navigation
         {
             var width = tileData.Impassability.GetLength(0);
             var height = tileData.Impassability.GetLength(1);
-            Graph = new Graph(width, height);
+            _graph = new Graph(width, height);
 
-            for (var x = 0; x < Graph.Width; x++)
+            for (var x = 0; x < _graph.Width; x++)
             {
-                for (var y = 0; y < Graph.Height; y++)
+                for (var y = 0; y < _graph.Height; y++)
                 {
                     var impassable = tileData.Impassability[x, y];
-                    Graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
+                    _graph.GetNode(x, y).Passability = impassable ? Passability.Impassable : Passability.Passable;
                 }
             }
 
@@ -48,7 +50,7 @@ namespace OpenSage.Navigation
             }
 
             var (x, y) = coords.Value;
-            return Graph.GetNode(x, y);
+            return _graph.GetNode(x, y);
         }
 
         public bool IsPassable(Vector3 position) => GetClosestNode(position).IsPassable;
@@ -94,7 +96,7 @@ namespace OpenSage.Navigation
                 return result;
             }
 
-            var route = Graph.Search(startNode, endNode);
+            var route = _graph.Search(startNode, endNode);
 
             if (route == null)
             {
@@ -103,7 +105,7 @@ namespace OpenSage.Navigation
             }
 
             PathOptimizer.RemoveRedundantNodes(route);
-            PathOptimizer.SmoothPath(route, Graph);
+            PathOptimizer.SmoothPath(route, _graph);
 
             foreach (var node in route)
             {
@@ -140,17 +142,22 @@ namespace OpenSage.Navigation
             {
                 for (var y = bottomLeftNode.Y; y < topRightNode.Y; y++)
                 {
-                    var node = Graph.GetNode(x, y);
+                    var node = _graph.GetNode(x, y);
                     var position = GetNodePosition(node);
                     var terrainHeight = _heightMap.GetHeight(position.X, position.Y);
-                    if (collider.Transform.Translation.Z <= terrainHeight
-                        && terrainHeight <= collider.Transform.Translation.Z + collider.Height
-                        && collider.Contains(position))
+                    if (collider.Transform.Translation.Z <= terrainHeight &&
+                        terrainHeight <= collider.Transform.Translation.Z + collider.Height &&
+                        collider.Contains(position)) // TODO: should we use a rectangle here instead of only a point?
                     {
                         node.Passability = passable ? Passability.Passable : Passability.Impassable;
                     }
                 }
             }
+        }
+
+        public void DebugDraw(DrawingContext2D context, Camera camera)
+        {
+            _graph.DebugDraw(context, camera, GetNodePosition, _heightMap.GetHeight);
         }
     }
 }
