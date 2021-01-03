@@ -111,6 +111,14 @@ namespace OpenSage.Gui.DebugUI
             {
                 _scene3D.Navigation.DebugDraw(context, camera);
 
+                if (_scene3D.BuildPreviewObject != null)
+                {
+                    foreach (var collider in _scene3D.BuildPreviewObject.Colliders)
+                    {
+                        collider.DebugDraw(context, camera);
+                    }
+                }
+
                 foreach (var gameObject in _scene3D.GameObjects.Items)
                 {
                     // TODO: Reuse frustum culling results.

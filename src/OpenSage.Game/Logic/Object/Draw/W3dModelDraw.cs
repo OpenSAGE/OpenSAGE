@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
         private readonly List<IConditionState> _animationStates;
         private readonly AnimationState _idleAnimationState;
 
-        protected readonly List<TransitionState> _transitionStates;
+        protected readonly List<GeneralsTransitionState> _generalsTransitionStates;
+        protected readonly List<BfmeTransitionState> _bfmeTransitionStates;
 
         private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
 
@@ -114,12 +115,8 @@ namespace OpenSage.Logic.Object
                 _animationStates.Add(animationState);
             }
 
-            _transitionStates = new List<TransitionState>();
-
-            foreach (var transitionState in data.TransitionStates)
-            {
-                _transitionStates.Add(transitionState);
-            }
+            _generalsTransitionStates = data.GeneralsTransitionStates;
+            _bfmeTransitionStates = data.BfmeTransitionStates;
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish(ModelConditionState conditionState)
@@ -157,7 +154,6 @@ namespace OpenSage.Logic.Object
             if (animationState == _activeAnimationState)
             {
                 if (_activeModelDrawConditionState?.StillActive() ?? false) return false;
-                //if (_activeModelDrawConditionState?.Finished() ?? false) return false;
             }
 
             if (animationState == null
@@ -413,7 +409,6 @@ namespace OpenSage.Logic.Object
         }
 
         public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying);
-        public bool Finished() => Model.AnimationInstances.All(x => x.IsFinished);
 
         public void Deactivate()
         {
@@ -496,7 +491,7 @@ namespace OpenSage.Logic.Object
 
             { "IgnoreConditionStates", (parser, x) => x.IgnoreConditionStates = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
-            { "TransitionState", (parser, x) => x.TransitionStates.Add(TransitionState.Parse(parser)) },
+            { "TransitionState", (parser, x) => x.ParseTransitionState(parser) },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
             { "ReceivesDynamicLights", (parser, x) => x.ReceivesDynamicLights = parser.ParseBoolean() },
             { "ProjectileBoneFeedbackEnabledSlots", (parser, x) => x.ProjectileBoneFeedbackEnabledSlots = parser.ParseEnumBitArray<WeaponSlot>() },
@@ -519,7 +514,8 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
         public ModelConditionState DefaultConditionState { get; private set; }
         public List<ModelConditionState> ConditionStates { get; } = new List<ModelConditionState>();
-        public List<TransitionState> TransitionStates { get; } = new List<TransitionState>();
+        public List<GeneralsTransitionState> GeneralsTransitionStates { get; } = new List<GeneralsTransitionState>();
+        public List<BfmeTransitionState> BfmeTransitionStates { get; } = new List<BfmeTransitionState>();
 
         public bool OkToChangeModelColor { get; private set; }
 
@@ -567,6 +563,19 @@ namespace OpenSage.Logic.Object
 
             ConditionStates.Add(aliasedConditionState);
         }
+
+        private void ParseTransitionState(IniParser parser)
+        {
+            if (parser.SageGame == SageGame.CncGenerals || parser.SageGame == SageGame.CncGeneralsZeroHour)
+            {
+                GeneralsTransitionStates.Add(GeneralsTransitionState.Parse(parser));
+            }
+            else
+            {
+                BfmeTransitionStates.Add(BfmeTransitionState.Parse(parser));
+            }
+        }
+
 
         internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {

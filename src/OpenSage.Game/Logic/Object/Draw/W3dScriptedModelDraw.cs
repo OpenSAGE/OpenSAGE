@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
 
         public void SetTransitionState(string state)
         {
-            var transitionState = _transitionStates.Where(x => x.Name == state).FirstOrDefault();
+            var transitionState = _bfmeTransitionStates.Where(x => x.Name == state).FirstOrDefault();
             SetActiveAnimationState(transitionState, _context.Random);
         }
     }

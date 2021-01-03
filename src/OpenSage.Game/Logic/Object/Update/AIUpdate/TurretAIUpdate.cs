@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
                         _turretAIstate = TurretAIStates.Turning;
                         _currentTarget = target;
                     }
-                    else if (context.Time.TotalTime > _waitUntil && autoAcquireEnemiesWhenIdle.Get(AutoAcquireEnemiesType.Yes))
+                    else if (context.Time.TotalTime > _waitUntil && (autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.Yes) ?? true))
                     {
                         _turretAIstate = TurretAIStates.ScanningForTargets;
                     }
@@ -155,7 +155,7 @@ namespace OpenSage.Logic.Object
         {
             return false;
 
-            var attacksBuildings = autoAcquireEnemiesWhenIdle.Get(AutoAcquireEnemiesType.AttackBuildings);
+            var attacksBuildings = autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.AttackBuildings) ?? true;
             var scanRange = _gameObject.CurrentWeapon.Template.AttackRange;
 
             var restrictedByScanAngle = _moduleData.MinIdleScanAngle != 0 && _moduleData.MaxIdleScanAngle != 0;

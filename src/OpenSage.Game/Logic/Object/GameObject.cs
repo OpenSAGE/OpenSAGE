@@ -516,7 +516,24 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool AffectsAreaPassability => Definition.KindOf.Get(ObjectKinds.Structure) && !Definition.KindOf.Get(ObjectKinds.NoCollide);
+        public bool AffectsAreaPassability
+        {
+            get
+            {
+                if (!Definition.KindOf.Get(ObjectKinds.Structure))
+                {
+                    return false;
+                }
+                if (_gameContext.Scene3D.Game.SageGame == SageGame.CncGenerals ||
+                    _gameContext.Scene3D.Game.SageGame == SageGame.CncGenerals)
+                {
+                    // SupplyWarehouse in CncGenerals has NoCollide
+                    return true;
+                }
+                return !Definition.KindOf.Get(ObjectKinds.NoCollide);
+
+            }
+        }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
         {
@@ -649,7 +666,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void UpdateColliders()
+        public void UpdateColliders()
         {
             RoughCollider.Update(_transform);
             foreach (var collider in Colliders)
