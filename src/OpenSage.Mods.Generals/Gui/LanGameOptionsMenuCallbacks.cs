@@ -1,5 +1,7 @@
 ﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -7,20 +9,20 @@ namespace OpenSage.Mods.Generals.Gui
     class LanGameOptionsMenuCallbacks
     {
         private const string TextEntryChatPrefix = "LanGameOptionsMenu.wnd:TextEntryChat";
+        private const string ListboxChatWindowLanGamePrefix = "LanGameOptionsMenu.wnd:ListboxChatWindowLanGame";
 
-
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static GameOptionsUtil GameOptions { get; private set; }
 
         public static void LanGameOptionsMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            logger.Trace($"Have message {message.MessageType} for control {message.Element.DisplayName}");
+            Logger.Trace($"Have message {message.MessageType} for control {message.Element.DisplayName}");
         }
 
-        public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            logger.Trace($"Have message {message.MessageType} for control {control.Name}");
+            Logger.Trace($"Have message {message.MessageType} for control {control.Name}");
             if (!GameOptions.HandleSystem(control, message, context))
             {
                 switch (message.MessageType)
@@ -29,14 +31,20 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
+                                //this should be called by the OnStop callback
+
                                 context.Game.SkirmishManager.Stop();
 
-                                //this should be called by the OnStop callback
+                                if (UPnP.Status == UPnPStatus.PortsForwarded)
+                                {
+                                    await UPnP.RemovePortForwardingAsync();
+                                }
+
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 break;
 
                             default:
-                                logger.Warn($"No callback for {message.Element.Name}");
+                                Logger.Warn($"No callback for {message.Element.Name}");
                                 break;
                         }
                         break;
@@ -46,6 +54,12 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuInit(Window window, Game game)
         {
+            if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting && IPAddress.NatExternal != null)
+            {
+                var listBoxChat = (ListBox)window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
+                listBoxChat.Items = new[] { new ListBoxDataItem(null, new string[] { $"Your external IP address is {IPAddress.NatExternal}" }, ColorRgbaF.White) };
+            }
+
             GameOptions = new GameOptionsUtil(window, game, "Lan");
 
             GameOptions.OnSlotIndexChange += (index, name, value) =>
@@ -60,19 +74,19 @@ namespace OpenSage.Mods.Generals.Gui
                 switch (name)
                 {
                     case GameOptionsUtil.ComboBoxColorPrefix:
-                        logger.Info($"Changed the color box to {value}");
+                        Logger.Trace($"Changed the color box to {value}");
                         slot.ColorIndex = (byte) value;
                         break;
                     case GameOptionsUtil.ComboBoxPlayerPrefix:
-                        logger.Info($"Changed the player type box to {value}");
+                        Logger.Trace($"Changed the player type box to {value}");
                         
                         break;
                     case GameOptionsUtil.ComboBoxPlayerTemplatePrefix:
-                        logger.Info($"Changed the faction box to {value}");
+                        Logger.Trace($"Changed the faction box to {value}");
                         slot.FactionIndex = (byte) value;
                         break;
                     case GameOptionsUtil.ComboBoxTeamPrefix:
-                        logger.Info($"Changed the team box to {value}");
+                        Logger.Trace($"Changed the team box to {value}");
                         slot.Team = (byte) value;
                         break;
                 }
@@ -97,7 +111,6 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
-            //TODO: update manager state to slots
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
                 var colorCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
@@ -116,13 +129,13 @@ namespace OpenSage.Mods.Generals.Gui
                 var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
 
                 var isLocalSlot = slot == game.SkirmishManager.SkirmishGame.LocalSlot;
-                var editable = isLocalSlot || (game.SkirmishManager.IsHosting && slot.State != Network.SkirmishSlotState.Human);
+                var editable = isLocalSlot || (game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
 
                 playerCombo.Enabled = !isLocalSlot && game.SkirmishManager.IsHosting;
 
-                buttonAccepted.Visible = slot.State == Network.SkirmishSlotState.Human;
+                buttonAccepted.Visible = slot.State == SkirmishSlotState.Human;
 
-                if (slot.State == Network.SkirmishSlotState.Human)
+                if (slot.State == SkirmishSlotState.Human)
                 {
                     if (buttonAccepted.Enabled != slot.Ready)
                         buttonAccepted.Enabled = slot.Ready;

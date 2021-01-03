@@ -6,10 +6,12 @@ namespace OpenSage.Mods.Generals.Gui
 {
     internal static class NetworkUtils
     {
-        public static void HostGame(ControlCallbackContext context)
+        public static object OnlineTag = "Online";
+
+        public static void HostGame(ControlCallbackContext context, object windowTag = null)
         {
             context.Game.SkirmishManager = new SkirmishManager.Host(context.Game);
-            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd");
+            context.WindowManager.SetWindow(@"Menus\LanGameOptionsMenu.wnd", windowTag);
         }
 
         public static void JoinGame(ControlCallbackContext context, IPEndPoint endPoint)

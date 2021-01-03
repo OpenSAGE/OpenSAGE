@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -61,7 +63,7 @@ namespace OpenSage.Mods.Generals.Gui
             _doneMainMenuFadeIn = false;
         }
 
-        public static void MainMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void MainMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             void QueueTransition(string transition)
             {
@@ -138,6 +140,17 @@ namespace OpenSage.Mods.Generals.Gui
 
                         case "MainMenu.wnd:ButtonNetwork":
                             context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+                            break;
+
+                        case "MainMenu.wnd:ButtonOnline":
+                            // this should load another window, but we don't have a lobby server yet,
+                            // so we just show the "Direct Connect" window
+                            if (UPnP.Status == UPnPStatus.Enabled)
+                            {
+                                await UPnP.ForwardPortsAsync();
+                            }
+
+                            context.WindowManager.SetWindow(@"Menus\NetworkDirectConnect.wnd", NetworkUtils.OnlineTag);
                             break;
 
                         case "MainMenu.wnd:ButtonMultiBack":
