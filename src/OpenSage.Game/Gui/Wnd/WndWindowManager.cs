@@ -42,13 +42,14 @@ namespace OpenSage.Gui.Wnd
             return window;
         }
 
-        public Window PushWindow(string wndFileName)
+        public Window PushWindow(string wndFileName, object tag = null)
         {
             var window = _game.LoadWindow(wndFileName);
+            window.Tag = tag;
             return PushWindow(window);
         }
 
-        public Window SetWindow(string wndFileName)
+        public Window SetWindow(string wndFileName, object tag = null)
         {
             // TODO: Handle transitions between windows.
 
@@ -57,7 +58,7 @@ namespace OpenSage.Gui.Wnd
                 PopWindow();
             }
 
-            return PushWindow(wndFileName);
+            return PushWindow(wndFileName, tag);
         }
 
         internal void OnViewportSizeChanged(in Size newSize)

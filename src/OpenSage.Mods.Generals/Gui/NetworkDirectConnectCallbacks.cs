@@ -12,7 +12,7 @@ namespace OpenSage.Mods.Generals.Gui
         private const string EditPlayerNamePrefix = "NetworkDirectConnect.wnd:EditPlayerName";
         private const string ComboboxRemoteIPPrefix = "NetworkDirectConnect.wnd:ComboboxRemoteIP";
 
-        public static async void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static void NetworkDirectConnectSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
             {
@@ -23,12 +23,7 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                             break;
                         case "NetworkDirectConnect.wnd:ButtonHost":
-                            if (UPnP.Status == UPnPStatus.Enabled)
-                            {
-                                await UPnP.ForwardPortsAsync();
-                            }
-
-                            NetworkUtils.HostGame(context);
+                            NetworkUtils.HostGame(context, control.Window.Tag);
                             break;
                         case "NetworkDirectConnect.wnd:ButtonJoin":
                             var comboboxRemoteIp = (ComboBox) control.Window.Controls.FindControl(ComboboxRemoteIPPrefix);
@@ -43,20 +38,19 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public static async void NetworkDirectConnectInit(Window window, Game game)
+        public static void NetworkDirectConnectInit(Window window, Game game)
         {
             // Initialize player name
             var editPlayerName = (TextBox) window.Controls.FindControl(EditPlayerNamePrefix);
             editPlayerName.Text = game.LobbyManager.Username;
 
-            if (UPnP.Status == UPnPStatus.Uninitialized)
-            {
-                await UPnP.InitializeAsync(TimeSpan.FromSeconds(5));
-            }
-
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = (UPnP.Status == UPnPStatus.Enabled ? IPAddress.External : IPAddress.Local).ToString();
+            staticLocalIp.Text = IPAddress.Local.ToString();
+            if (IPAddress.NatExternal != null)
+            {
+                staticLocalIp.Text += $" / {IPAddress.NatExternal} (UPnP)";
+            }
         }
     }
 }

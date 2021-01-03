@@ -152,6 +152,8 @@ namespace OpenSage.Launcher
                 }
             }
 
+            UPnP.InitializeAsync(TimeSpan.FromSeconds(10)).ContinueWith(_ => logger.Info($"UPnP status: {UPnP.Status}"));
+
             logger.Debug($"Have configuration");
 
             using (var game = new Game(installation, opts.Renderer, config))
