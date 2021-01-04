@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
-using OpenSage.Data.Ini;
 using OpenSage.Data.StreamFS;
 using OpenSage.Utilities.Extensions;
 
