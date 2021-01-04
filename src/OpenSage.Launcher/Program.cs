@@ -204,7 +204,8 @@ namespace OpenSage.Launcher
                             game.StartMultiPlayerGame(opts.Map,
                                 new EchoConnection(),
                                 pSettings,
-                                0);
+                                0,
+                                Environment.TickCount);
                         }
                         else
                         {

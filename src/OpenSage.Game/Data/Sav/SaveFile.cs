@@ -110,8 +110,9 @@ namespace OpenSage.Data.Sav
                                             game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), // TODO
                                             new ColorRgb(0, 0, 255))
                                     },
-                                    0, // TODO
-                                    false,
+                                    localPlayerIndex: 0, // TODO
+                                    isMultiPlayer: false,
+                                    seed: Environment.TickCount, // TODO
                                     map); // TODO
 
                                 // This seems to be aligned, so it's sometimes more than what we just read.

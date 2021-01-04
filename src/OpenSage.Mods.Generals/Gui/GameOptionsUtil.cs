@@ -154,7 +154,8 @@ namespace OpenSage.Mods.Generals.Gui
                                 CurrentMap.Name,
                                 new EchoConnection(),
                                 settings,
-                                0);
+                                0,
+                                Environment.TickCount);
                         }
                     }
                     else
@@ -332,6 +333,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         public void SetCurrentMap(MapCache mapCache)
         {
+            Logger.Info("Set current map to " + mapCache.Name);
+
             CurrentMap = mapCache;
 
             var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");

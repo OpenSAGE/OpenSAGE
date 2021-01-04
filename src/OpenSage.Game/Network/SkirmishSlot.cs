@@ -54,7 +54,9 @@ namespace OpenSage.Network
 
 
         private string _playerName = string.Empty;
-        public string PlayerName { get
+        public string PlayerName
+        {
+            get
             {
                 return _playerName;
             }
@@ -80,7 +82,9 @@ namespace OpenSage.Network
         }
 
         private byte _factionIndex;
-        public byte FactionIndex { get
+        public byte FactionIndex
+        {
+            get
             {
                 return _factionIndex;
             }
@@ -92,19 +96,27 @@ namespace OpenSage.Network
         }
 
         private byte _team;
-        public byte Team { get {
-                return _team; }
+        public byte Team
+        {
+            get
+            {
+                return _team;
+            }
             set
             {
                 IsDirty |= _team != value;
                 _team = value;
-            } }
+            }
+        }
 
         private bool _ready;
-        public bool Ready { get
+        public bool Ready
+        {
+            get
             {
                 return _ready;
-            } set
+            }
+            set
             {
                 IsDirty |= _ready != value;
                 _ready = value;
