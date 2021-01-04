@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -158,7 +158,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Writer
                 textWriter.WriteBooleanUInt32(text.Multiline);
                 textWriter.WriteBooleanUInt32(text.WordWrap);
 
-                var contentAddress = Write(memory, text.Content);
+                var contentAddress = Write(memory, text.Content.Original);
                 textWriter.Write((UInt32)contentAddress);
 
                 var textAddress = Write(memory, text.Value);

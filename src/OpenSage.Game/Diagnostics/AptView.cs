@@ -93,7 +93,7 @@ namespace OpenSage.Diagnostics
                             {
                                 var text = _selectedItem.Character as Text;
                                 ImGuiUtility.BeginPropertyList();
-                                ImGuiUtility.PropertyRow("Content", text.Content);
+                                ImGuiUtility.PropertyRow("Content", text.Content.Localized);
                                 ImGuiUtility.PropertyRow("InitialValue", text.Value);
                                 ImGuiUtility.PropertyRow("Color", text.Color.ToString());
                                 ImGuiUtility.PropertyRow("Multiline", text.Multiline);

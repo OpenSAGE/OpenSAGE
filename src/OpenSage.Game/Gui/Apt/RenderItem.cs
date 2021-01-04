@@ -47,7 +47,9 @@ namespace OpenSage.Gui.Apt
                 {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
                     if (val.Type != ValueType.Undefined)
-                        t.Content = val.ToString();
+                    {
+                        t.Content = LocalizedString.Apt(val.ToString());
+                    }
                 }
                 catch (System.Exception e)
                 {
@@ -55,12 +57,6 @@ namespace OpenSage.Gui.Apt
                 }
 
             }
-
-            // localize our content
-            t.LocalizedContent = t.Content
-                .Replace("$", "APT:") // All string values begin with $
-                .Split('&').First()   // Query strings after ampersand
-                .Translate();
         }
 
         protected override void RenderImpl(AptRenderingContext renderingContext)
