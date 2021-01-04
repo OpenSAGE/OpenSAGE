@@ -303,7 +303,7 @@ namespace OpenSage.Network
                 var localSlot = SkirmishGame.LocalSlot;
                 localSlot.PlayerName = _game.LobbyManager.Username;
                 localSlot.State = SkirmishSlotState.Human;
-                localSlot.EndPoint = new IPEndPoint(IPAddress.External, Ports.SkirmishHost);
+                localSlot.EndPoint = new IPEndPoint(IPAddress.External ?? IPAddress.Local, Ports.SkirmishHost);
 
                 _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
 
