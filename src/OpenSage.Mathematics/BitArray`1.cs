@@ -12,7 +12,7 @@ namespace OpenSage.Mathematics
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 
-        public bool BitsChanged { get; set; }
+        public bool BitsChanged { get; set; } = true;
 
         public BitArray()
         {

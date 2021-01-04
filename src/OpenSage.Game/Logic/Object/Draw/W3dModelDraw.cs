@@ -243,8 +243,6 @@ namespace OpenSage.Logic.Object
 
             var bestAnimationState = (AnimationState) FindBestFittingConditionState(_idleAnimationState, _animationStates, flags);
             SetActiveAnimationState(bestAnimationState, random);
-
-            flags.BitsChanged = false;
         }
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)

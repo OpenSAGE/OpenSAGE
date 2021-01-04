@@ -69,7 +69,7 @@ namespace OpenSage.Logic.Object
                     context.GameContext));
             }
 
-            _gameObject.ExperienceValue -= _nextLevel.RequiredExperience; _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
+            _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
             _gameObject.Rank = _nextLevel.Rank; _gameObject.Rank = _nextLevel.Rank;
 
             levelUp();
