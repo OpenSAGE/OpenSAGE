@@ -152,7 +152,7 @@ namespace OpenSage
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
                 0,
-                0); // TODO: get seed from replay file
+                replayFile.Header.Metadata.SD);
         }
 
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
