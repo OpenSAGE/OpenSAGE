@@ -62,6 +62,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             GameOptions = new GameOptionsUtil(window, game, "Lan");
 
+            if (game.SkirmishManager.IsHosting)
+            {
+                game.SkirmishManager.SkirmishGame.MapName = GameOptions.CurrentMap.Name;
+            }
+
             GameOptions.OnSlotIndexChange += (index, name, value) =>
             {
                 if (game?.SkirmishManager?.SkirmishGame == null)
@@ -111,6 +116,20 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
+            var mapName = game.SkirmishManager.SkirmishGame.MapName;
+            if (mapName != GameOptions.CurrentMap.Name)
+            {
+                var mapCache = game.AssetStore.MapCaches.GetByName(mapName);
+                if (mapCache == null)
+                {
+                    Logger.Warn($"Map {mapName} not found");
+                }
+                else
+                {
+                    GameOptions.SetCurrentMap(mapCache);
+                }
+            }
+
             foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
             {
                 var colorCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");

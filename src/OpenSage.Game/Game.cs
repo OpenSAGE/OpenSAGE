@@ -151,7 +151,8 @@ namespace OpenSage
                 mapFilename + mapName + ".map",
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
-                0);
+                0,
+                0); // TODO: get seed from replay file
         }
 
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
@@ -571,6 +572,7 @@ namespace OpenSage
             PlayerSetting?[] playerSettings,
             int localPlayerIndex,
             bool isMultiPlayer,
+            int seed,
             MapFile mapFile = null)
         {
             InGame = true;
@@ -587,7 +589,7 @@ namespace OpenSage
             }
 
             Scene3D = mapFile != null
-                ? new Scene3D(this, mapFile, mapFileName, Environment.TickCount)
+                ? new Scene3D(this, mapFile, mapFileName, seed)
                 : LoadMap(mapFileName);
 
             if (Scene3D == null)
@@ -730,18 +732,54 @@ namespace OpenSage
 
         }
 
+        private void StartSkirmishGame(SkirmishGame skirmishGame)
+        {
+            var random = new Random(skirmishGame.Seed);
+
+            var playerSettings = (from s in skirmishGame.Slots
+                                  where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
+                                  select new PlayerSetting(
+                                      s.Index,
+                                      GetItem(s.FactionIndex, GetPlayableSides()),
+                                      GetItem(s.ColorIndex, AssetStore.MultiplayerColors).RgbColor,
+                                      s.State switch
+                                      {
+                                          SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                                          SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                                          SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                                          SkirmishSlotState.Human => PlayerOwner.Player,
+                                          _ => PlayerOwner.None
+                                      })).OfType<PlayerSetting?>().ToArray();
+
+            StartMultiPlayerGame(
+                skirmishGame.MapName,
+                SkirmishManager.Connection,
+                playerSettings,
+                skirmishGame.LocalSlotIndex,
+                skirmishGame.Seed);
+
+            T GetItem<T>(int index, IEnumerable<T> items) =>
+                items.ElementAt(index switch
+                {
+                    0 => random.Next(items.Count()),
+                    _ => index - 1
+                });
+        }
+
         public void StartMultiPlayerGame(
             string mapFileName,
             IConnection connection,
             PlayerSetting?[] playerSettings,
-            int localPlayerIndex)
+            int localPlayerIndex,
+            int seed)
         {
             StartGame(
                 mapFileName,
                 connection,
                 playerSettings,
                 localPlayerIndex,
-                isMultiPlayer: true);
+                isMultiPlayer: true,
+                seed);
         }
 
         public void StartSinglePlayerGame(
@@ -752,9 +790,10 @@ namespace OpenSage
                 new EchoConnection(),
                 null,
                 0,
-                isMultiPlayer: false);
+                isMultiPlayer: false,
+                seed: Environment.TickCount);
         }
-
+        
         public void EndGame()
         {
             // TODO: there's a huge memory leak somewhere here...
@@ -868,30 +907,10 @@ namespace OpenSage
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
             // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
-            if (SkirmishManager?.SkirmishGame?.ReadyToStart ?? false)
+            if (SkirmishManager?.SkirmishGame?.Status == SkirmishGameStatus.ReadyToStart)
             {
-                SkirmishManager.SkirmishGame.ReadyToStart = false;
-
-                var playerSettings = (from s in SkirmishManager.SkirmishGame.Slots
-                                      where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
-                                      select new PlayerSetting(
-                                          s.Index,
-                                          GetPlayableSides().ElementAt(s.FactionIndex),
-                                          AssetStore.MultiplayerColors.GetByIndex(s.ColorIndex).RgbColor,
-                                          s.State switch
-                                          {
-                                              SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
-                                              SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
-                                              SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
-                                              SkirmishSlotState.Human => PlayerOwner.Player,
-                                              _ => PlayerOwner.None
-                                          })).OfType<PlayerSetting?>().ToArray();
-
-                StartMultiPlayerGame(
-                    AssetStore.MapCaches.FirstOrDefault(m => m.IsMultiplayer).Name,
-                    SkirmishManager.Connection,
-                    playerSettings,
-                    SkirmishManager.SkirmishGame.LocalSlotIndex);
+                SkirmishManager.SkirmishGame.Status = SkirmishGameStatus.Started;
+                StartSkirmishGame(SkirmishManager.SkirmishGame);
             }
 
             Audio.Update(Scene3D?.Camera);

@@ -1,10 +1,9 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
+using OpenSage.Data;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
-using OpenSage.Data;
 
 namespace OpenSage.Mods.Generals.Gui
 {
