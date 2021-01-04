@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
+using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.UnitOverlay;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Tools.AptEditor
@@ -29,7 +27,7 @@ namespace OpenSage.Tools.AptEditor
         public IControlBarSource? ControlBar => null;
         public string Identifier => "AptEditor";
         public string LauncherExecutable => throw new NotSupportedException("This is apt editor");
-        public IUnitOverlaySource UnitOverlay => throw new NotSupportedException("This is apt editor");
+        public ICommandListOverlaySource CommandListOverlay => throw new NotSupportedException("This is apt editor");
         public uint ScriptingTicksPerSecond => 1; // actually not used
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
