@@ -1,6 +1,4 @@
-﻿#define UNIQUE_GAME_PORTS // use this when you want to run multiple clients on the same machine
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -77,9 +75,11 @@ namespace OpenSage.Network
         public Task InitializeAsync(Game game)
         {
             var port = Ports.SkirmishGame;
-#if UNIQUE_GAME_PORTS
-            port += game.SkirmishManager.SkirmishGame.LocalSlotIndex;
-#endif
+            if (game.Configuration.UseUniquePorts)
+            {
+                port += game.SkirmishManager.SkirmishGame.LocalSlotIndex;
+            }
+
             if (!_manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, port)) // TODO: what about IPV6
             {
                 Logger.Error("Failed to initialize network connection");
@@ -90,9 +90,11 @@ namespace OpenSage.Network
                 if (slot.State == SkirmishSlotState.Human && slot.Index < game.SkirmishManager.SkirmishGame.LocalSlotIndex)
                 {
                     port = Ports.SkirmishGame;
-#if UNIQUE_GAME_PORTS
-                    port += slot.Index;
-#endif
+                    if (game.Configuration.UseUniquePorts)
+                    {
+                        port += slot.Index;
+                    }
+
                     var endPoint = new IPEndPoint(slot.EndPoint.Address, port);
                     Logger.Trace($"Connecting from {IPAddress.Local}:{_manager.LocalPort} to {endPoint}");
                     var peer = _manager.Connect(endPoint, string.Empty);

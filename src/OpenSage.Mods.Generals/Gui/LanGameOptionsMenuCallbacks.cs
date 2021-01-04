@@ -117,7 +117,7 @@ namespace OpenSage.Mods.Generals.Gui
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
             var mapName = game.SkirmishManager.SkirmishGame.MapName;
-            if (mapName != GameOptions.CurrentMap.Name)
+            if (mapName != GameOptions.CurrentMap.Name && mapName != null)
             {
                 var mapCache = game.AssetStore.MapCaches.GetByName(mapName);
                 if (mapCache == null)

@@ -54,6 +54,9 @@ namespace OpenSage.Launcher
 
             [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
             public string LanIPAddress { get; set; } = "";
+
+            [Option('u', "uniqueports", Default = false, Required = false, HelpText = "Use a unique port for each client in a multiplayer game. Normally, port 8088 is used, but when we want to run multiple game instances on the same machine (for debugging purposes), each client needs a different port.")]
+            public bool UseUniquePorts { get; set; }
         }
 
         public static void Main(string[] args)
@@ -137,6 +140,7 @@ namespace OpenSage.Launcher
                 UseFullscreen = opts.Fullscreen,
                 UseRenderDoc = opts.RenderDoc,
                 LoadShellMap = !opts.NoShellmap,
+                UseUniquePorts = opts.UseUniquePorts
             };
 
             if (System.Net.IPAddress.TryParse(opts.LanIPAddress, out var address))
