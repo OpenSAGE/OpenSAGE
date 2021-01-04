@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -58,14 +59,10 @@ namespace OpenSage.Network
             _processor.RegisterNestedType<Order>(WriteOrder, ReadOrder);
             _processor.Subscribe<SkirmishOrderPacket>(packet =>
             {
-                if (_receivedPacketsPerFrame.TryGetValue(packet.Frame, out int count))
-                {
-                    count++;
-                }
-                else
-                {
-                    _receivedPacketsPerFrame.Add(packet.Frame, 1);
-                }
+                _receivedPacketsPerFrame.TryGetValue(packet.Frame, out int count);
+                _receivedPacketsPerFrame[packet.Frame] = count + 1;
+
+                Logger.Trace($"Received packet for frame {packet.Frame}, count is now {count + 1}");
 
                 StorePacket(packet);
             },
@@ -124,6 +121,7 @@ namespace OpenSage.Network
             while (!_receivedPacketsPerFrame.TryGetValue(frame, out var count) || count < _manager.ConnectedPeersCount)
             {
                 _manager.PollEvents();
+                Thread.Sleep(1);
             }
 
             base.Receive(frame, packetFn);
@@ -134,6 +132,7 @@ namespace OpenSage.Network
         public override void Send(uint frame, List<Order> orders)
         {
             var scheduledFrame = frame + OrderSchedulingOffsetInFrames;
+            Logger.Trace($"Frame {frame}: Sending {orders.Count} for frame {scheduledFrame}");
 
             base.Send(scheduledFrame, orders);
 

@@ -793,7 +793,7 @@ namespace OpenSage
                 isMultiPlayer: false,
                 seed: Environment.TickCount);
         }
-        
+
         public void EndGame()
         {
             // TODO: there's a huge memory leak somewhere here...
