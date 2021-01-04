@@ -995,6 +995,8 @@ namespace OpenSage.Logic.Object
                 // TODO: check if this should be drawn with transparency?
                 _rallyPointMarker.BuildRenderList(renderList, camera, gameTime);
             }
+
+            ModelConditionFlags.BitsChanged = false;
         }
 
         public void ClearModelConditionFlags()
