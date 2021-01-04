@@ -36,6 +36,7 @@ namespace OpenSage.Network
             try
             {
                 NatDevice = await natDiscoverer.DiscoverDeviceAsync(PortMapper.Upnp, token);
+                Status = UPnPStatus.Enabled;
             }
             catch (NatDeviceNotFoundException)
             {
@@ -44,16 +45,7 @@ namespace OpenSage.Network
                 return;
             }
 
-            try
-            {
-                IPAddress.NatExternal = await NatDevice.GetExternalIPAsync();
-                Status = (IPAddress.NatExternal == null) ? UPnPStatus.Disabled : UPnPStatus.Enabled;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to initialize UPnP.");
-                Status = UPnPStatus.Disabled;
-            }
+            IPAddress.NatExternal = await NatDevice.GetExternalIPAsync();
         }
 
         public static async Task<bool> ForwardPortsAsync()
