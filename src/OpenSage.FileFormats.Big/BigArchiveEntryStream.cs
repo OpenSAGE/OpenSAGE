@@ -8,7 +8,6 @@ namespace OpenSage.FileFormats.Big
         private readonly BigArchiveEntry _entry;
         private readonly BigArchive _archive;
         private readonly uint _offset;
-        private bool _locked;
         private bool _write;
 
         public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
@@ -17,9 +16,6 @@ namespace OpenSage.FileFormats.Big
             _entry = entry;
             _archive = entry.Archive;
             _offset = offset;
-
-            _archive.AcquireLock();
-            _locked = true;
         }
 
         public override void Flush()
@@ -33,6 +29,7 @@ namespace OpenSage.FileFormats.Big
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            _archive.AcquireLock();
             int result = 0;
             if (_write == false)
             {
@@ -50,6 +47,7 @@ namespace OpenSage.FileFormats.Big
                 result = _entry.OutstandingWriteStream.Read(buffer, offset, count);
                 Position += result;
             }
+            _archive.ReleaseLock();
 
             return result;
         }
@@ -116,13 +114,6 @@ namespace OpenSage.FileFormats.Big
 
         public override void Close()
         {
-            if (_locked)
-            {
-                _archive.ReleaseLock();
-                _locked = false;
-                _entry.CurrentlyOpenForWrite = false;
-            }
-
             Flush();
             base.Close();
         }

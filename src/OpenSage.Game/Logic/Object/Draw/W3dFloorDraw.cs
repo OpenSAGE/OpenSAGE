@@ -15,9 +15,11 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class W3dFloorDraw : DrawModule
     {
+        public override string Tag => _moduleData.Tag;
+
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
-        private ModelInstance _modelInstance;
+        private readonly ModelInstance _modelInstance;
         private readonly W3dFloorDrawModuleData _moduleData;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
@@ -35,7 +37,8 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-                List<string> hiddenSubObjects = null)
+                Dictionary<string, bool> shownSubObjects = null,
+                Dictionary<string, bool> hiddenSubObjects = null)
         {
             foreach (var hideFlag in _moduleData.HideIfModelConditions)
             {
@@ -50,6 +53,7 @@ namespace OpenSage.Logic.Object
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 
@@ -109,9 +113,7 @@ namespace OpenSage.Logic.Object
 
         internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
         {
-            if (Model.Value == null) return null;
-
-            return new W3dFloorDraw(this, context, gameObject);
+            return Model.Value == null ? null : (DrawModule) new W3dFloorDraw(this, context, gameObject);
         }
     }
 

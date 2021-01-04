@@ -216,7 +216,68 @@ namespace OpenSage.Logic.Object
 
         public int Supply { get; set; }
 
-        public List<string> HiddenSubObjects;
+        private Dictionary<string, bool> _hiddenSubObjects;
+        private Dictionary<string, bool> _shownSubObjects;
+
+        public void HideSubObject(string subObject)
+        {
+            if (!_hiddenSubObjects.ContainsKey(subObject))
+            {
+                _hiddenSubObjects.Add(subObject, false);
+            }
+            _shownSubObjects.Remove(subObject);
+        }
+
+        public void HideSubObjectPermanently(string subObject)
+        {
+            if (!_hiddenSubObjects.ContainsKey(subObject))
+            {
+                _hiddenSubObjects.Add(subObject, true);
+            }
+            else
+            {
+                _hiddenSubObjects[subObject] = true;
+            }
+            _shownSubObjects.Remove(subObject);
+        }
+
+
+        public void ShowSubObject(string subObject)
+        {
+            if (!_shownSubObjects.ContainsKey(subObject))
+            {
+                _shownSubObjects.Add(subObject, false);
+            }
+            _hiddenSubObjects.Remove(subObject);
+        }
+
+        public void ShowSubObjectPermanently(string subObject)
+        {
+            if (!_shownSubObjects.ContainsKey(subObject))
+            {
+                _shownSubObjects.Add(subObject, true);
+            }
+            else
+            {
+                _shownSubObjects[subObject] = true;
+            }
+            _hiddenSubObjects.Remove(subObject);
+        }
+
+        private List<string> _hiddenDrawModules;
+
+        public void HideDrawModule(string module)
+        {
+            if (!_hiddenDrawModules.Contains(module))
+            {
+                _hiddenDrawModules.Add(module);
+            }
+        }
+
+        public void ShowDrawModule(string module)
+        {
+            _hiddenDrawModules.Remove(module);
+        }
 
         public RadiusDecalTemplate SelectionDecal;
 
@@ -313,6 +374,17 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
+            _hiddenSubObjects = new Dictionary<string, bool>();
+            _shownSubObjects = new Dictionary<string, bool>();
+            _hiddenDrawModules = new List<string>();
+            _upgrades = new List<UpgradeTemplate>();
+            _conflictingUpgrades = new List<UpgradeTemplate>();
+
+            Hidden = false;
+            ExperienceMultiplier = 1.0f;
+            ExperienceValue = 0;
+            Rank = 0;
+
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
             _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
@@ -368,12 +440,21 @@ namespace OpenSage.Logic.Object
             foreach (var behaviorData in objectDefinition.Behaviors.Values)
             {
                 var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
+
+                // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
                 {
-                    // TODO: This will never be null once we've implemented all the behaviors.
-                    AddBehavior(behaviorData.Tag, module);
+                    if (module is CreateModule)
+                    {
+                        ((CreateModule) module).Execute(_behaviorUpdateContext);
+                    }
+                    else
+                    {
+                        AddBehavior(behaviorData.Tag, module);
+                    }
                 }
             }
+
             _behaviorModules = behaviors;
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
@@ -415,15 +496,6 @@ namespace OpenSage.Logic.Object
             {
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
-
-            HiddenSubObjects = new List<string>();
-            _upgrades = new List<UpgradeTemplate>();
-            _conflictingUpgrades = new List<UpgradeTemplate>();
-
-            Hidden = false;
-            ExperienceMultiplier = 1.0f;
-            ExperienceValue = 0;
-            Rank = 0;
         }
 
         public void AddAttributeModifier(string name, AttributeModifier modifier)
@@ -559,7 +631,8 @@ namespace OpenSage.Logic.Object
         {
             foreach (var obj in Parent.Items)
             {
-                if (obj.Definition == definition && obj.Owner == Owner)
+                if (obj.Definition.Name == definition.Name
+                    && obj.Owner == Owner)
                 {
                     return false;
                 }
@@ -756,21 +829,6 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            UpdateDrawModuleConditionStates();
-
-            // Update all draw modules
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.Update(gameTime);
-            }
-
-            // This must be done after processing anything that might update this object's transform.
-            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.SetWorldMatrix(worldMatrix);
-            }
-
             var castsShadow = false;
             switch (Definition.Shadow)
             {
@@ -787,14 +845,26 @@ namespace OpenSage.Logic.Object
                 TintColor = IsPlacementInvalid ? new Vector3(1, 0.3f, 0.3f) : Vector3.One,
             };
 
+            // This must be done after processing anything that might update this object's transform.
+            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
+            // Update all draw modules
             foreach (var drawModule in _drawModules)
             {
+                if (_hiddenDrawModules.Contains(drawModule.Tag))
+                {
+                    continue;
+                }
+
+                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
+                drawModule.Update(gameTime);
+                drawModule.SetWorldMatrix(worldMatrix);
                 drawModule.BuildRenderList(
                     renderList,
                     camera,
                     castsShadow,
                     renderItemConstantsPS,
-                    HiddenSubObjects);
+                    _shownSubObjects,
+                    _hiddenSubObjects);
             }
 
             if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
@@ -809,15 +879,6 @@ namespace OpenSage.Logic.Object
         public void ClearModelConditionFlags()
         {
             ModelConditionFlags.SetAll(false);
-        }
-
-        private void UpdateDrawModuleConditionStates()
-        {
-            // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
-            }
         }
 
         public void OnLocalSelect(AudioSystem gameAudio)

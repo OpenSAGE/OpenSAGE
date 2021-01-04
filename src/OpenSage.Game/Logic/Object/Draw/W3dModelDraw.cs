@@ -17,10 +17,10 @@ namespace OpenSage.Logic.Object
 {
     public class W3dModelDraw : DrawModule
     {
+        public override string Tag => _data.Tag;
+
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
-
-        protected readonly GameObject GameObject;
 
         private readonly List<IConditionState> _conditionStates;
         private readonly ModelConditionState _defaultConditionState;
@@ -31,12 +31,12 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
 
         private ModelConditionState _activeConditionState;
-        private AnimationState _activeAnimationState;
+        protected AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
-
+ 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
             get
@@ -143,28 +143,23 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.Activate(speedFactor);
         }
 
-        private void SetActiveAnimationState(AnimationState animationState, Random random)
+        protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
+            if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
+            {
+                return false;
+            }
+
             if (animationState == null
                 || animationState.Animations.Count == 0
                 || _activeModelDrawConditionState == null)
             {
-                return;
+                return true;
             }
-
-            if (_activeModelDrawConditionState.StillActive() == false)
-            {
-                _activeAnimationState = null;
-            }
-            else if (animationState == _activeAnimationState)
-            {
-                return;
-            }
-
-            _activeAnimationState = animationState;
 
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
+            _activeAnimationState = animationState;
 
             var animationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
             if (animationBlock != null)
@@ -184,6 +179,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
             }
+            return true;
         }
 
         private IConditionState FindBestFittingConditionState(IConditionState defaultState, List<IConditionState> conditionStates, BitArray<ModelConditionFlag> flags)
@@ -359,13 +355,15 @@ namespace OpenSage.Logic.Object
                 Camera camera,
                 bool castsShadow,
                 MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-                List<string> hiddenSubObjects = null)
+                Dictionary<string, bool> shownSubObjects = null,
+                Dictionary<string, bool> hiddenSubObjects = null)
         {
             _activeModelDrawConditionState?.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 
@@ -436,13 +434,15 @@ namespace OpenSage.Logic.Object
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-            List<string> hiddenSubObjects = null)
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null)
         {
             Model.BuildRenderList(
                 renderList,
                 camera,
                 castsShadow,
                 renderItemConstantsPS,
+                shownSubObjects,
                 hiddenSubObjects);
         }
 
@@ -547,7 +547,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAliasConditionState(IniParser parser)
         {
-            if (!(parser.Temp is ModelConditionState lastConditionState))
+            if (parser.Temp is not ModelConditionState lastConditionState)
             {
                 throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);
             }

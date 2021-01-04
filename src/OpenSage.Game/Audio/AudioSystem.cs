@@ -30,7 +30,7 @@ namespace OpenSage.Audio
 
         public AudioSystem(Game game) : base(game)
         {
-            _engine = AudioEngine.CreateDefault();
+            _engine = AddDisposable(AudioEngine.CreateDefault());
             _3dengine = _engine.Create3DEngine();
             _sources = new List<AudioSource>();
             _cached = new Dictionary<string, AudioBuffer>();
@@ -87,10 +87,9 @@ namespace OpenSage.Audio
         protected override void Dispose(bool disposeManagedResources)
         {
             base.Dispose(disposeManagedResources);
+
             _sources.Clear();
             _cached.Clear();
-
-            _engine.Dispose();
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace OpenSage.Audio
         public SoundStream GetStream(FileSystemEntry entry)
         {
             // TODO: Use submixer (currently not possible)
-            return new SoundStream(entry.Open(), _engine);
+            return AddDisposable(new SoundStream(entry.Open(), _engine));
         }
 
         public void PlayAudioEvent(string eventName)

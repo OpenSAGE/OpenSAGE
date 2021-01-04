@@ -646,6 +646,11 @@ namespace OpenSage
                     var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
 
+                    if (i == localPlayerIndex)
+                    {
+                        Scene3D.CameraController.TerrainPosition = playerStartPosition;
+                    }
+
                     if (playerTemplate.StartingBuilding != null)
                     {
                         var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, player);
@@ -694,9 +699,9 @@ namespace OpenSage
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
 
-            if (Definition.UnitOverlay != null)
+            if (Definition.CommandListOverlay != null)
             {
-                Scene2D.UnitOverlay = Definition.UnitOverlay.Create(this);
+                Scene2D.UnitOverlay = Definition.CommandListOverlay.Create(this);
             }
 
             // Reset everything, and run the first update on the first frame.

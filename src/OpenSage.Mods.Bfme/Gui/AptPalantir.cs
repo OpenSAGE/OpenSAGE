@@ -1,9 +1,9 @@
 ﻿using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 
-namespace OpenSage.Mods.Bfme2.Gui
+namespace OpenSage.Mods.Bfme.Gui
 {
-    [AptCallbacks(SageGame.Bfme2, SageGame.Bfme2Rotwk)]
+    [AptCallbacks(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
     static class AptPalantir
     {
         public static bool Initialized { get; private set; } = false;
@@ -37,6 +37,11 @@ namespace OpenSage.Mods.Bfme2.Gui
         }
 
         public static void OnPlanningModeUILoaded(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void OnSpellBookUIShown(string param, ActionContext context, AptWindow window, Game game)
         {
 
         }

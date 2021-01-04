@@ -2,6 +2,7 @@
 using System.IO;
 using MoonSharp.Interpreter;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.Object;
 using OpenSage.Scripting.Lua;
 
 namespace OpenSage.Scripting
@@ -34,10 +35,8 @@ namespace OpenSage.Scripting
                 if (fileEntry != null)
                 {
                     Logger.Info($"Executing file {filePath}");
-                    using (var fileStream = fileEntry.Open())
-                    {
-                        MainScript.DoStream(fileStream);
-                    }
+                    using var fileStream = fileEntry.Open();
+                    MainScript.DoStream(fileStream);
                 }
             }
             catch (Exception ex)
@@ -52,6 +51,14 @@ namespace OpenSage.Scripting
         {
             Logger.Info($"Executing user code {externalCode}");
             MainScript.DoString(externalCode);
+        }
+
+        private W3dScriptedModelDraw _currentDrawModule;
+        public void ExecuteDrawModuleLuaCode(W3dScriptedModelDraw drawModule, string luaCode)
+        {
+            _currentDrawModule = drawModule;
+            Logger.Info($"Executing ini code {luaCode}");
+            MainScript.DoString(luaCode);
         }
 
         public void FunctionInit()
@@ -101,6 +108,14 @@ namespace OpenSage.Scripting
             MainScript.Globals["ObjectEnterUncontrollableCowerstate"] = (Action<string, string>) ObjectEnterUncontrollableCowerstate;
             MainScript.Globals["GetRandomNumber"] = (Func<double>) GetRandomNumber;
             MainScript.Globals["GetFrame"] = (Func<int>) GetFrame;
+            MainScript.Globals["CurDrawablePrevAnimationState"] = (Func<string>) CurDrawableGetPrevAnimationState;
+            MainScript.Globals["CurDrawablePlaySound"] = (Action<string>) CurDrawablePlaySound;
+            MainScript.Globals["CurDrawableShowSubObject"] = (Action<string>) CurDrawableShowSubObject;
+            MainScript.Globals["CurDrawableHideSubObject"] = (Action<string>) CurDrawableHideSubObject;
+            MainScript.Globals["CurDrawableShowSubObjectPermanently"] = (Action<string>) CurDrawableShowSubObjectPermanently;
+            MainScript.Globals["CurDrawableHideSubObjectPermanently"] = (Action<string>) CurDrawableHideSubObjectPermanently;
+            MainScript.Globals["CurDrawableShowModule"] = (Action<string>) CurDrawableShowModule;
+            MainScript.Globals["CurDrawableHideModule"] = (Action<string>) CurDrawableHideModule;
             //addititional custom and testing functions
             MainScript.Globals["Spawn"] = (Func<string, string>) Spawn;
             MainScript.Globals["Spawn2"] = (Func<string, float, float, float, float, string>) Spawn2;
@@ -147,27 +162,16 @@ namespace OpenSage.Scripting
             //GenericEvent (self,data) //example data: "show_rock"
         }
 
-        public int GetInt(string number)
+        public static int GetInt(string number)
         {
-            int i = 0;
-            if (!int.TryParse(number, out i))
+            if (!int.TryParse(number, out var i))
             {
                 i = -1;
             }
             return i;
         }
 
-        public bool Getstate(string state)
-        {
-            if (state.Equals("1") || state.Equals("true"))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public static bool Getstate(string state) => (state.Equals("1") || state.Equals("true"));
 
         public void AddGameObjectRefToGlobalsTable(Table gameObject)
         {
@@ -182,7 +186,7 @@ namespace OpenSage.Scripting
 
         public string GetLuaObjectIndex(uint ObjectID)
         {
-            return String.Concat("ObjID#", ObjectID.ToString("X8"));
+            return string.Concat("ObjID#", ObjectID.ToString("X8"));
         }
 
         public string Spawn(string objectType)  //quick spawn
@@ -437,6 +441,15 @@ namespace OpenSage.Scripting
         public void ObjectEnterUncontrollableCowerstate(string gameObject1, string gameObject2)
         {
         }
+
+        public string CurDrawableGetPrevAnimationState() => _currentDrawModule.PrevAnimationState?.StateName ?? "";
+        public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
+        public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
+        public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);
+        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.ShowSubObjectPermanently(subObject);
+        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObjectPermanently(subObject);
+        public void CurDrawableShowModule(string module) => _currentDrawModule.GameObject.ShowDrawModule(module);
+        public void CurDrawableHideModule(string module) => _currentDrawModule.GameObject.HideDrawModule(module);
 
         public double GetRandomNumber()  //attention for multiplayer sync
         {

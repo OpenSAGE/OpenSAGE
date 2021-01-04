@@ -132,7 +132,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void Update(in TimeInterval gameTime, List<string> hiddenSubObjects = null)
+        public void Update(in TimeInterval gameTime)
         {
             // TODO: Don't update animations if model isn't visible.
 
@@ -205,14 +205,16 @@ namespace OpenSage.Graphics
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS,
-            List<string> hiddenSubObjects = null)
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null)
         {
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
                 var name = subObject.Name.Split('.').Last();
 
-                if (hiddenSubObjects != null && hiddenSubObjects.Contains(name))
+                if ((subObject.RenderObject.Hidden && !(shownSubObjects?.ContainsKey(name) ?? false))
+                    || (hiddenSubObjects?.ContainsKey(name) ?? false))
                 {
                     continue;
                 }

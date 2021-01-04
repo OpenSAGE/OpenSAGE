@@ -4,21 +4,19 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class IniScript
+    public static class IniScript
     {
-        internal static IniScript Parse(IniParser parser)
+        internal static string Parse(IniParser parser)
         {
-            var result = new IniScript();
+            var result = "";
             string line;
             parser.GoToNextLine();
-            while ((line = parser.ParseString()) != "EndScript")
+            while (!(line = parser.ParseLine()).Contains("EndScript"))
             {
-                result.Commands.Add(line);
+                result += line;
                 parser.GoToNextLine();
             }
             return result;
         }
-
-        public List<string> Commands { get; private set; } = new List<string>();
     }
 }

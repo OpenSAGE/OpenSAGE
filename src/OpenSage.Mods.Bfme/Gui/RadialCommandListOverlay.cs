@@ -5,7 +5,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
-using OpenSage.Gui.UnitOverlay;
+using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -13,7 +13,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
-    public class RadialUnitOverlay : InputMessageHandler, IUnitOverlay
+    public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
     {
         Game _game;
 
@@ -22,11 +22,11 @@ namespace OpenSage.Mods.Bfme.Gui
         private CommandSet _commandSet;
         private CommandSet _gettingBuildCommandSet;
         List<RadialButton> _buttons;
-        private GameObject _selectedObject;
+        private GameObject _selectedStructure;
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
-        public RadialUnitOverlay(Game game)
+        public RadialCommandListOverlay(Game game)
         {
             _game = game;
             _game.InputMessageBuffer.Handlers.Add(this);
@@ -46,28 +46,28 @@ namespace OpenSage.Mods.Bfme.Gui
             _visible = false;
             if (player.SelectedUnits.Count != 1)
             {
-                _selectedObject = null;
+                _selectedStructure = null;
                 return;
             }
 
-            var selectedObject = player.SelectedUnits.First();
-            if (selectedObject.Owner != player
-                || !selectedObject.Definition.KindOf.Get(ObjectKinds.Structure)
-                || selectedObject.Definition.CommandSet == null)
+            var selectedStructure = player.SelectedUnits.First();
+            if (selectedStructure.Owner != player
+                || !selectedStructure.Definition.KindOf.Get(ObjectKinds.Structure)
+                || selectedStructure.Definition.CommandSet == null)
             {
-                _selectedObject = null;
+                _selectedStructure = null;
                 return;
             }
 
-            var playerTemplate = selectedObject.Owner.Template;
+            var playerTemplate = selectedStructure.Owner.Template;
             _visible = true;
 
-            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedObject.Collider.WorldBounds.Center);
-            _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
+            var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedStructure.Collider.WorldBounds.Center);
+            _center = new Point2D((int) screenPosition.X, (int) screenPosition.Y);
 
-            _commandSet = selectedObject.IsBeingConstructed() ? _gettingBuildCommandSet : selectedObject.Definition.CommandSet.Value;
+            _commandSet = selectedStructure.IsBeingConstructed() ? _gettingBuildCommandSet : selectedStructure.Definition.CommandSet.Value;
 
-            if (_selectedObject != selectedObject && _commandSet != null)
+            if (_selectedStructure != selectedStructure && _commandSet != null)
             {
                 //Update button list
                 var heroIndex = 0;
@@ -93,25 +93,25 @@ namespace OpenSage.Mods.Bfme.Gui
                 foreach (var commandButton in commandButtons)
                 {
                     var isHeroButton = commandButton.Object?.Value?.KindOf.Get(ObjectKinds.Hero) ?? false;
-                    var radialButton = new RadialButton(_game, selectedObject, commandButton, isHeroButton);
+                    var radialButton = new RadialButton(_game, selectedStructure, commandButton, isHeroButton);
                     _buttons.Add(radialButton);
                 }
 
-                _selectedObject = selectedObject;
+                _selectedStructure = selectedStructure;
             }
 
-            var isProducing = selectedObject.ProductionUpdate?.IsProducing ?? false;
+            var isProducing = selectedStructure.ProductionUpdate?.IsProducing ?? false;
             foreach (var radialButton in _buttons)
             {
                 radialButton.IsVisible = true;
                 if (radialButton.IsRecruitHeroButton)
                 {
                     var definition = radialButton.CommandButton.Object.Value;
-                    radialButton.IsVisible = selectedObject.CanRecruitHero(definition);
+                    radialButton.IsVisible = selectedStructure.CanRecruitHero(definition);
                 }
 
-                var (count, progress) = isProducing ? selectedObject.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
-                radialButton.Update(progress, count, selectedObject.CanPurchase(radialButton.CommandButton));
+                var (count, progress) = isProducing ? selectedStructure.ProductionUpdate.GetCountAndProgress(radialButton.CommandButton) : (0, 0.0f);
+                radialButton.Update(progress, count, selectedStructure.CanPurchase(radialButton.CommandButton));
             }
         }
 
@@ -160,8 +160,8 @@ namespace OpenSage.Mods.Bfme.Gui
         }
     }
 
-    public class RadialUnitOverlaySource : IUnitOverlaySource
+    public class RadialUnitOverlaySource : ICommandListOverlaySource
     {
-        public IUnitOverlay Create(Game game) => new RadialUnitOverlay(game);
+        public ICommandListOverlay Create(Game game) => new RadialCommandListOverlay(game);
     }
 }

@@ -227,12 +227,13 @@ namespace OpenSage.Diagnostics
                 if (_context.Game.Configuration.UseRenderDoc && ImGui.BeginMenu("RenderDoc"))
                 {
                     var renderDoc = Game.RenderDoc;
+                    var isRenderDocActive = renderDoc != null;
 
-                    if (ImGui.MenuItem("Trigger Capture"))
+                    if (ImGui.MenuItem("Trigger Capture", isRenderDocActive))
                     {
                         renderDoc.TriggerCapture();
                     }
-                    if (ImGui.BeginMenu("Options"))
+                    if (ImGui.BeginMenu("Options", isRenderDocActive))
                     {
                         bool allowVsync = renderDoc.AllowVSync;
                         if (ImGui.Checkbox("Allow VSync", ref allowVsync))
@@ -277,7 +278,7 @@ namespace OpenSage.Diagnostics
                         }
                         ImGui.EndMenu();
                     }
-                    if (ImGui.MenuItem("Launch Replay UI"))
+                    if (ImGui.MenuItem("Launch Replay UI", isRenderDocActive))
                     {
                         renderDoc.LaunchReplayUI();
                     }

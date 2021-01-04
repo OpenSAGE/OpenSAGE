@@ -10,14 +10,14 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Mods.Bfme2.Gui;
+using OpenSage.Mods.Bfme.Gui;
 using SixLabors.Fonts;
 using Veldrid;
 using Geometry = OpenSage.Data.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
-namespace OpenSage.Mods.Bfme2
+namespace OpenSage.Mods.Bfme
 {
     class AptControlBar : IControlBar
     {
@@ -29,11 +29,11 @@ namespace OpenSage.Mods.Bfme2
         private bool _minimapInitialized = false;
         private GameObject _selectedUnit;
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private Font _font;
-        private int _fontSize = 11;
-        private ColorRgbaF _fontColor;
+        private readonly Font _font;
+        private readonly int _fontSize = 11;
+        private readonly ColorRgbaF _fontColor;
 
         public AptControlBar(Game game)
         {
@@ -93,7 +93,7 @@ namespace OpenSage.Mods.Bfme2
         {
             if (!_palantirInitialized)
             {
-                logger.Info("Initialize Palantir!");
+                Logger.Info("Initialize Palantir!");
 
                 var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
                 if (showCommandInterface.Type != ValueType.Undefined)
@@ -110,8 +110,16 @@ namespace OpenSage.Mods.Bfme2
         private void ClearCommandbuttons()
         {
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+            if (aptCommandButtons.Constants.Count == 0)
+            {
+                return;
+            }
+
             for (var i = 1; i <= 6; i++)
             {
+                // we do not know how bfme handles this yet
+                if (_game.SageGame == SageGame.Bfme) continue;
+
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;
@@ -144,6 +152,9 @@ namespace OpenSage.Mods.Bfme2
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
             for (var i = 1; i <= 6; i++)
             {
+                // we do not know how bfme handles this yet
+                if (_game.SageGame == SageGame.Bfme) continue;
+
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
                 placeHolder.Item.Visible = false;
@@ -159,9 +170,11 @@ namespace OpenSage.Mods.Bfme2
                 }
 
                 var createContent = commandButton.GetMember("CreateContent");
-                var args = new List<Value>();
-                args.Add(Value.FromString("bttn"));
-                args.Add(Value.FromString("CommandButton"));
+                var args = new List<Value>
+                {
+                    Value.FromString("bttn"),
+                    Value.FromString("CommandButton")
+                };
 
                 //TODO: fix so this works
                 FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
@@ -270,8 +283,6 @@ namespace OpenSage.Mods.Bfme2
                         _commandbarVisible = true;
                     }
                 }
-
-                UpdateCommandbuttons();
             }
             else if (player.SelectedUnits.Count == 0 && _commandbarVisible)
             {
@@ -279,13 +290,12 @@ namespace OpenSage.Mods.Bfme2
 
                 if (fadeOut.Type != ValueType.Undefined)
                 {
-                    List<Value> emptyArgs = new List<Value>();
+                    var emptyArgs = new List<Value>();
                     FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
                     _commandbarVisible = true;
                 }
 
                 _commandbarVisible = false;
-                ClearCommandbuttons();
             }
         }
 
@@ -299,12 +309,22 @@ namespace OpenSage.Mods.Bfme2
                 {
                     UpdateSideCommandbar(player);
                 }
+
+                if (player.SelectedUnits.Count > 0)
+                {
+                    UpdateCommandbuttons();
+                }
+                else
+                {
+                    ClearCommandbuttons();
+                }
+
                 UpdatePalantir(player);
             }
         }
     }
 
-    class AptControlBarSource : IControlBarSource
+    public class AptControlBarSource : IControlBarSource
     {
         public IControlBar Create(string side, Game game)
         {

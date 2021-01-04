@@ -3,6 +3,23 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
+    internal sealed class ExperienceLevelCreateBehavior : CreateModule
+    {
+        GameObject _gameObject;
+        ExperienceLevelCreateModuleData _moduleData;
+
+        internal ExperienceLevelCreateBehavior(GameObject gameObject, ExperienceLevelCreateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+        }
+
+        internal override void Execute(BehaviorUpdateContext context)
+        {
+            _gameObject.Rank = _moduleData.LevelToGrant;
+        }
+    }
+
     public sealed class ExperienceLevelCreateModuleData : CreateModuleData
     {
         internal static ExperienceLevelCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -15,5 +32,10 @@ namespace OpenSage.Logic.Object
 
         public int LevelToGrant { get; private set; }
         public bool MPOnly { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new ExperienceLevelCreateBehavior(gameObject, this);
+        }
     }
 }

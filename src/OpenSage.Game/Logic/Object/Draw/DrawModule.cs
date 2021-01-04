@@ -12,6 +12,8 @@ namespace OpenSage.Logic.Object
 {
     public abstract class DrawModule : DisposableBase
     {
+        public abstract string Tag { get; }
+        public GameObject GameObject { get; protected set; }
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
         // TODO: Probably shouldn't have this here.
@@ -27,11 +29,13 @@ namespace OpenSage.Logic.Object
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
-        internal abstract void BuildRenderList(RenderList renderList,
+        internal abstract void BuildRenderList(
+            RenderList renderList,
             Camera camera,
             bool castsShadow,
             MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-            List<string> hiddenSubObjects = null);
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null);
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 
@@ -52,7 +56,7 @@ namespace OpenSage.Logic.Object
             { "W3DHordeModelDraw", W3dHordeModelDrawModuleData.Parse },
             { "W3DLaserDraw", W3dLaserDrawModuleData.Parse },
             { "W3DLightDraw", W3dLightDrawModuleData.Parse },
-            { "W3DModelDraw", W3dModelDrawModuleData.ParseModel },
+            { "W3DModelDraw", W3dScriptedModelDrawModuleData.ParseModel },
             { "W3DOverlordAircraftDraw", W3dOverlordAircraftDraw.Parse },
             { "W3DOverlordTankDraw", W3dOverlordTankDrawModuleData.Parse },
             { "W3DOverlordTruckDraw", W3dOverlordTruckDrawModuleData.Parse },

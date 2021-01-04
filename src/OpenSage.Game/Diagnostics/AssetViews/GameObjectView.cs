@@ -23,6 +23,7 @@ namespace OpenSage.Diagnostics.AssetViews
                 createGameObjects: gameObjects =>
                 {
                     _gameObject = gameObjects.Add(objectDefinition, context.Game.CivilianPlayer);
+                    gameObjects.InsertCreated();
                 }));
 
             _modelConditionStates = _gameObject.ModelConditionStates.ToList();

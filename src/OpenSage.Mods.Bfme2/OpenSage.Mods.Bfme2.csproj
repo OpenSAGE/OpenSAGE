@@ -7,4 +7,7 @@
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Gui\" />
+  </ItemGroup>
 </Project>
