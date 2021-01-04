@@ -11,11 +11,8 @@ namespace OpenSage.Logic.Object
         internal static AnimationState Parse(IniParser parser)
         {
             var stateTypeFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
-
             var result = parser.ParseBlock(FieldParseTable);
-
             result.ConditionFlags = stateTypeFlags;
-
             return result;
         }
 
@@ -35,7 +32,7 @@ namespace OpenSage.Logic.Object
             { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
         };
 
-        public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
+        public BitArray<ModelConditionFlag> ConditionFlags { get; protected set; }
 
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();

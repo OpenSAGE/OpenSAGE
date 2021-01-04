@@ -151,9 +151,9 @@ namespace OpenSage.Logic.Object
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
         {
-            if (animationState == _activeAnimationState)
+            if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
             {
-                if (_activeModelDrawConditionState?.StillActive() ?? false) return false;
+                return false;
             }
 
             if (animationState == null
@@ -213,6 +213,17 @@ namespace OpenSage.Logic.Object
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
         {
+            if (!flags.BitsChanged)
+            {
+                if (!(_activeModelDrawConditionState?.StillActive() ?? false)
+                    && _activeAnimationState != null
+                    && ReferenceEquals(_activeAnimationState, _idleAnimationState))
+                {
+                    SetActiveAnimationState(_activeAnimationState, random);
+                }
+                return;
+            }
+
             var bestConditionState = (ModelConditionState)FindBestFittingConditionState(_defaultConditionState, _conditionStates, flags);
             SetActiveConditionState(bestConditionState, random);
 
@@ -232,6 +243,8 @@ namespace OpenSage.Logic.Object
 
             var bestAnimationState = (AnimationState) FindBestFittingConditionState(_idleAnimationState, _animationStates, flags);
             SetActiveAnimationState(bestAnimationState, random);
+
+            flags.BitsChanged = false;
         }
 
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)

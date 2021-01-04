@@ -12,6 +12,8 @@ namespace OpenSage.Mathematics
         public bool AnyBitSet => _data.AnyBitSet;
         public int NumBitsSet => _data.NumBitsSet;
 
+        public bool BitsChanged { get; set; }
+
         public BitArray()
         {
             var maxBits = GetNumValues();
@@ -61,6 +63,7 @@ namespace OpenSage.Mathematics
         public void Set(int bit, bool value)
         {
             _data.Set(bit, value);
+            BitsChanged = true;
         }
 
         public void Set(TEnum bit, bool value)
@@ -68,16 +71,19 @@ namespace OpenSage.Mathematics
             // This avoids an object allocation.
             var bitI = Unsafe.As<TEnum, int>(ref bit);
             _data.Set(bitI, value);
+            BitsChanged = true;
         }
 
         public void SetAll(bool value)
         {
             _data.SetAll(value);
+            BitsChanged = true;
         }
 
         public void CopyFrom(BitArray<TEnum> other)
         {
             _data.CopyFrom(other._data);
+            BitsChanged = true;
         }
 
         public int CountIntersectionBits(BitArray<TEnum> other)
