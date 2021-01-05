@@ -83,9 +83,11 @@ namespace OpenSage.Mods.Generals.Gui
             // Update players
             var listBoxPlayers = (ListBox) window.Controls.FindControl(ListBoxPlayersPrefix);
 
-            listBoxPlayers.Items = (from player in _game.LobbyManager.Players
-                                    where !player.IsHosting
-                                    select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor)).ToArray();
+            var players = from player in _game.LobbyManager.Players
+                          where !player.IsHosting
+                          select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor);
+
+            listBoxPlayers.Items = players.ToArray();
         }
 
         private static void ClearPlayerName(object sender, EventArgs args)

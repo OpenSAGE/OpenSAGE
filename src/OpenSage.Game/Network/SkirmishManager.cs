@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using OpenSage.Content;
 using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
@@ -52,11 +51,7 @@ namespace OpenSage.Network
             _game = game;
 
             _listener = new EventBasedNetListener();
-            _manager = new NetManager(_listener)
-            {
-                ReuseAddress = true,
-                IPv6Enabled = IPv6Mode.Disabled, // TODO: temporary
-            };
+            _manager = new NetManager(_listener);
 
             _writer = new NetDataWriter();
 
@@ -109,8 +104,6 @@ namespace OpenSage.Network
 
         public class Client : SkirmishManager
         {
-            private string _playerId;
-
             private void SkirmishGameStatusPacketReceived(SkirmishGameStatusPacket packet, IPEndPoint host)
             {
                 Logger.Info("got mapName" + packet.MapName);
@@ -123,7 +116,7 @@ namespace OpenSage.Network
 
                 if (SkirmishGame.LocalSlotIndex < 0)
                 {
-                    SkirmishGame.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.PlayerId == _playerId);
+                    SkirmishGame.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.ClientId == ClientInstance.Id);
                     Logger.Info($"New local slot index is {SkirmishGame.LocalSlotIndex}");
                 }
             }
@@ -166,15 +159,13 @@ namespace OpenSage.Network
 
                 Logger.Trace($"Joining game at {endPoint}");
 
-                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.AnyAvailable); // TODO: what about IPV6
-
-                _playerId = Guid.NewGuid().ToString();
+                _manager.Start(Ports.AnyAvailable);
 
                 _writer.Reset();
                 _processor.Write(_writer, new SkirmishClientConnectPacket()
                 {
                     PlayerName = _game.LobbyManager.Username,
-                    PlayerId = _playerId,
+                    ClientId = ClientInstance.Id,
                     ProcessId = Process.GetCurrentProcess().Id
                 });
 
@@ -234,8 +225,8 @@ namespace OpenSage.Network
 
             private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
             {
+                slot.ClientId = packet.ClientId;
                 slot.PlayerName = packet.PlayerName;
-                slot.PlayerId = packet.PlayerId;
             }
 
             public Host(Game game) : base(game, true)
@@ -251,7 +242,7 @@ namespace OpenSage.Network
 
                     var slot = _slotLookup[peer.Id];
                     slot.State = SkirmishSlotState.Open;
-                    slot.PlayerId = null;
+                    slot.ClientId = null;
                     slot.PlayerName = null;
                     slot.Ready = false;
 
@@ -303,9 +294,9 @@ namespace OpenSage.Network
                 var localSlot = SkirmishGame.LocalSlot;
                 localSlot.PlayerName = _game.LobbyManager.Username;
                 localSlot.State = SkirmishSlotState.Human;
-                localSlot.EndPoint = new IPEndPoint(IPAddress.External ?? IPAddress.Local, Ports.SkirmishHost);
+                localSlot.EndPoint = new IPEndPoint(IPAddress.Any, Ports.SkirmishHost); // The host does not know his own external IP address
 
-                _manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, Ports.SkirmishHost); // TODO: what about IPV6
+                _manager.Start(Ports.SkirmishHost);
 
                 StartThread();
             }

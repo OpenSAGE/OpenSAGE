@@ -29,11 +29,7 @@ namespace OpenSage.Network
         public NetworkConnection()
         {
             _listener = new EventBasedNetListener();
-            _manager = new NetManager(_listener)
-            {
-                ReuseAddress = true,
-                IPv6Enabled = IPv6Mode.Disabled, // TODO: temporary
-            };
+            _manager = new NetManager(_listener);
 
             if (Debugger.IsAttached)
             {
@@ -77,7 +73,7 @@ namespace OpenSage.Network
                 port += game.SkirmishManager.SkirmishGame.LocalSlotIndex;
             }
 
-            if (!_manager.Start(IPAddress.Local, System.Net.IPAddress.IPv6Any, port)) // TODO: what about IPV6
+            if (!_manager.Start(port))
             {
                 Logger.Error("Failed to initialize network connection");
             };
@@ -93,7 +89,7 @@ namespace OpenSage.Network
                     }
 
                     var endPoint = new IPEndPoint(slot.EndPoint.Address, port);
-                    Logger.Trace($"Connecting from {IPAddress.Local}:{_manager.LocalPort} to {endPoint}");
+                    Logger.Trace($"Initializing network connection from port {_manager.LocalPort} to {endPoint}");
                     var peer = _manager.Connect(endPoint, string.Empty);
                 }
             }

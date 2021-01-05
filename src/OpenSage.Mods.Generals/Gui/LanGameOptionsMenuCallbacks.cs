@@ -54,10 +54,10 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuInit(Window window, Game game)
         {
-            if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting && IPAddress.NatExternal != null)
+            if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting && UPnP.ExternalIP != null)
             {
-                var listBoxChat = (ListBox)window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
-                listBoxChat.Items = new[] { new ListBoxDataItem(null, new string[] { $"Your external IP address is {IPAddress.NatExternal}" }, ColorRgbaF.White) };
+                var listBoxChat = (ListBox) window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
+                listBoxChat.Items = new[] { new ListBoxDataItem(null, new string[] { $"Your external IP address is {UPnP.ExternalIP}" }, ColorRgbaF.White) };
             }
 
             GameOptions = new GameOptionsUtil(window, game, "Lan");

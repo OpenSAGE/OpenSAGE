@@ -124,7 +124,7 @@ namespace OpenSage.Network
         }
 
         public IPEndPoint EndPoint { get; set; }
-        public string PlayerId { get; set; }
+        public string ClientId { get; set; }
 
         public bool IsDirty { get; private set; }
 
@@ -147,7 +147,7 @@ namespace OpenSage.Network
 
             if (slot.State == SkirmishSlotState.Human)
             {
-                slot.PlayerId = reader.GetString();
+                slot.ClientId = reader.GetString();
                 slot.PlayerName = reader.GetString();
                 slot.EndPoint = reader.GetNetEndPoint();
             }
@@ -165,7 +165,7 @@ namespace OpenSage.Network
             writer.Put(slot.Ready);
             if (slot.State == SkirmishSlotState.Human)
             {
-                writer.Put(slot.PlayerId);
+                writer.Put(slot.ClientId);
                 writer.Put(slot.PlayerName);
                 writer.Put(slot.EndPoint);
             }
