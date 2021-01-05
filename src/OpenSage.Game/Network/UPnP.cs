@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Open.Nat;
@@ -21,7 +22,8 @@ namespace OpenSage.Network
         private static Mapping SkirmishHostMapping;
         private static Mapping SkirmishGameMapping;
 
-        public static UPnPStatus Status { get; private set; } = UPnPStatus.Uninitialized; 
+        public static UPnPStatus Status { get; private set; } = UPnPStatus.Uninitialized;
+        public static IPAddress ExternalIP { get; private set; }
 
         public static async Task InitializeAsync(TimeSpan timeout)
         {
@@ -45,7 +47,7 @@ namespace OpenSage.Network
                 return;
             }
 
-            IPAddress.NatExternal = await NatDevice.GetExternalIPAsync();
+            ExternalIP = await NatDevice.GetExternalIPAsync();
         }
 
         public static async Task<bool> ForwardPortsAsync()
@@ -57,10 +59,10 @@ namespace OpenSage.Network
 
             try
             {
-                SkirmishHostMapping = new Mapping(Protocol.Udp, IPAddress.Local, Ports.SkirmishHost, Ports.SkirmishHost, 0, "OpenSAGE Skirmish Host");
+                SkirmishHostMapping = new Mapping(Protocol.Udp, Ports.SkirmishHost, Ports.SkirmishHost, 0, "OpenSAGE Skirmish Host");
                 await NatDevice.CreatePortMapAsync(SkirmishHostMapping);
 
-                SkirmishGameMapping = new Mapping(Protocol.Udp, IPAddress.Local, Ports.SkirmishGame, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
+                SkirmishGameMapping = new Mapping(Protocol.Udp, Ports.SkirmishGame, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
                 await NatDevice.CreatePortMapAsync(SkirmishGameMapping);
 
                 Status = UPnPStatus.PortsForwarded;

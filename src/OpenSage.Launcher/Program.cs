@@ -11,7 +11,6 @@ using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
-using LiteNetLib;
 
 namespace OpenSage.Launcher
 {
@@ -51,9 +50,6 @@ namespace OpenSage.Launcher
 
             [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
             public string GamePath { get; set; }
-
-            [Option("ip", Default = null, Required = false, HelpText = "Bind to a specific IP address")]
-            public string LanIPAddress { get; set; } = "";
 
             [Option('u', "uniqueports", Default = false, Required = false, HelpText = "Use a unique port for each client in a multiplayer game. Normally, port 8088 is used, but when we want to run multiple game instances on the same machine (for debugging purposes), each client needs a different port.")]
             public bool UseUniquePorts { get; set; }
@@ -142,19 +138,6 @@ namespace OpenSage.Launcher
                 LoadShellMap = !opts.NoShellmap,
                 UseUniquePorts = opts.UseUniquePorts
             };
-
-            if (System.Net.IPAddress.TryParse(opts.LanIPAddress, out var address))
-            {
-                IPAddress.Local = address;
-            }
-            else
-            {
-                IPAddress.Local = System.Net.IPAddress.Parse(NetUtils.GetLocalIp(LocalAddrType.IPv4));
-                if (!string.IsNullOrEmpty(opts.LanIPAddress))
-                {
-                    logger.Error($"Could not parse specified LAN IP address: {opts.LanIPAddress}");
-                }
-            }
 
             UPnP.InitializeAsync(TimeSpan.FromSeconds(10)).ContinueWith(_ => logger.Info($"UPnP status: {UPnP.Status}"));
 

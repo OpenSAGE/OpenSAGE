@@ -46,11 +46,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Initialize local ip
             var staticLocalIp = (Label) window.Controls.FindControl(StaticLocalIPPrefix);
-            staticLocalIp.Text = IPAddress.Local.ToString();
-            if (IPAddress.NatExternal != null)
-            {
-                staticLocalIp.Text += $" / {IPAddress.NatExternal} (UPnP)";
-            }
+            staticLocalIp.Text = LiteNetLib.NetUtils.GetLocalIp(LiteNetLib.LocalAddrType.All);
         }
     }
 }
