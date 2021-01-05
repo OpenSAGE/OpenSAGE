@@ -127,19 +127,19 @@ namespace OpenSage.Gui.Apt
             _drawingContext.SetAlphaMask(renderTarget?.ColorTarget);
         }
 
-        public void RenderText(Text text)
+        public void RenderText(Text character, string actualText)
         {
-            var font = _contentManager.FontManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var font = _contentManager.FontManager.GetOrCreateFont("Arial", character.FontHeight, FontWeight.Normal);
 
             var transform = _transformStack.Peek();
             CalculateTransform(ref transform);
 
             _drawingContext.DrawText(
-                text.Content.Localized,
+                actualText,
                 font,
                 TextAlignment.Center,
-                text.Color.ToColorRgbaF() * transform.ColorTransform,
-                RectangleF.Transform(text.Bounds, transform.GeometryRotation));
+                character.Color.ToColorRgbaF() * transform.ColorTransform,
+                RectangleF.Transform(character.Bounds, transform.GeometryRotation));
         }
 
         public Matrix3x2 GetCurrentTransformMatrix()

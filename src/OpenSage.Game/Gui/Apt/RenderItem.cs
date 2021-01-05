@@ -11,6 +11,8 @@ namespace OpenSage.Gui.Apt
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private TimeInterval _lastUpdate;
+
+        public LocalizedString TextValue { get; private set; }
         private bool IsHovered { get; set; }
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
@@ -24,13 +26,14 @@ namespace OpenSage.Gui.Apt
             ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
+            TextValue = character is Text text ? LocalizedString.Apt(text.Content) : null;
             IsHovered = false;
         }
 
         public override void Update(TimeInterval gt)
         {
             // Currently only Text needs to be updated
-            if (!(Character is Text t))
+            if (Character is not Text t)
             {
                 return;
             }
@@ -43,12 +46,13 @@ namespace OpenSage.Gui.Apt
             _lastUpdate = gt;
             if (t.Value.Length > 0)
             {
+                string textValue = null;
                 try
                 {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
                     if (val.Type != ValueType.Undefined)
                     {
-                        t.Content = LocalizedString.Apt(val.ToString());
+                        textValue = val.ToString();
                     }
                 }
                 catch (System.Exception e)
@@ -56,13 +60,19 @@ namespace OpenSage.Gui.Apt
                     Logger.Warn($"Failed to resolve text value: {e}");
                 }
 
+                if (TextValue.Original != textValue)
+                {
+                    TextValue = LocalizedString.Apt(textValue);
+                }
             }
         }
 
         protected override void RenderImpl(AptRenderingContext renderingContext)
         {
             if (!Visible)
+            {
                 return;
+            }
 
             renderingContext.PushTransform(Transform);
 
@@ -86,7 +96,7 @@ namespace OpenSage.Gui.Apt
                     break;
 
                 case Text t:
-                    renderingContext.RenderText(t);
+                    renderingContext.RenderText(t, TextValue.Localized);
                     break;
             }
 

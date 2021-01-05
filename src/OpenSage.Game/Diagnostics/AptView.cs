@@ -93,7 +93,9 @@ namespace OpenSage.Diagnostics
                             {
                                 var text = _selectedItem.Character as Text;
                                 ImGuiUtility.BeginPropertyList();
-                                ImGuiUtility.PropertyRow("Content", text.Content.Localized);
+                                ImGuiUtility.PropertyRow("Content", ri.TextValue?.Original ?? "null");
+                                ImGuiUtility.PropertyRow("LocalizedContent", ri.TextValue?.Localized ?? "null");
+                                ImGuiUtility.PropertyRow("InitialContent", text.Content);
                                 ImGuiUtility.PropertyRow("InitialValue", text.Value);
                                 ImGuiUtility.PropertyRow("Color", text.Color.ToString());
                                 ImGuiUtility.PropertyRow("Multiline", text.Multiline);
