@@ -126,6 +126,24 @@ namespace OpenSage
         }
 
         /// <summary>
+        /// Dispose a disposable object and set a new value to the variable.
+        /// Remove the old object from the ToDispose list, and add the new
+        /// object to the list.
+        /// Useful to make properties a bit cleaner.
+        /// </summary>
+        /// <param name="objectToDispose">Object to dispose.</param>
+        protected internal void DisposeAndAssign<T>(ref T objectToDispose, T newValue)
+            where T : class, IDisposable
+        {
+            if (!ReferenceEquals(objectToDispose, null))
+            {
+                _disposables.Remove(objectToDispose);
+                objectToDispose.Dispose();
+            }
+            objectToDispose = AddDisposable(newValue);
+        }
+
+        /// <summary>
         /// Removes a disposable object to the list of the objects to dispose.
         /// </summary>
         /// <typeparam name="T"></typeparam>

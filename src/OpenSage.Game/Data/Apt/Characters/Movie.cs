@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.FileFormats;
 
@@ -28,6 +29,27 @@ namespace OpenSage.Data.Apt.Characters
             movie.Imports = reader.ReadListAtOffset<Import>(() => Import.Parse(reader));
             movie.Exports = reader.ReadListAtOffset<Export>(() => Export.Parse(reader));
 
+            return movie;
+        }
+
+        public static Movie CreateEmpty(AptFile container, int width, int height, int millisecondsPerFrame)
+        {
+            if (container.Movie != null)
+            {
+                throw new ArgumentException("AptFile already has a Movie");
+            }
+            var movie = new Movie
+            {
+                Frames = new List<Frame>(),
+                Characters = new List<Character>(),
+                Imports = new List<Import>(),
+                Exports = new List<Export>(),
+                ScreenWidth = (uint) width,
+                ScreenHeight = (uint) height,
+                MillisecondsPerFrame = (uint) millisecondsPerFrame
+            };
+            movie.Characters.Add(movie);
+            movie.Container = container;
             return movie;
         }
     }

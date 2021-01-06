@@ -77,5 +77,11 @@ namespace OpenSage.Mathematics
         {
             return new Vector4(R, G, B, A);
         }
+
+        public ColorRgba ToColorRgba()
+        {
+            static byte Transform(float f) => (byte) (f * 255.0f);
+            return new ColorRgba(Transform(R), Transform(G), Transform(B), Transform(A));
+        }
     }
 }

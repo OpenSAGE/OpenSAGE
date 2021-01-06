@@ -495,6 +495,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                         case InstructionType.StrictEqual:
                             instruction = new StrictEquals();
                             break;
+                        case InstructionType.Extends:
+                            instruction = new Extends();
+                            break;
+                        case InstructionType.InstanceOf:
+                            instruction = new InstanceOf();
+                            break;
                         default:
                             throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());
                     }

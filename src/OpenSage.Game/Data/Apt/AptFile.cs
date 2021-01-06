@@ -9,13 +9,16 @@ namespace OpenSage.Data.Apt
 {
     public sealed class AptFile
     {
-        public ConstantData Constants { get; private set; }
+        public FileSystem FileSystem { get; }
+        public ConstantData Constants { get; }
+        public string MovieName { get; }
+
         public Movie Movie { get; private set; }
+        public ImageMap ImageMap { get; private set; }
+        public Dictionary<uint, Geometry> GeometryMap { get; private set; }
+
         internal bool IsEmpty = true;
-        internal string MovieName;
-        internal FileSystem FileSystem;
-        internal ImageMap ImageMap;
-        internal Dictionary<uint, Geometry> GeometryMap;
+        
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -47,8 +50,7 @@ namespace OpenSage.Data.Apt
             {
                 var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", +shape.Geometry + ".ru");
                 var shapeEntry = FileSystem.GetFile(ruPath);
-                var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
-                shapeGeometry.Container = this;
+                var shapeGeometry = Geometry.FromFileSystemEntry(this, shapeEntry);
                 GeometryMap[shape.Geometry] = shapeGeometry;
             }
 
@@ -66,7 +68,12 @@ namespace OpenSage.Data.Apt
                 }
                 else
                 {
-                    var importEntry = FileSystem.GetFile(Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt")));
+                    var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                    var importEntry = FileSystem.GetFile(importPath);
+                    if(importEntry == null)
+                    {
+                        throw new FileNotFoundException("Cannot find imported file", importPath);
+                    }
                     importApt = AptFile.FromFileSystemEntry(importEntry);
                     importDict[import.Movie] = importApt;
                 }
@@ -102,6 +109,18 @@ namespace OpenSage.Data.Apt
 
                 return apt;
             }
+        }
+
+        public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)
+        {
+            var constData = new ConstantData();
+            var apt = new AptFile(constData, null, name)
+            {
+                ImageMap = new ImageMap(),
+                GeometryMap = new Dictionary<uint, Geometry>()
+            };
+            apt.Movie = Movie.CreateEmpty(apt, width, height, millisecondsPerFrame);
+            return apt;
         }
     }
 }

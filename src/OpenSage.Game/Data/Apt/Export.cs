@@ -11,11 +11,20 @@ namespace OpenSage.Data.Apt
 
         public static Export Parse(BinaryReader reader)
         {
-            var export = new Export();
-            export.Name = reader.ReadStringAtOffset();
-            export.Character = reader.ReadUInt32();
+            return new Export
+            {
+                Name = reader.ReadStringAtOffset(),
+                Character = reader.ReadUInt32()
+            };
+        }
 
-            return export;
+        public static Export Create(string name, int character)
+        {
+            return new Export
+            {
+                Name = name,
+                Character = (uint) character
+            };
         }
     }
 }

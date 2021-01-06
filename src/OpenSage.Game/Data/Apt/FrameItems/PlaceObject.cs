@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
@@ -133,6 +134,86 @@ namespace OpenSage.Data.Apt.FrameItems
             }
 
             return placeobject;
+        }
+
+        public static PlaceObject Create(int depth)
+        {
+            return new PlaceObject
+            {
+                Depth = depth
+            };
+        }
+
+        public static PlaceObject Create(int depth, int character)
+        {
+            var placeObject = new PlaceObject
+            {
+                Flags = PlaceObjectFlags.HasCharacter,
+                Depth = depth,
+                Character = character
+            };
+            return placeObject;
+        }
+
+        public void SetCharacter(int? character)
+        {
+            if (character is int value)
+            {
+                Flags |= PlaceObjectFlags.HasCharacter;
+                Character = value;
+            }
+            else
+            {
+                Flags &= ~PlaceObjectFlags.HasCharacter;
+            }
+        }
+
+        public void SetTransform(in ItemTransform transform)
+        {
+            var matrix = transform.GeometryRotation;
+            matrix.Translation = transform.GeometryTranslation;
+            SetTransform(matrix);
+            SetColorTransform(transform.ColorTransform.ToColorRgba());
+        }
+
+        public void SetTransform(in Matrix3x2? matrix)
+        {
+            if (matrix is Matrix3x2 value)
+            {
+                Flags |= PlaceObjectFlags.HasMatrix;
+                RotScale = new Matrix2x2(value);
+                Translation = value.Translation;
+            }
+            else
+            {
+                Flags &= ~PlaceObjectFlags.HasMatrix;
+            }
+        }
+
+        public void SetColorTransform(in ColorRgba? color)
+        {
+            if (color is ColorRgba value)
+            {
+                Flags |= PlaceObjectFlags.HasColorTransform;
+                Color = value;
+            }
+            else
+            {
+                Flags &= ~PlaceObjectFlags.HasColorTransform;
+            }
+        }
+
+        public void SetName(string name)
+        {
+            Name = name;
+            if (Name is not null)
+            {
+                Flags |= PlaceObjectFlags.HasName;
+            }
+            else
+            {
+                Flags &= ~PlaceObjectFlags.HasName;
+            }
         }
     }
 }

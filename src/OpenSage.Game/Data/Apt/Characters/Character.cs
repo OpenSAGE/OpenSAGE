@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt.Characters
@@ -30,8 +29,8 @@ namespace OpenSage.Data.Apt.Characters
     //base class for all characters used in apt
     public class Character
     {
-        private const uint SIGNATURE = 0x09876543;
-        public AptFile Container { get; private set; }
+        public const uint SIGNATURE = 0x09876543;
+        public AptFile Container { get; protected set; }
 
         public static Character Create(BinaryReader reader, AptFile container)
         {
@@ -73,6 +72,7 @@ namespace OpenSage.Data.Apt.Characters
                 case CharacterType.Sound:
                     throw new NotImplementedException("Not used in any known game");
                 case CharacterType.Image:
+                    character = Image.Parse(reader);
                     break;
                 case CharacterType.Morph:
                     //used only by CahPowers

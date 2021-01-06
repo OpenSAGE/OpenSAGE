@@ -310,4 +310,32 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             context.Push(result);
         }
     }
+
+    /// <summary>
+    /// From its name, looks like it extends an object.
+    /// Since it doesn't have any parameters, it might extend objects from the stack.
+    /// </summary>
+    public sealed class Extends : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Extends;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// From its name, looks like it corresponds to the `instanceof` keyword of ECMAScript.
+    /// Since it doesn't have any parameters, it should be using the stack.
+    /// </summary>
+    public sealed class InstanceOf : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.InstanceOf;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

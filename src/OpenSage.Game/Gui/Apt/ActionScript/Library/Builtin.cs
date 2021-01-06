@@ -128,8 +128,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             var item = ctx.Item;
 
             // Parent of a render item is the parent of the containing sprite
-            var parent = item is RenderItem ? item.Parent.Parent.ScriptObject : item.Parent.ScriptObject;
-
+            // TODO: By doing some search on the web,
+            // it seems like in Flash / ActionScript 3, when trying to access
+            // the `parent` of root object, null or undefined will be returned.
+            var parent = item is RenderItem ? item.Parent?.Parent?.ScriptObject : item.Parent?.ScriptObject;
             return Value.FromObject(parent);
         }
 

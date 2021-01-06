@@ -45,6 +45,8 @@ namespace OpenSage.Gui.Apt
             _sprite = (Playable) character;
             _currentFrame = 0;
             _actionList = new List<Action>();
+            Content?.Dispose();
+            RemoveToDispose(Content);
             FrameLabels = new Dictionary<string, uint>();
             State = PlayState.PLAYING;
 
@@ -52,7 +54,7 @@ namespace OpenSage.Gui.Apt
             Visible = true;
             Character = _sprite;
             Context = context;
-            Content = new DisplayList();
+            Content = AddDisposable(new DisplayList());
             Parent = parent;
             ScriptObject = new ObjectContext(this);
 
@@ -191,7 +193,7 @@ namespace OpenSage.Gui.Apt
 
         private bool IsNewFrame(TimeInterval gt)
         {
-            if (_lastUpdate.TotalTime.Milliseconds == 0)
+            if (_lastUpdate.TotalTime.TotalMilliseconds == 0)
             {
                 _lastUpdate = gt;
                 return true;
@@ -200,7 +202,7 @@ namespace OpenSage.Gui.Apt
             if (State == PlayState.STOPPED)
                 return false;
 
-            if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Context.MillisecondsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
@@ -209,7 +211,7 @@ namespace OpenSage.Gui.Apt
                 return false;
         }
 
-        private void HandleFrameItem(FrameItem item)
+        public void HandleFrameItem(FrameItem item)
         {
             switch (item)
             {
@@ -325,15 +327,12 @@ namespace OpenSage.Gui.Apt
 
             var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
-
-            DisplayItem displayItem;
-            if (character is Playable)
-                displayItem = new SpriteItem();
-            else if (character is Button)
-                displayItem = new ButtonItem();
-            else
-                displayItem = new RenderItem();
-
+            DisplayItem displayItem = character switch
+            {
+                Playable _ => new SpriteItem(),
+                Button _ => new ButtonItem(),
+                _ => new RenderItem(),
+            };
             displayItem.Transform = itemTransform;
             displayItem.Create(character, Context, this);
 
@@ -362,8 +361,6 @@ namespace OpenSage.Gui.Apt
             if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
             {
                 displayItem.ClipDepth = po.ClipDepth;
-
-                // TODO: Need to dispose this.
                 displayItem.ClipMask = new RenderTarget(Context.Window.ContentManager.GraphicsDevice);
             }
 

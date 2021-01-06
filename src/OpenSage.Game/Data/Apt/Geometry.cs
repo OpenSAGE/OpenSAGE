@@ -28,159 +28,162 @@ namespace OpenSage.Data.Apt
         public string RawText { get; private set; }
         public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
-        public AptFile Container { get; internal set; }
+        public AptFile Container { get; private set; }
 
-        public Geometry()
+        private Geometry(AptFile container)
         {
             Entries = new List<IGeometryEntry>();
+            Container = container;
         }
 
-        public static Geometry FromFileSystemEntry(FileSystemEntry entry)
+        public static Geometry FromFileSystemEntry(AptFile container, FileSystemEntry entry)
         {
-            var geometry = new Geometry();
+            using var stream = entry.Open();
+            using var reader = new StreamReader(stream);
+            return Parse(container, reader);
+        }
 
-            using (var stream = entry.Open())
-            using (var reader = new StreamReader(stream))
+        public static Geometry Parse(AptFile container, TextReader reader)
+        {
+            var geometry = new Geometry(container);
+
+            string line;
+            int image = 0;
+            float thickness = 0;
+            Matrix2x2 rotMat = new Matrix2x2();
+            Vector2 translation = new Vector2();
+            ColorRgba color = new ColorRgba(0, 0, 0, 0);
+            GeometryStyle style = GeometryStyle.Undefined;
+            var tris = new List<Triangle2D>();
+            var lines = new List<Line2D>();
+
+            Action ApplyStyle = () =>
             {
-                string line;
-                int image = 0;
-                float thickness = 0;
-                Matrix2x2 rotMat = new Matrix2x2();
-                Vector2 translation = new Vector2();
-                ColorRgba color = new ColorRgba(0, 0, 0, 0);
-                GeometryStyle style = GeometryStyle.Undefined;
-                var tris = new List<Triangle2D>();
-                var lines = new List<Line2D>();
-
-                Action ApplyStyle = () =>
+                switch (style)
                 {
-                    switch (style)
-                    {
-                        //no data parsed yet
-                        case GeometryStyle.Undefined:
-                            break;
-                        case GeometryStyle.TexturedTri:
-                            geometry.Entries.Add(new GeometryTexturedTriangles(new List<Triangle2D>(tris), color, image, rotMat, translation));
-                            tris.Clear();
-                            break;
-                        case GeometryStyle.SolidTri:
-                            geometry.Entries.Add(new GeometrySolidTriangles(new List<Triangle2D>(tris), color));
-                            tris.Clear();
-                            break;
-                        case GeometryStyle.Line:
-                            geometry.Entries.Add(new GeometryLines(new List<Line2D>(lines), color, thickness));
-                            lines.Clear();
-                            break;
-                    }
-
-                    style = GeometryStyle.Undefined;
-                };
-
-                var rawText = new StringBuilder();
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    line = line.Trim();
-
-                    rawText.AppendLine(line);
-
-                    var lineMode = line.First();
-                    line = line.TrimStart('c', 's', 'l', 't');
-                    var paramList = line.Split(':');
-
-                    //trim each entry of the param list
-                    for (var i = 0; i < paramList.Length; ++i)
-                    {
-                        paramList[i] = paramList[i].Trim();
-                    }
-
-                    switch (lineMode)
-                    {
-                        //Clear - Finish the last geometry
-                        case 'c':
-                            ApplyStyle();
-                            break;
-                        //Style - Header for the following data
-                        case 's':
-                            //Check that we have atleast 1 param
-                            if (paramList.Length < 1)
-                                throw new InvalidDataException();
-
-                            //Check which style we are using
-                            switch (paramList.First())
-                            {
-                                //this is the solid triangle style
-                                case "s":
-                                    if (paramList.Length != 5)
-                                        throw new InvalidDataException();
-
-                                    style = GeometryStyle.SolidTri;
-                                    color = new ColorRgba(
-                                        Convert.ToByte(paramList[1]),
-                                        Convert.ToByte(paramList[2]),
-                                        Convert.ToByte(paramList[3]),
-                                        Convert.ToByte(paramList[4]));
-                                    break;
-                                //this is the line style
-                                case "l":
-                                    if (paramList.Length != 6)
-                                        throw new InvalidDataException();
-
-                                    style = GeometryStyle.Line;
-                                    thickness = ParseUtility.ParseFloat(paramList[1]);
-                                    color = new ColorRgba(
-                                        Convert.ToByte(paramList[2]),
-                                        Convert.ToByte(paramList[3]),
-                                        Convert.ToByte(paramList[4]),
-                                        Convert.ToByte(paramList[5]));
-                                    break;
-                                //this is the textured triangle style
-                                case "tc":
-                                    if (paramList.Length != 12)
-                                        throw new InvalidDataException();
-
-                                    style = GeometryStyle.TexturedTri;
-                                    color = new ColorRgba(
-                                        Convert.ToByte(paramList[1]),
-                                        Convert.ToByte(paramList[2]),
-                                        Convert.ToByte(paramList[3]),
-                                        Convert.ToByte(paramList[4]));
-                                    //image id used
-                                    image = Convert.ToInt32(paramList[5]);
-                                    //transformation parameters, to map the geometry above the texture
-                                    rotMat = new Matrix2x2(
-                                        ParseUtility.ParseFloat(paramList[6]),
-                                        ParseUtility.ParseFloat(paramList[7]),
-                                        ParseUtility.ParseFloat(paramList[8]),
-                                        ParseUtility.ParseFloat(paramList[9]));
-                                    translation.X = ParseUtility.ParseFloat(paramList[10]);
-                                    translation.Y = ParseUtility.ParseFloat(paramList[11]);
-                                    break;
-                            }
-                            break;
-                        //A line
-                        case 'l':
-                            lines.Add(new Line2D(
-                                new Vector2(ParseUtility.ParseFloat(paramList[0]), ParseUtility.ParseFloat(paramList[1])),
-                                new Vector2(ParseUtility.ParseFloat(paramList[2]), ParseUtility.ParseFloat(paramList[3]))));
-                            break;
-                        //A triangle
-                        case 't':
-                            tris.Add(new Triangle2D(
-                                new Vector2(ParseUtility.ParseFloat(paramList[0]), ParseUtility.ParseFloat(paramList[1])),
-                                new Vector2(ParseUtility.ParseFloat(paramList[2]), ParseUtility.ParseFloat(paramList[3])),
-                                new Vector2(ParseUtility.ParseFloat(paramList[4]), ParseUtility.ParseFloat(paramList[5]))));
-                            break;
-                    }
-
+                    //no data parsed yet
+                    case GeometryStyle.Undefined:
+                        break;
+                    case GeometryStyle.TexturedTri:
+                        geometry.Entries.Add(new GeometryTexturedTriangles(new List<Triangle2D>(tris), color, image, rotMat, translation));
+                        tris.Clear();
+                        break;
+                    case GeometryStyle.SolidTri:
+                        geometry.Entries.Add(new GeometrySolidTriangles(new List<Triangle2D>(tris), color));
+                        tris.Clear();
+                        break;
+                    case GeometryStyle.Line:
+                        geometry.Entries.Add(new GeometryLines(new List<Line2D>(lines), color, thickness));
+                        lines.Clear();
+                        break;
                 }
 
-                ApplyStyle();
+                style = GeometryStyle.Undefined;
+            };
 
-                geometry.RawText = rawText.ToString();
+            var rawText = new StringBuilder();
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                line = line.Trim();
+
+                rawText.AppendLine(line);
+
+                var lineMode = line.First();
+                line = line.TrimStart('c', 's', 'l', 't');
+                var paramList = line.Split(':');
+
+                //trim each entry of the param list
+                for (var i = 0; i < paramList.Length; ++i)
+                {
+                    paramList[i] = paramList[i].Trim();
+                }
+
+                switch (lineMode)
+                {
+                    //Clear - Finish the last geometry
+                    case 'c':
+                        ApplyStyle();
+                        break;
+                    //Style - Header for the following data
+                    case 's':
+                        //Check that we have atleast 1 param
+                        if (paramList.Length < 1)
+                            throw new InvalidDataException();
+
+                        //Check which style we are using
+                        switch (paramList.First())
+                        {
+                            //this is the solid triangle style
+                            case "s":
+                                if (paramList.Length != 5)
+                                    throw new InvalidDataException();
+
+                                style = GeometryStyle.SolidTri;
+                                color = new ColorRgba(
+                                    Convert.ToByte(paramList[1]),
+                                    Convert.ToByte(paramList[2]),
+                                    Convert.ToByte(paramList[3]),
+                                    Convert.ToByte(paramList[4]));
+                                break;
+                            //this is the line style
+                            case "l":
+                                if (paramList.Length != 6)
+                                    throw new InvalidDataException();
+
+                                style = GeometryStyle.Line;
+                                thickness = ParseUtility.ParseFloat(paramList[1]);
+                                color = new ColorRgba(
+                                    Convert.ToByte(paramList[2]),
+                                    Convert.ToByte(paramList[3]),
+                                    Convert.ToByte(paramList[4]),
+                                    Convert.ToByte(paramList[5]));
+                                break;
+                            //this is the textured triangle style
+                            case "tc":
+                                if (paramList.Length != 12)
+                                    throw new InvalidDataException();
+
+                                style = GeometryStyle.TexturedTri;
+                                color = new ColorRgba(
+                                    Convert.ToByte(paramList[1]),
+                                    Convert.ToByte(paramList[2]),
+                                    Convert.ToByte(paramList[3]),
+                                    Convert.ToByte(paramList[4]));
+                                //image id used
+                                image = Convert.ToInt32(paramList[5]);
+                                //transformation parameters, to map the geometry above the texture
+                                rotMat = new Matrix2x2(
+                                    ParseUtility.ParseFloat(paramList[6]),
+                                    ParseUtility.ParseFloat(paramList[7]),
+                                    ParseUtility.ParseFloat(paramList[8]),
+                                    ParseUtility.ParseFloat(paramList[9]));
+                                translation.X = ParseUtility.ParseFloat(paramList[10]);
+                                translation.Y = ParseUtility.ParseFloat(paramList[11]);
+                                break;
+                        }
+                        break;
+                    //A line
+                    case 'l':
+                        lines.Add(new Line2D(
+                            new Vector2(ParseUtility.ParseFloat(paramList[0]), ParseUtility.ParseFloat(paramList[1])),
+                            new Vector2(ParseUtility.ParseFloat(paramList[2]), ParseUtility.ParseFloat(paramList[3]))));
+                        break;
+                    //A triangle
+                    case 't':
+                        tris.Add(new Triangle2D(
+                            new Vector2(ParseUtility.ParseFloat(paramList[0]), ParseUtility.ParseFloat(paramList[1])),
+                            new Vector2(ParseUtility.ParseFloat(paramList[2]), ParseUtility.ParseFloat(paramList[3])),
+                            new Vector2(ParseUtility.ParseFloat(paramList[4]), ParseUtility.ParseFloat(paramList[5]))));
+                        break;
+                }
+
             }
 
+            ApplyStyle();
+            geometry.RawText = rawText.ToString();
             geometry.CalculateBoundings();
+
             return geometry;
         }
 

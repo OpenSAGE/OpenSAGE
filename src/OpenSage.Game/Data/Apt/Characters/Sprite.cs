@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt.Characters
@@ -7,9 +9,19 @@ namespace OpenSage.Data.Apt.Characters
     {
         public static Sprite Parse(BinaryReader reader)
         {
-            var sprite = new Sprite();
-            sprite.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
-            return sprite;
+            return new Sprite
+            {
+                Frames = reader.ReadListAtOffset(() => Frame.Parse(reader))
+            };
+        }
+
+        public static Sprite Create(AptFile container)
+        {
+            return new Sprite
+            {
+                Container = container,
+                Frames = new List<Frame> { Frame.Create(new List<FrameItem>()) }
+            };
         }
     }
 }

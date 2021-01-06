@@ -197,6 +197,22 @@ namespace OpenSage.FileFormats
             writer.Write(value.W);
         }
 
+        public static void Write(this BinaryWriter writer, in RectangleF value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
+            writer.Write(value.Width);
+            writer.Write(value.Height);
+        }
+
+        public static void Write(this BinaryWriter writer, in Matrix2x2 value)
+        {
+            writer.Write(value.M11);
+            writer.Write(value.M12);
+            writer.Write(value.M21);
+            writer.Write(value.M22);
+        }
+
         public static void Write(this BinaryWriter writer, in Quaternion value)
         {
             writer.Write(value.X);
@@ -261,6 +277,14 @@ namespace OpenSage.FileFormats
             writer.Write(value.R);
             writer.Write(value.G);
             writer.Write(value.B);
+        }
+
+        public static void Write(this BinaryWriter writer, in ColorRgbaF value)
+        {
+            writer.Write(value.R);
+            writer.Write(value.G);
+            writer.Write(value.B);
+            writer.Write(value.A);
         }
 
         public static void WriteFourCc(this BinaryWriter writer, string fourCc, bool bigEndian = false)

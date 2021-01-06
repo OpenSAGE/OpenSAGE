@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt.FrameItems
 {
-    enum FrameItemType
+    public enum FrameItemType
     {
         Action = 1,
         FrameLabel = 2,

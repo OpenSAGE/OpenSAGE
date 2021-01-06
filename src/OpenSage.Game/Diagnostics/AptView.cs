@@ -93,7 +93,9 @@ namespace OpenSage.Diagnostics
                             {
                                 var text = _selectedItem.Character as Text;
                                 ImGuiUtility.BeginPropertyList();
-                                ImGuiUtility.PropertyRow("Content", text.Content);
+                                ImGuiUtility.PropertyRow("Content", ri.TextValue?.Original ?? "null");
+                                ImGuiUtility.PropertyRow("LocalizedContent", ri.TextValue?.Localized ?? "null");
+                                ImGuiUtility.PropertyRow("InitialContent", text.Content);
                                 ImGuiUtility.PropertyRow("InitialValue", text.Value);
                                 ImGuiUtility.PropertyRow("Color", text.Color.ToString());
                                 ImGuiUtility.PropertyRow("Multiline", text.Multiline);
@@ -145,6 +147,14 @@ namespace OpenSage.Diagnostics
         {
             var treeNodeFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick;
 
+            // workaround for Apt Editor
+            var type = item.GetType();
+            if (type.FullName == "OpenSage.Tools.AptEditor.Apt.WrappedDisplayItem")
+            {
+                item = (DisplayItem) type.GetProperty("Item").GetValue(item);
+            }
+
+
             if (_currentClipDepth.HasValue && (depth > _currentClipDepth.Value))
             {
                 _currentClipDepth = null;
@@ -165,7 +175,7 @@ namespace OpenSage.Diagnostics
                 treeNodeFlags |= ImGuiTreeNodeFlags.Selected;
             }
 
-            if(item.ClipDepth.HasValue)
+            if (item.ClipDepth.HasValue)
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.5f, 1.0f, 0.5f, 1.0f));
             }
@@ -175,7 +185,7 @@ namespace OpenSage.Diagnostics
             }
 
             bool hasRenderCallback = false;
-            if(item is RenderItem renderItem && renderItem.RenderCallback != null)
+            if (item is RenderItem renderItem && renderItem.RenderCallback != null)
             {
                 hasRenderCallback = true;
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.5f, 0.5f, 1.0f));

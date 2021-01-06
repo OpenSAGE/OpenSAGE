@@ -185,6 +185,26 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
         }
 
+        /// Used by AptEditor to get actual id of constant / register
+        public uint GetIDValue()
+        {
+            if(Type != ValueType.Constant && Type != ValueType.Register)
+                throw new InvalidOperationException();
+            
+            return (uint)_number;
+        }
+
+        // TODO: implement integer conversion etc.
+        public double ToReal()
+        {
+            if(Type == ValueType.Float) {
+                return _decimal;
+            }
+
+            // TODO
+            throw new NotImplementedException();
+        }
+
         public bool ToBoolean()
         {
             if (Type == ValueType.String || Type == ValueType.Object)

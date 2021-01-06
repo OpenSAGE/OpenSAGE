@@ -17,5 +17,12 @@ namespace OpenSage.Data.Apt
 
             return frame;
         }
+
+        public static Frame Create(List<FrameItem> frameItems)
+        {
+            var frame = new Frame();
+            frame.FrameItems = frameItems;
+            return frame;
+        }
     }
 }

@@ -49,7 +49,7 @@ namespace OpenSage.Gui.Apt
     }
 
     [DebuggerDisplay("[DisplayItem:{Name}]")]
-    public abstract class DisplayItem
+    public abstract class DisplayItem : DisposableBase
     {
         public AptContext Context { get; protected set; }
         public SpriteItem Parent { get; protected set; }
@@ -62,7 +62,8 @@ namespace OpenSage.Gui.Apt
 
         public bool Highlight { get; set; }
 
-        internal RenderTarget ClipMask { get; set; }
+        internal RenderTarget ClipMask { get => _clipMask; set => DisposeAndAssign(ref _clipMask, value); }
+        private RenderTarget _clipMask;
 
         /// <summary>
         /// Create a new DisplayItem
