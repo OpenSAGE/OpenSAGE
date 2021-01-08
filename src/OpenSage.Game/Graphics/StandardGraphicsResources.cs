@@ -29,6 +29,7 @@ namespace OpenSage.Graphics
             aniso4xClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
             Aniso4xClampSampler = AddDisposable(
                 graphicsDevice.ResourceFactory.CreateSampler(ref aniso4xClampSamplerDescription));
+            Aniso4xClampSampler.Name = "Aniso4xClamp Sampler";
 
             var linearClampSamplerDescription = SamplerDescription.Linear;
             linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
@@ -36,6 +37,7 @@ namespace OpenSage.Graphics
             linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
             LinearClampSampler = AddDisposable(
                 graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
+            LinearClampSampler.Name = "LinearClamp Sampler";
 
             var pointClampSamplerDescription = SamplerDescription.Point;
             pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
@@ -43,6 +45,7 @@ namespace OpenSage.Graphics
             pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
             PointClampSampler = AddDisposable(
                 graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
+            PointClampSampler.Name = "PointClamp Sampler";
 
             NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
             NullTexture.Name = "Null Texture";
