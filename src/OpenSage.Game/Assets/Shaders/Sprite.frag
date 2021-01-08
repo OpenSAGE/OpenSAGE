@@ -1,7 +1,5 @@
 #version 450
 
-#extension GL_EXT_samplerless_texture_functions : enable
-
 #define FILL_METHOD_NORMAL     0
 #define FILL_METHOD_RADIAL_360 1
 
