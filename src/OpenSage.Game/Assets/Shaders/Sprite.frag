@@ -74,11 +74,11 @@ void main()
 
     // Currently we always sample from the alpha mask,
     // falling back to a default one if there isn't a real one.
-    ivec2 alphaMaskSize = textureSize(AlphaMask, 0);
+    ivec2 alphaMaskSize = textureSize(sampler2D(AlphaMask, Sampler), 0);
     vec4 fragCoord = gl_FragCoord;
     vec2 alphaMaskUV = vec2(
-        fragCoord.x / alphaMaskSize.x,
-        fragCoord.y / alphaMaskSize.y);
+        fragCoord.x / float(alphaMaskSize.x),
+        fragCoord.y / float(alphaMaskSize.y));
     vec4 alphaMaskColor = texture(sampler2D(AlphaMask, Sampler), alphaMaskUV);
     textureColor.a *= alphaMaskColor.a;
 
