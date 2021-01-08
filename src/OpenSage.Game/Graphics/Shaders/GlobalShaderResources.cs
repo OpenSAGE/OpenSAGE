@@ -60,6 +60,7 @@ namespace OpenSage.Graphics.Shaders
                     0,
                     0,
                     SamplerBorderColor.OpaqueBlack)));
+            ShadowSampler.Name = "Shadow Sampler";
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
