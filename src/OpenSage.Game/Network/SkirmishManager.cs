@@ -94,15 +94,9 @@ namespace OpenSage.Network
             _thread.Start();
         }
 
-        private async Task CreateNetworkConnectionAsync()
-        {
-            var connection = new NetworkConnection();
-            await connection.InitializeAsync(_game);
+        protected abstract Task CreateNetworkConnectionAsync();
 
-            Connection = connection;
-        }
-
-        public class Client : SkirmishManager
+        public sealed class Client : SkirmishManager
         {
             private void SkirmishGameStatusPacketReceived(SkirmishGameStatusPacket packet, IPEndPoint host)
             {
@@ -174,6 +168,14 @@ namespace OpenSage.Network
                 StartThread();
             }
 
+            protected override async Task CreateNetworkConnectionAsync()
+            {
+                var connection = new ClientNetworkConnection(_game.SkirmishManager.SkirmishGame);
+                await connection.InitializeAsync();
+
+                Connection = connection;
+            }
+
             protected override void Loop()
             {
                 switch (SkirmishGame.Status)
@@ -207,7 +209,7 @@ namespace OpenSage.Network
             }
         }
 
-        public class Host : SkirmishManager
+        public sealed class Host : SkirmishManager
         {
             private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
 
@@ -299,6 +301,14 @@ namespace OpenSage.Network
                 _manager.Start(Ports.SkirmishHost);
 
                 StartThread();
+            }
+
+            protected override async Task CreateNetworkConnectionAsync()
+            {
+                var connection = new HostNetworkConnection(_game.SkirmishManager.SkirmishGame);
+                await connection.InitializeAsync();
+
+                Connection = connection;
             }
 
             public async Task StartGameAsync()
