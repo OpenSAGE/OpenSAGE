@@ -1,4 +1,5 @@
-﻿using OpenSage.Gui.Wnd;
+﻿using System;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 using OpenSage.Network;
@@ -52,14 +53,8 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public static void LanGameOptionsMenuInit(Window window, Game game)
+        public static async void LanGameOptionsMenuInit(Window window, Game game)
         {
-            if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting && UPnP.ExternalIP != null)
-            {
-                var listBoxChat = (ListBox) window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
-                listBoxChat.Items = new[] { new ListBoxDataItem(null, new string[] { $"Your external IP address is {UPnP.ExternalIP}" }, ColorRgbaF.White) };
-            }
-
             GameOptions = new GameOptionsUtil(window, game, "Lan");
 
             if (game.SkirmishManager.IsHosting)
@@ -112,6 +107,29 @@ namespace OpenSage.Mods.Generals.Gui
             //    //TODO: somehow make this work
             //    game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
             //};
+
+            if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting)
+            {
+                var listBoxChat = (ListBox) window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
+                var listBoxItem = new ListBoxDataItem(null, new string[] { "Checking UPnP status..." }, ColorRgbaF.White);
+                listBoxChat.Items = new[] { listBoxItem }; 
+
+                if (UPnP.Status == UPnPStatus.Enabled)
+                {
+                    if (await UPnP.ForwardPortsAsync())
+                    {
+                        listBoxItem.ColumnData[0] = $"Ports forwarded via UPnP. Your external IP is {UPnP.ExternalIP?.ToString() ?? "unknown."}";
+                    }
+                    else
+                    {
+                        listBoxItem.ColumnData[0] = $"Failed to forward ports via UPnP. Your external IP is {UPnP.ExternalIP?.ToString() ?? "unknown."}";
+                    }
+                }
+                else
+                {
+                    listBoxItem.ColumnData[0] = "UPnP is disabled.";
+                }
+            }
         }
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)

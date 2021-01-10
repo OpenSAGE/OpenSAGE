@@ -63,7 +63,7 @@ namespace OpenSage.Mods.Generals.Gui
             _doneMainMenuFadeIn = false;
         }
 
-        public static async void MainMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static void MainMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             void QueueTransition(string transition)
             {
@@ -145,10 +145,6 @@ namespace OpenSage.Mods.Generals.Gui
                         case "MainMenu.wnd:ButtonOnline":
                             // this should load another window, but we don't have a lobby server yet,
                             // so we just show the "Direct Connect" window
-                            if (UPnP.Status == UPnPStatus.Enabled)
-                            {
-                                await UPnP.ForwardPortsAsync();
-                            }
 
                             context.WindowManager.SetWindow(@"Menus\NetworkDirectConnect.wnd", NetworkUtils.OnlineTag);
                             break;
