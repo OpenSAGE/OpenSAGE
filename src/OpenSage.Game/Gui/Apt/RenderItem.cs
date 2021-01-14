@@ -25,7 +25,7 @@ namespace OpenSage.Gui.Apt
             ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
-            TextValue = character is Text text ? LocalizedString.Create(text.Content) : null;
+            TextValue = character is Text text ? LocalizedString.CreateApt(text.Content) : null;
             IsHovered = false;
         }
 
