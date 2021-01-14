@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using OpenSage.Content.Translation;
+﻿using OpenSage.Content.Translation;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
@@ -17,7 +16,7 @@ namespace OpenSage.Gui.Apt
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
         public CustomRenderCallback RenderCallback;
-        
+
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             Character = character;
@@ -46,7 +45,7 @@ namespace OpenSage.Gui.Apt
             _lastUpdate = gt;
             if (t.Value.Length > 0)
             {
-                string textValue = null;
+                string textValue = string.Empty;
                 try
                 {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
@@ -96,7 +95,7 @@ namespace OpenSage.Gui.Apt
                     break;
 
                 case Text t:
-                    renderingContext.RenderText(t, TextValue.Localized);
+                    renderingContext.RenderText(t, TextValue?.Localized ?? string.Empty);
                     break;
             }
 
