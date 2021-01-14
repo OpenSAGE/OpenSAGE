@@ -61,7 +61,7 @@ namespace OpenSage.Gui.Apt
 
                 if (TextValue.Original != textValue)
                 {
-                    TextValue = LocalizedString.Create(textValue);
+                    TextValue = LocalizedString.CreateApt(textValue);
                 }
             }
         }
