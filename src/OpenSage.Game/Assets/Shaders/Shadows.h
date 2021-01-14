@@ -2,7 +2,6 @@
 
 #define SHADOWS_H
 
-#extension GL_EXT_samplerless_texture_functions : enable
 
 #define NUM_CASCADES 4
 
@@ -59,7 +58,7 @@ float SampleShadowMapOptimizedPCF(
     int cascadeIdx, 
     ShadowConstantsPSType constants)
 {
-    vec3 shadowMapSize = textureSize(shadowMap, 0);
+    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(shadowMap, shadowSampler), 0);
 
     float lightDepth = shadowPos.z;
 
@@ -244,12 +243,13 @@ vec3 SampleShadowCascade(
 }
 
 vec3 GetShadowPosOffset(
-    texture2DArray shadowMap, 
+    texture2DArray shadowMap,
+    samplerShadow shadowSampler,
     float nDotL, 
     vec3 normal,
     ShadowConstantsPSType constants)
 {
-    vec3 shadowMapSize = textureSize(shadowMap, 0);
+    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(shadowMap, shadowSampler), 0);
 
     float texelSize = 2.0f / shadowMapSize.x;
     float nmlOffsetScale = saturate(1.0f - nDotL);
@@ -282,7 +282,7 @@ vec3 ShadowVisibility(
     }
 
     // Apply offset
-    vec3 offset = GetShadowPosOffset(shadowMap, nDotL, normal, constants) / abs(constants.CascadeScales[cascadeIdx].z);
+    vec3 offset = GetShadowPosOffset(shadowMap, shadowSampler, nDotL, normal, constants) / abs(constants.CascadeScales[cascadeIdx].z);
 
     // Project into shadow space
     vec3 samplePos = positionWS + offset;
