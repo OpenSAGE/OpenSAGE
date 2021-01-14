@@ -25,7 +25,7 @@ namespace OpenSage.Gui.Apt
             ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
-            TextValue = character is Text text ? LocalizedString.Apt(text.Content) : null;
+            TextValue = character is Text text ? LocalizedString.Create(text.Content) : null;
             IsHovered = false;
         }
 
@@ -45,7 +45,7 @@ namespace OpenSage.Gui.Apt
             _lastUpdate = gt;
             if (t.Value.Length > 0)
             {
-                string textValue = string.Empty;
+                string textValue = null;
                 try
                 {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
@@ -61,7 +61,7 @@ namespace OpenSage.Gui.Apt
 
                 if (TextValue.Original != textValue)
                 {
-                    TextValue = LocalizedString.Apt(textValue);
+                    TextValue = LocalizedString.Create(textValue);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace OpenSage.Gui.Apt
                     break;
 
                 case Text t:
-                    renderingContext.RenderText(t, TextValue?.Localized ?? string.Empty);
+                    renderingContext.RenderText(t, TextValue.Localized);
                     break;
             }
 

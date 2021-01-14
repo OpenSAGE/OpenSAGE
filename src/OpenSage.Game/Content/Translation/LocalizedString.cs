@@ -13,11 +13,11 @@ namespace OpenSage.Content.Translation
             Localized = localized;
         }
 
-        public static LocalizedString Apt(string original)
+        public static LocalizedString Create(string original)
         {
             if (original is null)
             {
-                return null;
+                return new LocalizedString(null, string.Empty);
             }
             var localized = original.Replace("$", "APT:") // All string values begin with $
                 .Split('&').First() // Query strings after ampersand
