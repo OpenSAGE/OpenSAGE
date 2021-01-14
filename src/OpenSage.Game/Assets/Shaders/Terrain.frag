@@ -1,6 +1,5 @@
 #version 450
 #extension GL_GOOGLE_include_directive : enable
-#extension GL_EXT_samplerless_texture_functions : enable
 
 #include "Common.h"
 #include "Lighting.h"
@@ -162,7 +161,7 @@ float CalculateBlendFactor(
 vec3 SampleBlendedTextures(vec2 uv)
 {
     uvec4 tileDatum = texelFetch(
-        TileData,
+        usampler2D(TileData, Sampler),
         ivec2(uv),
         0);
 
