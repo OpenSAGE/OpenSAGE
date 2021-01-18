@@ -20,7 +20,7 @@ namespace OpenSage.Data
                           FileSystem nextFileSystem = null,
                           IEnumerable<KeyValuePair<string, string>> realPathsToVirtualPaths = null)
         {
-            RootDirectory = rootDirectory;
+            RootDirectory = NormalizeFilePath(rootDirectory);
 
             NextFileSystem = nextFileSystem;
 
