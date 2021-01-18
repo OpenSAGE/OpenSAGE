@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using OpenSage.Content.Translation;
 using OpenSage.Data;
@@ -22,6 +21,8 @@ namespace OpenSage.Content
 
         public FileSystem FileSystem { get; }
         public FileSystem UserDataFileSystem { get; internal set; }
+        public FileSystem UserAppDataFileSystem { get; internal set; }
+        public FileSystem UserMapsFileSystem => SageGame < SageGame.Cnc3 ? UserDataFileSystem : UserAppDataFileSystem;
 
         public IniDataContext IniDataContext { get; }
 
@@ -116,6 +117,7 @@ namespace OpenSage.Content
                         break;
 
                     case SageGame.Cnc3:
+                    case SageGame.Ra3:
                         SubsystemLoader.Load(Subsystem.Core);
                         break;
 
@@ -159,18 +161,12 @@ namespace OpenSage.Content
         {
             var normalizedPath = FileSystem.NormalizeFilePath(mapPath);
 
-            if (SageGame >= SageGame.Cnc3 && _game.UserAppDataFolder is not null)
+            if (SageGame >= SageGame.Cnc3)
             {
-                var customMapFileSystem = new FileSystem(Path.Combine(_game.UserAppDataFolder, "Maps"));
-                var customMapPrefix = FileSystem.NormalizeFilePath("data/maps/internal");
-                if (normalizedPath.StartsWith(customMapPrefix))
+                var entry = UserMapsFileSystem?.GetFile(mapPath);
+                if (entry is not null)
                 {
-                    var relativePath = normalizedPath[(customMapPrefix.Length + 1)..];
-                    var entry = customMapFileSystem.GetFile(relativePath);
-                    if (entry is not null)
-                    {
-                        return entry;
-                    }
+                    return entry;
                 }
             }
             else if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))

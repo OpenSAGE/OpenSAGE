@@ -11,7 +11,6 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
-using OpenSage.Data.Scb;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
@@ -53,6 +52,7 @@ namespace OpenSage
 
         private readonly FileSystem _fileSystem;
         private readonly FileSystem _userDataFileSystem;
+        private readonly FileSystem _userAppDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly DeveloperModeView _developerModeView;
@@ -69,7 +69,7 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
-        
+
         public SkirmishManager SkirmishManager { get; set; }
 
         public LobbyManager LobbyManager { get; }
@@ -458,11 +458,19 @@ namespace OpenSage
                 // This has to be done after the ContentManager is initialized and
                 // the GameData.ini file has been parsed because we don't know
                 // the UserDataFolder before then.
-                if (UserDataFolder != null && Directory.Exists(UserDataFolder))
+                if (UserDataFolder is not null && Directory.Exists(UserDataFolder))
                 {
-                    _userDataFileSystem = AddDisposable(new FileSystem(FileSystem.NormalizeFilePath(UserDataFolder)));
+                    _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
                     ContentManager.UserDataFileSystem = _userDataFileSystem;
-
+                }
+                if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
+                {
+                    var pathMapping = new Dictionary<string, string> { ["Maps"] = "data/maps/internal" };
+                    _userAppDataFileSystem = AddDisposable(new FileSystem(UserAppDataFolder, null, pathMapping));
+                    ContentManager.UserAppDataFileSystem = _userAppDataFileSystem;
+                }
+                if (ContentManager.UserMapsFileSystem is not null)
+                {
                     new UserMapCache(ContentManager).Initialize(AssetStore);
                 }
 
@@ -559,12 +567,12 @@ namespace OpenSage
             }
         }
 
-        internal Scene3D LoadMap(string mapPath)
+        public Scene3D LoadMap(string mapPath)
         {
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile, mapPath, Environment.TickCount);
+            return new Scene3D(this, mapFile, entry.FilePath, Environment.TickCount);
         }
 
         public Window LoadWindow(string wndFileName)
