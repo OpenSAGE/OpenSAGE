@@ -7,15 +7,18 @@ namespace OpenSage.Data
 {
     public sealed class FileSystem : IDisposable
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly Dictionary<string, FileSystemEntry> _fileTable;
         private readonly List<BigArchive> _bigArchives;
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly Dictionary<string, string> _realPathsToVirtualPaths;
+        
         public string RootDirectory { get; }
-
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
         public FileSystem NextFileSystem { get; }
 
-        public FileSystem(string rootDirectory, FileSystem nextFileSystem = null)
+        public FileSystem(string rootDirectory,
+                          FileSystem nextFileSystem = null,
+                          IEnumerable<KeyValuePair<string, string>> realPathsToVirtualPaths = null)
         {
             RootDirectory = rootDirectory;
 
@@ -23,6 +26,16 @@ namespace OpenSage.Data
 
             _fileTable = new Dictionary<string, FileSystemEntry>();
             _bigArchives = new List<BigArchive>();
+            _realPathsToVirtualPaths = new Dictionary<string, string>();
+            // Create mapping for virtual paths
+            // e.g. C:\Users\lanyi\AppData\Red Alert 3\Maps -> data\maps\internal
+            if (realPathsToVirtualPaths is not null)
+            {
+                foreach (var (real, @virtual) in realPathsToVirtualPaths)
+                {
+                    _realPathsToVirtualPaths[NormalizeFilePath(real)] = NormalizeFilePath(@virtual);
+                }
+            }
 
             // First create entries for all non-.big files
             if (Directory.Exists(rootDirectory))
@@ -38,7 +51,7 @@ namespace OpenSage.Data
                             relativePath = relativePath.Substring(1);
                         }
                         relativePath = NormalizeFilePath(relativePath);
-                        _fileTable.Add(relativePath, new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
+                        TryAddEntry(new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
                     }
                 }
 
@@ -47,8 +60,25 @@ namespace OpenSage.Data
             }
             else
             {
-                logger.Warn("Failed to create filesystem for non existing root directory: " + rootDirectory);
+                Logger.Warn("Failed to create filesystem for non existing root directory: " + rootDirectory);
             }
+        }
+
+        private string ResolveToVirtualPath(string path)
+        {
+            path = NormalizeFilePath(path);
+            // check if file path should be converted to a virtual path
+            // e.g.
+            // [From] [Root Directory = %appdata%\red alert 3\]maps\somemap\somemap.map
+            // [To] data\maps\internal\somemap\somemap.map
+            foreach (var (real, @virtual) in _realPathsToVirtualPaths)
+            {
+                if (path.StartsWith(real))
+                {
+                    return @virtual + path[real.Length..];
+                }
+            }
+            return path;
         }
 
         private void AddBigArchive(string path)
@@ -60,10 +90,16 @@ namespace OpenSage.Data
             foreach (var entry in archive.Entries)
             {
                 var filePath = NormalizeFilePath(entry.FullName);
-                if (!_fileTable.ContainsKey(filePath))
-                {
-                    _fileTable.Add(filePath, new FileSystemEntry(this, filePath, entry.Length, entry.Open));
-                }
+                TryAddEntry(new FileSystemEntry(this, filePath, entry.Length, entry.Open));
+            }
+        }
+
+        private void TryAddEntry(FileSystemEntry entry)
+        {
+            var virutalPath = ResolveToVirtualPath(entry.FilePath);
+            if (!_fileTable.ContainsKey(virutalPath))
+            {
+                _fileTable.Add(virutalPath, entry);
             }
         }
 
@@ -89,7 +125,12 @@ namespace OpenSage.Data
 
         public void Update(FileSystemEntry entry)
         {
-            _fileTable[entry.FilePath] = entry;
+            if (entry.FileSystem != this)
+            {
+                throw new InvalidOperationException();
+            }
+            var virtualPath = ResolveToVirtualPath(entry.FilePath);
+            _fileTable[virtualPath] = entry;
         }
 
         public FileSystemEntry SearchFile(string fileName, params string[] searchFolders)
