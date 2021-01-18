@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using OpenSage.Content.Translation;
 using OpenSage.Data;
@@ -157,15 +158,28 @@ namespace OpenSage.Content
         internal FileSystemEntry GetMapEntry(string mapPath)
         {
             var normalizedPath = FileSystem.NormalizeFilePath(mapPath);
-            if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))
+
+            if (SageGame >= SageGame.Cnc3 && _game.UserAppDataFolder is not null)
+            {
+                var customMapFileSystem = new FileSystem(Path.Combine(_game.UserAppDataFolder, "Maps"));
+                var customMapPrefix = FileSystem.NormalizeFilePath("data/maps/internal");
+                if (normalizedPath.StartsWith(customMapPrefix))
+                {
+                    var relativePath = normalizedPath[(customMapPrefix.Length + 1)..];
+                    var entry = customMapFileSystem.GetFile(relativePath);
+                    if (entry is not null)
+                    {
+                        return entry;
+                    }
+                }
+            }
+            else if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))
             {
                 mapPath = mapPath.Substring(UserDataFileSystem.RootDirectory.Length + 1);
                 return UserDataFileSystem.GetFile(mapPath);
             }
-            else
-            {
-                return FileSystem.GetFile(mapPath);
-            }
+
+            return FileSystem.GetFile(mapPath);
         }
 
         internal FileSystemEntry GetScriptEntry(string scriptPath) => FileSystem.GetFile(scriptPath);
