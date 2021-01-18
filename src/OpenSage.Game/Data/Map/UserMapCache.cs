@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text.RegularExpressions;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 
@@ -14,6 +13,7 @@ namespace OpenSage.Data.Map
     internal class UserMapCache
     {
         private const string MapCacheIniPath = @"Maps\MapCache.ini";
+        private static readonly DistinctLogger Logger = new(NLog.LogManager.GetCurrentClassLogger());
 
         private readonly ContentManager _contentManager;
 
@@ -21,7 +21,7 @@ namespace OpenSage.Data.Map
         {
             _contentManager = contentManager;
         }
-        
+
         internal void Initialize(AssetStore assetStore)
         {
             // We need to check if there is an existing MapCache.ini file and if yes,
@@ -30,7 +30,7 @@ namespace OpenSage.Data.Map
             // again. In order to do that we first load it in a temporary scope.
             assetStore.PushScope();
 
-            var mapCacheIniEntry = _contentManager.UserDataFileSystem.GetFile(MapCacheIniPath);
+            var mapCacheIniEntry = _contentManager.UserMapsFileSystem.GetFile(MapCacheIniPath);
             if (mapCacheIniEntry != null)
             {
                 _contentManager.LoadIniFile(mapCacheIniEntry);
@@ -52,7 +52,7 @@ namespace OpenSage.Data.Map
                 }
                 else
                 {
-                    var timestamp = DateTime.FromFileTime((((long)mapCache.TimestampHi) << 32) | (uint)mapCache.TimestampLo);
+                    var timestamp = DateTime.FromFileTime((((long) mapCache.TimestampHi) << 32) | (uint) mapCache.TimestampLo);
 
                     // TODO: Should we check the CRC here as well?
                     // If yes, which implementation should we use?
@@ -76,7 +76,7 @@ namespace OpenSage.Data.Map
             // the updated ones and load it again, this time for real.
             assetStore.PopScope();
 
-            var fullMapCacheIniPath = Path.Combine(_contentManager.UserDataFileSystem.RootDirectory, MapCacheIniPath);
+            var fullMapCacheIniPath = Path.Combine(_contentManager.UserMapsFileSystem.RootDirectory, MapCacheIniPath);
 
             // Create the full path, user directory should already exist from the content manager but
             // maps folder may not
@@ -88,18 +88,18 @@ namespace OpenSage.Data.Map
             GenerateMapCacheIniFile(fullMapCacheIniPath, mapCacheEntries);
 
             mapCacheIniEntry = new FileSystemEntry(
-                _contentManager.UserDataFileSystem,
+                _contentManager.UserMapsFileSystem,
                 MapCacheIniPath,
-                (uint)new FileInfo(fullMapCacheIniPath).Length,
+                (uint) new FileInfo(fullMapCacheIniPath).Length,
                 () => File.OpenRead(fullMapCacheIniPath));
 
-            _contentManager.UserDataFileSystem.Update(mapCacheIniEntry);
+            _contentManager.UserMapsFileSystem.Update(mapCacheIniEntry);
             _contentManager.LoadIniFile(mapCacheIniEntry);
         }
 
         private IEnumerable<FileSystemEntry> EnumerateMaps()
         {
-            var maps = from file in _contentManager.UserDataFileSystem.Files
+            var maps = from file in _contentManager.UserMapsFileSystem.Files
                        where Path.GetExtension(file.FilePath) == ".map"
                        let parts = file.FilePath.Split(Path.DirectorySeparatorChar)
                        where parts.Length == 3
@@ -181,6 +181,12 @@ namespace OpenSage.Data.Map
                     {
                         // check "normal" objects
                         var definition = assetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
+                        if (definition is null)
+                        {
+                            Logger.Warn($"Skipped null definition for object {mapObject.TypeName}");
+                            continue;
+                        }
+
                         if (definition.KindOf.Get(ObjectKinds.SupplySourceOnPreview))
                         {
                             mapCache.SupplyPositions.Add(mapObject.Position);

@@ -309,7 +309,8 @@ namespace OpenSage
                 var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
                 if (mapCache == null)
                 {
-                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(game.UserDataFolder, mapPath).ToLower());
+                    var folder = game.SageGame < SageGame.Cnc3 ? game.UserDataFolder : game.UserAppDataFolder;
+                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(folder, mapPath).ToLower());
                 }
                 if (mapCache == null)
                 {
