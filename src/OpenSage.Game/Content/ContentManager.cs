@@ -159,20 +159,13 @@ namespace OpenSage.Content
 
         internal FileSystemEntry GetMapEntry(string mapPath)
         {
-            var normalizedPath = FileSystem.NormalizeFilePath(mapPath);
-
-            if (SageGame >= SageGame.Cnc3)
+            if (UserMapsFileSystem is not null)
             {
-                var entry = UserMapsFileSystem?.GetFile(mapPath);
-                if (entry is not null)
+                var mapEntry = UserMapsFileSystem.GetFile(mapPath);
+                if (mapEntry is not null)
                 {
-                    return entry;
+                    return mapEntry;
                 }
-            }
-            else if (UserDataFileSystem != null && normalizedPath.StartsWith(UserDataFileSystem.RootDirectory))
-            {
-                mapPath = mapPath.Substring(UserDataFileSystem.RootDirectory.Length + 1);
-                return UserDataFileSystem.GetFile(mapPath);
             }
 
             return FileSystem.GetFile(mapPath);
