@@ -11,7 +11,8 @@ namespace OpenSage.Data
         private readonly Dictionary<string, FileSystemEntry> _fileTable;
         private readonly List<BigArchive> _bigArchives;
         private readonly Dictionary<string, string> _realPathsToVirtualPaths;
-        
+
+        private string RootDirectoryWithSlash { get; }
         public string RootDirectory { get; }
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
         public FileSystem NextFileSystem { get; }
@@ -21,6 +22,9 @@ namespace OpenSage.Data
                           IEnumerable<KeyValuePair<string, string>> realPathsToVirtualPaths = null)
         {
             RootDirectory = NormalizeFilePath(rootDirectory);
+            RootDirectoryWithSlash = RootDirectory.EndsWith(Path.DirectorySeparatorChar)
+                ? RootDirectory
+                : RootDirectory + Path.DirectorySeparatorChar;
 
             NextFileSystem = nextFileSystem;
 
@@ -45,13 +49,11 @@ namespace OpenSage.Data
                     var ext = Path.GetExtension(file).ToLowerInvariant();
                     if (ext != ".big")
                     {
-                        var relativePath = file.Substring(rootDirectory.Length);
-                        if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
-                        {
-                            relativePath = relativePath.Substring(1);
-                        }
-                        relativePath = NormalizeFilePath(relativePath);
-                        TryAddEntry(new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file)));
+                        var relativePath = NormalizeFilePath(file[RootDirectoryWithSlash.Length..]);
+                        TryAddEntry(new FileSystemEntry(this,
+                                                        relativePath,
+                                                        (uint) new FileInfo(file).Length,
+                                                        () => File.OpenRead(file)));
                     }
                 }
 
@@ -67,6 +69,12 @@ namespace OpenSage.Data
         private string ResolveToVirtualPath(string path)
         {
             path = NormalizeFilePath(path);
+
+            if (path.StartsWith(RootDirectoryWithSlash))
+            {
+                path = path[RootDirectoryWithSlash.Length..];
+            }
+
             // check if file path should be converted to a virtual path
             // e.g.
             // [From] [Root Directory = %appdata%\red alert 3\]maps\somemap\somemap.map
@@ -113,9 +121,7 @@ namespace OpenSage.Data
 
         public FileSystemEntry GetFile(string filePath)
         {
-            filePath = NormalizeFilePath(filePath);
-
-            if (_fileTable.TryGetValue(filePath, out var file))
+            if (_fileTable.TryGetValue(ResolveToVirtualPath(filePath), out var file))
             {
                 return file;
             }
@@ -153,9 +159,9 @@ namespace OpenSage.Data
         {
             folderPath = NormalizeFilePath(folderPath);
 
-            foreach (var entry in _fileTable.Values)
+            foreach (var (path, entry) in _fileTable)
             {
-                if (entry.FilePath.StartsWith(folderPath, StringComparison.InvariantCultureIgnoreCase))
+                if (path.StartsWith(folderPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     yield return entry;
                 }
