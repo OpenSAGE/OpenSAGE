@@ -6,10 +6,49 @@ namespace OpenSage.Data
 {
     internal static class SkudefReader
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private class SkudefVersion : IComparable<SkudefVersion>
+        {
+            public string LanguageName { get; init; }
+            public int VersionMajor { get; init; }
+            public int VersionMinor { get; init; }
+
+            public static SkudefVersion Parse(string fileName)
+            {
+                var body = Path.GetFileNameWithoutExtension(fileName);
+                body = body[(body.IndexOf('_') + 1)..];
+                var lastUnderscore = body.LastIndexOf('_');
+                var versions = body[(lastUnderscore + 1)..].Split('.');
+
+                return new SkudefVersion
+                {
+                    LanguageName = body.Substring(0, lastUnderscore),
+                    VersionMajor = int.Parse(versions[0]),
+                    VersionMinor = int.Parse(versions[1]),
+                };
+            }
+
+            public int CompareTo(SkudefVersion other)
+            {
+                var result = VersionMajor - other.VersionMajor;
+                return result == 0
+                    ? VersionMinor - other.VersionMinor
+                    : result;
+            }
+        }
+
         public static void Read(string rootDirectory, Action<string> addBigArchive)
         {
             var skudefFiles = Directory.GetFiles(rootDirectory, "*.skudef");
-            var skudefFile = skudefFiles.LastOrDefault(); // TODO: This is not the right logic.
+            var skudefFile = skudefFiles
+                .OrderBy(SkudefVersion.Parse)
+                .LastOrDefault(); // TODO: This is not the right logic. needs to take into account the language.
+
+            if (skudefFile is not null)
+            {
+                Logger.Info($"Selected Skudef file {skudefFile}");
+            }
 
             // If no skudef (i.e. for pre-C&C3 games), use default one.
             using (var skudefFileContents = (skudefFile != null)
