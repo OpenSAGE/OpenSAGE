@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Logic.Object
 {
@@ -18,7 +19,7 @@ namespace OpenSage.Logic.Object
 
         public IEnumerable<GameObject> Items => _items.Values;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly DistinctLogger Logger = new(NLog.LogManager.GetCurrentClassLogger());
 
         internal GameObjectCollection(
             GameContext gameContext,
