@@ -155,7 +155,10 @@ namespace OpenSage.Content.Translation.Providers
                                 if (colonIdx == -1)
                                 {
                                     categoryLabel = string.Empty;
-                                    logger.Warn($"Empty category found for {label}.");
+                                    if (game != SageGame.Ra3) // RA3 has a lot of empty categories, so I guess it should be valid for RA3
+                                    {
+                                        logger.Warn($"Empty category found for {label}.");
+                                    }
                                 }
                                 else
                                 {
