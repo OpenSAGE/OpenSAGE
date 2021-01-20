@@ -4,7 +4,9 @@ namespace OpenSage.Content
 {
     internal static class AssetHash
     {
-        public static uint GetHash(string input)
+        public static uint GetHash(string input) => GetHashCaseSensitive(input.ToLowerInvariant());
+
+        public static uint GetHashCaseSensitive(string input)
         {
             if (input.Length == 0)
             {
@@ -15,7 +17,7 @@ namespace OpenSage.Content
 
             static byte GetByte(ReadOnlySpan<char> span, int index)
             {
-                return (byte) char.ToLowerInvariant(span[index]);
+                return (byte) span[index];
             }
 
             var numBlocks = buffer.Length >> 2;
