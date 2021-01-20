@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -55,6 +56,12 @@ namespace OpenSage.Data.StreamFS
 
                             if (Enum.IsDefined(typeof(AssetType), asset.Header.TypeId)) // TODO: Remove this.
                             {
+                                if (SkipParsingInAttribute.ShouldSkipFor(asset.Header.TypeId, game.SageGame))
+                                {
+                                    Logger.Warn($"Skipped AssetType: {asset.Name.Split(':')[0]} = 0x{asset.Header.TypeId:X}");
+                                    continue;
+                                }
+
                                 if (AssetReaderCatalog.TryGetAssetReader(asset.Header.TypeId, out var assetReader))
                                 {
                                     using (var instanceDataStream = new MemoryStream(instanceData, false))
@@ -91,7 +98,7 @@ namespace OpenSage.Data.StreamFS
                             else
                             {
                                 // TODO
-                                Logger.Info($"Missing AssetType: {asset.Name.Split(':')[0]} = 0x{asset.Header.TypeId.ToString("X")},");
+                                Logger.Info($"Missing AssetType: {asset.Name.Split(':')[0]} = 0x{asset.Header.TypeId:X}");
                             }
                         }
                     });
@@ -99,7 +106,7 @@ namespace OpenSage.Data.StreamFS
             });
         }
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly DistinctLogger Logger = new(NLog.LogManager.GetCurrentClassLogger());
 
         private void ReadBinReloImpData(
             BinaryReader binReader,
