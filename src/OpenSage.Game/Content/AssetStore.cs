@@ -197,7 +197,7 @@ namespace OpenSage.Content
             {
                 _scopedSingleAssetStorage.Add(assetStorage);
 
-                var typeId = AssetHash.GetHash(typeof(TAsset).Name);
+                var typeId = AssetHash.GetHashCaseSensitive(typeof(TAsset).Name); // Type Id seems to be case sensitive
                 _singleAssetStorageByTypeId.Add(typeId, assetStorage);
             }
 
@@ -244,7 +244,7 @@ namespace OpenSage.Content
             {
                 _scopedAssetCollections.Add(assetCollection);
 
-                var typeId = AssetHash.GetHash(typeof(TAsset).Name);
+                var typeId = AssetHash.GetHashCaseSensitive(typeof(TAsset).Name);  // Type Id seems to be case sensitive
                 _byTypeId.Add(typeId, assetCollection);
             }
 
