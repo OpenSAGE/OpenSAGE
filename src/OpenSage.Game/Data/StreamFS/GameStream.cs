@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -56,7 +56,7 @@ namespace OpenSage.Data.StreamFS
 
                             if (Enum.IsDefined(typeof(AssetType), asset.Header.TypeId)) // TODO: Remove this.
                             {
-                                if (SkipParsingInAttribute.ShouldSkipFor(asset.Header.TypeId, game.SageGame))
+                                if (AssetTypeUtility.ShouldSkipFor(asset.Header.TypeId, game.SageGame))
                                 {
                                     Logger.Warn($"Skipped AssetType: {asset.Name.Split(':')[0]} = 0x{asset.Header.TypeId:X}");
                                     continue;
