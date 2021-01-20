@@ -39,8 +39,11 @@ namespace OpenSage.Data.Dds
                     case DdsImageFormat.Rgba8:
                         return PixelFormat.R8_G8_B8_A8_UNorm;
 
+                    case DdsImageFormat.Rgba16Float:
+                        return PixelFormat.R16_G16_B16_A16_Float;
+
                     default:
-                        throw new NotSupportedException();
+                        throw new NotSupportedException($"Unsupported DdsImageFormat: {ImageFormat}");
                 }
             }
         }
@@ -235,7 +238,7 @@ namespace OpenSage.Data.Dds
                     break;
 
                 case DdsImageFormat.Rgba16Float:
-                    rowBytes = width * 4;
+                    rowBytes = width * 8;
                     break;
             }
 
