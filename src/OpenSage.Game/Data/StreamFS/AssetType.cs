@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Data.StreamFS
+using System;
+
+namespace OpenSage.Data.StreamFS
 {
     public enum AssetType : uint
     {
@@ -11,15 +13,18 @@
         ArmorTemplate = 0x3A6C5E8E,
         ArmyDefinition = 0xD5D580F6,
         AttributeModifier = 0xC5E07887,
+        [SkipParsingIn(Game = SageGame.Ra3)] // inherited from BaseSingleSound
         AudioEvent = 0x844D7B9F,
         AudioFile = 0x166B084D,
         AudioLod = 0x11D8BAC7,
+        [SkipParsingIn(Game = SageGame.Ra3)] // BaseSingleSound's format is a bit different in RA3
         AudioSettings = 0x5608EE71,
         CampaignTemplate = 0x585E034E,
         ConnectionLineManager = 0x64B2184,
         CrowdResponse = 0x17E53184,
         DamageFX = 0xAD3568F5,
         DefaultHotKeys = 0xDEFCA2F6,
+        [SkipParsingIn(Game = SageGame.Ra3)] // inherited from BaseSingleSound
         DialogEvent = 0xD414D1C3,
         DynamicGameLod = 0xACEf31A4,
         Environment = 0x2893E309,
@@ -53,6 +58,7 @@
         MultiplayerColor = 0x8E28081D,
         MultiplayerSettings = 0xB63AEF0,
         Multisound = 0xA3A7AF37,
+        [SkipParsingIn(Game = SageGame.Ra3)] // inherited from BaseSingleSound
         MusicTrack = 0x7046D9F8,
         ObjectCreationList = 0xE86E4D61,
         OnDemandTexture = 0x9312B9AC,
@@ -85,5 +91,38 @@
         W3dMesh = 0xC2B1A262,
         WeaponTemplate = 0x94D4D96E,
         Weather = 0x90D951AD,
+    }
+
+    /// <summary>
+    /// Some assets binary assets (<see cref="Asset"/>)
+    /// have their format changed between different SAGE games,
+    /// and before we implement game-specific parsing of those assets,
+    /// OpenSage may run into issues when trying to parse them.
+    /// <br/>
+    /// This attribute is indeed used on those kind of assets where
+    /// currently we do not (yet) have game-specific parsing code,
+    /// so we skip parsing them for now, to avoid errors.
+    /// <br/>
+    /// This is a temporary workaround and should eventually be removed.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public sealed class SkipParsingInAttribute : Attribute
+    {
+        public SageGame Game { get; init; }
+
+        public static bool ShouldSkipFor(uint enumVal, SageGame game)
+        {
+            var type = typeof(AssetType);
+            var memInfo = type.GetMember(((AssetType) enumVal).ToString());
+            var attributes = memInfo[0].GetCustomAttributes(typeof(SkipParsingInAttribute), false);
+            foreach (var attribute in attributes)
+            {
+                if (((SkipParsingInAttribute) attribute).Game == game)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
