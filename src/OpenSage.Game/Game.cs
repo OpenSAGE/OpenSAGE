@@ -438,6 +438,7 @@ namespace OpenSage
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
 
                 AssetStore = new AssetStore(
+                    SageGame,
                     _fileSystem,
                     LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
                     GraphicsDevice,

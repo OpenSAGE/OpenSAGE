@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using OpenSage.Content;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -94,7 +96,7 @@ namespace OpenSage.Data.StreamFS
     }
 
     /// <summary>
-    /// Some assets binary assets (<see cref="Asset"/>)
+    /// Some binary assets (<see cref="Asset"/>)
     /// have their format changed between different SAGE games,
     /// and before we implement game-specific parsing of those assets,
     /// OpenSage may run into issues when trying to parse them.
@@ -109,7 +111,25 @@ namespace OpenSage.Data.StreamFS
     public sealed class SkipParsingInAttribute : Attribute
     {
         public SageGame Game { get; init; }
+    }
 
+    /// <summary>
+    /// Some assets (<see cref="Asset"/>)
+    /// have their name changed between different SAGE games,
+    /// but they are still almost identical.
+    /// <br/>
+    /// This attribute provides a way to manually override
+    /// type id, instead of calculating it from the type name.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public sealed class AssetTypeIdOverrideAttribute : Attribute
+    {
+        public SageGame Game { get; init; }
+        public AssetType Type { get; init; }
+    }
+
+    public static class AssetTypeUtility
+    {
         public static bool ShouldSkipFor(uint enumVal, SageGame game)
         {
             var type = typeof(AssetType);
@@ -123,6 +143,20 @@ namespace OpenSage.Data.StreamFS
                 }
             }
             return false;
+        }
+
+        public static uint GetAssetTypeId<T>(SageGame game) where T : BaseAsset
+        {
+            var type = typeof(T);
+            var attributes = type.GetCustomAttributes(typeof(AssetTypeIdOverrideAttribute), false);
+            foreach (var attribute in attributes.Cast<AssetTypeIdOverrideAttribute>())
+            {
+                if (attribute.Game == game)
+                {
+                    return (uint) attribute.Type;
+                }
+            }
+            return AssetHash.GetHashCaseSensitive(type.Name);
         }
     }
 }

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Data;
+using OpenSage.Data.StreamFS;
 using OpenSage.Eva;
 using OpenSage.FX;
 using OpenSage.Graphics;
@@ -174,6 +175,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
         internal AssetStore(
+            SageGame sageGame,
             FileSystem fileSystem,
             string language,
             GraphicsDevice graphicsDevice,
@@ -197,7 +199,7 @@ namespace OpenSage.Content
             {
                 _scopedSingleAssetStorage.Add(assetStorage);
 
-                var typeId = AssetHash.GetHashCaseSensitive(typeof(TAsset).Name); // Type Id seems to be case sensitive
+                var typeId = AssetTypeUtility.GetAssetTypeId<TAsset>(sageGame);
                 _singleAssetStorageByTypeId.Add(typeId, assetStorage);
             }
 
@@ -244,7 +246,7 @@ namespace OpenSage.Content
             {
                 _scopedAssetCollections.Add(assetCollection);
 
-                var typeId = AssetHash.GetHashCaseSensitive(typeof(TAsset).Name);  // Type Id seems to be case sensitive
+                var typeId = AssetTypeUtility.GetAssetTypeId<TAsset>(sageGame);
                 _byTypeId.Add(typeId, assetCollection);
             }
 
