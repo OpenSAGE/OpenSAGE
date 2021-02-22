@@ -119,4 +119,4 @@ These projects have similar goals:
 * [Arda](https://github.com/feliwir/arda)
 * [smx-smx/openSage](https://github.com/smx-smx/openSage)
 
-[OpenRA](http://www.openra.net/) already does for the Westwood RTS games what I hope to do for the EA-era RTS games with OpenSAGE.
+[OpenRA](https://www.openra.net/) already does for the Westwood RTS games what I hope to do for the EA-era RTS games with OpenSAGE.
