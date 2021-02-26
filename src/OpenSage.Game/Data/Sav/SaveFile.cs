@@ -108,7 +108,7 @@ namespace OpenSage.Data.Sav
                                         new PlayerSetting(
                                             null,
                                             game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), // TODO
-                                            new ColorRgb(0, 0, 255))
+                                            new ColorRgb(0, 0, 255), 0)
                                     },
                                     localPlayerIndex: 0, // TODO
                                     isMultiPlayer: false,

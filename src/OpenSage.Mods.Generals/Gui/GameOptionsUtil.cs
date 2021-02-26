@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
@@ -324,6 +324,11 @@ namespace OpenSage.Mods.Generals.Gui
                     int r = rnd.Next(_playableSides.Count);
                     setting.Template = _playableSides[r];
                 }
+
+                // Get the selected player team
+                selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxTeamPrefix + i);
+
+                setting.Team = (byte)selected;
 
                 settingsList.Add(setting);
             }

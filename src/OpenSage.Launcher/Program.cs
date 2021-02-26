@@ -182,8 +182,8 @@ namespace OpenSage.Launcher
                         {
                             var pSettings = new PlayerSetting?[]
                             {
-                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0), PlayerOwner.Player),
-                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(0, 255, 0), PlayerOwner.EasyAi),
+                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                new PlayerSetting(null, game.AssetStore.PlayerTemplates.GetByName("FactionGLA"), new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
                             };
 
                             logger.Debug("Starting multiplayer game");

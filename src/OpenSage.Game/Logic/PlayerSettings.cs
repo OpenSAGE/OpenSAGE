@@ -21,14 +21,16 @@ namespace OpenSage.Logic
         public PlayerTemplate Template { get; set; }
         public PlayerOwner Owner { get; set; }
         public string Name { get; set; }
+        public byte Team { get; set; }
 
-        public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, PlayerOwner owner = PlayerOwner.None, string name = "")
+        public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, byte team, PlayerOwner owner = PlayerOwner.None, string name = "")
         {
             StartPosition = startPosition;
             Template = template;
             Color = color;
             Owner = owner;
             Name = name;
+            Team = team;
         }
     }
 }

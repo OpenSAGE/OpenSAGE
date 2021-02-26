@@ -227,7 +227,7 @@ namespace OpenSage
                     }
 
                 }
-                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, owner, slot.HumanName));
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, (byte)slot.Team, owner, slot.HumanName));
             }
 
             return pSettings;
@@ -719,6 +719,26 @@ namespace OpenSage
                     }
                 }
 
+                for (var i = 1; i < players.Length; i++)
+                {
+                    var outerPlayer = players[i];
+                    for (var j = 1; j < players.Length; j++)
+                    {
+                        if (i == j) continue;
+                        var innerPlayer = players[j];
+                        if (outerPlayer.Team == innerPlayer.Team && outerPlayer.Team != 0)
+                        {
+                            outerPlayer.AddAlly(innerPlayer);
+                            innerPlayer.AddAlly(outerPlayer);
+                        }
+                        else
+                        {
+                            outerPlayer.AddEnemy(innerPlayer);
+                            innerPlayer.AddEnemy(outerPlayer);
+                        }
+                    }
+                }
+
                 // TODO: Theoretically, there could be multiple civilian players
                 Scene3D.SetSkirmishPlayers(players, players[localPlayerIndex]);
                 Scripting.InitializeSkirmishGame();
@@ -771,6 +791,7 @@ namespace OpenSage
                                       s.Index,
                                       GetItem(s.FactionIndex, GetPlayableSides()),
                                       GetItem(s.ColorIndex, AssetStore.MultiplayerColors).RgbColor,
+                                      s.Team,
                                       s.State switch
                                       {
                                           SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
