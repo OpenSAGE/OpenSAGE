@@ -328,7 +328,7 @@ namespace OpenSage.Mods.Generals.Gui
                 // Get the selected player team
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxTeamPrefix + i);
 
-                setting.Team = (byte)selected;
+                setting.Team = selected;
 
                 settingsList.Add(setting);
             }

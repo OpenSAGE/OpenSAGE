@@ -227,7 +227,7 @@ namespace OpenSage
                     }
 
                 }
-                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, (byte)slot.Team, owner, slot.HumanName));
+                pSettings.Add(new PlayerSetting(slot.StartPosition, faction, color, slot.Team, owner, slot.HumanName));
             }
 
             return pSettings;

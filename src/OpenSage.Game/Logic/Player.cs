@@ -93,7 +93,7 @@ namespace OpenSage.Logic
 
         public GameObject HoveredUnit { get; set; }
 
-        public byte Team { get; init; }
+        public int Team { get; init; }
 
         public Player(PlayerTemplate template, in ColorRgb color)
         {
