@@ -179,8 +179,8 @@ namespace OpenSage.Diagnostics
                                 new EchoConnection(),
                                 new PlayerSetting?[]
                                 {
-                                    new PlayerSetting(null, _faction, new ColorRgb(255, 0, 0), PlayerOwner.Player),
-                                    new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), PlayerOwner.EasyAi),
+                                    new PlayerSetting(null, _faction, new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                    new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
                                 },
                                 0,
                                 Environment.TickCount

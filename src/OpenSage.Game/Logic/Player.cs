@@ -93,6 +93,8 @@ namespace OpenSage.Logic
 
         public GameObject HoveredUnit { get; set; }
 
+        public byte Team { get; init; }
+
         public Player(PlayerTemplate template, in ColorRgb color)
         {
             Template = template;
@@ -452,8 +454,19 @@ namespace OpenSage.Logic
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
                 Money = (uint)(template.StartMoney + gameData.DefaultStartingCash),
-                IsHuman = setting?.Owner == PlayerOwner.Player
+                IsHuman = setting?.Owner == PlayerOwner.Player,
+                Team = setting?.Team ?? default,
             };
+        }
+
+        public void AddAlly(Player player)
+        {
+            _allies.Add(player);
+        }
+
+        public void AddEnemy(Player player)
+        {
+            _enemies.Add(player);
         }
     }
 
