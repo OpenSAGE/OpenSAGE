@@ -788,7 +788,7 @@ namespace OpenSage
             var playerSettings = (from s in skirmishGame.Slots
                                   where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
                                   select new PlayerSetting(
-                                      s.Index,
+                                      s.StartPosition == 0 ? null : s.StartPosition,
                                       GetItem(s.FactionIndex, GetPlayableSides()),
                                       GetItem(s.ColorIndex, AssetStore.MultiplayerColors).RgbColor,
                                       s.Team,

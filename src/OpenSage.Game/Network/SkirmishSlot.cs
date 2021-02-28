@@ -109,6 +109,20 @@ namespace OpenSage.Network
             }
         }
 
+        private int _startPosition;
+        public int StartPosition
+        {
+            get
+            {
+                return _startPosition;
+            }
+            set
+            {
+                IsDirty |= _startPosition != value;
+                _startPosition = value;
+            }
+        }
+
         private bool _ready;
         public bool Ready
         {
@@ -142,7 +156,8 @@ namespace OpenSage.Network
                 ColorIndex = reader.GetByte(),
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetByte(),
-                Ready = reader.GetBool()
+                Ready = reader.GetBool(),
+                StartPosition = reader.GetInt(),
             };
 
             if (slot.State == SkirmishSlotState.Human)
@@ -163,6 +178,7 @@ namespace OpenSage.Network
             writer.Put(slot.FactionIndex);
             writer.Put(slot.Team);
             writer.Put(slot.Ready);
+            writer.Put(slot.StartPosition);
             if (slot.State == SkirmishSlotState.Human)
             {
                 writer.Put(slot.ClientId);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NLog;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -28,14 +29,20 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly List<PlayerTemplate> _playableSides;
         private readonly Window _window;
         private readonly Game _game;
+        private readonly Regex _mapPositionButtonRegex;
+        private readonly Dictionary<int, (int Position, Control Control)> _playerToMapPosition = new();
+        private readonly Dictionary<int, int> _mapPositionToPlayer = new();
 
         public MapCache CurrentMap { get; private set; }
         public Action<int, string, int> OnSlotIndexChange { get; internal set; }
+        // int player, int position
+        public Action<int, int> OnMapPositionIndexChange { get; internal set; }
 
         public GameOptionsUtil(Window window, Game game, string basePrefix)
         {
             _optionsPath = basePrefix + "GameOptionsMenu.wnd";
             _mapSelectPath = basePrefix + "MapSelectMenu.wnd";
+            _mapPositionButtonRegex = new Regex($"^{_optionsPath}:ButtonMapStartPosition(\\d+)$");
 
             _window = window;
             _game = game;
@@ -100,6 +107,15 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             OnSlotIndexChange?.Invoke(i, prefix, comboBox.SelectedIndex);
                         };
+
+                        if (prefix == ComboBoxPlayerPrefix)
+                        {
+                            // this ensures when a player is removed, they are removed from the map preview as well
+                            listBox.SelectedIndexChanged += (_, _) =>
+                            {
+                                OnPlayerModified(i, comboBox.SelectedIndex);
+                            };
+                        }
                     }
                     else
                     {
@@ -110,6 +126,23 @@ namespace OpenSage.Mods.Generals.Gui
 
                 }
                 
+            }
+        }
+
+        /// <summary>
+        /// Removes a player from the map preview screen if they have been removed from the lobby
+        /// </summary>
+        /// <param name="player">The player index being modified</param>
+        /// <param name="comboBoxSelectedIndex">The index of the Player combo box</param>
+        private void OnPlayerModified(int player, int comboBoxSelectedIndex)
+        {
+            if (comboBoxSelectedIndex < 2 && _playerToMapPosition.TryGetValue(player, out var p))
+            {
+                // we need to make sure this player doesn't have a map position set, and remove it if they do
+                _playerToMapPosition.Remove(player);
+                _mapPositionToPlayer.Remove(p.Position);
+                p.Control.Text = string.Empty;
+                OnMapPositionIndexChange?.Invoke(player, 0);
             }
         }
 
@@ -160,8 +193,78 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     else
                     {
-                        return false;
+                        Match match;
+                        if ((match = _mapPositionButtonRegex.Match(message.Element.Name ?? "")).Success)
+                        {
+                            // TODO: get the index of the player making the request, so players can't change other players in LAN games?
+                            const int playerIndex = 0;
+                            // Positions are 1-indexed in game but this comes to us as 0-indexed
+                            var position = int.Parse(match.Groups[1].Value) + 1;
+
+                            var slotWasOccupied = _mapPositionToPlayer.TryGetValue(position, out var existingPlayer);
+                            var startIndex = slotWasOccupied ? existingPlayer : 0;
+                            var placedPlayer = false;
+
+                            // for the purposes of AI control, this assumes that the host will always be player 0
+                            foreach (var i in GetPlayersInLobby().OrderBy(_ => _).SkipWhile(x => x < startIndex))
+                            {
+                                if (!_playerToMapPosition.ContainsKey(i))
+                                {
+                                    // just remove whoever was in the spot previously
+                                    if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
+                                    {
+                                        _playerToMapPosition.Remove(previousPlayer);
+                                        OnMapPositionIndexChange?.Invoke(previousPlayer, 0);
+                                    }
+
+                                    _mapPositionToPlayer[position] = i;
+                                    _playerToMapPosition[i] = (position, message.Element);
+                                    message.Element.Text = (i + 1).ToString();
+                                    OnMapPositionIndexChange?.Invoke(i, position);
+                                    placedPlayer = true;
+                                    Logger.Info($"Selected position {position} for player {i}");
+                                    break;
+                                }
+                            }
+
+                            if (!placedPlayer)
+                            {
+                                if (slotWasOccupied)
+                                {
+                                    // remove whoever was there
+                                    if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
+                                    {
+                                        _playerToMapPosition.Remove(previousPlayer);
+                                        _mapPositionToPlayer.Remove(position);
+                                        message.Element.Text = string.Empty;
+                                        OnMapPositionIndexChange?.Invoke(previousPlayer, 0);
+                                    }
+                                }
+                                else
+                                {
+                                    // move ourselves there
+                                    if (_playerToMapPosition.TryGetValue(playerIndex, out var p))
+                                    {
+                                        // first remove our existing position from the map
+                                        _mapPositionToPlayer.Remove(p.Position);
+                                        p.Control.Text = "";
+                                        _playerToMapPosition.Remove(playerIndex);
+                                    }
+
+                                    _mapPositionToPlayer[position] = playerIndex;
+                                    _playerToMapPosition[playerIndex] = (position, message.Element);
+                                    message.Element.Text = (playerIndex + 1).ToString();
+                                    OnMapPositionIndexChange?.Invoke(playerIndex, position);
+                                    Logger.Info($"Selected position {position} for player {playerIndex}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
+
                     break;
                 default:
                     return false;
@@ -264,6 +367,23 @@ namespace OpenSage.Mods.Generals.Gui
             return playerOwnerList.SelectedIndex;
         }
 
+        /// <summary>
+        /// Gets the indices of the players currently in the lobby
+        /// </summary>
+        private IEnumerable<int> GetPlayersInLobby()
+        {
+            yield return 0;
+            for (var i = 1; i < 8; i++)
+            {
+                var selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerPrefix + i);
+
+                if (selected >= 2)
+                {
+                    yield return i;
+                }
+            }
+        }
+
         private void ParsePlayerSettings(Game game, out PlayerSetting?[] settings)
         {
             var settingsList = new List<PlayerSetting?>();
@@ -329,6 +449,9 @@ namespace OpenSage.Mods.Generals.Gui
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxTeamPrefix + i);
 
                 setting.Team = selected;
+
+                setting.StartPosition =
+                    _playerToMapPosition.TryGetValue(i, out var startPosition) ? startPosition.Position : null;
 
                 settingsList.Add(setting);
             }

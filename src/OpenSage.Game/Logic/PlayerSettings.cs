@@ -17,7 +17,7 @@ namespace OpenSage.Logic
     public struct PlayerSetting
     {
         public ColorRgb Color { get; set; }
-        public int? StartPosition { get; }
+        public int? StartPosition { get; set; }
         public PlayerTemplate Template { get; set; }
         public PlayerOwner Owner { get; set; }
         public string Name { get; set; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
@@ -91,6 +91,12 @@ namespace OpenSage.Mods.Generals.Gui
                         break;
                 }
 
+            };
+
+            GameOptions.OnMapPositionIndexChange += (player, position) =>
+            {
+                var slot = game.SkirmishManager.SkirmishGame.Slots[player];
+                slot.StartPosition = position;
             };
 
             // Clear chat field
