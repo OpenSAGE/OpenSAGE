@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -39,13 +39,13 @@ namespace OpenSage.Logic.Object
         {
             var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
 
-            var target = _gameObject.CurrentWeapon.CurrentTarget;
+            var target = _gameObject.CurrentWeapon?.CurrentTarget;
             float targetYaw;
 
             if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
             {
                 _turretAIstate = TurretAIStates.Recentering;
-                _gameObject.CurrentWeapon.SetTarget(null);
+                _gameObject.CurrentWeapon?.SetTarget(null);
             }
 
             switch (_turretAIstate)
