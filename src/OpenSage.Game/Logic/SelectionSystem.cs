@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -23,20 +24,32 @@ namespace OpenSage.Logic
         // This should probably scale with resolution.
         private const int BoxSelectionMinimumSize = 30;
 
+        // TODO: consider allowing configuration for accessibility
+        // time after which releasing right click will not result in deselecting units, in ms
+        private const int DeselectMaxTimeMs = 250;
+
+        // TODO: scale with resolution, allow configuration for accessibility
+        // if the cursor moves further than this, don't deselect no matter how short right click was held for
+        private const int DeselectMaxDelta = 5;
+
         private SelectionGui SelectionGui => Game.Scene3D.SelectionGui;
 
-        private Point2D _startPoint;
-        private Point2D _endPoint;
+        private Point2D _selectionStartPoint;
+        private Point2D _selectionEndPoint;
+
+        private Point2D _panStartPoint;
+        private readonly Stopwatch _panStopwatch = new Stopwatch();
 
         public SelectionStatus Status { get; private set; } = SelectionStatus.NotSelecting;
         public bool Selecting => Status != SelectionStatus.NotSelecting;
+        public bool Panning { get; private set; }
 
         private Rectangle SelectionRect
         {
             get
             {
-                var topLeft = Point2D.Min(_startPoint, _endPoint);
-                var bottomRight = Point2D.Max(_startPoint, _endPoint);
+                var topLeft = Point2D.Min(_selectionStartPoint, _selectionEndPoint);
+                var bottomRight = Point2D.Max(_selectionStartPoint, _selectionEndPoint);
 
                 return new Rectangle(topLeft,
                     new Size(bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y));
@@ -44,6 +57,27 @@ namespace OpenSage.Logic
         }
 
         public SelectionSystem(Game game) : base(game) { }
+
+        public void OnStartRightClickDrag(Point2D point)
+        {
+            Panning = true;
+            _panStartPoint = point;
+            _panStopwatch.Restart();
+        }
+
+        public void OnEndRightClickDrag(Point2D point2D)
+        {
+            var selectionDelta = point2D - _panStartPoint;
+            var time = _panStopwatch.ElapsedMilliseconds;
+            if (time < DeselectMaxTimeMs &&
+                Math.Abs(selectionDelta.X) < DeselectMaxDelta && Math.Abs(selectionDelta.Y) < DeselectMaxDelta)
+            {
+                ClearSelectedObjectsForLocalPlayer();
+            }
+
+            Panning = false;
+            _panStopwatch.Stop();
+        }
 
         public void OnHoverSelection(Point2D point)
         {
@@ -53,14 +87,14 @@ namespace OpenSage.Logic
         public void OnStartDragSelection(Point2D startPoint)
         {
             Status = SelectionStatus.SingleSelecting;
-            _startPoint = startPoint;
-            _endPoint = startPoint;
+            _selectionStartPoint = startPoint;
+            _selectionEndPoint = startPoint;
             SelectionGui.SelectionRectangle = SelectionRect;
         }
 
         public void OnDragSelection(Point2D point)
         {
-            _endPoint = point;
+            _selectionEndPoint = point;
 
             var rect = SelectionRect;
 
@@ -185,7 +219,7 @@ namespace OpenSage.Logic
 
         private void SingleSelect()
         {
-            var closestObject = FindClosestObject(_startPoint.ToVector2());
+            var closestObject = FindClosestObject(_selectionStartPoint.ToVector2());
 
             var playerId = Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
             Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
