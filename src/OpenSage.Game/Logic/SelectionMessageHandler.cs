@@ -29,7 +29,7 @@ namespace OpenSage.Logic
                     {
                         _system.OnDragSelection(_mousePos);
                     }
-                    else
+                    else if (!_system.Panning)
                     {
                         _system.OnHoverSelection(_mousePos);
                     }
@@ -47,8 +47,17 @@ namespace OpenSage.Logic
                     }
                     break;
 
+                case InputMessageType.MouseRightButtonDown:
+                    _system.OnStartRightClickDrag(_mousePos);
+                    break;
+
                 case InputMessageType.MouseRightButtonUp:
-                    _system.ClearSelectedObjectsForLocalPlayer();
+                    if (_system.Panning)
+                    {
+                        // we need to pass in the position directly instead of relying on MouseMove as in my experience
+                        // when moving quickly MouseMove wouldn't be called before MouseRightButtonUp
+                        _system.OnEndRightClickDrag(message.Value.MousePosition);
+                    }
                     break;
             }
 

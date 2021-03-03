@@ -69,8 +69,9 @@ namespace OpenSage.Logic
                     break;
 
                 case InputMessageType.MouseRightButtonDown:
+                    // TODO: is this desirable if we don't actually deselect the unit, but simply pan the camera?
                     _orderGeneratorSystem.CancelOrderGenerator();
-                    return InputMessageResult.Handled;
+                    break;
 
                 case InputMessageType.KeyDown:
                     if (message.Value.Key == Veldrid.Key.ControlLeft ||
