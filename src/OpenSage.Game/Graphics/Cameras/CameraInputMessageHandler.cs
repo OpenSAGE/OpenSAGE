@@ -75,7 +75,8 @@ namespace OpenSage.Graphics.Cameras
 
                 case InputMessageType.MouseRightButtonUp:
                     _rightMouseDown = false;
-                    break;
+                    _deltaX = _deltaY = 0;
+                    return InputMessageResult.NotHandled;
 
                 case InputMessageType.MouseWheel:
                     _scrollWheelValue += message.Value.ScrollWheel;
@@ -115,7 +116,7 @@ namespace OpenSage.Graphics.Cameras
 
             state.PressedKeys = new List<Key>(_pressedKeys);
 
-            _deltaX = _deltaY = _scrollWheelValue = 0;
+            _scrollWheelValue = 0;
         }
     }
 }

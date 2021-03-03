@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
@@ -282,6 +282,24 @@ namespace OpenSage.Graphics.Cameras
             var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
+
+            if (_terrainPosition.X < 0)
+            {
+                _terrainPosition.X = 0;
+            }
+            else if (_terrainPosition.X > _heightMap.MaxXCoordinate)
+            {
+                _terrainPosition.X = _heightMap.MaxXCoordinate;
+            }
+
+            if (_terrainPosition.Y < 0)
+            {
+                _terrainPosition.Y = 0;
+            }
+            else if (_terrainPosition.Y > _heightMap.MaxYCoordinate)
+            {
+                _terrainPosition.Y = _heightMap.MaxYCoordinate;
+            }
         }
 
         public void GoToObject(Logic.Object.GameObject gameObject)

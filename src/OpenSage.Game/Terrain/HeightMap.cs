@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
@@ -16,6 +16,8 @@ namespace OpenSage.Terrain
 
         public int Width { get; }
         public int Height { get; }
+        public int MaxXCoordinate => (Width - 2 * (int) _heightMapData.BorderWidth) * HorizontalScale;
+        public int MaxYCoordinate => (Height - 2 * (int) _heightMapData.BorderWidth) * HorizontalScale;
 
 
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
