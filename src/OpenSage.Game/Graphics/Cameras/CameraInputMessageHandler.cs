@@ -116,6 +116,11 @@ namespace OpenSage.Graphics.Cameras
 
             state.PressedKeys = new List<Key>(_pressedKeys);
 
+            if (_leftMouseDown && _pressedKeys.Contains(Key.AltLeft) || _middleMouseDown)
+            {
+                _deltaX = _deltaY = 0;
+            }
+
             _scrollWheelValue = 0;
         }
     }
