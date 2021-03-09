@@ -38,7 +38,7 @@ namespace OpenSage.Logic
         private Point2D _selectionEndPoint;
 
         private Point2D _panStartPoint;
-        private readonly Stopwatch _panStopwatch = new Stopwatch();
+        private TimeSpan _panStartTime;
 
         public SelectionStatus Status { get; private set; } = SelectionStatus.NotSelecting;
         public bool Selecting => Status != SelectionStatus.NotSelecting;
@@ -62,21 +62,20 @@ namespace OpenSage.Logic
         {
             Panning = true;
             _panStartPoint = point;
-            _panStopwatch.Restart();
+            _panStartTime = Game.MapTime.TotalTime;
         }
 
         public void OnEndRightClickDrag(Point2D point2D)
         {
             var selectionDelta = point2D - _panStartPoint;
-            var time = _panStopwatch.ElapsedMilliseconds;
-            if (time < DeselectMaxTimeMs &&
+            var time = Game.MapTime.TotalTime - _panStartTime;
+            if (time.Milliseconds < DeselectMaxTimeMs &&
                 Math.Abs(selectionDelta.X) < DeselectMaxDelta && Math.Abs(selectionDelta.Y) < DeselectMaxDelta)
             {
                 ClearSelectedObjectsForLocalPlayer();
             }
 
             Panning = false;
-            _panStopwatch.Stop();
         }
 
         public void OnHoverSelection(Point2D point)
