@@ -21,7 +21,7 @@ namespace OpenSage.Data
                           FileSystem nextFileSystem = null,
                           IEnumerable<KeyValuePair<string, string>> realPathsToVirtualPaths = null)
         {
-            RootDirectory = NormalizeFilePath(rootDirectory);
+            RootDirectory = rootDirectory;
             RootDirectoryWithSlash = RootDirectory.EndsWith(Path.DirectorySeparatorChar)
                 ? RootDirectory
                 : RootDirectory + Path.DirectorySeparatorChar;
