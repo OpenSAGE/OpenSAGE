@@ -39,7 +39,7 @@ namespace OpenSage.Graphics
                 shaderResources = loadContext.ShaderResources.FixedFunction;
             }
 
-            _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleListPipeline;
+            _depthPipeline = loadContext.ShaderResources.MeshDepth.Pipeline;
 
             MeshParts = new List<ModelMeshPart>();
             if (w3dShaderMaterial != null)
