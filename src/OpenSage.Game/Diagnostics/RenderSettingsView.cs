@@ -111,6 +111,18 @@ namespace OpenSage.Diagnostics
                     shadowSettings.VisualizeCascades = visualizeCascades;
                 }
 
+                var updateShadowMatrices = shadowSettings.UpdateShadowMatrices;
+                if (ImGui.Checkbox("Update shadow frustums", ref updateShadowMatrices))
+                {
+                    shadowSettings.UpdateShadowMatrices = updateShadowMatrices;
+                }
+
+                var visualizeShadowFrustums = shadowSettings.VisualizeShadowFrustums;
+                if (ImGui.Checkbox("Visualize shadow frustums", ref visualizeShadowFrustums))
+                {
+                    shadowSettings.VisualizeShadowFrustums = visualizeShadowFrustums;
+                }
+
                 if (Game.Graphics.ShadowMap != null)
                 {
                     for (var i = 0; i < (int) Game.Graphics.ShadowMap.ArrayLayers; i++)

@@ -58,6 +58,10 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
         public bool VisualizeCascades { get; set; } = false;
 
+        public bool UpdateShadowMatrices { get; set; } = true;
+
+        public bool VisualizeShadowFrustums { get; set; } = false;
+
         /// <summary>
         /// Gets or sets the depth bias to use when rendering shadows.
         /// </summary>
