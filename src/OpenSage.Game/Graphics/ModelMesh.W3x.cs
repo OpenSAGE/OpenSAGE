@@ -27,7 +27,7 @@ namespace OpenSage.Graphics
             var effectName = w3xMesh.FXShader.ShaderName.Replace(".fx", string.Empty);
             //var shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName); // TODO: Uncomment this.
             var shaderResources = loadContext.ShaderResources.GetShaderMaterialResources("NormalMapped");
-            _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleListPipeline;
+            _depthPipeline = loadContext.ShaderResources.MeshDepth.Pipeline;
 
             // TODO: Extract state properties from shader material.
 

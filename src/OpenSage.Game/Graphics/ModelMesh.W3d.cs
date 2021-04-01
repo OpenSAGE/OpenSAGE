@@ -32,14 +32,14 @@ namespace OpenSage.Graphics
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
                 shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName);
-                _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleListPipeline;
             }
             else
             {
                 w3dShaderMaterial = null;
                 shaderResources = loadContext.ShaderResources.FixedFunction;
-                _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleStripPipeline;
             }
+
+            _depthPipeline = loadContext.ShaderResources.MeshDepth.TriangleListPipeline;
 
             MeshParts = new List<ModelMeshPart>();
             if (w3dShaderMaterial != null)
