@@ -12,7 +12,7 @@ namespace OpenSage.Graphics
             CullNoneSolid = new RasterizerStateDescription(
                 FaceCullMode.None,
                 PolygonFillMode.Solid,
-                FrontFace.Clockwise,
+                FrontFace.CounterClockwise,
                 true,
                 false);
 
