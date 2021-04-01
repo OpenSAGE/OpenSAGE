@@ -25,6 +25,11 @@ namespace OpenSage.Graphics.Rendering.Shadows
             ShadowData shadowData,
             ShadowSettings settings)
         {
+            if (!settings.UpdateShadowMatrices)
+            {
+                return;
+            }
+
             var originalFarPlaneDistance = camera.FarPlaneDistance;
             try
             {
@@ -75,7 +80,9 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
                     var invViewProj = Matrix4x4Utility.Invert(camera.ViewProjection);
                     for (var i = 0; i < 8; ++i)
+                    {
                         _frustumCorners[i] = Vector4.Transform(_frustumCorners[i], invViewProj).ToVector3();
+                    }
 
                     // Get the corners of the current cascade slice of the view frustum
                     for (var i = 0; i < 4; ++i)

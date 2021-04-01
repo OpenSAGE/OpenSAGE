@@ -156,6 +156,10 @@ namespace OpenSage.Graphics.Rendering
                 context.Scene3D?.Render(_drawingContext);
                 context.Scene2D?.Render(_drawingContext);
 
+                _shadowMapRenderer.DrawDebugOverlay(
+                    context.Scene3D,
+                    _drawingContext);
+
                 Rendering2D?.Invoke(this, new Rendering2DEventArgs(_drawingContext));
 
                 _drawingContext.End();

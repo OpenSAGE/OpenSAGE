@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Gui;
+using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -105,6 +107,50 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
             _shadowConstantsPSBuffer.Value = _shadowConstants;
             _shadowConstantsPSBuffer.Update(commandList);
+        }
+
+        private static readonly ColorRgbaF[] CascadeColors =
+        {
+            new ColorRgbaF(1, 0, 0, 1),
+            new ColorRgbaF(0, 1, 0, 1),
+            new ColorRgbaF(0, 0, 1, 1),
+            new ColorRgbaF(1, 1, 1, 1),
+        };
+
+        public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
+        {
+            if (!scene.Shadows.VisualizeShadowFrustums)
+            {
+                return;
+            }
+
+            for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
+            {
+                _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
+
+                var corners = _lightFrustum.Corners;
+                var color = CascadeColors[splitIndex];
+
+                void DrawLine(int start, int end)
+                {
+                    DebugDrawingUtils.DrawLine(drawingContext, scene.Camera, corners[start], corners[end], color);
+                }
+
+                DrawLine(0, 1);
+                DrawLine(1, 2);
+                DrawLine(2, 3);
+                DrawLine(3, 0);
+
+                DrawLine(4, 5);
+                DrawLine(5, 6);
+                DrawLine(6, 7);
+                DrawLine(7, 4);
+
+                DrawLine(0, 4);
+                DrawLine(1, 5);
+                DrawLine(2, 6);
+                DrawLine(3, 7);
+            }
         }
     }
 }
