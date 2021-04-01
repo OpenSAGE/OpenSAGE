@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
@@ -324,6 +324,12 @@ namespace OpenSage.Graphics.Cameras
             if (ImGui.DragFloat("Field of view", ref fieldOfView, 1f, 10, 400))
             {
                 _camera.FieldOfView = MathUtility.ToRadians(fieldOfView);
+            }
+
+            var farPlaneDistance = _camera.FarPlaneDistance;
+            if (ImGui.SliderFloat("Far plane distance", ref farPlaneDistance, 10, 10000))
+            {
+                _camera.FarPlaneDistance = farPlaneDistance;
             }
 
             ImGui.DragFloat3("Terrain position", ref _terrainPosition);
