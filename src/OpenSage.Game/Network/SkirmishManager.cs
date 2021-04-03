@@ -42,6 +42,8 @@ namespace OpenSage.Network
         public LocalSkirmishManager(Game game)
             : base(game, isHosting: true)
         {
+            Settings.LocalSlotIndex = 0;
+            Settings.LocalSlot.State = SkirmishSlotState.Human;
         }
 
         public override bool IsStartButtonEnabled() => true;
