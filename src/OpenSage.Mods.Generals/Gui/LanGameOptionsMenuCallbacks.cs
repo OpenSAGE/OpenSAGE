@@ -148,8 +148,6 @@ namespace OpenSage.Mods.Generals.Gui
                 colorCombo.Enabled = editable;
                 teamCombo.Enabled = editable;
                 playerTemplateCombo.Enabled = editable;
-
-
             };
 
             var buttonStart = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");

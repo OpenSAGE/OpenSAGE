@@ -132,7 +132,15 @@ namespace OpenSage.Mods.Generals.Gui
                     break;
                 case ComboBoxPlayerPrefix:
                     Logger.Trace($"Changed the player type box to {value}");
-                        
+                    slot.State = value switch
+                    {
+                        0 => SkirmishSlotState.Open,
+                        1 => SkirmishSlotState.Closed,
+                        2 => SkirmishSlotState.EasyArmy,
+                        3 => SkirmishSlotState.MediumArmy,
+                        4 => SkirmishSlotState.HardArmy,
+                        _ => throw new ArgumentException("invalid player type: " + value)
+                    };
                     break;
                 case ComboBoxPlayerTemplatePrefix:
                     Logger.Trace($"Changed the faction box to {value}");
@@ -184,11 +192,6 @@ namespace OpenSage.Mods.Generals.Gui
                         if (!ValidateSettings(settings, context.WindowManager))
                         {
                             return true;
-                        }
-
-                        if (_optionsPath.StartsWith("LanGame"))
-                        {
-                            Debugger.Break(); // context.Game.HostSkirmishGame();
                         }
 
                         context.Game.SkirmishManager.HandleStartButtonClickAsync();

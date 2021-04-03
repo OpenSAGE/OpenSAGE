@@ -125,6 +125,7 @@ namespace OpenSage.Mods.Generals.Gui
                             break;
 
                         case "MainMenu.wnd:ButtonSkirmish":
+                            context.Game.SkirmishManager = new LocalSkirmishManager(context.Game);
                             context.WindowManager.SetWindow(@"Menus\SkirmishGameOptionsMenu.wnd");
                             break;
 
