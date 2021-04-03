@@ -23,6 +23,8 @@ namespace OpenSage.Mods.Generals.Gui
         public const string ComboBoxPlayerTemplatePrefix = ":ComboBoxPlayerTemplate";
         public const string ComboBoxColorPrefix = ":ComboBoxColor";
         public const string ComboBoxPlayerPrefix = ":ComboBoxPlayer";
+        public const string ButtonAcceptPrefix = ":ButtonAccept";
+        public const string ButtonStart = ":ButtonStart";
 
         private readonly string _optionsPath;
         private readonly string _mapSelectPath;
@@ -101,15 +103,6 @@ namespace OpenSage.Mods.Generals.Gui
                     {
                         var listBox = (ListBox) comboBox.Controls[2];
                         listBox.SelectedIndexChanged += (sender, e) => OnSlotIndexChanged(i, prefix, comboBox.SelectedIndex);
-
-                        if (prefix == ComboBoxPlayerPrefix)
-                        {
-                            // this ensures when a player is removed, they are removed from the map preview as well
-                            listBox.SelectedIndexChanged += (_, _) =>
-                            {
-                                OnPlayerModified(i, comboBox.SelectedIndex);
-                            };
-                        }
                     }
                     else
                     {
@@ -141,6 +134,12 @@ namespace OpenSage.Mods.Generals.Gui
                         4 => SkirmishSlotState.HardArmy,
                         _ => throw new ArgumentException("invalid player type: " + value)
                     };
+
+                    if (slot.State == SkirmishSlotState.Open || slot.State == SkirmishSlotState.Closed)
+                    {
+                        RemovePlayerFromMap(index);
+                    }                    
+
                     break;
                 case ComboBoxPlayerTemplatePrefix:
                     Logger.Trace($"Changed the faction box to {value}");
@@ -153,26 +152,21 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        private void OnMapPositionIndexChanged(int player, int position)
+        private void UpdateMapPositionForPlayer(int player, int position)
         {
             var slot = _game.SkirmishManager.Settings.Slots[player];
             slot.StartPosition = position;
         }
 
-        /// <summary>
-        /// Removes a player from the map preview screen if they have been removed from the lobby
-        /// </summary>
-        /// <param name="player">The player index being modified</param>
-        /// <param name="comboBoxSelectedIndex">The index of the Player combo box</param>
-        private void OnPlayerModified(int player, int comboBoxSelectedIndex)
+        private void RemovePlayerFromMap(int player)
         {
-            if (comboBoxSelectedIndex < 2 && _playerToMapPosition.TryGetValue(player, out var p))
+            if (_playerToMapPosition.TryGetValue(player, out var p))
             {
                 // we need to make sure this player doesn't have a map position set, and remove it if they do
                 _playerToMapPosition.Remove(player);
                 _mapPositionToPlayer.Remove(p.Position);
                 p.Control.Text = string.Empty;
-                OnMapPositionIndexChanged(player, 0);
+                UpdateMapPositionForPlayer(player, 0);
             }
         }
 
@@ -219,13 +213,13 @@ namespace OpenSage.Mods.Generals.Gui
                                     if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
                                     {
                                         _playerToMapPosition.Remove(previousPlayer);
-                                        OnMapPositionIndexChanged(previousPlayer, 0);
+                                        UpdateMapPositionForPlayer(previousPlayer, 0);
                                     }
 
                                     _mapPositionToPlayer[position] = i;
                                     _playerToMapPosition[i] = (position, message.Element);
                                     message.Element.Text = (i + 1).ToString();
-                                    OnMapPositionIndexChanged(i, position);
+                                    UpdateMapPositionForPlayer(i, position);
                                     placedPlayer = true;
                                     Logger.Info($"Selected position {position} for player {i}");
                                     break;
@@ -242,7 +236,7 @@ namespace OpenSage.Mods.Generals.Gui
                                         _playerToMapPosition.Remove(previousPlayer);
                                         _mapPositionToPlayer.Remove(position);
                                         message.Element.Text = string.Empty;
-                                        OnMapPositionIndexChanged(previousPlayer, 0);
+                                        UpdateMapPositionForPlayer(previousPlayer, 0);
                                     }
                                 }
                                 else
@@ -259,7 +253,7 @@ namespace OpenSage.Mods.Generals.Gui
                                     _mapPositionToPlayer[position] = playerIndex;
                                     _playerToMapPosition[playerIndex] = (position, message.Element);
                                     message.Element.Text = (playerIndex + 1).ToString();
-                                    OnMapPositionIndexChanged(playerIndex, position);
+                                    UpdateMapPositionForPlayer(playerIndex, position);
                                     Logger.Info($"Selected position {position} for player {playerIndex}");
                                 }
                             }
@@ -276,6 +270,67 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             return true;
+        }
+
+        public void UpdateUI(Window window)
+        {
+            var mapName = _game.SkirmishManager.Settings.MapName;
+            if (mapName != CurrentMap.Name && mapName != null)
+            {
+                var mapCache = _game.AssetStore.MapCaches.GetByName(mapName);
+                if (mapCache == null)
+                {
+                    Logger.Warn($"Map {mapName} not found");
+                }
+                else
+                {
+                    SetCurrentMap(mapCache);
+                }
+            }
+
+            foreach (var slot in _game.SkirmishManager.Settings.Slots)
+            {
+                var colorCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
+                if (colorCombo.SelectedIndex != slot.ColorIndex)
+                    colorCombo.SelectedIndex = slot.ColorIndex;
+
+                var teamCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxTeamPrefix}{slot.Index}");
+                if (teamCombo.SelectedIndex != slot.Team)
+                    teamCombo.SelectedIndex = slot.Team;
+
+                var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerTemplatePrefix}{slot.Index}");
+                if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
+                    playerTemplateCombo.SelectedIndex = slot.FactionIndex;
+
+                var buttonAccepted = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonAcceptPrefix}{slot.Index}");
+                var playerCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
+
+                var isLocalSlot = slot == _game.SkirmishManager.Settings.LocalSlot;
+                var editable = isLocalSlot || (_game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
+
+                playerCombo.Enabled = !isLocalSlot && _game.SkirmishManager.IsHosting;
+
+                buttonAccepted.Visible = slot.State == SkirmishSlotState.Human;
+
+                if (slot.State == SkirmishSlotState.Human)
+                {
+                    if (buttonAccepted.Enabled != slot.Ready)
+                        buttonAccepted.Enabled = slot.Ready;
+
+                    playerCombo.Controls[0].Text = slot.PlayerName;
+                }
+                else
+                {
+                    playerCombo.Controls[0].Text = slot.State.ToString();
+                }
+
+                colorCombo.Enabled = editable;
+                teamCombo.Enabled = editable;
+                playerTemplateCombo.Enabled = editable;
+            };
+
+            var buttonStart = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonStart}");
+            buttonStart.Enabled = _game.SkirmishManager.IsStartButtonEnabled();
         }
 
         private bool ValidateSettings(PlayerSetting?[] settings, WndWindowManager manager)
