@@ -45,8 +45,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishGameOptionsMenuUpdate(Window window, Game game)
         {
-            var buttonStart = (Button) window.Controls.FindControl($"SkirmishGameOptionsMenu.wnd:ButtonStart");
-            buttonStart.Enabled = game.SkirmishManager.IsStartButtonEnabled();
+            GameOptions.UpdateUI(window);
         }
     }
 }

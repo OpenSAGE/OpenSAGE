@@ -136,6 +136,8 @@ namespace OpenSage.Network
             Settings.MapName = packet.MapName;
             Settings.Slots = packet.Slots;
 
+            // after joining a game, we don't know our slot index, but once
+            // we got the slot data from the host, we can figure it out
             if (Settings.LocalSlotIndex < 0)
             {
                 Settings.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.ClientId == ClientInstance.Id);

@@ -95,63 +95,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
-            var mapName = game.SkirmishManager.Settings.MapName;
-            if (mapName != GameOptions.CurrentMap.Name && mapName != null)
-            {
-                var mapCache = game.AssetStore.MapCaches.GetByName(mapName);
-                if (mapCache == null)
-                {
-                    Logger.Warn($"Map {mapName} not found");
-                }
-                else
-                {
-                    GameOptions.SetCurrentMap(mapCache);
-                }
-            }
-
-            foreach (var slot in game.SkirmishManager.Settings.Slots)
-            {
-                var colorCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
-                if (colorCombo.SelectedIndex != slot.ColorIndex)
-                    colorCombo.SelectedIndex = slot.ColorIndex;
-
-                var teamCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxTeam{slot.Index}");
-                if (teamCombo.SelectedIndex != slot.Team)
-                    teamCombo.SelectedIndex = slot.Team;
-
-                var playerTemplateCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayerTemplate{slot.Index}");
-                if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
-                    playerTemplateCombo.SelectedIndex = slot.FactionIndex;
-
-                var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
-                var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
-
-                var isLocalSlot = slot == game.SkirmishManager.Settings.LocalSlot;
-                var editable = isLocalSlot || (game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
-
-                playerCombo.Enabled = !isLocalSlot && game.SkirmishManager.IsHosting;
-
-                buttonAccepted.Visible = slot.State == SkirmishSlotState.Human;
-
-                if (slot.State == SkirmishSlotState.Human)
-                {
-                    if (buttonAccepted.Enabled != slot.Ready)
-                        buttonAccepted.Enabled = slot.Ready;
-
-                    playerCombo.Controls[0].Text = slot.PlayerName;
-                }
-                else
-                {
-                    playerCombo.Controls[0].Text = slot.State.ToString();
-                }
-
-                colorCombo.Enabled = editable;
-                teamCombo.Enabled = editable;
-                playerTemplateCombo.Enabled = editable;
-            };
-
-            var buttonStart = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
-            buttonStart.Enabled = game.SkirmishManager.IsStartButtonEnabled();
+            GameOptions.UpdateUI(window);
         }
     }
 }
