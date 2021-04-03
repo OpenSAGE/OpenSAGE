@@ -18,7 +18,7 @@ namespace OpenSage.Network
     {
         private IPAddress _hostAddress;
 
-        public ClientNetworkConnection(SkirmishGame game): base(game)
+        public ClientNetworkConnection(SkirmishGameSettings game): base(game)
         {
             _hostAddress = game.Slots[0].EndPoint.Address;
         }
@@ -47,7 +47,7 @@ namespace OpenSage.Network
 
     public sealed class HostNetworkConnection : NetworkConnection
     {
-        public HostNetworkConnection(SkirmishGame game) : base(game)
+        public HostNetworkConnection(SkirmishGameSettings game) : base(game)
         {
             _listener.ConnectionRequestEvent += request =>
             {
@@ -111,7 +111,7 @@ namespace OpenSage.Network
 
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public NetworkConnection(SkirmishGame game)
+        public NetworkConnection(SkirmishGameSettings game)
         {
             _numberOfOtherPlayers = game.Slots.Count(s => s.State == SkirmishSlotState.Human) - 1;
             _listener = new EventBasedNetListener();

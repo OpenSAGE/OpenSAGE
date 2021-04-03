@@ -69,6 +69,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var mapCache = selectedItem.DataItem as MapCache;
 
                 SetPreviewMap(mapCache);
+
+                game.SkirmishManager.Settings.MapName = mapCache.Name;
             };
         }
 

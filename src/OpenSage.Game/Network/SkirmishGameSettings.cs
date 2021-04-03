@@ -2,18 +2,20 @@
 
 namespace OpenSage.Network
 {
-    public class SkirmishGame
+    public class SkirmishGameSettings
     {
+        public const int MaxNumberOfPlayers = 8;
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private bool _isDirty;
         private string _mapName;
         private SkirmishGameStatus _status;
 
-        public SkirmishGame(bool isHost)
+        public SkirmishGameSettings(bool isHost)
         {
             IsHost = isHost;
-            Slots = Enumerable.Range(0, 8).Select(i => new SkirmishSlot(i)).ToArray();
+            Slots = Enumerable.Range(0, MaxNumberOfPlayers).Select(i => new SkirmishSlot(i)).ToArray();
             Status = SkirmishGameStatus.Configuring;
         }
 
@@ -60,7 +62,6 @@ namespace OpenSage.Network
         public SkirmishSlot[] Slots { get; internal set; }
         public int LocalSlotIndex { get; set; } = -1;
         public SkirmishSlot LocalSlot { get { return (LocalSlotIndex < 0 || LocalSlotIndex >= Slots.Length) ? null : Slots[LocalSlotIndex]; } }
-        public bool ReadyToStart { get; internal set; }
         public int Seed { get; internal set; }
     }
 }
