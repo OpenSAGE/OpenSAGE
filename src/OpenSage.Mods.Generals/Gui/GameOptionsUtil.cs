@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NLog;
@@ -16,7 +17,6 @@ namespace OpenSage.Mods.Generals.Gui
 {
     public class GameOptionsUtil
     {
-
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public const string ComboBoxTeamPrefix = ":ComboBoxTeam";
@@ -34,9 +34,6 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Dictionary<int, int> _mapPositionToPlayer = new();
 
         public MapCache CurrentMap { get; private set; }
-        public Action<int, string, int> OnSlotIndexChange { get; internal set; }
-        // int player, int position
-        public Action<int, int> OnMapPositionIndexChange { get; internal set; }
 
         public GameOptionsUtil(Window window, Game game, string basePrefix)
         {
@@ -85,15 +82,15 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
             });
-            
-            foreach(var prefix in new String[]{
+
+            foreach (var prefix in new string[]{
                 ComboBoxTeamPrefix,
                 ComboBoxPlayerTemplatePrefix,
                 ComboBoxColorPrefix,
                 ComboBoxPlayerPrefix
             })
             {
-                for(var j = 0; j < 8; j++)
+                for (var j = 0; j < SkirmishGameSettings.MaxNumberOfPlayers; j++)
                 {
                     var i = j;
                     var key = _optionsPath + prefix + i;
@@ -103,10 +100,7 @@ namespace OpenSage.Mods.Generals.Gui
                     if (comboBox != null)
                     {
                         var listBox = (ListBox) comboBox.Controls[2];
-                        listBox.SelectedIndexChanged += (sender, e) =>
-                        {
-                            OnSlotIndexChange?.Invoke(i, prefix, comboBox.SelectedIndex);
-                        };
+                        listBox.SelectedIndexChanged += (sender, e) => OnSlotIndexChanged(i, prefix, comboBox.SelectedIndex);
 
                         if (prefix == ComboBoxPlayerPrefix)
                         {
@@ -122,11 +116,39 @@ namespace OpenSage.Mods.Generals.Gui
                         Logger.Error($"Did not find control {key}");
                         continue;
                     }
-
-
                 }
-                
             }
+        }
+
+        private void OnSlotIndexChanged(int index, string name, int value)
+        {
+            var slot = _game.SkirmishManager.Settings.Slots[index];
+
+            switch (name)
+            {
+                case ComboBoxColorPrefix:
+                    Logger.Trace($"Changed the color box to {value}");
+                    slot.ColorIndex = (byte) value;
+                    break;
+                case ComboBoxPlayerPrefix:
+                    Logger.Trace($"Changed the player type box to {value}");
+                        
+                    break;
+                case ComboBoxPlayerTemplatePrefix:
+                    Logger.Trace($"Changed the faction box to {value}");
+                    slot.FactionIndex = (byte) value;
+                    break;
+                case ComboBoxTeamPrefix:
+                    Logger.Trace($"Changed the team box to {value}");
+                    slot.Team = (byte) value;
+                    break;
+            }
+        }
+
+        private void OnMapPositionIndexChanged(int player, int position)
+        {
+            var slot = _game.SkirmishManager.Settings.Slots[player];
+            slot.StartPosition = position;
         }
 
         /// <summary>
@@ -142,7 +164,7 @@ namespace OpenSage.Mods.Generals.Gui
                 _playerToMapPosition.Remove(player);
                 _mapPositionToPlayer.Remove(p.Position);
                 p.Control.Text = string.Empty;
-                OnMapPositionIndexChange?.Invoke(player, 0);
+                OnMapPositionIndexChanged(player, 0);
             }
         }
 
@@ -166,30 +188,10 @@ namespace OpenSage.Mods.Generals.Gui
 
                         if (_optionsPath.StartsWith("LanGame"))
                         {
-                            context.Game.HostSkirmishGame();
+                            Debugger.Break(); // context.Game.HostSkirmishGame();
                         }
 
-                        if (context.Game.SkirmishManager?.SkirmishGame != null)
-                        {
-                            if (context.Game.SkirmishManager.IsHosting && context.Game.SkirmishManager is SkirmishManager.Host host)
-                            {
-                                host.StartGameAsync().Wait();
-                                context.Game.Scene2D.WndWindowManager.PopWindow();
-                            }
-                            else
-                            {
-                                context.Game.SkirmishManager.SkirmishGame.LocalSlot.Ready = true;
-                            }
-                        }
-                        else
-                        {
-                            context.Game.StartMultiPlayerGame(
-                                CurrentMap.Name,
-                                new EchoConnection(),
-                                settings,
-                                0,
-                                Environment.TickCount);
-                        }
+                        context.Game.SkirmishManager.HandleStartButtonClickAsync();
                     }
                     else
                     {
@@ -214,13 +216,13 @@ namespace OpenSage.Mods.Generals.Gui
                                     if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
                                     {
                                         _playerToMapPosition.Remove(previousPlayer);
-                                        OnMapPositionIndexChange?.Invoke(previousPlayer, 0);
+                                        OnMapPositionIndexChanged(previousPlayer, 0);
                                     }
 
                                     _mapPositionToPlayer[position] = i;
                                     _playerToMapPosition[i] = (position, message.Element);
                                     message.Element.Text = (i + 1).ToString();
-                                    OnMapPositionIndexChange?.Invoke(i, position);
+                                    OnMapPositionIndexChanged(i, position);
                                     placedPlayer = true;
                                     Logger.Info($"Selected position {position} for player {i}");
                                     break;
@@ -237,7 +239,7 @@ namespace OpenSage.Mods.Generals.Gui
                                         _playerToMapPosition.Remove(previousPlayer);
                                         _mapPositionToPlayer.Remove(position);
                                         message.Element.Text = string.Empty;
-                                        OnMapPositionIndexChange?.Invoke(previousPlayer, 0);
+                                        OnMapPositionIndexChanged(previousPlayer, 0);
                                     }
                                 }
                                 else
@@ -254,7 +256,7 @@ namespace OpenSage.Mods.Generals.Gui
                                     _mapPositionToPlayer[position] = playerIndex;
                                     _playerToMapPosition[playerIndex] = (position, message.Element);
                                     message.Element.Text = (playerIndex + 1).ToString();
-                                    OnMapPositionIndexChange?.Invoke(playerIndex, position);
+                                    OnMapPositionIndexChanged(playerIndex, position);
                                     Logger.Info($"Selected position {position} for player {playerIndex}");
                                 }
                             }
@@ -301,7 +303,7 @@ namespace OpenSage.Mods.Generals.Gui
             _window.Controls.FindControl(_optionsPath + ":StaticTextFaction").Hide();
             _window.Controls.FindControl(_optionsPath + ":StaticTextColor").Hide();
 
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; ++i)
             {
                 _window.Controls.FindControl(_optionsPath + ":ComboBoxTeam" + i.ToString()).Hide();
                 _window.Controls.FindControl(_optionsPath + ":ComboBoxPlayerTemplate" + i.ToString()).Hide();
@@ -322,7 +324,7 @@ namespace OpenSage.Mods.Generals.Gui
             _window.Controls.FindControl(_optionsPath + ":StaticTextFaction").Show();
             _window.Controls.FindControl(_optionsPath + ":StaticTextColor").Show();
 
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; ++i)
             {
                 _window.Controls.FindControl(_optionsPath + ":ComboBoxTeam" + i.ToString()).Show();
                 _window.Controls.FindControl(_optionsPath + ":ComboBoxPlayerTemplate" + i.ToString()).Show();
@@ -373,7 +375,7 @@ namespace OpenSage.Mods.Generals.Gui
         private IEnumerable<int> GetPlayersInLobby()
         {
             yield return 0;
-            for (var i = 1; i < 8; i++)
+            for (var i = 1; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
                 var selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerPrefix + i);
 
@@ -390,7 +392,7 @@ namespace OpenSage.Mods.Generals.Gui
             var rnd = new Random();
             int selected = 0;
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
                 var setting = new PlayerSetting();
                 setting.Owner = PlayerOwner.Player;

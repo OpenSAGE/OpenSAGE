@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
@@ -21,7 +21,7 @@ namespace OpenSage.Mods.Generals.Gui
             Logger.Trace($"Have message {message.MessageType} for control {message.Element.DisplayName}");
         }
 
-        public static async void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             Logger.Trace($"Have message {message.MessageType} for control {control.Name}");
             if (!GameOptions.HandleSystem(control, message, context))
@@ -32,15 +32,7 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
-                                //this should be called by the OnStop callback
-
                                 context.Game.SkirmishManager.Stop();
-
-                                if (UPnP.Status == UPnPStatus.PortsForwarded)
-                                {
-                                    await UPnP.RemovePortForwardingAsync();
-                                }
-
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 break;
 
@@ -59,45 +51,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             if (game.SkirmishManager.IsHosting)
             {
-                game.SkirmishManager.SkirmishGame.MapName = GameOptions.CurrentMap.Name;
+                game.SkirmishManager.Settings.MapName = GameOptions.CurrentMap.Name;
             }
-
-            GameOptions.OnSlotIndexChange += (index, name, value) =>
-            {
-                if (game?.SkirmishManager?.SkirmishGame == null)
-                {
-                    return;
-                }
-
-                var slot = game.SkirmishManager.SkirmishGame.Slots[index];
-
-                switch (name)
-                {
-                    case GameOptionsUtil.ComboBoxColorPrefix:
-                        Logger.Trace($"Changed the color box to {value}");
-                        slot.ColorIndex = (byte) value;
-                        break;
-                    case GameOptionsUtil.ComboBoxPlayerPrefix:
-                        Logger.Trace($"Changed the player type box to {value}");
-                        
-                        break;
-                    case GameOptionsUtil.ComboBoxPlayerTemplatePrefix:
-                        Logger.Trace($"Changed the faction box to {value}");
-                        slot.FactionIndex = (byte) value;
-                        break;
-                    case GameOptionsUtil.ComboBoxTeamPrefix:
-                        Logger.Trace($"Changed the team box to {value}");
-                        slot.Team = (byte) value;
-                        break;
-                }
-
-            };
-
-            GameOptions.OnMapPositionIndexChange += (player, position) =>
-            {
-                var slot = game.SkirmishManager.SkirmishGame.Slots[player];
-                slot.StartPosition = position;
-            };
 
             // Clear chat field
             var textChat = (TextBox)window.Controls.FindControl(TextEntryChatPrefix);
@@ -140,7 +95,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void LanGameOptionsMenuUpdate(Window window, Game game)
         {
-            var mapName = game.SkirmishManager.SkirmishGame.MapName;
+            var mapName = game.SkirmishManager.Settings.MapName;
             if (mapName != GameOptions.CurrentMap.Name && mapName != null)
             {
                 var mapCache = game.AssetStore.MapCaches.GetByName(mapName);
@@ -154,7 +109,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            foreach (var slot in game.SkirmishManager.SkirmishGame.Slots)
+            foreach (var slot in game.SkirmishManager.Settings.Slots)
             {
                 var colorCombo = (ComboBox)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxColor{slot.Index}");
                 if (colorCombo.SelectedIndex != slot.ColorIndex)
@@ -171,7 +126,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var buttonAccepted = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonAccept{slot.Index}");
                 var playerCombo = (ComboBox) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ComboBoxPlayer{slot.Index}");
 
-                var isLocalSlot = slot == game.SkirmishManager.SkirmishGame.LocalSlot;
+                var isLocalSlot = slot == game.SkirmishManager.Settings.LocalSlot;
                 var editable = isLocalSlot || (game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
 
                 playerCombo.Enabled = !isLocalSlot && game.SkirmishManager.IsHosting;
@@ -197,9 +152,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             };
 
-            var buttonAccept = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
-            buttonAccept.Enabled = game.SkirmishManager.IsHosting ? game.SkirmishManager.IsReady : !(game.SkirmishManager.SkirmishGame.LocalSlot?.Ready ?? false);
+            var buttonStart = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
+            buttonStart.Enabled = game.SkirmishManager.IsStartButtonEnabled();
         }
-
     }
 }

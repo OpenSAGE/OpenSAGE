@@ -26,6 +26,7 @@ namespace OpenSage.Mods.Generals.Gui
                         switch (message.Element.Name)
                         {
                             case "SkirmishGameOptionsMenu.wnd:ButtonBack":
+                                context.Game.SkirmishManager.Stop();
                                 context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
                                 // TODO: Go back to Single Player sub-menu
                                 break;
@@ -37,12 +38,15 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishGameOptionsMenuInit(Window window, Game game)
         {
-
-
-
             GameOptions = new GameOptionsUtil(window, game, "Skirmish");
 
             _game = game;
+        }
+
+        public static void SkirmishGameOptionsMenuUpdate(Window window, Game game)
+        {
+            var buttonStart = (Button) window.Controls.FindControl($"SkirmishGameOptionsMenu.wnd:ButtonStart");
+            buttonStart.Enabled = game.SkirmishManager.IsStartButtonEnabled();
         }
     }
 }

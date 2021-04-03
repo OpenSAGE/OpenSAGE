@@ -776,16 +776,11 @@ namespace OpenSage
             StartSinglePlayerGame(firstMission.Map);
         }
 
-        public void HostSkirmishGame()
+        private void StartSkirmishGame()
         {
+            var random = new Random(SkirmishManager.Settings.Seed);
 
-        }
-
-        private void StartSkirmishGame(SkirmishGame skirmishGame)
-        {
-            var random = new Random(skirmishGame.Seed);
-
-            var playerSettings = (from s in skirmishGame.Slots
+            var playerSettings = (from s in SkirmishManager.Settings.Slots
                                   where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
                                   select new PlayerSetting(
                                       s.StartPosition == 0 ? null : s.StartPosition,
@@ -802,11 +797,11 @@ namespace OpenSage
                                       })).OfType<PlayerSetting?>().ToArray();
 
             StartMultiPlayerGame(
-                skirmishGame.MapName,
+                SkirmishManager.Settings.MapName,
                 SkirmishManager.Connection,
                 playerSettings,
-                skirmishGame.LocalSlotIndex,
-                skirmishGame.Seed);
+                SkirmishManager.Settings.LocalSlotIndex,
+                SkirmishManager.Settings.Seed);
 
             T GetItem<T>(int index, IEnumerable<T> items) =>
                 items.ElementAt(index switch
@@ -957,10 +952,11 @@ namespace OpenSage
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
             // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
-            if (SkirmishManager?.SkirmishGame?.Status == SkirmishGameStatus.ReadyToStart)
+            if (SkirmishManager?.Settings?.Status == SkirmishGameStatus.ReadyToStart)
             {
-                SkirmishManager.SkirmishGame.Status = SkirmishGameStatus.Started;
-                StartSkirmishGame(SkirmishManager.SkirmishGame);
+                SkirmishManager.Settings.Status = SkirmishGameStatus.Started;
+                Scene2D.WndWindowManager.PopWindow();
+                StartSkirmishGame();
             }
 
             Audio.Update(Scene3D?.Camera);

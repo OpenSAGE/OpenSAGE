@@ -13,19 +13,58 @@ namespace OpenSage.Network
 {
     public abstract class SkirmishManager
     {
-        private string _connectionKey = string.Empty; // TODO: maybe use this for password protection?
+        protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected Game _game;
+
+        public SkirmishManager(Game game, bool isHosting)
+        {
+            _game = game;
+
+            IsHosting = isHosting;
+            Settings = new SkirmishGameSettings(isHosting);
+        }
+
+        public bool IsHosting { get; private set; }
+        public SkirmishGameSettings Settings { get; protected set; }
+        public IConnection Connection { get; protected set; }
+
+        public abstract bool IsStartButtonEnabled();
+        public abstract Task HandleStartButtonClickAsync();
+
+        public virtual void Stop()
+        {
+        }
+    }
+
+    public sealed class LocalSkirmishManager : SkirmishManager
+    {
+        public LocalSkirmishManager(Game game)
+            : base(game, isHosting: true)
+        {
+        }
+
+        public override bool IsStartButtonEnabled() => true;
+
+        public override Task HandleStartButtonClickAsync()
+        {
+            Connection = new EchoConnection();
+            Settings.Status = SkirmishGameStatus.ReadyToStart;
+            return Task.CompletedTask;
+        }
+    }
+
+    public abstract class NetworkSkirmishManager : SkirmishManager
+    {
+        private string _connectionKey = string.Empty; // TODO: maybe use this for password protection?
+
+        protected Thread _thread;
+        protected bool _isRunning;
+
         protected NetPacketProcessor _processor;
         protected NetDataWriter _writer;
         protected EventBasedNetListener _listener;
         protected NetManager _manager;
-
-        protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public bool IsHosting { get; private set; }
-
-        public IConnection Connection { get; private set; }
 
         protected void ThreadProc()
         {
@@ -46,10 +85,9 @@ namespace OpenSage.Network
 
         protected abstract void Loop();
 
-        protected SkirmishManager(Game game, bool isHosting)
+        protected NetworkSkirmishManager(Game game, bool isHosting)
+            : base(game, isHosting)
         {
-            _game = game;
-
             _listener = new EventBasedNetListener();
             _manager = new NetManager(_listener);
 
@@ -57,31 +95,18 @@ namespace OpenSage.Network
 
             _processor = new NetPacketProcessor();
             _processor.RegisterNestedType(SkirmishSlot.Serialize, SkirmishSlot.Deserialize);
-
-            IsHosting = isHosting;
-
-            SkirmishGame = new SkirmishGame(isHost: IsHosting);
         }
 
-        public SkirmishGame SkirmishGame { get; private set; }
-
-        public bool IsReady
-        {
-            get
-            {
-                //no unready human players, except for the host
-                return SkirmishGame.Slots.Where(x => x.Index != 0 && x.State == SkirmishSlotState.Human && !x.Ready).Count() == 0;
-            }
-        }
-
-        public void Stop()
+        public async override void Stop()
         {
             _isRunning = false;
             _thread = null;
-        }
 
-        protected Thread _thread;
-        protected bool _isRunning;
+            if (UPnP.Status == UPnPStatus.PortsForwarded)
+            {
+                await UPnP.RemovePortForwardingAsync();
+            }
+        }
 
         protected void StartThread()
         {
@@ -95,268 +120,283 @@ namespace OpenSage.Network
         }
 
         protected abstract Task CreateNetworkConnectionAsync();
+    }
 
-        public sealed class Client : SkirmishManager
+    public sealed class ClientSkirmishManager : NetworkSkirmishManager
+    {
+        private void SkirmishGameStatusPacketReceived(SkirmishGameStatusPacket packet, IPEndPoint host)
         {
-            private void SkirmishGameStatusPacketReceived(SkirmishGameStatusPacket packet, IPEndPoint host)
+            Logger.Info("got mapName" + packet.MapName);
+
+            // the host may not know its external IP, but we know it
+            packet.Slots[0].EndPoint = host;
+
+            Settings.MapName = packet.MapName;
+            Settings.Slots = packet.Slots;
+
+            if (Settings.LocalSlotIndex < 0)
             {
-                Logger.Info("got mapName" + packet.MapName);
-
-                // the host may not know its external IP, but we know it
-                packet.Slots[0].EndPoint = host;
-
-                SkirmishGame.MapName = packet.MapName;
-                SkirmishGame.Slots = packet.Slots;
-
-                if (SkirmishGame.LocalSlotIndex < 0)
-                {
-                    SkirmishGame.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.ClientId == ClientInstance.Id);
-                    Logger.Info($"New local slot index is {SkirmishGame.LocalSlotIndex}");
-                }
-            }
-
-            private async void SkirmishStartGamePacketReceived(SkirmishStartGamePacket packet)
-            {
-                SkirmishGame.Seed = packet.Seed;
-                SkirmishGame.Status = SkirmishGameStatus.WaitingForAllPlayers;
-
-                await CreateNetworkConnectionAsync();
-
-                SkirmishGame.Status = SkirmishGameStatus.ReadyToStart;
-            }
-
-            public Client(Game game, IPEndPoint endPoint) : base(game, false)
-            {
-                _processor.SubscribeReusable<SkirmishGameStatusPacket, IPEndPoint>(SkirmishGameStatusPacketReceived);
-                _processor.SubscribeReusable<SkirmishStartGamePacket>(SkirmishStartGamePacketReceived);
-
-                _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
-                {
-                    var type = (PacketType) dataReader.GetByte();
-                    Logger.Trace($"Received packet with type {type}");
-                    switch (type)
-                    {
-                        case PacketType.SkirmishSlotStatus:
-                            _processor.ReadPacket(dataReader, fromPeer.EndPoint);
-                            break;
-
-                        case PacketType.SkirmishStartGame:                            
-                            _processor.ReadPacket(dataReader);
-                            break;
-
-                        default:
-                            Debug.Assert(false, $"Client should never receive {type} packages");
-                            Logger.Error($"Client should never receive {type} packages");
-                            break;
-                    }
-                };
-
-                Logger.Trace($"Joining game at {endPoint}");
-
-                _manager.Start(Ports.AnyAvailable);
-
-                _writer.Reset();
-                _processor.Write(_writer, new SkirmishClientConnectPacket()
-                {
-                    PlayerName = _game.LobbyManager.Username,
-                    ClientId = ClientInstance.Id,
-                    ProcessId = Process.GetCurrentProcess().Id
-                });
-
-                _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
-
-                StartThread();
-            }
-
-            protected override async Task CreateNetworkConnectionAsync()
-            {
-                var connection = new ClientNetworkConnection(_game.SkirmishManager.SkirmishGame);
-                await connection.InitializeAsync();
-
-                Connection = connection;
-            }
-
-            protected override void Loop()
-            {
-                switch (SkirmishGame.Status)
-                {
-                    case SkirmishGameStatus.Configuring:
-                        var localSlot = SkirmishGame.LocalSlot;
-                        if (localSlot != null && localSlot.IsDirty)
-                        {
-                            Logger.Trace($"Local slot is dirty, sending...");
-                            _writer.Put((byte) PacketType.SkirmishClientUpdate);
-                            _processor.Write(_writer, new SkirmishClientUpdatePacket()
-                            {
-                                Ready = localSlot.Ready,
-                                PlayerName = localSlot.PlayerName,
-                                ColorIndex = localSlot.ColorIndex,
-                                FactionIndex = localSlot.FactionIndex,
-                                Team = localSlot.Team,
-                            });
-
-                            _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
-                            localSlot.ResetDirty();
-                        }
-
-                        break;
-
-                    case SkirmishGameStatus.ReadyToStart:
-                    case SkirmishGameStatus.Started:
-                        Stop();
-                        break;
-                }
+                Settings.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.ClientId == ClientInstance.Id);
+                Logger.Info($"New local slot index is {Settings.LocalSlotIndex}");
             }
         }
 
-        public sealed class Host : SkirmishManager
+        private async void SkirmishStartGamePacketReceived(SkirmishStartGamePacket packet)
         {
-            private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
+            Settings.Seed = packet.Seed;
+            Settings.Status = SkirmishGameStatus.WaitingForAllPlayers;
 
-            private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, SkirmishSlot slot)
+            await CreateNetworkConnectionAsync();
+
+            Settings.Status = SkirmishGameStatus.ReadyToStart;
+        }
+
+        public ClientSkirmishManager(Game game, IPEndPoint endPoint) : base(game, isHosting: false)
+        {
+            _processor.SubscribeReusable<SkirmishGameStatusPacket, IPEndPoint>(SkirmishGameStatusPacketReceived);
+            _processor.SubscribeReusable<SkirmishStartGamePacket>(SkirmishStartGamePacketReceived);
+
+            _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
             {
-                if (slot != null)
+                var type = (PacketType) dataReader.GetByte();
+                Logger.Trace($"Received packet with type {type}");
+                switch (type)
                 {
-                    slot.PlayerName = packet.PlayerName;
-                    slot.Ready = packet.Ready;
-                    slot.Team = packet.Team;
-                    slot.FactionIndex = packet.FactionIndex;
-                    slot.ColorIndex = packet.ColorIndex;
-                }
-            }
+                    case PacketType.SkirmishSlotStatus:
+                        _processor.ReadPacket(dataReader, fromPeer.EndPoint);
+                        break;
 
-            private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
+                    case PacketType.SkirmishStartGame:
+                        _processor.ReadPacket(dataReader);
+                        break;
+
+                    default:
+                        Debug.Assert(false, $"Client should never receive {type} packages");
+                        Logger.Error($"Client should never receive {type} packages");
+                        break;
+                }
+            };
+
+            Logger.Trace($"Joining game at {endPoint}");
+
+            _manager.Start(Ports.AnyAvailable);
+
+            _writer.Reset();
+            _processor.Write(_writer, new SkirmishClientConnectPacket()
             {
-                slot.ClientId = packet.ClientId;
+                PlayerName = _game.LobbyManager.Username,
+                ClientId = ClientInstance.Id,
+                ProcessId = Process.GetCurrentProcess().Id
+            });
+
+            _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
+
+            StartThread();
+        }
+
+        public override bool IsStartButtonEnabled() => Settings.LocalSlot?.Ready == false;
+
+        public override Task HandleStartButtonClickAsync()
+        {
+            Settings.LocalSlot.Ready = true;
+            return Task.CompletedTask;
+        }
+
+        protected override async Task CreateNetworkConnectionAsync()
+        {
+            var connection = new ClientNetworkConnection(Settings);
+            await connection.InitializeAsync();
+
+            Connection = connection;
+        }
+
+        protected override void Loop()
+        {
+            switch (Settings.Status)
+            {
+                case SkirmishGameStatus.Configuring:
+                    var localSlot = Settings.LocalSlot;
+                    if (localSlot != null && localSlot.IsDirty)
+                    {
+                        Logger.Trace($"Local slot is dirty, sending...");
+                        _writer.Put((byte) PacketType.SkirmishClientUpdate);
+                        _processor.Write(_writer, new SkirmishClientUpdatePacket()
+                        {
+                            Ready = localSlot.Ready,
+                            PlayerName = localSlot.PlayerName,
+                            ColorIndex = localSlot.ColorIndex,
+                            FactionIndex = localSlot.FactionIndex,
+                            Team = localSlot.Team,
+                        });
+
+                        _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+                        localSlot.ResetDirty();
+                    }
+
+                    break;
+
+                case SkirmishGameStatus.ReadyToStart:
+                case SkirmishGameStatus.Started:
+                    Stop();
+                    break;
+            }
+        }
+    }
+
+    public sealed class HostSkirmishManager : NetworkSkirmishManager
+    {
+        private Dictionary<int, SkirmishSlot> _slotLookup = new Dictionary<int, SkirmishSlot>();
+
+        private void SkirmishClientUpdatePacketReceived(SkirmishClientUpdatePacket packet, SkirmishSlot slot)
+        {
+            if (slot != null)
+            {
                 slot.PlayerName = packet.PlayerName;
+                slot.Ready = packet.Ready;
+                slot.Team = packet.Team;
+                slot.FactionIndex = packet.FactionIndex;
+                slot.ColorIndex = packet.ColorIndex;
             }
+        }
 
-            public Host(Game game) : base(game, true)
+        private void SkirmishClientConnectPacketReceived(SkirmishClientConnectPacket packet, SkirmishSlot slot)
+        {
+            slot.ClientId = packet.ClientId;
+            slot.PlayerName = packet.PlayerName;
+        }
+
+        public HostSkirmishManager(Game game) : base(game, isHosting: true)
+        {
+            _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
+            _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
+
+            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
+
+            _listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
-                _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
+                Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
-                _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
+                var slot = _slotLookup[peer.Id];
+                slot.State = SkirmishSlotState.Open;
+                slot.ClientId = null;
+                slot.PlayerName = null;
+                slot.Ready = false;
 
-                _listener.PeerDisconnectedEvent += (peer, info) =>
-                {
-                    Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+                _slotLookup.Remove(peer.Id);
+            };
 
-                    var slot = _slotLookup[peer.Id];
-                    slot.State = SkirmishSlotState.Open;
-                    slot.ClientId = null;
-                    slot.PlayerName = null;
-                    slot.Ready = false;
-
-                    _slotLookup.Remove(peer.Id);
-                };
-
-                _listener.ConnectionRequestEvent += request =>
-                {
-                    var nextFreeSlot = SkirmishGame.Slots.FirstOrDefault(s => s.State == SkirmishSlotState.Open);
-                    if (nextFreeSlot != null)
-                    {
-                        Logger.Trace($"Accepting connection from {request.RemoteEndPoint}");
-
-                        Logger.Info($"Have Data: {request.Data.AvailableBytes}");
-
-                        var peer = request.Accept();
-
-                        _processor.ReadPacket(request.Data, nextFreeSlot);
-
-                        nextFreeSlot.State = SkirmishSlotState.Human;
-                        nextFreeSlot.EndPoint = peer.EndPoint;
-                        _slotLookup.Add(peer.Id, nextFreeSlot);
-                    }
-                    else
-                    {
-                        Logger.Trace($"Rejecting connection from {request.RemoteEndPoint}");
-                        request.Reject();
-                    }
-                };
-
-                _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
-                {
-                    var type = (PacketType) dataReader.GetByte();
-                    var slot = _slotLookup[fromPeer.Id];
-                    switch (type)
-                    {
-                        case PacketType.SkirmishClientUpdate:
-                            _processor.ReadPacket(dataReader, slot);
-                            break;
-                        default:
-                            Debug.Assert(false, $"Host should never receive {type} packages");
-                            Logger.Error($"Host should never receive {type} packages");
-                            break;
-                    }
-                };
-
-                SkirmishGame.LocalSlotIndex = 0;
-
-                var localSlot = SkirmishGame.LocalSlot;
-                localSlot.PlayerName = _game.LobbyManager.Username;
-                localSlot.State = SkirmishSlotState.Human;
-                localSlot.EndPoint = new IPEndPoint(IPAddress.Any, Ports.SkirmishHost); // The host does not know his own external IP address
-
-                _manager.Start(Ports.SkirmishHost);
-
-                StartThread();
-            }
-
-            protected override async Task CreateNetworkConnectionAsync()
+            _listener.ConnectionRequestEvent += request =>
             {
-                var connection = new HostNetworkConnection(_game.SkirmishManager.SkirmishGame);
-                await connection.InitializeAsync();
-
-                Connection = connection;
-            }
-
-            public async Task StartGameAsync()
-            {
-                SkirmishGame.Status = SkirmishGameStatus.SendingStartSignal;
-                await CreateNetworkConnectionAsync();
-            }
-
-            protected override void Loop()
-            {
-                switch (SkirmishGame.Status)
+                var nextFreeSlot = Settings.Slots.FirstOrDefault(s => s.State == SkirmishSlotState.Open);
+                if (nextFreeSlot != null)
                 {
-                    case SkirmishGameStatus.Configuring when SkirmishGame.IsDirty:
-                        _writer.Put((byte) PacketType.SkirmishSlotStatus);
-                        _processor.Write(_writer, new SkirmishGameStatusPacket()
-                        {
-                            MapName = SkirmishGame.MapName,
-                            Slots = SkirmishGame.Slots
-                        });
+                    Logger.Trace($"Accepting connection from {request.RemoteEndPoint}");
 
-                        _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+                    Logger.Info($"Have Data: {request.Data.AvailableBytes}");
 
-                        SkirmishGame.ResetDirty();
+                    var peer = request.Accept();
+
+                    _processor.ReadPacket(request.Data, nextFreeSlot);
+
+                    nextFreeSlot.State = SkirmishSlotState.Human;
+                    nextFreeSlot.EndPoint = peer.EndPoint;
+                    _slotLookup.Add(peer.Id, nextFreeSlot);
+                }
+                else
+                {
+                    Logger.Trace($"Rejecting connection from {request.RemoteEndPoint}");
+                    request.Reject();
+                }
+            };
+
+            _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
+            {
+                var type = (PacketType) dataReader.GetByte();
+                var slot = _slotLookup[fromPeer.Id];
+                switch (type)
+                {
+                    case PacketType.SkirmishClientUpdate:
+                        _processor.ReadPacket(dataReader, slot);
                         break;
-
-                    case SkirmishGameStatus.SendingStartSignal:
-                        _writer.Put((byte) PacketType.SkirmishStartGame);
-                        _processor.Write(_writer, new SkirmishStartGamePacket()
-                        {
-                            Seed = SkirmishGame.Seed
-                        });
-
-                        _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
-                        SkirmishGame.Status = SkirmishGameStatus.WaitingForAllPlayers;
-                        break;
-
-                    case SkirmishGameStatus.WaitingForAllPlayers:
-                        if (Connection != null)
-                        {
-                            SkirmishGame.Status = SkirmishGameStatus.ReadyToStart;
-                        }
-                        break;
-
-                    case SkirmishGameStatus.ReadyToStart:
-                    case SkirmishGameStatus.Started:
-                        Stop();
+                    default:
+                        Debug.Assert(false, $"Host should never receive {type} packages");
+                        Logger.Error($"Host should never receive {type} packages");
                         break;
                 }
+            };
+
+            Settings.LocalSlotIndex = 0;
+
+            var localSlot = Settings.LocalSlot;
+            localSlot.PlayerName = _game.LobbyManager.Username;
+            localSlot.State = SkirmishSlotState.Human;
+            localSlot.EndPoint = new IPEndPoint(IPAddress.Any, Ports.SkirmishHost); // The host does not know his own external IP address
+
+            _manager.Start(Ports.SkirmishHost);
+
+            StartThread();
+        }
+
+        public override bool IsStartButtonEnabled()                  
+        {
+            //all human players (except for the host) are ready
+            return Settings.Slots.Where(s => s.State == SkirmishSlotState.Human && s.Index != 0)
+                                 .All(s => s.Ready);
+        }
+
+        public override async Task HandleStartButtonClickAsync()
+        {
+            Settings.Status = SkirmishGameStatus.SendingStartSignal;
+            await CreateNetworkConnectionAsync();
+        }
+
+        protected override async Task CreateNetworkConnectionAsync()
+        {
+            var connection = new HostNetworkConnection(Settings);
+            await connection.InitializeAsync();
+
+            Connection = connection;
+        }
+
+        protected override void Loop()
+        {
+            switch (Settings.Status)
+            {
+                case SkirmishGameStatus.Configuring when Settings.IsDirty:
+                    _writer.Put((byte) PacketType.SkirmishSlotStatus);
+                    _processor.Write(_writer, new SkirmishGameStatusPacket()
+                    {
+                        MapName = Settings.MapName,
+                        Slots = Settings.Slots
+                    });
+
+                    _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+
+                    Settings.ResetDirty();
+                    break;
+
+                case SkirmishGameStatus.SendingStartSignal:
+                    _writer.Put((byte) PacketType.SkirmishStartGame);
+                    _processor.Write(_writer, new SkirmishStartGamePacket()
+                    {
+                        Seed = Settings.Seed
+                    });
+
+                    _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+                    Settings.Status = SkirmishGameStatus.WaitingForAllPlayers;
+                    break;
+
+                case SkirmishGameStatus.WaitingForAllPlayers:
+                    if (Connection != null)
+                    {
+                        Settings.Status = SkirmishGameStatus.ReadyToStart;
+                    }
+                    break;
+
+                case SkirmishGameStatus.ReadyToStart:
+                case SkirmishGameStatus.Started:
+                    Stop();
+                    break;
             }
         }
     }
