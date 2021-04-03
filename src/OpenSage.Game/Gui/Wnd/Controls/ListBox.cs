@@ -400,15 +400,16 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             var stillVisible = MaxDisplay == -1 ? Items.Length : MaxDisplay;
             var y = 0;
-            if (Controls.Any())
+            var firstChild = Controls.FirstOrDefault();
+            if (firstChild != null)
             {
-                y = _currentStartIndex * Controls.First().GetPreferredSize(ClientSize).Height * -1;
+                y = _currentStartIndex * firstChild.GetPreferredSize(ClientSize).Height * -1;
             }
 
             foreach (var child in Controls.AsList())
             {
                 var childHeight = child.GetPreferredSize(ClientSize).Height;
-                if (y >= 0 && stillVisible > 0)
+                if (y >= 0 && y + childHeight < Bounds.Height && stillVisible > 0)
                 {
                     child.Visible = true;
                     stillVisible--;
@@ -454,6 +455,7 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             const int horizontalPadding = 3;
+            const int verticalPadding = 1;
             var availableWidth = proposedSize.Width - ((_parent.ColumnWidths.Length + 1) * horizontalPadding);
 
             int calculateColumnWidth(int column)
@@ -479,7 +481,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             var result = new ListBoxItemDimension
             {
-                Size = new Size(proposedSize.Width, itemHeight),
+                Size = new Size(proposedSize.Width, itemHeight + 2 * verticalPadding),
                 ColumnBounds = new Rectangle[_parent.ColumnWidths.Length]
             };
 
@@ -488,7 +490,7 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 var columnWidth = calculateColumnWidth(column);
 
-                result.ColumnBounds[column] = new Rectangle(x, 0, columnWidth, itemHeight);
+                result.ColumnBounds[column] = new Rectangle(x, verticalPadding, columnWidth, itemHeight);
 
                 x += columnWidth + horizontalPadding;
             }
