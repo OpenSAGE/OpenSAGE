@@ -258,7 +258,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 0,
                 ClientSize.Height,
                 ClientSize.Width,
-                itemsHeight);
+                itemsHeight + 2);
         }
 
         protected override void Dispose(bool disposeManagedResources)
