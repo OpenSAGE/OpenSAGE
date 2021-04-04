@@ -21,10 +21,10 @@ namespace OpenSage.Mods.Generals.Gui
             Logger.Trace($"Have message {message.MessageType} for control {message.Element.DisplayName}");
         }
 
-        public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             Logger.Trace($"Have message {message.MessageType} for control {control.Name}");
-            if (!GameOptions.HandleSystem(control, message, context))
+            if (!await GameOptions.HandleSystemAsync(control, message, context))
             {
                 switch (message.MessageType)
                 {
@@ -33,6 +33,12 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             case "LanGameOptionsMenu.wnd:ButtonBack":
                                 context.Game.SkirmishManager.Stop();
+
+                                if (UPnP.Status == UPnPStatus.PortsForwarded)
+                                {
+                                    await UPnP.RemovePortForwardingAsync();
+                                }
+
                                 context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 break;
 

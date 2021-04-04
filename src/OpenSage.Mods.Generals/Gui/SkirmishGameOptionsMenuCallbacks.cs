@@ -16,9 +16,9 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static async void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            if (!GameOptions.HandleSystem(control, message, context))
+            if (!await GameOptions.HandleSystemAsync(control, message, context))
             {
                 switch (message.MessageType)
                 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using NLog;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -111,6 +112,17 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                 }
             }
+
+            var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
+            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
+            {
+                ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(i);
+            }
+        }
+
+        private void StartingPositionClicked(int i)
+        {
+            
         }
 
         private void OnSlotIndexChanged(int index, string name, int value)
@@ -170,7 +182,7 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public bool HandleSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public async Task<bool> HandleSystemAsync(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
             {
@@ -181,14 +193,15 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     else if (message.Element.Name == _optionsPath + ":ButtonStart")
                     {
-                        ParsePlayerSettings(context.Game, out PlayerSetting?[] settings);
-
-                        if (!ValidateSettings(settings, context.WindowManager))
+                        if (_game.SkirmishManager.Settings.Slots.Count(s => s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed) > CurrentMap.NumPlayers)
                         {
+                            ShowTooManyPlayersMessage(context.WindowManager);
                             return true;
                         }
-
-                        context.Game.SkirmishManager.HandleStartButtonClickAsync();
+                        else
+                        {
+                            await context.Game.SkirmishManager.HandleStartButtonClickAsync();
+                        }
                     }
                     else
                     {
@@ -302,26 +315,33 @@ namespace OpenSage.Mods.Generals.Gui
                 if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
                     playerTemplateCombo.SelectedIndex = slot.FactionIndex;
 
-                var buttonAccepted = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonAcceptPrefix}{slot.Index}");
+                var buttonAccept = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonAcceptPrefix}{slot.Index}");
                 var playerCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
 
                 var isLocalSlot = slot == _game.SkirmishManager.Settings.LocalSlot;
                 var editable = isLocalSlot || (_game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
 
-                playerCombo.Enabled = !isLocalSlot && _game.SkirmishManager.IsHosting;
-
-                buttonAccepted.Visible = slot.State == SkirmishSlotState.Human;
-
-                if (slot.State == SkirmishSlotState.Human)
+                // is null in singleplayer games for the local player
+                if (playerCombo != null)
                 {
-                    if (buttonAccepted.Enabled != slot.Ready)
-                        buttonAccepted.Enabled = slot.Ready;
-
-                    playerCombo.Controls[0].Text = slot.PlayerName;
+                    playerCombo.Enabled = _game.SkirmishManager.IsHosting && !isLocalSlot;
+                    playerCombo.Controls[0].Text = slot.State switch
+                    {
+                        SkirmishSlotState.Open => "GUI:Open".Translate(),
+                        SkirmishSlotState.Closed => "GUI:Closed".Translate(),
+                        SkirmishSlotState.EasyArmy => "GUI:EasyAI".Translate(),
+                        SkirmishSlotState.MediumArmy => "GUI:MediumAI".Translate(),
+                        SkirmishSlotState.HardArmy => "GUI:HardAI".Translate(),
+                        SkirmishSlotState.Human => slot.PlayerName,
+                        _ => throw new ArgumentException("invalid slot state: " + slot.State)
+                    };
                 }
-                else
+
+                // only exists in multiplayer games
+                if (buttonAccept != null)
                 {
-                    playerCombo.Controls[0].Text = slot.State.ToString();
+                    buttonAccept.Visible = slot.State == SkirmishSlotState.Human;
+                    buttonAccept.Enabled = slot.Ready;
                 }
 
                 colorCombo.Enabled = editable;
@@ -331,23 +351,6 @@ namespace OpenSage.Mods.Generals.Gui
 
             var buttonStart = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonStart}");
             buttonStart.Enabled = _game.SkirmishManager.IsStartButtonEnabled();
-        }
-
-        private bool ValidateSettings(PlayerSetting?[] settings, WndWindowManager manager)
-        {
-            if (settings.Length > CurrentMap.NumPlayers)
-            {
-                var translation = _game.ContentManager.TranslationManager;
-                var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
-                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = "GUI:ErrorStartingGame".Translate();
-                var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
-                staticTextTitle.TextAlignment = TextAlignment.Leading;
-                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = "GUI:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers);
-                messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
-                return false;
-            }
-
-            return true;
         }
 
         private void OpenMapSelection(ControlCallbackContext context)
@@ -390,6 +393,18 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             context.WindowManager.PopWindow();
+        }
+
+        private void ShowTooManyPlayersMessage(WndWindowManager manager)
+        {
+            var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
+            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = "GUI:ErrorStartingGame".Translate();
+            var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
+            staticTextTitle.TextAlignment = TextAlignment.Leading;
+
+            // TODO: this doesn't replace %d correctly yet
+            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = "GUI:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers);
+            messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
         }
 
         private void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
@@ -442,81 +457,6 @@ namespace OpenSage.Mods.Generals.Gui
                     yield return i;
                 }
             }
-        }
-
-        private void ParsePlayerSettings(Game game, out PlayerSetting?[] settings)
-        {
-            var settingsList = new List<PlayerSetting?>();
-            var rnd = new Random();
-            int selected = 0;
-
-            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
-            {
-                var setting = new PlayerSetting();
-                setting.Owner = PlayerOwner.Player;
-
-                // Get the selected player owner
-                if (i >= 1)
-                {
-                    selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerPrefix + i);
-
-                    if (selected >= 2)
-                    {
-                        setting.Owner = PlayerOwner.EasyAi + (selected - 2);
-                    }
-                    else
-                    {
-                        // TODO: make sure the color isn't already used
-                        setting.Owner = PlayerOwner.None;
-                    }
-                }
-
-                if (setting.Owner == PlayerOwner.None)
-                {
-                    continue;
-                }
-
-                var mpColors = game.AssetStore.MultiplayerColors;
-
-                // Get the selected player color
-                selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxColorPrefix + i);
-                if (selected > 0)
-                {
-                    setting.Color = mpColors.GetByIndex(selected - 1).RgbColor;
-                }
-                else
-                {
-                    // TODO: make sure the color isn't already used
-                    var r = rnd.Next(mpColors.Count);
-                    setting.Color = mpColors.GetByIndex(r).RgbColor;
-                }
-
-                // Get the selected player faction
-                selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerTemplatePrefix + i);
-
-                if (selected > 0)
-                {
-                    setting.Template = _playableSides[selected - 1];
-                }
-                else
-                {
-                    // TODO: make sure the color isn't already used
-                    int r = rnd.Next(_playableSides.Count);
-                    setting.Template = _playableSides[r];
-                }
-
-                // Get the selected player team
-                selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxTeamPrefix + i);
-
-                setting.Team = selected;
-
-                setting.StartPosition =
-                    _playerToMapPosition.TryGetValue(i, out var startPosition) ? startPosition.Position : null;
-
-                settingsList.Add(setting);
-            }
-
-            settings = settingsList.ToArray();
         }
 
         public void SetCurrentMap(MapCache mapCache)
