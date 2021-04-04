@@ -26,6 +26,8 @@ namespace OpenSage.Mods.Generals.Gui
         public const string ComboBoxPlayerPrefix = ":ComboBoxPlayer";
         public const string ButtonAcceptPrefix = ":ButtonAccept";
         public const string ButtonStart = ":ButtonStart";
+        public const string ButtonSelectMap = ":ButtonSelectMap";
+        public const string MapWindow = ":MapWindow";
 
         private readonly string _optionsPath;
         private readonly string _mapSelectPath;
@@ -109,14 +111,14 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
+            var mapWindow = _window.Controls.FindControl(_optionsPath + MapWindow);
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
                 var startPosition = (byte)(i + 1);
                 ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
             }
 
-            _window.Controls.FindControl(_optionsPath + ":ButtonSelectMap").Enabled = _game.SkirmishManager.IsHosting;
+            _window.Controls.FindControl(_optionsPath + ButtonSelectMap).Enabled = _game.SkirmishManager.IsHosting;
         }
 
         public static void StartingPositionClicked(SkirmishGameSettings settings, byte clickedPosition)
@@ -218,11 +220,11 @@ namespace OpenSage.Mods.Generals.Gui
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
-                    if (message.Element.Name == _optionsPath + ":ButtonSelectMap")
+                    if (message.Element.Name == _optionsPath + ButtonSelectMap)
                     {
                         OpenMapSelection(context);
                     }
-                    else if (message.Element.Name == _optionsPath + ":ButtonStart")
+                    else if (message.Element.Name == _optionsPath + ButtonStart)
                     {
                         if (_game.SkirmishManager.Settings.Slots.Count(s => s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed) > CurrentMap.NumPlayers)
                         {
@@ -257,7 +259,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
+            var mapWindow = _window.Controls.FindControl(_optionsPath+ MapWindow);
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
                 ((Button) mapWindow.Controls[i]).Text = string.Empty;
@@ -407,7 +409,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             CurrentMap = mapCache;
 
-            var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
+            var mapWindow = _window.Controls.FindControl(_optionsPath + MapWindow);
 
             MapUtils.SetMapPreview(mapCache, mapWindow, _game);
 
