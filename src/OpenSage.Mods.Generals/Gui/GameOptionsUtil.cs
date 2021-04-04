@@ -32,9 +32,6 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly List<PlayerTemplate> _playableSides;
         private readonly Window _window;
         private readonly Game _game;
-        private readonly Regex _mapPositionButtonRegex;
-        private readonly Dictionary<int, (int Position, Control Control)> _playerToMapPosition = new();
-        private readonly Dictionary<int, int> _mapPositionToPlayer = new();
 
         public MapCache CurrentMap { get; private set; }
 
@@ -42,7 +39,6 @@ namespace OpenSage.Mods.Generals.Gui
         {
             _optionsPath = basePrefix + "GameOptionsMenu.wnd";
             _mapSelectPath = basePrefix + "MapSelectMenu.wnd";
-            _mapPositionButtonRegex = new Regex($"^{_optionsPath}:ButtonMapStartPosition(\\d+)$");
 
             _window = window;
             _game = game;
@@ -116,13 +112,64 @@ namespace OpenSage.Mods.Generals.Gui
             var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
-                ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(i);
+                var startPosition = i + 1;
+                ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
             }
         }
 
-        private void StartingPositionClicked(int i)
-        {
-            
+        public static void StartingPositionClicked(SkirmishGameSettings settings, int clickedPosition)
+        {            
+            var currentlyAssignedPlayer = settings.Slots.FirstOrDefault(s => s.StartPosition == clickedPosition)?.Index ?? -1;
+
+            var assignablePlayers = settings.Slots
+                                            .Where(CanAssignPosition)
+                                            .Select(s => s.Index)
+                                            .ToList();
+
+            var indexOfCurrentlyAssignedPlayer = assignablePlayers.IndexOf(currentlyAssignedPlayer);
+            if (currentlyAssignedPlayer >= 0)
+            {
+                // the clicked position is already assigned
+                if (indexOfCurrentlyAssignedPlayer < 0)
+                {
+                    // the assigned player cannot be removed
+                    return;
+                }
+
+                settings.Slots[currentlyAssignedPlayer].StartPosition = 0;
+                Logger.Trace($"Removed player {currentlyAssignedPlayer} from position {clickedPosition}");
+            }
+
+            // find the next assignable player without a starting position
+            for (int index = indexOfCurrentlyAssignedPlayer + 1; index < assignablePlayers.Count; index++)
+            {
+                var nextPlayer = assignablePlayers[index];
+                var slot = settings.Slots[nextPlayer];
+                if (slot.StartPosition == 0)
+                {
+                    slot.StartPosition = clickedPosition;
+                    Logger.Trace($"Assigned player {slot.Index} to position {clickedPosition}");
+                    return;
+                }
+            }            
+
+            // if the clicked position is free and all assignable players already have a position,
+            // re-assigned the local player
+            if (currentlyAssignedPlayer < 0)
+            {
+                settings.LocalSlot.StartPosition = clickedPosition;
+                Logger.Trace($"Assigned local player {settings.LocalSlotIndex} to position {clickedPosition}");
+            }
+
+            bool CanAssignPosition(SkirmishSlot slot)
+            {
+                var isLocalSlot = slot.Index == settings.LocalSlotIndex;
+                var isAI = slot.State == SkirmishSlotState.EasyArmy
+                    || slot.State == SkirmishSlotState.MediumArmy
+                    || slot.State == SkirmishSlotState.HardArmy;
+
+                return isLocalSlot || (settings.IsHost && isAI);
+            }
         }
 
         private void OnSlotIndexChanged(int index, string name, int value)
@@ -149,7 +196,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                     if (slot.State == SkirmishSlotState.Open || slot.State == SkirmishSlotState.Closed)
                     {
-                        RemovePlayerFromMap(index);
+                        slot.StartPosition = 0;
                     }                    
 
                     break;
@@ -161,24 +208,6 @@ namespace OpenSage.Mods.Generals.Gui
                     Logger.Trace($"Changed the team box to {value}");
                     slot.Team = (byte) value;
                     break;
-            }
-        }
-
-        private void UpdateMapPositionForPlayer(int player, int position)
-        {
-            var slot = _game.SkirmishManager.Settings.Slots[player];
-            slot.StartPosition = position;
-        }
-
-        private void RemovePlayerFromMap(int player)
-        {
-            if (_playerToMapPosition.TryGetValue(player, out var p))
-            {
-                // we need to make sure this player doesn't have a map position set, and remove it if they do
-                _playerToMapPosition.Remove(player);
-                _mapPositionToPlayer.Remove(p.Position);
-                p.Control.Text = string.Empty;
-                UpdateMapPositionForPlayer(player, 0);
             }
         }
 
@@ -203,86 +232,11 @@ namespace OpenSage.Mods.Generals.Gui
                             await context.Game.SkirmishManager.HandleStartButtonClickAsync();
                         }
                     }
-                    else
-                    {
-                        Match match;
-                        if ((match = _mapPositionButtonRegex.Match(message.Element.Name ?? "")).Success)
-                        {
-                            // TODO: get the index of the player making the request, so players can't change other players in LAN games?
-                            const int playerIndex = 0;
-                            // Positions are 1-indexed in game but this comes to us as 0-indexed
-                            var position = int.Parse(match.Groups[1].Value) + 1;
-
-                            var slotWasOccupied = _mapPositionToPlayer.TryGetValue(position, out var existingPlayer);
-                            var startIndex = slotWasOccupied ? existingPlayer : 0;
-                            var placedPlayer = false;
-
-                            // for the purposes of AI control, this assumes that the host will always be player 0
-                            foreach (var i in GetPlayersInLobby().OrderBy(_ => _).SkipWhile(x => x < startIndex))
-                            {
-                                if (!_playerToMapPosition.ContainsKey(i))
-                                {
-                                    // just remove whoever was in the spot previously
-                                    if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
-                                    {
-                                        _playerToMapPosition.Remove(previousPlayer);
-                                        UpdateMapPositionForPlayer(previousPlayer, 0);
-                                    }
-
-                                    _mapPositionToPlayer[position] = i;
-                                    _playerToMapPosition[i] = (position, message.Element);
-                                    message.Element.Text = (i + 1).ToString();
-                                    UpdateMapPositionForPlayer(i, position);
-                                    placedPlayer = true;
-                                    Logger.Info($"Selected position {position} for player {i}");
-                                    break;
-                                }
-                            }
-
-                            if (!placedPlayer)
-                            {
-                                if (slotWasOccupied)
-                                {
-                                    // remove whoever was there
-                                    if (_mapPositionToPlayer.TryGetValue(position, out var previousPlayer))
-                                    {
-                                        _playerToMapPosition.Remove(previousPlayer);
-                                        _mapPositionToPlayer.Remove(position);
-                                        message.Element.Text = string.Empty;
-                                        UpdateMapPositionForPlayer(previousPlayer, 0);
-                                    }
-                                }
-                                else
-                                {
-                                    // move ourselves there
-                                    if (_playerToMapPosition.TryGetValue(playerIndex, out var p))
-                                    {
-                                        // first remove our existing position from the map
-                                        _mapPositionToPlayer.Remove(p.Position);
-                                        p.Control.Text = "";
-                                        _playerToMapPosition.Remove(playerIndex);
-                                    }
-
-                                    _mapPositionToPlayer[position] = playerIndex;
-                                    _playerToMapPosition[playerIndex] = (position, message.Element);
-                                    message.Element.Text = (playerIndex + 1).ToString();
-                                    UpdateMapPositionForPlayer(playerIndex, position);
-                                    Logger.Info($"Selected position {position} for player {playerIndex}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
 
                     break;
-                default:
-                    return false;
             }
 
-            return true;
+            return false;
         }
 
         public void UpdateUI(Window window)
@@ -301,8 +255,19 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
+            var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
+            for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
+            {
+                ((Button) mapWindow.Controls[i]).Text = string.Empty;
+            }
+
             foreach (var slot in _game.SkirmishManager.Settings.Slots)
             {
+                if (slot.StartPosition > 0)
+                {
+                    ((Button) mapWindow.Controls[slot.StartPosition - 1]).Text = (slot.Index + 1).ToString();
+                }
+
                 var colorCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
                 if (colorCombo.SelectedIndex != slot.ColorIndex)
                     colorCombo.SelectedIndex = slot.ColorIndex;
@@ -431,31 +396,6 @@ namespace OpenSage.Mods.Generals.Gui
                     new ListBoxDataItem(comboBox, new[] { i.Item1.Translate() }, i.Item2)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
-            }
-        }
-
-        private int GetSelectedComboBoxIndex(string control)
-        {
-            var playerOwnerBox = (ComboBox) _window.Controls.FindControl(control);
-            var playerOwnerList = (ListBox) playerOwnerBox.Controls[2];
-
-            return playerOwnerList.SelectedIndex;
-        }
-
-        /// <summary>
-        /// Gets the indices of the players currently in the lobby
-        /// </summary>
-        private IEnumerable<int> GetPlayersInLobby()
-        {
-            yield return 0;
-            for (var i = 1; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
-            {
-                var selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerPrefix + i);
-
-                if (selected >= 2)
-                {
-                    yield return i;
-                }
             }
         }
 
