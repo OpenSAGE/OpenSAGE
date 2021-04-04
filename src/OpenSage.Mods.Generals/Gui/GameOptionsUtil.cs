@@ -115,6 +115,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var startPosition = (byte)(i + 1);
                 ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
             }
+
+            _window.Controls.FindControl(_optionsPath + ":ButtonSelectMap").Enabled = _game.SkirmishManager.IsHosting;
         }
 
         public static void StartingPositionClicked(SkirmishGameSettings settings, byte clickedPosition)
