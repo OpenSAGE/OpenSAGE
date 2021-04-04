@@ -226,6 +226,7 @@ namespace OpenSage.Network
                             ColorIndex = localSlot.ColorIndex,
                             FactionIndex = localSlot.FactionIndex,
                             Team = localSlot.Team,
+                            StartPosition = localSlot.StartPosition
                         });
 
                         _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
@@ -255,6 +256,11 @@ namespace OpenSage.Network
                 slot.Team = packet.Team;
                 slot.FactionIndex = packet.FactionIndex;
                 slot.ColorIndex = packet.ColorIndex;
+
+                if (packet.StartPosition == 0 || packet.StartPosition == slot.StartPosition || !Settings.Slots.Any(s => s.StartPosition == packet.StartPosition))
+                {
+                    slot.StartPosition = packet.StartPosition;
+                }
             }
         }
 

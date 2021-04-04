@@ -109,8 +109,8 @@ namespace OpenSage.Network
             }
         }
 
-        private int _startPosition;
-        public int StartPosition
+        private byte _startPosition;
+        public byte StartPosition
         {
             get
             {
@@ -157,7 +157,7 @@ namespace OpenSage.Network
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetByte(),
                 Ready = reader.GetBool(),
-                StartPosition = reader.GetInt(),
+                StartPosition = reader.GetByte(),
             };
 
             if (slot.State == SkirmishSlotState.Human)
