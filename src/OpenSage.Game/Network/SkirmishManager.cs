@@ -25,7 +25,7 @@ namespace OpenSage.Network
             Settings = new SkirmishGameSettings(isHosting);
         }
 
-        public bool IsHosting { get; private set; }
+        public bool IsHosting { get; protected set; }
         public SkirmishGameSettings Settings { get; protected set; }
         public IConnection Connection { get; protected set; }
 
@@ -99,15 +99,10 @@ namespace OpenSage.Network
             _processor.RegisterNestedType(SkirmishSlot.Serialize, SkirmishSlot.Deserialize);
         }
 
-        public async override void Stop()
+        public override void Stop()
         {
             _isRunning = false;
             _thread = null;
-
-            if (UPnP.Status == UPnPStatus.PortsForwarded)
-            {
-                await UPnP.RemovePortForwardingAsync();
-            }
         }
 
         protected void StartThread()
@@ -402,6 +397,12 @@ namespace OpenSage.Network
                     Stop();
                     break;
             }
+        }
+
+        public override void Stop()
+        {
+            this.IsHosting = false;
+            base.Stop();
         }
     }
 }

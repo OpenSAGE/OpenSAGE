@@ -5,12 +5,12 @@ namespace OpenSage.Network
 {
     public enum SkirmishSlotState : byte
     {
-        Closed,
         Open,
-        Human,
+        Closed,
         EasyArmy,
         MediumArmy,
         HardArmy,
+        Human,
     }
 
     public class SkirmishSlot
