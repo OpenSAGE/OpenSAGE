@@ -12,8 +12,6 @@ namespace OpenSage.Mods.Generals.Gui
     {
         public static GameOptionsUtil GameOptions { get; private set; }
 
-        private static Game _game;
-
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static async void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -39,8 +37,6 @@ namespace OpenSage.Mods.Generals.Gui
         public static void SkirmishGameOptionsMenuInit(Window window, Game game)
         {
             GameOptions = new GameOptionsUtil(window, game, "Skirmish");
-
-            _game = game;
         }
 
         public static void SkirmishGameOptionsMenuUpdate(Window window, Game game)
