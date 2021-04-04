@@ -112,12 +112,12 @@ namespace OpenSage.Mods.Generals.Gui
             var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
-                var startPosition = i + 1;
+                var startPosition = (byte)(i + 1);
                 ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
             }
         }
 
-        public static void StartingPositionClicked(SkirmishGameSettings settings, int clickedPosition)
+        public static void StartingPositionClicked(SkirmishGameSettings settings, byte clickedPosition)
         {            
             var currentlyAssignedPlayer = settings.Slots.FirstOrDefault(s => s.StartPosition == clickedPosition)?.Index ?? -1;
 
