@@ -262,7 +262,9 @@ namespace OpenSage.Mods.Generals.Gui
             var mapWindow = _window.Controls.FindControl(_optionsPath+ MapWindow);
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
-                ((Button) mapWindow.Controls[i]).Text = string.Empty;
+                var startPositionButton = (Button) mapWindow.Controls[i];
+                startPositionButton.Text = string.Empty;
+                startPositionButton.Enabled = _game.SkirmishManager.Settings.LocalSlot?.Ready != true;
             }
 
             foreach (var slot in _game.SkirmishManager.Settings.Slots)
@@ -288,7 +290,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var playerCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
 
                 var isLocalSlot = slot == _game.SkirmishManager.Settings.LocalSlot;
-                var editable = isLocalSlot || (_game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
+                var editable = (isLocalSlot && !slot.Ready) || (_game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
 
                 // is null in singleplayer games for the local player
                 if (playerCombo != null)
