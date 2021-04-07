@@ -4,6 +4,7 @@
     {
         SkirmishClientConnect,
         SkirmishClientUpdate,
+        SkirmishClientReady,
         SkirmishSlotStatus,
         SkirmishStartGame
     }
