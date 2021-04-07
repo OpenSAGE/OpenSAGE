@@ -123,19 +123,8 @@ namespace OpenSage.Network
             }
         }
 
-        private bool _ready;
-        public bool Ready
-        {
-            get
-            {
-                return _ready;
-            }
-            set
-            {
-                IsDirty |= _ready != value;
-                _ready = value;
-            }
-        }
+        public bool Ready { get; set; }
+        public bool ReadyUpdated { get; set; }
 
         public IPEndPoint EndPoint { get; set; }
         public string ClientId { get; set; }
@@ -156,7 +145,6 @@ namespace OpenSage.Network
                 ColorIndex = reader.GetByte(),
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetByte(),
-                Ready = reader.GetBool(),
                 StartPosition = reader.GetByte(),
             };
 
@@ -177,7 +165,6 @@ namespace OpenSage.Network
             writer.Put(slot.ColorIndex);
             writer.Put(slot.FactionIndex);
             writer.Put(slot.Team);
-            writer.Put(slot.Ready);
             writer.Put(slot.StartPosition);
             if (slot.State == SkirmishSlotState.Human)
             {

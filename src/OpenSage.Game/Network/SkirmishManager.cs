@@ -138,6 +138,11 @@ namespace OpenSage.Network
                 Settings.LocalSlotIndex = Array.FindIndex(packet.Slots, s => s.ClientId == ClientInstance.Id);
                 Logger.Info($"New local slot index is {Settings.LocalSlotIndex}");
             }
+
+            foreach (var slot in Settings.Slots)
+            {
+                slot.Ready = false;
+            }
         }
 
         private async void SkirmishStartGamePacketReceived(SkirmishStartGamePacket packet)
@@ -150,10 +155,16 @@ namespace OpenSage.Network
             Settings.Status = SkirmishGameStatus.ReadyToStart;
         }
 
+        private void SkirmishClientReadyPacketReceived(SkirmishClientReadyPacket packet)
+        {
+            Settings.Slots[packet.Index].Ready = true;
+        }
+
         public ClientSkirmishManager(Game game, IPEndPoint endPoint) : base(game, isHosting: false)
         {
             _processor.SubscribeReusable<SkirmishGameStatusPacket, IPEndPoint>(SkirmishGameStatusPacketReceived);
             _processor.SubscribeReusable<SkirmishStartGamePacket>(SkirmishStartGamePacketReceived);
+            _processor.SubscribeReusable<SkirmishClientReadyPacket>(SkirmishClientReadyPacketReceived);
 
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
             {
@@ -163,6 +174,10 @@ namespace OpenSage.Network
                 {
                     case PacketType.SkirmishSlotStatus:
                         _processor.ReadPacket(dataReader, fromPeer.EndPoint);
+                        break;
+
+                    case PacketType.SkirmishClientReady:
+                        _processor.ReadPacket(dataReader);
                         break;
 
                     case PacketType.SkirmishStartGame:
@@ -185,7 +200,6 @@ namespace OpenSage.Network
             {
                 PlayerName = _game.LobbyManager.Username,
                 ClientId = ClientInstance.Id,
-                ProcessId = Process.GetCurrentProcess().Id
             });
 
             _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
@@ -198,6 +212,7 @@ namespace OpenSage.Network
         public override Task HandleStartButtonClickAsync()
         {
             Settings.LocalSlot.Ready = true;
+            Settings.LocalSlot.ReadyUpdated = true;
             return Task.CompletedTask;
         }
 
@@ -215,23 +230,36 @@ namespace OpenSage.Network
             {
                 case SkirmishGameStatus.Configuring:
                     var localSlot = Settings.LocalSlot;
-                    if (localSlot != null && localSlot.IsDirty)
+                    if (localSlot != null)
                     {
-                        Logger.Trace($"Local slot is dirty, sending...");
-                        _writer.Put((byte) PacketType.SkirmishClientUpdate);
-                        _processor.Write(_writer, new SkirmishClientUpdatePacket()
+                        if (localSlot.IsDirty)
                         {
-                            Ready = localSlot.Ready,
-                            PlayerName = localSlot.PlayerName,
-                            ColorIndex = localSlot.ColorIndex,
-                            FactionIndex = localSlot.FactionIndex,
-                            Team = localSlot.Team,
-                            StartPosition = localSlot.StartPosition
-                        });
+                            Logger.Trace($"Local slot is dirty, sending...");
+                            _writer.Put((byte) PacketType.SkirmishClientUpdate);
+                            _processor.Write(_writer, new SkirmishClientUpdatePacket()
+                            {
+                                PlayerName = localSlot.PlayerName,
+                                ColorIndex = localSlot.ColorIndex,
+                                FactionIndex = localSlot.FactionIndex,
+                                Team = localSlot.Team,
+                                StartPosition = localSlot.StartPosition
+                            });
 
-                        _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
-                        localSlot.ResetDirty();
+                            _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
+                            localSlot.ResetDirty();
+                        }
+
+                        if (localSlot.ReadyUpdated)
+                        {
+                            Logger.Trace($"Sending ready...");
+                            _writer.Reset();
+                            _writer.Put((byte) PacketType.SkirmishClientReady);
+                            _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
+
+                            localSlot.ReadyUpdated = false;
+                        }
                     }
+
 
                     break;
 
@@ -252,7 +280,6 @@ namespace OpenSage.Network
             if (slot != null)
             {
                 slot.PlayerName = packet.PlayerName;
-                slot.Ready = packet.Ready;
                 slot.Team = packet.Team;
                 slot.FactionIndex = packet.FactionIndex;
                 slot.ColorIndex = packet.ColorIndex;
@@ -323,6 +350,10 @@ namespace OpenSage.Network
                     case PacketType.SkirmishClientUpdate:
                         _processor.ReadPacket(dataReader, slot);
                         break;
+                    case PacketType.SkirmishClientReady:
+                        slot.Ready = true;
+                        slot.ReadyUpdated = true;
+                        break;
                     default:
                         Debug.Assert(false, $"Host should never receive {type} packages");
                         Logger.Error($"Host should never receive {type} packages");
@@ -367,17 +398,42 @@ namespace OpenSage.Network
         {
             switch (Settings.Status)
             {
-                case SkirmishGameStatus.Configuring when Settings.IsDirty:
-                    _writer.Put((byte) PacketType.SkirmishSlotStatus);
-                    _processor.Write(_writer, new SkirmishGameStatusPacket()
+                case SkirmishGameStatus.Configuring:
+                    if (Settings.IsDirty)
                     {
-                        MapName = Settings.MapName,
-                        Slots = Settings.Slots
-                    });
+                        _writer.Put((byte) PacketType.SkirmishSlotStatus);
+                        _processor.Write(_writer, new SkirmishGameStatusPacket()
+                        {
+                            MapName = Settings.MapName,
+                            Slots = Settings.Slots
+                        });
 
-                    _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+                        _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
 
-                    Settings.ResetDirty();
+                        Settings.ResetDirty();
+
+                        foreach (var slot in Settings.Slots)
+                        {
+                            slot.Ready = false;
+                        }
+                    }
+
+                    foreach (var slot in Settings.Slots)
+                    {
+                        if (slot.ReadyUpdated)
+                        {
+                            _writer.Put((byte) PacketType.SkirmishClientReady);
+                            _processor.Write(_writer, new SkirmishClientReadyPacket()
+                            {
+                                Index = slot.Index
+                            });
+
+                            _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
+
+                            slot.ReadyUpdated = false;
+                        }
+                    }
+
                     break;
 
                 case SkirmishGameStatus.SendingStartSignal:
@@ -387,7 +443,7 @@ namespace OpenSage.Network
                         Seed = Settings.Seed
                     });
 
-                    _manager.SendToAll(_writer, DeliveryMethod.ReliableUnordered);
+                    _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
                     Settings.Status = SkirmishGameStatus.WaitingForAllPlayers;
                     break;
 
