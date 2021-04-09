@@ -27,6 +27,7 @@ namespace OpenSage.Mods.Generals.Gui
                             LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                         case "LanMapSelectMenu.wnd:ButtonOK":
+                            _game.SkirmishManager.Settings.MapName = _previewMap.Name;
                             LanGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
                             LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
@@ -66,7 +67,6 @@ namespace OpenSage.Mods.Generals.Gui
 
             var mapCache = selectedItem.DataItem as MapCache;
 
-            _game.SkirmishManager.Settings.MapName = mapCache.Name;
             SetPreviewMap(mapCache);
         }
 

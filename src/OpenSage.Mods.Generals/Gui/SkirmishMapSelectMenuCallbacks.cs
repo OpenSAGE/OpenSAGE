@@ -14,6 +14,7 @@ namespace OpenSage.Mods.Generals.Gui
         private const string ListBoxMapPrefix = "SkirmishMapSelectMenu.wnd:ListboxMap";
 
         private static MapCache _previewMap;
+        private static Game _game;
 
         public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -26,6 +27,7 @@ namespace OpenSage.Mods.Generals.Gui
                             SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                         case "SkirmishMapSelectMenu.wnd:ButtonOK":
+                            _game.SkirmishManager.Settings.MapName = _previewMap.Name;
                             SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
                             SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
@@ -36,6 +38,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishMapSelectMenuInit(Window window, Game game)
         {
+            _game = game;
+
             void SetPreviewMap(MapCache mapCache)
             {
                 _previewMap = mapCache;
@@ -69,11 +73,10 @@ namespace OpenSage.Mods.Generals.Gui
                 var mapCache = selectedItem.DataItem as MapCache;
 
                 SetPreviewMap(mapCache);
-
-                game.SkirmishManager.Settings.MapName = mapCache.Name;
             };
         }
 
+        // This is also used by LanMapSelectMenu.
         public static void W3DDrawMapPreview(Control control, DrawingContext2D drawingContext)
         {
             if (!control.Data.TryGetValue("MapPreview", out var mapPreviewTexture))
