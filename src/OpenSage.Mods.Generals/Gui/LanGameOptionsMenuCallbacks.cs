@@ -69,12 +69,6 @@ namespace OpenSage.Mods.Generals.Gui
             //TODO: Use the right language strings
             buttonStart.Text = game.SkirmishManager.IsHosting ? "Play Game" : "Accept";
 
-            //game.SkirmishManager.OnStop += () =>
-            //{
-            //    //TODO: somehow make this work
-            //    game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-            //};
-
             if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting)
             {
                 var listBoxChat = (ListBox) window.Controls.FindControl(ListboxChatWindowLanGamePrefix);

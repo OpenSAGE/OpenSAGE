@@ -951,7 +951,13 @@ namespace OpenSage
             Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
             Scene3D?.LocalLogicTick(MapTime, tickT);
 
-            // TODO: do this properly (this is a hack to call StartMultiplayerGame on the correct thread)
+            // TODO: do this properly (this is a hack to do this on the correct thread)
+            if (SkirmishManager is ClientSkirmishManager client && client.ShouldGoBackToLobby)
+            {
+                client.ShouldGoBackToLobby = false;
+                Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            }
+
             if (SkirmishManager?.Settings?.Status == SkirmishGameStatus.ReadyToStart)
             {
                 SkirmishManager.Settings.Status = SkirmishGameStatus.Started;
