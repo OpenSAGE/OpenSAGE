@@ -14,14 +14,15 @@ namespace OpenSage.Network
         private Game _game;
         private EventBasedNetListener _listener;
         private NetManager _manager;
-        private Thread _thread;
-        private bool _isRunning;
+        private Thread _thread;        
         private NetPacketProcessor _processor;
         private List<LobbyPlayer> _players = new List<LobbyPlayer>();
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public IReadOnlyCollection<LobbyPlayer> Players => _players;
+
+        public bool IsRunning { get; private set; }
 
         public LobbyManager(Game game)
         {
@@ -46,7 +47,7 @@ namespace OpenSage.Network
         {
             _manager.Start(Ports.LobbyScan);
 
-            _isRunning = true;
+            IsRunning = true;
             _thread = new Thread(Loop)
             {
                 IsBackground = true,
@@ -59,7 +60,7 @@ namespace OpenSage.Network
         {
             _manager.Stop();
 
-            _isRunning = false;
+            IsRunning = false;
             _thread = null;
         }
 
@@ -72,7 +73,7 @@ namespace OpenSage.Network
                 ClientId = ClientInstance.Id
             };
 
-            while (_isRunning)
+            while (IsRunning)
             {
                 broadcastPacket.Username = Username;
                 broadcastPacket.IsHosting = _game.SkirmishManager?.IsHosting ?? false;

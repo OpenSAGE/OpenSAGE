@@ -58,8 +58,6 @@ namespace OpenSage.Network
 
     public abstract class NetworkSkirmishManager : SkirmishManager
     {
-        private string _connectionKey = string.Empty; // TODO: maybe use this for password protection?
-
         protected Thread _thread;
         protected bool _isRunning;
 
@@ -191,6 +189,20 @@ namespace OpenSage.Network
                 }
             };
 
+            _listener.PeerDisconnectedEvent += async (peer, info) =>
+            {
+                Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+
+                Stop();
+
+                ShouldGoBackToLobby = true;
+
+                if (UPnP.Status == UPnPStatus.PortsForwarded)
+                {
+                    await UPnP.RemovePortForwardingAsync();
+                }
+            };
+
             Logger.Trace($"Joining game at {endPoint}");
 
             _manager.Start(Ports.AnyAvailable);
@@ -202,10 +214,12 @@ namespace OpenSage.Network
                 ClientId = ClientInstance.Id,
             });
 
-            _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
+            var peer = _manager.Connect(endPoint.Address.ToString(), Ports.SkirmishHost, _writer);
 
             StartThread();
         }
+
+        public bool ShouldGoBackToLobby { get; set; }
 
         public override bool IsStartButtonEnabled() => Settings.LocalSlot?.Ready == false;
 
@@ -309,10 +323,21 @@ namespace OpenSage.Network
                 Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
                 var slot = _slotLookup[peer.Id];
-                slot.State = SkirmishSlotState.Open;
+
+                if (slot.State == SkirmishSlotState.Human)
+                {
+                    slot.State = SkirmishSlotState.Open;
+                }
+
                 slot.ClientId = null;
                 slot.PlayerName = null;
+                slot.EndPoint = null;
+                slot.StartPosition = 0;
+                slot.ColorIndex = 0;
+                slot.FactionIndex = 0;
+                slot.Team = 0;
                 slot.Ready = false;
+                slot.ReadyUpdated = false;
 
                 _slotLookup.Remove(peer.Id);
             };
@@ -384,6 +409,15 @@ namespace OpenSage.Network
         {
             Settings.Status = SkirmishGameStatus.SendingStartSignal;
             await CreateNetworkConnectionAsync();
+        }
+
+        public void Disconnect(SkirmishSlot slot)
+        {
+            var peer = _manager.ConnectedPeerList.FirstOrDefault(p => p.EndPoint == slot.EndPoint);
+            if (peer != null)
+            {
+                _manager.DisconnectPeer(peer);
+            }
         }
 
         protected override async Task CreateNetworkConnectionAsync()

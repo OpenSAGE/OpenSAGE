@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NLog;
 using OpenSage.Content;
@@ -155,7 +153,7 @@ namespace OpenSage.Mods.Generals.Gui
                     Logger.Trace($"Assigned player {slot.Index} to position {clickedPosition}");
                     return;
                 }
-            }            
+            }
 
             // if the clicked position is free and all assignable players already have a position,
             // re-assigned the local player
@@ -188,6 +186,9 @@ namespace OpenSage.Mods.Generals.Gui
                     break;
                 case ComboBoxPlayerPrefix:
                     Logger.Trace($"Changed the player type box to {value}");
+
+                    var wasHumanPlayer = slot.State == SkirmishSlotState.Human;
+
                     slot.State = value switch
                     {
                         0 => SkirmishSlotState.Open,
@@ -198,10 +199,22 @@ namespace OpenSage.Mods.Generals.Gui
                         _ => throw new ArgumentException("invalid player type: " + value)
                     };
 
-                    if (slot.State == SkirmishSlotState.Open || slot.State == SkirmishSlotState.Closed)
+                    if (slot.State == SkirmishSlotState.Open || slot.State == SkirmishSlotState.Closed || wasHumanPlayer)
                     {
+                        slot.ClientId = null;
+                        slot.PlayerName = null;
                         slot.StartPosition = 0;
-                    }                    
+                        slot.ColorIndex = 0;
+                        slot.FactionIndex = 0;
+                        slot.Team = 0;
+                        slot.Ready = false;
+                        slot.ReadyUpdated = false;
+                    }
+
+                    if (wasHumanPlayer)
+                    {
+                        ((HostSkirmishManager) _game.SkirmishManager).Disconnect(slot);
+                    }
 
                     break;
                 case ComboBoxPlayerTemplatePrefix:

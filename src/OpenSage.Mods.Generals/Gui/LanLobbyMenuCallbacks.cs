@@ -30,7 +30,7 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "LanLobbyMenu.wnd:ButtonBack":
-                            LeaveLobby(context);
+                            context.Game.LobbyManager.Stop();
                             context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
                             // TODO: Go back to Multiplayer sub-menu
                             break;
@@ -61,14 +61,8 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        private static void LeaveLobby(ControlCallbackContext context)
-        {
-            context.Game.LobbyManager.Stop();
-        }
-
         public static void LanLobbyMenuShutdown(Window window, Game game)
         {
-            game.LobbyManager.Stop();
         }
 
         public static void LanLobbyMenuUpdate(Window window, Game game)
@@ -115,7 +109,10 @@ namespace OpenSage.Mods.Generals.Gui
             var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
-            game.LobbyManager.Start();
+            if (!game.LobbyManager.IsRunning)
+            {
+                game.LobbyManager.Start();
+            }
         }
 
         public static void LanLobbyMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
