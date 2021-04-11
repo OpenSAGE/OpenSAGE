@@ -75,6 +75,17 @@ namespace OpenSage.Gui.Wnd
             popped.Dispose();
         }
 
+        public void ShowMessageBox(string title, string text)
+        {
+            var messageBox = PushWindow(@"Menus\MessageBox.wnd");
+            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = title;
+            var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
+            staticTextTitle.TextAlignment = TextAlignment.Leading;
+
+            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = text;
+            messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
+        }
+
         public Control GetControlAtPoint(in Point2D mousePosition)
         {
             if (WindowStack.Count == 0)

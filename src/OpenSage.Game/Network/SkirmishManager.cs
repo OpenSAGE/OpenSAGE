@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Network.Packets;
 
@@ -169,6 +170,8 @@ namespace OpenSage.Network
 
     public sealed class ClientSkirmishManager : NetworkSkirmishManager
     {
+        private DisconnectReason? _disconnectReason;
+
         private void SkirmishGameStatusPacketReceived(SkirmishGameStatusPacket packet, IPEndPoint host)
         {
             Logger.Info("got mapName" + packet.MapName);
@@ -246,8 +249,8 @@ namespace OpenSage.Network
                 Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
                 // We can't go back to the lobby directly because we're not on the
-                // main thread, so we set a flag and handle it in the Update method.
-                _shouldGoBackToLobby = true;
+                // main thread, so we save the reason and handle it in the Update method.
+                _disconnectReason = info.Reason;
 
                 if (UPnP.Status == UPnPStatus.PortsForwarded)
                 {
@@ -271,8 +274,6 @@ namespace OpenSage.Network
             StartThread();
         }
 
-        private bool _shouldGoBackToLobby;
-
         public override bool IsStartButtonEnabled() => Settings.LocalSlot?.Ready == false;
 
         public override Task HandleStartButtonClickAsync()
@@ -284,16 +285,25 @@ namespace OpenSage.Network
 
         public override void Update()
         {
-            if (_shouldGoBackToLobby)
-            {
-                _shouldGoBackToLobby = false;
-                Stop();
-                _game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-            }
-            else
+            if (_disconnectReason == null)
             {
                 base.Update();
+                return;
             }
+
+            var title = "LAN:JoinFailed";
+            var text = _disconnectReason switch
+            {
+                DisconnectReason.ConnectionRejected => "LAN:ErrorGameFull",
+                DisconnectReason.Timeout => "LAN:ErrorTimeout",                
+                _ => "LAN:HostNotResponding"
+            };
+
+            _game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            _game.Scene2D.WndWindowManager.ShowMessageBox(title.Translate(), text.Translate());
+            _disconnectReason = null;
+
+            Stop();
         }
 
         protected override async Task CreateNetworkConnectionAsync()
