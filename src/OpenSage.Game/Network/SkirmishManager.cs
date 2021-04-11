@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using OpenSage.Logic;
 using OpenSage.Network.Packets;
 
 namespace OpenSage.Network
@@ -32,8 +33,57 @@ namespace OpenSage.Network
         public abstract bool IsStartButtonEnabled();
         public abstract Task HandleStartButtonClickAsync();
 
+        public virtual void Update()
+        {
+            // The status can be set on a background (network) thread,
+            // but we need to start the game on the main thread.
+
+            if (Settings.Status == SkirmishGameStatus.ReadyToStart)
+            {
+                _game.Scene2D.WndWindowManager.PopWindow();
+                StartGame();
+            }
+        }
+
         public virtual void Stop()
         {
+        }
+
+        private void StartGame()
+        {
+            var random = new Random(Settings.Seed);
+
+            var playerSettings = (from s in Settings.Slots
+                                  where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
+                                  select new PlayerSetting(
+                                      s.StartPosition == 0 ? null : s.StartPosition,
+                                      GetItem(s.FactionIndex, _game.GetPlayableSides()),
+                                      GetItem(s.ColorIndex, _game.AssetStore.MultiplayerColors).RgbColor,
+                                      s.Team,
+                                      s.State switch
+                                      {
+                                          SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                                          SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                                          SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                                          SkirmishSlotState.Human => PlayerOwner.Player,
+                                          _ => PlayerOwner.None
+                                      })).OfType<PlayerSetting?>().ToArray();
+
+            _game.StartMultiPlayerGame(
+                Settings.MapName,
+                Connection,
+                playerSettings,
+                Settings.LocalSlotIndex,
+                Settings.Seed);
+
+            Settings.Status = SkirmishGameStatus.Started;
+
+            T GetItem<T>(int index, IEnumerable<T> items) =>
+                items.ElementAt(index switch
+                {
+                    0 => random.Next(items.Count()),
+                    _ => index - 1
+                });
         }
     }
 
@@ -191,11 +241,13 @@ namespace OpenSage.Network
 
             _listener.PeerDisconnectedEvent += async (peer, info) =>
             {
+                // In addition to the obvious reasons, this also happens when we
+                // want to connect to a game and there are not open slots left.
                 Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
 
-                Stop();
-
-                ShouldGoBackToLobby = true;
+                // We can't go back to the lobby directly because we're not on the
+                // main thread, so we set a flag and handle it in the Update method.
+                _shouldGoBackToLobby = true;
 
                 if (UPnP.Status == UPnPStatus.PortsForwarded)
                 {
@@ -219,7 +271,7 @@ namespace OpenSage.Network
             StartThread();
         }
 
-        public bool ShouldGoBackToLobby { get; set; }
+        private bool _shouldGoBackToLobby;
 
         public override bool IsStartButtonEnabled() => Settings.LocalSlot?.Ready == false;
 
@@ -228,6 +280,20 @@ namespace OpenSage.Network
             Settings.LocalSlot.Ready = true;
             Settings.LocalSlot.ReadyUpdated = true;
             return Task.CompletedTask;
+        }
+
+        public override void Update()
+        {
+            if (_shouldGoBackToLobby)
+            {
+                _shouldGoBackToLobby = false;
+                Stop();
+                _game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            }
+            else
+            {
+                base.Update();
+            }
         }
 
         protected override async Task CreateNetworkConnectionAsync()

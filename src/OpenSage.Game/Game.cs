@@ -776,41 +776,6 @@ namespace OpenSage
             StartSinglePlayerGame(firstMission.Map);
         }
 
-        private void StartSkirmishGame()
-        {
-            var random = new Random(SkirmishManager.Settings.Seed);
-
-            var playerSettings = (from s in SkirmishManager.Settings.Slots
-                                  where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
-                                  select new PlayerSetting(
-                                      s.StartPosition == 0 ? null : s.StartPosition,
-                                      GetItem(s.FactionIndex, GetPlayableSides()),
-                                      GetItem(s.ColorIndex, AssetStore.MultiplayerColors).RgbColor,
-                                      s.Team,
-                                      s.State switch
-                                      {
-                                          SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
-                                          SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
-                                          SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
-                                          SkirmishSlotState.Human => PlayerOwner.Player,
-                                          _ => PlayerOwner.None
-                                      })).OfType<PlayerSetting?>().ToArray();
-
-            StartMultiPlayerGame(
-                SkirmishManager.Settings.MapName,
-                SkirmishManager.Connection,
-                playerSettings,
-                SkirmishManager.Settings.LocalSlotIndex,
-                SkirmishManager.Settings.Seed);
-
-            T GetItem<T>(int index, IEnumerable<T> items) =>
-                items.ElementAt(index switch
-                {
-                    0 => random.Next(items.Count()),
-                    _ => index - 1
-                });
-        }
-
         public void StartMultiPlayerGame(
             string mapFileName,
             IConnection connection,
@@ -943,6 +908,12 @@ namespace OpenSage
 
             InputMessageBuffer.PumpEvents(messages);
 
+            // Prevent virtual Update() call when the game has already started, it's only needed in the menu
+            if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)
+            {
+                SkirmishManager?.Update();
+            }
+
             // How close are we to the next logic frame?
             var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
                                      .TotalMilliseconds / LogicUpdateInterval);
@@ -950,20 +921,6 @@ namespace OpenSage
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
             Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
             Scene3D?.LocalLogicTick(MapTime, tickT);
-
-            // TODO: do this properly (this is a hack to do this on the correct thread)
-            if (SkirmishManager is ClientSkirmishManager client && client.ShouldGoBackToLobby)
-            {
-                client.ShouldGoBackToLobby = false;
-                Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-            }
-
-            if (SkirmishManager?.Settings?.Status == SkirmishGameStatus.ReadyToStart)
-            {
-                SkirmishManager.Settings.Status = SkirmishGameStatus.Started;
-                Scene2D.WndWindowManager.PopWindow();
-                StartSkirmishGame();
-            }
 
             Audio.Update(Scene3D?.Camera);
             Cursors.Update(RenderTime);
