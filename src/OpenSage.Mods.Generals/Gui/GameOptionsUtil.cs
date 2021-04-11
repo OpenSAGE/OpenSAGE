@@ -241,7 +241,10 @@ namespace OpenSage.Mods.Generals.Gui
                     {
                         if (_game.SkirmishManager.Settings.Slots.Count(s => s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed) > CurrentMap.NumPlayers)
                         {
-                            ShowTooManyPlayersMessage(context.WindowManager);
+                            context.WindowManager.ShowMessageBox(
+                                "GUI:ErrorStartingGame".Translate(),
+                                "LAN:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers)); // TODO: this doesn't replace %d correctly yet
+
                             return true;
                         }
                         else
@@ -377,18 +380,6 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             context.WindowManager.PopWindow();
-        }
-
-        private void ShowTooManyPlayersMessage(WndWindowManager manager)
-        {
-            var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
-            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = "GUI:ErrorStartingGame".Translate();
-            var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
-            staticTextTitle.TextAlignment = TextAlignment.Leading;
-
-            // TODO: this doesn't replace %d correctly yet
-            messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = "GUI:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers);
-            messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
         }
 
         private void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
