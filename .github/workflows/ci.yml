@@ -32,6 +32,9 @@ jobs:
       with:
         dotnet-version: 5.0.100
 
+    - name: Restore
+      run: dotnet restore --verbosity detailed
+
     - name: Test
       run: dotnet test src --configuration Release --filter Category!=Interactive
 
