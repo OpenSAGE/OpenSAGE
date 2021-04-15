@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
@@ -31,9 +32,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.100
-
-    - name: Restore
-      run: dotnet restore src --verbosity detailed
 
     - name: Test
       run: dotnet test src --configuration Release --filter Category!=Interactive
