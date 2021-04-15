@@ -29,18 +29,18 @@ namespace OpenSage.Logic
         {
             throw new System.NotImplementedException();
 
-            var result = new CampaignTemplate
-            {
-                DisplayName = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                FinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                AlternateFinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                ConsoleAutosaveFilename = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-                //TheatersOfWar = reader.ReadArrayAtOffset(() => imports.GetImportedData<TheaterOfWarTemplate>(reader)),
-            };
+            //var result = new CampaignTemplate
+            //{
+            //    DisplayName = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
+            //    FinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
+            //    AlternateFinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
+            //    ConsoleAutosaveFilename = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
+            //    //TheatersOfWar = reader.ReadArrayAtOffset(() => imports.GetImportedData<TheaterOfWarTemplate>(reader)),
+            //};
 
-            result.SetNameAndInstanceId(asset);
+            //result.SetNameAndInstanceId(asset);
 
-            return result;
+            //return result;
         }
 
         public string DisplayName { get; private set; }
