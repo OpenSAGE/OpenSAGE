@@ -79,7 +79,7 @@ namespace OpenSage.Graphics.Cameras
             throw new NotImplementedException();
         }
 
-        void ICameraController.ModSetFinalPitch(float finalPitch)
+        void ICameraController.ModSetFinalPitch(float finalPitch, float easeInPercentage, float easeOutPercentage)
         {
             throw new NotImplementedException();
         }
