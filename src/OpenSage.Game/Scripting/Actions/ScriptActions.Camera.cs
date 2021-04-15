@@ -27,10 +27,16 @@ namespace OpenSage.Scripting
             context.Scene.CameraController.ModSetFinalZoom(finalZoom);
         }
 
-        [ScriptAction(ScriptActionType.CameraModSetFinalPitch, "Camera/Move/Set final pitch for camera movement", "Adjust pitch to {0}")]
+        [ScriptAction(ScriptActionType.CameraModSetFinalPitch, "Camera/Move/Set final pitch for camera movement", "Adjust pitch to {0}", SageGame.CncGenerals, SageGame.CncGeneralsZeroHour)]
         public static void CameraModSetFinalPitch(ScriptExecutionContext context, float finalPitch)
         {
-            context.Scene.CameraController.ModSetFinalPitch(finalPitch);
+            context.Scene.CameraController.ModSetFinalPitch(finalPitch, 0, 0);
+        }
+
+        [ScriptAction(ScriptActionType.CameraModSetFinalPitch, "Camera/Move/Set final pitch for camera movement", "Adjust pitch to {0}, {1}% ease-in, {2}% ease-out")]
+        public static void CameraModSetFinalPitch(ScriptExecutionContext context, float finalPitch, float easeInPercentage, float easeOutPercentage)
+        {
+            context.Scene.CameraController.ModSetFinalPitch(finalPitch, easeInPercentage, easeOutPercentage);
         }
 
         [ScriptAction(ScriptActionType.CameraModFinalLookToward, "Camera/Move/Set final look-toward point for camera movement", "Look toward {0} at the end of the camera movement")]

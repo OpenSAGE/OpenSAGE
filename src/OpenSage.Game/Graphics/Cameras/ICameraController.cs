@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.Cameras
 
         void SetLookDirection(Vector3 lookDirection);
 
-        void ModSetFinalPitch(float finalPitch);
+        void ModSetFinalPitch(float finalPitch, float easeInPercentage, float easeOutPercentage);
         void ModSetFinalZoom(float finalZoom);
         void ModFinalLookToward(in Vector3 position);
         void ModLookToward(in Vector3 position);

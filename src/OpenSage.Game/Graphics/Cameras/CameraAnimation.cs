@@ -54,18 +54,18 @@ namespace OpenSage.Graphics.Cameras
             _startFieldOfView = startFocalLength;
         }
 
-        public void SetFinalLookToward(Vector3 lookToward)
+        public void SetFinalLookToward(in Vector3 lookToward)
         {
             var endPosition = _points[_points.Count - 1];
             _endDirection = Vector3.Normalize(lookToward - endPosition);
         }
 
-        public void SetFinalLookDirection(Vector3 lookDirection)
+        public void SetFinalLookDirection(in Vector3 lookDirection)
         {
             _endDirection = lookDirection;
         }
 
-        public void SetFinalPitch(float endPitch)
+        public void SetFinalPitch(float endPitch, float easeInPercentage, float easeOutPercentage)
         {
             _endPitchAngle = _cameraController.CalculatePitchAngle(endPitch);
         }

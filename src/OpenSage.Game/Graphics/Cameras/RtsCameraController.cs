@@ -125,9 +125,9 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        void ICameraController.ModSetFinalPitch(float finalPitch)
+        void ICameraController.ModSetFinalPitch(float finalPitch, float easeInPercentage, float easeOutPercentage)
         {
-            CurrentAnimation.SetFinalPitch(finalPitch);
+            CurrentAnimation.SetFinalPitch(finalPitch, easeInPercentage, easeOutPercentage);
         }
 
         void ICameraController.ModSetFinalZoom(float finalZoom)
