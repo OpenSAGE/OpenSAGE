@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Audio;
+using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -12,15 +14,15 @@ namespace OpenSage.Logic.Object
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<SpecialPower> FieldParseTable = new IniParseTable<SpecialPower>
+        private static readonly IniParseTable<SpecialPower> FieldParseTable = new()
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
             { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
             { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
-            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
-            { "InitiateAtLocationSound", (parser, x) => x.InitiateAtLocationSound = parser.ParseAssetReference() },
+            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAudioEventReference() },
+            { "InitiateAtLocationSound", (parser, x) => x.InitiateAtLocationSound = parser.ParseAudioEventReference() },
             { "ViewObjectDuration", (parser, x) => x.ViewObjectDuration = parser.ParseInteger() },
             { "ViewObjectRange", (parser, x) => x.ViewObjectRange = parser.ParseInteger() },
             { "RadiusCursorRadius", (parser, x) => x.RadiusCursorRadius = parser.ParseFloat() },
@@ -46,8 +48,8 @@ namespace OpenSage.Logic.Object
         public string RequiredScience { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
-        public string InitiateSound { get; private set; }
-        public string InitiateAtLocationSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> InitiateAtLocationSound { get; private set; }
         public int ViewObjectDuration { get; private set; }
         public int ViewObjectRange { get; private set; }
         public float RadiusCursorRadius { get; private set; }

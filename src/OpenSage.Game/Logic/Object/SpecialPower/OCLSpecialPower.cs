@@ -1,9 +1,45 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
+    public class OCLSpecialPowerModule : SpecialPowerModule
+    {
+        private readonly OCLSpecialPowerModuleData _moduleData;
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
+        private bool _activated = false;
+
+        internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _gameObject = gameObject;
+            _context = context;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_activated)
+            {
+                _context.ObjectCreationLists.Create(_moduleData.OCL.Value, context);
+                _activated = false;
+            }
+        }
+
+        internal override void Activate(Vector3 position)
+        {
+            _activated = true;
+        }
+
+        internal bool Matches(SpecialPower specialPower)
+        {
+            return _moduleData.SpecialPower.Value == specialPower;
+        }
+    }
+
     public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData
     {
         internal static new OCLSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -11,7 +47,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<OCLSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<OCLSpecialPowerModuleData>
             {
-                { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
+                { "OCL", (parser, x) => x.OCL = parser.ParseObjectCreationListReference() },
                 { "UpgradeOCL", (parser, x) => x.UpgradeOCLs.Add(OCLUpgradePair.Parse(parser)) },
                 { "CreateLocation", (parser, x) => x.CreateLocation = parser.ParseEnum<OCLCreateLocation>() },
                 { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
@@ -24,7 +60,7 @@ namespace OpenSage.Logic.Object
                 { "ChangeWeather", (parser, x) => x.ChangeWeather = parser.ParseEnum<WeatherType>() }
             });
 
-        public string OCL { get; private set; }
+        public LazyAssetReference<ObjectCreationList> OCL { get; private set; }
         public List<OCLUpgradePair> UpgradeOCLs { get; } = new List<OCLUpgradePair>();
         public OCLCreateLocation CreateLocation { get; private set; }
 
@@ -51,6 +87,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public WeatherType ChangeWeather { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new OCLSpecialPowerModule(gameObject, context, this);
+        }
     }
 
     public sealed class OCLUpgradePair

@@ -1,11 +1,17 @@
 ﻿using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
+using System.Numerics;
+using OpenSage.Content;
 
 namespace OpenSage.Logic.Object
 {
     public class SpecialPowerModule : BehaviorModule
     {
+        internal virtual void Activate(Vector3 position)
+        {
+        }
+
         internal override void Load(BinaryReader reader)
         {
             var version = reader.ReadVersion();
@@ -26,7 +32,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<SpecialPowerModuleData> FieldParseTable = new IniParseTable<SpecialPowerModuleData>
         {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
+            { "SpecialPowerTemplate", (parser, x) => x.SpecialPower = parser.ParseSpecialPowerReference() },
             { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
             { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
             { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
@@ -52,7 +58,7 @@ namespace OpenSage.Logic.Object
             { "RequirementsFilterStrategic", (parser, x) => x.RequirementsFilterStrategic = ObjectFilter.Parse(parser) }
         };
 
-        public string SpecialPowerTemplate { get; private set; }
+        public LazyAssetReference<SpecialPower> SpecialPower { get; private set; }
         public bool StartsPaused { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
