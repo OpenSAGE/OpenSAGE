@@ -3,9 +3,30 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class LifetimeUpdate : UpdateModule
+    internal sealed class LifetimeUpdate : UpdateModule
     {
-        // TODO
+        private readonly GameObject _gameObject;
+        private readonly LifetimeUpdateModuleData _moduleData;
+
+        private TimeSpan _lifeTime;
+        private bool _initial = true;
+
+        public LifetimeUpdate(GameObject gameObject, LifetimeUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_initial)
+            {
+                _lifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(context.GameContext.Random.Next((int) _moduleData.MinLifetime, (int) _moduleData.MaxLifetime));
+                _initial = false;
+            }
+
+            if (context.Time.TotalTime > _lifeTime) _gameObject.Die(_moduleData.DeathType, context.Time);
+        }
     }
 
     public sealed class LifetimeUpdateModuleData : UpdateModuleData
@@ -14,14 +35,14 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<LifetimeUpdateModuleData> FieldParseTable = new IniParseTable<LifetimeUpdateModuleData>
         {
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMilliseconds() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMilliseconds() },
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseLong() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseLong() },
             { "WaitForWakeUp", (parser, x) => x.WaitForWakeUp = parser.ParseBoolean() },
             { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() }
         };
 
-        public TimeSpan MinLifetime { get; private set; }
-        public TimeSpan MaxLifetime { get; private set; }
+        public long MinLifetime { get; private set; }
+        public long MaxLifetime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool WaitForWakeUp { get; private set; }
@@ -31,7 +52,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new LifetimeUpdate();
+            return new LifetimeUpdate(gameObject, this);
         }
     }
 }

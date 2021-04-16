@@ -1,7 +1,38 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    internal class DeletionUpdate : UpdateModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly DeletionUpdateModuleData _moduleData;
+
+        private TimeSpan _lifeTime;
+        private bool _initial = true;
+
+        public DeletionUpdate(GameObject gameObject, DeletionUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (_initial)
+            {
+                _lifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(context.GameContext.Random.Next((int)_moduleData.MinLifetime, (int)_moduleData.MaxLifetime));
+                _initial = false;
+            }
+
+            if (context.Time.TotalTime > _lifeTime)
+            {
+                _gameObject.Destroy();
+            }
+        }
+    }
+
+
     public sealed class DeletionUpdateModuleData : UpdateModuleData
     {
         internal static DeletionUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -14,5 +45,10 @@ namespace OpenSage.Logic.Object
 
         public long MinLifetime { get; private set; }
         public long MaxLifetime { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new DeletionUpdate(gameObject, this);
+        }
     }
 }
