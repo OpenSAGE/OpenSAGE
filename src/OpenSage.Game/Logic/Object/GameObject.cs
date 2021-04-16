@@ -1114,7 +1114,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        public bool HasEnoughMoney(float cost) => Owner.Money >= cost; 
+        public bool HasEnoughMoney(float cost) => Owner.Money >= cost;
 
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {
@@ -1265,6 +1265,20 @@ namespace OpenSage.Logic.Object
         internal BehaviorModule GetModuleByTag(string tag)
         {
             return _tagToModuleLookup[tag];
+        }
+
+        internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)
+        {
+            var oclSpecialPowers = FindBehaviors<OCLSpecialPowerModule>();
+
+            foreach (var oclSpecialPower in oclSpecialPowers)
+            {
+                if (oclSpecialPower.Matches(specialPower))
+                {
+                    oclSpecialPower.Activate(location);
+                }
+            }
+            _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
         void IInspectable.DrawInspector()

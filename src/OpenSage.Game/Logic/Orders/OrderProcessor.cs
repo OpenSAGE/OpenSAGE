@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Orders
             {
                 Player player = null;
 
-                if(order.PlayerIndex==-1)
+                if (order.PlayerIndex == -1)
                 {
                     player = _game.Scene3D.LocalPlayer;
                 }
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;
 
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
                             player.SpendMoney((uint) upgradeDefinition.BuildCost);
 
@@ -115,7 +115,7 @@ namespace OpenSage.Logic.Orders
                             foreach (var unit in player.SelectedUnits)
                             {
                                 // Only units that can produce stuff should produce it
-                                if(unit.ProductionUpdate == null)
+                                if (unit.ProductionUpdate == null)
                                 {
                                     continue;
                                 }
@@ -171,7 +171,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.ForceAttackObject:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
 
                             foreach (var unit in player.SelectedUnits)
                             {
@@ -216,13 +216,24 @@ namespace OpenSage.Logic.Orders
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
                             }
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
                             Logger.Error(e, "Error while setting rallypoint");
                         }
                         break;
-                    case OrderType.SpecialPower:
                     case OrderType.SpecialPowerAtLocation:
+                        {
+                            var specialPowerDefinitionId = order.Arguments[0].Value.Integer;
+                            var specialPowerLocation = order.Arguments[1].Value.Position;
+
+                            var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId(specialPowerDefinitionId);
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
+                            }
+                        }
+                        break;
+                    case OrderType.SpecialPower:
                     case OrderType.SpecialPowerAtObject:
                         throw new NotImplementedException();
 
