@@ -12,7 +12,7 @@
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-    <PackageReference Include="protobuf-net" Version="3.0.62" />
+    <PackageReference Include="protobuf-net" Version="3.0.101" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta11" />
     <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
