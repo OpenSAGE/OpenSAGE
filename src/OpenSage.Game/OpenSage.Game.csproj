@@ -25,7 +25,7 @@
     <PackageReference Include="Veldrid.RenderDoc" Version="1.0.1" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.13" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
   </ItemGroup>
 
   <ItemGroup>
