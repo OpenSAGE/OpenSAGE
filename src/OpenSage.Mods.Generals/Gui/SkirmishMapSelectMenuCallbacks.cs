@@ -27,7 +27,6 @@ namespace OpenSage.Mods.Generals.Gui
                             SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                         case "SkirmishMapSelectMenu.wnd:ButtonOK":
-                            _game.SkirmishManager.Settings.MapName = _previewMap.Name;
                             SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
                             SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
