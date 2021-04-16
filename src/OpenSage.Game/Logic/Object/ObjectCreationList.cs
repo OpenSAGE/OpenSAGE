@@ -17,6 +17,14 @@ namespace OpenSage.Logic.Object
                 item.Execute(context);
             }
         }
+
+        public void CreateAtPosition(ObjectCreationList list, BehaviorUpdateContext context, Vector3 position)
+        {
+            foreach (var item in list.Nuggets)
+            {
+                item.Execute(context, position);
+            }
+        }
     }
 
     public sealed class ObjectCreationList : BaseAsset
@@ -43,7 +51,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class OCNugget
     {
-        internal abstract List<GameObject> Execute(BehaviorUpdateContext context);
+        internal abstract List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position = null);
     }
 
     public sealed class CreateDebrisOCNugget : OCNugget
@@ -114,7 +122,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int RollRate { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
 
@@ -138,7 +146,7 @@ namespace OpenSage.Logic.Object
             {
                 physicsBehavior.AddForce(
                     new Vector3(
-                        ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
+                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
                         ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
                         DispositionIntensity * 200));
             }
@@ -314,7 +322,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public string WaypointSpawnPoints { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             var result = new List<GameObject>();
             // TODO
@@ -326,8 +334,14 @@ namespace OpenSage.Logic.Object
                 // TODO: Disposition
                 // TODO: DispositionIntensity
                 // TODO: IgnorePrimaryObstacle
-
-                newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
+                if (position.HasValue)
+                {
+                    newGameObject.UpdateTransform(position.Value);
+                }
+                else
+                {
+                    newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
+                }
 
                 result.Add(newGameObject);
             }
@@ -358,7 +372,7 @@ namespace OpenSage.Logic.Object
         public float MaxForcePitch { get; private set; }
         public float SpinRate { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             // TODO
             return new List<GameObject>();
@@ -379,7 +393,7 @@ namespace OpenSage.Logic.Object
 
         public string Weapon { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             // TODO
             return new List<GameObject>();
@@ -406,7 +420,7 @@ namespace OpenSage.Logic.Object
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             // TODO
             return new List<GameObject>();
@@ -493,7 +507,7 @@ namespace OpenSage.Logic.Object
         public int DeliveryDecalRadius { get; private set; }
         public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-        internal override List<GameObject> Execute(BehaviorUpdateContext context)
+        internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
             // TODO
             return new List<GameObject>();

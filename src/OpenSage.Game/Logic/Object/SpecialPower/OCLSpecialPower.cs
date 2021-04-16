@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly GameContext _context;
         private bool _activated = false;
+        private Vector3 _position;
 
         internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData)
         {
@@ -24,13 +25,14 @@ namespace OpenSage.Logic.Object
         {
             if (_activated)
             {
-                _context.ObjectCreationLists.Create(_moduleData.OCL.Value, context);
+                _context.ObjectCreationLists.CreateAtPosition(_moduleData.OCL.Value, context, _position);
                 _activated = false;
             }
         }
 
         internal override void Activate(Vector3 position)
         {
+            _position = position;
             _activated = true;
         }
 
