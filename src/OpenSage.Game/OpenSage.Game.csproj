@@ -13,7 +13,7 @@
     <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.0.0" />
     <PackageReference Include="protobuf-net" Version="3.0.62" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0010" />
     <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
     <PackageReference Include="SharpAudio.Codec" Version="1.0.27-beta" />
