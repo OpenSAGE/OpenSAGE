@@ -411,6 +411,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         public void SetCurrentMap(MapCache mapCache)
         {
+            _game.SkirmishManager.Settings.MapName = mapCache.Name;
+
             Logger.Info("Set current map to " + mapCache.Name);
 
             CurrentMap = mapCache;
