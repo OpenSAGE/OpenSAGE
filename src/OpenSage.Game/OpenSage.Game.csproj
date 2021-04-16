@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.78.0" />
-    <PackageReference Include="LiteNetLib" Version="0.9.3.2" />
+    <PackageReference Include="LiteNetLib" Version="0.9.4" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
