@@ -27,45 +27,36 @@ namespace OpenSage.Mods.Generals.Gui
             var rank1 = game.Scene3D.LocalPlayer.Template.PurchaseScienceCommandSetRank1;
             for (int i = 0; i < 3; i++)
             {
-                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank1Number" + i);
+                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank1Number" + i) as Button;
                 if (rank1 != null && rank1.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                 {
                     var commandButton = commandButtonReference.Value;
 
-                    buttonControl.BackgroundImage = window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
-
-                    buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
-
+                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
                 }
             }
 
             var rank3 = game.Scene3D.LocalPlayer.Template.PurchaseScienceCommandSetRank3;
             for (int i = 0; i < 9; i++)
             {
-                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank3Number" + i);
+                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank3Number" + i) as Button;
                 if (rank1 != null && rank3.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                 {
                     var commandButton = commandButtonReference.Value;
 
-                    buttonControl.BackgroundImage = window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
-
-                    buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
-
+                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
                 }
             }
 
             var rank8 = game.Scene3D.LocalPlayer.Template.PurchaseScienceCommandSetRank8;
             for (int i = 0; i < 1; i++)
             {
-                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank8Number" + i);
+                var buttonControl = window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank8Number" + i) as Button;
                 if (rank1 != null && rank8.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                 {
                     var commandButton = commandButtonReference.Value;
 
-                    buttonControl.BackgroundImage = window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
-
-                    buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
-
+                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
                 }
             }
         }
