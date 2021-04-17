@@ -198,7 +198,7 @@ namespace OpenSage.Data.Sav
                                 for (var i = 0; i < numPlayers; i++)
                                 {
                                     players[i] = new Logic.Player(null, new ColorRgb());
-                                    players[i].Load(reader);
+                                    players[i].Load(reader, game.AssetStore);
                                 }
                                 break;
                             }

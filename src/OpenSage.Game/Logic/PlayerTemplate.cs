@@ -63,7 +63,7 @@ namespace OpenSage.Logic
             { "IsObserver", (parser, x) => x.IsObserver = parser.ParseBoolean() },
             { "StartMoney", (parser, x) => x.StartMoney = parser.ParseInteger() },
             { "PreferredColor", (parser, x) => x.PreferredColor = parser.ParseColorRgb() },
-            { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseAssetReferenceArray() },
+            { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseScienceReferenceArray() },
             { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseCommandSetReference() },
             { "PurchaseScienceCommandSetRank3", (parser, x) => x.PurchaseScienceCommandSetRank3 = parser.ParseCommandSetReference() },
             { "PurchaseScienceCommandSetRank8", (parser, x) => x.PurchaseScienceCommandSetRank8 = parser.ParseCommandSetReference() },
@@ -93,7 +93,7 @@ namespace OpenSage.Logic
             { "MaxLevelSP", (parser, x) => x.MaxLevelSP = parser.ParseInteger() },
             { "MaxLevelMP", (parser, x) => x.MaxLevelMP = parser.ParseInteger() },
             { "StartingUnitTacticalWOTR", (parser, x) => x.StartingUnitTacticalWOTR = parser.ParseAssetReference() },
-            { "IntrinsicSciencesMP", (parser, x) => x.IntrinsicSciencesMP = parser.ParseAssetReferenceArray() },
+            { "IntrinsicSciencesMP", (parser, x) => x.IntrinsicSciencesMP = parser.ParseScienceReferenceArray() },
             { "SpellBook", (parser, x) => x.SpellBook = parser.ParseAssetReference() },
             { "SpellBookMp", (parser, x) => x.SpellBookMp = parser.ParseAssetReference() },
             { "PurchaseScienceCommandSet", (parser, x) => x.PurchaseScienceCommandSet = parser.ParseAssetReference() },
@@ -121,7 +121,7 @@ namespace OpenSage.Logic
         public bool IsObserver { get; private set; }
         public int StartMoney { get; private set; }
         public ColorRgb PreferredColor { get; private set; }
-        public string[] IntrinsicSciences { get; private set; }
+        public LazyAssetReference<Science>[] IntrinsicSciences { get; private set; }
         public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank1 { get; private set; }
         public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank3 { get; private set; }
         public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank8 { get; private set; }
@@ -173,7 +173,7 @@ namespace OpenSage.Logic
         public int MaxLevelMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string[] IntrinsicSciencesMP { get; private set; }
+        public LazyAssetReference<Science>[] IntrinsicSciencesMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string StartingUnitTacticalWOTR { get; private set; }

@@ -98,7 +98,7 @@ namespace OpenSage.Mods.Bfme
                 var showCommandInterface = _root.ScriptObject.GetMember("SetPalantirFrameState");
                 if (showCommandInterface.Type != ValueType.Undefined)
                 {
-                    var good = Array.Exists(player.Template.IntrinsicSciences, s => s == "SCIENCE_GOOD");
+                    var good = Array.Exists(player.Template.IntrinsicSciences, s => s.Value.Name == "SCIENCE_GOOD");
                     var emptyArgs = new List<Value>();
                     emptyArgs.Add(Value.FromString(good ? "_good" : "_evil"));
                     FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
