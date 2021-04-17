@@ -403,6 +403,11 @@ namespace OpenSage
             GameObjects.DeleteDestroyed();
             GameObjects.InsertCreated();
 
+            foreach (var player in _players)
+            {
+                player.LogicTick();
+            }
+
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.LogicTick(frame, time);

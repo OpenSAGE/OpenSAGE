@@ -139,7 +139,7 @@ namespace OpenSage.Data.Ini
             { "PlayerAIType", (parser, assetStore) => assetStore.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
             { "PlayerTemplate", (parser, assetStore) => assetStore.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, assetStore) => assetStore.EvaEvents.Add(EvaEvent.Parse(parser)) },
-            { "Rank", (parser, assetStore) => assetStore.Ranks.Add(Rank.Parse(parser)) },
+            { "Rank", (parser, assetStore) => assetStore.Ranks.Add(RankTemplate.Parse(parser)) },
             { "RegionCampain", (parser, assetStore) => assetStore.RegionCampaigns.Add(RegionCampaign.Parse(parser)) },
             { "RingEffect", (parser, assetStore) => assetStore.Environment.Current.RingEffect = RingEffect.Parse(parser) },
             { "Road", (parser, assetStore) => assetStore.RoadTemplates.Add(RoadTemplate.Parse(parser)) },

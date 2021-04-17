@@ -150,7 +150,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<ObjectDefinition> ObjectDefinitions { get; }
         public ScopedAssetCollection<PlayerAIType> PlayerAITypes { get; }
         public ScopedAssetCollection<PlayerTemplate> PlayerTemplates { get; }
-        public ScopedAssetCollection<Rank> Ranks { get; }
+        public ScopedAssetCollection<RankTemplate> Ranks { get; }
         public ScopedAssetCollection<RegionCampaign> RegionCampaigns { get; }
         public ScopedAssetCollection<RoadTemplate> RoadTemplates { get; }
         public ScopedAssetCollection<Science> Sciences { get; }
@@ -325,7 +325,7 @@ namespace OpenSage.Content
             AddAssetCollection(ObjectDefinitions = new ScopedAssetCollection<ObjectDefinition>(this));
             AddAssetCollection(PlayerAITypes = new ScopedAssetCollection<PlayerAIType>(this));
             AddAssetCollection(PlayerTemplates = new ScopedAssetCollection<PlayerTemplate>(this));
-            AddAssetCollection(Ranks = new ScopedAssetCollection<Rank>(this));
+            AddAssetCollection(Ranks = new ScopedAssetCollection<RankTemplate>(this));
             AddAssetCollection(RegionCampaigns = new ScopedAssetCollection<RegionCampaign>(this));
             AddAssetCollection(RoadTemplates = new ScopedAssetCollection<RoadTemplate>(this));
             AddAssetCollection(Sciences = new ScopedAssetCollection<Science>(this));

@@ -1,41 +1,44 @@
-﻿using OpenSage.Data.Ini;
+﻿
+using OpenSage.Content;
 
 namespace OpenSage.Logic
 {
-    public sealed class Rank : BaseAsset
+    public class Rank
     {
-        internal static Rank Parse(IniParser parser)
+        private readonly Player _player;
+        private RankTemplate _currentRank;
+        private readonly ScopedAssetCollection<RankTemplate> _rankTemplates;
+
+        public Rank(Player player, ScopedAssetCollection<RankTemplate> rankTemplates)
         {
-            return parser.ParseIndexedBlock(
-                (x, level) =>
-                {
-                    x.Level = level;
-                    x.SetNameAndInstanceId("Rank", level.ToString());
-                },
-                FieldParseTable);
+            _player = player;
+            _rankTemplates = rankTemplates;
         }
 
-        private static readonly IniParseTable<Rank> FieldParseTable = new IniParseTable<Rank>
+        public void SetRank(int id)
         {
-            { "RankName", (parser, x) => x.RankName = parser.ParseLocalizedStringKey() },
-            { "SkillPointsNeeded", (parser, x) => x.SkillPointsNeeded = parser.ParseInteger() },
-            { "SciencesGranted", (parser, x) => x.SciencesGranted = parser.ParseAssetReference() },
-            { "SciencePurchasePointsGranted", (parser, x) => x.SciencePurchasePointsGranted = parser.ParseInteger() },
-            { "SkillPointsNeededDefault", (parser, x) => x.SkillPointsNeededDefault = parser.ParseInteger() },
-            { "SkillPointsNeededCampaign", (parser, x) => x.SkillPointsNeededCampaign = parser.ParseInteger() },
-        };
+            _currentRank = _rankTemplates.GetByInternalId(id);
+            foreach (var science in _currentRank.SciencesGranted)
+            {
+                _player.PurchaseScience(science.Value);
+                _player.SkillPointsAvailable += (uint)_currentRank.SciencePurchasePointsGranted;
+            }
+        }
 
-        public int Level { get; private set; }
+        public void Update()
+        {
+            if (_rankTemplates == null || _rankTemplates.Count == 0) return;
 
-        public string RankName { get; private set; }
-        public int SkillPointsNeeded { get; private set; }
-        public string SciencesGranted { get; private set; }
-        public int SciencePurchasePointsGranted { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public int SkillPointsNeededDefault { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public int SkillPointsNeededCampaign { get; private set; }
+            if (_currentRank == null)
+            {
+                _currentRank = _rankTemplates.GetByIndex(0);
+            }
+            var nextRankId = _currentRank.InternalId + 1;
+            var nextRank = _rankTemplates.GetByInternalId(nextRankId);
+            if (_player.SkillPointsAvailable >= nextRank.SkillPointsNeeded)
+            {
+                SetRank(nextRankId);
+            }
+        }
     }
 }

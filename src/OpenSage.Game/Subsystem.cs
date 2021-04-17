@@ -100,5 +100,10 @@
         /// Defines modifications to object properties like health, armor etc.
         /// </summary>
         AttributeModifiers,
+
+        /// <summary>
+        /// Defines ranks of a player.
+        /// </summary>
+        Rank,
     }
 }

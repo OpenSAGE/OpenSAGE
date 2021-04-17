@@ -38,9 +38,10 @@ namespace OpenSage.Logic
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
         public List<Science> Sciences { get; }
 
-        public uint Rank { get; private set; }
+        private Rank Rank { get; set; }
+        public int RankNumber { get; set; }
         public uint SkillPointsTotal { get; private set; }
-        public uint SkillPointsAvailable { get; private set; }
+        public uint SkillPointsAvailable { get; set; }
         public bool CanBuildUnits;
         public bool CanBuildBuildings;
         public float GeneralsExperienceMultiplier;
@@ -59,6 +60,11 @@ namespace OpenSage.Logic
                 energy += gameObject.EnergyProduction;
             }
             return energy;
+        }
+
+        public void LogicTick()
+        {
+            Rank.Update();
         }
 
         public void SpendMoney(uint amount)
@@ -91,10 +97,10 @@ namespace OpenSage.Logic
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
         public GameObject HoveredUnit { get; set; }
-
+        
         public int Team { get; init; }
 
-        public Player(PlayerTemplate template, in ColorRgb color)
+        public Player(PlayerTemplate template, in ColorRgb color, ScopedAssetCollection<RankTemplate> rankTemplates = null)
         {
             Template = template;
             Color = color;
@@ -104,6 +110,8 @@ namespace OpenSage.Logic
             Upgrades = new List<UpgradeTemplate>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
             Sciences = new List<Science>();
+
+            Rank = new Rank(this, rankTemplates);
 
             if (template?.InitialUpgrades != null)
             {
@@ -345,7 +353,8 @@ namespace OpenSage.Logic
                 Sciences.Add(assetStore.Sciences.First((s) => s.Name == scienceName));
             }
 
-            Rank = reader.ReadUInt32();
+            var rankId = reader.ReadUInt32();
+            Rank.SetRank((int)rankId);
             SkillPointsTotal = reader.ReadUInt32();
             SkillPointsAvailable = reader.ReadUInt32();
 
@@ -444,7 +453,7 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            return new Player(template, color)
+            return new Player(template, color, assetStore.Ranks)
             {
                 Side = side,
                 Name = name,
