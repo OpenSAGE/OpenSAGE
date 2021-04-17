@@ -138,10 +138,9 @@ namespace OpenSage.Gui
                     break;
 
                 case CommandType.PurchaseScience:
-                    var scienceName = commandButton.Science[0];
-                    var science = game.AssetStore.Sciences.First((s) => s.Name == scienceName);
+                    var science = commandButton.Science[0];
                     order = CreateOrder(OrderType.PurchaseScience);
-                    order.AddIntegerArgument(science.InternalId);
+                    order.AddIntegerArgument(science.Value.InternalId);
                     //TODO: purchase science
                     break;
                 default:

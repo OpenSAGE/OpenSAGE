@@ -36,8 +36,7 @@ namespace OpenSage.Logic
         public uint Money { get; private set; }
         public List<UpgradeTemplate> Upgrades { get; }
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
-
-        public StringSet Sciences { get; } = new StringSet();
+        public List<Science> Sciences { get; }
 
         public uint Rank { get; private set; }
         public uint SkillPointsTotal { get; private set; }
@@ -104,12 +103,21 @@ namespace OpenSage.Logic
             _enemies = new HashSet<Player>();
             Upgrades = new List<UpgradeTemplate>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
+            Sciences = new List<Science>();
 
             if (template?.InitialUpgrades != null)
             {
                 foreach (var upgrade in template.InitialUpgrades)
                 {
                     Upgrades.Add(upgrade.Value);
+                }
+            }
+
+            if (template?.IntrinsicSciences != null)
+            {
+                foreach (var science in template.IntrinsicSciences)
+                {
+                    Sciences.Add(science.Value);
                 }
             }
         }
@@ -169,6 +177,30 @@ namespace OpenSage.Logic
             _selectedUnits.Clear();
         }
 
+        public bool ScienceAvailable(Science science)
+        {
+            foreach (var requiredScience in science.PrerequisiteSciences)
+            {
+                if (!Sciences.Contains(requiredScience.Value))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public void PurchaseScience(Science science)
+        {
+            //TODO: check prerequisits
+            if (!ScienceAvailable(science))
+            {
+                Logger.Warn("Trying to purchase science without fullfilling requirements");
+                return;
+            }
+
+            Sciences.Add(science);
+        }
+
         public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
         {
             if (objectToProduce.Prerequisites == null)
@@ -214,7 +246,7 @@ namespace OpenSage.Logic
             return true;
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(BinaryReader reader, AssetStore assetStore)
         {
             var unknown1 = reader.ReadByte();
             if (unknown1 != 8)
@@ -306,7 +338,12 @@ namespace OpenSage.Logic
 
             var playerID = reader.ReadUInt32();
 
-            Sciences.Load(reader);
+            var scienceSet = new StringSet();
+            scienceSet.Load(reader);
+            foreach (var scienceName in scienceSet)
+            {
+                Sciences.Add(assetStore.Sciences.First((s) => s.Name == scienceName));
+            }
 
             Rank = reader.ReadUInt32();
             SkillPointsTotal = reader.ReadUInt32();
@@ -453,7 +490,7 @@ namespace OpenSage.Logic
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
-                Money = (uint)(template.StartMoney + gameData.DefaultStartingCash),
+                Money = (uint) (template.StartMoney + gameData.DefaultStartingCash),
                 IsHuman = setting?.Owner == PlayerOwner.Player,
                 Team = setting?.Team ?? default,
             };

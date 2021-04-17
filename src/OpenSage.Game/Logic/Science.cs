@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic
 {
@@ -13,7 +14,7 @@ namespace OpenSage.Logic
 
         private static readonly IniParseTable<Science> FieldParseTable = new IniParseTable<Science>
         {
-            { "PrerequisiteSciences", (parser, x) => x.PrerequisiteSciences = parser.ParseAssetReferenceArray() },
+            { "PrerequisiteSciences", (parser, x) => x.PrerequisiteSciences = parser.ParseScienceReferenceArray() },
             { "SciencePurchasePointCost", (parser, x) => x.SciencePurchasePointCost = parser.ParseInteger() },
             { "IsGrantable", (parser, x) => x.IsGrantable = parser.ParseBoolean() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
@@ -21,7 +22,7 @@ namespace OpenSage.Logic
             { "SciencePurchasePointCostMP", (parser, x) => x.SciencePurchasePointCostMP = parser.ParseInteger() }
         };
 
-        public string[] PrerequisiteSciences { get; private set; }
+        public LazyAssetReference<Science>[] PrerequisiteSciences { get; private set; }
         public int SciencePurchasePointCost { get; private set; }
         public bool IsGrantable { get; private set; }
         public string DisplayName { get; private set; }

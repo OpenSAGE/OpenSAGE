@@ -241,15 +241,12 @@ namespace OpenSage.Logic.Orders
                         _game.EndGame();
                         break;
 
-                    //case OrderType.ChooseGeneralPromotion:
-                    //gla:
-                    //tier 1:
-                    //34, 35, 36
-
-                    //usa:
-                    //tier1:
-                    //12, 13, 14
-                    //    break;
+                    case OrderType.PurchaseScience:
+                        var scienceDefinitionId = order.Arguments[0].Value.Integer;
+                        var science = _game.AssetStore.Sciences.GetByInternalId(scienceDefinitionId);
+                        player.PurchaseScience(science);
+                        //TODO: implement
+                        break;
 
                     default:
                         var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));

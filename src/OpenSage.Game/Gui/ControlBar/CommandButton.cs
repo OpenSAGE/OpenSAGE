@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -41,7 +42,7 @@ namespace OpenSage.Gui.ControlBar
             { "MaxShotsToFire", (parser, x) => x.MaxShotsToFire = parser.ParseInteger() },
             { "Object", (parser, x) => x.Object = parser.ParseObjectReference() },
             { "RadiusCursorType", (parser, x) => x.RadiusCursorType = parser.ParseAssetReference() },
-            { "Science", (parser, x) => x.Science = parser.ParseAssetReferenceArray() },
+            { "Science", (parser, x) => x.Science = parser.ParseScienceReferenceArray() },
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "UnitSpecificSound2", (parser, x) => x.UnitSpecificSound2 = parser.ParseAssetReference() },
@@ -86,7 +87,7 @@ namespace OpenSage.Gui.ControlBar
         public CommandType Command { get; private set; }
         public LazyAssetReference<SpecialPower> SpecialPower { get; private set; }
         public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
-        public string[] Science { get; private set; }
+        public LazyAssetReference<Science>[] Science { get; private set; }
         public BitArray<CommandButtonOption> Options { get; private set; }
         public string TextLabel { get; private set; }
         

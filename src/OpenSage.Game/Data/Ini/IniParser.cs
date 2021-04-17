@@ -505,6 +505,24 @@ namespace OpenSage.Data.Ini
             return _assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(name);
         }
 
+        public LazyAssetReference<Science> ParseScienceReference()
+        {
+            var name = ParseAssetReference();
+            return _assetStore.Sciences.GetLazyAssetReferenceByName(name);
+        }
+
+        public LazyAssetReference<Science>[] ParseScienceReferenceArray()
+        {
+            var result = new List<LazyAssetReference<Science>>();
+
+            var names = ParseAssetReferenceArray();
+            foreach (var name in names)
+            {
+                result.Add(_assetStore.Sciences.GetLazyAssetReferenceByName(name));
+            }
+            return result.ToArray();
+        }
+
         public LazyAssetReference<WeaponTemplate> ParseWeaponTemplateReference()
         {
             var name = ParseAssetReference();
