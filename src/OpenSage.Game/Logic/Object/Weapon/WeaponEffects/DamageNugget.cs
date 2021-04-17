@@ -37,7 +37,6 @@ namespace OpenSage.Logic.Object
                 { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() },
                 { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
                 { "LostLeadershipUselessAgainst", (parser, x) => x.LostLeadershipUselessAgainst = parser.ParseEnum<ObjectKinds>() }
-
             });
 
         /// <summary>
