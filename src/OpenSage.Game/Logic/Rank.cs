@@ -8,6 +8,7 @@ namespace OpenSage.Logic
         private readonly Player _player;
         private RankTemplate _currentRank;
         private readonly ScopedAssetCollection<RankTemplate> _rankTemplates;
+        public int CurrentRank => _currentRank.InternalId;
 
         public Rank(Player player, ScopedAssetCollection<RankTemplate> rankTemplates)
         {

@@ -29,7 +29,7 @@ namespace OpenSage.Mods.Generals.Gui
                             break;
                         case "ControlBar.wnd:ButtonGeneral":
                             var window = context.WindowManager.PushWindow("GeneralsExpPoints.wnd");
-                            GeneralsExpPointsCallbacks.GeneralsExpPointsInit(window, context.Game);
+                            GeneralsExpPointsCallbacks.SetWindow(window);
                             break;
                     }
                     break;
