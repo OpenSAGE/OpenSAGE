@@ -29,6 +29,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly ControlBarScheme _scheme;
 
+        public ControlBarScheme Scheme => _scheme;
+
         private ControlBarState _state;
 
         private ControlBarState State
@@ -70,6 +72,9 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly Image _commandButtonHover;
         private readonly Image _commandButtonPushed;
+
+        public Image CommandButtonHover => _commandButtonHover;
+        public Image CommandButtonPush => _commandButtonPushed;
 
         private ControlBarSize _size = ControlBarSize.Maximized;
 
@@ -245,22 +250,14 @@ namespace OpenSage.Mods.Generals.Gui
                     var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
 
                     // the amount of ButtonCommand children in ControlBar.wnd defines how many buttons the game will have in-game
-                    if ( controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") == null )
+                    if (controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") == null)
                         break;
 
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
                     {
                         var commandButton = commandButtonReference.Value;
 
-                        buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
-
-                        buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
-
-                        buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
-                        buttonControl.BorderWidth = 1;
-
-                        buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
-                        buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
+                        CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
 
                         var objectDefinition = commandButton.Object?.Value;
 
@@ -292,30 +289,6 @@ namespace OpenSage.Mods.Generals.Gui
                     {
                         buttonControl.Hide();
                     }
-                }
-            }
-
-            private static ColorRgba GetBorderColor(CommandButtonBorderType borderType, ControlBarScheme scheme)
-            {
-                switch (borderType)
-                {
-                    case CommandButtonBorderType.None:
-                        return ColorRgba.Transparent;
-
-                    case CommandButtonBorderType.Action:
-                        return scheme.ButtonBorderActionColor;
-
-                    case CommandButtonBorderType.Build:
-                        return scheme.ButtonBorderBuildColor;
-
-                    case CommandButtonBorderType.Upgrade:
-                        return scheme.ButtonBorderUpgradeColor;
-
-                    case CommandButtonBorderType.System:
-                        return scheme.ButtonBorderSystemColor;
-
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(borderType));
                 }
             }
         }
