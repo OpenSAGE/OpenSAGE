@@ -27,6 +27,9 @@ namespace OpenSage.Mods.Generals.Gui
                         case "ControlBar.wnd:ButtonOptions":
                             context.WindowManager.PushWindow("Menus/QuitMenu.wnd");
                             break;
+                        case "ControlBar.wnd:ButtonGeneral":
+                            context.WindowManager.PushWindow("GeneralsExpPoints.wnd");
+                            break;
                     }
                     break;
             }
