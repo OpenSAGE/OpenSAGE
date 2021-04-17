@@ -21,7 +21,7 @@ namespace OpenSage.Logic
             foreach (var science in _currentRank.SciencesGranted)
             {
                 _player.PurchaseScience(science.Value);
-                _player.SkillPointsAvailable += (uint)_currentRank.SciencePurchasePointsGranted;
+                _player.SciencePurchasePoints += (uint)_currentRank.SciencePurchasePointsGranted;
             }
         }
 
@@ -31,7 +31,8 @@ namespace OpenSage.Logic
 
             if (_currentRank == null)
             {
-                _currentRank = _rankTemplates.GetByIndex(0);
+                var firstRank = _rankTemplates.GetByIndex(0);
+                SetRank(firstRank.InternalId);
             }
             var nextRankId = _currentRank.InternalId + 1;
             var nextRank = _rankTemplates.GetByInternalId(nextRankId);

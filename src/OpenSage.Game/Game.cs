@@ -511,7 +511,7 @@ namespace OpenSage
                     var gameData = AssetStore.GameData.Current;
 
                     // TODO: Should this be hardcoded? What about other games?
-                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate, new PlayerSetting()
+                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate, AssetStore, new PlayerSetting()
                     {
                         Name = "PlyrCivilian",
                         Color = new ColorRgb(255, 255, 255),
@@ -663,7 +663,7 @@ namespace OpenSage
 
                     var gameData = AssetStore.GameData.Current;
                     var playerTemplate = playerSetting?.Template;
-                    players[i] = Player.FromTemplate(gameData, playerTemplate, playerSetting);
+                    players[i] = Player.FromTemplate(gameData, playerTemplate, AssetStore, playerSetting);
                     var player = players[i];
                     var startPos = playerSetting?.StartPosition;
 

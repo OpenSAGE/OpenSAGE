@@ -141,7 +141,6 @@ namespace OpenSage.Gui
                     var science = commandButton.Science[0];
                     order = CreateOrder(OrderType.PurchaseScience);
                     order.AddIntegerArgument(science.Value.InternalId);
-                    //TODO: purchase science
                     break;
                 default:
                     throw new NotImplementedException();

@@ -75,6 +75,17 @@ namespace OpenSage.Gui.Wnd
             popped.Dispose();
         }
 
+        public void PopWindow(string windowName)
+        {
+            var window = WindowStack.Peek();
+
+            if (window.Name == windowName)
+            {
+                WindowStack.Pop();
+                window.Dispose();
+            }
+        }
+
         public void ShowMessageBox(string title, string text)
         {
             var messageBox = PushWindow(@"Menus\MessageBox.wnd");
