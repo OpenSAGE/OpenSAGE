@@ -111,6 +111,9 @@ namespace OpenSage.Content
                 case Subsystem.InGameUI:
                     LoadFiles(@"Data\INI\InGameUI.ini");
                     break;
+                case Subsystem.Rank:
+                    LoadFiles(@"Data\INI\Rank.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -394,6 +397,9 @@ namespace OpenSage.Content
                     yield break;
                 case Subsystem.AttributeModifiers:
                     yield return "TheAttributeModifierStore";
+                    yield break;
+                case Subsystem.Rank:
+                    yield return "TheRankInfoStore";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
