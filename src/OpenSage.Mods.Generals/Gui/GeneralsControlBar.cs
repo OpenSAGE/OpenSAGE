@@ -48,6 +48,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly Window _background;
         private readonly Window _window;
+        private readonly Window _descriptionWindow;
 
         private readonly Control _center;
         private readonly Control _right;
@@ -99,10 +100,28 @@ namespace OpenSage.Mods.Generals.Gui
             control.Bounds = Rectangle.FromCorners(ul - _window.Bounds.Location, lr - _window.Bounds.Location);
         }
 
-        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
+        public void ShowDescription(string name, string cost, string description)
+        {
+            var lblName = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextName") as Label;
+            lblName.Text = name;
+            var lblCost = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextCost") as Label;
+            lblCost.Text = cost;
+            var lblDesc = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextDescription") as Label;
+            lblDesc.Text = description;
+            _descriptionWindow.Show();
+        }
+
+        public void HideDescription()
+        {
+            _descriptionWindow.Hide();
+        }
+
+        public GeneralsControlBar(Window background, Window window, Window descriptionWindow, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
             _window = window;
+            _descriptionWindow = descriptionWindow;
+            _descriptionWindow.Hide();
             _scheme = scheme;
             _contentManager = contentManager;
 
@@ -207,6 +226,7 @@ namespace OpenSage.Mods.Generals.Gui
         public void AddToScene(Scene2D scene2D)
         {
             scene2D.WndWindowManager.PushWindow(_background);
+            scene2D.WndWindowManager.PushWindow(_descriptionWindow);
             scene2D.WndWindowManager.PushWindow(_window);
         }
 
@@ -478,6 +498,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game);
             var controlBarWindow = game.LoadWindow("ControlBar.wnd");
+            var controlBarDescriptionWindow = game.LoadWindow("ControlBarPopupDescription.wnd");
 
             background.BackgroundImage = backgroundWindow.ImageLoader.CreateFromMappedImageReference(imagePart.ImageName);
 
@@ -537,7 +558,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
-            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, game.ContentManager, game.AssetStore);
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, controlBarDescriptionWindow, scheme, game.ContentManager, game.AssetStore);
         }
     }
 }

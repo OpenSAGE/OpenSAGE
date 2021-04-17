@@ -80,6 +80,11 @@ namespace OpenSage.Gui.Wnd.Controls
 
         internal void Render(DrawingContext2D drawingContext)
         {
+            if(!Visible)
+            {
+                return;
+            }
+
             drawingContext.PushTransform(_rootTransform);
 
             void drawControlRecursive(Control control)
