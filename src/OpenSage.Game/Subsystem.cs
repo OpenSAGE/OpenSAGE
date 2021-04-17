@@ -27,6 +27,11 @@
         Locomotors,
 
         /// <summary>
+        /// Things that need to be loaded in order to handle sciences.
+        /// </summary>
+        Sciences,
+
+        /// <summary>
         /// Things that need to be loaded in order to shoot things.
         /// </summary>
         Weapons,

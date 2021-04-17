@@ -254,7 +254,7 @@ namespace OpenSage.Logic.Orders
                     default:
                         var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
 
-                        Logger.Info($"Unimplemented order type: {order.OrderType.ToString()} ({args})");
+                        Logger.Info($"Unimplemented order type: {order.OrderType} ({args})");
                         break;
                 }
             }
