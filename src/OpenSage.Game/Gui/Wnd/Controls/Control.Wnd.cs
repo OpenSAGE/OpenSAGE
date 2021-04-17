@@ -94,6 +94,9 @@ namespace OpenSage.Gui.Wnd.Controls
                 case WndWindowType.HorizontalSlider:
                     return new Slider(wndWindow, imageLoader);
 
+                case WndWindowType.ProgressBar:
+                    return new ProgressBar(wndWindow, imageLoader);
+
                 case WndWindowType.ListBox:
                     return new ListBox(wndWindow, imageLoader);
 

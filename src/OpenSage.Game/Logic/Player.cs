@@ -187,6 +187,8 @@ namespace OpenSage.Logic
 
         public bool ScienceAvailable(Science science)
         {
+            if (Sciences.Contains(science)) return false;
+
             foreach (var requiredScience in science.PrerequisiteSciences)
             {
                 if (requiredScience.Value == null)
@@ -198,18 +200,19 @@ namespace OpenSage.Logic
                     return false;
                 }
             }
-            return true;
+
+            return science.SciencePurchasePointCost <= SciencePurchasePoints;
         }
 
         public void PurchaseScience(Science science)
         {
-            //TODO: check prerequisits
             if (!ScienceAvailable(science))
             {
                 Logger.Warn("Trying to purchase science without fullfilling requirements");
                 return;
             }
 
+            SciencePurchasePoints -= (uint)science.SciencePurchasePointCost;
             Sciences.Add(science);
         }
 
