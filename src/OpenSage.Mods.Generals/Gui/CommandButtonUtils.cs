@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
@@ -30,6 +31,23 @@ namespace OpenSage.Mods.Generals.Gui
 
                 CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
             };
+
+            //buttonControl.InputCallback = (control, message, context) =>
+            //{
+            //    //TODO: fix the commandbutton description
+            //    //var windowManager = buttonControl.Window.Game.Scene2D.WndWindowManager;
+            //    //if (message.MessageType == WndWindowMessageType.MouseEnter)
+            //    //{
+            //    //    var popupDescription = windowManager.PushWindow("ControlBarPopupDescription.wnd");
+            //    //    var parent = popupDescription.Controls.FindControl("ControlBarPopupDescription.wnd:Parent");
+            //    //    var label = parent.Controls[0] as Label;
+            //    //    label.Text = context.Game.ContentManager.TranslationManager.GetString(commandButton.DescriptLabel);
+            //    //}
+            //    //else if(message.MessageType == WndWindowMessageType.MouseExit)
+            //    //{
+            //    //    windowManager.PopWindow();
+            //    //}
+            //};
         }
 
         private static ColorRgba GetBorderColor(CommandButtonBorderType borderType, ControlBarScheme scheme)

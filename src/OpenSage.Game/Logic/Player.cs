@@ -42,6 +42,7 @@ namespace OpenSage.Logic
         public int RankNumber { get; set; }
         public uint SkillPointsTotal { get; private set; }
         public uint SkillPointsAvailable { get; set; }
+        public uint SciencePurchasePoints { get; set; }
         public bool CanBuildUnits;
         public bool CanBuildBuildings;
         public float GeneralsExperienceMultiplier;
@@ -97,10 +98,10 @@ namespace OpenSage.Logic
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
         public GameObject HoveredUnit { get; set; }
-        
+
         public int Team { get; init; }
 
-        public Player(PlayerTemplate template, in ColorRgb color, ScopedAssetCollection<RankTemplate> rankTemplates = null)
+        public Player(PlayerTemplate template, in ColorRgb color, ScopedAssetCollection<RankTemplate> rankTemplates)
         {
             Template = template;
             Color = color;
@@ -189,6 +190,10 @@ namespace OpenSage.Logic
         {
             foreach (var requiredScience in science.PrerequisiteSciences)
             {
+                if (requiredScience.Value == null)
+                {
+                    continue;
+                }
                 if (!Sciences.Contains(requiredScience.Value))
                 {
                     return false;
@@ -354,7 +359,7 @@ namespace OpenSage.Logic
             }
 
             var rankId = reader.ReadUInt32();
-            Rank.SetRank((int)rankId);
+            Rank.SetRank((int) rankId);
             SkillPointsTotal = reader.ReadUInt32();
             SkillPointsAvailable = reader.ReadUInt32();
 
@@ -489,12 +494,12 @@ namespace OpenSage.Logic
             return players.Values;
         }
 
-        public static Player FromTemplate(GameData gameData, PlayerTemplate template, PlayerSetting? setting = null)
+        public static Player FromTemplate(GameData gameData, PlayerTemplate template, AssetStore assetStore, PlayerSetting? setting = null)
         {
             var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
 
             // TODO: Use rest of the properties from the template
-            return new Player(template, color)
+            return new Player(template, color, assetStore.Ranks)
             {
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
