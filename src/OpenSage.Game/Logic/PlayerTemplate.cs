@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -63,10 +64,10 @@ namespace OpenSage.Logic
             { "StartMoney", (parser, x) => x.StartMoney = parser.ParseInteger() },
             { "PreferredColor", (parser, x) => x.PreferredColor = parser.ParseColorRgb() },
             { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseAssetReferenceArray() },
-            { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseAssetReference() },
-            { "PurchaseScienceCommandSetRank3", (parser, x) => x.PurchaseScienceCommandSetRank3 = parser.ParseAssetReference() },
-            { "PurchaseScienceCommandSetRank8", (parser, x) => x.PurchaseScienceCommandSetRank8 = parser.ParseAssetReference() },
-            { "SpecialPowerShortcutCommandSet", (parser, x) => x.SpecialPowerShortcutCommandSet = parser.ParseAssetReference() },
+            { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseCommandSetReference() },
+            { "PurchaseScienceCommandSetRank3", (parser, x) => x.PurchaseScienceCommandSetRank3 = parser.ParseCommandSetReference() },
+            { "PurchaseScienceCommandSetRank8", (parser, x) => x.PurchaseScienceCommandSetRank8 = parser.ParseCommandSetReference() },
+            { "SpecialPowerShortcutCommandSet", (parser, x) => x.SpecialPowerShortcutCommandSet = parser.ParseCommandSetReference() },
             { "SpecialPowerShortcutWinName", (parser, x) => x.SpecialPowerShortcutWinName = parser.ParseFileName() },
             { "SpecialPowerShortcutButtonCount", (parser, x) => x.SpecialPowerShortcutButtonCount = parser.ParseInteger() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
@@ -121,10 +122,10 @@ namespace OpenSage.Logic
         public int StartMoney { get; private set; }
         public ColorRgb PreferredColor { get; private set; }
         public string[] IntrinsicSciences { get; private set; }
-        public string PurchaseScienceCommandSetRank1 { get; private set; }
-        public string PurchaseScienceCommandSetRank3 { get; private set; }
-        public string PurchaseScienceCommandSetRank8 { get; private set; }
-        public string SpecialPowerShortcutCommandSet { get; private set; }
+        public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank1 { get; private set; }
+        public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank3 { get; private set; }
+        public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank8 { get; private set; }
+        public LazyAssetReference<CommandSet> SpecialPowerShortcutCommandSet { get; private set; }
         public string SpecialPowerShortcutWinName { get; private set; }
         public int SpecialPowerShortcutButtonCount { get; private set; }
         public string DisplayName { get; private set; }
