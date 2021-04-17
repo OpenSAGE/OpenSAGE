@@ -165,6 +165,8 @@ namespace OpenSage.Mods.Generals.Gui
                 State = ControlBarState.Default;
             }
 
+            // TODO: Only do this when command set changes.
+            GeneralsExpPointsCallbacks.Update(player, this);
             State.Update(player, this);
         }
 
@@ -294,7 +296,6 @@ namespace OpenSage.Mods.Generals.Gui
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
-
             }
         }
 
@@ -320,9 +321,6 @@ namespace OpenSage.Mods.Generals.Gui
 
                 // TODO: Only do this when command set changes.
                 ApplyCommandSet(unit, controlBar, commandSet);
-
-                // TODO: Only do this when command set changes.
-                GeneralsExpPointsCallbacks.Update(player, controlBar);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
