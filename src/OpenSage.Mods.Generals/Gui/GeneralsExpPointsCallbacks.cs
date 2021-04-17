@@ -22,7 +22,6 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.PopWindow();
                             _window = null;
                             break;
-
                     }
                     break;
             }
