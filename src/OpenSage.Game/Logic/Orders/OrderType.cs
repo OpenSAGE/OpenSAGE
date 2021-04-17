@@ -83,7 +83,7 @@
 
         Unknown1042 = 1042,
 
-        ChooseGeneralPromotion = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
+        PurchaseScience = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
 
         Unknown1050 = 1050,
         Unknown1051 = 1051,

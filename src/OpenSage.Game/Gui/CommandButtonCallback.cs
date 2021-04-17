@@ -137,6 +137,13 @@ namespace OpenSage.Gui
                     gateOpenAndCloseBehavior.Toggle();
                     break;
 
+                case CommandType.PurchaseScience:
+                    var scienceName = commandButton.Science[0];
+                    var science = game.AssetStore.Sciences.First((s) => s.Name == scienceName);
+                    order = CreateOrder(OrderType.PurchaseScience);
+                    order.AddIntegerArgument(science.InternalId);
+                    //TODO: purchase science
+                    break;
                 default:
                     throw new NotImplementedException();
             }

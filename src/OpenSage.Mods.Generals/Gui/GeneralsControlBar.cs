@@ -275,14 +275,6 @@ namespace OpenSage.Mods.Generals.Gui
                                 break;
                         }
 
-                        buttonControl.SystemCallback = (control, message, context) =>
-                        {
-                            Logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
-                            Logger.Debug($"Relevant object: {objectDefinition?.Name}");
-
-                            CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
-                        };
-
                         buttonControl.Show();
                     }
                     else
