@@ -1,4 +1,5 @@
-﻿using OpenSage.Gui.Wnd;
+﻿using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -33,6 +34,13 @@ namespace OpenSage.Mods.Generals.Gui
                     var commandButton = commandButtonReference.Value;
 
                     CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
+
+                    switch (commandButton.Command)
+                    {
+                        case CommandType.PurchaseScience:
+                            buttonControl.Enabled = game.Scene3D.LocalPlayer.ScienceAvailable(commandButton.Science[0].Value);
+                            break;
+                    }
                 }
             }
 
@@ -45,6 +53,13 @@ namespace OpenSage.Mods.Generals.Gui
                     var commandButton = commandButtonReference.Value;
 
                     CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
+
+                    switch (commandButton.Command)
+                    {
+                        case CommandType.PurchaseScience:
+                            buttonControl.Enabled = game.Scene3D.LocalPlayer.ScienceAvailable(commandButton.Science[0].Value);
+                            break;
+                    }
                 }
             }
 
@@ -57,6 +72,13 @@ namespace OpenSage.Mods.Generals.Gui
                     var commandButton = commandButtonReference.Value;
 
                     CommandButtonUtils.SetCommandButton(buttonControl, commandButton, (GeneralsControlBar) game.Scene2D.ControlBar);
+
+                    switch (commandButton.Command)
+                    {
+                        case CommandType.PurchaseScience:
+                            buttonControl.Enabled = game.Scene3D.LocalPlayer.ScienceAvailable(commandButton.Science[0].Value);
+                            break;
+                    }
                 }
             }
         }
