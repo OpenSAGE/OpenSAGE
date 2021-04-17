@@ -28,7 +28,8 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.PushWindow("Menus/QuitMenu.wnd");
                             break;
                         case "ControlBar.wnd:ButtonGeneral":
-                            context.WindowManager.PushWindow("GeneralsExpPoints.wnd");
+                            var window = context.WindowManager.PushWindow("GeneralsExpPoints.wnd");
+                            GeneralsExpPointsCallbacks.GeneralsExpPointsInit(window, context.Game);
                             break;
                     }
                     break;
