@@ -321,6 +321,9 @@ namespace OpenSage.Mods.Generals.Gui
                 // TODO: Only do this when command set changes.
                 ApplyCommandSet(unit, controlBar, commandSet);
 
+                // TODO: Only do this when command set changes.
+                GeneralsExpPointsCallbacks.Update(player, controlBar);
+
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
                 var isProducing = unit.ProductionUpdate?.IsProducing ?? false;

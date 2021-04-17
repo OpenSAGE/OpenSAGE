@@ -38,8 +38,7 @@ namespace OpenSage.Logic
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
         public List<Science> Sciences { get; }
 
-        private Rank Rank { get; set; }
-        public int RankNumber { get; set; }
+        public Rank Rank { get; set; }
         public uint SkillPointsTotal { get; private set; }
         public uint SkillPointsAvailable { get; set; }
         public uint SciencePurchasePoints { get; set; }
