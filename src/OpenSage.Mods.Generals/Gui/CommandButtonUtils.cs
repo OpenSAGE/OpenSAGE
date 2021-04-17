@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Controls;
@@ -31,22 +32,31 @@ namespace OpenSage.Mods.Generals.Gui
                 CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
             };
 
-            //buttonControl.InputCallback = (control, message, context) =>
-            //{
-            //    //TODO: fix the commandbutton description
-            //    //var windowManager = buttonControl.Window.Game.Scene2D.WndWindowManager;
-            //    //if (message.MessageType == WndWindowMessageType.MouseEnter)
-            //    //{
-            //    //    var popupDescription = windowManager.PushWindow("ControlBarPopupDescription.wnd");
-            //    //    var parent = popupDescription.Controls.FindControl("ControlBarPopupDescription.wnd:Parent");
-            //    //    var label = parent.Controls[0] as Label;
-            //    //    label.Text = context.Game.ContentManager.TranslationManager.GetString(commandButton.DescriptLabel);
-            //    //}
-            //    //else if(message.MessageType == WndWindowMessageType.MouseExit)
-            //    //{
-            //    //    windowManager.PopWindow();
-            //    //}
-            //};
+            buttonControl.InputCallback = (control, message, context) =>
+            {
+                //TODO: fix the commandbutton description
+                var windowManager = buttonControl.Window.Game.Scene2D.WndWindowManager;
+                if (message.MessageType == WndWindowMessageType.MouseEnter)
+                {
+                    var name = commandButton.TextLabel.Translate();
+                    var description = commandButton.DescriptLabel.Translate();
+                    var cost = "";
+
+                    // TODO: set the string correctly
+                    switch (commandButton.Command)
+                    {
+                        case CommandType.DozerConstruct:
+                        case CommandType.UnitBuild:
+                            cost = commandButton.Object.Value.BuildCost.ToString();
+                            break;
+                    }
+                    controlBar.ShowDescription(name, cost, description);
+                }
+                else if (message.MessageType == WndWindowMessageType.MouseExit)
+                {
+                    controlBar.HideDescription();
+                }
+            };
         }
 
         private static ColorRgba GetBorderColor(CommandButtonBorderType borderType, ControlBarScheme scheme)
