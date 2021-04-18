@@ -215,6 +215,8 @@ namespace OpenSage.Logic.Object
         private Dictionary<string, bool> _hiddenSubObjects;
         private Dictionary<string, bool> _shownSubObjects;
 
+        public bool IsStructure { get; private set; }
+
         public void HideSubObject(string subObject)
         {
             if (subObject == null) return;
@@ -514,13 +516,18 @@ namespace OpenSage.Logic.Object
             {
                 Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
             }
+
+            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            {
+                IsStructure = true;
+            }
         }
 
         public bool AffectsAreaPassability
         {
             get
             {
-                if (!Definition.KindOf.Get(ObjectKinds.Structure))
+                if (!IsStructure)
                 {
                     return false;
                 }
@@ -859,7 +866,7 @@ namespace OpenSage.Logic.Object
 
         internal void StartConstruction(in TimeInterval gameTime)
         {
-            if (Definition.KindOf.Get(ObjectKinds.Structure))
+            if (IsStructure)
             {
                 ModelConditionFlags.SetAll(false);
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
