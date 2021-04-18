@@ -25,8 +25,6 @@ namespace OpenSage.Mods.Generals.Gui
         // How much the control bar should be moved down when minimized?
         private const int MinimizeOffset = 120;
 
-        const int NUM_SPECIAL_POWERS = 5;
-
         private readonly ControlBarScheme _scheme;
 
         public Control SpecialPowerBar => _powerShortchutWindow.Root;
@@ -129,10 +127,10 @@ namespace OpenSage.Mods.Generals.Gui
             _scheme = scheme;
 
             // Disable all specialpower buttons
-            for (int i = 0; i < NUM_SPECIAL_POWERS; i++)
+            var buttonRoot = _powerShortchutWindow.Controls[0];
+            foreach (var control in buttonRoot.Controls.AsList())
             {
-                var buttonRoot = _powerShortchutWindow.Controls[0];
-                buttonRoot.Controls[i].Hide();
+                control.Hide();
             }
 
             _center = FindControl("CenterBackground");
@@ -279,7 +277,7 @@ namespace OpenSage.Mods.Generals.Gui
             protected void ApplySpecialPowers(Player player, GeneralsControlBar controlBar)
             {
                 var commandSet = player.Template.SpecialPowerShortcutCommandSet.Value;
-                for (int i = 0; i < NUM_SPECIAL_POWERS; i++)
+                for (int i = 0; i < player.Template.SpecialPowerShortcutButtonCount; i++)
                 {
                     var commandButton = commandSet.Buttons[i + 1].Value;
                     bool specialPowerAvailable = player.SpecialPowerAvailable(commandButton.SpecialPower.Value);
@@ -316,15 +314,22 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.DozerConstruct:
                             case CommandType.UnitBuild:
                                 buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition);
+                                buttonControl.Show();
                                 break;
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
                                 buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                buttonControl.Show();
+                                break;
+                            case CommandType.SpecialPower:
+                                buttonControl.Visible = selectedUnit.Owner.SpecialPowerAvailable(commandButton.SpecialPower.Value);
+                                break;
+                            default:
+                                buttonControl.Enabled = true;
+                                buttonControl.Show();
                                 break;
                         }
-
-                        buttonControl.Show();
                     }
                     else
                     {
