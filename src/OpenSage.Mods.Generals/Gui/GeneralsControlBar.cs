@@ -25,9 +25,11 @@ namespace OpenSage.Mods.Generals.Gui
         // How much the control bar should be moved down when minimized?
         private const int MinimizeOffset = 120;
 
-        private readonly ContentManager _contentManager;
+        const int NUM_SPECIAL_POWERS = 5;
 
         private readonly ControlBarScheme _scheme;
+
+        public Control SpecialPowerBar => _powerShortchutWindow.Root;
 
         public ControlBarScheme Scheme => _scheme;
 
@@ -49,6 +51,7 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Window _background;
         private readonly Window _window;
         private readonly Window _descriptionWindow;
+        private readonly Window _powerShortchutWindow;
 
         private readonly Control _center;
         private readonly Control _right;
@@ -116,14 +119,21 @@ namespace OpenSage.Mods.Generals.Gui
             _descriptionWindow.Hide();
         }
 
-        public GeneralsControlBar(Window background, Window window, Window descriptionWindow, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
+        public GeneralsControlBar(Window background, Window window, Window descriptionWindow, Window powerShortchutWindow, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
             _window = window;
             _descriptionWindow = descriptionWindow;
             _descriptionWindow.Hide();
+            _powerShortchutWindow = powerShortchutWindow;
             _scheme = scheme;
-            _contentManager = contentManager;
+
+            // Disable all specialpower buttons
+            for (int i = 0; i < NUM_SPECIAL_POWERS; i++)
+            {
+                var buttonRoot = _powerShortchutWindow.Controls[0];
+                buttonRoot.Controls[i].Hide();
+            }
 
             _center = FindControl("CenterBackground");
             _right = FindControl("RightHUD");
@@ -227,6 +237,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             scene2D.WndWindowManager.PushWindow(_background);
             scene2D.WndWindowManager.PushWindow(_descriptionWindow);
+            scene2D.WndWindowManager.PushWindow(_powerShortchutWindow);
             scene2D.WndWindowManager.PushWindow(_window);
         }
 
@@ -262,6 +273,22 @@ namespace OpenSage.Mods.Generals.Gui
                 foreach (var control in controlBar._right.Controls.AsList())
                 {
                     control.Hide();
+                }
+            }
+
+            protected void ApplySpecialPowers(Player player, GeneralsControlBar controlBar)
+            {
+                var commandSet = player.Template.SpecialPowerShortcutCommandSet.Value;
+                for (int i = 0; i < NUM_SPECIAL_POWERS; i++)
+                {
+                    var commandButton = commandSet.Buttons[i + 1].Value;
+                    bool specialPowerAvailable = player.SpecialPowerAvailable(commandButton.SpecialPower.Value);
+
+                    var parentControl = controlBar.SpecialPowerBar.Controls[i];
+                    parentControl.Visible = specialPowerAvailable;
+
+                    var buttonControl = parentControl.Controls[0] as Button;
+                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
                 }
             }
 
@@ -338,6 +365,7 @@ namespace OpenSage.Mods.Generals.Gui
                 if (unit.Definition.CommandSet == null) return;
 
                 var commandSet = unit.Definition.CommandSet.Value;
+                ApplySpecialPowers(player, controlBar);
 
                 // TODO: Only do this when command set changes.
                 ApplyCommandSet(unit, controlBar, commandSet);
@@ -558,7 +586,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
-            return new GeneralsControlBar(backgroundWindow, controlBarWindow, controlBarDescriptionWindow, scheme, game.ContentManager, game.AssetStore);
+            var powersShortcutBar = game.LoadWindow(game.Scene3D.LocalPlayer.Template.SpecialPowerShortcutWinName);
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, controlBarDescriptionWindow, powersShortcutBar, scheme, game.ContentManager, game.AssetStore);
         }
     }
 }

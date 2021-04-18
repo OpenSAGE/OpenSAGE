@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
             { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
-            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() },
+            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseScienceReference() },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
             { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAudioEventReference() },
@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
             { "PreventActivationConditions", (parser, x) => x.PreventActivationConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "ForbiddenObjectFilter", (parser, x) => x.ForbiddenObjectFilter = ObjectFilter.Parse(parser) },
             { "ForbiddenObjectRange", (parser, x) => x.ForbiddenObjectRange = parser.ParseInteger() },
-            { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseAssetReferenceArray() },
+            { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseScienceReferenceArray() },
             { "UnitSpecificSoundToUseAsInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsInitiateIntendToDoVoice = parser.ParseAssetReference() },
             { "UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice = parser.ParseAssetReference() },
             { "EvaEventToPlayOnSuccess", (parser, x) => x.EvaEventToPlayOnSuccess = parser.ParseAssetReference() },
@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
 
         public SpecialPowerType Type { get; private set; }
         public long ReloadTime { get; private set; }
-        public string RequiredScience { get; private set; }
+        public LazyAssetReference<Science> RequiredScience { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }
@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Object
         public int ForbiddenObjectRange { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public string[] RequiredSciences { get; private set; }
+        public LazyAssetReference<Science>[] RequiredSciences { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public string UnitSpecificSoundToUseAsInitiateIntendToDoVoice { get; private set; }
