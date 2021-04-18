@@ -102,6 +102,7 @@ namespace OpenSage.Gui
                     order = CreateOrder(OrderType.StopMoving);
                     break;
 
+                case CommandType.SpecialPowerFromCommandCenter:
                 case CommandType.SpecialPower:
                     {
                         var specialPower = commandButton.SpecialPower.Value;
