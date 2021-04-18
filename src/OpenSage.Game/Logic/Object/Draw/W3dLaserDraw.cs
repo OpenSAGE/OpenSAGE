@@ -1,10 +1,67 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class W3dLaserDraw : DrawModule
+    {
+        public override string Tag => _moduleData.Tag;
+
+        private readonly GameContext _gameContext;
+        private readonly W3dLaserDrawModuleData _moduleData;
+
+        public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
+
+        internal W3dLaserDraw(W3dLaserDrawModuleData moduleData, GameContext context)
+        {
+            _gameContext = context;
+            _moduleData = moduleData;
+            //TODO: overwrite texture somehow & take care of other fields
+        }
+
+        internal override void BuildRenderList(
+                RenderList renderList,
+                Camera camera,
+                bool castsShadow,
+                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+                Dictionary<string, bool> shownSubObjects = null,
+                Dictionary<string, bool> hiddenSubObjects = null)
+        {
+           
+        }
+
+        internal override (ModelInstance, ModelBone) FindBone(string boneName)
+        {
+            throw new NotSupportedException();
+        }
+
+        internal override string GetWeaponFireFXBone(WeaponSlot slot)
+        {
+            throw new NotSupportedException();
+        }
+
+        internal override string GetWeaponLaunchBone(WeaponSlot slot)
+        {
+            throw new NotSupportedException();
+        }
+
+        internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
+        {
+        }
+
+        internal override void Update(in TimeInterval time)
+        {
+        }
+    }
+
     /// <summary>
     /// Interdependent with the <see cref="LaserUpdateModuleData"/> module and requires the object to have 
     /// KindOf = INERT IMMOBILE.
@@ -49,6 +106,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public Envelope Envelope { get; private set; }
+
+        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        {
+            return new W3dLaserDraw(this, context);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
