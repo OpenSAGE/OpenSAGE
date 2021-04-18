@@ -103,6 +103,7 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.ParticleSystems);
                         SubsystemLoader.Load(Subsystem.ObjectCreation);
                         SubsystemLoader.Load(Subsystem.Locomotors);
+                        SubsystemLoader.Load(Subsystem.Sciences);
                         SubsystemLoader.Load(Subsystem.Weapons);
                         SubsystemLoader.Load(Subsystem.FXList);
                         SubsystemLoader.Load(Subsystem.Multiplayer);
