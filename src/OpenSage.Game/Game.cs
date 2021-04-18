@@ -179,7 +179,6 @@ namespace OpenSage
 
                 if (slot.SlotType == ReplaySlotType.Empty)
                 {
-                    pSettings.Add(null);
                     continue;
                 }
 

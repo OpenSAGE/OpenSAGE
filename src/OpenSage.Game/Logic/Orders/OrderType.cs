@@ -82,9 +82,7 @@
                             //again with  (Integer:16,Position:<1762,799. 3837,869. 100>,ObjectId:0,Integer:928,ObjectId:0)
 
         Unknown1042 = 1042,
-
-        PurchaseScience = 1044, //something with general promotion? gla first promotion -> arg 34, gla second promotion -> arg 35, gla third promotion -> arg 36
-
+        PurchaseScience = 1044,
         Unknown1050 = 1050,
         Unknown1051 = 1051,
 
