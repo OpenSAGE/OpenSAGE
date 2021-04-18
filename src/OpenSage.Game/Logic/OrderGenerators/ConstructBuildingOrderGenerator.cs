@@ -135,6 +135,7 @@ namespace OpenSage.Logic.OrderGenerators
         {
             _previewObject.SetTranslation(_position);
             _previewObject.UpdateColliders();
+            _previewObject.BuildProgress = 1.0f;
         }
 
         public void UpdateDrag(Vector3 position)
