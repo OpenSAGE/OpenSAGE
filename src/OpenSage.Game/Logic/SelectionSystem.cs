@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
@@ -188,27 +188,24 @@ namespace OpenSage.Logic
 
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                if (!gameObject.IsSelectable || gameObject.RoughCollider == null)
+                if (!gameObject.IsSelectable ||
+                    gameObject.RoughCollider == null ||
+                    !gameObject.RoughCollider.Intersects(ray, out _))
                 {
                     continue;
                 }
 
-                if (gameObject.RoughCollider.Intersects(ray, out var depth) && depth < closestDepth)
+                foreach (var collider in gameObject.Colliders)
                 {
-                    if (gameObject.Colliders.Count == 1)
+                    if (!collider.Intersects(ray, out var depth))
+                    {
+                        continue;
+                    }
+                    if (closestObject != null && !gameObject.IsStructure && closestObject.IsStructure ||
+                        depth < closestDepth)
                     {
                         closestDepth = depth;
                         closestObject = gameObject;
-                        continue;
-                    }
-
-                    foreach (var collider in gameObject.Colliders)
-                    {
-                        if (collider.Intersects(ray, out var depth2) && depth2 < closestDepth)
-                        {
-                            closestDepth = depth2;
-                            closestObject = gameObject;
-                        }
                     }
                 }
             }

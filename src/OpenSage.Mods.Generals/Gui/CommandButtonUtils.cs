@@ -2,6 +2,7 @@
 using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
