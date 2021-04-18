@@ -104,9 +104,17 @@ namespace OpenSage.Gui.Wnd
                 return null;
             }
 
-            var window = WindowStack.Peek();
+            var windowArray = WindowStack.ToArray();
+            foreach(var window in windowArray)
+            {
+                var control = window.GetSelfOrDescendantAtPoint(mousePosition);
+                if(control != null)
+                {
+                    return control;
+                }
+            }
 
-            return window.GetSelfOrDescendantAtPoint(mousePosition);
+            return null;
         }
 
         internal void Focus(Control control)

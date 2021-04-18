@@ -525,6 +525,7 @@ namespace OpenSage.Mods.Generals.Gui
             };
 
             var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game);
+            backgroundWindow.Enabled = false;
             var controlBarWindow = game.LoadWindow("ControlBar.wnd");
             var controlBarDescriptionWindow = game.LoadWindow("ControlBarPopupDescription.wnd");
 
