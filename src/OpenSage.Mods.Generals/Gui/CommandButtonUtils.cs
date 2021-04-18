@@ -50,6 +50,10 @@ namespace OpenSage.Mods.Generals.Gui
                         case CommandType.UnitBuild:
                             cost = commandButton.Object.Value.BuildCost.ToString();
                             break;
+                        case CommandType.PurchaseScience:
+                            cost = commandButton.Science[0].Value.SciencePurchasePointCost.ToString();
+                            description = commandButton.Science[0].Value.Description.Translate();
+                            break;
                     }
                     controlBar.ShowDescription(name, cost, description);
                 }

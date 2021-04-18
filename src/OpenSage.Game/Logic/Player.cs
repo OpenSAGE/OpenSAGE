@@ -37,7 +37,6 @@ namespace OpenSage.Logic
         public List<UpgradeTemplate> Upgrades { get; }
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
         public List<Science> Sciences { get; }
-
         public Rank Rank { get; set; }
         public uint SkillPointsTotal { get; private set; }
         public uint SkillPointsAvailable { get; set; }
@@ -65,6 +64,27 @@ namespace OpenSage.Logic
         public void LogicTick()
         {
             Rank.Update();
+        }
+
+        public bool SpecialPowerAvailable(SpecialPower specialPower)
+        {
+            if (specialPower.RequiredSciences != null)
+            {
+                foreach (var requirement in specialPower.RequiredSciences)
+                {
+                    if (!Sciences.Contains(requirement.Value))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if (specialPower.RequiredScience != null)
+            {
+                return Sciences.Contains(specialPower.RequiredScience.Value);
+            }
+
+            return true;
         }
 
         public void SpendMoney(uint amount)
@@ -212,7 +232,7 @@ namespace OpenSage.Logic
                 return;
             }
 
-            SciencePurchasePoints -= (uint)science.SciencePurchasePointCost;
+            SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
             Sciences.Add(science);
         }
 
