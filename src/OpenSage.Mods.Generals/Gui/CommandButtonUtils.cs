@@ -57,6 +57,8 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     controlBar.HideDescription();
                 }
+
+                control.DefaultInput(control, message, context);
             };
         }
 
