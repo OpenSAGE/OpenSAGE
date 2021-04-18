@@ -244,7 +244,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public virtual bool HitTest(in Point2D windowPoint)
         {
-            if (!Enabled || !Visible || Opacity != 1)
+            if (!Visible || Opacity != 1)
             {
                 return false;
             }
@@ -458,6 +458,8 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public void DefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
+            if (!Enabled) return;
+
             switch (message.MessageType)
             {
                 case WndWindowMessageType.MouseEnter:
