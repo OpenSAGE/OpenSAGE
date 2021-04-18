@@ -456,7 +456,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 rect);
         }
 
-        private void DefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public void DefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
             {
