@@ -103,6 +103,7 @@ namespace OpenSage.Gui
                     break;
 
                 case CommandType.SpecialPowerFromCommandCenter:
+                    // TODO: This must somehow invoke the special power from the command center
                 case CommandType.SpecialPower:
                     {
                         var specialPower = commandButton.SpecialPower.Value;
