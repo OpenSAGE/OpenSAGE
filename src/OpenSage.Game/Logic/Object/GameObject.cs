@@ -118,6 +118,7 @@ namespace OpenSage.Logic.Object
         private readonly BehaviorUpdateContext _behaviorUpdateContext;
 
         private readonly GameObject _rallyPointMarker;
+        private readonly GameObject _moveHint;
 
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
 
@@ -503,6 +504,12 @@ namespace OpenSage.Logic.Object
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
+            }
+
+            if (Definition.LocomotorSets.Count > 0)
+            {
+                var mhDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("MoveHint");
+                _moveHint = AddDisposable(new GameObject(mhDef, gameContext, owner, parent));
             }
 
             if (Definition.KindOf.Get(ObjectKinds.Projectile))
@@ -994,6 +1001,16 @@ namespace OpenSage.Logic.Object
 
                 // TODO: check if this should be drawn with transparency?
                 _rallyPointMarker.BuildRenderList(renderList, camera, gameTime);
+            }
+
+            if ((IsSelected) && _moveHint != null && AIUpdate.TargetPoints != null)
+            {
+                var targetPoint = AIUpdate.TargetPoints.LastOrDefault();
+                if (targetPoint != Vector3.Zero)
+                {
+                    _moveHint._transform.Translation = targetPoint;
+                    _moveHint.BuildRenderList(renderList, camera, gameTime);
+                }
             }
 
             ModelConditionFlags.BitsChanged = false;
