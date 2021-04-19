@@ -27,64 +27,37 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
+        private static void ApplyRankCommandSet(CommandSet commandSet, int rank, Player player, GeneralsControlBar controlBar)
+        {
+            for (int i = 0; i < commandSet.Buttons.Count; i++)
+            {
+                var buttonControl = _window.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i) as Button;
+                if (commandSet != null && commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
+                {
+                    var commandButton = commandButtonReference.Value;
+
+                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
+
+                    switch (commandButton.Command)
+                    {
+                        case CommandType.PurchaseScience:
+                            buttonControl.Enabled = player.ScienceAvailable(commandButton.Science[0].Value);
+                            break;
+                    }
+                }
+            }
+        }
+
         private static void ApplyCommandSets(Player player, GeneralsControlBar controlBar)
         {
             var rank1 = player.Template.PurchaseScienceCommandSetRank1;
-            for (int i = 0; i < 3; i++)
-            {
-                var buttonControl = _window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank1Number" + i) as Button;
-                if (rank1 != null && rank1.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
-                {
-                    var commandButton = commandButtonReference.Value;
-
-                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
-
-                    switch (commandButton.Command)
-                    {
-                        case CommandType.PurchaseScience:
-                            buttonControl.Enabled = player.ScienceAvailable(commandButton.Science[0].Value);
-                            break;
-                    }
-                }
-            }
+            ApplyRankCommandSet(rank1.Value, 1, player, controlBar);
 
             var rank3 = player.Template.PurchaseScienceCommandSetRank3;
-            for (int i = 0; i < 9; i++)
-            {
-                var buttonControl = _window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank3Number" + i) as Button;
-                if (rank1 != null && rank3.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
-                {
-                    var commandButton = commandButtonReference.Value;
-
-                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
-
-                    switch (commandButton.Command)
-                    {
-                        case CommandType.PurchaseScience:
-                            buttonControl.Enabled = player.ScienceAvailable(commandButton.Science[0].Value);
-                            break;
-                    }
-                }
-            }
+            ApplyRankCommandSet(rank3.Value, 3, player, controlBar);
 
             var rank8 = player.Template.PurchaseScienceCommandSetRank8;
-            for (int i = 0; i < 1; i++)
-            {
-                var buttonControl = _window.Controls.FindControl("GeneralsExpPoints.wnd:ButtonRank8Number" + i) as Button;
-                if (rank1 != null && rank8.Value.Buttons.TryGetValue(i + 1, out var commandButtonReference))
-                {
-                    var commandButton = commandButtonReference.Value;
-
-                    CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
-
-                    switch (commandButton.Command)
-                    {
-                        case CommandType.PurchaseScience:
-                            buttonControl.Enabled = player.ScienceAvailable(commandButton.Science[0].Value);
-                            break;
-                    }
-                }
-            }
+            ApplyRankCommandSet(rank8.Value, 8, player, controlBar);
         }
 
         public static void Update(Player player, GeneralsControlBar controlBar)
