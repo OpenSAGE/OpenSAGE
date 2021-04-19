@@ -27,7 +27,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly ControlBarScheme _scheme;
 
-        public Control SpecialPowerBar => _powerShortchutWindow.Root;
+        public Control SpecialPowerBar => _powerShortcutWindow.Root;
 
         public ControlBarScheme Scheme => _scheme;
 
@@ -49,7 +49,7 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Window _background;
         private readonly Window _window;
         private readonly Window _descriptionWindow;
-        private readonly Window _powerShortchutWindow;
+        private readonly Window _powerShortcutWindow;
 
         private readonly Control _center;
         private readonly Control _right;
@@ -117,17 +117,17 @@ namespace OpenSage.Mods.Generals.Gui
             _descriptionWindow.Hide();
         }
 
-        public GeneralsControlBar(Window background, Window window, Window descriptionWindow, Window powerShortchutWindow, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
+        public GeneralsControlBar(Window background, Window window, Window descriptionWindow, Window powerShortcutWindow, ControlBarScheme scheme, ContentManager contentManager, AssetStore assetStore)
         {
             _background = background;
             _window = window;
             _descriptionWindow = descriptionWindow;
             _descriptionWindow.Hide();
-            _powerShortchutWindow = powerShortchutWindow;
+            _powerShortcutWindow = powerShortcutWindow;
             _scheme = scheme;
 
             // Disable all specialpower buttons
-            var buttonRoot = _powerShortchutWindow.Controls[0];
+            var buttonRoot = _powerShortcutWindow.Controls[0];
             foreach (var control in buttonRoot.Controls.AsList())
             {
                 control.Hide();
@@ -235,7 +235,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             scene2D.WndWindowManager.PushWindow(_background);
             scene2D.WndWindowManager.PushWindow(_descriptionWindow);
-            scene2D.WndWindowManager.PushWindow(_powerShortchutWindow);
+            scene2D.WndWindowManager.PushWindow(_powerShortcutWindow);
             scene2D.WndWindowManager.PushWindow(_window);
         }
 

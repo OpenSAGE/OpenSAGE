@@ -27,21 +27,8 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public static void Update(Player player, GeneralsControlBar controlBar)
+        private static void ApplyCommandSets(Player player, GeneralsControlBar controlBar)
         {
-            if (_window == null)
-            {
-                return;
-            }
-
-            var currentRank = player.Rank.CurrentRank;
-            //Update title
-            var lblTitle = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextTitle") as Label;
-            lblTitle.Text = ("SCIENCE:Rank" + currentRank).Translate();
-
-            var lblLevel = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextLevel") as Label;
-            lblLevel.Text = ("SCIENCE:Rank").TranslateFormatted(currentRank); // TODO: this doesn't replace %d correctly yet
-
             var rank1 = player.Template.PurchaseScienceCommandSetRank1;
             for (int i = 0; i < 3; i++)
             {
@@ -98,6 +85,24 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                 }
             }
+        }
+
+        public static void Update(Player player, GeneralsControlBar controlBar)
+        {
+            if (_window == null)
+            {
+                return;
+            }
+
+            var currentRank = player.Rank.CurrentRank;
+            //Update title
+            var lblTitle = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextTitle") as Label;
+            lblTitle.Text = ("SCIENCE:Rank" + currentRank).Translate();
+
+            var lblLevel = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextLevel") as Label;
+            lblLevel.Text = ("SCIENCE:Rank").TranslateFormatted(currentRank); // TODO: this doesn't replace %d correctly yet
+
+            ApplyCommandSets(player, controlBar);
         }
 
         public static void SetWindow(Window window)
