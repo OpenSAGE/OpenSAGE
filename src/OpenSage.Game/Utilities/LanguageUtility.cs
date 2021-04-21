@@ -22,7 +22,10 @@ namespace OpenSage.Utilities
             {
                 if (gameDefinition.LanguageRegistryKeys != null && gameDefinition.LanguageRegistryKeys.Any())
                 {
-                    return ReadFromRegistry(gameDefinition.LanguageRegistryKeys);
+                    if(ReadFromRegistry(gameDefinition.LanguageRegistryKeys, out var language))
+                    {
+                        return language;
+                    }
                 }
             }
 
@@ -32,6 +35,10 @@ namespace OpenSage.Utilities
                     return DetectFromFileSystem(rootDirectory, "Audio", ".big");
                 case SageGame.CncGeneralsZeroHour:
                     return DetectFromFileSystem(rootDirectory, "Audio", "ZH.big");
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    return DetectFromFileSystem(rootDirectory, "", "Audio.big");
             }
 
             return DefaultLanguage;
@@ -42,18 +49,20 @@ namespace OpenSage.Utilities
         /// </summary>
         /// <param name="registryKeys"></param>
         /// <returns>language as string</returns>
-        private static string ReadFromRegistry(IEnumerable<RegistryKeyPath> registryKeys)
+        private static bool ReadFromRegistry(IEnumerable<RegistryKeyPath> registryKeys, out string language)
         {
+            language = DefaultLanguage;
             var registryValues = registryKeys.Select(RegistryUtility.GetRegistryValue);
             foreach (var registryValue in registryValues)
             {
                 if (!string.IsNullOrEmpty(registryValue))
                 {
-                    return registryValue;
+                    language = registryValue;
+                    return true;
                 }
             }
 
-            return DefaultLanguage;
+            return false;
         }
 
         /// <summary>
@@ -71,14 +80,38 @@ namespace OpenSage.Utilities
             }
 
             var possibleFiles = Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories).Where(i =>
-                (string.IsNullOrEmpty(filePrefix) || Path.GetFileName(i).Contains(filePrefix)) &&
-                (string.IsNullOrEmpty(fileSuffix) || Path.GetFileName(i).EndsWith(fileSuffix)));
-            foreach (var file in possibleFiles)
+                    (string.IsNullOrEmpty(filePrefix) || Path.GetFileName(i).StartsWith(filePrefix)) &&
+                    (string.IsNullOrEmpty(fileSuffix) || Path.GetFileName(i).EndsWith(fileSuffix)));
+
+            if (string.IsNullOrEmpty(filePrefix))
             {
-                MatchCollection mc = Regex.Matches(file, $"(?<={filePrefix})(.*)(?={fileSuffix})");
-                if (mc.Count > 0 && !string.IsNullOrEmpty(mc[0].Value))
+                foreach (var file in possibleFiles)
                 {
-                    return mc[0].Value;
+                    if (file.EndsWith(fileSuffix))
+                    {
+                        return file.Replace(fileSuffix, "");
+                    }
+                }
+            }
+            else if (string.IsNullOrEmpty(fileSuffix))
+            {
+                foreach (var file in possibleFiles)
+                {
+                    if (file.StartsWith(filePrefix))
+                    {
+                        return file.Replace(filePrefix, "");
+                    }
+                }
+            }
+            else
+            {
+                foreach (var file in possibleFiles)
+                {
+                    MatchCollection mc = Regex.Matches(file, $"(?<={filePrefix})(.*)(?={fileSuffix})");
+                    if (mc.Count > 0 && !string.IsNullOrEmpty(mc[0].Value))
+                    {
+                        return mc[0].Value;
+                    }
                 }
             }
             return DefaultLanguage;
