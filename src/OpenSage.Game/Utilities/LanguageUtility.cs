@@ -38,7 +38,7 @@ namespace OpenSage.Utilities
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    return DetectFromFileSystem(rootDirectory, "", "Audio.big");
+                    return DetectFromFileSystem(Path.Combine(rootDirectory, "lang"), "", "Audio.big");
             }
 
             return DefaultLanguage;
@@ -79,40 +79,17 @@ namespace OpenSage.Utilities
                 return DefaultLanguage;
             }
 
-            var possibleFiles = Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories).Where(i =>
-                    (string.IsNullOrEmpty(filePrefix) || Path.GetFileName(i).StartsWith(filePrefix)) &&
-                    (string.IsNullOrEmpty(fileSuffix) || Path.GetFileName(i).EndsWith(fileSuffix)));
-
-            if (string.IsNullOrEmpty(filePrefix))
+            var files = Directory.GetFiles(rootDirectory, $"{filePrefix}*{fileSuffix}", SearchOption.TopDirectoryOnly) // there's no sense in searching subfolders
+                .Select(x => Path.GetFileName(x))
+                .Select(x => string.IsNullOrEmpty(filePrefix) ? x : x[filePrefix.Length..])
+                .Select(x => string.IsNullOrEmpty(fileSuffix) ? x : x[..^fileSuffix.Length]);
+            foreach (var file in files)
             {
-                foreach (var file in possibleFiles)
+                if (file.Length == 0)
                 {
-                    if (file.EndsWith(fileSuffix))
-                    {
-                        return file.Replace(fileSuffix, "");
-                    }
+                    continue;
                 }
-            }
-            else if (string.IsNullOrEmpty(fileSuffix))
-            {
-                foreach (var file in possibleFiles)
-                {
-                    if (file.StartsWith(filePrefix))
-                    {
-                        return file.Replace(filePrefix, "");
-                    }
-                }
-            }
-            else
-            {
-                foreach (var file in possibleFiles)
-                {
-                    MatchCollection mc = Regex.Matches(file, $"(?<={filePrefix})(.*)(?={fileSuffix})");
-                    if (mc.Count > 0 && !string.IsNullOrEmpty(mc[0].Value))
-                    {
-                        return mc[0].Value;
-                    }
-                }
+                return file;
             }
             return DefaultLanguage;
         }
