@@ -40,10 +40,24 @@ namespace OpenSage.Logic.OrderGenerators
                     : "ForceAttackGround";
             }
 
-            // TODO: should only work on enemy objects
-            return _worldObject != null
-                ? "AttackObj"
-                : "Move";
+            if (_worldObject != null)
+            {
+                // TODO: Should take allies into account.
+                if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
+                {
+                    return "AttackObj";
+                }
+
+                if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
+                {
+                    // TODO: Check if transport is full.
+                    return "EnterFriendly";
+                }
+
+                return "Select";
+            }
+
+            return "Move";
         }
 
         public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
@@ -77,14 +91,28 @@ namespace OpenSage.Logic.OrderGenerators
             }
             else
             {
-                // TODO: should only work on enemy objects
                 if (_worldObject != null)
                 {
                     var objectId = scene.GameObjects.GetObjectId(_worldObject);
 
-                    // TODO: handle hordes properly
-                    unit.OnLocalAttack(_game.Audio);
-                    order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), (uint) objectId, false);
+                    // TODO: Should take allies into account.
+                    if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
+                    {
+                        // TODO: handle hordes properly
+                        unit.OnLocalAttack(_game.Audio);
+                        order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), (uint) objectId, false);
+                    }
+                    else if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
+                    {
+                        // SoundEnter
+                        // VoiceEnter
+                        // TODO: Also need to check TransportSlotCount, Slots, etc.
+                        order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), objectId);
+                    }
+                    else
+                    {
+                        return OrderGeneratorResult.Inapplicable();
+                    }
                 }
                 else
                 {

@@ -96,7 +96,7 @@
         Unknown1063 = 1063,
         Unknown1064 = 1064,
         Unknown1065 = 1065,
-        Unknown1066 = 1066,
+        Enter = 1066,
         Unknown1067 = 1067,
 
         Unknown1069 = 1069,//AttackMove?

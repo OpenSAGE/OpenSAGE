@@ -8,7 +8,30 @@ namespace OpenSage.Logic.Object
 {
     public class TransportContain : OpenContainModule
     {
-        // TODO
+        private readonly TransportContainModuleData _moduleData;
+        private readonly List<GameObject> _contained;
+
+        internal TransportContain(TransportContainModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _contained = new List<GameObject>();
+        }
+
+        public void AddContained(GameObject contained)
+        {
+            if (_contained.Count >= _moduleData.Slots)
+            {
+                return;
+            }
+
+            // TODO: Check AllowInsideKindOf
+            // TODO: Check contained.Definition.TransportSlotCount
+
+            _contained.Add(contained);
+
+            contained.Hidden = true;
+            contained.IsSelectable = false;
+        }
 
         internal override void Load(BinaryReader reader)
         {
@@ -227,7 +250,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TransportContain();
+            return new TransportContain(this);
         }
     }
 
