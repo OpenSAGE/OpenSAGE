@@ -4,15 +4,13 @@ namespace OpenSage.Logic.Object
 {
     public enum ObjectGeometry
     {
-        None,
-
-        [IniEnum("BOX")]
-        Box,
-
         [IniEnum("SPHERE")]
-        Sphere,
+        Sphere = 0,
 
         [IniEnum("CYLINDER")]
-        Cylinder
+        Cylinder = 1,
+
+        [IniEnum("BOX")]
+        Box = 2,
     }
 }

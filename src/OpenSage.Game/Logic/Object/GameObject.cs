@@ -6,7 +6,9 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Data.Sav;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
@@ -1286,6 +1288,128 @@ namespace OpenSage.Logic.Object
                 }
             }
             _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(7);
+
+            var objectID = reader.ReadObjectID();
+
+            var transform = reader.ReadMatrix4x3();
+            SetTransformMatrix(transform.ToMatrix4x4());
+
+            reader.__Skip(16);
+
+            _name = reader.ReadAsciiString();
+
+            reader.__Skip(6);
+
+            var geometry = new Geometry();
+
+            geometry.Load(reader);
+
+            reader.ReadVersion(1);
+            var position = reader.ReadVector3();
+            var unknown = reader.ReadSingle(); // 360
+            reader.__Skip(29);
+            var unknown16 = reader.ReadSingle(); // 360
+            var unknown17 = reader.ReadSingle(); // 360
+            reader.__Skip(5);
+
+            var disabledCount = reader.ReadUInt32();
+            var disabledEnumMap = IniParser.GetEnumMap<DisabledType>();
+            for (var i = 0; i < disabledCount; i++)
+            {
+                var disabledType = (DisabledType) disabledEnumMap[reader.ReadAsciiString()];
+            }
+
+            reader.__Skip(75);
+
+            var numUpgrades = reader.ReadUInt16();
+            for (var i = 0; i < numUpgrades; i++)
+            {
+                var upgradeName = reader.ReadAsciiString();
+                var upgrade = _gameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(upgradeName);
+                Upgrade(upgrade);
+            }
+
+            var team = reader.ReadAsciiString(); // teamPlyrAmerica
+
+            reader.__Skip(16);
+
+            var someCount = reader.ReadByte();
+            reader.ReadUInt32();
+            reader.ReadUInt32();
+            reader.ReadUInt32();
+            reader.ReadUInt32();
+
+            for (var i = 0; i < someCount; i++)
+            {
+                var someString1 = reader.ReadAsciiString(); // OuterPerimeter7, InnerPerimeter7
+                reader.ReadBoolean();
+                reader.ReadBoolean();
+                reader.ReadBoolean();
+            }
+
+            reader.__Skip(17);
+
+            // Modules
+            var numModules = reader.ReadUInt16();
+            for (var i = 0; i < numModules; i++)
+            {
+                var moduleTag = reader.ReadAsciiString();
+
+                reader.BeginSegment();
+
+                var module = GetModuleByTag(moduleTag);
+                module.Load(reader.Inner);
+
+                reader.EndSegment();
+            }
+
+            reader.__Skip(9);
+            var someCount2 = reader.ReadUInt32();
+            for (var i = 0; i < someCount2; i++)
+            {
+                var condition = reader.ReadAsciiString();
+            }
+            reader.__Skip(8);
+
+            var objectName = reader.ReadAsciiString();
+
+            reader.ReadBoolean();
+            var someCount3 = reader.ReadUInt32();
+            for (var i = 0; i < someCount3; i++)
+            {
+                var condition = reader.ReadAsciiString();
+            }
+
+            // 5 possible weapons...
+            for (var i = 0; i < 5; i++)
+            {
+                var slotFilled = reader.ReadBoolean(); // 1
+                if (slotFilled)
+                {
+                    reader.ReadByte(); // 3
+                    var weaponTemplateName = reader.ReadAsciiString();
+                    var weaponSlot = reader.ReadEnum<OpenSage.Logic.Object.WeaponSlot>();
+                    reader.__Skip(52);
+                }
+            }
+
+            reader.__Skip(21);
+
+            var numSpecialPowers = reader.ReadUInt32();
+
+            for (var i = 0; i < numSpecialPowers; i++)
+            {
+                var specialPower = reader.ReadAsciiString();
+            }
+
+            reader.ReadBoolean(); // 0
+            reader.ReadBoolean(); // 1
+            reader.ReadBoolean(); // 1
         }
 
         void IInspectable.DrawInspector()

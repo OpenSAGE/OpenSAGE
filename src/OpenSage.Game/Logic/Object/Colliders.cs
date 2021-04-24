@@ -45,9 +45,6 @@ namespace OpenSage.Logic.Object
                 case ObjectGeometry.Cylinder:
                     return new CylinderCollider(geometry, transform);
 
-                case ObjectGeometry.None:
-                    return null;
-
                 default:
                     throw new ArgumentOutOfRangeException();
             }

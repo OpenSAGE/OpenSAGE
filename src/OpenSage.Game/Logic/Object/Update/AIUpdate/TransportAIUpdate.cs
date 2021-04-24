@@ -20,8 +20,6 @@ namespace OpenSage.Logic.Object
             }
 
             base.Load(reader);
-
-            var unknown = reader.ReadBytes(33);
         }
     }
 
