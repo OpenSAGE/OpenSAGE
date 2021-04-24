@@ -248,6 +248,32 @@ namespace OpenSage.Logic.Orders
                         //TODO: implement
                         break;
 
+                    case OrderType.Enter:
+                        {
+                            if (order.Arguments[0].ArgumentType != OrderArgumentType.ObjectId ||
+                                order.Arguments[0].Value.ObjectId != 0)
+                            {
+                                throw new InvalidOperationException();
+                            }
+
+                            var objectDefinitionId = order.Arguments[1].Value.Integer;
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
+
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                gameObject.FindBehavior<TransportContain>().AddContained(unit);
+
+                                // TODO: Don't put it in container right now. Tell it to move towards container.
+                                //unit.AIUpdate.SetTargetObject(gameObject);
+
+                            }
+
+                            break;
+                        }
+
+                    case OrderType.Checksum:
+                        break;
+
                     default:
                         var args = string.Join(", ", order.Arguments.Select(argument => argument.ToString()));
 

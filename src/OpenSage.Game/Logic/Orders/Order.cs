@@ -207,5 +207,17 @@ namespace OpenSage.Logic.Orders
 
             return order;
         }
+
+        public static Order CreateEnter(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.Enter);
+
+            // TODO: Figure this out.
+            order.AddObjectIdArgument(0);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
     }
 }
