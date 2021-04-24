@@ -109,6 +109,8 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
+        public uint ID { get; private set; }
+
         public Percentage ProductionModifier { get; set; } = new Percentage(1);
         public Fix64 HealthModifier { get; set; }
 
@@ -1294,12 +1296,14 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(7);
 
-            var objectID = reader.ReadObjectID();
+            ID = reader.ReadObjectID();
 
             var transform = reader.ReadMatrix4x3();
             SetTransformMatrix(transform.ToMatrix4x4());
 
-            reader.__Skip(16);
+            reader.__Skip(12);
+
+            var drawableID = reader.ReadUInt32();
 
             _name = reader.ReadAsciiString();
 
