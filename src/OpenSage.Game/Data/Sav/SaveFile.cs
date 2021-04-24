@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using OpenSage.Data.Ini;
+using OpenSage.Client;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -55,6 +54,8 @@ namespace OpenSage.Data.Sav
 
                 GameState gameState = null;
                 MapFile map = null;
+                GameLogic gameLogic = null;
+                GameClient gameClient = null;
 
                 while (!chunkHeader.IsEof)
                 {
@@ -210,11 +211,9 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_GameLogic":
-                            {
-                                var gameLogic = new GameLogic(game.Scene3D);
-                                gameLogic.Load(new SaveFileReader(reader));
-                                break;
-                            }
+                            gameLogic = new GameLogic(game.Scene3D);
+                            gameLogic.Load(new SaveFileReader(reader));
+                            break;
 
                         case "CHUNK_ParticleSystem":
                             {
@@ -426,85 +425,9 @@ namespace OpenSage.Data.Sav
                             }
 
                         case "CHUNK_GameClient":
-                            {
-                                var version = reader.ReadByte();
-                                var unknown1 = reader.ReadUInt32(); // Maybe some kind of frame counter
-                                var unknown2 = reader.ReadByte();
-                                var numGameObjects = reader.ReadUInt32();
-                                var gameObjects = new List<GameObjectState>();
-                                for (var i = 0; i < numGameObjects; i++)
-                                {
-                                    gameObjects.Add(new GameObjectState
-                                    {
-                                        Name = reader.ReadBytePrefixedAsciiString(),
-                                        Id = reader.ReadUInt16()
-                                    });
-                                }
-
-                                var numGameObjects2 = reader.ReadUInt16(); // 5
-                                for (var i = 0; i < numGameObjects2; i++)
-                                {
-                                    var objectID = reader.ReadUInt16();
-                                    reader.ReadBytes(14);
-
-                                    var numModelConditionFlags = reader.ReadUInt32();
-
-                                    for (var j = 0; j < numModelConditionFlags; j++)
-                                    {
-                                        var modelConditionFlag = reader.ReadBytePrefixedAsciiString();
-                                    }
-
-                                    reader.ReadByte();
-
-                                    var transform = reader.ReadMatrix4x3Transposed();
-
-                                    var unknownBool = reader.ReadBooleanChecked();
-                                    var unknownBool2 = reader.ReadBooleanChecked();
-                                    if (unknownBool)
-                                    {
-                                        for (var j = 0; j < 9; j++)
-                                        {
-                                            reader.ReadSingle();
-                                        }
-                                        reader.ReadBytes(19);
-                                    }
-
-                                    reader.ReadBytes(56);
-
-                                    var unknownBool3 = reader.ReadBooleanChecked();
-                                    if (unknownBool3)
-                                    {
-                                        for (var j = 0; j < 19; j++)
-                                        {
-                                            reader.ReadSingle();
-                                        }
-                                    }
-
-                                    reader.ReadBytes(3);
-
-                                    var numModules = reader.ReadUInt16();
-                                    for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
-                                    {
-                                        var moduleTag = reader.ReadBytePrefixedAsciiString();
-                                        var moduleLengthInBytes = reader.ReadUInt32();
-                                        reader.ReadBytes((int) moduleLengthInBytes);
-                                    }
-
-                                    var numClientUpdates = reader.ReadUInt16();
-                                    for (var moduleIndex = 0; moduleIndex < numClientUpdates; moduleIndex++)
-                                    {
-                                        var moduleTag = reader.ReadBytePrefixedAsciiString();
-                                        var moduleLengthInBytes = reader.ReadUInt32();
-                                        reader.ReadBytes((int) moduleLengthInBytes);
-                                    }
-
-                                    reader.ReadBytes(81);
-                                }
-
-                                reader.ReadUInt32();
-
-                                break;
-                            }
+                            gameClient = new GameClient(game.Scene3D, gameLogic);
+                            gameClient.Load(new SaveFileReader(reader));
+                            break;
 
                         case "CHUNK_InGameUI":
                             {
