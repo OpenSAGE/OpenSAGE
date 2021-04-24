@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -114,6 +116,25 @@ namespace OpenSage.Logic.Object
         public void Fire(TimeInterval time)
         {
             _stateMachine.Fire(time);
+        }
+
+        internal void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+
+            var templateName = reader.ReadBytePrefixedAsciiString();
+
+            reader.ReadBytes(13 * 4);
+
+            var count = reader.ReadUInt16();
+
+            if (count > 0)
+            {
+                throw new NotImplementedException();
+            }
+
+            var unknown1 = reader.ReadBooleanChecked();
+            var unknown2 = reader.ReadBooleanChecked();
         }
 
         internal void DrawInspector()
