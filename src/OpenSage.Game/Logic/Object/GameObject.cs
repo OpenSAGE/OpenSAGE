@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Audio;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
@@ -101,11 +102,6 @@ namespace OpenSage.Logic.Object
             return gameObject;
         }
 
-        internal void CopyModelConditionFlags(BitArray<ModelConditionFlag> newFlags)
-        {
-            ModelConditionFlags.CopyFrom(newFlags);
-        }
-
         private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
@@ -172,15 +168,8 @@ namespace OpenSage.Logic.Object
             _objectMoved = true;
         }
 
-        public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
-
-        public readonly BitArray<ModelConditionFlag> ModelConditionFlags;
-
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
         // while simultaneously supporting fast (non-allocating) iteration when accessing the list within the class.
-        public IReadOnlyList<DrawModule> DrawModules => _drawModules;
-        private readonly List<DrawModule> _drawModules;
-
         public IReadOnlyList<BehaviorModule> BehaviorModules => _behaviorModules;
         private readonly List<BehaviorModule> _behaviorModules;
 
@@ -216,78 +205,9 @@ namespace OpenSage.Logic.Object
 
         public int Supply { get; set; }
 
-        private Dictionary<string, bool> _hiddenSubObjects;
-        private Dictionary<string, bool> _shownSubObjects;
-
         public bool IsStructure { get; private set; }
 
-        public void HideSubObject(string subObject)
-        {
-            if (subObject == null) return;
-
-            if (!_hiddenSubObjects.ContainsKey(subObject))
-            {
-                _hiddenSubObjects.Add(subObject, false);
-            }
-            _shownSubObjects.Remove(subObject);
-        }
-
-        public void HideSubObjectPermanently(string subObject)
-        {
-            if (subObject == null) return;
-
-            if (!_hiddenSubObjects.ContainsKey(subObject))
-            {
-                _hiddenSubObjects.Add(subObject, true);
-            }
-            else
-            {
-                _hiddenSubObjects[subObject] = true;
-            }
-            _shownSubObjects.Remove(subObject);
-        }
-
-
-        public void ShowSubObject(string subObject)
-        {
-            if (subObject == null) return;
-
-            if (!_shownSubObjects.ContainsKey(subObject))
-            {
-                _shownSubObjects.Add(subObject, false);
-            }
-            _hiddenSubObjects.Remove(subObject);
-        }
-
-        public void ShowSubObjectPermanently(string subObject)
-        {
-            if (subObject == null) return;
-
-            if (!_shownSubObjects.ContainsKey(subObject))
-            {
-                _shownSubObjects.Add(subObject, true);
-            }
-            else
-            {
-                _shownSubObjects[subObject] = true;
-            }
-            _hiddenSubObjects.Remove(subObject);
-        }
-
-        private List<string> _hiddenDrawModules;
-
-        public void HideDrawModule(string module)
-        {
-            if (!_hiddenDrawModules.Contains(module))
-            {
-                _hiddenDrawModules.Add(module);
-            }
-        }
-
-        public void ShowDrawModule(string module)
-        {
-            _hiddenDrawModules.Remove(module);
-        }
+        public BitArray<ModelConditionFlag> ModelConditionFlags => Drawable.ModelConditionFlags;
 
         public RadiusDecalTemplate SelectionDecal;
 
@@ -371,6 +291,8 @@ namespace OpenSage.Logic.Object
         // TODO
         public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
 
+        public readonly Drawable Drawable;
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(
@@ -384,9 +306,6 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
-            _hiddenSubObjects = new Dictionary<string, bool>();
-            _shownSubObjects = new Dictionary<string, bool>();
-            _hiddenDrawModules = new List<string>();
             _upgrades = new List<UpgradeTemplate>();
             _conflictingUpgrades = new List<UpgradeTemplate>();
 
@@ -411,17 +330,7 @@ namespace OpenSage.Logic.Object
             ModelTransform = Transform.CreateIdentity();
             _transform.Scale = Definition.Scale;
 
-            var drawModules = new List<DrawModule>();
-            foreach (var drawData in objectDefinition.Draws.Values)
-            {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(this, gameContext));
-                if (drawModule != null)
-                {
-                    // TODO: This will never be null once we've implemented all the draw modules.
-                    drawModules.Add(drawModule);
-                }
-            }
-            _drawModules = drawModules;
+            Drawable = new Drawable(objectDefinition, gameContext, this);
 
             var behaviors = new List<BehaviorModule>();
 
@@ -470,8 +379,6 @@ namespace OpenSage.Logic.Object
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
-            ModelConditionFlags = new BitArray<ModelConditionFlag>();
-
             _body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
             _tagToModuleLookup.Add(objectDefinition.Body.Tag, _body);
 
@@ -495,12 +402,6 @@ namespace OpenSage.Logic.Object
             }
 
             RoughCollider = Collider.Create(Colliders);
-
-            ModelConditionStates = drawModules
-                .SelectMany(x => x.ModelConditionStates)
-                .Distinct()
-                .OrderBy(x => x.NumBitsSet)
-                .ToList();
 
             IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
             CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
@@ -560,59 +461,7 @@ namespace OpenSage.Logic.Object
             _attributeModifiers[name].Invalid = true;
         }
 
-        // TODO: This probably shouldn't be here.
-        public Matrix4x4? GetWeaponFireFXBoneTransform(WeaponSlot slot, int index)
-        {
-            foreach (var drawModule in _drawModules)
-            {
-                var fireFXBone = drawModule.GetWeaponFireFXBone(slot);
-                if (fireFXBone != null)
-                {
-                    var (modelInstance, bone) = drawModule.FindBone(fireFXBone + (index + 1).ToString("D2"));
-                    if (bone != null)
-                    {
-                        return modelInstance.AbsoluteBoneTransforms[bone.Index];
-                    }
-                    break;
-                }
-            }
-
-            return null;
-        }
-
-        // TODO: This probably shouldn't be here.
-        public Matrix4x4? GetWeaponLaunchBoneTransform(WeaponSlot slot, int index)
-        {
-            foreach (var drawModule in _drawModules)
-            {
-                var fireFXBone = drawModule.GetWeaponLaunchBone(slot);
-                if (fireFXBone != null)
-                {
-                    var (modelInstance, bone) = drawModule.FindBone(fireFXBone + (index + 1).ToString("D2"));
-                    if (bone != null)
-                    {
-                        return modelInstance.AbsoluteBoneTransforms[bone.Index];
-                    }
-                    break;
-                }
-            }
-
-            return null;
-        }
-
-        public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
-        {
-            foreach (var drawModule in _drawModules)
-            {
-                var (modelInstance, bone) = drawModule.FindBone(boneName);
-                if (bone != null)
-                {
-                    return (modelInstance, bone);
-                }
-            }
-
-            return (null, null);
-        }
+        
 
 
         public void ShowCollider(string name)
@@ -961,15 +810,6 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var castsShadow = false;
-            switch (Definition.Shadow)
-            {
-                case ObjectShadowType.ShadowVolume:
-                case ObjectShadowType.ShadowVolumeNew:
-                    castsShadow = true;
-                    break;
-            }
-
             var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
             {
                 HouseColor = Owner.Color.ToVector3(),
@@ -979,25 +819,7 @@ namespace OpenSage.Logic.Object
 
             // This must be done after processing anything that might update this object's transform.
             var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
-            // Update all draw modules
-            foreach (var drawModule in _drawModules)
-            {
-                if (_hiddenDrawModules.Contains(drawModule.Tag))
-                {
-                    continue;
-                }
-
-                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
-                drawModule.Update(gameTime);
-                drawModule.SetWorldMatrix(worldMatrix);
-                drawModule.BuildRenderList(
-                    renderList,
-                    camera,
-                    castsShadow,
-                    renderItemConstantsPS,
-                    _shownSubObjects,
-                    _hiddenSubObjects);
-            }
+            Drawable.BuildRenderList(renderList, camera, gameTime, worldMatrix, renderItemConstantsPS);
 
             if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
             {
@@ -1261,10 +1083,7 @@ namespace OpenSage.Logic.Object
 
         internal void Destroy()
         {
-            foreach (var drawModule in _drawModules)
-            {
-                drawModule.Dispose();
-            }
+            Drawable.Destroy();
             Destroyed = true;
         }
 
@@ -1464,7 +1283,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            foreach (var drawModule in DrawModules)
+            foreach (var drawModule in Drawable.DrawModules)
             {
                 if (ImGui.CollapsingHeader(drawModule.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
                 {

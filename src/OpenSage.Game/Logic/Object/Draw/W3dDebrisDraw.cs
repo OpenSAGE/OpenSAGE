@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
@@ -87,7 +88,7 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<W3dDebrisDrawModuleData> FieldParseTable = new IniParseTable<W3dDebrisDrawModuleData>();
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
             return new W3dDebrisDraw(this, context);
         }

@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var subObject in _moduleData.ShowSubObjects)
                 {
-                    _gameObject.ShowSubObject(subObject);
+                    _gameObject.Drawable.ShowSubObject(subObject);
                 }
             }
 
@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var subObject in _moduleData.HideSubObjects)
                 {
-                    _gameObject.HideSubObject(subObject);
+                    _gameObject.Drawable.HideSubObject(subObject);
                 }
             }
         }

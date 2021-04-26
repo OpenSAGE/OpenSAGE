@@ -39,11 +39,11 @@ namespace OpenSage.Logic.Object
                 var nightWindow = _moduleData.NightWindowName;
                 if (night)
                 {
-                    _gameObject.ShowSubObject(nightWindow);
+                    _gameObject.Drawable.ShowSubObject(nightWindow);
                 }
                 else
                 {
-                    _gameObject.HideSubObject(nightWindow);
+                    _gameObject.Drawable.HideSubObject(nightWindow);
                 }
 
                 _isNight = night;
@@ -54,19 +54,19 @@ namespace OpenSage.Logic.Object
                 var fireWindow = _moduleData.FireWindowName;
                 if (fire)
                 {
-                    _gameObject.ShowSubObject(fireWindow);
+                    _gameObject.Drawable.ShowSubObject(fireWindow);
                     foreach (var fireName in _moduleData.FireNames)
                     {
-                        _gameObject.ShowSubObject(fireName);
+                        _gameObject.Drawable.ShowSubObject(fireName);
                     }
                 }
                 else
                 {
-                    _gameObject.HideSubObject(fireWindow);
+                    _gameObject.Drawable.HideSubObject(fireWindow);
 
                     foreach (var fireName in _moduleData.FireNames)
                     {
-                        _gameObject.HideSubObject(fireName);
+                        _gameObject.Drawable.HideSubObject(fireName);
                     }
                 }
 
@@ -78,11 +78,11 @@ namespace OpenSage.Logic.Object
                 var glowWindow = _moduleData.GlowWindowName;
                 if (glowing)
                 {
-                    _gameObject.ShowSubObject(glowWindow);
+                    _gameObject.Drawable.ShowSubObject(glowWindow);
                 }
                 else
                 {
-                    _gameObject.HideSubObject(glowWindow);
+                    _gameObject.Drawable.HideSubObject(glowWindow);
                 }
 
                 _isGlowing = glowing;

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -22,8 +23,8 @@ namespace OpenSage.Logic.Object
             "TREADSR01",
         };
 
-        internal W3dTankDraw(W3dTankDrawModuleData data, GameObject gameObject, GameContext context)
-            : base(data, gameObject, context)
+        internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameContext context)
+            : base(data, drawable, context)
         {
             _data = data;
             _treadDebrisLeft = data.TreadDebrisLeft?.Value ?? context.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtLeft");
@@ -94,9 +95,9 @@ namespace OpenSage.Logic.Object
         public float TreadDriveSpeedFraction { get; private set; }
         public float TreadPivotSpeedFraction { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return new W3dTankDraw(this, gameObject, context);
+            return new W3dTankDraw(this, drawable, context);
         }
     }
 }

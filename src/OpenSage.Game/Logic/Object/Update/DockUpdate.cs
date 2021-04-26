@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
         private Vector3 GetActionBone()
         {
             // TODO: might also be DOCKSTART or DOCKEND
-            var (actionModelInstance, actionBone) = _gameObject.FindBone($"DOCKACTION");
+            var (actionModelInstance, actionBone) = _gameObject.Drawable.FindBone($"DOCKACTION");
 
             if (actionModelInstance != null && actionBone != null)
             {
@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
         private Vector3 GetDockWaitingBone(int id)
         {
             var identifier = id.ToString("D2");
-            var (modelInstance, bone) = _gameObject.FindBone($"DOCKWAITING{identifier}");
+            var (modelInstance, bone) = _gameObject.Drawable.FindBone($"DOCKWAITING{identifier}");
             return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
         }
 

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -12,8 +11,8 @@ namespace OpenSage.Logic.Object
 
         private readonly (string name, bool affectedBySteering)[] _boneList;
 
-        internal W3dTruckDraw(W3dTruckDrawModuleData data, GameObject gameObject, GameContext context)
-            : base(data, gameObject, context)
+        internal W3dTruckDraw(W3dTruckDrawModuleData data, Drawable drawable, GameContext context)
+            : base(data, drawable, context)
         {
             _data = data;
             _boneList = new[] {
@@ -159,9 +158,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public RandomTexture RandomTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return new W3dTruckDraw(this, gameObject, context);
+            return new W3dTruckDraw(this, drawable, context);
         }
     }
 }

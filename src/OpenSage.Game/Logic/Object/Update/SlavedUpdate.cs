@@ -83,7 +83,7 @@ namespace OpenSage.Logic.Object
                     case RepairStatus.IN_TRANSITION:
                         if (!isMoving)
                         {
-                            var (modelInstance, bone) = _gameObject.FindBone(_moduleData.RepairWeldingFXBone);
+                            var (modelInstance, bone) = _gameObject.Drawable.FindBone(_moduleData.RepairWeldingFXBone);
                             var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
                             _particleTemplate ??= context.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(_moduleData.RepairWeldingSys);
 

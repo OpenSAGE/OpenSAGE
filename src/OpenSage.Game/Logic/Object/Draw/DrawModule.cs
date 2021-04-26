@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
@@ -13,7 +14,8 @@ namespace OpenSage.Logic.Object
     public abstract class DrawModule : DisposableBase
     {
         public abstract string Tag { get; }
-        public GameObject GameObject { get; protected set; }
+        public Drawable Drawable { get; protected set; }
+        public GameObject GameObject => Drawable.GameObject;
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
         // TODO: Probably shouldn't have this here.
@@ -78,6 +80,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(GameObject gameObject, GameContext context) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(Drawable drawable, GameContext context) => null; // TODO: Make this abstract.
     }
 }

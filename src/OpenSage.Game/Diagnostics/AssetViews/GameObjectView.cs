@@ -26,7 +26,7 @@ namespace OpenSage.Diagnostics.AssetViews
                     gameObjects.InsertCreated();
                 }));
 
-            _modelConditionStates = _gameObject.ModelConditionStates.ToList();
+            _modelConditionStates = _gameObject.Drawable.ModelConditionStates.ToList();
             _selectedIndex = 0;
         }
 
@@ -40,7 +40,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
                 if (ImGui.Selectable(modelConditionState.DisplayName, i == _selectedIndex))
                 {
-                    _gameObject.CopyModelConditionFlags(modelConditionState);
+                    _gameObject.Drawable.CopyModelConditionFlags(modelConditionState);
                     _selectedIndex = i;
                 }
             }
