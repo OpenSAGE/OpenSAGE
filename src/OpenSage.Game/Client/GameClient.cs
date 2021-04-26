@@ -35,63 +35,9 @@ namespace OpenSage.Client
                 var objectID = reader.ReadUInt32();
                 var gameObject = _gameLogic.GetObjectById(objectID);
 
-                reader.ReadByte();
+                gameObject.Drawable.Load(reader);
 
-                var drawableID = reader.ReadUInt32();
-
-                reader.ReadByte();
-
-                var numModelConditionFlags = reader.ReadUInt32();
-                for (var j = 0; j < numModelConditionFlags; j++)
-                {
-                    var modelConditionFlag = reader.ReadAsciiString();
-                }
-
-                var transform = reader.ReadMatrix4x3();
-
-                var unknownBool = reader.ReadBoolean();
-                var unknownBool2 = reader.ReadBoolean();
-                if (unknownBool)
-                {
-                    for (var j = 0; j < 9; j++)
-                    {
-                        reader.ReadSingle();
-                    }
-                    reader.__Skip(19);
-                }
-
-                reader.__Skip(56);
-
-                var unknownBool3 = reader.ReadBoolean();
-                if (unknownBool3)
-                {
-                    for (var j = 0; j < 19; j++)
-                    {
-                        reader.ReadSingle();
-                    }
-                }
-
-                reader.__Skip(3);
-
-                var numModules = reader.ReadUInt16();
-                for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
-                {
-                    var moduleTag = reader.ReadAsciiString();
-                    reader.BeginSegment();
-                    // TODO
-                    reader.EndSegment();
-                }
-
-                var numClientUpdates = reader.ReadUInt16();
-                for (var moduleIndex = 0; moduleIndex < numClientUpdates; moduleIndex++)
-                {
-                    var moduleTag = reader.ReadAsciiString();
-                    reader.BeginSegment();
-                    // TODO
-                    reader.EndSegment();
-                }
-
-                reader.__Skip(81);
+                reader.EndSegment();
             }
 
             reader.ReadUInt32();

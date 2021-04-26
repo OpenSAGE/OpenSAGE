@@ -132,7 +132,7 @@ namespace OpenSage.Logic.Object
             debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
 
             // Model
-            var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.DrawModules[0];
+            var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.Drawable.DrawModules[0];
             // TODO
             //var modelName = ModelNames[context.GameContext.Random.Next(ModelNames.Length)];
             var modelName = ModelNames[0];

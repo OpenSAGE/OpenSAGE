@@ -277,13 +277,13 @@ namespace OpenSage.Scripting
 
         public void ObjectSetModelCondition(string gameObject, string modelCondition)
         {
-            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).CopyModelConditionFlags(IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None));
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Drawable.CopyModelConditionFlags(IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None));
         }
 
         public bool ObjectTestModelCondition(string gameObject, string modelCondition)
         {
             var modelConditionBitArray = IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None);
-            var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
+            var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Drawable.ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {
                 if (i == modelConditionBitArray)
@@ -297,7 +297,7 @@ namespace OpenSage.Scripting
         public void ObjectClearModelCondition(string gameObject, string modelCondition)
         {
             var modelConditionBitArray = IniParser.ParseEnumBitArray<ModelConditionFlag>(modelCondition, IniTokenPosition.None);
-            var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).ModelConditionStates;
+            var modelconditionBitArrayEnum = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Drawable.ModelConditionStates;
             foreach (var i in modelconditionBitArrayEnum)
             {
                 if (i == modelConditionBitArray)
@@ -333,12 +333,12 @@ namespace OpenSage.Scripting
 
         public void ObjectHideSubObject(string gameObject, string subObject, string state)
         {
-            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).HideSubObject(subObject);
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Drawable.HideSubObject(subObject);
         }
 
         public void ObjectHideSubObjectPermanently(string gameObject, string subObject, string state)
         {
-            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).HideSubObjectPermanently(subObject);
+            Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Drawable.HideSubObjectPermanently(subObject);
         }
 
         public int ObjectCountNearbyEnemies(string gameObject, string radius)
@@ -448,12 +448,12 @@ namespace OpenSage.Scripting
 
         public string CurDrawableGetPrevAnimationState() => _currentDrawModule.PreviousAnimationState?.StateName ?? "";
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
-        public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.GameObject.ShowSubObject(subObject);
-        public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.GameObject.HideSubObject(subObject);
-        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.ShowSubObjectPermanently(subObject);
-        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.GameObject.HideSubObjectPermanently(subObject);
-        public void CurDrawableShowModule(string module) => _currentDrawModule.GameObject.ShowDrawModule(module);
-        public void CurDrawableHideModule(string module) => _currentDrawModule.GameObject.HideDrawModule(module);
+        public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.Drawable.ShowSubObject(subObject);
+        public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.Drawable.HideSubObject(subObject);
+        public void CurDrawableShowSubObjectPermanently(string subObject) => _currentDrawModule.Drawable.ShowSubObjectPermanently(subObject);
+        public void CurDrawableHideSubObjectPermanently(string subObject) => _currentDrawModule.Drawable.HideSubObjectPermanently(subObject);
+        public void CurDrawableShowModule(string module) => _currentDrawModule.Drawable.ShowDrawModule(module);
+        public void CurDrawableHideModule(string module) => _currentDrawModule.Drawable.HideDrawModule(module);
         public void CurDrawableSetTransitionAnimState(string state) => _currentDrawModule.SetTransitionState(state);
         public bool CurDrawableModelcondition(string conditionString)
         {

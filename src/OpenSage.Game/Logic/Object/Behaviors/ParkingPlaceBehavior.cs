@@ -210,7 +210,7 @@ namespace OpenSage.Logic.Object
 
         public Transform GetBoneTransform(string name)
         {
-            var (_, bone) = _gameObject.FindBone(name);
+            var (_, bone) = _gameObject.Drawable.FindBone(name);
             if (bone == null)
             {
                 throw new InvalidOperationException("Could not find runway start point bone");

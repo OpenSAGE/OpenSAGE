@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
@@ -17,16 +18,16 @@ namespace OpenSage.Logic.Object
     {
         public override string Tag => _moduleData.Tag;
 
-        private readonly GameObject _gameObject;
+        private readonly Drawable _drawable;
         private readonly GameContext _gameContext;
         private readonly ModelInstance _modelInstance;
         private readonly W3dFloorDrawModuleData _moduleData;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
-        internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, GameContext context, GameObject gameObject)
+        internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, GameContext context, Drawable drawable)
         {
-            _gameObject = gameObject;
+            _drawable = drawable;
             _gameContext = context;
             _moduleData = moduleData;
             _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
@@ -42,7 +43,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var hideFlag in _moduleData.HideIfModelConditions)
             {
-                if (_gameObject.ModelConditionFlags.Get(hideFlag))
+                if (_drawable.ModelConditionFlags.Get(hideFlag))
                 {
                     return;
                 }
@@ -111,9 +112,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public WeatherTexture WeatherTexture { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return Model.Value == null ? null : (DrawModule) new W3dFloorDraw(this, context, gameObject);
+            return Model.Value == null ? null : (DrawModule) new W3dFloorDraw(this, context, drawable);
         }
     }
 

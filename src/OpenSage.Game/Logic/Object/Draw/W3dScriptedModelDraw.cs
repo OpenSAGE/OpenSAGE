@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -14,8 +15,9 @@ namespace OpenSage.Logic.Object
 
         internal W3dScriptedModelDraw(
             W3dScriptedModelDrawModuleData data,
-            GameObject gameObject,
-            GameContext context) : base(data, gameObject, context)
+            Drawable drawable,
+            GameContext context)
+            : base(data, drawable, context)
         {
             _context = context;
         }
@@ -104,9 +106,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool RandomTextureFixedRandomIndex { get; private set; }
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return new W3dScriptedModelDraw(this, gameObject, context);
+            return new W3dScriptedModelDraw(this, drawable, context);
         }
     }
 

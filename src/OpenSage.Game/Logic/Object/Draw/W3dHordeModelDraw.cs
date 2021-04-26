@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -10,8 +11,8 @@ namespace OpenSage.Logic.Object
     {
         internal W3dHordeModelDraw(
             W3dHordeModelDrawModuleData data,
-            GameObject gameObject,
-            GameContext context) : base(data, gameObject, context)
+            Drawable drawable,
+            GameContext context) : base(data, drawable, context)
         {
         }
 
@@ -33,9 +34,9 @@ namespace OpenSage.Logic.Object
 
         public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return new W3dHordeModelDraw(this, gameObject, context);
+            return new W3dHordeModelDraw(this, drawable, context);
         }
     }
 

@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
 
         private void TriggerWeaponFireFX()
         {
-            var fireFXTransform = Context.GameObject.GetWeaponFireFXBoneTransform(
+            var fireFXTransform = Context.GameObject.Drawable.GetWeaponFireFXBoneTransform(
                 Context.Weapon.Slot,
                 Context.Weapon.WeaponIndex);
             if (fireFXTransform == null)

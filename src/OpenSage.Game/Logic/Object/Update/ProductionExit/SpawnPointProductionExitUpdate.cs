@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         }
 
         private (ModelInstance, ModelBone) FindBone(int index)
-            => _gameObject.FindBone(_moduleData.SpawnPointBoneName + index.ToString("D2"));
+            => _gameObject.Drawable.FindBone(_moduleData.SpawnPointBoneName + index.ToString("D2"));
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => null;
     }

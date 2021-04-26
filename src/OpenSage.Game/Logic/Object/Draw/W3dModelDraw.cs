@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -66,11 +67,11 @@ namespace OpenSage.Logic.Object
 
         internal W3dModelDraw(
             W3dModelDrawModuleData data,
-            GameObject gameObject,
+            Drawable drawable,
             GameContext context)
         {
             _data = data;
-            GameObject = gameObject;
+            Drawable = drawable;
             _context = context;
 
             _conditionStates = new List<IConditionState>();
@@ -588,9 +589,9 @@ namespace OpenSage.Logic.Object
         }
 
 
-        internal override DrawModule CreateDrawModule(GameObject gameObject, GameContext context)
+        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return new W3dModelDraw(this, gameObject, context);
+            return new W3dModelDraw(this, drawable, context);
         }
     }
 
