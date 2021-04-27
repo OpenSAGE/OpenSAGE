@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -386,6 +388,33 @@ namespace OpenSage.Logic.Object
         internal override void DrawInspector()
         {
             ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            var unknownCount = reader.ReadByte();
+            for (var i = 0; i < unknownCount; i++)
+            {
+                reader.ReadBytes(12);
+            }
+
+            var unknown2 = reader.ReadBooleanChecked();
+            var unknown3 = reader.ReadBooleanChecked();
+            var unknown4 = reader.ReadBooleanChecked();
+            var unknown5 = reader.ReadBooleanChecked();
+
+            if (unknown2 || unknown3 || unknown4 || unknown5)
+            {
+                throw new InvalidDataException();
+            }
         }
     }
 

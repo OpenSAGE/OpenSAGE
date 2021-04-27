@@ -6,7 +6,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class BehaviorModule : DisposableBase
+    public abstract class BehaviorModule : ModuleBase
     {
         internal virtual void Update(BehaviorUpdateContext context) { }
 
@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
 
         internal virtual void DrawInspector() { }
 
-        internal virtual void Load(BinaryReader reader)
+        internal override void Load(BinaryReader reader)
         {
             var version = reader.ReadVersion();
             if (version != 1)
@@ -26,22 +26,16 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            // The following version numbers are probably from 2 extra base classes in the inheritance hierarchy.
-            // Since we don't have that at the moment, just read them here.
+            // The following version number is probably from extra base class in the inheritance hierarchy.
+            // Since we don't have that at the moment, just read it here.
 
-            var extraVersion1 = reader.ReadVersion();
-            if (extraVersion1 != 1)
+            var extraVersion = reader.ReadVersion();
+            if (extraVersion != 1)
             {
                 throw new InvalidDataException();
             }
 
-            var extraVersion2 = reader.ReadVersion();
-            if (extraVersion2 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            //reader.ReadBytes(lengthInBytes - 5);
+            base.Load(reader);
         }
     }
 

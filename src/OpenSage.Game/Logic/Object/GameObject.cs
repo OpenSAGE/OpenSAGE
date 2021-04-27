@@ -26,7 +26,7 @@ using OpenSage.Terrain;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : DisposableBase, IInspectable, ICollidable
+    public sealed class GameObject : Entity, IInspectable, ICollidable
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -102,7 +102,6 @@ namespace OpenSage.Logic.Object
             return gameObject;
         }
 
-        private readonly Dictionary<string, BehaviorModule> _tagToModuleLookup;
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
         public uint ID { get; private set; }
@@ -317,7 +316,6 @@ namespace OpenSage.Logic.Object
 
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
 
-            _tagToModuleLookup = new Dictionary<string, BehaviorModule>();
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
             Owner = owner;
@@ -337,7 +335,7 @@ namespace OpenSage.Logic.Object
             void AddBehavior(string tag, BehaviorModule behavior)
             {
                 behaviors.Add(behavior);
-                _tagToModuleLookup.Add(tag, behavior);
+                AddModule(tag, behavior);
             }
 
             AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper());
@@ -380,12 +378,12 @@ namespace OpenSage.Logic.Object
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
             _body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
-            _tagToModuleLookup.Add(objectDefinition.Body.Tag, _body);
+            AddModule(objectDefinition.Body.Tag, _body);
 
             if (objectDefinition.AIUpdate != null)
             {
                 AIUpdate = AddDisposable(objectDefinition.AIUpdate.CreateAIUpdate(this));
-                _tagToModuleLookup.Add(objectDefinition.AIUpdate.Tag, AIUpdate);
+                AddModule(objectDefinition.AIUpdate.Tag, AIUpdate);
             }
 
             var allGeometries = new List<Geometry>
@@ -1090,11 +1088,6 @@ namespace OpenSage.Logic.Object
         internal void GainExperience(int experience)
         {
             ExperienceValue += (int) (ExperienceMultiplier * experience);
-        }
-
-        internal BehaviorModule GetModuleByTag(string tag)
-        {
-            return _tagToModuleLookup[tag];
         }
 
         internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)
