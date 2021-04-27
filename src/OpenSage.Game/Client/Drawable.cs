@@ -11,7 +11,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Client
 {
-    public sealed class Drawable : DisposableBase
+    public sealed class Drawable : Entity
     {
         private readonly ObjectDefinition _definition;
         private readonly GameContext _gameContext;
@@ -31,6 +31,8 @@ namespace OpenSage.Client
         public IReadOnlyList<DrawModule> DrawModules => _drawModules;
         private readonly List<DrawModule> _drawModules;
 
+        private readonly List<ClientUpdateModule> _clientUpdateModules;
+
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
             _definition = objectDefinition;
@@ -46,6 +48,7 @@ namespace OpenSage.Client
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
+                    AddModule(drawData.Tag, drawModule);
                     drawModules.Add(drawModule);
                 }
             }
@@ -60,6 +63,18 @@ namespace OpenSage.Client
             _hiddenDrawModules = new List<string>();
             _hiddenSubObjects = new Dictionary<string, bool>();
             _shownSubObjects = new Dictionary<string, bool>();
+
+            _clientUpdateModules = new List<ClientUpdateModule>();
+            foreach (var clientUpdateModuleData in objectDefinition.ClientUpdates)
+            {
+                var clientUpdateModule = AddDisposable(clientUpdateModuleData.CreateModule(this, gameContext));
+                if (clientUpdateModule != null)
+                {
+                    // TODO: This will never be null once we've implemented all the draw modules.
+                    AddModule(clientUpdateModuleData.Tag, clientUpdateModule);
+                    _clientUpdateModules.Add(clientUpdateModule);
+                }
+            }
         }
 
         internal void CopyModelConditionFlags(BitArray<ModelConditionFlag> newFlags)
@@ -229,7 +244,7 @@ namespace OpenSage.Client
 
         internal void Load(SaveFileReader reader)
         {
-            reader.ReadVersion(1);
+            reader.ReadVersion(5);
 
             var drawableID = reader.ReadUInt32();
 
@@ -267,12 +282,16 @@ namespace OpenSage.Client
 
             reader.__Skip(3);
 
-            var numModules = reader.ReadUInt16();
-            for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
+            var numDrawModules = reader.ReadUInt16();
+            for (var moduleIndex = 0; moduleIndex < numDrawModules; moduleIndex++)
             {
                 var moduleTag = reader.ReadAsciiString();
+
                 reader.BeginSegment();
-                // TODO
+
+                var module = GetModuleByTag(moduleTag);
+                module.Load(reader.Inner);
+
                 reader.EndSegment();
             }
 
@@ -280,8 +299,12 @@ namespace OpenSage.Client
             for (var moduleIndex = 0; moduleIndex < numClientUpdates; moduleIndex++)
             {
                 var moduleTag = reader.ReadAsciiString();
+
                 reader.BeginSegment();
-                // TODO
+
+                var module = GetModuleByTag(moduleTag);
+                module.Load(reader.Inner);
+
                 reader.EndSegment();
             }
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -11,7 +13,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class DrawModule : DisposableBase
+    public abstract class DrawModule : ModuleBase
     {
         public abstract string Tag { get; }
         public Drawable Drawable { get; protected set; }
@@ -42,6 +44,26 @@ namespace OpenSage.Logic.Object
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 
         internal virtual void DrawInspector() { }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            // The following version number is probably from extra base class in the inheritance hierarchy.
+            // Since we don't have that at the moment, just read it here.
+
+            var extraVersion = reader.ReadVersion();
+            if (extraVersion != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
     }
 
     public abstract class DrawModuleData : ModuleData
