@@ -15,9 +15,11 @@ namespace OpenSage.Logic.Object
         private readonly ToppleUpdateModuleData _moduleData;
 
         private ToppleState _toppleState;
-        private Vector3 _toppleDirection;
+        private float _toppleAcceleration;
         private float _toppleSpeed;
+        private Vector3 _toppleDirection;
         private float _toppleAngle;
+        private uint _stumpId;
 
         internal ToppleUpdate(ToppleUpdateModuleData moduleData)
         {
@@ -103,6 +105,7 @@ namespace OpenSage.Logic.Object
 
             var stump = context.GameContext.GameObjects.Add(_moduleData.StumpName.Value);
             stump.UpdateTransform(context.GameObject.Translation, context.GameObject.Rotation);
+            _stumpId = stump.ID;
         }
 
         private void KillObject(BehaviorUpdateContext context)
@@ -121,16 +124,9 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             _toppleSpeed = reader.ReadSingle();
+            _toppleAcceleration = reader.ReadSingle();
             _toppleDirection = reader.ReadVector3();
-
-            var unknownUint2 = reader.ReadUInt32();
-            if (unknownUint2 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
             _toppleState = reader.ReadUInt32AsEnum<ToppleState>();
-
             _toppleAngle = reader.ReadSingle();
             var unknownFloat6 = reader.ReadSingle();
 
@@ -152,7 +148,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var unknownUint6 = reader.ReadUInt32();
+            _stumpId = reader.ReadUInt32();
         }
 
         private enum ToppleState
