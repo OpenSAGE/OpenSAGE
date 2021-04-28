@@ -7,6 +7,14 @@ namespace OpenSage.Logic.Object
 {
     public sealed class SwayClientUpdate : ClientUpdateModule
     {
+        // TODO: Set this to false when ToppleUpdate starts toppling tree.
+        private bool _isActive;
+
+        internal SwayClientUpdate()
+        {
+            _isActive = true;
+        }
+
         internal override void Load(BinaryReader reader)
         {
             var version = reader.ReadVersion();
@@ -23,7 +31,8 @@ namespace OpenSage.Logic.Object
             var unknownFloat4 = reader.ReadSingle();
             var unknownFloat5 = reader.ReadSingle();
             var unknownShort1 = reader.ReadUInt16();
-            var unknownBool1 = reader.ReadBooleanChecked();
+
+            _isActive = reader.ReadBooleanChecked();
         }
     }
 
