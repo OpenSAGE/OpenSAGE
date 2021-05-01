@@ -16,6 +16,8 @@ namespace OpenSage.Data.Sav
 
         internal static GameState Parse(BinaryReader reader)
         {
+            var version = reader.ReadByte();
+
             return new GameState
             {
                 GameType = reader.ReadUInt32AsEnum<SaveGameType>(),

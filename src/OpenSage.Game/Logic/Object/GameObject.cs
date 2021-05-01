@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             HeightMap heightMap,
             bool useRotationAnchorOffset = true,
             in float? overwriteAngle = 0.0f,
-            IReadOnlyList<Team> teams = null)
+            IReadOnlyList<TeamTemplate> teams = null)
         {
             var gameObject = gameObjects.Add(mapObject.TypeName);
 
@@ -229,7 +229,7 @@ namespace OpenSage.Logic.Object
 
         string IInspectable.Name => "GameObject";
 
-        public Team Team { get; set; }
+        public TeamTemplate Team { get; set; }
 
         public bool IsSelectable { get; set; }
         public bool IsProjectile { get; private set; } = false;

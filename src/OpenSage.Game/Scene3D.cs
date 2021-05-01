@@ -25,7 +25,7 @@ using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
 using Veldrid;
 using Player = OpenSage.Logic.Player;
-using Team = OpenSage.Logic.Team;
+using TeamTemplate = OpenSage.Logic.TeamTemplate;
 
 namespace OpenSage
 {
@@ -84,8 +84,8 @@ namespace OpenSage
 
         public WaterSettings Waters { get; } = new WaterSettings();
 
-        private readonly List<Team> _teams;
-        public IReadOnlyList<Team> Teams => _teams;
+        private readonly List<TeamTemplate> _teams;
+        public IReadOnlyList<TeamTemplate> Teams => _teams;
 
         // TODO: Move these to a World class?
         // TODO: Encapsulate this into a custom collection?
@@ -117,7 +117,7 @@ namespace OpenSage
             LocalPlayer = _players.First();
 
             _teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
-                .Select(team => Team.FromMapData(team, _players))
+                .Select(team => TeamTemplate.FromMapData(team, _players))
                 .ToList();
 
             Audio = game.Audio;
@@ -162,7 +162,7 @@ namespace OpenSage
             HeightMap heightMap,
             MapObject[] mapObjects,
             NamedCameras namedCameras,
-            List<Team> teams,
+            List<TeamTemplate> teams,
             out WaypointCollection waypointCollection,
             out RoadCollection roads,
             out Bridge[] bridges,
@@ -268,7 +268,7 @@ namespace OpenSage
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             _players = new List<Player>();
-            _teams = new List<Team>();
+            _teams = new List<TeamTemplate>();
 
             // TODO: This is completely wrong.
             LocalPlayer = _players.FirstOrDefault();

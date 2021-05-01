@@ -34,6 +34,8 @@ namespace OpenSage.Data.Sav
 
         public ushort ReadUInt16() => _binaryReader.ReadUInt16();
 
+        public int ReadInt32() => _binaryReader.ReadInt32();
+
         public uint ReadUInt32() => _binaryReader.ReadUInt32();
 
         public bool ReadBoolean() => _binaryReader.ReadBooleanChecked();
