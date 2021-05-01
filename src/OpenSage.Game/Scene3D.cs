@@ -25,7 +25,6 @@ using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
 using Veldrid;
 using Player = OpenSage.Logic.Player;
-using TeamTemplate = OpenSage.Logic.TeamTemplate;
 
 namespace OpenSage
 {
@@ -84,9 +83,6 @@ namespace OpenSage
 
         public WaterSettings Waters { get; } = new WaterSettings();
 
-        private readonly List<TeamTemplate> _teams;
-        public IReadOnlyList<TeamTemplate> Teams => _teams;
-
         // TODO: Move these to a World class?
         // TODO: Encapsulate this into a custom collection?
         public IReadOnlyList<Player> Players => _players;
@@ -105,6 +101,8 @@ namespace OpenSage
 
         public readonly Game Game;
 
+        internal readonly TeamFactory TeamFactory;
+
         public GameObject BuildPreviewObject;
 
         internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
@@ -116,9 +114,8 @@ namespace OpenSage
 
             LocalPlayer = _players.First();
 
-            _teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
-                .Select(team => TeamTemplate.FromMapData(team, _players))
-                .ToList();
+            TeamFactory = new TeamFactory();
+            TeamFactory.Initialize(mapFile.SidesList.Teams ?? mapFile.Teams.Items, _players);
 
             Audio = game.Audio;
             AssetLoadContext = game.AssetStore.LoadContext;
@@ -132,7 +129,6 @@ namespace OpenSage
                 Terrain.HeightMap,
                 mapFile.ObjectsList.Objects,
                 MapFile.NamedCameras,
-                _teams,
                 out var waypoints,
                 out var roads,
                 out var bridges,
@@ -162,7 +158,6 @@ namespace OpenSage
             HeightMap heightMap,
             MapObject[] mapObjects,
             NamedCameras namedCameras,
-            List<TeamTemplate> teams,
             out WaypointCollection waypointCollection,
             out RoadCollection roads,
             out Bridge[] bridges,
@@ -188,7 +183,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teams: teams);
+                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teamFactory: TeamFactory);
                                 break;
                         }
                         break;
@@ -268,7 +263,7 @@ namespace OpenSage
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             _players = new List<Player>();
-            _teams = new List<TeamTemplate>();
+            TeamFactory = new TeamFactory();
 
             // TODO: This is completely wrong.
             LocalPlayer = _players.FirstOrDefault();

@@ -12,7 +12,6 @@ using OpenSage.Data.Map;
 using OpenSage.Data.Sav;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
@@ -35,7 +34,7 @@ namespace OpenSage.Logic.Object
             HeightMap heightMap,
             bool useRotationAnchorOffset = true,
             in float? overwriteAngle = 0.0f,
-            IReadOnlyList<TeamTemplate> teams = null)
+            TeamFactory teamFactory = null)
         {
             var gameObject = gameObjects.Add(mapObject.TypeName);
 
@@ -59,7 +58,7 @@ namespace OpenSage.Logic.Object
                 gameObject.Name = (string) objectName.Value;
             }
 
-            if (teams != null)
+            if (teamFactory != null)
             {
                 if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
                 {
@@ -68,7 +67,7 @@ namespace OpenSage.Logic.Object
                     {
                         name = name.Split('/')[1];
                     }
-                    var team = teams.FirstOrDefault(t => t.Name == name);
+                    var team = teamFactory.FindTeamTemplateByName(name);
                     gameObject.Team = team;
                     gameObject.Owner = team?.Owner;
                 }

@@ -11,35 +11,20 @@ namespace OpenSage.Logic
         private string _attackPriorityName;
         private TeamTemplateData _templateData;
 
-        public uint ID;
-        public string Name { get; }
-        public Player Owner { get; }
-        public bool IsSingleton { get; }
+        public readonly uint ID;
+        public readonly string Name;
+        public readonly Player Owner;
+        public readonly bool IsSingleton;
 
-        public TeamTemplate(string name, Player owner, bool isSingleton)
-            : this()
+        public TeamTemplate(uint id, string name, Player owner, bool isSingleton)
         {
+            ID = id;
             Name = name;
             Owner = owner;
             IsSingleton = isSingleton;
-        }
 
-        internal TeamTemplate()
-        {
             // TODO: Read this from map data.
             _templateData = new TeamTemplateData();
-        }
-
-        public static TeamTemplate FromMapData(Data.Map.Team mapTeam, IList<Player> players)
-        {
-            var name = mapTeam.Properties["teamName"].Value as string;
-
-            var ownerName = mapTeam.Properties["teamOwner"].Value as string;
-            var owner = players.FirstOrDefault(player => player.Name == ownerName);
-
-            var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
-
-            return new TeamTemplate(name, owner, isSingleton);
         }
 
         internal void Load(SaveFileReader reader)
