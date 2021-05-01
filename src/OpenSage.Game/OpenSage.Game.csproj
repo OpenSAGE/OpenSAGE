@@ -60,6 +60,18 @@
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('linux'))">linux-x64\glslangValidator</GlslangValidatorPath>
   </PropertyGroup>
 
+<PropertyGroup Condition="'$(GlslangValidatorPath)'=='win-x64\glslangValidator.exe'">
+  <DefineConstants>_WINDOWS_</DefineConstants>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(GlslangValidatorPath)'=='osx-x64\glslangValidator'">
+  <DefineConstants>_MACOSX_</DefineConstants>
+</PropertyGroup>
+ 
+<PropertyGroup Condition="'$(GlslangValidatorPath)'=='linux-x64\glslangValidator'">
+  <DefineConstants>_LINUX_</DefineConstants>
+</PropertyGroup>
+
   <ItemGroup>
     <None Update="Content\Fonts\FontFallbackSettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
