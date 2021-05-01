@@ -308,10 +308,9 @@ namespace OpenSage
             if (mapPath != null)
             {
                 // Change filepath separator from / to \ when not on windows (GetByName() expects windows path)
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
+                #if !_WINDOWS_
                     mapPath = mapPath.Replace("/", "\\");
-                }
+                #endif
                 var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
                 if (mapCache == null)
                 {
