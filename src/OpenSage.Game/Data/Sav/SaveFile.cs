@@ -56,6 +56,7 @@ namespace OpenSage.Data.Sav
                 MapFile map = null;
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
+                TeamFactory teamFactory = null;
 
                 while (!chunkHeader.IsEof)
                 {
@@ -67,7 +68,6 @@ namespace OpenSage.Data.Sav
                     {
                         case "CHUNK_GameState":
                             {
-                                var version = reader.ReadByte();
                                 gameState = GameState.Parse(reader);
                                 // TODO: Start game after parsing players.
                                 break;
@@ -184,15 +184,9 @@ namespace OpenSage.Data.Sav
                         }
 
                         case "CHUNK_TeamFactory":
-                            {
-                                var version = reader.ReadByte();
-                                //var bytes = reader.ReadBytes((int) chunkHeader.DataLength);
-                                //File.WriteAllBytes($"CHUNK_TeamFactory_{gameState.Timestamp.Ticks}", bytes);
-
-                                var teamFactory = new TeamFactory();
-                                teamFactory.Load(reader);
-                                break;
-                            }
+                            teamFactory = new TeamFactory();
+                            teamFactory.Load(new SaveFileReader(reader));
+                            break;
 
                         case "CHUNK_Players":
                             {

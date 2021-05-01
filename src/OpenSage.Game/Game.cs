@@ -698,7 +698,7 @@ namespace OpenSage
                     }
                     else
                     {
-                        var castleBehaviors = new List<(CastleBehavior, Logic.Team)>();
+                        var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
                         foreach (var gameObject in Scene3D.GameObjects.Items)
                         {
                             var team = gameObject.Team;
