@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
@@ -306,6 +307,11 @@ namespace OpenSage
 
             if (mapPath != null)
             {
+                // Change filepath separator from / to \ when not on windows (GetByName() expects windows path)
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    mapPath = mapPath.Replace("/", "\\");
+                }
                 var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
                 if (mapCache == null)
                 {
