@@ -6,95 +6,53 @@ using OpenSage.IO;
 
 namespace OpenSage.Utilities
 {
-    public static class LanguageUtility
+    namespace OpenSage.Utilities
     {
-        private const string DefaultLanguage = "english";
-
-        /// <summary>
-        /// Detect the language for the current installation
-        /// </summary>
-        /// <param name="gameDefinition"></param>
-        /// <param name="rootDirectory"></param>
-        /// <returns>language as string</returns>
-        public static string ReadCurrentLanguage(IGameDefinition gameDefinition, FileSystem fileSystem)
+        public enum GameLanguage
         {
-            if (PlatformUtility.IsWindowsPlatform())
-            {
-                if (gameDefinition.LanguageRegistryKeys != null && gameDefinition.LanguageRegistryKeys.Any())
-                {
-                    if(ReadFromRegistry(gameDefinition.LanguageRegistryKeys, out var language))
-                    {
-                        return language;
-                    }
-                }
-            }
-
-            switch (gameDefinition.Game)
-            {
-                case SageGame.CncGenerals:
-                    return DetectFromFileSystem(fileSystem, "", "Audio", ".big");
-                case SageGame.CncGeneralsZeroHour:
-                    return DetectFromFileSystem(fileSystem, "", "Audio", "ZH.big");
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    return DetectFromFileSystem(fileSystem, "lang", "", "Audio.big");
-                case SageGame.Ra3Uprising:
-                case SageGame.Ra3:
-                    return DetectFromFileSystem(fileSystem, "Data", "", "Audio.big");
-            }
-
-            return DefaultLanguage;
+            Chinese,
+            Dutch,
+            English,
+            French,
+            German,
+            Italian,
+            Norwegian,
+            Polish,
+            Spanish,
+            Swedish
         }
 
-        /// <summary>
-        /// Used to read the installed language version from registry
-        /// </summary>
-        /// <param name="registryKeys"></param>
-        /// <returns>language as string</returns>
-        private static bool ReadFromRegistry(IEnumerable<RegistryKeyPath> registryKeys, out string language)
+        public static class LanguageUtility
         {
-            language = DefaultLanguage;
-            var registryValues = registryKeys.Select(RegistryUtility.GetRegistryValue);
-            foreach (var registryValue in registryValues)
+            private const GameLanguage DefaultLanguage = GameLanguage.English;
+
+            public static GameLanguage ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
             {
-                if (!string.IsNullOrEmpty(registryValue))
+                switch (gameDefinition.Game)
                 {
-                    language = registryValue;
-                    return true;
+                    case SageGame.CncGenerals:
+                    case SageGame.CncGeneralsZeroHour:
+                    case SageGame.Bfme:
+                        return DetectLanguage(rootDirectory);
+                    case SageGame.Bfme2:
+                    case SageGame.Bfme2Rotwk:
+                        return DetectLanguage(Path.Combine(rootDirectory, "lang"));
                 }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Used to identify the language based on the filesystem and an identifier file e.g. AudioEnglish.big
-        /// </summary>
-        /// <param name="rootDirectory"></param>
-        /// <param name="filePrefix"></param>
-        /// <param name="fileSuffix"></param>
-        /// <returns>language as string</returns>
-        private static string DetectFromFileSystem(FileSystem fileSystem, string directory, string filePrefix, string fileSuffix)
-        {
-            if (string.IsNullOrEmpty(filePrefix) && string.IsNullOrEmpty(fileSuffix))
-            {
                 return DefaultLanguage;
             }
 
-            var files = fileSystem.GetFilesInDirectory(directory, $"{filePrefix}*{fileSuffix}") // there's no sense in searching subfolders
-                .Select(x => Path.GetFileName(x.FilePath))
-                .Select(x => string.IsNullOrEmpty(filePrefix) ? x : x[filePrefix.Length..])
-                .Select(x => string.IsNullOrEmpty(fileSuffix) ? x : x[..^fileSuffix.Length]);
-            foreach (var file in files)
+            private static GameLanguage DetectLanguage(string langDirectory)
             {
-                if (file.Length == 0)
+                foreach (GameLanguage lang in Enum.GetValues(typeof(GameLanguage)))
                 {
-                    continue;
+                    if (File.Exists(Path.Combine(langDirectory, lang + ".big")))
+                    {
+                        return lang;
+                    }
                 }
-                return file;
+                return DefaultLanguage;
             }
-            return DefaultLanguage;
         }
     }
+
 }
