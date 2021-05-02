@@ -56,7 +56,6 @@ namespace OpenSage.Data.Sav
                 MapFile map = null;
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
-                TeamFactory teamFactory = null;
 
                 while (!chunkHeader.IsEof)
                 {
@@ -184,8 +183,7 @@ namespace OpenSage.Data.Sav
                         }
 
                         case "CHUNK_TeamFactory":
-                            teamFactory = new TeamFactory();
-                            teamFactory.Load(new SaveFileReader(reader));
+                            game.Scene3D.TeamFactory.Load(new SaveFileReader(reader));
                             break;
 
                         case "CHUNK_Players":

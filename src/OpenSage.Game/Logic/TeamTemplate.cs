@@ -83,21 +83,31 @@ namespace OpenSage.Logic
             var numObjects = reader.ReadUInt16();
             for (var i = 0; i < numObjects; i++)
             {
-                ObjectIds.Add(reader.ReadUInt32());
+                ObjectIds.Add(reader.ReadObjectID());
             }
 
-            var unknown7 = reader.ReadUInt16();
-
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0 && unknown8 != 1)
+            for (var i = 0; i < 2; i++)
             {
-                throw new InvalidDataException();
+                var unknown1 = reader.ReadBoolean();
+                if (unknown1 != false)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
-            var unknown9 = reader.ReadUInt32();
-            if (unknown9 != 0)
+            var unknown2 = reader.ReadBoolean();
+            if (unknown2 != true)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < 5; i++)
+            {
+                var unknown1 = reader.ReadBoolean();
+                if (unknown1 != false)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
             var unknown10 = reader.ReadUInt32();
@@ -107,30 +117,48 @@ namespace OpenSage.Logic
             }
 
             var unknown11 = reader.ReadUInt32();
-            if (unknown11 != 0)
+            if (unknown11 != 0 && unknown11 != ObjectIds.Count)
             {
                 throw new InvalidDataException();
             }
 
-            var unknown12 = reader.ReadUInt16();
+            var unknown12 = reader.ReadUInt32();
             if (unknown12 != 0)
             {
                 throw new InvalidDataException();
             }
 
-            var unknown13 = reader.ReadUInt32();
+            var unknown13 = reader.ReadUInt16();
             if (unknown13 != 16)
             {
                 throw new InvalidDataException();
             }
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < unknown13; i++)
             {
-                var unknown14 = reader.ReadUInt32();
-                if (unknown14 != 0)
+                var unknown19 = reader.ReadBoolean();
+                if (unknown19 != false)
                 {
-                    throw new InvalidDataException();
+                    //throw new InvalidDataException();
                 }
+            }
+
+            var unknown14 = reader.ReadBoolean();
+            if (unknown14 != false)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown15 = reader.ReadBoolean();
+            if (unknown15 != false)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown16 = reader.ReadUInt32();
+            if (unknown16 != 0)
+            {
+                //throw new InvalidDataException();
             }
 
             TeamToTeamRelationships.Load(reader.Inner);
