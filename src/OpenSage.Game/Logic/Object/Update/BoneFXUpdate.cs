@@ -1,8 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class BoneFXUpdate : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     public sealed class BoneFXUpdateModuleData : UpdateModuleData
     {
         internal static BoneFXUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -43,6 +61,11 @@ namespace OpenSage.Logic.Object
         public BoneFXUpdateParticleSystem PristineParticleSystem5 { get; private set; }
 
         public BoneFXUpdateParticleSystem PristineParticleSystem6 { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new BoneFXUpdate();
+        }
     }
 
     public sealed class BoneFXUpdateFXList

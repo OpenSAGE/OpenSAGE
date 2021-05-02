@@ -122,11 +122,7 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            var unknown12 = reader.ReadUInt32();
-            if (unknown12 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var waypointID = reader.ReadUInt32();
 
             var unknown13 = reader.ReadUInt16();
             if (unknown13 != 16)
