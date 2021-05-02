@@ -377,6 +377,8 @@ namespace OpenSage.Scripting
                             CopyScripts(skirmishScripts.PlayerScripts.ScriptLists, skirmishScripts.Players.PlayerNames, "Skirmish" + player.Side, i + 1, appendIndex: true);
                         }
                     }
+
+                    Game.Scene3D.TeamFactory.Initialize(skirmishScripts.Teams.Teams, Game.Scene3D.Players);
                 }
             }
         }

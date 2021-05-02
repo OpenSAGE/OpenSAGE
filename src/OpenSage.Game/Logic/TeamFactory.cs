@@ -15,8 +15,11 @@ namespace OpenSage.Logic
             _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
         }
 
-        public void Initialize(Data.Map.Team[] mapTeams, IList<Player> players)
+        public void Initialize(Data.Map.Team[] mapTeams, IReadOnlyList<Player> players)
         {
+            _teamTemplatesById.Clear();
+            _teamTemplatesByName.Clear();
+
             foreach (var mapTeam in mapTeams)
             {
                 var name = mapTeam.Properties["teamName"].Value as string;
