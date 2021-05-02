@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
@@ -70,6 +72,19 @@ namespace OpenSage.Logic.Object
             }
 
             base.Update(context);
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 4)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
         }
 
         private enum MissileState

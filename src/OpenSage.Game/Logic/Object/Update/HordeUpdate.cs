@@ -1,7 +1,25 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class HordeUpdate : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Hardcoded to apply the following textures to objects that are affected by this module: 
     /// EXHorde, EXHorde_UP, EXHordeB, EXHordeB_UP.
@@ -30,5 +48,10 @@ namespace OpenSage.Logic.Object
         public bool ExactMatch { get; private set; }
         public int Count { get; private set; }
         public WeaponBonusType Action { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new HordeUpdate();
+        }
     }
 }
