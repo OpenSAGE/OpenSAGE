@@ -354,9 +354,10 @@ namespace OpenSage.Logic.Object
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
             AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
 
-            foreach (var behaviorData in objectDefinition.Behaviors.Values)
+            foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
             {
-                var module = AddDisposable(behaviorData.CreateModule(this, gameContext));
+                var behaviorModuleData = (BehaviorModuleData) behaviorDataContainer.Data;
+                var module = AddDisposable(behaviorModuleData.CreateModule(this, gameContext));
 
                 // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
@@ -367,7 +368,7 @@ namespace OpenSage.Logic.Object
                     }
                     else
                     {
-                        AddBehavior(behaviorData.Tag, module);
+                        AddBehavior(behaviorDataContainer.Tag, module);
                     }
                 }
             }
@@ -376,13 +377,13 @@ namespace OpenSage.Logic.Object
 
             ProductionUpdate = FindBehavior<ProductionUpdate>();
 
-            _body = AddDisposable(objectDefinition.Body.CreateBodyModule(this));
+            _body = AddDisposable(((BodyModuleData) objectDefinition.Body.Data).CreateBodyModule(this));
             AddModule(objectDefinition.Body.Tag, _body);
 
             if (objectDefinition.AIUpdate != null)
             {
-                AIUpdate = AddDisposable(objectDefinition.AIUpdate.CreateAIUpdate(this));
-                AddModule(objectDefinition.AIUpdate.Tag, AIUpdate);
+                AIUpdate = AddDisposable(((AIUpdateModuleData) objectDefinition.AIUpdate.Value.Data).CreateAIUpdate(this));
+                AddModule(objectDefinition.AIUpdate.Value.Tag, AIUpdate);
             }
 
             var allGeometries = new List<Geometry>

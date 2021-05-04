@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class BehaviorModuleData : ModuleData
     {
-        internal static BehaviorModuleData ParseBehavior(IniParser parser) => ParseModule(parser, BehaviorParseTable);
+        internal static ModuleDataContainer ParseBehavior(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, BehaviorParseTable, inheritanceMode);
 
         private static readonly Dictionary<string, Func<IniParser, BehaviorModuleData>> BehaviorParseTable = new Dictionary<string, Func<IniParser, BehaviorModuleData>>
         {

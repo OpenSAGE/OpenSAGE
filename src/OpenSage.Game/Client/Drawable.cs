@@ -42,13 +42,14 @@ namespace OpenSage.Client
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
             var drawModules = new List<DrawModule>();
-            foreach (var drawData in objectDefinition.Draws.Values)
+            foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(this, gameContext));
+                var drawModuleData = (DrawModuleData) drawDataContainer.Data;
+                var drawModule = AddDisposable(drawModuleData.CreateDrawModule(this, gameContext));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(drawData.Tag, drawModule);
+                    AddModule(drawDataContainer.Tag, drawModule);
                     drawModules.Add(drawModule);
                 }
             }
@@ -65,13 +66,14 @@ namespace OpenSage.Client
             _shownSubObjects = new Dictionary<string, bool>();
 
             _clientUpdateModules = new List<ClientUpdateModule>();
-            foreach (var clientUpdateModuleData in objectDefinition.ClientUpdates)
+            foreach (var clientUpdateModuleDataContainer in objectDefinition.ClientUpdates.Values)
             {
+                var clientUpdateModuleData = (ClientUpdateModuleData) clientUpdateModuleDataContainer.Data;
                 var clientUpdateModule = AddDisposable(clientUpdateModuleData.CreateModule(this, gameContext));
                 if (clientUpdateModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(clientUpdateModuleData.Tag, clientUpdateModule);
+                    AddModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                     _clientUpdateModules.Add(clientUpdateModule);
                 }
             }

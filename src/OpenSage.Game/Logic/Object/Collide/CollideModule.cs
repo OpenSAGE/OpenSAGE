@@ -19,5 +19,6 @@ namespace OpenSage.Logic.Object
 
     public abstract class CollideModuleData : BehaviorModuleData
     {
+        public override ModuleKind ModuleKind => ModuleKind.Collide;
     }
 }

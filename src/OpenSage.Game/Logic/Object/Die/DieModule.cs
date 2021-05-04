@@ -21,6 +21,8 @@ namespace OpenSage.Logic.Object
 
     public abstract class DieModuleData : BehaviorModuleData
     {
+        public override ModuleKind ModuleKind => ModuleKind.Die;
+
         internal static readonly IniParseTable<DieModuleData> FieldParseTable = new IniParseTable<DieModuleData>
         {
             { "VeterancyLevels", (parser, x) => x.VeterancyLevels = parser.ParseEnumBitArray<VeterancyLevel>() },

@@ -23,7 +23,9 @@ namespace OpenSage.Logic.Object
 
     public abstract class ClientUpdateModuleData : ModuleData
     {
-        internal static ClientUpdateModuleData ParseClientUpdate(IniParser parser) => ParseModule(parser, ClientUpdateParseTable);
+        public override ModuleKind ModuleKind => ModuleKind.ClientUpdate;
+
+        internal static ModuleDataContainer ParseClientUpdate(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, ClientUpdateParseTable, inheritanceMode);
 
         private static readonly Dictionary<string, Func<IniParser, ClientUpdateModuleData>> ClientUpdateParseTable = new Dictionary<string, Func<IniParser, ClientUpdateModuleData>>
         {

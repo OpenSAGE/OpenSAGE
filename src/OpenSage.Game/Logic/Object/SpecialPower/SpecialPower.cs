@@ -28,6 +28,8 @@ namespace OpenSage.Logic.Object
 
     public class SpecialPowerModuleData : BehaviorModuleData
     {
+        public override ModuleKind ModuleKind => ModuleKind.SpecialPower;
+
         internal static SpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         internal static readonly IniParseTable<SpecialPowerModuleData> FieldParseTable = new IniParseTable<SpecialPowerModuleData>

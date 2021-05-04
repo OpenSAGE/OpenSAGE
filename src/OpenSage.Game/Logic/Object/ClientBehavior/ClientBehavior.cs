@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public abstract class ClientBehaviorModuleData : BehaviorModuleData
     {
-        internal static ClientBehaviorModuleData ParseClientBehavior(IniParser parser) => ParseModule(parser, ClientBehaviorParseTable);
+        internal static ModuleDataContainer ParseClientBehavior(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, ClientBehaviorParseTable, inheritanceMode);
 
         private static readonly Dictionary<string, Func<IniParser, ClientBehaviorModuleData>> ClientBehaviorParseTable = new Dictionary<string, Func<IniParser, ClientBehaviorModuleData>>
         {

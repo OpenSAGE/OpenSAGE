@@ -13,8 +13,6 @@ namespace OpenSage.Logic.Object
 {
     public sealed class W3dDebrisDraw : DrawModule
     {
-        public override string Tag => _data.Tag;
-
         private readonly W3dDebrisDrawModuleData _data;
         private readonly GameContext _gameContext;
         private ModelInstance _modelInstance;

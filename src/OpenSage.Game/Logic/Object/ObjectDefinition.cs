@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
@@ -17,7 +19,7 @@ namespace OpenSage.Logic.Object
         {
             // This will be null if the thing we're parsing *is* the DefaultThingTemplate
             var defaultThingTemplate = parser.GetDefaultThingTemplate();
-            var resultObject = defaultThingTemplate?.CloneForImplicitInheritance();
+            var resultObject = defaultThingTemplate?.Clone();
 
             resultObject = parser.ParseNamedBlock(
                 (x, name) => x.SetNameAndInstanceId("GameObject", name),
@@ -31,7 +33,7 @@ namespace OpenSage.Logic.Object
         {
             var name = parser.ParseIdentifier();
 
-            var reskinClone = parser.ParseObjectReference().Value.CloneForExplicitInheritance();
+            var reskinClone = parser.ParseObjectReference().Value.Clone();
 
             var result = parser.ParseBlock(FieldParseTable, resultObject: reskinClone);
 
@@ -44,7 +46,7 @@ namespace OpenSage.Logic.Object
         {
             var name = parser.ParseIdentifier();
 
-            var parentClone = parser.ParseObjectReference().Value.CloneForExplicitInheritance();
+            var parentClone = parser.ParseObjectReference().Value.Clone();
 
             var result = parser.ParseBlock(FieldParseTable, resultObject: parentClone);
 
@@ -258,28 +260,22 @@ namespace OpenSage.Logic.Object
                 "Behavior",
                 (parser, x) =>
                 {
-                    var behavior = BehaviorModuleData.ParseBehavior(parser);
-                    var aiUpdate = behavior as AIUpdateModuleData;
-
-                    if (aiUpdate != null)
+                    var behavior = BehaviorModuleData.ParseBehavior(parser, x._currentInheritanceMode);
+                    if (behavior.Data is AIUpdateModuleData)
                     {
-                        x.AIUpdate = aiUpdate;
-                    }
-                    else if (x.Behaviors.ContainsKey(behavior.Tag))
-                    {
-                        x.Behaviors[behavior.Tag] = behavior;
+                        x.AIUpdate = behavior;
                     }
                     else
                     {
-                        x.Behaviors.Add(behavior.Tag, behavior);
+                        AddModuleData(x.Behaviors, behavior);
                     }
                 }
             },
 
-            { "Draw", (parser, x) => { var draw = DrawModuleData.ParseDrawModule(parser); x.Draws[draw.Tag] = draw; } },
-            { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
-            { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
-            { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
+            { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser, x._currentInheritanceMode) },
+            { "Draw", (parser, x) => AddModuleData(x.Draws, DrawModuleData.ParseDrawModule(parser, x._currentInheritanceMode)) },
+            { "ClientUpdate", (parser, x) => AddModuleData(x.ClientUpdates, ClientUpdateModuleData.ParseClientUpdate(parser, x._currentInheritanceMode)) },
+            { "ClientBehavior", (parser, x) => AddModuleData(x.ClientBehaviors, ClientBehaviorModuleData.ParseClientBehavior(parser, x._currentInheritanceMode)) },
 
             { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetType>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
             { "LocomotorSet", (parser, x) => x.LocomotorSets.Add(LocomotorSet.Parse(parser)) },
@@ -322,12 +318,12 @@ namespace OpenSage.Logic.Object
 
             { "ExperienceScalarTable", (parser, x) => x.ExperienceScalarTable = parser.ParseAssetReference() },
 
-            { "InheritableModule", (parser, x) => x.InheritableModules.Add(InheritableModule.Parse(parser)) },
-            { "OverrideableByLikeKind", (parser, x) => x.OverrideableByLikeKinds.Add(OverrideableByLikeKind.Parse(parser)) },
+            { "InheritableModule", (parser, x) => x.ParseModuleWithInheritanceMode(parser, ModuleInheritanceMode.AlwaysInherit) },
+            { "OverrideableByLikeKind", (parser, x) => x.ParseModuleWithInheritanceMode(parser, ModuleInheritanceMode.OverrideableByLikeKind) },
 
-            { "RemoveModule", (parser, x) => x.RemoveModules.Add(parser.ParseIdentifier()) },
-            { "AddModule", (parser, x) => x.AddModules.Add(AddModule.Parse(parser)) },
-            { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
+            { "RemoveModule", (parser, x) => x.ParseRemoveModule(parser) },
+            { "AddModule", (parser, x) => x.ParseAddModule(parser) },
+            { "ReplaceModule", (parser, x) => x.ParseReplaceModule(parser) },
 
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
@@ -425,6 +421,50 @@ namespace OpenSage.Logic.Object
             { "EvaEventDetectedAlly", (parser, x) => x.EvaEventDetectedAlly = parser.ParseAssetReference() },
             { "EvaEventDetectedOwner", (parser, x) => x.EvaEventDetectedOwner = parser.ParseAssetReference() },
         };
+
+        private ModuleInheritanceMode _currentInheritanceMode = ModuleInheritanceMode.Default;
+
+        private void ParseModuleWithInheritanceMode(IniParser parser, ModuleInheritanceMode inheritanceMode)
+        {
+            var existingInheritanceMode = _currentInheritanceMode;
+            _currentInheritanceMode = inheritanceMode;
+            parser.ParseBlock<ObjectDefinition>(FieldParseTable, this);
+            _currentInheritanceMode = existingInheritanceMode;
+        }
+
+        private void ParseRemoveModule(IniParser parser)
+        {
+            var tag = parser.ParseIdentifier();
+
+            RemoveModule(tag);
+        }
+
+        private void RemoveModule(string tag)
+        {
+            var removed = Behaviors.Remove(tag) || Draws.Remove(tag) || ClientUpdates.Remove(tag);
+
+            if (!removed)
+            {
+                throw new InvalidOperationException($"Could not remove module '{tag}' because it could not be found");
+            }
+        }
+
+        private void ParseAddModule(IniParser parser)
+        {
+            // We don't care about the name
+            parser.GetNextTokenOptional();
+
+            parser.ParseBlock(FieldParseTable, this);
+        }
+
+        private void ParseReplaceModule(IniParser parser)
+        {
+            var tag = parser.ParseIdentifier();
+
+            RemoveModule(tag);
+
+            parser.ParseBlock(FieldParseTable, this);
+        }
 
         // Art
         public int PlacementViewAngle { get; private set; }
@@ -837,11 +877,14 @@ namespace OpenSage.Logic.Object
         public int CampnessValueRadius { get; private set; }
 
         // Engineering
-        public AIUpdateModuleData AIUpdate { get; private set; }
-        public Dictionary<string, BehaviorModuleData> Behaviors { get; internal set; } = new Dictionary<string, BehaviorModuleData>();
-        public Dictionary<string, DrawModuleData> Draws { get; internal set; } = new Dictionary<string, DrawModuleData>();
-        public BodyModuleData Body { get; private set; }
-        public List<ClientUpdateModuleData> ClientUpdates { get; internal set; } = new List<ClientUpdateModuleData>();
+        public Dictionary<string, ModuleDataContainer> Behaviors { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
+        public Dictionary<string, ModuleDataContainer> Draws { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
+        public Dictionary<string, ModuleDataContainer> ClientUpdates { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
+        [AddedIn(SageGame.Bfme)]
+        public Dictionary<string, ModuleDataContainer> ClientBehaviors { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
+
+        public ModuleDataContainer Body { get; internal set; }
+        public ModuleDataContainer? AIUpdate { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
         public List<LocomotorSet> LocomotorSets { get; internal set; } = new List<LocomotorSet>();
@@ -893,19 +936,8 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string ExperienceScalarTable { get; private set; }
 
-        public List<InheritableModule> InheritableModules { get; private set; } = new List<InheritableModule>();
-        public List<OverrideableByLikeKind> OverrideableByLikeKinds { get; } = new List<OverrideableByLikeKind>();
-
-        // Map.ini module modifications
-        public List<string> RemoveModules { get; } = new List<string>();
-        public List<AddModule> AddModules { get; } = new List<AddModule>();
-        public List<ReplaceModule> ReplaceModules { get; } = new List<ReplaceModule>();
-
         [AddedIn(SageGame.Bfme)]
         public float ThreatLevel { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public ClientBehaviorModuleData ClientBehavior { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string ThingClass { get; private set; }
@@ -1195,7 +1227,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public string EvaEventDetectedOwner { get; private set; }
 
-        internal ObjectDefinition CloneForImplicitInheritance()
+        internal ObjectDefinition Clone()
         {
             var result = (ObjectDefinition) MemberwiseClone();
 
@@ -1208,42 +1240,30 @@ namespace OpenSage.Logic.Object
             result.OtherGeometries = new List<Geometry>(result.OtherGeometries);
             result.AttackContactPoints = new List<ContactPoint>(result.AttackContactPoints);
             result.GeometryContactPoints = new List<ContactPoint>(result.GeometryContactPoints);
-            result.Behaviors = new Dictionary<string, BehaviorModuleData>();
-            result.Draws = new Dictionary<string, DrawModuleData>();
-            result.ClientUpdates = new List<ClientUpdateModuleData>();
+            result.Behaviors = new Dictionary<string, ModuleDataContainer>(result.Behaviors);
+            result.Draws = new Dictionary<string, ModuleDataContainer>(result.Draws);
+            result.ClientUpdates = new Dictionary<string, ModuleDataContainer>(result.ClientUpdates);
+            result.ClientBehaviors = new Dictionary<string, ModuleDataContainer>(result.ClientBehaviors);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
             result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
 
-            foreach (var inheritableModule in result.InheritableModules)
+            foreach (var pair in result.Behaviors.ToList())
             {
-                result.Behaviors.Add(inheritableModule.Module.Tag, inheritableModule.Module);
+                result.Behaviors[pair.Key] = pair.Value.WithInherited();
             }
-
-            result.InheritableModules = null;
-
-            return result;
-        }
-
-        internal ObjectDefinition CloneForExplicitInheritance()
-        {
-            var result = (ObjectDefinition) MemberwiseClone();
-
-            // TODO: Clone any other lists.
-
-            result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
-            result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
-            result.Geometry = result.Geometry.Clone();
-            result.AdditionalGeometries = new List<Geometry>(result.AdditionalGeometries);
-            result.OtherGeometries = new List<Geometry>(result.OtherGeometries);
-            result.AttackContactPoints = new List<ContactPoint>(result.AttackContactPoints);
-            result.GeometryContactPoints = new List<ContactPoint>(result.GeometryContactPoints);
-            result.Behaviors = new Dictionary<string, BehaviorModuleData>(result.Behaviors);
-            result.Draws = new Dictionary<string, DrawModuleData>(result.Draws);
-            result.ClientUpdates = new List<ClientUpdateModuleData>(result.ClientUpdates);
-            result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
-            result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
-            result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
+            foreach (var pair in result.Draws.ToList())
+            {
+                result.Draws[pair.Key] = pair.Value.WithInherited();
+            }
+            foreach (var pair in result.ClientUpdates.ToList())
+            {
+                result.ClientUpdates[pair.Key] = pair.Value.WithInherited();
+            }
+            foreach (var pair in result.ClientBehaviors.ToList())
+            {
+                result.ClientBehaviors[pair.Key] = pair.Value.WithInherited();
+            }
 
             return result;
         }
@@ -1268,6 +1288,46 @@ namespace OpenSage.Logic.Object
             var geometry = Geometry.Parse(parser);
             OtherGeometries.Add(geometry);
             CurrentGeometry = geometry;
+        }
+
+        internal static void AddModuleData(Dictionary<string, ModuleDataContainer> modules, ModuleDataContainer module)
+        {
+            var behaviorsToRemove = new List<ModuleDataContainer>();
+            foreach (var existingBehavior in modules.Values)
+            {
+                // If this module was inherited from the default thing template, handle inheritance rules.
+                if (existingBehavior.Inherited)
+                {
+                    switch (existingBehavior.InheritanceMode)
+                    {
+                        case ModuleInheritanceMode.Default:
+                            if (existingBehavior.Data.ModuleKind == module.Data.ModuleKind)
+                            {
+                                behaviorsToRemove.Add(existingBehavior);
+                            }
+                            break;
+
+                        case ModuleInheritanceMode.AlwaysInherit:
+                            break;
+
+                        case ModuleInheritanceMode.OverrideableByLikeKind:
+                            if (existingBehavior.Data.GetType() == module.Data.GetType())
+                            {
+                                behaviorsToRemove.Add(existingBehavior);
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+            }
+            foreach (var behaviorToRemove in behaviorsToRemove)
+            {
+                modules.Remove(behaviorToRemove.Tag);
+            }
+
+            modules[module.Tag] = module;
         }
     }
 
@@ -1317,61 +1377,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Only_By_AI")]
         OnlyByAI
-    }
-
-    public sealed class AddModule : ObjectDefinition
-    {
-        internal static new AddModule Parse(IniParser parser)
-        {
-            var name = parser.GetNextTokenOptional();
-
-            var result = parser.ParseBlock(FieldParseTable);
-
-            result.SetNameAndInstanceId("GameObject", name?.Text);
-
-            return result;
-        }
-
-        private static new readonly IniParseTable<AddModule> FieldParseTable = ObjectDefinition.FieldParseTable
-            .Concat(new IniParseTable<AddModule>());
-    }
-
-    public sealed class ReplaceModule
-    {
-        internal static ReplaceModule Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
-        }
-
-        private static readonly IniParseTable<ReplaceModule> FieldParseTable = new IniParseTable<ReplaceModule>
-        {
-            { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
-            { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
-            { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
-            { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
-            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorTemplateSet.Parse(parser) },
-            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
-            { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
-            { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
-        };
-
-        public string Name { get; private set; }
-
-        public ModuleData Module { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public ArmorTemplateSet ArmorSet { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public LocomotorSet LocomotorSet { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public int CrushableLevel { get; private set; }
-
-        [AddedIn(SageGame.Bfme2Rotwk)]
-        public int CrusherLevel { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

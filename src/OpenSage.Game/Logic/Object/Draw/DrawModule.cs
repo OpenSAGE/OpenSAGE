@@ -15,7 +15,6 @@ namespace OpenSage.Logic.Object
 {
     public abstract class DrawModule : ModuleBase
     {
-        public abstract string Tag { get; }
         public Drawable Drawable { get; protected set; }
         public GameObject GameObject => Drawable.GameObject;
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
@@ -68,7 +67,9 @@ namespace OpenSage.Logic.Object
 
     public abstract class DrawModuleData : ModuleData
     {
-        internal static DrawModuleData ParseDrawModule(IniParser parser) => ParseModule(parser, DrawModuleParseTable);
+        public override ModuleKind ModuleKind => ModuleKind.Draw;
+
+        internal static ModuleDataContainer ParseDrawModule(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, DrawModuleParseTable, inheritanceMode);
 
         internal static readonly Dictionary<string, Func<IniParser, DrawModuleData>> DrawModuleParseTable = new Dictionary<string, Func<IniParser, DrawModuleData>>
         {

@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
             }
 
             // e.g. a enqueued upgrade (mig armor) has no AIUpdate
-            var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition?.AIUpdate)?.NeedsRunway ?? false);
+            var numInQueue = productionQueue.Count(job => ((JetAIUpdateModuleData)job.ObjectDefinition?.AIUpdate?.Data)?.NeedsRunway ?? false);
             var slotsAvailable = _parkingSlots.Count(_ => _ == null);
             return slotsAvailable > numInQueue;
         }
