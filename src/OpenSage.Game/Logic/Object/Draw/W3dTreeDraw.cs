@@ -16,8 +16,6 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class W3dTreeDraw : DrawModule
     {
-        public override string Tag => _moduleData.Tag;
-
         private readonly GameContext _gameContext;
         private ModelInstance _modelInstance;
         private readonly W3dTreeDrawModuleData _moduleData;

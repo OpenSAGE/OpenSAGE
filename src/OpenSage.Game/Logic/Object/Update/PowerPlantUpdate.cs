@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class PowerPlantUpdate : UpdateModule
     {
-        // TODO
+        private bool _rodsExtended;
 
         internal override void Load(BinaryReader reader)
         {
@@ -19,11 +19,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadByte();
-            if (unknown != 0)
-            {
-                throw new InvalidDataException();
-            }
+            _rodsExtended = reader.ReadBooleanChecked();
         }
     }
 

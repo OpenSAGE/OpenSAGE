@@ -13,6 +13,7 @@ namespace OpenSage
 
         protected void AddModule(string tag, ModuleBase module)
         {
+            module.Tag = tag;
             _tagToModuleLookup.Add(tag, module);
         }
 

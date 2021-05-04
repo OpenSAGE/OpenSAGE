@@ -19,5 +19,6 @@ namespace OpenSage.Logic.Object
 
     public abstract class DamageModuleData : ContainModuleData
     {
+        public override ModuleKind ModuleKind => ModuleKind.Damage;
     }
 }

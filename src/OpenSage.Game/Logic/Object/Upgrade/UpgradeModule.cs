@@ -96,6 +96,8 @@ namespace OpenSage.Logic.Object
 
     public abstract class UpgradeModuleData : BehaviorModuleData
     {
+        public override ModuleKind ModuleKind => ModuleKind.Upgrade;
+
         internal static readonly IniParseTable<UpgradeModuleData> FieldParseTable = new IniParseTable<UpgradeModuleData>
         {
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseUpgradeReferenceArray() },
