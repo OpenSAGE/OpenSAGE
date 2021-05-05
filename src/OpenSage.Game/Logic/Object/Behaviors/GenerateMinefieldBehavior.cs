@@ -1,7 +1,25 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class GenerateMinefieldBehavior : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     public sealed class GenerateMinefieldBehaviorModuleData : UpdateModuleData
     {
         internal static GenerateMinefieldBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -38,5 +56,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string UpgradedMineName { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new GenerateMinefieldBehavior();
+        }
     }
 }

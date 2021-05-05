@@ -1,8 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class GarrisonContain : OpenContainModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object 
     /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
@@ -35,6 +53,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter PassengerFilter { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new GarrisonContain();
+        }
     }
 
     public sealed class InitialRoster

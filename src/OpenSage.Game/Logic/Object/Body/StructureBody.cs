@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
             var unknown = reader.ReadUInt32();
             if (unknown != 0)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
         }
     }

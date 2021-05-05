@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    internal sealed class AutoDepositUpdate : BehaviorModule
+    internal sealed class AutoDepositUpdate : UpdateModule
     {
         GameObject _gameObject;
         AutoDepositUpdateModuleData _moduleData;
@@ -32,6 +34,19 @@ namespace OpenSage.Logic.Object
             {
                 _gameObject.GainExperience((int)amount);
             }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
         }
     }
 

@@ -3,12 +3,11 @@ using System.IO;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
-using OpenSage.Diagnostics.Util;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PhysicsBehavior : UpdateModule
+    public class PhysicsBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly PhysicsBehaviorModuleData _moduleData;
@@ -115,11 +114,11 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class PhysicsBehaviorModuleData : UpdateModuleData
+    public class PhysicsBehaviorModuleData : UpdateModuleData
     {
         internal static PhysicsBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PhysicsBehaviorModuleData> FieldParseTable = new IniParseTable<PhysicsBehaviorModuleData>
+        internal static readonly IniParseTable<PhysicsBehaviorModuleData> FieldParseTable = new IniParseTable<PhysicsBehaviorModuleData>
         {
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
             { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = parser.ParseFloat() },

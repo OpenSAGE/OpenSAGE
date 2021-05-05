@@ -35,6 +35,10 @@ namespace OpenSage.Logic
             _objectDefinitionLookupTable.Load(reader);
 
             var gameObjectsCount = reader.ReadUInt32();
+
+            _objects.Clear();
+            _objects.Capacity = (int)gameObjectsCount;
+
             for (var i = 0; i < gameObjectsCount; i++)
             {
                 var objectDefinitionId = reader.ReadUInt16();

@@ -362,14 +362,13 @@ namespace OpenSage.Logic.Object
                 // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
                 {
-                    if (module is CreateModule)
+                    if (module is CreateModule createModule)
                     {
-                        ((CreateModule) module).Execute(_behaviorUpdateContext);
+                        createModule.Execute(_behaviorUpdateContext);
                     }
-                    else
-                    {
-                        AddBehavior(behaviorDataContainer.Tag, module);
-                    }
+
+                    AddBehavior(behaviorDataContainer.Tag, module);
+                }
                 }
             }
 

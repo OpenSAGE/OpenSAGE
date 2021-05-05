@@ -1,7 +1,23 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class CrushDie : DieModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Allows for the use of the FRONTCRUSHED and BACKCRUSHED condition states.
     /// </summary>
@@ -26,5 +42,10 @@ namespace OpenSage.Logic.Object
         public int TotalCrushSoundPercent { get; private set; }
         public int BackEndCrushSoundPercent { get; private set; }
         public int FrontEndCrushSoundPercent { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CrushDie();
+        }
     }
 }

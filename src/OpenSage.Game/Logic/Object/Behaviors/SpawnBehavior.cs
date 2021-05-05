@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -71,6 +73,19 @@ namespace OpenSage.Logic.Object
             }
 
             // TODO: respawn killed/dead units
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
         }
     }
 

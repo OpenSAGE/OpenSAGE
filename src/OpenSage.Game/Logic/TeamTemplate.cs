@@ -66,6 +66,7 @@ namespace OpenSage.Logic
     {
         public uint ID;
         public List<uint> ObjectIds = new List<uint>();
+        public uint TargetObjectID;
 
         public readonly PlayerRelationships TeamToTeamRelationships = new PlayerRelationships();
         public readonly PlayerRelationships TeamToPlayerRelationships = new PlayerRelationships();
@@ -151,11 +152,7 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            var unknown16 = reader.ReadUInt32();
-            if (unknown16 != 0)
-            {
-                //throw new InvalidDataException();
-            }
+            TargetObjectID = reader.ReadObjectID();
 
             TeamToTeamRelationships.Load(reader.Inner);
             TeamToPlayerRelationships.Load(reader.Inner);

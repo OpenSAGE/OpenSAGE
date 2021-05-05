@@ -1,8 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class CashHackSpecialPower : SpecialPowerModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Allows you to steal money from an enemy supply center. The special power specified in
     /// <see cref="SpecialPowerTemplate"/> must use the <see cref="SpecialPowerType.CashHack"/> type.
@@ -24,6 +40,11 @@ namespace OpenSage.Logic.Object
         /// Amount of money to steal.
         /// </summary>
         public int MoneyAmount { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CashHackSpecialPower();
+        }
     }
 
     public sealed class CashHackSpecialPowerUpgrade

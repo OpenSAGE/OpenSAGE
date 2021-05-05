@@ -1,17 +1,40 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class RailroadBehavior : PhysicsBehavior
+    {
+        internal RailroadBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
+            : base(gameObject, context, moduleData)
+        {
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Requires object to follow waypoint path named with Tunnel, Disembark or Station with "Start"
     /// and "End" convention.
     /// </summary>
-    public sealed class RailroadBehaviorModuleData : BehaviorModuleData
+    public sealed class RailroadBehaviorModuleData : PhysicsBehaviorModuleData
     {
-        internal static RailroadBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static RailroadBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<RailroadBehaviorModuleData> FieldParseTable = new IniParseTable<RailroadBehaviorModuleData>
+        private new static readonly IniParseTable<RailroadBehaviorModuleData> FieldParseTable = PhysicsBehaviorModuleData.FieldParseTable.Concat(new IniParseTable<RailroadBehaviorModuleData>
         {
             { "PathPrefixName", (parser, x) => x.PathPrefixName = parser.ParseAssetReference() },
 
@@ -33,7 +56,7 @@ namespace OpenSage.Logic.Object
             { "CrashFXTemplateName", (parser, x) => x.CrashFXTemplateName = parser.ParseAssetReference() },
 
             { "CarriageTemplateName", (parser, x) => x.CarriageTemplateNames.Add(parser.ParseAssetReference()) },
-        };
+        });
 
         /// <summary>
         /// Waypoint prefix name.
@@ -62,5 +85,10 @@ namespace OpenSage.Logic.Object
         public string CrashFXTemplateName { get; private set; }
 
         public List<string> CarriageTemplateNames { get; } = new List<string>();
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new RailroadBehavior(gameObject, context, this);
+        }
     }
 }
