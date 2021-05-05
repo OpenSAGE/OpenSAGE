@@ -4,6 +4,7 @@ using OpenSage.Content.Translation;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics;
+using OpenSage.Logic.Object;
 using OpenSage.Utilities;
 using Veldrid;
 
@@ -128,6 +129,8 @@ namespace OpenSage.Content
                     default:
                         break;
                 }
+
+                UpgradeManager.Initialize(_game.AssetStore);
 
                 FontManager = new FontManager(Language, StringComparer.Create(TranslationManager.CurrentLanguage, true));
             }

@@ -44,6 +44,18 @@ namespace OpenSage.Logic.Object
             { "GroupOrder", (parser, x) => x.GroupOrder = parser.ParseInteger() }
         };
 
+        internal static UpgradeTemplate CreateVeterancyUpgradeTemplate(VeterancyLevel veterancyLevel)
+        {
+            var result = new UpgradeTemplate
+            {
+                Type = UpgradeType.Object
+            };
+
+            result.SetNameAndInstanceId("Upgrade", $"Upgrade_Veterancy_{veterancyLevel.ToString().ToUpperInvariant()}");
+
+            return result;
+        }
+
         public UpgradeType Type { get; private set; } = UpgradeType.Player;
         public string DisplayName { get; private set; }
 
@@ -146,5 +158,20 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AI_UPGRADEHEURISTIC_ANTIINFANTRY"), AddedIn(SageGame.Bfme2Rotwk)]
         Antiinfantry,
+    }
+
+    public sealed class UpgradeManager
+    {
+        internal static void Initialize(AssetStore assetStore)
+        {
+            CreateVeterancyUpgrade(assetStore, VeterancyLevel.Veteran);
+            CreateVeterancyUpgrade(assetStore, VeterancyLevel.Elite);
+            CreateVeterancyUpgrade(assetStore, VeterancyLevel.Heroic);
+        }
+
+        private static void CreateVeterancyUpgrade(AssetStore assetStore, VeterancyLevel veterancyLevel)
+        {
+            assetStore.Upgrades.Add(UpgradeTemplate.CreateVeterancyUpgradeTemplate(veterancyLevel));
+        }
     }
 }
