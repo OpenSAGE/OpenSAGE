@@ -369,7 +369,6 @@ namespace OpenSage.Logic.Object
 
                     AddBehavior(behaviorDataContainer.Tag, module);
                 }
-                }
             }
 
             _behaviorModules = behaviors;
