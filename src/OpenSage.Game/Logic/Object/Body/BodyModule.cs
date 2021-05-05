@@ -49,7 +49,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class BodyModuleData : BehaviorModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Body;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Body;
 
         internal static ModuleDataContainer ParseBody(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, BodyParseTable, inheritanceMode);
 

@@ -7,6 +7,6 @@
 
     public abstract class CreateModuleData : BehaviorModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Create;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Create;
     }
 }

@@ -1301,7 +1301,7 @@ namespace OpenSage.Logic.Object
                     switch (existingBehavior.InheritanceMode)
                     {
                         case ModuleInheritanceMode.Default:
-                            if (existingBehavior.Data.ModuleKind == module.Data.ModuleKind)
+                            if ((existingBehavior.Data.ModuleKinds & module.Data.ModuleKinds) != 0)
                             {
                                 behaviorsToRemove.Add(existingBehavior);
                             }

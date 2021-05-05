@@ -151,6 +151,8 @@ namespace OpenSage.Logic.Object
 
     public class SlowDeathBehaviorModuleData : UpdateModuleData
     {
+        public override ModuleKinds ModuleKinds => ModuleKinds.Update | ModuleKinds.Die;
+
         internal static SlowDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         internal static readonly IniParseTable<SlowDeathBehaviorModuleData> FieldParseTable = new IniParseTable<SlowDeathBehaviorModuleData>

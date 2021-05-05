@@ -96,7 +96,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class UpgradeModuleData : BehaviorModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Upgrade;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Upgrade;
 
         internal static readonly IniParseTable<UpgradeModuleData> FieldParseTable = new IniParseTable<UpgradeModuleData>
         {

@@ -2,6 +2,6 @@
 {
     public abstract class ContainModuleData : BehaviorModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Contain;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Contain;
     }
 }

@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
 
     public class SpecialPowerModuleData : BehaviorModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.SpecialPower;
+        public override ModuleKinds ModuleKinds => ModuleKinds.SpecialPower;
 
         internal static SpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
