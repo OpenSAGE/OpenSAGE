@@ -22,23 +22,24 @@ namespace OpenSage.Logic.Object
             return new ModuleDataContainer(tag.Text, result, inheritanceMode, false);
         }
 
-        public virtual ModuleKind ModuleKind => ModuleKind.None;
+        public virtual ModuleKinds ModuleKinds => ModuleKinds.None;
     }
 
-    public enum ModuleKind
+    [Flags]
+    public enum ModuleKinds
     {
-        None,
-        Body,
-        ClientUpdate,
-        Collide,
-        Contain,
-        Create,
-        Damage,
-        Die,
-        Draw,
-        SpecialPower,
-        Update,
-        Upgrade,
+        None         = 0x0,
+        Body         = 0x1,
+        ClientUpdate = 0x2,
+        Collide      = 0x4,
+        Contain      = 0x8,
+        Create       = 0x10,
+        Damage       = 0x20,
+        Die          = 0x40,
+        Draw         = 0x80,
+        SpecialPower = 0x100,
+        Update       = 0x200,
+        Upgrade      = 0x400,
     }
 
     public readonly struct ModuleDataContainer
@@ -66,7 +67,7 @@ namespace OpenSage.Logic.Object
     {
         /// <summary>
         /// This module is inherited, but if the inheriting object defines a module
-        /// with the same <see cref="ModuleKind"/>, then this module is removed.
+        /// with the same <see cref="ModuleKinds"/>, then this module is removed.
         /// </summary>
         Default,
 

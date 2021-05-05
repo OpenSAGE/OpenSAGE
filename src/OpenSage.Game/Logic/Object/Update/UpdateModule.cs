@@ -22,6 +22,6 @@ namespace OpenSage.Logic.Object
 
     public abstract class UpdateModuleData : ContainModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Update;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Update;
     }
 }

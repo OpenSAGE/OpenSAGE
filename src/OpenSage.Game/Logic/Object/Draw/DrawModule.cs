@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class DrawModuleData : ModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.Draw;
+        public override ModuleKinds ModuleKinds => ModuleKinds.Draw;
 
         internal static ModuleDataContainer ParseDrawModule(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, DrawModuleParseTable, inheritanceMode);
 

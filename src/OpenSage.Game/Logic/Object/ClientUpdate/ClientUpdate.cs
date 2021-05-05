@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
 
     public abstract class ClientUpdateModuleData : ModuleData
     {
-        public override ModuleKind ModuleKind => ModuleKind.ClientUpdate;
+        public override ModuleKinds ModuleKinds => ModuleKinds.ClientUpdate;
 
         internal static ModuleDataContainer ParseClientUpdate(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, ClientUpdateParseTable, inheritanceMode);
 
