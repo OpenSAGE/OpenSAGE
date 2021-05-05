@@ -1,8 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class OverchargeBehavior : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Displays GUI:OverchargeExhausted when object's health is below specified percentage.
     /// Allows use of the <see cref="ObjectDefinition.EnergyBonus"/> parameter.
@@ -28,5 +46,10 @@ namespace OpenSage.Logic.Object
         /// Turn off overcharge bonus when object's current health is below this value.
         /// </summary>
         public Percentage NotAllowedWhenHealthBelowPercent { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new OverchargeBehavior();
+        }
     }
 }

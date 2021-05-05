@@ -1,8 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class StealthUpdate : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Allows the use of the <see cref="ObjectDefinition.SoundStealthOn"/> and 
     /// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to 
@@ -131,5 +149,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string[] RequiredUpgradeNames { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new StealthUpdate();
+        }
     }
 }

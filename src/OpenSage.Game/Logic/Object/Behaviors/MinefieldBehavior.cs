@@ -1,8 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class MinefieldBehavior : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// INI file comments indicate that this is not an accurate name; it's a really a 
     /// single mine behaviour.
@@ -31,6 +49,11 @@ namespace OpenSage.Logic.Object
         public bool Regenerates { get; private set; }
         public bool StopsRegenAfterCreatorDies { get; private set; }
         public Percentage DegenPercentPerSecondAfterCreatorDies { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new MinefieldBehavior();
+        }
     }
 
     public enum ObjectFilterRelationship

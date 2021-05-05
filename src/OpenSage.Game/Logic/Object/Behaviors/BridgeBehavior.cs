@@ -1,8 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class BridgeBehavior : UpdateModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
+    }
+
     /// <summary>
     /// Special-case logic allows for ParentObject to be specified as a bone name to allow other 
     /// objects to appear on the bridge.
@@ -25,6 +43,11 @@ namespace OpenSage.Logic.Object
 
         public List<BridgeDieObjectCreationList> BridgeDieOCLs { get; } = new List<BridgeDieObjectCreationList>();
         public List<BridgeDieFX> BridgeDieFXs { get; } = new List<BridgeDieFX>();
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new BridgeBehavior();
+        }
     }
 
     public sealed class BridgeDieObjectCreationList
