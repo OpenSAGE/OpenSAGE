@@ -1188,38 +1188,12 @@ namespace OpenSage.Logic.Object
             {
                 var condition = reader.ReadAsciiString();
             }
-            reader.__Skip(8);
+            reader.__Skip(7);
 
-            var objectName = reader.ReadAsciiString();
+            var weaponSet = new WeaponSet();
+            weaponSet.Load(reader, this);
 
-            reader.ReadBoolean();
-            var someCount3 = reader.ReadUInt32();
-            for (var i = 0; i < someCount3; i++)
-            {
-                var condition = reader.ReadAsciiString();
-            }
-
-            // 5 possible weapons...
-            for (var i = 0; i < 5; i++)
-            {
-                var slotFilled = reader.ReadBoolean(); // 1
-                if (slotFilled)
-                {
-                    reader.ReadByte(); // 3
-                    var weaponTemplateName = reader.ReadAsciiString();
-                    var weaponSlot = reader.ReadEnum<OpenSage.Logic.Object.WeaponSlot>();
-                    reader.__Skip(52);
-                }
-            }
-
-            reader.__Skip(21);
-
-            var numSpecialPowers = reader.ReadUInt32();
-
-            for (var i = 0; i < numSpecialPowers; i++)
-            {
-                var specialPower = reader.ReadAsciiString();
-            }
+            var specialPowers = reader.ReadBitArray<SpecialPowerType>();
 
             reader.ReadBoolean(); // 0
             reader.ReadBoolean(); // 1
