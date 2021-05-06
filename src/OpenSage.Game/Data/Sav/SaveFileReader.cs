@@ -23,7 +23,7 @@ namespace OpenSage.Data.Sav
         public byte ReadVersion(byte maximumVersion)
         {
             var result = _binaryReader.ReadByte();
-            if (result > maximumVersion)
+            if (result == 0 || result > maximumVersion)
             {
                 throw new InvalidDataException();
             }
@@ -78,6 +78,26 @@ namespace OpenSage.Data.Sav
                 m21, m22, m23,
                 m31, m32, m33,
                 m41, m42, m43);
+        }
+
+        public BitArray<TEnum> ReadBitArray<TEnum>()
+            where TEnum : Enum
+        {
+            ReadVersion(1);
+
+            var result = new BitArray<TEnum>();
+
+            var stringToValueMap = Ini.IniParser.GetEnumMap<TEnum>();
+
+            var count = ReadUInt32();
+            for (var i = 0; i < count; i++)
+            {
+                var stringValue = ReadAsciiString();
+                var enumValue = (TEnum)stringToValueMap[stringValue];
+                result.Set(enumValue, true);
+            }
+
+            return result;
         }
 
         public void BeginSegment()

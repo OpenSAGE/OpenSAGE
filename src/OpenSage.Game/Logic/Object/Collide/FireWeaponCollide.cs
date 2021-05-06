@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
             var unknown1 = reader.ReadBooleanChecked();
 
-            _collideWeapon.Load(reader);
+            _collideWeapon.Load(new Data.Sav.SaveFileReader(reader));
 
             var unknown2 = reader.ReadBooleanChecked();
         }
