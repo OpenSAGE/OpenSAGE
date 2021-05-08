@@ -12,7 +12,9 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly Dictionary<LocomotorSetType, Locomotor> _locomotors;
+        private readonly LocomotorSet _locomotorSet;
+        private LocomotorSetType _currentLocomotorSetType;
+
         public Locomotor CurrentLocomotor { get; protected set; }
 
         private readonly AIUpdateModuleData _moduleData;
@@ -41,7 +43,8 @@ namespace OpenSage.Logic.Object
 
             TargetPoints = new List<Vector3>();
 
-            _locomotors = new Dictionary<LocomotorSetType, Locomotor>();
+            _locomotorSet = new LocomotorSet(gameObject);
+            _currentLocomotorSetType = (LocomotorSetType)(-1);
 
             SetLocomotor(LocomotorSetType.Normal);
 
@@ -53,19 +56,21 @@ namespace OpenSage.Logic.Object
 
         internal void SetLocomotor(LocomotorSetType type)
         {
-            if (!_locomotors.TryGetValue(type, out var locomotor))
+            if (_currentLocomotorSetType == type)
             {
-                var locomotorSet = GameObject.Definition.LocomotorSets.Find(x => x.Condition == type);
-                locomotor = (locomotorSet?.Locomotor.Value != null)
-                    ? new Locomotor(GameObject, locomotorSet)
-                    : null;
-                if (locomotor != null)
-                {
-                    _locomotors[type] = locomotor;
-                }
+                return;
             }
 
-            CurrentLocomotor = locomotor;
+            if (!GameObject.Definition.LocomotorSets.TryGetValue(type, out var locomotorSetTemplate))
+            {
+                return;
+            }
+
+            _locomotorSet.Reset();
+            _locomotorSet.Initialize(locomotorSetTemplate);
+
+            // TODO: Use actual surface type.
+            CurrentLocomotor = _locomotorSet.GetLocomotorForSurfaces(Surfaces.Ground);
         }
 
         internal void AddTargetPoint(in Vector3 targetPoint)
@@ -371,34 +376,51 @@ namespace OpenSage.Logic.Object
 
             reader.ReadBytes(46);
 
-            // Next: Locomotor stuff, 0x45A3B
+            _locomotorSet.Load(new Data.Sav.SaveFileReader(reader));
 
-            var unknown11 = reader.ReadBytes(3);
+            var currentLocomotorTemplateName = reader.ReadBytePrefixedAsciiString();
+            CurrentLocomotor = _locomotorSet.GetLocomotor(currentLocomotorTemplateName);
 
-            var locomotorTemplate = reader.ReadBytePrefixedAsciiString();
-
-            var unknown12 = reader.ReadByte();
-            var unknown13 = reader.ReadUInt32();
-
-            var position = reader.ReadVector3();
-
-            for (var i = 0; i < 7; i++)
+            var unknownInt29 = reader.ReadUInt32();
+            if (unknownInt29 != 0)
             {
-                var unknown14 = reader.ReadSingle();
+                throw new InvalidDataException();
             }
 
-            var unknown15 = reader.ReadBytes(8);
+            var unknownInt30 = reader.ReadUInt32();
+            if (unknownInt30 != 1)
+            {
+                throw new InvalidDataException();
+            }
 
             for (var i = 0; i < 3; i++)
             {
-                var unknown16 = reader.ReadSingle();
+                var unknownInt31 = reader.ReadUInt32();
+                if (unknownInt31 != 0)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
-            var unknown17 = reader.ReadBytes(5);
+            var unknownInt32 = reader.ReadInt32();
+            if (unknownInt32 != -1)
+            {
+                throw new InvalidDataException();
+            }
 
-            var locomotorTemplate2 = reader.ReadBytePrefixedAsciiString();
+            var unknownInt33 = reader.ReadInt32();
+            if (unknownInt33 != 0)
+            {
+                throw new InvalidDataException();
+            }
 
-            var unknown18 = reader.ReadBytes(36);
+            var frameSomething = reader.ReadUInt32();
+
+            var unknownInt34 = reader.ReadInt32();
+            if (unknownInt34 != 0)
+            {
+                throw new InvalidDataException();
+            }
         }
     }
 
