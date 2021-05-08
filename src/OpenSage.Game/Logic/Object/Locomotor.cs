@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
+using OpenSage.Data.Sav;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -35,16 +37,16 @@ namespace OpenSage.Logic.Object
     public sealed class Locomotor
     {
         private readonly GameObject _gameObject;
-        private readonly LocomotorSet _locomotorSet;
+        private readonly float _baseSpeed;
         public readonly LocomotorTemplate LocomotorTemplate;
 
         public float LiftFactor;
 
-        public Locomotor(GameObject gameObject, LocomotorSet locomotorSet)
+        public Locomotor(GameObject gameObject, LocomotorTemplate locomotorTemplate, float baseSpeed)
         {
             _gameObject = gameObject;
-            _locomotorSet = locomotorSet;
-            LocomotorTemplate = locomotorSet.Locomotor.Value;
+            LocomotorTemplate = locomotorTemplate;
+            _baseSpeed = baseSpeed;
             LiftFactor = 1.0f;
         }
 
@@ -70,14 +72,14 @@ namespace OpenSage.Logic.Object
 
         public float GetSpeed()
         {
-            // TODO: this is probably not correct for BFME
             if (LocomotorTemplate.Speed.HasValue)
             {
                 return _gameObject.IsDamaged
                     ? GetScaledLocomotorValue(x => x.SpeedDamaged)
                     : GetScaledLocomotorValue(x => x.Speed.Value);
             }
-            return _locomotorSet.Speed;
+            // TODO: How do we get the damaged speed for BFME?
+            return _baseSpeed;
         }
 
         public float GetLift()
@@ -345,9 +347,89 @@ namespace OpenSage.Logic.Object
 
         public float GetScaledLocomotorValue(Func<LocomotorTemplate, float> getValue)
         {
-            return (_locomotorSet.Speed / 100.0f) * getValue(LocomotorTemplate);
+            return (_baseSpeed / 100.0f) * getValue(LocomotorTemplate);
         }
 
         public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(LocomotorTemplate);
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(2);
+
+            var frameSomething = reader.ReadUInt32();
+
+            for (var i = 0; i < 3; i++)
+            {
+                var unknown1 = reader.ReadUInt32();
+                if (unknown1 != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var unknownFloat1 = reader.ReadSingle();
+            if (unknownFloat1 != 1.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat2 = reader.ReadSingle();
+            if (unknownFloat2 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat3 = reader.ReadSingle();
+            if (unknownFloat3 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat4 = reader.ReadSingle();
+            if (unknownFloat4 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat5 = reader.ReadSingle();
+            if (unknownFloat5 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat6 = reader.ReadSingle();
+            if (unknownFloat6 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat7 = reader.ReadSingle();
+            if (unknownFloat7 != 1.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown2 = reader.ReadUInt32();
+            if (unknown2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown3 = reader.ReadUInt32();
+            if (unknown3 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat8 = reader.ReadSingle();
+            if (unknownFloat8 != 1.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat9 = reader.ReadSingle(); // 0.4849...
+
+            var unknownFloat10 = reader.ReadSingle(); // 0.0892...
+        }
     }
 }

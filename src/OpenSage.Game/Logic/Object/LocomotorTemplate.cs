@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -14,7 +15,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<LocomotorTemplate> FieldParseTable = new IniParseTable<LocomotorTemplate>
         {
-            { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumBitArray<Surface>() },
+            { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumFlags<Surfaces>() },
             { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },
             { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseFloat() },
             { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParsePercentage() },
@@ -124,7 +125,7 @@ namespace OpenSage.Logic.Object
             { "RiverModifier", (parser, x) => x.RiverModifier = parser.ParsePercentage() }
         };
 
-        public BitArray<Surface> Surfaces { get; private set; }
+        public Surfaces Surfaces { get; private set; }
         public float? Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
         public Percentage MinSpeed { get; private set; }
@@ -361,31 +362,34 @@ namespace OpenSage.Logic.Object
         Ship,
     }
 
-    public enum Surface
+    [Flags]
+    public enum Surfaces
     {
+        None       = 0x0,
+
         [IniEnum("GROUND")]
-        Ground,
-
-        [IniEnum("RUBBLE")]
-        Rubble,
-
-        [IniEnum("CLIFF")]
-        Cliff,
-
-        [IniEnum("AIR")]
-        Air,
+        Ground     = 0x1,
 
         [IniEnum("WATER")]
-        Water,
+        Water      = 0x2,
 
-        [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme)]
-        Impassable,
+        [IniEnum("CLIFF")]
+        Cliff      = 0x4,
+
+        [IniEnum("AIR")]
+        Air        = 0x8,
+
+        [IniEnum("RUBBLE")]
+        Rubble     = 0x10,
 
         [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme)]
-        Obstacle,
+        Obstacle   = 0x20,
+
+        [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme)]
+        Impassable = 0x40,
 
         [IniEnum("DEEP_WATER"), AddedIn(SageGame.Bfme2)]
-        DeepWater,
+        DeepWater  = 0x80,
     }
 
     public enum GroupMovementPriority

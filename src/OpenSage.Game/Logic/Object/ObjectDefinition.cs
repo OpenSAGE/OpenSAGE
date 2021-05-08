@@ -277,8 +277,8 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => AddModuleData(x.ClientUpdates, ClientUpdateModuleData.ParseClientUpdate(parser, x._currentInheritanceMode)) },
             { "ClientBehavior", (parser, x) => AddModuleData(x.ClientBehaviors, ClientBehaviorModuleData.ParseClientBehavior(parser, x._currentInheritanceMode)) },
 
-            { "Locomotor", (parser, x) => x.LocomotorSets.Add(new LocomotorSet { Condition = parser.ParseEnum<LocomotorSetType>(), Locomotor = parser.ParseLocomotorTemplateReference(), Speed = 100 }) },
-            { "LocomotorSet", (parser, x) => x.LocomotorSets.Add(LocomotorSet.Parse(parser)) },
+            { "Locomotor", (parser, x) => { x.AddLocomotorSet(new LocomotorSetTemplate { Condition = parser.ParseEnum<LocomotorSetType>(), Locomotors = parser.ParseLocomotorTemplateReferenceArray(), Speed = 100 }); } },
+            { "LocomotorSet", (parser, x) => x.AddLocomotorSet(LocomotorSetTemplate.Parse(parser)) },
 
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
@@ -887,7 +887,12 @@ namespace OpenSage.Logic.Object
         public ModuleDataContainer? AIUpdate { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
-        public List<LocomotorSet> LocomotorSets { get; internal set; } = new List<LocomotorSet>();
+        public Dictionary<LocomotorSetType, LocomotorSetTemplate> LocomotorSets { get; internal set; } = new Dictionary<LocomotorSetType, LocomotorSetTemplate>();
+
+        private void AddLocomotorSet(LocomotorSetTemplate locomotorSetTemplate)
+        {
+            LocomotorSets.Add(locomotorSetTemplate.Condition, locomotorSetTemplate);
+        }
 
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
@@ -1246,7 +1251,7 @@ namespace OpenSage.Logic.Object
             result.ClientBehaviors = new Dictionary<string, ModuleDataContainer>(result.ClientBehaviors);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
-            result.LocomotorSets = new List<LocomotorSet>(result.LocomotorSets);
+            result.LocomotorSets = new Dictionary<LocomotorSetType, LocomotorSetTemplate>();
 
             foreach (var pair in result.Behaviors.ToList())
             {
