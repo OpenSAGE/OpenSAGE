@@ -84,7 +84,55 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            var unknownPosition = reader.ReadVector3();
+
+            var stateMaybe = reader.ReadUInt32();
+
+            var frameSomething = reader.ReadUInt32();
+
+            var unknownInt1 = reader.ReadInt32();
+            if (unknownInt1 != int.MaxValue)
+            {
+                throw new InvalidDataException();
+            }
+
+            var launcherObjectId = reader.ReadUInt32();
+
+            var objectIdSomething = reader.ReadUInt32();
+
+            var unknownBool1 = reader.ReadBoolean();
+            if (unknownBool1 != true)
+            {
+                throw new InvalidDataException();
+            }
+
+            var frameSomething2 = reader.ReadUInt32();
+
+            var unknownFloat1 = reader.ReadSingle();
+
+            var unknownFloat2 = reader.ReadSingle();
+            if (unknownFloat2 != 99999.0f)
+            {
+                throw new InvalidDataException();
+            }
+
+            var weaponTemplateName = reader.ReadBytePrefixedAsciiString();
+            var weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
+
+            var exhaustParticleSystemTemplateName = reader.ReadBytePrefixedAsciiString();
+            var exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
+
+            var unknownBool2 = reader.ReadBoolean();
+
+            var currentPositionMaybe = reader.ReadVector3();
+
+            var unknownInt3 = reader.ReadInt32();
+            if (unknownInt3 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt4 = reader.ReadInt32(); // 1960
         }
 
         private enum MissileState

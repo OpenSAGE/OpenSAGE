@@ -340,6 +340,10 @@ namespace OpenSage.Logic.Object
 
             var unknownBool13 = reader.ReadBooleanChecked();
             var unknownBool14 = reader.ReadBooleanChecked();
+            if (!unknownBool14)
+            {
+                throw new InvalidDataException();
+            }
 
             var unknownVersion4 = reader.ReadVersion();
             if (unknownVersion4 != 1)
