@@ -1,10 +1,12 @@
-﻿using OpenSage.Content;
+﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class ChinookAIUpdate : SupplyAIUpdate
+    public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
         private readonly ChinookAIUpdateModuleData _moduleData;
 
@@ -19,6 +21,19 @@ namespace OpenSage.Logic.Object
             var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
             return GameObject.UpgradeAvailable(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
     }
 
     /// <summary>
@@ -27,11 +42,11 @@ namespace OpenSage.Logic.Object
     /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for 
     /// rappelling out of the object that has the rappel code of this module.
     /// </summary>
-    public sealed class ChinookAIUpdateModuleData : SupplyAIUpdateModuleData
+    public sealed class ChinookAIUpdateModuleData : SupplyTruckAIUpdateModuleData
     {
         internal new static ChinookAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private new static readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
+        private new static readonly IniParseTable<ChinookAIUpdateModuleData> FieldParseTable = SupplyTruckAIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<ChinookAIUpdateModuleData>
             {
                 { "NumRopes", (parser, x) => x.NumRopes = parser.ParseInteger() },

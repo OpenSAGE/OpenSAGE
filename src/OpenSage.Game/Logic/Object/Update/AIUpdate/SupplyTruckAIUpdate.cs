@@ -32,11 +32,11 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
+    public class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
     {
         internal new static SupplyTruckAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
+        internal new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData>{});
 
         internal override AIUpdate CreateAIUpdate(GameObject gameObject)

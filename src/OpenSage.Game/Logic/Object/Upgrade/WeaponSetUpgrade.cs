@@ -16,15 +16,7 @@ namespace OpenSage.Logic.Object
 
         internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
         {
-            if (triggered)
-            {
-                var weaponSet = _gameObject.Definition.WeaponSets.Values.FirstOrDefault(w => w.Conditions.Get(WeaponSetConditions.PlayerUpgrade));
-                _gameObject.SetWeaponSet(weaponSet);
-            }
-            else
-            {
-                _gameObject.SetDefaultWeapon();
-            }
+            _gameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, triggered);
         }
 
         internal override void Load(BinaryReader reader)

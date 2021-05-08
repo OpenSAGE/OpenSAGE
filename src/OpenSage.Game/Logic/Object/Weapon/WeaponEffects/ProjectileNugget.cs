@@ -66,7 +66,7 @@ namespace OpenSage.Logic.Object
 
             projectileObject.SetTransformMatrix(launchBoneTransform.Value);
 
-            projectileObject.SetWeapon(warheadTemplate);
+            projectileObject.SetWarhead(warheadTemplate);
 
             projectileObject.CurrentWeapon.SetTarget(context.Weapon.CurrentTarget);
 

@@ -240,24 +240,140 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBytes(50);
+            var unknownInt1 = reader.ReadUInt32();
+            var unknownInt2 = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadSingle();
+            var unknownVersion1 = reader.ReadVersion();
+            if (unknownVersion1 != 1)
+            {
+                throw new InvalidDataException();
+            }
 
-            var unknown3 = reader.ReadBytes(16);
+            var unknownVersion2 = reader.ReadVersion();
+            if (unknownVersion2 != 1)
+            {
+                throw new InvalidDataException();
+            }
 
-            var unknown4 = reader.ReadSingle();
+            var unknownInt3 = reader.ReadUInt32(); // 0
+            var unknownInt4 = reader.ReadUInt32(); // 0
 
-            var unknown5 = reader.ReadUInt32();
-            var unknown6 = reader.ReadUInt32();
-            var unknown7 = reader.ReadUInt32();
-            var unknown8 = reader.ReadUInt32();
+            var unknownInt5 = reader.ReadUInt32(); // 1
 
-            var unknown9 = reader.ReadBytes(31);
+            var unknownBool1 = reader.ReadBooleanChecked();
+            if (unknownBool1)
+            {
+                throw new InvalidDataException();
+            }
 
-            var unknown10 = reader.ReadInt32();
+            var unknownVersion3 = reader.ReadVersion();
+            if (unknownVersion3 != 1)
+            {
+                throw new InvalidDataException();
+            }
 
-            var unknown11 = reader.ReadBytes(103);
+            var positionSomething = reader.ReadVector3();
+            var unknownInt6 = reader.ReadUInt32();
+            var unknownBool2 = reader.ReadBooleanChecked();
+            var positionSomething2 = reader.ReadVector3();
+            var unknownInt7 = reader.ReadUInt32();
+            var unknownInt8 = reader.ReadUInt32();
+            var unknownBool3 = reader.ReadBooleanChecked();
+            var unknownInt9 = reader.ReadUInt32();
+            var positionSomething3 = reader.ReadVector3();
+            var unknownBool4 = reader.ReadBooleanChecked();
+            var unknownBool5 = reader.ReadBooleanChecked();
+
+            var unknownInt10 = reader.ReadUInt32();
+            if (unknownInt10 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool6 = reader.ReadBooleanChecked();
+            var unknownBool7 = reader.ReadBooleanChecked();
+
+            var unknownInt11 = reader.ReadUInt32();
+            if (unknownInt11 != 999999)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt12 = reader.ReadUInt32();
+            var unknownBool8 = reader.ReadBooleanChecked();
+            var unknownBool9 = reader.ReadBooleanChecked();
+            var unknownInt13 = reader.ReadUInt32();
+            var unknownInt14 = reader.ReadUInt32();
+
+            var unknownFloat1 = reader.ReadSingle();
+            if (unknownFloat1 != 999999)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt15 = reader.ReadUInt32(); // 2
+            var unknownInt16 = reader.ReadUInt32(); // 3
+            var unknownInt17 = reader.ReadUInt32(); // 3
+            var unknownInt17_1 = reader.ReadUInt32(); // 3
+
+            var unknownInt18 = reader.ReadUInt32(); // 0
+            var unknownInt19 = reader.ReadUInt32(); // 0
+            var unknownInt20 = reader.ReadUInt32(); // 0
+            var unknownInt21 = reader.ReadUInt32(); // 0
+            var unknownBool10 = reader.ReadBooleanChecked();
+            var unknownBool11 = reader.ReadBooleanChecked();
+            var unknownInt22 = reader.ReadUInt32(); // 0
+            var unknownInt23 = reader.ReadUInt32(); // 0
+            var unknownBool12 = reader.ReadBooleanChecked();
+            var unknownInt23_1 = reader.ReadUInt32(); // 0
+
+            var unknownInt24 = reader.ReadUInt32();
+            if (unknownInt24 != 0x7FFFFFFF)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool13 = reader.ReadBooleanChecked();
+            var unknownBool14 = reader.ReadBooleanChecked();
+
+            var unknownVersion4 = reader.ReadVersion();
+            if (unknownVersion4 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownCount1 = reader.ReadUInt32(); // 2
+            for (var i = 0; i < unknownCount1; i++)
+            {
+                var id = reader.ReadUInt32();
+                var position2 = reader.ReadVector3();
+                var unknown25 = reader.ReadUInt32();
+                var unknownBool15 = reader.ReadBooleanChecked();
+                var nextId = reader.ReadUInt32();
+            }
+
+            var unknownBool16 = reader.ReadBooleanChecked();
+            var unknownInt25 = reader.ReadUInt32();
+            var unknownInt26 = reader.ReadUInt32(); // 1
+            var unknownBool17 = reader.ReadBooleanChecked();
+            var unknownInt27 = reader.ReadUInt32();
+            var unknownPosition = reader.ReadVector3();
+            reader.ReadBytes(5 * 4);
+
+            for (var i = 0; i < 4; i++)
+            {
+                var unknownInt28 = reader.ReadInt32();
+                if (unknownInt28 != -1)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            reader.ReadBytes(46);
+
+            // Next: Locomotor stuff, 0x45A3B
+
+            var unknown11 = reader.ReadBytes(3);
 
             var locomotorTemplate = reader.ReadBytePrefixedAsciiString();
 

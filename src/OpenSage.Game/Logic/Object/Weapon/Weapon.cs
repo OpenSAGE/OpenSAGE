@@ -52,13 +52,13 @@ namespace OpenSage.Logic.Object
         internal Weapon(
             GameObject gameObject,
             WeaponTemplate weaponTemplate,
-            int weaponIndex,
             WeaponSlot slot,
             GameContext gameContext)
         {
             ParentGameObject = gameObject;
             Template = weaponTemplate;
-            WeaponIndex = weaponIndex;
+
+            WeaponIndex = (int)slot;
 
             Slot = slot;
 
@@ -70,7 +70,7 @@ namespace OpenSage.Logic.Object
                     this,
                     gameContext));
 
-            _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(weaponIndex);
+            _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(WeaponIndex);
         }
 
         public bool UsesClip => Template.ClipSize > 0;
