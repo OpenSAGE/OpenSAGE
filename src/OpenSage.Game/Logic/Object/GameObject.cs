@@ -119,6 +119,9 @@ namespace OpenSage.Logic.Object
 
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
 
+        internal readonly BitArray<WeaponSetConditions> WeaponSetConditions;
+        private readonly WeaponSet _weaponSet;
+
         public readonly ObjectDefinition Definition;
 
         private readonly Transform _transform;
@@ -238,7 +241,7 @@ namespace OpenSage.Logic.Object
 
         public Vector3? RallyPoint { get; set; }
 
-        internal Weapon CurrentWeapon { get; private set; }
+        internal Weapon CurrentWeapon => _weaponSet.CurrentWeapon;
 
         private TimeSpan ConstructionStart { get; set; }
 
@@ -322,7 +325,10 @@ namespace OpenSage.Logic.Object
 
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
 
-            SetDefaultWeapon();
+            _weaponSet = new WeaponSet(this);
+            WeaponSetConditions = new BitArray<WeaponSetConditions>();
+            UpdateWeaponSet();
+
             _transform = Transform.CreateIdentity();
             ModelTransform = Transform.CreateIdentity();
             _transform.Scale = Definition.Scale;
@@ -862,65 +868,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void SetDefaultWeapon()
+        internal void SetWeaponSetCondition(WeaponSetConditions condition, bool value)
         {
-            foreach (var weaponSet in Definition.WeaponSets.Values)
-            {
-                // TODO: we currently always pick the weapon without any conditions.
-                if (weaponSet.Conditions?.AnyBitSet == false)
-                {
-                    SetWeaponSet(weaponSet);
-                    return;
-                }
-            }
-
-            SetWeaponSet(Definition.WeaponSets.Values.First());
+            WeaponSetConditions.Set(condition, value);
+            UpdateWeaponSet();
         }
 
-        internal void SetWeaponSet(WeaponTemplateSet weaponSet)
+        private void UpdateWeaponSet()
         {
-            if (weaponSet != null)
-            {
-                var aiUpdate = Definition.Behaviors.Values.OfType<AIUpdateModuleData>().FirstOrDefault();
-                var weaponSetUpdateData = weaponSet.ToWeaponSetUpdate(aiUpdate);
-
-                // Happens for BFME structures
-                if (weaponSetUpdateData.WeaponSlotHardpoints.Count == 0 &&
-                   weaponSetUpdateData.WeaponSlotTurrets.Count == 0)
-                {
-                    return;
-                }
-
-                // TODO: This weapon selection is all wrong, and should be done in WeaponSetUpdate.
-
-                var weaponSlotHardpoint = weaponSetUpdateData.WeaponSlotHardpoints.Count > 0
-                    ? weaponSetUpdateData.WeaponSlotHardpoints[0]
-                    : weaponSetUpdateData.WeaponSlotTurrets[0];
-
-                var weaponTemplate = weaponSlotHardpoint.Weapons[0].Template.Value;
-                SetWeapon(weaponTemplate);
-            }
-            else
-            {
-                CurrentWeapon = null;
-            }
+            _weaponSet.Update();
         }
 
-        internal void SetWeapon(WeaponTemplate weaponTemplate)
+        internal void SetWarhead(WeaponTemplate weaponTemplate)
         {
-            if (weaponTemplate != null)
-            {
-                CurrentWeapon = new Weapon(
-                this,
-                weaponTemplate,
-                0,
-                WeaponSlot.Primary,
-                _gameContext);
-            }
-            else
-            {
-                CurrentWeapon = null;
-            }
+            // TODO
         }
 
         public bool CanPurchase(CommandButton button)
@@ -1190,8 +1151,8 @@ namespace OpenSage.Logic.Object
             }
             reader.__Skip(7);
 
-            var weaponSet = new WeaponSet();
-            weaponSet.Load(reader, this);
+            var weaponSet = new WeaponSet(this);
+            weaponSet.Load(reader);
 
             var specialPowers = reader.ReadBitArray<SpecialPowerType>();
 

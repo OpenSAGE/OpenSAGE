@@ -17,7 +17,6 @@ namespace OpenSage.Logic.Object
             _collideWeapon = new Weapon(
                 gameObject,
                 moduleData.CollideWeapon.Value,
-                0,
                 WeaponSlot.Primary,
                 gameObject.GameContext);
         }
