@@ -263,7 +263,8 @@ namespace OpenSage.Logic.Object
             var unknownInt3 = reader.ReadUInt32(); // 0
             var unknownInt4 = reader.ReadUInt32(); // 0
 
-            var unknownInt5 = reader.ReadUInt32(); // 1
+            // Current state?
+            var unknownInt5 = reader.ReadUInt32();
 
             var unknownBool1 = reader.ReadBooleanChecked();
             if (unknownBool1)
@@ -271,19 +272,47 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var unknownVersion3 = reader.ReadVersion();
-            if (unknownVersion3 != 1)
+            switch (unknownInt5)
             {
-                throw new InvalidDataException();
+                case 1:
+                    {
+                        var unknownVersion3 = reader.ReadVersion();
+                        if (unknownVersion3 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var positionSomething = reader.ReadVector3();
+                        var unknownInt6 = reader.ReadUInt32();
+                        var unknownBool2 = reader.ReadBooleanChecked();
+                        var positionSomething2 = reader.ReadVector3();
+                        var unknownInt7 = reader.ReadUInt32();
+                        var unknownInt8 = reader.ReadUInt32();
+                        var unknownBool3 = reader.ReadBooleanChecked();
+                        break;
+                    }
+
+                case 11:
+                    {
+                        var unknownVersion3 = reader.ReadVersion();
+                        if (unknownVersion3 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var unknownBool2 = reader.ReadBooleanChecked();
+                        var positionSomething = reader.ReadVector3();
+                        var unknownVersion10 = reader.ReadVersion();
+                        if (unknownVersion10 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        // TODO
+                        break;
+                    }
+
+                default:
+                    throw new InvalidDataException();
             }
 
-            var positionSomething = reader.ReadVector3();
-            var unknownInt6 = reader.ReadUInt32();
-            var unknownBool2 = reader.ReadBooleanChecked();
-            var positionSomething2 = reader.ReadVector3();
-            var unknownInt7 = reader.ReadUInt32();
-            var unknownInt8 = reader.ReadUInt32();
-            var unknownBool3 = reader.ReadBooleanChecked();
             var unknownInt9 = reader.ReadUInt32();
             var positionSomething3 = reader.ReadVector3();
             var unknownBool4 = reader.ReadBooleanChecked();
