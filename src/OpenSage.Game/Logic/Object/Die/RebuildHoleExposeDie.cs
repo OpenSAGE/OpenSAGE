@@ -1,7 +1,23 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class RebuildHoleExposeDie : DieModule
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Requires the object specified in <see cref="HoleName"/> to have the REBUILD_HOLE KindOf and 
     /// <see cref="RebuildHoleBehaviorModuleData"/> module in order to work.
@@ -27,5 +43,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool TransferAttackers { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new RebuildHoleExposeDie();
+        }
     }
 }

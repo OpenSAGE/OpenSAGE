@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
+    [DebuggerDisplay("TeamTemplate '{Name}'")]
     public sealed class TeamTemplate
     {
         private uint _playerId;
@@ -64,6 +65,8 @@ namespace OpenSage.Logic
 
     internal sealed class Team
     {
+        private uint _numDestroyedSomething;
+
         public uint ID;
         public List<uint> ObjectIds = new List<uint>();
         public uint TargetObjectID;
@@ -111,11 +114,7 @@ namespace OpenSage.Logic
                 }
             }
 
-            var unknown10 = reader.ReadUInt32();
-            if (unknown10 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            _numDestroyedSomething = reader.ReadUInt32();
 
             var unknown11 = reader.ReadUInt32();
             if (unknown11 != 0 && unknown11 != ObjectIds.Count)
