@@ -260,7 +260,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var unknownInt3 = reader.ReadUInt32(); // 0
+            var frameSomething2 = reader.ReadUInt32(); // 0
             var unknownInt4 = reader.ReadUInt32(); // 0
 
             // Current state?
@@ -274,6 +274,18 @@ namespace OpenSage.Logic.Object
 
             switch (unknownInt5)
             {
+                case 0:
+                    {
+                        var unknownVersion3 = reader.ReadVersion();
+                        if (unknownVersion3 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var unknownShort1 = reader.ReadUInt16();
+                        var unknownShort2 = reader.ReadUInt16();
+                        break;
+                    }
+
                 case 1:
                     {
                         var unknownVersion3 = reader.ReadVersion();
@@ -305,7 +317,9 @@ namespace OpenSage.Logic.Object
                         {
                             throw new InvalidDataException();
                         }
-                        // TODO
+                        // TODO: The following looks like it follows the same
+                        // structure as this state container (machine?)
+                        // that we're parsing now.
                         break;
                     }
 
@@ -369,43 +383,36 @@ namespace OpenSage.Logic.Object
 
             var unknownBool13 = reader.ReadBooleanChecked();
             var unknownBool14 = reader.ReadBooleanChecked();
-            if (!unknownBool14)
+            if (unknownBool14)
             {
-                throw new InvalidDataException();
+                var unknownVersion4 = reader.ReadVersion();
+                if (unknownVersion4 != 1)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var unknownCount1 = reader.ReadUInt32(); // 2
+                for (var i = 0; i < unknownCount1; i++)
+                {
+                    var id = reader.ReadUInt32();
+                    var position2 = reader.ReadVector3();
+                    var unknown25 = reader.ReadUInt32();
+                    var unknownBool15 = reader.ReadBooleanChecked();
+                    var nextId = reader.ReadUInt32();
+                }
+
+                var unknownBool16 = reader.ReadBooleanChecked();
+                var unknownInt25 = reader.ReadUInt32();
+                var unknownInt26 = reader.ReadUInt32(); // 1
+                var unknownBool17 = reader.ReadBooleanChecked();
             }
 
-            var unknownVersion4 = reader.ReadVersion();
-            if (unknownVersion4 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownCount1 = reader.ReadUInt32(); // 2
-            for (var i = 0; i < unknownCount1; i++)
-            {
-                var id = reader.ReadUInt32();
-                var position2 = reader.ReadVector3();
-                var unknown25 = reader.ReadUInt32();
-                var unknownBool15 = reader.ReadBooleanChecked();
-                var nextId = reader.ReadUInt32();
-            }
-
-            var unknownBool16 = reader.ReadBooleanChecked();
-            var unknownInt25 = reader.ReadUInt32();
-            var unknownInt26 = reader.ReadUInt32(); // 1
-            var unknownBool17 = reader.ReadBooleanChecked();
             var unknownInt27 = reader.ReadUInt32();
             var unknownPosition = reader.ReadVector3();
             reader.ReadBytes(5 * 4);
 
-            for (var i = 0; i < 4; i++)
-            {
-                var unknownInt28 = reader.ReadInt32();
-                if (unknownInt28 != -1)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            var unknownPos1 = reader.ReadPoint2D();
+            var unknownPos2 = reader.ReadPoint2D();
 
             reader.ReadBytes(46);
 
@@ -421,9 +428,9 @@ namespace OpenSage.Logic.Object
             }
 
             var unknownInt30 = reader.ReadUInt32();
-            if (unknownInt30 != 1)
+            if (unknownInt30 != 1) // 0, 1
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             for (var i = 0; i < 3; i++)
@@ -435,11 +442,12 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            var unknownInt32 = reader.ReadInt32();
-            if (unknownInt32 != -1)
+            if (_moduleData.Turret != null)
             {
-                throw new InvalidDataException();
+                _turretAIUpdate.Load(reader);
             }
+
+            var unknownInt32 = reader.ReadInt32(); // -1, 258
 
             var unknownInt33 = reader.ReadInt32();
             if (unknownInt33 != 0)
