@@ -56,6 +56,7 @@ namespace OpenSage.Data.Sav
                 MapFile map = null;
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
+                bool isCampaign = false;
 
                 while (!chunkHeader.IsEof)
                 {
@@ -74,6 +75,8 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_Campaign":
                             {
+                                isCampaign = true;
+
                                 var version = reader.ReadByte();
                                 var side = reader.ReadBytePrefixedAsciiString();
                                 var missionName = reader.ReadBytePrefixedAsciiString();
@@ -114,7 +117,7 @@ namespace OpenSage.Data.Sav
                                             new ColorRgb(0, 0, 255), 0)
                                     },
                                     localPlayerIndex: 0, // TODO
-                                    isMultiPlayer: true,
+                                    isMultiPlayer: !isCampaign,
                                     seed: Environment.TickCount, // TODO
                                     map); // TODO
 

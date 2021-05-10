@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 
 namespace OpenSage.Data.Map
 {
+    [DebuggerDisplay("Team '{GetName()}'")]
     public sealed class Team
     {
         public AssetPropertyCollection Properties { get; private set; }
@@ -18,5 +20,7 @@ namespace OpenSage.Data.Map
         {
             Properties.WriteTo(writer, assetNames);
         }
+
+        private string GetName() => (string)Properties["teamName"].Value;
     }
 }

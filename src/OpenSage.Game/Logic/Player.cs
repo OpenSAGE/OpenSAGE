@@ -337,7 +337,7 @@ namespace OpenSage.Logic
                 var unknown10 = reader.ReadUInt16();
                 if (unknown10 != 2)
                 {
-                    throw new InvalidDataException();
+                    //throw new InvalidDataException();
                 }
 
                 var objectName = reader.ReadBytePrefixedAsciiString();

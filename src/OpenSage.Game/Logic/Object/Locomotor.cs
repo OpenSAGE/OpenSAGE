@@ -358,14 +358,7 @@ namespace OpenSage.Logic.Object
 
             var frameSomething = reader.ReadUInt32();
 
-            for (var i = 0; i < 3; i++)
-            {
-                var unknown1 = reader.ReadUInt32();
-                if (unknown1 != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            var positionSomething = reader.ReadVector3();
 
             var unknownFloat1 = reader.ReadSingle();
             if (unknownFloat1 != 1.0f)
@@ -410,9 +403,9 @@ namespace OpenSage.Logic.Object
             }
 
             var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0)
+            if (unknown2 != 0) // 0, 4
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknown3 = reader.ReadUInt32();

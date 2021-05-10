@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using OpenSage.Data.Sav;
 
@@ -29,17 +30,25 @@ namespace OpenSage.Logic
 
                 var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
 
-                var id = (uint)(_teamTemplatesById.Count + 1);
-
-                var teamTemplate = new TeamTemplate(
-                    id,
-                    name,
-                    owner,
-                    isSingleton);
-
-                _teamTemplatesById.Add(id, teamTemplate);
-                _teamTemplatesByName.Add(name, teamTemplate);
+                AddTeamTemplate(name, owner, isSingleton);
             }
+
+            // Adding this unknowm team makes the team template indices match.
+            AddTeamTemplate("__Unknown", players.First(), true);
+        }
+
+        private void AddTeamTemplate(string name, Player owner, bool isSingleton)
+        {
+            var id = (uint) (_teamTemplatesById.Count + 1);
+
+            var teamTemplate = new TeamTemplate(
+                id,
+                name,
+                owner,
+                isSingleton);
+
+            _teamTemplatesById.Add(id, teamTemplate);
+            _teamTemplatesByName.Add(name, teamTemplate);
         }
 
         public TeamTemplate FindTeamTemplateByName(string name)
@@ -58,6 +67,10 @@ namespace OpenSage.Logic
             var unknown1 = reader.ReadUInt32();
 
             var count = reader.ReadUInt16();
+            if (count != _teamTemplatesById.Count)
+            {
+                throw new InvalidDataException();
+            }
 
             for (var i = 0; i < count; i++)
             {
