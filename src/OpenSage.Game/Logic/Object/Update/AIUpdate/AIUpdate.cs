@@ -358,7 +358,9 @@ namespace OpenSage.Logic.Object
                 //throw new InvalidDataException();
             }
 
-            for (var i = 0; i < 3; i++)
+            var angleSomething = reader.ReadSingle();
+
+            for (var i = 0; i < 2; i++)
             {
                 var unknownInt31 = reader.ReadUInt32();
                 if (unknownInt31 != 0)
