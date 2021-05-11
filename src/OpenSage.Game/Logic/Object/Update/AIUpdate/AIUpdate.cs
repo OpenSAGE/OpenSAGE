@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
+using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -11,6 +12,8 @@ namespace OpenSage.Logic.Object
     public class AIUpdate : UpdateModule
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private readonly AIStateMachine _stateMachine;
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -42,6 +45,8 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
 
             TargetPoints = new List<Vector3>();
+
+            _stateMachine = new AIStateMachine();
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
@@ -248,210 +253,7 @@ namespace OpenSage.Logic.Object
             var unknownInt1 = reader.ReadUInt32();
             var unknownInt2 = reader.ReadUInt32();
 
-            var unknownVersion1 = reader.ReadVersion();
-            if (unknownVersion1 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownVersion2 = reader.ReadVersion();
-            if (unknownVersion2 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var frameSomething2 = reader.ReadUInt32(); // 0
-            var unknownInt4 = reader.ReadUInt32(); // 0
-
-            // Current state?
-            var unknownInt5 = reader.ReadUInt32();
-
-            var unknownBool1 = reader.ReadBooleanChecked();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
-
-            switch (unknownInt5)
-            {
-                case 0:
-                    {
-                        var unknownVersion3 = reader.ReadVersion();
-                        if (unknownVersion3 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        var unknownShort1 = reader.ReadUInt16();
-                        var unknownShort2 = reader.ReadUInt16();
-                        break;
-                    }
-
-                case 1:
-                    {
-                        var unknownVersion3 = reader.ReadVersion();
-                        if (unknownVersion3 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        var positionSomething = reader.ReadVector3();
-                        var unknownInt6 = reader.ReadUInt32();
-                        var unknownBool2 = reader.ReadBooleanChecked();
-                        var positionSomething2 = reader.ReadVector3();
-                        var unknownInt7 = reader.ReadUInt32();
-                        var unknownInt8 = reader.ReadUInt32();
-                        var unknownBool3 = reader.ReadBooleanChecked();
-                        break;
-                    }
-
-                case 3:
-                    {
-                        var unknownVersion3 = reader.ReadVersion();
-                        if (unknownVersion3 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // The following until "... until here" is the same
-                        // structure as case 1 above.
-                        var unknownVersion4 = reader.ReadVersion();
-                        if (unknownVersion4 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        var positionSomething = reader.ReadVector3();
-                        var unknownInt6 = reader.ReadUInt32();
-                        var unknownBool2 = reader.ReadBooleanChecked();
-                        var positionSomething2 = reader.ReadVector3();
-                        var unknownInt7 = reader.ReadUInt32();
-                        var unknownInt8 = reader.ReadUInt32();
-                        var unknownBool3 = reader.ReadBooleanChecked();
-                        // ... until here
-                        var unknownInt9_0 = reader.ReadUInt32();
-                        var unknownInt9_1 = reader.ReadUInt32();
-                        var unknownInt9_2 = reader.ReadUInt32();
-                        var unknownInt9_3 = reader.ReadUInt32();
-                        var waypointIdMaybe = reader.ReadUInt32();
-                        var waypointId2Maybe = reader.ReadUInt32();
-                        var unknownBool2_1 = reader.ReadBooleanChecked();
-                        break;
-                    }
-
-                case 6:
-                    {
-                        var unknownVersion3 = reader.ReadVersion();
-                        if (unknownVersion3 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // The following until "... until here" is the same
-                        // structure as case 1 above.
-                        var unknownVersion4 = reader.ReadVersion();
-                        if (unknownVersion4 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        var positionSomething = reader.ReadVector3();
-                        var unknownInt6 = reader.ReadUInt32();
-                        var unknownBool2 = reader.ReadBooleanChecked();
-                        var positionSomething2 = reader.ReadVector3();
-                        var unknownInt7 = reader.ReadUInt32();
-                        var unknownInt8 = reader.ReadUInt32();
-                        var unknownBool3 = reader.ReadBooleanChecked();
-                        // ... until here
-                        var unknownInt8_1 = reader.ReadInt32();
-                        var unknownBool3_1 = reader.ReadBooleanChecked();
-                        var unknownBool3_2 = reader.ReadBooleanChecked();
-                        break;
-                    }
-
-                case 11:
-                    {
-                        var unknownVersion3 = reader.ReadVersion();
-                        if (unknownVersion3 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        var unknownBool2 = reader.ReadBooleanChecked();
-                        var positionSomething = reader.ReadVector3();
-                        var unknownVersion10 = reader.ReadVersion();
-                        if (unknownVersion10 != 1)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // TODO: The following looks like it follows the same
-                        // structure as this state container (machine?)
-                        // that we're parsing now.
-                        {
-                            var unknownVersion2_1 = reader.ReadVersion();
-                            if (unknownVersion2_1 != 1)
-                            {
-                                throw new InvalidDataException();
-                            }
-
-                            var frameSomething2_1 = reader.ReadUInt32(); // 0
-                            var unknownInt4_1 = reader.ReadUInt32(); // 0
-
-                            // Current state?
-                            var unknownInt5_1 = reader.ReadUInt32();
-
-                            var unknownBool1_1 = reader.ReadBooleanChecked();
-                            if (unknownBool1_1)
-                            {
-                                throw new InvalidDataException();
-                            }
-
-                            switch (unknownInt5_1)
-                            {
-                                case 1:
-                                    {
-                                        var unknownVersion2_2 = reader.ReadVersion();
-                                        if (unknownVersion2_2 != 1)
-                                        {
-                                            throw new InvalidDataException();
-                                        }
-                                        // The following until "... until here" is the same
-                                        // structure as case 1 above.
-                                        var unknownVersion4 = reader.ReadVersion();
-                                        if (unknownVersion4 != 1)
-                                        {
-                                            throw new InvalidDataException();
-                                        }
-                                        var positionSomething__2 = reader.ReadVector3();
-                                        var unknownInt6 = reader.ReadUInt32();
-                                        var unknownBool2_2 = reader.ReadBooleanChecked();
-                                        var positionSomething2 = reader.ReadVector3();
-                                        var unknownInt7 = reader.ReadUInt32();
-                                        var unknownInt8 = reader.ReadUInt32();
-                                        var unknownBool3 = reader.ReadBooleanChecked();
-                                        // ... until here
-                                        var positionSomething2_2 = reader.ReadVector3();
-                                        var frameSomething_2 = reader.ReadUInt32();
-                                        var unknownBool2_3 = reader.ReadBooleanChecked();
-                                        var unknownBool2_4 = reader.ReadBooleanChecked();
-                                        var unknownBool2_5 = reader.ReadBooleanChecked();
-                                        var unknownBool2_6 = reader.ReadBooleanChecked();
-                                        break;
-                                    }
-
-                                default:
-                                    throw new InvalidOperationException();
-                            }
-
-                            var unknownInt9_1 = reader.ReadUInt32();
-                            var positionSomething3_1 = reader.ReadVector3();
-                            var unknownBool4_1 = reader.ReadBooleanChecked();
-                            var unknownBool5_1 = reader.ReadBooleanChecked();
-                        }
-                        break;
-                    }
-
-                default:
-                    throw new InvalidDataException();
-            }
-
-            var unknownInt9 = reader.ReadUInt32();
-            var positionSomething3 = reader.ReadVector3();
-            var unknownBool4 = reader.ReadBooleanChecked();
-            var unknownBool5 = reader.ReadBooleanChecked();
+            _stateMachine.Load(new Data.Sav.SaveFileReader(reader));
 
             var numPositionsSomething = reader.ReadUInt32();
             for (var i = 0; i < numPositionsSomething; i++)
