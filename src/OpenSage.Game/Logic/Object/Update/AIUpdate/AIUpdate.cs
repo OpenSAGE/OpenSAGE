@@ -303,6 +303,66 @@ namespace OpenSage.Logic.Object
                         break;
                     }
 
+                case 3:
+                    {
+                        var unknownVersion3 = reader.ReadVersion();
+                        if (unknownVersion3 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        // The following until "... until here" is the same
+                        // structure as case 1 above.
+                        var unknownVersion4 = reader.ReadVersion();
+                        if (unknownVersion4 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var positionSomething = reader.ReadVector3();
+                        var unknownInt6 = reader.ReadUInt32();
+                        var unknownBool2 = reader.ReadBooleanChecked();
+                        var positionSomething2 = reader.ReadVector3();
+                        var unknownInt7 = reader.ReadUInt32();
+                        var unknownInt8 = reader.ReadUInt32();
+                        var unknownBool3 = reader.ReadBooleanChecked();
+                        // ... until here
+                        var unknownInt9_0 = reader.ReadUInt32();
+                        var unknownInt9_1 = reader.ReadUInt32();
+                        var unknownInt9_2 = reader.ReadUInt32();
+                        var unknownInt9_3 = reader.ReadUInt32();
+                        var waypointIdMaybe = reader.ReadUInt32();
+                        var waypointId2Maybe = reader.ReadUInt32();
+                        var unknownBool2_1 = reader.ReadBooleanChecked();
+                        break;
+                    }
+
+                case 6:
+                    {
+                        var unknownVersion3 = reader.ReadVersion();
+                        if (unknownVersion3 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        // The following until "... until here" is the same
+                        // structure as case 1 above.
+                        var unknownVersion4 = reader.ReadVersion();
+                        if (unknownVersion4 != 1)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var positionSomething = reader.ReadVector3();
+                        var unknownInt6 = reader.ReadUInt32();
+                        var unknownBool2 = reader.ReadBooleanChecked();
+                        var positionSomething2 = reader.ReadVector3();
+                        var unknownInt7 = reader.ReadUInt32();
+                        var unknownInt8 = reader.ReadUInt32();
+                        var unknownBool3 = reader.ReadBooleanChecked();
+                        // ... until here
+                        var unknownInt8_1 = reader.ReadInt32();
+                        var unknownBool3_1 = reader.ReadBooleanChecked();
+                        var unknownBool3_2 = reader.ReadBooleanChecked();
+                        break;
+                    }
+
                 case 11:
                     {
                         var unknownVersion3 = reader.ReadVersion();
@@ -320,6 +380,67 @@ namespace OpenSage.Logic.Object
                         // TODO: The following looks like it follows the same
                         // structure as this state container (machine?)
                         // that we're parsing now.
+                        {
+                            var unknownVersion2_1 = reader.ReadVersion();
+                            if (unknownVersion2_1 != 1)
+                            {
+                                throw new InvalidDataException();
+                            }
+
+                            var frameSomething2_1 = reader.ReadUInt32(); // 0
+                            var unknownInt4_1 = reader.ReadUInt32(); // 0
+
+                            // Current state?
+                            var unknownInt5_1 = reader.ReadUInt32();
+
+                            var unknownBool1_1 = reader.ReadBooleanChecked();
+                            if (unknownBool1_1)
+                            {
+                                throw new InvalidDataException();
+                            }
+
+                            switch (unknownInt5_1)
+                            {
+                                case 1:
+                                    {
+                                        var unknownVersion2_2 = reader.ReadVersion();
+                                        if (unknownVersion2_2 != 1)
+                                        {
+                                            throw new InvalidDataException();
+                                        }
+                                        // The following until "... until here" is the same
+                                        // structure as case 1 above.
+                                        var unknownVersion4 = reader.ReadVersion();
+                                        if (unknownVersion4 != 1)
+                                        {
+                                            throw new InvalidDataException();
+                                        }
+                                        var positionSomething__2 = reader.ReadVector3();
+                                        var unknownInt6 = reader.ReadUInt32();
+                                        var unknownBool2_2 = reader.ReadBooleanChecked();
+                                        var positionSomething2 = reader.ReadVector3();
+                                        var unknownInt7 = reader.ReadUInt32();
+                                        var unknownInt8 = reader.ReadUInt32();
+                                        var unknownBool3 = reader.ReadBooleanChecked();
+                                        // ... until here
+                                        var positionSomething2_2 = reader.ReadVector3();
+                                        var frameSomething_2 = reader.ReadUInt32();
+                                        var unknownBool2_3 = reader.ReadBooleanChecked();
+                                        var unknownBool2_4 = reader.ReadBooleanChecked();
+                                        var unknownBool2_5 = reader.ReadBooleanChecked();
+                                        var unknownBool2_6 = reader.ReadBooleanChecked();
+                                        break;
+                                    }
+
+                                default:
+                                    throw new InvalidOperationException();
+                            }
+
+                            var unknownInt9_1 = reader.ReadUInt32();
+                            var positionSomething3_1 = reader.ReadVector3();
+                            var unknownBool4_1 = reader.ReadBooleanChecked();
+                            var unknownBool5_1 = reader.ReadBooleanChecked();
+                        }
                         break;
                     }
 
@@ -332,13 +453,13 @@ namespace OpenSage.Logic.Object
             var unknownBool4 = reader.ReadBooleanChecked();
             var unknownBool5 = reader.ReadBooleanChecked();
 
-            var unknownInt10 = reader.ReadUInt32();
-            if (unknownInt10 != 0)
+            var numPositionsSomething = reader.ReadUInt32();
+            for (var i = 0; i < numPositionsSomething; i++)
             {
-                throw new InvalidDataException();
+                var positionSomething = reader.ReadVector3();
             }
 
-            var unknownBool6 = reader.ReadBooleanChecked();
+            var waypointName = reader.ReadBytePrefixedAsciiString();
             var unknownBool7 = reader.ReadBooleanChecked();
 
             var unknownInt11 = reader.ReadUInt32();
@@ -419,10 +540,12 @@ namespace OpenSage.Logic.Object
             _locomotorSet.Load(new Data.Sav.SaveFileReader(reader));
 
             var currentLocomotorTemplateName = reader.ReadBytePrefixedAsciiString();
-            CurrentLocomotor = _locomotorSet.GetLocomotor(currentLocomotorTemplateName);
+            CurrentLocomotor = currentLocomotorTemplateName != ""
+                ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
+                : null;
 
             var unknownInt29 = reader.ReadUInt32();
-            if (unknownInt29 != 0)
+            if (unknownInt29 != 0 && unknownInt29 != uint.MaxValue)
             {
                 throw new InvalidDataException();
             }
@@ -450,7 +573,7 @@ namespace OpenSage.Logic.Object
             var unknownInt32 = reader.ReadInt32(); // -1, 258
 
             var unknownInt33 = reader.ReadInt32();
-            if (unknownInt33 != 0)
+            if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2)
             {
                 throw new InvalidDataException();
             }
