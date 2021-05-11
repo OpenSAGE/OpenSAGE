@@ -13,6 +13,7 @@ namespace OpenSage.Logic.AI
             AddState(3, new AIState3());
             AddState(6, new AIState6());
             AddState(11, new AIState11());
+            AddState(14, new AIState14());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -131,6 +132,54 @@ namespace OpenSage.Logic.AI
             var unknownBool2 = reader.ReadBoolean();
             var unknownBool3 = reader.ReadBoolean();
             var unknownBool4 = reader.ReadBoolean();
+        }
+    }
+
+    internal sealed class AIState14 : State
+    {
+        private readonly AIState14StateMachine _stateMachine;
+
+        public AIState14()
+        {
+            _stateMachine = new AIState14StateMachine();
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var unknownBool1 = reader.ReadBoolean();
+
+            _stateMachine.Load(reader);
+
+            var unknownBool2 = reader.ReadBoolean();
+        }
+    }
+
+    internal sealed class AIState14StateMachine : StateMachineBase
+    {
+        public AIState14StateMachine()
+        {
+            AddState(0, new AIState14StateMachineState0());
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknownInt1 = reader.ReadUInt32();
+        }
+    }
+
+    internal sealed class AIState14StateMachineState0 : AIState1
+    {
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(2);
+
+            base.Load(reader);
         }
     }
 
