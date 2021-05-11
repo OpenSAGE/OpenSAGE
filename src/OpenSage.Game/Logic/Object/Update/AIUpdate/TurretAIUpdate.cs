@@ -202,7 +202,36 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            // TODO
+            var unknownBool1 = reader.ReadBooleanChecked();
+            if (!unknownBool1)
+            {
+                throw new InvalidDataException();
+            }
+
+            // Angles maybe.
+            var unknownFloat1 = reader.ReadSingle();
+            var unknownFloat2 = reader.ReadSingle();
+
+            var unknownInt3 = reader.ReadUInt32();
+            if (unknownInt3 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt4 = reader.ReadUInt32(); // 0, 1
+
+            var unknownInt5 = reader.ReadInt32();
+            if (unknownInt5 != -1)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknownBool2 = reader.ReadBooleanChecked();
+            }
+
+            var frameSomething = reader.ReadUInt32();
         }
     }
 

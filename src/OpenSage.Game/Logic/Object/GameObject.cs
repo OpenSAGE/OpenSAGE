@@ -345,6 +345,11 @@ namespace OpenSage.Logic.Object
 
             AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper());
 
+            if (objectDefinition.KindOf.Get(ObjectKinds.CanBeRepulsed))
+            {
+                AddBehavior("ModuleTag_RepulsorHelper", new ObjectRepulsorHelper());
+            }
+
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
             // Maybe KindOf = CAN_ATTACK ?
             AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
