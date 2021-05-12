@@ -48,6 +48,8 @@ namespace OpenSage.Data.Sav
 
         public Vector3 ReadVector3() => _binaryReader.ReadVector3();
 
+        public Point2D ReadPoint2D() => _binaryReader.ReadPoint2D();
+
         public TEnum ReadEnum<TEnum>()
             where TEnum : struct
         {

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace OpenSage.Data.Map
 {
@@ -6,7 +7,7 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "PolygonTriggers";
 
-        public PolygonTrigger[] Triggers { get; private set; }
+        public PolygonTrigger[] Triggers { get; init; }
 
         internal static PolygonTriggers Parse(BinaryReader reader, MapParseContext context)
         {
@@ -38,6 +39,18 @@ namespace OpenSage.Data.Map
                     trigger.WriteTo(writer, Version);
                 }
             });
+        }
+
+        internal PolygonTrigger GetPolygonTriggerById(uint id)
+        {
+            for (var i = 0; i < Triggers.Length; i++)
+            {
+                if (Triggers[i].UniqueId == id)
+                {
+                    return Triggers[i];
+                }
+            }
+            throw new InvalidOperationException();
         }
     }
 }

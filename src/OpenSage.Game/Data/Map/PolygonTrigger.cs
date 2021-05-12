@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
@@ -36,6 +36,10 @@ namespace OpenSage.Data.Map
         public float RiverAlpha { get; private set; }
 
         public MapVector3i[] Points { get; private set; }
+
+        public Rectangle Bounds { get; private set; }
+
+        public float Radius { get; private set; }
 
         internal static PolygonTrigger Parse(BinaryReader reader, ushort version)
         {
@@ -130,6 +134,50 @@ namespace OpenSage.Data.Map
             foreach (var point in Points)
             {
                 point.WriteTo(writer);
+            }
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var numPoints = reader.ReadUInt32();
+            if (numPoints != Points.Length)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < numPoints; i++)
+            {
+                Points[i] = MapVector3i.Parse(reader.Inner);
+            }
+
+            var topLeft = reader.ReadPoint2D();
+            var bottomRight = reader.ReadPoint2D();
+
+            Bounds = Rectangle.FromCorners(topLeft, bottomRight);
+
+            // The following value is what you get if you do this calculation:
+            // width = (bottomRight.X - topLeft.X) * 0.5
+            // height = (bottomRight.Y + topLeft.Y) * 0.5
+            // value = sqrt(width * width + height * height)
+            //
+            // This looks like it's supposed to be a radius for this polygon trigger,
+            // presumably used for quick distance tests prior to testing if
+            // a point is inside the actual polygon.
+            //
+            // But there's a mistake... the height should instead be:
+            // height = (bottomRight.Y - topLeft.Y) * 0.5
+            //
+            // As it is, this "radius" is significantly larger than it should be.
+            var _ = reader.ReadSingle();
+
+            Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
+
+            var unknown = reader.ReadBoolean();
+            if (unknown)
+            {
+                throw new InvalidDataException();
             }
         }
     }
