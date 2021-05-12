@@ -1374,14 +1374,16 @@ namespace OpenSage.Logic.Object
 
     public enum ObjectBuildableType
     {
-        [IniEnum("No")]
-        No,
-
         [IniEnum("Yes")]
-        Yes,
+        Yes = 0,
+
+        IgnorePrerequisites = 1,
+
+        [IniEnum("No")]
+        No = 2,
 
         [IniEnum("Only_By_AI")]
-        OnlyByAI
+        OnlyByAI = 3,
     }
 
     [AddedIn(SageGame.Bfme)]

@@ -12,6 +12,7 @@ namespace OpenSage.Logic
         private readonly Scene3D _scene3D;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
         private readonly List<GameObject> _objects;
+        private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides;
 
         private uint _currentFrame;
 
@@ -79,18 +80,75 @@ namespace OpenSage.Logic
                 polygonTrigger.Load(reader);
             }
 
-            reader.ReadUInt32(); // 1000
-            reader.ReadUInt32(); // 0
-            reader.ReadBoolean(); // 0
-            reader.ReadBoolean(); // 1
-            reader.ReadBoolean(); // 1
-            reader.ReadBoolean(); // 1
-            reader.ReadUInt32(); // 0xFFFFFFFF
+            var unknown1 = reader.ReadUInt32();
+            if (unknown1 != 2) // Rank level limit?
+            {
+                throw new InvalidDataException();
+            }
 
+            var unknown2 = reader.ReadUInt32();
+            if (unknown2 != 0)
+            {
+                throw new InvalidDataException();
+            }
 
+            while (true)
+            {
+                var objectDefinitionName = reader.ReadAsciiString();
+                if (objectDefinitionName == "")
+                {
+                    break;
+                }
 
-            reader.ReadUInt32(); // 0
-            reader.ReadBoolean(); // 0
+                var buildableStatus = reader.ReadEnum<ObjectBuildableType>();
+
+                _techTreeOverrides.Add(
+                    objectDefinitionName,
+                    buildableStatus);
+            }
+
+            if (!reader.ReadBoolean())
+            {
+                throw new InvalidDataException();
+            }
+
+            if (!reader.ReadBoolean())
+            {
+                throw new InvalidDataException();
+            }
+
+            if (!reader.ReadBoolean())
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown3 = reader.ReadUInt32();
+            if (unknown3 != uint.MaxValue)
+            {
+                throw new InvalidDataException();
+            }
+
+            // Command button overrides
+            while (true)
+            {
+                var commandSetNamePrefixedWithCommandButtonIndex = reader.ReadAsciiString();
+                if (commandSetNamePrefixedWithCommandButtonIndex == "")
+                {
+                    break;
+                }
+
+                var unknownBool1 = reader.ReadBoolean();
+                if (unknownBool1)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var unknown4 = reader.ReadUInt32();
+            if (unknown4 != 0)
+            {
+                throw new InvalidDataException();
+            }
         }
     }
 
