@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
 using OpenSage.Logic.Object;
