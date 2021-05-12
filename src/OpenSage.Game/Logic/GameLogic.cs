@@ -66,24 +66,16 @@ namespace OpenSage.Logic
 
             reader.__Skip(12);
 
-            var someCount4 = reader.ReadUInt32();
-            for (var i = 0; i < someCount4; i++)
+            var numPolygonTriggers = reader.ReadUInt32();
+            if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
             {
-                var maybeIndex = reader.ReadUInt32();
-                reader.ReadBoolean(); // 1
-                var someCount5 = reader.ReadUInt32();
-                for (var j = 0; j < someCount5; j++)
-                {
-                    reader.ReadUInt32();
-                    reader.ReadUInt32();
-                    reader.ReadUInt32();
-                }
-                reader.ReadUInt32();
-                reader.ReadUInt32();
-                reader.ReadUInt32();
-                reader.ReadUInt32();
-                reader.ReadSingle();
-                reader.ReadBoolean();
+                throw new InvalidDataException();
+            }
+            for (var i = 0; i < numPolygonTriggers; i++)
+            {
+                var id = reader.ReadUInt32();
+                var polygonTrigger = _scene3D.MapFile.PolygonTriggers.GetPolygonTriggerById(id);
+                polygonTrigger.Load(reader);
             }
 
             reader.ReadUInt32(); // 1000
