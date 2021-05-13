@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Sav;
@@ -32,6 +33,11 @@ namespace OpenSage.Client
         private readonly List<DrawModule> _drawModules;
 
         private readonly List<ClientUpdateModule> _clientUpdateModules;
+
+        public uint DrawableID { get; private set; }
+
+        private ColorFlashHelper _selectionFlashHelper;
+        private ColorFlashHelper _scriptedFlashHelper;
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
@@ -248,33 +254,31 @@ namespace OpenSage.Client
         {
             reader.ReadVersion(5);
 
-            var drawableID = reader.ReadUInt32();
+            DrawableID = reader.ReadUInt32();
 
-            reader.ReadByte();
-
-            var numModelConditionFlags = reader.ReadUInt32();
-            for (var j = 0; j < numModelConditionFlags; j++)
-            {
-                var modelConditionFlag = reader.ReadAsciiString();
-            }
+            var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
+            CopyModelConditionFlags(modelConditionFlags);
 
             var transform = reader.ReadMatrix4x3();
 
-            var unknownBool = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
-            if (unknownBool)
+            var hasSelectionFlashHelper = reader.ReadBoolean();
+            if (hasSelectionFlashHelper)
             {
-                for (var j = 0; j < 9; j++)
-                {
-                    reader.ReadSingle();
-                }
-                reader.__Skip(19);
+                _selectionFlashHelper ??= new ColorFlashHelper();
+                _selectionFlashHelper.Load(reader);
+            }
+
+            var hasScriptedFlashHelper = reader.ReadBoolean();
+            if (hasScriptedFlashHelper)
+            {
+                _scriptedFlashHelper ??= new ColorFlashHelper();
+                _scriptedFlashHelper.Load(reader);
             }
 
             reader.__Skip(56);
 
-            var unknownBool3 = reader.ReadBoolean();
-            if (unknownBool3)
+            var unknownBool4 = reader.ReadBoolean();
+            if (unknownBool4)
             {
                 for (var j = 0; j < 19; j++)
                 {
