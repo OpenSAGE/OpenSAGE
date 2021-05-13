@@ -16,6 +16,8 @@ namespace OpenSage.Logic
 
         private uint _currentFrame;
 
+        private uint _rankLevelLimit;
+
         public GameLogic(Scene3D scene3D)
         {
             _scene3D = scene3D;
@@ -80,11 +82,7 @@ namespace OpenSage.Logic
                 polygonTrigger.Load(reader);
             }
 
-            var unknown1 = reader.ReadUInt32();
-            if (unknown1 != 2) // Rank level limit?
-            {
-                throw new InvalidDataException();
-            }
+            _rankLevelLimit = reader.ReadUInt32();
 
             var unknown2 = reader.ReadUInt32();
             if (unknown2 != 0)

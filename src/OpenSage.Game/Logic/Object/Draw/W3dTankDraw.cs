@@ -1,7 +1,9 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 
@@ -59,6 +61,17 @@ namespace OpenSage.Logic.Object
                     _barrelBone.AnimatedOffset.Rotation = Quaternion.CreateFromYawPitchRoll(GameObject.TurretPitch, 0, 0);
                 }
             }
+        }
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
         }
     }
 
