@@ -206,6 +206,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("DOCKING")]
         Docking,
 
+        [IniEnum("DOCKING_ENDING")]
+        DockingEnding,
+
         [IniEnum("AFLAME")]
         Aflame,
 

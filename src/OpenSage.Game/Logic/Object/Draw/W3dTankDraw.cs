@@ -9,7 +9,7 @@ using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class W3dTankDraw : W3dModelDraw
+    public class W3dTankDraw : W3dModelDraw
     {
         private readonly W3dTankDrawModuleData _data;
         private readonly FXParticleSystemTemplate _treadDebrisLeft;

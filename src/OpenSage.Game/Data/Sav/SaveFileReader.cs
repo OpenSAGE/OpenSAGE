@@ -57,6 +57,12 @@ namespace OpenSage.Data.Sav
             return _binaryReader.ReadUInt32AsEnum<TEnum>();
         }
 
+        public TEnum ReadEnumByte<TEnum>()
+            where TEnum : struct
+        {
+            return _binaryReader.ReadByteAsEnum<TEnum>();
+        }
+
         public TEnum ReadEnumFlags<TEnum>()
             where TEnum : struct
         {
@@ -65,7 +71,10 @@ namespace OpenSage.Data.Sav
 
         public Matrix4x3 ReadMatrix4x3(bool readVersion = true)
         {
-            ReadVersion(1);
+            if (readVersion)
+            {
+                ReadVersion(1);
+            }
 
             var m11 = _binaryReader.ReadSingle();
             var m21 = _binaryReader.ReadSingle();
