@@ -25,10 +25,10 @@ namespace OpenSage.Client
             _currentColor = reader.ReadVector3();
             _holdFrames = reader.ReadUInt32();
             _isActive = reader.ReadBoolean();
-            _state = reader.ReadEnum<ColorFlashState>();
+            _state = reader.ReadEnumByte<ColorFlashState>();
         }
 
-        private enum ColorFlashState
+        private enum ColorFlashState : byte
         {
             None = 0,
             Increasing = 1,

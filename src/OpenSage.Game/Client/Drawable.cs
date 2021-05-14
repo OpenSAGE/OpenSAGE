@@ -292,7 +292,7 @@ namespace OpenSage.Client
             }
 
             var unknownInt1 = reader.ReadUInt32();
-            if (unknownInt1 != 0 && unknownInt1 != 1 && unknownInt1 != 2)
+            if (unknownInt1 != 0 && unknownInt1 != 1 && unknownInt1 != 2 && unknownInt1 != 3)
             {
                 throw new InvalidDataException();
             }
@@ -317,14 +317,19 @@ namespace OpenSage.Client
 
             LoadModules(reader);
 
-            for (var i = 0; i < 12; i++)
+            var unknownInt4 = reader.ReadUInt32();
+            if (unknownInt4 != 0)
             {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                throw new InvalidDataException();
             }
+
+            var unknownInt5 = reader.ReadUInt32();
+            if (unknownInt5 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt6 = reader.ReadUInt32();
 
             var unknownBool5 = reader.ReadBoolean();
 
@@ -337,11 +342,9 @@ namespace OpenSage.Client
                 }
             }
 
+            var unknownBool6 = reader.ReadBoolean();
+
             var unknownMatrix = reader.ReadMatrix4x3(false);
-            if (unknownMatrix != Matrix4x3.Identity)
-            {
-                throw new InvalidDataException();
-            }
 
             var unknownFloat2 = reader.ReadSingle();
             if (unknownFloat2 != 1)

@@ -40,7 +40,11 @@ namespace OpenSage.Client
                 reader.EndSegment();
             }
 
-            reader.ReadUInt32();
+            var numBriefingTexts = reader.ReadUInt32();
+            for (var i = 0; i < numBriefingTexts; i++)
+            {
+                var gadgetBriefingText = reader.ReadAsciiString();
+            }
         }
     }
 }
