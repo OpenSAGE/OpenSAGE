@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Sav;
@@ -38,6 +39,8 @@ namespace OpenSage.Client
 
         private ColorFlashHelper _selectionFlashHelper;
         private ColorFlashHelper _scriptedFlashHelper;
+
+        private ObjectDecalType _objectDecalType;
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
@@ -275,7 +278,33 @@ namespace OpenSage.Client
                 _scriptedFlashHelper.Load(reader);
             }
 
-            reader.__Skip(56);
+            _objectDecalType = reader.ReadEnum<ObjectDecalType>();
+
+            for (var i = 0; i < 6; i++)
+            {
+                var unknownFloat = reader.ReadSingle();
+            }
+
+            var objectId = reader.ReadUInt32();
+            if (objectId != GameObject.ID)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt1 = reader.ReadUInt32();
+            if (unknownInt1 != 0 && unknownInt1 != 1 && unknownInt1 != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < 5; i++)
+            {
+                var unknownInt = reader.ReadUInt32();
+                if (unknownInt != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
 
             var unknownBool4 = reader.ReadBoolean();
             if (unknownBool4)
@@ -286,35 +315,92 @@ namespace OpenSage.Client
                 }
             }
 
-            reader.__Skip(3);
+            LoadModules(reader);
 
-            var numDrawModules = reader.ReadUInt16();
-            for (var moduleIndex = 0; moduleIndex < numDrawModules; moduleIndex++)
+            for (var i = 0; i < 12; i++)
             {
-                var moduleTag = reader.ReadAsciiString();
-
-                reader.BeginSegment();
-
-                var module = GetModuleByTag(moduleTag);
-                module.Load(reader.Inner);
-
-                reader.EndSegment();
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
-            var numClientUpdates = reader.ReadUInt16();
-            for (var moduleIndex = 0; moduleIndex < numClientUpdates; moduleIndex++)
+            var unknownBool5 = reader.ReadBoolean();
+
+            for (var i = 0; i < 5; i++)
             {
-                var moduleTag = reader.ReadAsciiString();
-
-                reader.BeginSegment();
-
-                var module = GetModuleByTag(moduleTag);
-                module.Load(reader.Inner);
-
-                reader.EndSegment();
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
-            reader.__Skip(81);
+            var unknownMatrix = reader.ReadMatrix4x3(false);
+            if (unknownMatrix != Matrix4x3.Identity)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownFloat2 = reader.ReadSingle();
+            if (unknownFloat2 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt2 = reader.ReadUInt32();
+            if (unknownInt2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownInt3 = reader.ReadUInt32();
+            if (unknownInt3 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool1 = reader.ReadBoolean();
+            if (unknownBool1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool2 = reader.ReadBoolean();
+            if (!unknownBool2)
+            {
+                throw new InvalidDataException();
+            }
         }
+
+        private void LoadModules(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var numModuleGroups = reader.ReadUInt16();
+            for (var i = 0; i < numModuleGroups; i++)
+            {
+                var numModules = reader.ReadUInt16();
+                for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
+                {
+                    var moduleTag = reader.ReadAsciiString();
+
+                    reader.BeginSegment();
+
+                    var module = GetModuleByTag(moduleTag);
+                    module.Load(reader.Inner);
+
+                    reader.EndSegment();
+                }
+            }
+        }
+    }
+
+    public enum ObjectDecalType
+    {
+        HordeInfantry = 1,
+        HordeVehicle = 3,
+        None = 6,
     }
 }

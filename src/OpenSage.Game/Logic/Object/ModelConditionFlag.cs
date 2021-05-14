@@ -215,6 +215,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("BURNED")]
         Burned,
 
+        [IniEnum("WEAPONSET_HERO")]
+        WeaponSetHero,
+
         [IniEnum("RIDERS_ATTACKING"), AddedIn(SageGame.CncGeneralsZeroHour)]
         RidersAttacking,
 

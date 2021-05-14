@@ -1,12 +1,19 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace OpenSage.Mathematics
 {
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct Matrix4x3
+    public readonly struct Matrix4x3 : IEquatable<Matrix4x3>
     {
         public const int SizeInBytes = 48;
+
+        public static readonly Matrix4x3 Identity = new Matrix4x3(
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 1,
+            0, 0, 0);
 
         public readonly float M11;
         public readonly float M21;
@@ -43,6 +50,27 @@ namespace OpenSage.Mathematics
             M43 = m43;
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is Matrix4x3 x && Equals(x);
+        }
+
+        public bool Equals(Matrix4x3 other)
+        {
+            return M11 == other.M11 &&
+                   M21 == other.M21 &&
+                   M31 == other.M31 &&
+                   M41 == other.M41 &&
+                   M12 == other.M12 &&
+                   M22 == other.M22 &&
+                   M32 == other.M32 &&
+                   M42 == other.M42 &&
+                   M13 == other.M13 &&
+                   M23 == other.M23 &&
+                   M33 == other.M33 &&
+                   M43 == other.M43;
+        }
+
         public Matrix4x4 ToMatrix4x4()
         {
             return new Matrix4x4(
@@ -50,6 +78,16 @@ namespace OpenSage.Mathematics
                 M21, M22, M23, 0,
                 M31, M32, M33, 0,
                 M41, M42, M43, 1);
+        }
+
+        public static bool operator ==(in Matrix4x3 left, in Matrix4x3 right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(in Matrix4x3 left, in Matrix4x3 right)
+        {
+            return !(left == right);
         }
     }
 }
