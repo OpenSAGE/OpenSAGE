@@ -23,7 +23,8 @@ namespace OpenSage.Data.Sav
         public byte ReadVersion(byte maximumVersion)
         {
             var result = _binaryReader.ReadByte();
-            if (result == 0 || result > maximumVersion)
+            if (result != maximumVersion)
+            //if (result == 0 || result > maximumVersion)
             {
                 throw new InvalidDataException();
             }
@@ -62,7 +63,7 @@ namespace OpenSage.Data.Sav
             return _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
         }
 
-        public Matrix4x3 ReadMatrix4x3()
+        public Matrix4x3 ReadMatrix4x3(bool readVersion = true)
         {
             ReadVersion(1);
 

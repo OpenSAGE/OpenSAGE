@@ -1095,14 +1095,9 @@ namespace OpenSage.Logic.Object
             reader.__Skip(29);
             var unknown16 = reader.ReadSingle(); // 360
             var unknown17 = reader.ReadSingle(); // 360
-            reader.__Skip(5);
+            reader.__Skip(4);
 
-            var disabledCount = reader.ReadUInt32();
-            var disabledEnumMap = IniParser.GetEnumMap<DisabledType>();
-            for (var i = 0; i < disabledCount; i++)
-            {
-                var disabledType = (DisabledType) disabledEnumMap[reader.ReadAsciiString()];
-            }
+            var disabledTypes = reader.ReadBitArray<DisabledType>();
 
             reader.__Skip(75);
 
