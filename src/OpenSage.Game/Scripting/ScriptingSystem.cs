@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
+using OpenSage.Data.Sav;
 using OpenSage.Data.Scb;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
@@ -126,8 +127,10 @@ namespace OpenSage.Scripting
             CameraFadeOverlay.Update();
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
+            reader.ReadVersion(5);
+
             var numSequentialScripts = reader.ReadUInt16();
             for (var i = 0; i < numSequentialScripts; i++)
             {
@@ -146,8 +149,8 @@ namespace OpenSage.Scripting
             for (var i = 1; i < numTimersAndCounters; i++)
             {
                 var value = reader.ReadInt32();
-                var name = reader.ReadBytePrefixedAsciiString();
-                var active = reader.ReadBooleanChecked();
+                var name = reader.ReadAsciiString();
+                var active = reader.ReadBoolean();
             }
 
             var numTimersAndCounters2 = reader.ReadUInt32();
@@ -160,8 +163,8 @@ namespace OpenSage.Scripting
 
             for (var i = 1; i < numFlags; i++)
             {
-                var value = reader.ReadBooleanChecked();
-                var name = reader.ReadBytePrefixedAsciiString();
+                var value = reader.ReadBoolean();
+                var name = reader.ReadAsciiString();
             }
 
             var numFlags2 = reader.ReadUInt32();
@@ -172,7 +175,7 @@ namespace OpenSage.Scripting
 
             var numAttackPrioritySets = reader.ReadUInt16();
 
-            var unknown3 = reader.ReadBytes(8); // TODO
+            reader.__Skip(8); // TODO
 
             for (var i = 1; i < numAttackPrioritySets; i++)
             {
@@ -201,7 +204,7 @@ namespace OpenSage.Scripting
             var unknownCount = reader.ReadUInt16();
             for (var i = 0; i < unknownCount; i++)
             {
-                var objectName = reader.ReadBytePrefixedAsciiString();
+                var objectName = reader.ReadAsciiString();
                 var someId = reader.ReadUInt32();
             }
 
@@ -213,7 +216,7 @@ namespace OpenSage.Scripting
 
             CameraFadeOverlay.Load(reader);
 
-            var unknown14 = reader.ReadBytes(12);
+            reader.__Skip(12);
 
             var numSpecialPowerSets = reader.ReadUInt16(); // Maybe not sides, maybe player count?
             for (var i = 0; i < numSpecialPowerSets; i++)
@@ -223,7 +226,7 @@ namespace OpenSage.Scripting
                 var numSpecialPowers = reader.ReadUInt16();
                 for (var j = 0; j < numSpecialPowers; j++)
                 {
-                    var name = reader.ReadBytePrefixedAsciiString();
+                    var name = reader.ReadAsciiString();
                     var timestamp = reader.ReadUInt32();
                 }
             }
@@ -260,7 +263,7 @@ namespace OpenSage.Scripting
                 var numUpgrades = reader.ReadUInt16();
                 for (var j = 0; j < numUpgrades; j++)
                 {
-                    var name = reader.ReadBytePrefixedAsciiString();
+                    var name = reader.ReadAsciiString();
                     var timestamp = reader.ReadUInt32();
                 }
             }
@@ -273,7 +276,7 @@ namespace OpenSage.Scripting
                 var numSciences = reader.ReadUInt16();
                 for (var j = 0; j < numSciences; j++)
                 {
-                    var name = reader.ReadBytePrefixedAsciiString();
+                    var name = reader.ReadAsciiString();
                 }
             }
 
@@ -315,10 +318,10 @@ namespace OpenSage.Scripting
             var numMapReveals = reader.ReadUInt16();
             for (var i = 0; i < numMapReveals; i++)
             {
-                var revealName = reader.ReadBytePrefixedAsciiString();
-                var waypoint = reader.ReadBytePrefixedAsciiString();
+                var revealName = reader.ReadAsciiString();
+                var waypoint = reader.ReadAsciiString();
                 var radius = reader.ReadSingle();
-                var player = reader.ReadBytePrefixedAsciiString();
+                var player = reader.ReadAsciiString();
             }
 
             var numObjectTypeLists = reader.ReadUInt16();
@@ -334,7 +337,7 @@ namespace OpenSage.Scripting
                 throw new InvalidDataException();
             }
 
-            var musicTrack = reader.ReadBytePrefixedAsciiString();
+            var musicTrack = reader.ReadAsciiString();
 
             var unknown21 = reader.ReadByte();
             if (unknown21 != 0)
@@ -365,6 +368,10 @@ namespace OpenSage.Scripting
                     for (int i = 1; i < Game.Scene3D.Players.Count; i++)
                     {
                         var player = Game.Scene3D.Players[i];
+                        if (player == null)
+                        {
+                            continue;
+                        }
 
                         if (player.IsHuman)
                         {

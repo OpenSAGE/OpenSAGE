@@ -2,7 +2,6 @@
 using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Data.StreamFS;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic
 {

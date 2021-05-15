@@ -1,7 +1,13 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Client;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class BeaconClientUpdate : ClientUpdateModule
+    {
+
+    }
+
     /// <summary>
     /// Hardcoded to produce the BeaconSmokeFFFFFF particle system definition by default but will 
     /// call the BeaconSmoke###### particle system definition relative to the player's color.
@@ -18,5 +24,10 @@ namespace OpenSage.Logic.Object
 
         public int RadarPulseFrequency { get; private set; }
         public int RadarPulseDuration { get; private set; }
+
+        internal override ClientUpdateModule CreateModule(Drawable drawable, GameContext context)
+        {
+            return new BeaconClientUpdate();
+        }
     }
 }

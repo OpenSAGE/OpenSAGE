@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.FileFormats;
+using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -15,16 +14,16 @@ namespace OpenSage.Logic
             _objectTypes = new HashSet<string>();
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
+            reader.ReadVersion(1);
 
-            Name = reader.ReadBytePrefixedAsciiString();
+            Name = reader.ReadAsciiString();
 
             var numObjects = reader.ReadUInt16();
             for (var j = 0; j < numObjects; j++)
             {
-                _objectTypes.Add(reader.ReadBytePrefixedAsciiString());
+                _objectTypes.Add(reader.ReadAsciiString());
             }
         }
     }

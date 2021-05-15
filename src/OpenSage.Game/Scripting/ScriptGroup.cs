@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
@@ -119,9 +120,9 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
+            reader.ReadVersion(1);
 
             var numScripts = reader.ReadUInt16();
 

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -26,11 +25,11 @@ namespace OpenSage.Logic
         public int Default { get; private set; }
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
+            reader.ReadVersion(1);
 
-            Name = reader.ReadBytePrefixedAsciiString();
+            Name = reader.ReadAsciiString();
 
             var unknown = reader.ReadUInt32(); // Probably default value?
 
@@ -60,9 +59,9 @@ namespace OpenSage.Logic
         public string Target { get; private set; }
         public uint Value { get; private set; }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            Target = reader.ReadBytePrefixedAsciiString();
+            Target = reader.ReadAsciiString();
             Value = reader.ReadUInt32();
         }
     }
