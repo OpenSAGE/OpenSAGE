@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content.Loaders;
+using OpenSage.Data.Sav;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
@@ -89,6 +91,29 @@ namespace OpenSage.Graphics.ParticleSystems
                 if (totalParticles > _maxParticleCount)
                 {
                     break;
+                }
+            }
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var unknown = reader.ReadUInt32();
+
+            var count = reader.ReadUInt32();
+            for (var i = 0; i < count; i++)
+            {
+                var templateName = reader.ReadAsciiString();
+                if (templateName != string.Empty)
+                {
+                    var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);
+
+                    var particleSystem = Create(
+                        template,
+                        Matrix4x4.Identity); // TODO
+
+                    particleSystem.Load(reader);
                 }
             }
         }
