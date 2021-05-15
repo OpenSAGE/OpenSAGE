@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using OpenSage.FileFormats;
+using OpenSage.Data.Sav;
 
 namespace OpenSage.Scripting
 {
@@ -13,14 +13,14 @@ namespace OpenSage.Scripting
         public int Unknown2 { get; private set; }
         public byte Unknown3 { get; private set; }
 
-        public void Load(BinaryReader reader)
+        public void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
+            reader.ReadVersion(1);
 
             Unknown1 = reader.ReadUInt32();
 
             TeamID = reader.ReadUInt32();
-            ScriptName = reader.ReadBytePrefixedAsciiString();
+            ScriptName = reader.ReadAsciiString();
             ScriptActionIndex = reader.ReadUInt32();
             LoopsRemaining = reader.ReadUInt32();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Sav
@@ -23,8 +24,7 @@ namespace OpenSage.Data.Sav
         public byte ReadVersion(byte maximumVersion)
         {
             var result = _binaryReader.ReadByte();
-            if (result != maximumVersion)
-            //if (result == 0 || result > maximumVersion)
+            if (result == 0 || result > maximumVersion)
             {
                 throw new InvalidDataException();
             }
@@ -45,7 +45,11 @@ namespace OpenSage.Data.Sav
 
         public string ReadAsciiString() => _binaryReader.ReadBytePrefixedAsciiString();
 
+        public string ReadUnicodeString() => _binaryReader.ReadBytePrefixedUnicodeString();
+
         public float ReadSingle() => _binaryReader.ReadSingle();
+
+        public Vector2 ReadVector2() => _binaryReader.ReadVector2();
 
         public Vector3 ReadVector3() => _binaryReader.ReadVector3();
 
@@ -98,6 +102,8 @@ namespace OpenSage.Data.Sav
                 m41, m42, m43);
         }
 
+        public Matrix4x3 ReadMatrix4x3Transposed() => _binaryReader.ReadMatrix4x3Transposed();
+
         public BitArray<TEnum> ReadBitArray<TEnum>()
             where TEnum : Enum
         {
@@ -117,6 +123,18 @@ namespace OpenSage.Data.Sav
 
             return result;
         }
+
+        public ColorRgbF ReadColorRgbF() => _binaryReader.ReadColorRgbF();
+
+        public ColorRgba ReadColorRgba() => _binaryReader.ReadColorRgba();
+
+        public DateTime ReadDateTime() => _binaryReader.ReadDateTime();
+
+        public RandomVariable ReadRandomVariable() => _binaryReader.ReadRandomVariable();
+
+        public RandomAlphaKeyframe ReadRandomAlphaKeyframe() => RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
+
+        public RgbColorKeyframe ReadRgbColorKeyframe() => RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
 
         public void BeginSegment()
         {

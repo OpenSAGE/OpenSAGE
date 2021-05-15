@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Numerics;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui;
@@ -36,9 +37,9 @@ namespace OpenSage.Scripting
                 RenderPipeline.GameOutputDescription));
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            FadeType = reader.ReadUInt32AsEnum<CameraFadeType>();
+            FadeType = reader.ReadEnum<CameraFadeType>();
 
             From = reader.ReadSingle();
             To = reader.ReadSingle();

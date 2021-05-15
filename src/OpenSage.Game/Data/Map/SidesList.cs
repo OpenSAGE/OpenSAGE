@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -111,12 +112,12 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
             var numSides = reader.ReadUInt32();
             for (var i = 0; i < numSides; i++)
             {
-                var hasScripts = reader.ReadBooleanChecked();
+                var hasScripts = reader.ReadBoolean();
                 if (hasScripts)
                 {
                     PlayerScripts.ScriptLists[i].Load(reader);

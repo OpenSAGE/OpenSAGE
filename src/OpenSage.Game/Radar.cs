@@ -5,6 +5,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -260,15 +261,17 @@ namespace OpenSage
             DrawFrustumLine(terrain3.Value, terrain0.Value);
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
+            reader.ReadVersion(1);
+
             var unknown1 = reader.ReadByte();
             if (unknown1 != 0)
             {
                 throw new InvalidDataException();
             }
 
-            var unknown2 = reader.ReadBooleanChecked();
+            var unknown2 = reader.ReadBoolean();
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);
@@ -293,13 +296,9 @@ namespace OpenSage
 
     internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>
     {
-        public void Load(BinaryReader reader)
+        public void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             var count = reader.ReadUInt16();
 
@@ -320,13 +319,9 @@ namespace OpenSage
         public uint ObjectId;
         public ColorRgba Color;
 
-        public void Load(BinaryReader reader)
+        public void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             ObjectId = reader.ReadUInt32();
             Color = reader.ReadColorRgba();
@@ -338,11 +333,11 @@ namespace OpenSage
         public RadarEventType Type;
         public Vector3 Position;
 
-        public void Load(BinaryReader reader)
+        public void Load(SaveFileReader reader)
         {
-            Type = reader.ReadUInt32AsEnum<RadarEventType>();
+            Type = reader.ReadEnum<RadarEventType>();
 
-            var unknown1 = reader.ReadBooleanChecked();
+            var unknown1 = reader.ReadBoolean();
 
             var unknown2 = reader.ReadUInt32();
             var unknown3 = reader.ReadUInt32();
@@ -358,7 +353,7 @@ namespace OpenSage
             var unknown6 = reader.ReadUInt32();
             var unknown7 = reader.ReadUInt32();
 
-            var unknown8 = reader.ReadBooleanChecked();
+            var unknown8 = reader.ReadBoolean();
         }
     }
 

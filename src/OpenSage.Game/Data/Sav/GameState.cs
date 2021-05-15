@@ -14,18 +14,18 @@ namespace OpenSage.Data.Sav
         public string Side { get; private set; }
         public uint MissionIndex { get; private set; }
 
-        internal static GameState Parse(BinaryReader reader)
+        internal static GameState Parse(SaveFileReader reader)
         {
-            var version = reader.ReadByte();
+            reader.ReadVersion(2);
 
             return new GameState
             {
-                GameType = reader.ReadUInt32AsEnum<SaveGameType>(),
-                MapPath = reader.ReadBytePrefixedAsciiString(),
+                GameType = reader.ReadEnum<SaveGameType>(),
+                MapPath = reader.ReadAsciiString(),
                 Timestamp = reader.ReadDateTime(),
-                DisplayName = reader.ReadBytePrefixedUnicodeString(),
-                MapFileName = reader.ReadBytePrefixedAsciiString(),
-                Side = reader.ReadBytePrefixedAsciiString(),
+                DisplayName = reader.ReadUnicodeString(),
+                MapFileName = reader.ReadAsciiString(),
+                Side = reader.ReadAsciiString(),
                 MissionIndex = reader.ReadUInt32()
             };
         }
