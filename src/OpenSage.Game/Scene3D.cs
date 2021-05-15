@@ -42,7 +42,7 @@ namespace OpenSage
         private readonly DebugMessageHandler _debugMessageHandler;
         public DebugOverlay DebugOverlay { get; private set; }
 
-        private readonly ParticleSystemManager _particleSystemManager;
+        internal readonly ParticleSystemManager ParticleSystemManager;
 
         private readonly OrderGeneratorSystem _orderGeneratorSystem;
 
@@ -323,7 +323,7 @@ namespace OpenSage
                 RegisterInputHandler(_debugMessageHandler = new DebugMessageHandler(DebugOverlay), inputMessageBuffer);
             }
 
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
+            ParticleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
 
             Radar = new Radar(this, game.AssetStore, MapCache);
 
@@ -338,7 +338,7 @@ namespace OpenSage
             GameContext = new GameContext(
                 game.AssetStore.LoadContext,
                 game.Audio,
-                _particleSystemManager,
+                ParticleSystemManager,
                 new ObjectCreationListManager(),
                 Terrain,
                 Navigation,
@@ -469,7 +469,7 @@ namespace OpenSage
                 }
             }
 
-            _particleSystemManager.BuildRenderList(renderList);
+            ParticleSystemManager.BuildRenderList(renderList);
 
             _orderGeneratorSystem.BuildRenderList(renderList, camera, gameTime);
         }
