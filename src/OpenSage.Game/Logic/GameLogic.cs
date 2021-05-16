@@ -23,6 +23,8 @@ namespace OpenSage.Logic
             _scene3D = scene3D;
             _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(scene3D.AssetLoadContext.AssetStore.ObjectDefinitions);
             _objects = new List<GameObject>();
+
+            _techTreeOverrides = new Dictionary<string, ObjectBuildableType>();
         }
 
         public GameObject GetObjectById(uint id)

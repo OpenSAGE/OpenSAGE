@@ -70,7 +70,7 @@ namespace OpenSage
 
         public bool FrustumCulling { get; set; } = false;
 
-        public ScriptList[] PlayerScripts { get; private set; }
+        public PlayerScriptsList PlayerScripts { get; private set; }
 
         public readonly GameObjectCollection GameObjects;
         public bool ShowObjects { get; set; } = true;
@@ -139,9 +139,7 @@ namespace OpenSage
             Waypoints = waypoints;
             Cameras = cameras;
 
-            PlayerScripts = mapFile
-                .GetPlayerScriptsList()
-                .ScriptLists;
+            PlayerScripts = mapFile.GetPlayerScriptsList();
 
             CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
             {

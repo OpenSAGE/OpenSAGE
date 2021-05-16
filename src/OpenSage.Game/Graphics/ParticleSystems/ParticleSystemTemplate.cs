@@ -407,19 +407,19 @@ namespace OpenSage.Graphics.ParticleSystems
     public enum ParticleSystemShader
     {
         [IniEnum("NONE")]
-        None,
-
-        [IniEnum("ALPHA")]
-        Alpha,
-
-        [IniEnum("ALPHA_TEST")]
-        AlphaTest,
+        None = 0,
 
         [IniEnum("ADDITIVE")]
-        Additive,
+        Additive = 1,
+
+        [IniEnum("ALPHA")]
+        Alpha = 2,
+
+        [IniEnum("ALPHA_TEST")]
+        AlphaTest = 3,
 
         [IniEnum("MULTIPLY")]
-        Multiply,
+        Multiply = 4,
 
         [IniEnum("W3D_EMISSIVE"), AddedIn(SageGame.Bfme)]
         W3dEmissive,
@@ -434,16 +434,16 @@ namespace OpenSage.Graphics.ParticleSystems
     public enum ParticleSystemType
     {
         [IniEnum("PARTICLE")]
-        Particle,
-
-        [IniEnum("VOLUME_PARTICLE")]
-        VolumeParticle,
+        Particle = 1,
 
         [IniEnum("DRAWABLE")]
-        Drawable,
+        Drawable = 2,
 
         [IniEnum("STREAK")]
-        Streak,
+        Streak = 3,
+
+        [IniEnum("VOLUME_PARTICLE")]
+        VolumeParticle = 4,
 
         [IniEnum("SMUDGE"), AddedIn(SageGame.Bfme)]
         Smudge,

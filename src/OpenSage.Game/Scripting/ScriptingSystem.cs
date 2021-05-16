@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Data.Map;
 using OpenSage.Data.Sav;
 using OpenSage.Data.Scb;
-using OpenSage.FileFormats;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Logic;
 
 namespace OpenSage.Scripting
@@ -22,8 +19,6 @@ namespace OpenSage.Scripting
         public readonly uint TickRate;
 
         private readonly ScriptExecutionContext _executionContext;
-
-        private ScriptList[] _playerScripts;
 
         internal CameraFadeOverlay CameraFadeOverlay;
 
@@ -58,19 +53,19 @@ namespace OpenSage.Scripting
 
         internal override void OnSceneChanged()
         {
-            _playerScripts = Game.Scene3D?.PlayerScripts;
+            
         }
 
         public Script FindScript(string name)
         {
-            if (_playerScripts == null)
+            if (Game.Scene3D?.PlayerScripts?.ScriptLists == null)
             {
                 return null;
             }
 
-            for (var i = 0; i < _playerScripts.Length; i++)
+            for (var i = 0; i < Game.Scene3D.PlayerScripts.ScriptLists.Length; i++)
             {
-                var script = _playerScripts[i].FindScript(name);
+                var script = Game.Scene3D.PlayerScripts.ScriptLists[i].FindScript(name);
                 if (script != null)
                 {
                    return script;
@@ -82,7 +77,7 @@ namespace OpenSage.Scripting
 
         public void ScriptingTick()
         {
-            if (_playerScripts == null)
+            if (Game.Scene3D?.PlayerScripts?.ScriptLists == null)
             {
                 return;
             }
@@ -92,7 +87,7 @@ namespace OpenSage.Scripting
                 return;
             }
 
-            foreach (var playerScripts in _playerScripts)
+            foreach (var playerScripts in Game.Scene3D.PlayerScripts.ScriptLists)
             {
                 playerScripts?.Execute(_executionContext);
             }
@@ -353,9 +348,11 @@ namespace OpenSage.Scripting
         {
             var playerNames = Game.Scene3D.MapFile.SidesList.Players.Select(p => p.Properties.GetPropOrNull("playerName")?.Value.ToString()).ToArray();
 
-            _playerScripts = new ScriptList[Game.Scene3D.Players.Count + 1]; // + 1 for neutral player @ index 0
-            CopyScripts(Game.Scene3D.PlayerScripts, playerNames, string.Empty, 0, appendIndex: false); // neutral
-            CopyScripts(Game.Scene3D.PlayerScripts, playerNames, Game.CivilianPlayer.Name, 1, appendIndex: false); // Civilian
+            var originalPlayerScripts = Game.Scene3D.PlayerScripts.ScriptLists;
+
+            Game.Scene3D.PlayerScripts.ScriptLists = new ScriptList[Game.Scene3D.Players.Count + 1]; // + 1 for neutral player @ index 0
+            CopyScripts(originalPlayerScripts, playerNames, string.Empty, 0, appendIndex: false); // neutral
+            CopyScripts(originalPlayerScripts, playerNames, Game.CivilianPlayer.Name, 1, appendIndex: false); // Civilian
 
             var skirmishScriptsEntry = Game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
             if (skirmishScriptsEntry != null)
@@ -417,7 +414,7 @@ namespace OpenSage.Scripting
 
                 // For player 1, we want to append "0" to all script names and variables, but his position in the array is 2.
                 var appendix = appendIndex ? (targetPlayerIndex - 2).ToString() : null;
-                _playerScripts[targetPlayerIndex] = scriptsList[sourcePlayerIndex].Copy(appendix);
+                Game.Scene3D.PlayerScripts.ScriptLists[targetPlayerIndex] = scriptsList[sourcePlayerIndex].Copy(appendix);
             }
         }
     }
