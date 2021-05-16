@@ -83,11 +83,10 @@ namespace OpenSage
 
         public WaterSettings Waters { get; } = new WaterSettings();
 
-        // TODO: Move these to a World class?
-        // TODO: Encapsulate this into a custom collection?
-        public IReadOnlyList<Player> Players => _players;
-        private List<Player> _players;
-        public Player LocalPlayer { get; private set; }
+        public readonly PlayerManager PlayerManager;
+
+        public IReadOnlyList<Player> Players => PlayerManager.Players;
+        public Player LocalPlayer => PlayerManager.LocalPlayer;
         public readonly Navigation.Navigation Navigation;
 
         internal readonly AudioSystem Audio;
@@ -110,12 +109,10 @@ namespace OpenSage
         {
             var contentManager = game.ContentManager;
 
-            _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
-
-            LocalPlayer = _players.First();
+            PlayerManager.OnNewGame(mapFile, game);
 
             TeamFactory = new TeamFactory();
-            TeamFactory.Initialize(mapFile.SidesList.Teams ?? mapFile.Teams.Items, _players);
+            TeamFactory.Initialize(mapFile.SidesList.Teams ?? mapFile.Teams.Items, PlayerManager.Players);
 
             Audio = game.Audio;
             AssetLoadContext = game.AssetStore.LoadContext;
@@ -260,11 +257,7 @@ namespace OpenSage
             bool isDiagnosticScene = false)
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
-            _players = new List<Player>();
             TeamFactory = new TeamFactory();
-
-            // TODO: This is completely wrong.
-            LocalPlayer = _players.FirstOrDefault();
 
             WaterAreas = AddDisposable(new WaterAreaCollection());
             Lighting = lighting;
@@ -280,6 +273,8 @@ namespace OpenSage
         private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
             Game = game;
+
+            PlayerManager = new PlayerManager();
 
             Camera = new Camera(getViewport);
 
@@ -347,8 +342,7 @@ namespace OpenSage
             GameObjects = AddDisposable(
                 new GameObjectCollection(
                     GameContext,
-                    game.CivilianPlayer,
-                    Navigation));
+                    game.CivilianPlayer));
 
             GameContext.GameObjects = GameObjects;
 
@@ -363,16 +357,7 @@ namespace OpenSage
 
         public void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
         {
-            _players = players.ToList();
-
-            if (!_players.Contains(localPlayer))
-            {
-                throw new ArgumentException(
-                    $"Argument {nameof(localPlayer)} should be included in {nameof(players)}",
-                    nameof(localPlayer));
-            }
-
-            LocalPlayer = localPlayer;
+            PlayerManager.SetSkirmishPlayers(players, localPlayer);
 
             if (LocalPlayer.SelectedUnits.Count > 0)
             {
@@ -386,20 +371,14 @@ namespace OpenSage
         }
 
         // TODO: Move this over to a player collection?
-        public int GetPlayerIndex(Player player)
-        {
-            return _players.IndexOf(player);
-        }
+        public int GetPlayerIndex(Player player) => PlayerManager.GetPlayerIndex(player);
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
             GameObjects.DeleteDestroyed();
             GameObjects.InsertCreated();
 
-            foreach (var player in _players)
-            {
-                player.LogicTick();
-            }
+            PlayerManager.LogicTick();
 
             foreach (var gameObject in GameObjects.Items)
             {
