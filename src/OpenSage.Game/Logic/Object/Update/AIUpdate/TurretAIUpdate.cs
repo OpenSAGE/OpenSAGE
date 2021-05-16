@@ -212,19 +212,11 @@ namespace OpenSage.Logic.Object
             var unknownFloat1 = reader.ReadSingle();
             var unknownFloat2 = reader.ReadSingle();
 
-            var unknownInt3 = reader.ReadUInt32();
-            if (unknownInt3 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var frameSomething2 = reader.ReadUInt32();
 
             var unknownInt4 = reader.ReadUInt32(); // 0, 1
 
-            var unknownInt5 = reader.ReadInt32();
-            if (unknownInt5 != -1)
-            {
-                throw new InvalidDataException();
-            }
+            var frameSomething3 = reader.ReadUInt32();
 
             for (var i = 0; i < 7; i++)
             {

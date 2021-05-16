@@ -59,7 +59,6 @@ namespace OpenSage.Data.Sav
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
-                bool isCampaign = false;
 
                 while (true)
                 {
@@ -84,7 +83,6 @@ namespace OpenSage.Data.Sav
                         case "CHUNK_Campaign":
                             campaignManager = new CampaignManager();
                             campaignManager.Load(reader);
-                            isCampaign = true;
                             break;
 
                         case "CHUNK_GameStateMap":
@@ -113,7 +111,7 @@ namespace OpenSage.Data.Sav
                                             new ColorRgb(0, 0, 255), 0)
                                     },
                                     localPlayerIndex: 0, // TODO
-                                    isMultiPlayer: !isCampaign,
+                                    isMultiPlayer: !campaignManager.HasCampaignName,
                                     seed: Environment.TickCount, // TODO
                                     map); // TODO
 
@@ -219,11 +217,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_SidesList":
-                            {
-                                var version = reader.ReadByte();
-                                game.Scene3D.Terrain.Map.SidesList.Load(reader);
-                                break;
-                            }
+                            game.Scene3D.PlayerScripts.Load(reader);
+                            break;
 
                         case "CHUNK_TacticalView":
                             {

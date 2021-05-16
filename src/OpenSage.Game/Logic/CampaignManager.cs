@@ -9,6 +9,9 @@ namespace OpenSage.Logic
         private uint _unknown;
         private uint _difficultyMaybe;
 
+        // TODO: Remove this.
+        public bool HasCampaignName => _campaignName != "";
+
         internal void Load(SaveFileReader reader)
         {
             var version = reader.ReadVersion(5);

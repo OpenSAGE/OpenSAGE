@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
@@ -595,101 +596,10 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal void Load(SaveFileReader reader)
         {
+            reader.ReadVersion(1);
 
+            LoadTemplateData(reader);
 
-            reader.__Skip(11);
-
-            var texture = reader.ReadAsciiString();
-            var angleX = reader.ReadRandomVariable();
-            var angleY = reader.ReadRandomVariable();
-            var angleZ = reader.ReadRandomVariable();
-            var unknown1 = reader.ReadRandomVariable(); // Maybe AngularRateX, Y, Z, if same order as ini files
-            var unknown2 = reader.ReadRandomVariable();
-            var unknown3 = reader.ReadRandomVariable();
-            var angularDamping = reader.ReadRandomVariable();
-            var velocityDamping = reader.ReadRandomVariable();
-            var lifetime = reader.ReadRandomVariable();
-            var unknown4 = reader.ReadUInt32();
-            var size = reader.ReadRandomVariable();
-            var unknown5 = reader.ReadRandomVariable(); // Maybe StartSizeRate, if same order as ini files
-            var sizeRate = reader.ReadRandomVariable();
-            var sizeRateDamping = reader.ReadRandomVariable();
-            for (var j = 0; j < 8; j++)
-            {
-                var alphaKeyframe = reader.ReadRandomAlphaKeyframe();
-            }
-            for (var j = 0; j < 8; j++)
-            {
-                var colorKeyframe = reader.ReadRgbColorKeyframe();
-            }
-            var unknown6 = reader.ReadRandomVariable(); // Maybe ColorScale, if same order as ini files, but value doesn't match ini file
-            var burstDelay = reader.ReadRandomVariable();
-            var burstCount = reader.ReadRandomVariable();
-            var unknown7 = reader.ReadRandomVariable(); // Maybe InitialDelay, if same order as ini files
-            var unknown8 = reader.ReadVector3(); // Maybe DriftVelocity, if same order as ini files
-            var gravity = reader.ReadSingle();
-            reader.__Skip(14);
-            var velocityType = reader.ReadEnum<ParticleVelocityType>();
-            var unknown10 = reader.ReadUInt32();
-            switch (velocityType)
-            {
-                case ParticleVelocityType.Ortho:
-                    var velocityOrthoX = reader.ReadRandomVariable();
-                    var velocityOrthoY = reader.ReadRandomVariable();
-                    var velocityOrthoZ = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Spherical:
-                    var velocitySpherical = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Hemispherical:
-                    var velocityHemispherical = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Cylindrical:
-                    var velocityCylindricalRadial = reader.ReadRandomVariable();
-                    var velocityCylindricalNormal = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Outward:
-                    var velocityOutward = reader.ReadRandomVariable();
-                    var velocityOutwardOther = reader.ReadRandomVariable();
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            var volumeType = reader.ReadEnum<ParticleVolumeType>();
-            switch (volumeType)
-            {
-                case ParticleVolumeType.Point:
-                    break;
-                case ParticleVolumeType.Line:
-                    var lineStartPoint = reader.ReadVector3();
-                    var lineEndPoint = reader.ReadVector3();
-                    break;
-                case ParticleVolumeType.Box:
-                    var halfSize = reader.ReadVector3();
-                    break;
-                case ParticleVolumeType.Sphere:
-                    var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
-                    break;
-                case ParticleVolumeType.Cylinder:
-                    var volumeCylinderRadius = reader.ReadSingle();
-                    var volumeCylinderLength = reader.ReadSingle();
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            var unknown11 = reader.ReadUInt32();
-            var windMotion = reader.ReadEnum<ParticleSystemWindMotion>();
-            var unknown12 = reader.ReadSingle();
-            var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
-            var windAngleChangeMin = reader.ReadSingle();
-            var windAngleChangeMax = reader.ReadSingle();
-            var unknown14 = reader.ReadSingle();
-            var windPingPongStartAngleMin = reader.ReadSingle();
-            var windPingPongStartAngleMax = reader.ReadSingle();
-            var unknown15 = reader.ReadSingle();
-            var windPingPongEndAngleMin = reader.ReadSingle();
-            var windPingPongEndAngleMax = reader.ReadSingle();
-            var unknown16 = reader.ReadBoolean();
             var unknown17 = reader.ReadUInt32();
             reader.__Skip(9);
             var transform = reader.ReadMatrix4x3Transposed();
@@ -755,6 +665,135 @@ namespace OpenSage.Graphics.ParticleSystems
                 var unknown45 = reader.ReadUInt32(); // 1
                 reader.__Skip(8); // All 0
             }
+        }
+
+        internal void LoadTemplateData(SaveFileReader reader)
+        {
+            // What follows is almost an exact replica of ParticleSystemTemplate,
+            // with a few extra fields here and there.
+
+            reader.ReadVersion(1);
+
+            var unknownBool1 = reader.ReadBoolean();
+            if (unknownBool1)
+            {
+                throw new InvalidDataException();
+            }
+
+            if (reader.ReadEnum<ParticleSystemShader>() != Template.Shader)
+            {
+                throw new InvalidDataException();
+            }
+
+            if (reader.ReadEnum<ParticleSystemType>() != Template.Type)
+            {
+                throw new InvalidDataException();
+            }
+
+            reader.ReadAsciiString(); // Texture
+
+            reader.ReadRandomVariable(); // AngleX
+            reader.ReadRandomVariable(); // AngleY
+            reader.ReadRandomVariable(); // AngleZ
+
+            reader.ReadRandomVariable(); // AngularRateX
+            reader.ReadRandomVariable(); // AngularRateY
+            reader.ReadRandomVariable(); // AngularRateZ
+
+            reader.ReadRandomVariable(); // AngularDamping
+            reader.ReadRandomVariable(); // VelocityDamping
+            reader.ReadRandomVariable(); // Lifetime
+
+            reader.ReadUInt32(); // SystemLifetime
+
+            reader.ReadRandomVariable(); // Size
+            reader.ReadRandomVariable(); // StartSizeRate
+            reader.ReadRandomVariable(); // SizeRate
+            reader.ReadRandomVariable(); // SizeRateDamping
+
+            for (var j = 0; j < 8; j++)
+            {
+                reader.ReadRandomAlphaKeyframe(); // AlphaKeyframes
+            }
+            for (var j = 0; j < 8; j++)
+            {
+                reader.ReadRgbColorKeyframe(); // ColorKeyframes
+            }
+
+            reader.ReadRandomVariable(); // ColorScale
+            reader.ReadRandomVariable(); // BurstDelay
+            reader.ReadRandomVariable(); // BurstCount
+            reader.ReadRandomVariable(); // InitialDelay
+
+            reader.ReadVector3(); // DriftVelocity
+
+            reader.ReadSingle(); // Gravity
+
+            reader.ReadAsciiString(); // SlaveSystemName
+
+            reader.__Skip(13);
+
+            var velocityType = reader.ReadEnum<ParticleVelocityType>();
+            var unknown10 = reader.ReadUInt32();
+            switch (velocityType)
+            {
+                case ParticleVelocityType.Ortho:
+                    var velocityOrthoX = reader.ReadRandomVariable();
+                    var velocityOrthoY = reader.ReadRandomVariable();
+                    var velocityOrthoZ = reader.ReadRandomVariable();
+                    break;
+                case ParticleVelocityType.Spherical:
+                    var velocitySpherical = reader.ReadRandomVariable();
+                    break;
+                case ParticleVelocityType.Hemispherical:
+                    var velocityHemispherical = reader.ReadRandomVariable();
+                    break;
+                case ParticleVelocityType.Cylindrical:
+                    var velocityCylindricalRadial = reader.ReadRandomVariable();
+                    var velocityCylindricalNormal = reader.ReadRandomVariable();
+                    break;
+                case ParticleVelocityType.Outward:
+                    var velocityOutward = reader.ReadRandomVariable();
+                    var velocityOutwardOther = reader.ReadRandomVariable();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            var volumeType = reader.ReadEnum<ParticleVolumeType>();
+            switch (volumeType)
+            {
+                case ParticleVolumeType.Point:
+                    break;
+                case ParticleVolumeType.Line:
+                    var lineStartPoint = reader.ReadVector3();
+                    var lineEndPoint = reader.ReadVector3();
+                    break;
+                case ParticleVolumeType.Box:
+                    var halfSize = reader.ReadVector3();
+                    break;
+                case ParticleVolumeType.Sphere:
+                    var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
+                    break;
+                case ParticleVolumeType.Cylinder:
+                    var volumeCylinderRadius = reader.ReadSingle();
+                    var volumeCylinderLength = reader.ReadSingle();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            var unknown11 = reader.ReadUInt32();
+            var windMotion = reader.ReadEnum<ParticleSystemWindMotion>();
+            var unknown12 = reader.ReadSingle();
+            var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
+            var windAngleChangeMin = reader.ReadSingle();
+            var windAngleChangeMax = reader.ReadSingle();
+            var unknown14 = reader.ReadSingle();
+            var windPingPongStartAngleMin = reader.ReadSingle();
+            var windPingPongStartAngleMax = reader.ReadSingle();
+            var unknown15 = reader.ReadSingle();
+            var windPingPongEndAngleMin = reader.ReadSingle();
+            var windPingPongEndAngleMax = reader.ReadSingle();
+            var unknown16 = reader.ReadBoolean();
         }
     }
 

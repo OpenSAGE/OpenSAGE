@@ -408,11 +408,7 @@ namespace OpenSage.Logic.Object
                 //throw new InvalidDataException();
             }
 
-            var unknown3 = reader.ReadUInt32();
-            if (unknown3 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var unknown3 = reader.ReadSingle(); // 0, 100
 
             var unknownFloat8 = reader.ReadSingle();
             if (unknownFloat8 != 1.0f)
