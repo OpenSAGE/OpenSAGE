@@ -59,6 +59,7 @@ namespace OpenSage.Data.Sav
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
+                var playerManager = new PlayerManager();
 
                 while (true)
                 {
@@ -157,8 +158,8 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_TerrainLogic":
                         {
-                                var version = reader.ReadByte();
-                                var unknown = reader.ReadInt32();
+                            var version = reader.ReadByte();
+                            var unknown = reader.ReadInt32();
                             if (unknown != 2u)
                             {
                                 throw new InvalidDataException();
@@ -184,20 +185,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_Players":
-                            {
-                                //var version = reader.ReadByte();
-                                //var bytes = reader.ReadBytes((int)chunkHeader.Length);
-                                //File.WriteAllBytes($"CHUNK_Players_{gameState.Timestamp.Ticks}", bytes);
-
-                                //var numPlayers = reader.ReadUInt32();
-                                //var players = new Logic.Player[numPlayers];
-                                //for (var i = 0; i < numPlayers; i++)
-                                //{
-                                //    players[i] = new Logic.Player(null, new ColorRgb(), game.AssetStore.Ranks);
-                                //    players[i].Load(reader, game.AssetStore);
-                                //}
-                                break;
-                            }
+                            playerManager.Load(reader);
+                            break;
 
                         case "CHUNK_GameLogic":
                             gameLogic = new GameLogic(game.Scene3D);
