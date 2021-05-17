@@ -31,6 +31,8 @@ namespace OpenSage.Network
         public SkirmishGameSettings Settings { get; protected set; }
         public IConnection Connection { get; protected set; }
 
+        protected abstract bool IsNetwork { get; }
+
         public abstract bool IsStartButtonEnabled();
         public abstract Task HandleStartButtonClickAsync();
 
@@ -70,12 +72,13 @@ namespace OpenSage.Network
                                           _ => PlayerOwner.None
                                       })).OfType<PlayerSetting?>().ToArray();
 
-            _game.StartMultiPlayerGame(
+            _game.StartSkirmishOrMultiPlayerGame(
                 Settings.MapName,
                 Connection,
                 playerSettings,
                 Settings.LocalSlotIndex,
-                Settings.Seed);
+                Settings.Seed,
+                IsNetwork);
 
             Settings.Status = SkirmishGameStatus.Started;
 
@@ -97,6 +100,8 @@ namespace OpenSage.Network
             Settings.LocalSlot.State = SkirmishSlotState.Human;
         }
 
+        protected override bool IsNetwork => false;
+
         public override bool IsStartButtonEnabled() => true;
 
         public override Task HandleStartButtonClickAsync()
@@ -116,6 +121,8 @@ namespace OpenSage.Network
         protected NetDataWriter _writer;
         protected EventBasedNetListener _listener;
         protected NetManager _manager;
+
+        protected override bool IsNetwork => true;
 
         protected void ThreadProc()
         {

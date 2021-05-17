@@ -147,12 +147,13 @@ namespace OpenSage
 
             var pSettings = ParseReplayMetaToPlayerSettings(replayFile.Header.Metadata.Slots);
 
-            StartMultiPlayerGame(
+            StartSkirmishOrMultiPlayerGame(
                 mapFilename + mapName + ".map",
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
                 0,
-                replayFile.Header.Metadata.SD);
+                replayFile.Header.Metadata.SD,
+                isMultiPlayer: false); // TODO
         }
 
         private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
@@ -629,7 +630,10 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            if (isMultiPlayer)
+            var hasAIPlayer = playerSettings != null &&
+                playerSettings.Any(x => x.Value.Owner == PlayerOwner.EasyAi || x.Value.Owner == PlayerOwner.MediumAi || x.Value.Owner == PlayerOwner.HardAi);
+
+            if (isMultiPlayer || hasAIPlayer)
             {
                 var players = new Player[playerSettings.Length + 1];
 
@@ -743,6 +747,9 @@ namespace OpenSage
                 Scripting.InitializeSkirmishGame();
             }
 
+            Scene3D.PlayerManager.AddReplayObserver(this);
+            Scene3D.TeamFactory.AddReplayObserver(Scene3D.PlayerManager);
+
             if (Definition.ControlBar != null)
             {
                 Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, this);
@@ -775,19 +782,20 @@ namespace OpenSage
             StartSinglePlayerGame(firstMission.Map);
         }
 
-        public void StartMultiPlayerGame(
+        public void StartSkirmishOrMultiPlayerGame(
             string mapFileName,
             IConnection connection,
             PlayerSetting?[] playerSettings,
             int localPlayerIndex,
-            int seed)
+            int seed,
+            bool isMultiPlayer)
         {
             StartGame(
                 mapFileName,
                 connection,
                 playerSettings,
                 localPlayerIndex,
-                isMultiPlayer: true,
+                isMultiPlayer: isMultiPlayer,
                 seed);
         }
 

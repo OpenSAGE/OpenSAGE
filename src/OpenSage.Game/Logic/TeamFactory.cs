@@ -32,9 +32,6 @@ namespace OpenSage.Logic
 
                 AddTeamTemplate(name, owner, isSingleton);
             }
-
-            // Adding this unknowm team makes the team template indices match.
-            AddTeamTemplate("__Unknown", players.First(), true);
         }
 
         private void AddTeamTemplate(string name, Player owner, bool isSingleton)
@@ -49,6 +46,14 @@ namespace OpenSage.Logic
 
             _teamTemplatesById.Add(id, teamTemplate);
             _teamTemplatesByName.Add(name, teamTemplate);
+        }
+
+        internal void AddReplayObserver(PlayerManager playerManager)
+        {
+            AddTeamTemplate(
+                "teamReplayObserver",
+                playerManager.GetPlayerByName("ReplayObserver"),
+                true);
         }
 
         public TeamTemplate FindTeamTemplateByName(string name)

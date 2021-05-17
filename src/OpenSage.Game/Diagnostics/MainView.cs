@@ -174,7 +174,7 @@ namespace OpenSage.Diagnostics
 
                         if (_map.Item1.IsMultiplayer)
                         {
-                            _context.Game.StartMultiPlayerGame(
+                            _context.Game.StartSkirmishOrMultiPlayerGame(
                                 _map.Item1.Name,
                                 new EchoConnection(),
                                 new PlayerSetting?[]
@@ -183,7 +183,8 @@ namespace OpenSage.Diagnostics
                                     new PlayerSetting(null, faction2, new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
                                 },
                                 0,
-                                Environment.TickCount
+                                Environment.TickCount,
+                                false
                             );
                         }
                         else
