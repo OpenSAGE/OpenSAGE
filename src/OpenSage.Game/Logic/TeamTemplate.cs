@@ -153,8 +153,8 @@ namespace OpenSage.Logic
 
             TargetObjectID = reader.ReadObjectID();
 
-            TeamToTeamRelationships.Load(reader.Inner);
-            TeamToPlayerRelationships.Load(reader.Inner);
+            TeamToTeamRelationships.Load(reader);
+            TeamToPlayerRelationships.Load(reader);
         }
     }
 }

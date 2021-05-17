@@ -47,7 +47,7 @@ namespace OpenSage.Logic
                 new Player(
                     game.AssetStore.PlayerTemplates.GetByName("FactionObserver"),
                     new Mathematics.ColorRgb(),
-                    game.AssetStore.Ranks)
+                    game.AssetStore)
                 {
                     Name = "ReplayObserver"
                 });
@@ -78,15 +78,13 @@ namespace OpenSage.Logic
             var numPlayers = reader.ReadUInt32();
             if (numPlayers != _players.Count)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
-            //var players = new Logic.Player[numPlayers];
-            //for (var i = 0; i < numPlayers; i++)
-            //{
-            //    players[i] = new Logic.Player(null, new ColorRgb(), game.AssetStore.Ranks);
-            //    players[i].Load(reader, game.AssetStore);
-            //}
+            for (var i = 0; i < numPlayers; i++)
+            {
+                _players[i].Load(reader);
+            }
         }
     }
 }
