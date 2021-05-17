@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
 
             _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
             var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
-            _gameObject.Owner.ReceiveMoney(amount);
+            _gameObject.Owner.BankAccount.Deposit(amount);
             if (!_moduleData.GiveNoXP)
             {
                 _gameObject.GainExperience((int)amount);
