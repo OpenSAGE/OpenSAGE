@@ -26,7 +26,7 @@ namespace OpenSage.Logic
         private readonly PlayerRelationships _playerToTeamRelationships = new PlayerRelationships();
 
         public PlayerTemplate Template { get; }
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
         public string DisplayName { get; private set; }
 
         public string Side { get; private set; }

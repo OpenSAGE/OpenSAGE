@@ -59,7 +59,6 @@ namespace OpenSage.Data.Sav
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
-                var playerManager = new PlayerManager();
 
                 while (true)
                 {
@@ -112,7 +111,7 @@ namespace OpenSage.Data.Sav
                                             new ColorRgb(0, 0, 255), 0)
                                     },
                                     localPlayerIndex: 0, // TODO
-                                    isMultiPlayer: !campaignManager.HasCampaignName,
+                                    isMultiPlayer: false, // TODO
                                     seed: Environment.TickCount, // TODO
                                     map); // TODO
 
@@ -185,7 +184,7 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_Players":
-                            playerManager.Load(reader);
+                            game.Scene3D.PlayerManager.Load(reader);
                             break;
 
                         case "CHUNK_GameLogic":

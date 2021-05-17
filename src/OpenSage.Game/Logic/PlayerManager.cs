@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.Data.Sav;
@@ -23,7 +24,7 @@ namespace OpenSage.Logic
             _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
 
             // TODO: This is completely wrong.
-            LocalPlayer = _players.FirstOrDefault();
+            LocalPlayer = _players[1];
         }
 
         internal void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
@@ -38,6 +39,23 @@ namespace OpenSage.Logic
             }
 
             LocalPlayer = localPlayer;
+        }
+
+        internal void AddReplayObserver(Game game)
+        {
+            _players.Add(
+                new Player(
+                    game.AssetStore.PlayerTemplates.GetByName("FactionObserver"),
+                    new Mathematics.ColorRgb(),
+                    game.AssetStore.Ranks)
+                {
+                    Name = "ReplayObserver"
+                });
+        }
+
+        public Player GetPlayerByName(string name)
+        {
+            return _players.Find(x => x.Name == name);
         }
 
         public int GetPlayerIndex(Player player)
@@ -58,6 +76,10 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             var numPlayers = reader.ReadUInt32();
+            if (numPlayers != _players.Count)
+            {
+                throw new InvalidDataException();
+            }
 
             //var players = new Logic.Player[numPlayers];
             //for (var i = 0; i < numPlayers; i++)
