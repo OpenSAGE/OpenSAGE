@@ -170,7 +170,7 @@ namespace OpenSage.Mods.Generals.Gui
                 return;
             }
 
-            _moneyDisplay.Text = $"$ {player.Money}";
+            _moneyDisplay.Text = $"$ {player.BankAccount.Money}";
 
             var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
             ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));

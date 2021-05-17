@@ -94,7 +94,7 @@ namespace OpenSage.Logic.OrderGenerators
             }
 
             var player = scene.LocalPlayer;
-            if (player.Money < _buildingDefinition.BuildCost)
+            if (player.BankAccount.Money < _buildingDefinition.BuildCost)
             {
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }

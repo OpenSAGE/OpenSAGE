@@ -36,8 +36,10 @@ namespace OpenSage.Logic
 
         public bool IsHuman { get; private set; }
 
-        public uint Money { get; private set; }
-        public List<UpgradeTemplate> Upgrades { get; }
+        public readonly BankAccount BankAccount;
+
+        private readonly List<Upgrade> _upgrades;
+
         public List<UpgradeTemplate> ConflictingUpgrades { get; }
         public List<Science> Sciences { get; }
         public Rank Rank { get; set; }
@@ -90,22 +92,6 @@ namespace OpenSage.Logic
             return true;
         }
 
-        public void SpendMoney(uint amount)
-        {
-            if (Money >= amount)
-            {
-                Money -= amount;
-            }
-            else
-            {
-                // this should not happen since we should check first if we can spend that much
-                Logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
-                Money = 0;
-            }
-        }
-
-        public void ReceiveMoney(uint amount) => Money += amount;
-
         public ColorRgb Color { get; }
 
         private HashSet<Player> _allies;
@@ -130,7 +116,7 @@ namespace OpenSage.Logic
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
-            Upgrades = new List<UpgradeTemplate>();
+            _upgrades = new List<Upgrade>();
             ConflictingUpgrades = new List<UpgradeTemplate>();
             Sciences = new List<Science>();
 
@@ -142,7 +128,7 @@ namespace OpenSage.Logic
             {
                 foreach (var upgrade in template.InitialUpgrades)
                 {
-                    Upgrades.Add(upgrade.Value);
+                    AddUpgrade(upgrade.Value);
                 }
             }
 
@@ -153,6 +139,8 @@ namespace OpenSage.Logic
                     Sciences.Add(science.Value);
                 }
             }
+
+            BankAccount = new BankAccount();
         }
 
         internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)
@@ -286,17 +274,54 @@ namespace OpenSage.Logic
             return true;
         }
 
+        internal Upgrade AddUpgrade(UpgradeTemplate template)
+        {
+            // TODO: Check whether player already has this upgrade?
+
+            var upgrade = new Upgrade(template);
+
+            _upgrades.Add(upgrade);
+
+            return upgrade;
+        }
+
+        internal void RemoveUpgrade(UpgradeTemplate template)
+        {
+            Upgrade upgradeToRemove = null;
+
+            foreach (var upgrade in _upgrades)
+            {
+                if (upgrade.Template == template)
+                {
+                    upgradeToRemove = upgrade;
+                    break;
+                }
+            }
+
+            if (upgradeToRemove != null)
+            {
+                _upgrades.Remove(upgradeToRemove);
+            }
+        }
+
+        internal bool HasUpgrade(UpgradeTemplate template)
+        {
+            foreach (var upgrade in _upgrades)
+            {
+                if (upgrade.Template == template)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(8);
 
-            var unknown2 = reader.ReadBoolean();
-            if (!unknown2)
-            {
-                throw new InvalidDataException();
-            }
-
-            Money = reader.ReadUInt32();
+            BankAccount.Load(reader);
 
             var upgradeQueueCount = reader.ReadUInt16();
 
@@ -311,9 +336,11 @@ namespace OpenSage.Logic
             for (var i = 0; i < upgradeQueueCount; i++)
             {
                 var upgradeName = reader.ReadAsciiString();
-                reader.ReadBoolean();
+                var upgradeTemplate = _assetStore.Upgrades.GetByName(upgradeName);
 
-                var status = reader.ReadEnum<UpgradeStatus>();
+                var upgrade = AddUpgrade(upgradeTemplate);
+
+                upgrade.Load(reader);
             }
 
             reader.__Skip(9);
@@ -528,15 +555,18 @@ namespace OpenSage.Logic
             var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
 
             // TODO: Use rest of the properties from the template
-            return new Player(template, color, assetStore)
+            var result = new Player(template, color, assetStore)
             {
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
                 DisplayName = template.DisplayName.Translate(),
-                Money = (uint) (template.StartMoney + gameData.DefaultStartingCash),
                 IsHuman = setting?.Owner == PlayerOwner.Player,
                 Team = setting?.Team ?? default,
             };
+
+            result.BankAccount.Money = (uint) (template.StartMoney + gameData.DefaultStartingCash);
+
+            return result;
         }
 
         public void AddAlly(Player player)
@@ -649,9 +679,46 @@ namespace OpenSage.Logic
         }
     }
 
-    internal enum UpgradeStatus
+    public enum UpgradeStatus
     {
         Queued = 1,
         Completed = 2
+    }
+
+    public sealed class BankAccount
+    {
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public uint Money { get; internal set; }
+
+        public void Withdraw(uint amount)
+        {
+            // TODO: Play MoneyWithdrawSound
+
+            if (Money >= amount)
+            {
+                Money -= amount;
+            }
+            else
+            {
+                // this should not happen since we should check first if we can spend that much
+                Logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
+                Money = 0;
+            }
+        }
+
+        public void Deposit(uint amount)
+        {
+            // TODO: Play MoneyDepositSound
+
+            Money += amount;
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            Money = reader.ReadUInt32();
+        }
     }
 }

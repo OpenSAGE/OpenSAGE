@@ -708,7 +708,7 @@ namespace OpenSage.Logic.Object
                 return true;
             }
 
-            return upgrade.Type == UpgradeType.Player ? Owner.Upgrades.Contains(upgrade) : _upgrades.Contains(upgrade);
+            return upgrade.Type == UpgradeType.Player ? Owner.HasUpgrade(upgrade) : _upgrades.Contains(upgrade);
         }
 
         public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
@@ -909,7 +909,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        public bool HasEnoughMoney(float cost) => Owner.Money >= cost;
+        public bool HasEnoughMoney(float cost) => Owner.BankAccount.Money >= cost;
 
         public bool CanConstructUnit(ObjectDefinition objectDefinition)
         {
@@ -943,7 +943,7 @@ namespace OpenSage.Logic.Object
                     _upgrades.Add(upgrade);
                     break;
                 case UpgradeType.Player:
-                    Owner.Upgrades.Add(upgrade);
+                    Owner.AddUpgrade(upgrade);
                     break;
                 default:
                     throw new InvalidOperationException("This should not happen");
@@ -974,7 +974,7 @@ namespace OpenSage.Logic.Object
             }
             else if (upgrade.Type == UpgradeType.Player)
             {
-                Owner.Upgrades.Remove(upgrade);
+                Owner.RemoveUpgrade(upgrade);
             }
             else
             {
