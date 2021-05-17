@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -15,6 +16,8 @@ namespace OpenSage.Logic
     public class Player
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private readonly AssetStore _assetStore;
 
         private readonly StringSet _sciencesDisabled = new StringSet();
         private readonly StringSet _sciencesHidden = new StringSet();
@@ -120,7 +123,7 @@ namespace OpenSage.Logic
 
         public int Team { get; init; }
 
-        public Player(PlayerTemplate template, in ColorRgb color, ScopedAssetCollection<RankTemplate> rankTemplates)
+        public Player(PlayerTemplate template, in ColorRgb color, AssetStore assetStore)
         {
             Template = template;
             Color = color;
@@ -131,7 +134,9 @@ namespace OpenSage.Logic
             ConflictingUpgrades = new List<UpgradeTemplate>();
             Sciences = new List<Science>();
 
-            Rank = new Rank(this, rankTemplates);
+            _assetStore = assetStore;
+
+            Rank = new Rank(this, assetStore.Ranks);
 
             if (template?.InitialUpgrades != null)
             {
@@ -281,15 +286,11 @@ namespace OpenSage.Logic
             return true;
         }
 
-        internal void Load(BinaryReader reader, AssetStore assetStore)
+        internal void Load(SaveFileReader reader)
         {
-            var unknown1 = reader.ReadByte();
-            if (unknown1 != 8)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(8);
 
-            var unknown2 = reader.ReadBooleanChecked();
+            var unknown2 = reader.ReadBoolean();
             if (!unknown2)
             {
                 throw new InvalidDataException();
@@ -299,7 +300,7 @@ namespace OpenSage.Logic
 
             var upgradeQueueCount = reader.ReadUInt16();
 
-            if (reader.ReadBooleanChecked())
+            if (reader.ReadBoolean())
             {
                 throw new InvalidDataException();
             }
@@ -309,15 +310,15 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < upgradeQueueCount; i++)
             {
-                var upgradeName = reader.ReadBytePrefixedAsciiString();
-                reader.ReadBooleanChecked();
+                var upgradeName = reader.ReadAsciiString();
+                reader.ReadBoolean();
 
-                var status = reader.ReadUInt32AsEnum<UpgradeStatus>();
+                var status = reader.ReadEnum<UpgradeStatus>();
             }
 
-            reader.ReadBytes(9);
+            reader.__Skip(9);
 
-            var hasInsufficientPower = reader.ReadBooleanChecked();
+            var hasInsufficientPower = reader.ReadBoolean();
 
             _upgradesInProgress.Load(reader);
             _upgradesCompleted.Load(reader);
@@ -329,7 +330,7 @@ namespace OpenSage.Logic
 
             var someKindOfPlayerIndex = reader.ReadUInt32();
 
-            reader.ReadBytes(6);
+            reader.__Skip(6);
 
             var someCount = reader.ReadUInt16();
             for (var i = 0; i < someCount; i++)
@@ -340,26 +341,26 @@ namespace OpenSage.Logic
                     //throw new InvalidDataException();
                 }
 
-                var objectName = reader.ReadBytePrefixedAsciiString();
+                var objectName = reader.ReadAsciiString();
                 var position = reader.ReadVector3();
 
-                reader.ReadBytes(18);
+                reader.__Skip(18);
 
                 var maybeHealth = reader.ReadUInt32(); // 100
 
-                reader.ReadBytes(63);
+                reader.__Skip(63);
             }
 
-            var isAIPlayer = reader.ReadBooleanChecked();
+            var isAIPlayer = reader.ReadBoolean();
             if (isAIPlayer)
             {
                 // TODO: There are sometimes floats in here, X and Y and maybe a height.
-                reader.ReadBytes(86);
+                reader.__Skip(86);
             }
 
-            reader.ReadBooleanChecked();
+            reader.ReadBoolean();
 
-            var somePlayerType = reader.ReadBooleanChecked();
+            var somePlayerType = reader.ReadBoolean();
             if (somePlayerType)
             {
                 var constructedUnits = new ObjectIdSet();
@@ -368,7 +369,7 @@ namespace OpenSage.Logic
                 var constructedBuildings = new ObjectIdSet();
                 constructedBuildings.Load(reader);
 
-                reader.ReadBytes(13);
+                reader.__Skip(13);
             }
 
             var playerID = reader.ReadUInt32();
@@ -377,7 +378,7 @@ namespace OpenSage.Logic
             scienceSet.Load(reader);
             foreach (var scienceName in scienceSet)
             {
-                Sciences.Add(assetStore.Sciences.First((s) => s.Name == scienceName));
+                Sciences.Add(_assetStore.Sciences.First((s) => s.Name == scienceName));
             }
 
             var rankId = reader.ReadUInt32();
@@ -388,25 +389,25 @@ namespace OpenSage.Logic
             var unknown4 = reader.ReadUInt32(); // 800
             var unknown5 = reader.ReadUInt32(); // 0
 
-            Name = reader.ReadBytePrefixedUnicodeString();
+            Name = reader.ReadUnicodeString();
 
             _playerToPlayerRelationships.Load(reader);
             _playerToTeamRelationships.Load(reader);
 
-            CanBuildUnits = reader.ReadBooleanChecked();
-            CanBuildBuildings = reader.ReadBooleanChecked();
+            CanBuildUnits = reader.ReadBoolean();
+            CanBuildBuildings = reader.ReadBoolean();
 
-            var unknown6 = reader.ReadBooleanChecked();
+            var unknown6 = reader.ReadBoolean();
 
             GeneralsExperienceMultiplier = reader.ReadSingle();
-            ShowOnScoreScreen = reader.ReadBooleanChecked();
+            ShowOnScoreScreen = reader.ReadBoolean();
 
-            var unknownBytes2 = reader.ReadBytes(87);
+            reader.__Skip(87);
 
             var suppliesCollected = reader.ReadUInt32();
             var moneySpent = reader.ReadUInt32();
 
-            var unknownBytes2_1 = reader.ReadBytes(156);
+            reader.__Skip(156);
 
             var unknown8 = reader.ReadUInt32();
 
@@ -439,7 +440,7 @@ namespace OpenSage.Logic
                 controlGroup.Load(reader);
             }
 
-            if (!reader.ReadBooleanChecked())
+            if (!reader.ReadBoolean())
             {
                 throw new InvalidDataException();
             }
@@ -447,12 +448,18 @@ namespace OpenSage.Logic
             var destroyedObjects = new ObjectIdSet();
             destroyedObjects.Load(reader);
 
-            reader.ReadBytes(14);
+            reader.__Skip(14);
         }
 
         private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
+
+            if (side.StartsWith("FactionChina", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                // TODO: Probably not right.
+                side = "FactionChina";
+            }
 
             // We need the template for default values
             var template = assetStore.PlayerTemplates.GetByName(side);
@@ -480,7 +487,7 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            return new Player(template, color, assetStore.Ranks)
+            return new Player(template, color, assetStore)
             {
                 Side = side,
                 Name = name,
@@ -521,7 +528,7 @@ namespace OpenSage.Logic
             var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
 
             // TODO: Use rest of the properties from the template
-            return new Player(template, color, assetStore.Ranks)
+            return new Player(template, color, assetStore)
             {
                 Side = template.Side,
                 Name = setting == null ? template.Name : setting?.Name,
@@ -559,9 +566,9 @@ namespace OpenSage.Logic
             _store = new Dictionary<uint, RelationshipType>();
         }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            reader.ReadVersion();
+            reader.ReadVersion(1);
 
             _store.Clear();
 
@@ -569,7 +576,7 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var playerOrTeamId = reader.ReadUInt32();
-                var relationship = reader.ReadUInt32AsEnum<RelationshipType>();
+                var relationship = reader.ReadEnum<RelationshipType>();
                 _store[playerOrTeamId] = relationship;
             }
         }
@@ -579,20 +586,16 @@ namespace OpenSage.Logic
     // Maybe we shouldn't use a generic container like this.
     public sealed class StringSet : HashSet<string>
     {
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             Clear();
 
             var count = reader.ReadUInt16();
             for (var i = 0; i < count; i++)
             {
-                Add(reader.ReadBytePrefixedAsciiString());
+                Add(reader.ReadAsciiString());
             }
         }
     }
@@ -601,13 +604,9 @@ namespace OpenSage.Logic
     // Maybe we shouldn't use a generic container like this.
     public sealed class ObjectIdSet : HashSet<uint>
     {
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             Clear();
 
@@ -623,7 +622,7 @@ namespace OpenSage.Logic
     {
         public readonly PlayerStatObjectCollection UnitsDestroyed = new PlayerStatObjectCollection();
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
             // After 0x10, 3rd entry is ObjectsDestroyed?
             // After 0x10, 17th entry is ObjectsLost?
@@ -633,20 +632,16 @@ namespace OpenSage.Logic
 
     internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>
     {
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
             Clear();
 
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             var count = reader.ReadUInt16();
             for (var i = 0; i < count; i++)
             {
-                var objectType = reader.ReadBytePrefixedAsciiString();
+                var objectType = reader.ReadAsciiString();
                 var total = reader.ReadUInt32();
 
                 Add(objectType, total);

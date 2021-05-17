@@ -188,11 +188,12 @@ namespace OpenSage.Launcher
 
                             logger.Debug("Starting multiplayer game");
 
-                            game.StartMultiPlayerGame(opts.Map,
+                            game.StartSkirmishOrMultiPlayerGame(opts.Map,
                                 new EchoConnection(),
                                 pSettings,
                                 0,
-                                Environment.TickCount);
+                                Environment.TickCount,
+                                false);
                         }
                         else
                         {
