@@ -595,12 +595,19 @@ namespace OpenSage
 
         }
 
+        internal enum GameType
+        {
+            SinglePlayer,
+            Skirmish,
+            MultiPlayer,
+        }
+
         internal void StartGame(
             string mapFileName,
             IConnection connection,
             PlayerSetting?[] playerSettings,
             int localPlayerIndex,
-            bool isMultiPlayer,
+            GameType gameType,
             int seed,
             MapFile mapFile = null)
         {
@@ -633,7 +640,7 @@ namespace OpenSage
             var hasAIPlayer = playerSettings != null &&
                 playerSettings.Any(x => x.Value.Owner == PlayerOwner.EasyAi || x.Value.Owner == PlayerOwner.MediumAi || x.Value.Owner == PlayerOwner.HardAi);
 
-            if (isMultiPlayer || hasAIPlayer)
+            if (gameType != GameType.SinglePlayer)
             {
                 var players = new Player[playerSettings.Length + 1];
 
@@ -677,7 +684,12 @@ namespace OpenSage
                         availablePositions.Remove((int) startPos);
                     }
 
-                    var playerStartPosition = Scene3D.Waypoints[$"Player_{startPos}_Start"].Position;
+                    // TODO: Not sure what the OG does here.
+                    var playerStartPosition = new Vector3(80, 80, 0);
+                    if (Scene3D.Waypoints.TryGetByName($"Player_{startPos}_Start", out var startWaypoint))
+                    {
+                        playerStartPosition = startWaypoint.Position;
+                    }
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
 
                     if (i == localPlayerIndex)
@@ -744,7 +756,11 @@ namespace OpenSage
 
                 // TODO: Theoretically, there could be multiple civilian players
                 Scene3D.SetSkirmishPlayers(players, players[localPlayerIndex]);
-                Scripting.InitializeSkirmishGame();
+
+                if (gameType == GameType.MultiPlayer || hasAIPlayer)
+                {
+                    Scripting.InitializeSkirmishGame();
+                }
             }
 
             Scene3D.PlayerManager.AddReplayObserver(this);
@@ -795,7 +811,7 @@ namespace OpenSage
                 connection,
                 playerSettings,
                 localPlayerIndex,
-                isMultiPlayer: isMultiPlayer,
+                isMultiPlayer ? GameType.MultiPlayer : GameType.Skirmish,
                 seed);
         }
 
@@ -807,7 +823,7 @@ namespace OpenSage
                 new EchoConnection(),
                 null,
                 0,
-                isMultiPlayer: false,
+                GameType.SinglePlayer,
                 seed: Environment.TickCount);
         }
 

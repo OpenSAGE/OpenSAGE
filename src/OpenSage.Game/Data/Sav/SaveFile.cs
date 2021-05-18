@@ -111,7 +111,7 @@ namespace OpenSage.Data.Sav
                                             new ColorRgb(0, 0, 255), 0)
                                     },
                                     localPlayerIndex: 0, // TODO
-                                    isMultiPlayer: false, // TODO
+                                    Game.GameType.Skirmish, // TODO
                                     seed: Environment.TickCount, // TODO
                                     map); // TODO
 

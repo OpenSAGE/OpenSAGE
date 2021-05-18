@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
             if (_moduleData.BonusScience != null)
             {
                 var bonusUpgradeDefinition = assetStore.Upgrades.GetByName(_moduleData.BonusScience);
-                if (_gameObject.UpgradeAvailable(bonusUpgradeDefinition))
+                if (_gameObject.HasUpgrade(bonusUpgradeDefinition))
                 {
                     amountPerBox *= _moduleData.BonusScienceMultiplier;
                 }

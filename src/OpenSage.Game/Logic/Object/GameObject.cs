@@ -279,8 +279,11 @@ namespace OpenSage.Logic.Object
         public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
-        private List<UpgradeTemplate> _upgrades { get; set; }
-        private List<UpgradeTemplate> _conflictingUpgrades { get; }
+        private readonly HashSet<string> _upgrades;
+
+        // We compute this every time it's requested, but we don't want
+        // to allocate a new object every time.
+        private readonly HashSet<string> _upgradesAll;
 
         public int Rank { get; set; }
         public int ExperienceValue { get; set; }
@@ -307,8 +310,8 @@ namespace OpenSage.Logic.Object
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
 
-            _upgrades = new List<UpgradeTemplate>();
-            _conflictingUpgrades = new List<UpgradeTemplate>();
+            _upgrades = new HashSet<string>();
+            _upgradesAll = new HashSet<string>();
 
             _objectMoved = true;
             Hidden = false;
@@ -701,27 +704,16 @@ namespace OpenSage.Logic.Object
             return _behaviorModules.OfType<T>();
         }
 
-        public bool UpgradeAvailable(UpgradeTemplate upgrade)
+        public bool HasUpgrade(UpgradeTemplate upgrade)
         {
             if (upgrade == null)
             {
                 return true;
             }
 
-            return upgrade.Type == UpgradeType.Player ? Owner.HasUpgrade(upgrade) : _upgrades.Contains(upgrade);
-        }
-
-        public bool ConflictingUpgradeAvailable(UpgradeTemplate upgrade)
-        {
-            if (upgrade == null)
-            {
-                return false;
-            }
-            if (upgrade.Type == UpgradeType.Player)
-            {
-                return Owner.ConflictingUpgrades.Contains(upgrade);
-            }
-            return _conflictingUpgrades.Contains(upgrade);
+            return upgrade.Type == UpgradeType.Player
+                ? Owner.HasUpgrade(upgrade)
+                : _upgrades.Contains(upgrade.Name);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -893,12 +885,12 @@ namespace OpenSage.Logic.Object
         {
             if (button.Object != null && button.Object.Value != null)
             {
-                return UpgradeAvailable(button.NeededUpgrade?.Value)
+                return HasUpgrade(button.NeededUpgrade?.Value)
                     && CanConstructUnit(button.Object.Value);
             }
             if (button.Upgrade != null && button.Upgrade.Value != null)
             {
-                return UpgradeAvailable(button.NeededUpgrade?.Value)
+                return HasUpgrade(button.NeededUpgrade?.Value)
                     && CanEnqueueUpgrade(button.Upgrade.Value);
             }
             if (button.Command == CommandType.CastleUnpack)
@@ -929,10 +921,30 @@ namespace OpenSage.Logic.Object
             var userHasEnoughMoney = HasEnoughMoney(upgrade.BuildCost);
             var hasQueuedUpgrade = ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
             var canEnqueue = ProductionUpdate.CanEnqueue();
-            var hasUpgrade = UpgradeAvailable(upgrade);
-            var upgradeIsInvalid = ConflictingUpgradeAvailable(upgrade);
+            var hasUpgrade = HasUpgrade(upgrade);
 
-            return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && !upgradeIsInvalid;
+            var existingUpgrades = GetUpgradesCompleted();
+            existingUpgrades.Add(upgrade.Name);
+
+            var upgradeModuleCanUpgrade = false;
+            foreach (var upgradeModule in FindBehaviors<UpgradeModule>())
+            {
+                if (upgradeModule.CanUpgrade(existingUpgrades))
+                {
+                    upgradeModuleCanUpgrade = true;
+                    break;
+                }
+            }
+
+            return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && upgradeModuleCanUpgrade;
+        }
+
+        public HashSet<string> GetUpgradesCompleted()
+        {
+            _upgradesAll.Clear();
+            _upgradesAll.UnionWith(_upgrades);
+            _upgradesAll.UnionWith(Owner.UpgradesCompleted);
+            return _upgradesAll;
         }
 
         public void Upgrade(UpgradeTemplate upgrade)
@@ -940,7 +952,7 @@ namespace OpenSage.Logic.Object
             switch (upgrade.Type)
             {
                 case UpgradeType.Object:
-                    _upgrades.Add(upgrade);
+                    _upgrades.Add(upgrade.Name);
                     break;
                 case UpgradeType.Player:
                     Owner.AddUpgrade(upgrade);
@@ -950,47 +962,15 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void AddConflictingUpgrade(UpgradeTemplate upgrade)
-        {
-            if (upgrade.Type == UpgradeType.Object)
-            {
-                _conflictingUpgrades.Add(upgrade);
-            }
-            else if (upgrade.Type == UpgradeType.Player)
-            {
-                Owner.ConflictingUpgrades.Add(upgrade);
-            }
-            else
-            {
-                throw new InvalidOperationException("This should not happen");
-            }
-        }
-
         public void RemoveUpgrade(UpgradeTemplate upgrade)
         {
             if (upgrade.Type == UpgradeType.Object)
             {
-                _upgrades.Remove(upgrade);
+                _upgrades.Remove(upgrade.Name);
             }
             else if (upgrade.Type == UpgradeType.Player)
             {
                 Owner.RemoveUpgrade(upgrade);
-            }
-            else
-            {
-                throw new InvalidOperationException("This should not happen");
-            }
-        }
-
-        public void RemoveConflictingUpgrade(UpgradeTemplate upgrade)
-        {
-            if (upgrade.Type == UpgradeType.Object)
-            {
-                _conflictingUpgrades.Remove(upgrade);
-            }
-            else if (upgrade.Type == UpgradeType.Player)
-            {
-                Owner.ConflictingUpgrades.Remove(upgrade);
             }
             else
             {

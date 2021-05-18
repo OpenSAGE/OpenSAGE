@@ -342,7 +342,8 @@ namespace OpenSage
             GameObjects = AddDisposable(
                 new GameObjectCollection(
                     GameContext,
-                    game.CivilianPlayer));
+                    game.CivilianPlayer,
+                    Navigation));
 
             GameContext.GameObjects = GameObjects;
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -21,53 +22,50 @@ namespace OpenSage.Logic.Object
             _triggered = _moduleData.StartsActive;
         }
 
-        private bool AnyUpgradeAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        public bool CanUpgrade(HashSet<string> existingUpgrades)
         {
-            if (upgrades == null)
+            if (_triggered)
             {
                 return false;
             }
 
-            foreach (var trigger in upgrades)
-            {
-                if (_gameObject.UpgradeAvailable(trigger.Value))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return CanUpgradeImpl(existingUpgrades);
         }
 
-        private bool AllUpgradesAvailable(LazyAssetReference<UpgradeTemplate>[] upgrades)
+        private bool CanUpgradeImpl(HashSet<string> existingUpgrades)
         {
-            if (upgrades == null)
+            // Does the object / player have the prerequisite upgrades that trigger this upgrade?
+            var triggered = _moduleData.RequiresAllTriggers
+                ? existingUpgrades.SetEquals(_moduleData.TriggeredByHashSet)
+                : existingUpgrades.Overlaps(_moduleData.TriggeredByHashSet);
+
+            if (!triggered)
             {
-                return true;
+                return false;
             }
 
-            foreach (var trigger in upgrades)
+            // Does the object / player have any upgrades that conflict with this upgrade?
+            var conflicts = _moduleData.RequiresAllConflictingTriggers
+                ? existingUpgrades.SetEquals(_moduleData.ConflictsWithHashSet)
+                : existingUpgrades.Overlaps(_moduleData.ConflictsWithHashSet);
+
+            if (conflicts)
             {
-                if (_gameObject.UpgradeAvailable(trigger.Value) == false)
-                {
-                    return false;
-                }
+                return false;
             }
+
             return true;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            var triggered = _moduleData.RequiresAllTriggers ? AllUpgradesAvailable(_moduleData.TriggeredBy) : AnyUpgradeAvailable(_moduleData.TriggeredBy);
-            var conflicts = _moduleData.RequiresAllConflictingTriggers ? AllUpgradesAvailable(_moduleData.ConflictsWith) : AnyUpgradeAvailable(_moduleData.ConflictsWith);
-            if (conflicts)
-            {
-                triggered = false;
-            }
+            // TODO: This is expensive to do every single update.
+            var canUpgrade = CanUpgrade(_gameObject.GetUpgradesCompleted());
 
             // what objects do use initial here?
-            if (triggered != _triggered)
+            if (canUpgrade != _triggered)
             {
-                _triggered = triggered;
+                _triggered = canUpgrade;
                 OnTrigger(context, _triggered);
             }
         }
@@ -128,6 +126,48 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ActiveDuringConstruction { get; private set; }
+
+        private HashSet<string> _triggeredByHashSet;
+        internal HashSet<string> TriggeredByHashSet
+        {
+            get
+            {
+                if (_triggeredByHashSet == null)
+                {
+                    _triggeredByHashSet = new HashSet<string>();
+                    if (TriggeredBy != null)
+                    {
+                        foreach (var upgrade in TriggeredBy)
+                        {
+                            _triggeredByHashSet.Add(upgrade.Value.Name);
+                        }
+                    }
+                }
+
+                return _triggeredByHashSet;
+            }
+        }
+
+        private HashSet<string> _conflictsWithHashSet;
+        internal HashSet<string> ConflictsWithHashSet
+        {
+            get
+            {
+                if (_conflictsWithHashSet == null)
+                {
+                    _conflictsWithHashSet = new HashSet<string>();
+                    if (ConflictsWith != null)
+                    {
+                        foreach (var upgrade in ConflictsWith)
+                        {
+                            _conflictsWithHashSet.Add(upgrade.Value.Name);
+                        }
+                    }
+                }
+
+                return _triggeredByHashSet;
+            }
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
