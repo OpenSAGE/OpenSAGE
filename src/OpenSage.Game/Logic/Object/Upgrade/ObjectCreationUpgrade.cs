@@ -33,16 +33,6 @@ namespace OpenSage.Logic.Object
                         }
                     }
                 }
-
-                foreach (var upgrade in _moduleData.ConflictsWith)
-                {
-                    if (upgrade == null)
-                    {
-                        continue;
-                    }
-
-                    _gameObject.AddConflictingUpgrade(upgrade.Value);
-                }
             }
         }
 

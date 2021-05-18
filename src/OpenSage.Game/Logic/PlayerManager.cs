@@ -24,7 +24,7 @@ namespace OpenSage.Logic
             _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
 
             // TODO: This is completely wrong.
-            LocalPlayer = _players[1];
+            LocalPlayer = _players[2];
         }
 
         internal void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)

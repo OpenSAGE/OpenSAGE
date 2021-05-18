@@ -468,7 +468,7 @@ namespace OpenSage.Mods.Generals.Gui
                         : null;
                     upgradeControl.DisabledBackgroundImage = upgradeControl.BackgroundImage?.WithGrayscale(true);
 
-                    upgradeControl.Enabled = unit.UpgradeAvailable(upgrade);
+                    upgradeControl.Enabled = unit.HasUpgrade(upgrade);
                 }
 
                 ApplyUpgradeImage(unit, "UnitUpgrade1", unit.Definition.UpgradeCameo1);

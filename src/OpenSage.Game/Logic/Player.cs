@@ -5,7 +5,6 @@ using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Sav;
-using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -19,11 +18,14 @@ namespace OpenSage.Logic
 
         private readonly AssetStore _assetStore;
 
-        private readonly StringSet _sciencesDisabled = new StringSet();
-        private readonly StringSet _sciencesHidden = new StringSet();
+        private readonly List<Upgrade> _upgrades;
+        private readonly StringSet _upgradesInProgress;
 
-        private readonly StringSet _upgradesInProgress = new StringSet();
-        private readonly StringSet _upgradesCompleted = new StringSet();
+        public readonly StringSet UpgradesCompleted;
+
+        private readonly ScienceSet _sciences;
+        private readonly ScienceSet _sciencesDisabled;
+        private readonly ScienceSet _sciencesHidden;
 
         private readonly PlayerRelationships _playerToPlayerRelationships = new PlayerRelationships();
         private readonly PlayerRelationships _playerToTeamRelationships = new PlayerRelationships();
@@ -38,10 +40,6 @@ namespace OpenSage.Logic
 
         public readonly BankAccount BankAccount;
 
-        private readonly List<Upgrade> _upgrades;
-
-        public List<UpgradeTemplate> ConflictingUpgrades { get; }
-        public List<Science> Sciences { get; }
         public Rank Rank { get; set; }
         public uint SkillPointsTotal { get; private set; }
         public uint SkillPointsAvailable { get; set; }
@@ -77,16 +75,11 @@ namespace OpenSage.Logic
             {
                 foreach (var requirement in specialPower.RequiredSciences)
                 {
-                    if (!Sciences.Contains(requirement.Value))
+                    if (!HasScience(requirement.Value))
                     {
                         return false;
                     }
                 }
-            }
-
-            if (specialPower.RequiredScience != null)
-            {
-                return Sciences.Contains(specialPower.RequiredScience.Value);
             }
 
             return true;
@@ -116,9 +109,14 @@ namespace OpenSage.Logic
             _selectedUnits = new HashSet<GameObject>();
             _allies = new HashSet<Player>();
             _enemies = new HashSet<Player>();
+
             _upgrades = new List<Upgrade>();
-            ConflictingUpgrades = new List<UpgradeTemplate>();
-            Sciences = new List<Science>();
+            _upgradesInProgress = new StringSet();
+            UpgradesCompleted = new StringSet();
+
+            _sciences = new ScienceSet(assetStore);
+            _sciencesDisabled = new ScienceSet(assetStore);
+            _sciencesHidden = new ScienceSet(assetStore);
 
             _assetStore = assetStore;
 
@@ -136,7 +134,7 @@ namespace OpenSage.Logic
             {
                 foreach (var science in template.IntrinsicSciences)
                 {
-                    Sciences.Add(science.Value);
+                    _sciences.Add(science.Value.Name, science.Value);
                 }
             }
 
@@ -200,7 +198,20 @@ namespace OpenSage.Logic
 
         public bool ScienceAvailable(Science science)
         {
-            if (Sciences.Contains(science)) return false;
+            if (HasScience(science))
+            {
+                return false;
+            }
+
+            if (_sciencesDisabled.ContainsKey(science.Name))
+            {
+                return false;
+            }
+
+            if (_sciencesHidden.ContainsKey(science.Name))
+            {
+                return false;
+            }
 
             foreach (var requiredScience in science.PrerequisiteSciences)
             {
@@ -208,7 +219,8 @@ namespace OpenSage.Logic
                 {
                     continue;
                 }
-                if (!Sciences.Contains(requiredScience.Value))
+
+                if (!_sciences.ContainsKey(requiredScience.Value.Name))
                 {
                     return false;
                 }
@@ -225,8 +237,18 @@ namespace OpenSage.Logic
                 return;
             }
 
+            if (!science.IsGrantable)
+            {
+                return;
+            }
+
             SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
-            Sciences.Add(science);
+            _sciences.Add(science.Name, science);
+        }
+
+        public bool HasScience(Science science)
+        {
+            return _sciences.ContainsKey(science.Name);
         }
 
         public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
@@ -348,7 +370,7 @@ namespace OpenSage.Logic
             var hasInsufficientPower = reader.ReadBoolean();
 
             _upgradesInProgress.Load(reader);
-            _upgradesCompleted.Load(reader);
+            UpgradesCompleted.Load(reader);
 
             if (reader.ReadByte() != 2)
             {
@@ -401,12 +423,7 @@ namespace OpenSage.Logic
 
             var playerID = reader.ReadUInt32();
 
-            var scienceSet = new StringSet();
-            scienceSet.Load(reader);
-            foreach (var scienceName in scienceSet)
-            {
-                Sciences.Add(_assetStore.Sciences.First((s) => s.Name == scienceName));
-            }
+            _sciences.Load(reader);
 
             var rankId = reader.ReadUInt32();
             Rank.SetRank((int) rankId);
@@ -608,6 +625,33 @@ namespace OpenSage.Logic
                 var playerOrTeamId = reader.ReadUInt32();
                 var relationship = reader.ReadEnum<RelationshipType>();
                 _store[playerOrTeamId] = relationship;
+            }
+        }
+    }
+
+    public sealed class ScienceSet : Dictionary<string, Science>
+    {
+        private readonly AssetStore _assetStore;
+
+        internal ScienceSet(AssetStore assetStore)
+        {
+            _assetStore = assetStore;
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            Clear();
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                var name = reader.ReadAsciiString();
+
+                var science = _assetStore.Sciences.GetByName(name);
+
+                Add(name, science);
             }
         }
     }

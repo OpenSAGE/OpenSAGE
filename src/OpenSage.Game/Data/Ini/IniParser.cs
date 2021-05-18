@@ -518,6 +518,11 @@ namespace OpenSage.Data.Ini
             var names = ParseAssetReferenceArray();
             foreach (var name in names)
             {
+                if (string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 result.Add(_assetStore.Sciences.GetLazyAssetReferenceByName(name));
             }
             return result.ToArray();

@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
         {
             // this is also hardcoded in original SAGE, replaced by BonusScience and BonusScienceMultiplier (SupplyCenterDockUpdate) in later games
             var upgradeDefinition = upgrades.GetByName("Upgrade_GLAWorkerShoes");
-            return GameObject.UpgradeAvailable(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
+            return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
 
         internal override List<GameObject> GetNearbySupplySources(BehaviorUpdateContext context)

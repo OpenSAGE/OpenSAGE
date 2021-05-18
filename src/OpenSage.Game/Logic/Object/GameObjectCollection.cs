@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
             _destroyList = new List<uint>();
             _createList = new List<GameObject>();
             _navigation = navigation;
-            _nextObjectId = 0;
+            _nextObjectId = 1;
         }
 
         public GameObject Add(string typeName)

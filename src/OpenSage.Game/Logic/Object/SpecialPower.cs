@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
             { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
-            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseScienceReference() },
+            { "RequiredScience", (parser, x) => x.RequiredSciences = new[] { parser.ParseScienceReference() } },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
             { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAudioEventReference() },
@@ -45,7 +45,6 @@ namespace OpenSage.Logic.Object
 
         public SpecialPowerType Type { get; private set; }
         public long ReloadTime { get; private set; }
-        public LazyAssetReference<Science> RequiredScience { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }
