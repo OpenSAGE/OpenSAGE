@@ -955,7 +955,7 @@ namespace OpenSage.Logic.Object
                     _upgrades.Add(upgrade.Name);
                     break;
                 case UpgradeType.Player:
-                    Owner.AddUpgrade(upgrade);
+                    Owner.AddUpgrade(upgrade, UpgradeStatus.Completed);
                     break;
                 default:
                     throw new InvalidOperationException("This should not happen");

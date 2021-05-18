@@ -126,7 +126,7 @@ namespace OpenSage.Logic
             {
                 foreach (var upgrade in template.InitialUpgrades)
                 {
-                    AddUpgrade(upgrade.Value);
+                    AddUpgrade(upgrade.Value, UpgradeStatus.Completed);
                 }
             }
 
@@ -296,13 +296,38 @@ namespace OpenSage.Logic
             return true;
         }
 
-        internal Upgrade AddUpgrade(UpgradeTemplate template)
+        internal Upgrade AddUpgrade(UpgradeTemplate template, UpgradeStatus status)
         {
-            // TODO: Check whether player already has this upgrade?
+            Upgrade upgrade = null;
+            foreach (var eachUpgrade in _upgrades)
+            {
+                if (eachUpgrade.Template == template)
+                {
+                    upgrade = eachUpgrade;
+                    break;
+                }
+            }
 
-            var upgrade = new Upgrade(template);
+            if (upgrade == null)
+            {
+                upgrade = new Upgrade(template);
+            }
+
+            upgrade.Status = status;
 
             _upgrades.Add(upgrade);
+
+            switch (status)
+            {
+                case UpgradeStatus.Queued:
+                    _upgradesInProgress.Add(template.Name);
+                    break;
+
+                case UpgradeStatus.Completed:
+                    _upgradesInProgress.Remove(template.Name);
+                    UpgradesCompleted.Add(template.Name);
+                    break;
+            }
 
             return upgrade;
         }
@@ -360,7 +385,9 @@ namespace OpenSage.Logic
                 var upgradeName = reader.ReadAsciiString();
                 var upgradeTemplate = _assetStore.Upgrades.GetByName(upgradeName);
 
-                var upgrade = AddUpgrade(upgradeTemplate);
+                // Use UpgradeStatus.Invalid temporarily because we're going to load the
+                // actual queued / completed status below.
+                var upgrade = AddUpgrade(upgradeTemplate, UpgradeStatus.Invalid);
 
                 upgrade.Load(reader);
             }
@@ -725,6 +752,7 @@ namespace OpenSage.Logic
 
     public enum UpgradeStatus
     {
+        Invalid = 0,
         Queued = 1,
         Completed = 2
     }

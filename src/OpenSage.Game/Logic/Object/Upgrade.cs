@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
 
         public readonly UpgradeTemplate Template;
 
-        public UpgradeStatus Status { get; private set; }
+        public UpgradeStatus Status { get; internal set; }
 
         internal void Load(SaveFileReader reader)
         {
