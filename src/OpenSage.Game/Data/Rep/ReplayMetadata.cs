@@ -2,6 +2,7 @@
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.Network;
 
 namespace OpenSage.Data.Rep
 {
@@ -100,7 +101,7 @@ namespace OpenSage.Data.Rep
         public string HumanName { get; private set; }
         public ReplaySlotDifficulty? ComputerDifficulty { get; private set; }
 
-        public ReplaySlotColor Color { get; private set; }
+        public sbyte Color { get; private set; }
         public int Faction { get; private set; }
         public int StartPosition { get; private set; }
         public int Team { get; private set; }
@@ -156,7 +157,7 @@ namespace OpenSage.Data.Rep
                 case ReplaySlotType.Human:
                     result.HumanName = slotDetails[0].Substring(1);
                     // TODO: 1, 2, 3, 4
-                    result.Color = (ReplaySlotColor) Convert.ToInt32(slotDetails[4]);
+                    result.Color = Convert.ToSByte(slotDetails[4]);
                     result.Faction = Convert.ToInt32(slotDetails[5]);
                     result.StartPosition = Convert.ToInt32(slotDetails[6]);
                     result.Team = Convert.ToInt32(slotDetails[7]);
@@ -165,7 +166,7 @@ namespace OpenSage.Data.Rep
 
                 case ReplaySlotType.Computer:
                     result.ComputerDifficulty = getSlotDifficulty();
-                    result.Color = (ReplaySlotColor) Convert.ToInt32(slotDetails[1]);
+                    result.Color = Convert.ToSByte(slotDetails[1]);
                     result.Faction = Convert.ToInt32(slotDetails[2]);
                     result.StartPosition = Convert.ToInt32(slotDetails[3]);
                     result.Team = Convert.ToInt32(slotDetails[4]);
@@ -191,19 +192,5 @@ namespace OpenSage.Data.Rep
         Easy,
         Medium,
         Hard
-    }
-
-    // TODO: Probably only correct for Generals and Zero Hour
-    public enum ReplaySlotColor
-    {
-        Random = -1,
-        Gold = 0,
-        Red = 1,
-        Blue = 2,
-        Green = 3,
-        Orange = 4,
-        Cyan = 5,
-        Purple = 6,
-        Pink = 7
     }
 }

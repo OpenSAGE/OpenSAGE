@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using OpenSage.Client;
 using OpenSage.Data.Map;
-using OpenSage.Data.Rep;
-using OpenSage.FileFormats;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
-using OpenSage.Mathematics;
-using OpenSage.Network;
+using OpenSage.Terrain;
 
 namespace OpenSage.Data.Sav
 {
@@ -30,7 +24,9 @@ namespace OpenSage.Data.Sav
 
                     if (chunkName == "CHUNK_GameState")
                     {
-                        return GameState.Parse(reader);
+                        var gameState = new GameState();
+                        gameState.Load(reader);
+                        return gameState;
                     }
 
                     reader.EndSegment();
@@ -54,11 +50,12 @@ namespace OpenSage.Data.Sav
             {
                 var reader = new SaveFileReader(binaryReader);
 
-                GameState gameState = null;
+                var gameState = new GameState();
                 MapFile map = null;
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
+                var terrainLogic = new TerrainLogic();
 
                 while (true)
                 {
@@ -77,7 +74,7 @@ namespace OpenSage.Data.Sav
                     switch (chunkName)
                     {
                         case "CHUNK_GameState":
-                            gameState = GameState.Parse(reader);
+                            gameState.Load(reader);
                             break;
 
                         case "CHUNK_Campaign":
@@ -86,105 +83,19 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_GameStateMap":
-                            {
-                                var version = reader.ReadByte();
-                                var mapPath1 = reader.ReadAsciiString();
-                                var mapPath2 = reader.ReadAsciiString();
-                                var unknown = reader.ReadUInt32();
-                                if (unknown != 0u && unknown != 2u)
-                                {
-                                    throw new InvalidDataException();
-                                }
-
-                                var mapFileSize = reader.ReadUInt32();
-                                var mapEnd = stream.Position + mapFileSize;
-                                map = MapFile.FromStream(stream);
-
-                                game.StartGame( // TODO: Do this after parsing players.
-                                    mapPath2.Replace("userdata\\", ""),
-                                    new EchoConnection(), // TODO
-                                    new PlayerSetting?[]
-                                    {
-                                        new PlayerSetting(
-                                            null,
-                                            game.AssetStore.PlayerTemplates.GetByName("FactionAmerica"), // TODO
-                                            new ColorRgb(0, 0, 255), 0)
-                                    },
-                                    localPlayerIndex: 0, // TODO
-                                    Game.GameType.Skirmish, // TODO
-                                    seed: Environment.TickCount, // TODO
-                                    map); // TODO
-
-                                // This seems to be aligned, so it's sometimes more than what we just read.
-                                stream.Seek(mapEnd, SeekOrigin.Begin);
-
-                                var unknown2 = reader.ReadUInt32(); // 586
-                                var unknown3 = reader.ReadUInt32(); // 3220
-
-                                if (unknown == 2u)
-                                {
-                                    var unknown4 = reader.ReadUInt32(); // 2
-                                    var unknown5 = reader.ReadUInt32(); // 25600 (160^2)
-                                    var unknown6 = reader.ReadBoolean();
-                                    var unknown7 = reader.ReadBoolean();
-                                    var unknown8 = reader.ReadBoolean();
-                                    var unknown9 = reader.ReadBoolean();
-                                    var unknown10 = reader.ReadUInt32(); // 0
-
-                                    var numPlayers = reader.ReadUInt32(); // 8
-                                    var unknown11 = reader.ReadUInt32(); // 5
-
-                                    var players = new GameStateMapPlayer[numPlayers];
-                                    for (var i = 0; i < numPlayers; i++)
-                                    {
-                                        players[i] = GameStateMapPlayer.Parse(reader);
-                                    }
-
-                                    var mapPath3 = reader.ReadAsciiString();
-                                    var mapFileCrc = reader.ReadUInt32();
-                                    var mapFileSize2 = reader.ReadUInt32();
-                                    if (mapFileSize != mapFileSize2)
-                                    {
-                                        throw new InvalidDataException();
-                                    }
-
-                                    var unknown12 = reader.ReadUInt32();
-                                    var unknown13 = reader.ReadUInt32();
-                                }
-
-                                break;
-                            }
+                            GameStateMap.Load(reader, game);
+                            break;
 
                         case "CHUNK_TerrainLogic":
-                        {
-                            var version = reader.ReadByte();
-                            var unknown = reader.ReadInt32();
-                            if (unknown != 2u)
-                            {
-                                throw new InvalidDataException();
-                            }
-
-                            var unknown2 = reader.ReadInt32();
-                            if (unknown2 != 0u)
-                            {
-                                throw new InvalidDataException();
-                            }
-
-                            var unknown3 = reader.ReadByte();
-                            if (unknown3 != 0)
-                            {
-                                throw new InvalidDataException();
-                            }
-
+                            terrainLogic.Load(reader);
                             break;
-                        }
 
                         case "CHUNK_TeamFactory":
                             game.Scene3D.TeamFactory.Load(reader);
                             break;
 
                         case "CHUNK_Players":
-                            game.Scene3D.PlayerManager.Load(reader);
+                            game.Scene3D.PlayerManager.Load(reader, game);
                             break;
 
                         case "CHUNK_GameLogic":
@@ -350,53 +261,6 @@ namespace OpenSage.Data.Sav
         {
             public string Name;
             public ushort Id;
-        }
-
-        private sealed class GameStateMapPlayer
-        {
-            public string Name { get; private set; }
-            public ushort Unknown1 { get; private set; }
-            public ReplaySlotColor Color { get; private set; }
-            /// <summary>
-            /// Start waypoint name is $"Player_{StartPosition + 1}_Start"
-            /// </summary>
-            public int StartPosition { get; private set; }
-            /// <summary>
-            /// Normally the same as <see cref="PlayerTemplateIndexChosen"/> except when
-            /// "Random" is chosen.
-            /// </summary>
-            public int PlayerTemplateIndex { get; private set; }
-            public int Team { get; private set; }
-            public ReplaySlotColor ColorChosen { get; private set; }
-            public int StartPositionChosen { get; private set; }
-            public int PlayerTemplateIndexChosen { get; private set; }
-            public uint Unknown2 { get; private set; }
-
-            internal static GameStateMapPlayer Parse(SaveFileReader reader)
-            {
-                var result = new GameStateMapPlayer
-                {
-                    Name = reader.ReadUnicodeString(),
-                    Unknown1 = reader.ReadUInt16(),
-                    Color = reader.ReadEnum<ReplaySlotColor>(),
-                    StartPosition = reader.ReadInt32(),
-                    PlayerTemplateIndex = reader.ReadInt32(),
-                    Team = reader.ReadInt32(),
-                    ColorChosen = reader.ReadEnum<ReplaySlotColor>(),
-                    StartPositionChosen = reader.ReadInt32(),
-                    PlayerTemplateIndexChosen = reader.ReadInt32(),
-                    Unknown2 = reader.ReadUInt32()
-                };
-
-                if (result.Unknown1 != 1u)
-                {
-                    throw new InvalidDataException();
-                }
-
-                //TODO: Check for result.Unknown2
-
-                return result;
-            }
         }
     }
 

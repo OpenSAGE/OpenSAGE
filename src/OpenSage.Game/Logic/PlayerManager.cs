@@ -71,19 +71,19 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(SaveFileReader reader, Game game)
         {
             reader.ReadVersion(1);
 
             var numPlayers = reader.ReadUInt32();
             if (numPlayers != _players.Count)
             {
-                //throw new InvalidDataException();
+                throw new InvalidDataException();
             }
 
             for (var i = 0; i < numPlayers; i++)
             {
-                _players[i].Load(reader);
+                _players[i].Load(reader, game);
             }
         }
     }

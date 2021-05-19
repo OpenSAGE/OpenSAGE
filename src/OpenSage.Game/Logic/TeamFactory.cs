@@ -65,6 +65,15 @@ namespace OpenSage.Logic
             return null;
         }
 
+        public TeamTemplate FindTeamTemplateById(uint id)
+        {
+            if (_teamTemplatesById.TryGetValue(id, out var result))
+            {
+                return result;
+            }
+            return null;
+        }
+
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);

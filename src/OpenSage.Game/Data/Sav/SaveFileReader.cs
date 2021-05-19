@@ -33,6 +33,8 @@ namespace OpenSage.Data.Sav
 
         public byte ReadByte() => _binaryReader.ReadByte();
 
+        public sbyte ReadSByte() => _binaryReader.ReadSByte();
+
         public ushort ReadUInt16() => _binaryReader.ReadUInt16();
 
         public int ReadInt32() => _binaryReader.ReadInt32();
@@ -136,13 +138,32 @@ namespace OpenSage.Data.Sav
 
         public RgbColorKeyframe ReadRgbColorKeyframe() => RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
 
-        public void BeginSegment()
+        public unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
+        {
+            const int bufferSize = 1024;
+            Span<byte> buffer = stackalloc byte[bufferSize];
+
+            var numBytesRemaining = numBytes;
+            while (numBytesRemaining > 0)
+            {
+                var currentSpan = buffer.Slice(0, Math.Min(numBytesRemaining, bufferSize));
+
+                var numBytesRead = _binaryReader.BaseStream.Read(currentSpan);
+                destination.Write(currentSpan);
+
+                numBytesRemaining -= numBytesRead;
+            }
+        }
+
+        public uint BeginSegment()
         {
             var segmentLength = _binaryReader.ReadUInt32();
 
             var currentPosition = _binaryReader.BaseStream.Position;
 
             _segments.Push(new Segment(currentPosition, currentPosition + segmentLength));
+
+            return segmentLength;
         }
 
         public void EndSegment()

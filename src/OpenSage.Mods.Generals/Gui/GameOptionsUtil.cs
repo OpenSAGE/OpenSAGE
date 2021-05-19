@@ -54,10 +54,16 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            FillComboBoxOptions(_optionsPath + ComboBoxTeamPrefix, new[]
-            {
-                "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
-            });
+            FillComboBoxOptions(
+                _optionsPath + ComboBoxTeamPrefix,
+                new[]
+                {
+                    "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
+                },
+                new object[]
+                {
+                    (sbyte)-1, (sbyte)0, (sbyte)1,(sbyte)2,(sbyte)3,
+                });
 
             _playableSides = _game.GetPlayableSides().ToList();
             if (_playableSides.Count > 0)
@@ -70,8 +76,10 @@ namespace OpenSage.Mods.Generals.Gui
 
             if (game.AssetStore.MultiplayerColors.Count > 0)
             {
-                var colors = game.AssetStore.MultiplayerColors.Select(i => new Tuple<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
-                var randomColor = new Tuple<string, ColorRgbaF>("GUI:???", ColorRgbaF.White);
+                var colors = game.AssetStore.MultiplayerColors
+                    .Select((c, i) => new Tuple<sbyte, string, ColorRgbaF>((sbyte) i, c.TooltipName, c.RgbColor.ToColorRgbaF()))
+                    .ToList();
+                var randomColor = new Tuple<sbyte, string, ColorRgbaF>(-1, "GUI:???", ColorRgbaF.White);
                 colors.Insert(0, randomColor);
 
                 FillColorComboBoxOptions(colors.ToArray());
@@ -99,7 +107,7 @@ namespace OpenSage.Mods.Generals.Gui
                     if (comboBox != null)
                     {
                         var listBox = (ListBox) comboBox.Controls[2];
-                        listBox.SelectedIndexChanged += (sender, e) => OnSlotIndexChanged(i, prefix, comboBox.SelectedIndex);
+                        listBox.SelectedIndexChanged += (sender, e) => OnSlotIndexChanged(i, prefix, comboBox.SelectedIndex, comboBox.Items[comboBox.SelectedIndex].DataItem);
                     }
                     else
                     {
@@ -174,7 +182,7 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        private void OnSlotIndexChanged(int index, string name, int value)
+        private void OnSlotIndexChanged(int index, string name, int value, object dataItem)
         {
             var slot = _game.SkirmishManager.Settings.Slots[index];
 
@@ -182,7 +190,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 case ComboBoxColorPrefix:
                     Logger.Trace($"Changed the color box to {value}");
-                    slot.ColorIndex = (byte) value;
+                    slot.ColorIndex = (sbyte) dataItem;
                     break;
                 case ComboBoxPlayerPrefix:
                     Logger.Trace($"Changed the player type box to {value}");
@@ -223,7 +231,7 @@ namespace OpenSage.Mods.Generals.Gui
                     break;
                 case ComboBoxTeamPrefix:
                     Logger.Trace($"Changed the team box to {value}");
-                    slot.Team = (byte) value;
+                    slot.Team = (sbyte) dataItem;
                     break;
             }
         }
@@ -249,6 +257,50 @@ namespace OpenSage.Mods.Generals.Gui
                         }
                         else
                         {
+                            var availablePositions = new List<byte>(CurrentMap.NumPlayers);
+                            for (byte a = 1; a <= CurrentMap.NumPlayers; a++)
+                            {
+                                availablePositions.Add(a);
+                            }
+
+                            foreach (var slot in _game.SkirmishManager.Settings.Slots)
+                            {
+                                if (slot.StartPosition != 0)
+                                {
+                                    availablePositions.Remove(slot.StartPosition);
+                                }
+                            }
+
+                            var random = new Random(_game.SkirmishManager.Settings.Seed);
+
+                            foreach (var slot in _game.SkirmishManager.Settings.Slots)
+                            {
+                                // Close open slots.
+                                if (slot.State == SkirmishSlotState.Open)
+                                {
+                                    slot.State = SkirmishSlotState.Closed;
+                                }
+
+                                if (slot.State != SkirmishSlotState.Closed)
+                                {
+                                    if (slot.StartPosition == 0)
+                                    {
+                                        slot.StartPosition = availablePositions.Last();
+                                        availablePositions.Remove(slot.StartPosition);
+                                    }
+
+                                    if (slot.FactionIndex == 0)
+                                    {
+                                        slot.FactionIndex = (byte) random.Next(slot.FactionIndex, _game.GetPlayableSides().Count());
+                                    }
+
+                                    if (slot.ColorIndex == -1)
+                                    {
+                                        slot.ColorIndex = (sbyte) random.Next(slot.ColorIndex, _game.AssetStore.MultiplayerColors.Count);
+                                    }
+                                }
+                            }
+
                             await context.Game.SkirmishManager.HandleStartButtonClickAsync();
                         }
                     }
@@ -291,12 +343,12 @@ namespace OpenSage.Mods.Generals.Gui
                 }
 
                 var colorCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
-                if (colorCombo.SelectedIndex != slot.ColorIndex)
-                    colorCombo.SelectedIndex = slot.ColorIndex;
+                if ((sbyte) colorCombo.Items[colorCombo.SelectedIndex].DataItem != slot.ColorIndex)
+                    colorCombo.SelectedIndex = Array.FindIndex(colorCombo.Items, x => (sbyte) x.DataItem == slot.ColorIndex);
 
                 var teamCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxTeamPrefix}{slot.Index}");
-                if (teamCombo.SelectedIndex != slot.Team)
-                    teamCombo.SelectedIndex = slot.Team;
+                if ((sbyte) teamCombo.Items[teamCombo.SelectedIndex].DataItem != slot.Team)
+                    teamCombo.SelectedIndex = Array.FindIndex(teamCombo.Items, x => (sbyte) x.DataItem == slot.Team);
 
                 var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerTemplatePrefix}{slot.Index}");
                 if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
@@ -382,7 +434,7 @@ namespace OpenSage.Mods.Generals.Gui
             context.WindowManager.PopWindow();
         }
 
-        private void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
+        private void FillComboBoxOptions(string key, string[] options, object[] dataItems = null, int selectedIndex = 0)
         {
             var comboBoxes = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(key));
             foreach (var comboBox in comboBoxes)
@@ -391,19 +443,20 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     continue;
                 }
-                var items = options.Select(i => new ListBoxDataItem(null, new[] { i.Translate() }, comboBox.TextColor)).ToArray();
+                var items = options.Select((o, i) => new ListBoxDataItem(dataItems?[i], new[] { o.Translate() }, comboBox.TextColor)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
         }
 
-        private void FillColorComboBoxOptions(Tuple<string, ColorRgbaF>[] options, int selectedIndex = 0)
+        private void FillColorComboBoxOptions(Tuple<sbyte, string, ColorRgbaF>[] options, int selectedIndex = 0)
         {
             var comboBoxes = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(_optionsPath + ComboBoxColorPrefix));
             foreach (var comboBox in comboBoxes)
             {
-                var items = options.Select(i =>
-                    new ListBoxDataItem(comboBox, new[] { i.Item1.Translate() }, i.Item2)).ToArray();
+                var items = options
+                    .Select(i => new ListBoxDataItem(i.Item1, new[] { i.Item2.Translate() }, i.Item3))
+                    .ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }

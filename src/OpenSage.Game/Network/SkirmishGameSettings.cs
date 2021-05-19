@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using OpenSage.Data.Sav;
 
 namespace OpenSage.Network
 {
@@ -15,7 +17,11 @@ namespace OpenSage.Network
         public SkirmishGameSettings(bool isHost)
         {
             IsHost = isHost;
-            Slots = Enumerable.Range(0, MaxNumberOfPlayers).Select(i => new SkirmishSlot(i)).ToArray();
+            Slots = new SkirmishSlot[MaxNumberOfPlayers];
+            for (var i = 0; i < Slots.Length; i++)
+            {
+                Slots[i] = new SkirmishSlot(i);
+            }
             Status = SkirmishGameStatus.Configuring;
         }
 
@@ -63,5 +69,44 @@ namespace OpenSage.Network
         public int LocalSlotIndex { get; set; } = -1;
         public SkirmishSlot LocalSlot { get { return (LocalSlotIndex < 0 || LocalSlotIndex >= Slots.Length) ? null : Slots[LocalSlotIndex]; } }
         public int Seed { get; internal set; }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(2);
+
+            var unknown5 = reader.ReadUInt32(); // 25600 (160^2)
+            var unknown6 = reader.ReadInt32();
+            var unknown7 = reader.ReadBoolean();
+            var unknown8 = reader.ReadBoolean();
+            var unknown9 = reader.ReadBoolean();
+            var unknown10 = reader.ReadUInt32(); // 0
+
+            var numPlayers = reader.ReadUInt32(); // 8
+            if (numPlayers != MaxNumberOfPlayers)
+            {
+                throw new InvalidDataException();
+            }
+
+            Slots = new SkirmishSlot[MaxNumberOfPlayers];
+            for (var i = 0; i < Slots.Length; i++)
+            {
+                Slots[i] = new SkirmishSlot(i);
+                Slots[i].Load(reader);
+            }
+
+            var unknown14 = reader.ReadInt32();
+            if (unknown14 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            MapName = reader.ReadAsciiString();
+
+            var mapFileCrc = reader.ReadUInt32();
+            var mapFileSize = reader.ReadUInt32();
+
+            var unknown12 = reader.ReadUInt32();
+            var unknown13 = reader.ReadUInt32();
+        }
     }
 }

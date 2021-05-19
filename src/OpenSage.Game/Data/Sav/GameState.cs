@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Sav
 {
@@ -14,20 +12,17 @@ namespace OpenSage.Data.Sav
         public string Side { get; private set; }
         public uint MissionIndex { get; private set; }
 
-        internal static GameState Parse(SaveFileReader reader)
+        internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(2);
 
-            return new GameState
-            {
-                GameType = reader.ReadEnum<SaveGameType>(),
-                MapPath = reader.ReadAsciiString(),
-                Timestamp = reader.ReadDateTime(),
-                DisplayName = reader.ReadUnicodeString(),
-                MapFileName = reader.ReadAsciiString(),
-                Side = reader.ReadAsciiString(),
-                MissionIndex = reader.ReadUInt32()
-            };
+            GameType = reader.ReadEnum<SaveGameType>();
+            MapPath = reader.ReadAsciiString();
+            Timestamp = reader.ReadDateTime();
+            DisplayName = reader.ReadUnicodeString();
+            MapFileName = reader.ReadAsciiString();
+            Side = reader.ReadAsciiString();
+            MissionIndex = reader.ReadUInt32();
         }
     }
 }
