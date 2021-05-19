@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Sav;
-using OpenSage.FileFormats;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -24,13 +22,13 @@ namespace OpenSage
 
         private readonly List<RadarEvent> _radarEvents;
 
-        internal Radar(Scene3D scene, AssetStore assetStore, MapCache mapCache)
+        internal Radar(Scene3D scene, AssetStore assetStore, string mapPath)
         {
             _scene = scene;
 
-            if (mapCache != null)
+            if (mapPath != null)
             {
-                var mapPath = FileSystem.NormalizeFilePath(mapCache.Name);
+                mapPath = FileSystem.NormalizeFilePath(mapPath);
                 var basePath = Path.GetDirectoryName(mapPath) + "/" + Path.GetFileNameWithoutExtension(mapPath);
 
                 // Minimap images drawn by an artist

@@ -52,8 +52,6 @@ namespace OpenSage
 
         public readonly MapFile MapFile;
 
-        public readonly MapCache MapCache;
-
         public readonly Terrain.Terrain Terrain;
 
         public readonly Quadtree<GameObject> Quadtree;
@@ -292,21 +290,6 @@ namespace OpenSage
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 
-            if (mapPath != null)
-            {
-                var mapCache = game.AssetStore.MapCaches.GetByName(mapPath.ToLower());
-                if (mapCache == null)
-                {
-                    var folder = game.SageGame < SageGame.Cnc3 ? game.UserDataFolder : game.UserAppDataFolder;
-                    mapCache = game.AssetStore.MapCaches.GetByName(Path.Combine(folder, mapPath).ToLower());
-                }
-                if (mapCache == null)
-                {
-                    throw new Exception($"Failed to load MapCache \"{mapPath}\"");
-                }
-                MapCache = mapCache;
-            }
-
             RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
             if (!isDiagnosticScene)
@@ -318,7 +301,7 @@ namespace OpenSage
 
             ParticleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
 
-            Radar = new Radar(this, game.AssetStore, MapCache);
+            Radar = new Radar(this, game.AssetStore, mapPath);
 
             if (mapFile != null)
             {
