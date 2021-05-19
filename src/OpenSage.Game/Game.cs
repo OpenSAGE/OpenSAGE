@@ -595,13 +595,6 @@ namespace OpenSage
 
         }
 
-        internal enum GameType
-        {
-            SinglePlayer,
-            Skirmish,
-            MultiPlayer,
-        }
-
         internal void StartGame(
             string mapFileName,
             IConnection connection,
@@ -642,30 +635,19 @@ namespace OpenSage
 
             if (gameType != GameType.SinglePlayer)
             {
-                var players = new Player[playerSettings.Length + 1];
+                var players = new Player[playerSettings.Length + 2];
 
-                var availablePositions = new List<int>(Scene3D.MapCache.NumPlayers);
-                for (var a = 1; a <= Scene3D.MapCache.NumPlayers; a++)
-                {
-                    availablePositions.Add(a);
-                }
+                // Neutral player.
+                players[0] = Player.FromMapData(Scene3D.MapFile.SidesList.Players[0], AssetStore);
 
-                foreach (var playerSetting in playerSettings)
-                {
-                    if (playerSetting?.StartPosition != null)
-                    {
-                        var pos = (int) playerSetting?.StartPosition;
-                        availablePositions.Remove(pos);
-                    }
-                }
-
-                players[0] = CivilianPlayer;
+                players[1] = CivilianPlayer;
 
                 localPlayerIndex++;
+                localPlayerIndex++;
 
-                for (var i = 1; i <= playerSettings.Length; i++)
+                for (var i = 0; i < playerSettings.Length; i++)
                 {
-                    var playerSetting = playerSettings[i - 1];
+                    var playerSetting = playerSettings[i];
                     if (playerSetting == null)
                     {
                         continue;
@@ -673,16 +655,9 @@ namespace OpenSage
 
                     var gameData = AssetStore.GameData.Current;
                     var playerTemplate = playerSetting?.Template;
-                    players[i] = Player.FromTemplate(gameData, playerTemplate, AssetStore, playerSetting);
-                    var player = players[i];
+                    players[i + 2] = Player.FromTemplate(gameData, playerTemplate, AssetStore, playerSetting);
+                    var player = players[i + 2];
                     var startPos = playerSetting?.StartPosition;
-
-                    // startPos seems to be -1 for random, and 0 for observer/civilian
-                    if (startPos == null || startPos == -1 || startPos == 0)
-                    {
-                        startPos = availablePositions.Last();
-                        availablePositions.Remove((int) startPos);
-                    }
 
                     // TODO: Not sure what the OG does here.
                     var playerStartPosition = new Vector3(80, 80, 0);
@@ -692,7 +667,7 @@ namespace OpenSage
                     }
                     playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
 
-                    if (i == localPlayerIndex)
+                    if (i + 2 == localPlayerIndex)
                     {
                         Scene3D.CameraController.TerrainPosition = playerStartPosition;
                     }
@@ -734,10 +709,10 @@ namespace OpenSage
                     }
                 }
 
-                for (var i = 1; i < players.Length; i++)
+                for (var i = 2; i < players.Length; i++)
                 {
                     var outerPlayer = players[i];
-                    for (var j = 1; j < players.Length; j++)
+                    for (var j = 2; j < players.Length; j++)
                     {
                         if (i == j) continue;
                         var innerPlayer = players[j];
@@ -1072,5 +1047,12 @@ namespace OpenSage
 
         // TODO: Remove this.
         public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
+    }
+
+    internal enum GameType
+    {
+        SinglePlayer = 0,
+        MultiPlayer = 1,
+        Skirmish = 2,
     }
 }

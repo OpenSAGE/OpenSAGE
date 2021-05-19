@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using OpenSage.Gui.Wnd;
+﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Mathematics;
-using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {

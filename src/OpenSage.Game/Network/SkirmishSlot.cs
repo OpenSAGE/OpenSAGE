@@ -1,24 +1,22 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using LiteNetLib.Utils;
+using OpenSage.Data.Sav;
 
 namespace OpenSage.Network
 {
     public enum SkirmishSlotState : byte
     {
-        Open,
-        Closed,
-        EasyArmy,
-        MediumArmy,
-        HardArmy,
-        Human,
+        Open = 0,
+        Closed = 1,
+        EasyArmy = 2,
+        MediumArmy = 3,
+        HardArmy = 4,
+        Human = 5,
     }
 
     public class SkirmishSlot
     {
-        public SkirmishSlot()
-        {
-        }
-
         public SkirmishSlot(int index)
         {
             Index = index;
@@ -67,8 +65,8 @@ namespace OpenSage.Network
             }
         }
 
-        private byte _colorIndex;
-        public byte ColorIndex
+        private sbyte _colorIndex;
+        public sbyte ColorIndex
         {
             get
             {
@@ -95,8 +93,8 @@ namespace OpenSage.Network
             }
         }
 
-        private byte _team;
-        public byte Team
+        private sbyte _team;
+        public sbyte Team
         {
             get
             {
@@ -138,13 +136,12 @@ namespace OpenSage.Network
 
         public static SkirmishSlot Deserialize(NetDataReader reader)
         {
-            var slot = new SkirmishSlot()
+            var slot = new SkirmishSlot(reader.GetInt())
             {
-                Index = reader.GetInt(),
                 State = (SkirmishSlotState) reader.GetByte(),
-                ColorIndex = reader.GetByte(),
+                ColorIndex = reader.GetSByte(),
                 FactionIndex = reader.GetByte(),
-                Team = reader.GetByte(),
+                Team = reader.GetSByte(),
                 StartPosition = reader.GetByte(),
             };
 
@@ -172,6 +169,27 @@ namespace OpenSage.Network
                 writer.Put(slot.PlayerName);
                 writer.Put(slot.EndPoint);
             }
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            State = reader.ReadEnum<SkirmishSlotState>();
+            PlayerName = reader.ReadUnicodeString();
+
+            var unknown1 = reader.ReadUInt16();
+            if (unknown1 != 1u)
+            {
+                throw new InvalidDataException();
+            }
+
+            ColorIndex = (sbyte) reader.ReadInt32();
+            StartPosition = (byte) reader.ReadInt32();
+            FactionIndex = (byte) reader.ReadInt32();
+            Team = (sbyte) reader.ReadInt32();
+
+            var colorChosen = reader.ReadInt32();
+            var startPositionChosen = reader.ReadInt32();
+            var playerTemplateIndexChosen = reader.ReadInt32();
         }
     }
 }

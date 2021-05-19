@@ -52,42 +52,44 @@ namespace OpenSage.Network
         {
         }
 
-        private void StartGame()
+        internal void StartGame()
         {
-            var random = new Random(Settings.Seed);
+            var playerSettings = new List<PlayerSetting?>();
+            for (var i = 0; i < Settings.Slots.Length; i++)
+            {
+                var slot = Settings.Slots[i];
 
-            var playerSettings = (from s in Settings.Slots
-                                  where s.State != SkirmishSlotState.Open && s.State != SkirmishSlotState.Closed
-                                  select new PlayerSetting(
-                                      s.StartPosition == 0 ? null : s.StartPosition,
-                                      GetItem(s.FactionIndex, _game.GetPlayableSides()),
-                                      GetItem(s.ColorIndex, _game.AssetStore.MultiplayerColors).RgbColor,
-                                      s.Team,
-                                      s.State switch
-                                      {
-                                          SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
-                                          SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
-                                          SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
-                                          SkirmishSlotState.Human => PlayerOwner.Player,
-                                          _ => PlayerOwner.None
-                                      })).OfType<PlayerSetting?>().ToArray();
+                if (slot.State == SkirmishSlotState.Open || slot.State == SkirmishSlotState.Closed)
+                {
+                    continue;
+                }
+
+                var owner = slot.State switch
+                {
+                    SkirmishSlotState.EasyArmy => PlayerOwner.EasyAi,
+                    SkirmishSlotState.MediumArmy => PlayerOwner.MediumAi,
+                    SkirmishSlotState.HardArmy => PlayerOwner.HardAi,
+                    SkirmishSlotState.Human => PlayerOwner.Player,
+                    _ => PlayerOwner.None
+                };
+
+                playerSettings.Add(new PlayerSetting(
+                    slot.StartPosition,
+                    _game.GetPlayableSides().ElementAt(slot.FactionIndex),
+                    _game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
+                    slot.Team,
+                    owner));
+            }
 
             _game.StartSkirmishOrMultiPlayerGame(
                 Settings.MapName,
                 Connection,
-                playerSettings,
+                playerSettings.ToArray(),
                 Settings.LocalSlotIndex,
                 Settings.Seed,
                 IsNetwork);
 
             Settings.Status = SkirmishGameStatus.Started;
-
-            T GetItem<T>(int index, IEnumerable<T> items) =>
-                items.ElementAt(index switch
-                {
-                    0 => random.Next(items.Count()),
-                    _ => index - 1
-                });
         }
     }
 
@@ -416,7 +418,7 @@ namespace OpenSage.Network
                 slot.PlayerName = null;
                 slot.EndPoint = null;
                 slot.StartPosition = 0;
-                slot.ColorIndex = 0;
+                slot.ColorIndex = -1;
                 slot.FactionIndex = 0;
                 slot.Team = 0;
                 slot.Ready = false;

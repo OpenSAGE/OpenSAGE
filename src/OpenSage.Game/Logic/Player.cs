@@ -30,6 +30,8 @@ namespace OpenSage.Logic
         private readonly PlayerRelationships _playerToPlayerRelationships = new PlayerRelationships();
         private readonly PlayerRelationships _playerToTeamRelationships = new PlayerRelationships();
 
+        private readonly List<TeamTemplate> _teamTemplates;
+
         public PlayerTemplate Template { get; }
         public string Name { get; internal set; }
         public string DisplayName { get; private set; }
@@ -117,6 +119,8 @@ namespace OpenSage.Logic
             _sciences = new ScienceSet(assetStore);
             _sciencesDisabled = new ScienceSet(assetStore);
             _sciencesHidden = new ScienceSet(assetStore);
+
+            _teamTemplates = new List<TeamTemplate>();
 
             _assetStore = assetStore;
 
@@ -364,7 +368,7 @@ namespace OpenSage.Logic
             return false;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(SaveFileReader reader, Game game)
         {
             reader.ReadVersion(8);
 
@@ -404,9 +408,15 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            var someKindOfPlayerIndex = reader.ReadUInt32();
+            reader.ReadUInt32(); // Player index
 
-            reader.__Skip(6);
+            var numTeamTemplates = reader.ReadUInt16();
+            for (var i = 0; i < numTeamTemplates; i++)
+            {
+                var teamTemplateId = reader.ReadUInt32();
+                var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                _teamTemplates.Add(teamTemplate);
+            }
 
             var someCount = reader.ReadUInt16();
             for (var i = 0; i < someCount; i++)
@@ -522,7 +532,7 @@ namespace OpenSage.Logic
             reader.__Skip(14);
         }
 
-        private static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
+        public static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
