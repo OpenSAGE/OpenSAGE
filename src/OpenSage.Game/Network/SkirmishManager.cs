@@ -75,7 +75,7 @@ namespace OpenSage.Network
 
                 playerSettings.Add(new PlayerSetting(
                     slot.StartPosition,
-                    _game.GetPlayableSides().ElementAt(slot.FactionIndex).Name,
+                    _game.GetPlayableSides().ElementAt(slot.FactionIndex - 1).Name,
                     _game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
                     slot.Team,
                     owner,

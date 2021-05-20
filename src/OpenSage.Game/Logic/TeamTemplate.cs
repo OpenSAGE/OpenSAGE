@@ -32,7 +32,11 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(2);
 
-            _playerId = reader.ReadUInt32();
+            var playerId = reader.ReadUInt32();
+            if (playerId != Owner.Id)
+            {
+                throw new InvalidDataException();
+            }
 
             _attackPriorityName = reader.ReadAsciiString();
 

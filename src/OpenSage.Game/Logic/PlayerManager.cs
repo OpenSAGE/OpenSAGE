@@ -43,9 +43,10 @@ namespace OpenSage.Logic
             var allies = new Dictionary<string, string[]>();
             var enemies = new Dictionary<string, string[]>();
 
+            var index = 0u;
             foreach (var mapPlayer in mapPlayers)
             {
-                var player = Player.FromMapData(mapPlayer, assetStore);
+                var player = Player.FromMapData(index++, mapPlayer, assetStore);
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');

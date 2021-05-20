@@ -32,6 +32,7 @@ namespace OpenSage.Logic
 
         private readonly List<TeamTemplate> _teamTemplates;
 
+        public uint Id { get; }
         public PlayerTemplate Template { get; }
         public string Name { get; internal set; }
         public string DisplayName { get; private set; }
@@ -102,8 +103,9 @@ namespace OpenSage.Logic
 
         public int Team { get; init; }
 
-        public Player(PlayerTemplate template, in ColorRgb color, AssetStore assetStore)
+        public Player(uint id, PlayerTemplate template, in ColorRgb color, AssetStore assetStore)
         {
+            Id = id;
             Template = template;
             Color = color;
             _selectedUnits = new HashSet<GameObject>();
@@ -530,7 +532,7 @@ namespace OpenSage.Logic
             reader.__Skip(14);
         }
 
-        public static Player FromMapData(Data.Map.Player mapPlayer, AssetStore assetStore)
+        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
@@ -566,7 +568,7 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            var result = new Player(template, color, assetStore)
+            var result = new Player(index, template, color, assetStore)
             {
                 Side = side,
                 Name = name,
