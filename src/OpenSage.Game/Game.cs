@@ -151,17 +151,16 @@ namespace OpenSage
                 mapFilename + mapName + ".map",
                 new ReplayConnection(replayFile),
                 pSettings.ToArray(),
-                0,
                 replayFile.Header.Metadata.SD,
                 isMultiPlayer: false); // TODO
         }
 
-        private List<PlayerSetting?> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
+        private List<PlayerSetting> ParseReplayMetaToPlayerSettings(ReplaySlot[] slots)
         {
             var random = new Random();
 
             // TODO: set the correct factions & colors
-            var pSettings = new List<PlayerSetting?>();
+            var pSettings = new List<PlayerSetting>();
 
             var availableColors = new HashSet<MultiplayerColor>(AssetStore.MultiplayerColors);
 
@@ -193,14 +192,14 @@ namespace OpenSage
                     factionIndex = minFactionIndex + (random.Next() % diff);
                 }
 
-                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex);
+                var faction = AssetStore.PlayerTemplates.GetByIndex(factionIndex).Side;
 
                 ColorRgb color;
 
                 var colorIndex = (int) slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
-                    color = AssetStore.MultiplayerColors.GetByIndex((int) slot.Color).RgbColor;
+                    color = AssetStore.MultiplayerColors.GetByIndex(slot.Color).RgbColor;
                 }
                 else
                 {
@@ -382,8 +381,6 @@ namespace OpenSage
             }
         }
 
-        public Player CivilianPlayer { get; private set; }
-
         public bool DeveloperModeEnabled { get; set; }
 
         public Texture LauncherImage { get; }
@@ -503,22 +500,6 @@ namespace OpenSage
                 Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
                 Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
 
-                var playerTemplate = AssetStore.PlayerTemplates.GetByName("FactionCivilian");
-
-                // TODO: This should never be null
-                if (playerTemplate != null)
-                {
-                    var gameData = AssetStore.GameData.Current;
-
-                    // TODO: Should this be hardcoded? What about other games?
-                    CivilianPlayer = Player.FromTemplate(gameData, playerTemplate, AssetStore, new PlayerSetting()
-                    {
-                        Name = "PlyrCivilian",
-                        Color = new ColorRgb(255, 255, 255),
-                        Owner = PlayerOwner.None
-                    });
-                }
-
                 _developerModeView = AddDisposable(new DeveloperModeView(this));
 
                 LauncherImage = LoadLauncherImage();
@@ -556,8 +537,7 @@ namespace OpenSage
             if (useShellMap)
             {
                 var shellMapName = AssetStore.GameData.Current.ShellMapName;
-                var mainMenuScene = LoadMap(shellMapName);
-                Scene3D = mainMenuScene;
+                Scene3D = LoadMap(shellMapName, null, GameType.SinglePlayer);
                 Scripting.Active = true;
             }
 
@@ -568,12 +548,31 @@ namespace OpenSage
             }
         }
 
-        public Scene3D LoadMap(string mapPath)
+        private Scene3D LoadMap(
+            string mapPath,
+            PlayerSetting[] playerSettings,
+            GameType gameType)
         {
             var entry = ContentManager.GetMapEntry(mapPath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            return new Scene3D(this, mapFile, entry.FilePath, Environment.TickCount);
+            SidesListUtility.SetupGameSides(
+                ContentManager,
+                mapFile,
+                playerSettings,
+                gameType,
+                out var mapPlayers,
+                out var mapTeams,
+                out var mapScriptLists);
+
+            return new Scene3D(
+                this,
+                mapFile,
+                entry.FilePath,
+                Environment.TickCount,
+                mapPlayers,
+                mapTeams,
+                mapScriptLists);
         }
 
         public Window LoadWindow(string wndFileName)
@@ -592,17 +591,14 @@ namespace OpenSage
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
             var aptFile = AptFile.FromFileSystemEntry(entry);
             return new AptWindow(this, ContentManager, aptFile);
-
         }
 
-        internal void StartGame(
+        private void StartGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting?[] playerSettings,
-            int localPlayerIndex,
+            PlayerSetting[] playerSettings,
             GameType gameType,
-            int seed,
-            MapFile mapFile = null)
+            int seed)
         {
             InGame = true;
 
@@ -617,129 +613,36 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D = mapFile != null
-                ? new Scene3D(this, mapFile, mapFileName, seed)
-                : LoadMap(mapFileName);
+            Scene3D = LoadMap(mapFileName, playerSettings, gameType);
 
             if (Scene3D == null)
             {
                 throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
             }
 
-            Scene3D.FrustumCulling = true;
-
-            NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
-
-            var hasAIPlayer = playerSettings != null &&
-                playerSettings.Any(x => x.Value.Owner == PlayerOwner.EasyAi || x.Value.Owner == PlayerOwner.MediumAi || x.Value.Owner == PlayerOwner.HardAi);
-
             if (gameType != GameType.SinglePlayer)
             {
-                var players = new Player[playerSettings.Length + 2];
-
-                // Neutral player.
-                players[0] = Player.FromMapData(Scene3D.MapFile.SidesList.Players[0], AssetStore);
-
-                players[1] = CivilianPlayer;
-
-                localPlayerIndex++;
-                localPlayerIndex++;
-
                 for (var i = 0; i < playerSettings.Length; i++)
                 {
-                    var playerSetting = playerSettings[i];
-                    if (playerSetting == null)
-                    {
-                        continue;
-                    }
-
-                    var gameData = AssetStore.GameData.Current;
-                    var playerTemplate = playerSetting?.Template;
-                    players[i + 2] = Player.FromTemplate(gameData, playerTemplate, AssetStore, playerSetting);
-                    var player = players[i + 2];
-                    var startPos = playerSetting?.StartPosition;
-
-                    // TODO: Not sure what the OG does here.
-                    var playerStartPosition = new Vector3(80, 80, 0);
-                    if (Scene3D.Waypoints.TryGetByName($"Player_{startPos}_Start", out var startWaypoint))
-                    {
-                        playerStartPosition = startWaypoint.Position;
-                    }
-                    playerStartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
-
-                    if (i + 2 == localPlayerIndex)
-                    {
-                        Scene3D.CameraController.TerrainPosition = playerStartPosition;
-                    }
-
-                    if (playerTemplate.StartingBuilding != null)
-                    {
-                        var startingBuilding = Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, player);
-                        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
-                        startingBuilding.UpdateTransform(playerStartPosition, rotation);
-
-                        Scene3D.Navigation.UpdateAreaPassability(startingBuilding, false);
-
-                        var startingUnit0 = Scene3D.GameObjects.Add(playerTemplate.StartingUnits[0].Unit.Value, player);
-                        var startingUnit0Position = playerStartPosition;
-                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-                        startingUnit0.SetTranslation(startingUnit0Position);
-
-                        Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);
-                    }
-                    else
-                    {
-                        var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
-                        foreach (var gameObject in Scene3D.GameObjects.Items)
-                        {
-                            var team = gameObject.Team;
-                            if (team?.Name == $"Player_{startPos}_Inherit")
-                            {
-                                var castleBehavior = gameObject.FindBehavior<CastleBehavior>();
-                                if (castleBehavior != null)
-                                {
-                                    castleBehaviors.Add((castleBehavior, team));
-                                }
-                            }
-                        }
-                        foreach (var (castleBehavior, team) in castleBehaviors)
-                        {
-                            castleBehavior.Unpack(player, instant: true);
-                        }
-                    }
-                }
-
-                for (var i = 2; i < players.Length; i++)
-                {
-                    var outerPlayer = players[i];
-                    for (var j = 2; j < players.Length; j++)
-                    {
-                        if (i == j) continue;
-                        var innerPlayer = players[j];
-                        if (outerPlayer.Team == innerPlayer.Team && outerPlayer.Team != 0)
-                        {
-                            outerPlayer.AddAlly(innerPlayer);
-                            innerPlayer.AddAlly(outerPlayer);
-                        }
-                        else
-                        {
-                            outerPlayer.AddEnemy(innerPlayer);
-                            innerPlayer.AddEnemy(outerPlayer);
-                        }
-                    }
-                }
-
-                // TODO: Theoretically, there could be multiple civilian players
-                Scene3D.SetSkirmishPlayers(players, players[localPlayerIndex]);
-
-                if (gameType == GameType.MultiPlayer || hasAIPlayer)
-                {
-                    Scripting.InitializeSkirmishGame();
+                    Scene3D.CreateSkirmishPlayerStartingBuilding(
+                        playerSettings[i],
+                        Scene3D.Players[i + 2]);
                 }
             }
 
-            Scene3D.PlayerManager.AddReplayObserver(this);
-            Scene3D.TeamFactory.AddReplayObserver(Scene3D.PlayerManager);
+            if (Scene3D.LocalPlayer.SelectedUnits.Count > 0)
+            {
+                var mainUnit = Scene3D.LocalPlayer.SelectedUnits.First();
+                Scene3D.CameraController.GoToObject(mainUnit);
+            }
+            else
+            {
+                //Scene3D.CameraController.TerrainPosition = playerStartPosition;
+            }
+
+            Scene3D.FrustumCulling = true;
+
+            NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             if (Definition.ControlBar != null)
             {
@@ -776,8 +679,7 @@ namespace OpenSage
         public void StartSkirmishOrMultiPlayerGame(
             string mapFileName,
             IConnection connection,
-            PlayerSetting?[] playerSettings,
-            int localPlayerIndex,
+            PlayerSetting[] playerSettings,
             int seed,
             bool isMultiPlayer)
         {
@@ -785,19 +687,16 @@ namespace OpenSage
                 mapFileName,
                 connection,
                 playerSettings,
-                localPlayerIndex,
                 isMultiPlayer ? GameType.MultiPlayer : GameType.Skirmish,
                 seed);
         }
 
-        public void StartSinglePlayerGame(
-            string mapFileName)
+        public void StartSinglePlayerGame(string mapFileName)
         {
             StartGame(
                 mapFileName,
                 new EchoConnection(),
                 null,
-                0,
                 GameType.SinglePlayer,
                 seed: Environment.TickCount);
         }

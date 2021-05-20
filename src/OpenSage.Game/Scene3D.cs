@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Numerics;
 using OpenSage.Audio;
-using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -102,15 +101,22 @@ namespace OpenSage
 
         public GameObject BuildPreviewObject;
 
-        internal Scene3D(Game game, MapFile mapFile, string mapPath, int randomSeed)
+        internal Scene3D(
+            Game game,
+            MapFile mapFile,
+            string mapPath,
+            int randomSeed,
+            Data.Map.Player[] mapPlayers,
+            Data.Map.Team[] mapTeams,
+            ScriptList[] mapScriptLists)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             var contentManager = game.ContentManager;
 
-            PlayerManager.OnNewGame(mapFile, game);
+            PlayerManager.OnNewGame(mapPlayers, game);
 
             TeamFactory = new TeamFactory();
-            TeamFactory.Initialize(mapFile.SidesList.Teams ?? mapFile.Teams.Items, PlayerManager.Players);
+            TeamFactory.Initialize(mapTeams, PlayerManager.Players);
 
             Audio = game.Audio;
             AssetLoadContext = game.AssetStore.LoadContext;
@@ -134,7 +140,10 @@ namespace OpenSage
             Waypoints = waypoints;
             Cameras = cameras;
 
-            PlayerScripts = mapFile.GetPlayerScriptsList();
+            PlayerScripts = new PlayerScriptsList
+            {
+                ScriptLists = mapScriptLists
+            };
 
             CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
             {
@@ -322,11 +331,7 @@ namespace OpenSage
                 Quadtree,
                 this);
 
-            GameObjects = AddDisposable(
-                new GameObjectCollection(
-                    GameContext,
-                    game.CivilianPlayer,
-                    Navigation));
+            GameObjects = AddDisposable(new GameObjectCollection(GameContext));
 
             GameContext.GameObjects = GameObjects;
 
@@ -337,21 +342,6 @@ namespace OpenSage
         {
             inputMessageBuffer.Handlers.Add(handler);
             AddDisposeAction(() => inputMessageBuffer.Handlers.Remove(handler));
-        }
-
-        public void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
-        {
-            PlayerManager.SetSkirmishPlayers(players, localPlayer);
-
-            if (LocalPlayer.SelectedUnits.Count > 0)
-            {
-                var mainUnit = LocalPlayer.SelectedUnits.First();
-                CameraController.GoToObject(mainUnit);
-            }
-
-            // TODO: What to do with teams?
-            // Teams refer to old Players and therefore they will not be collected by GC
-            // (+ objects will have invalid owners)
         }
 
         // TODO: Move this over to a player collection?
@@ -540,6 +530,53 @@ namespace OpenSage
                 if (LocalPlayer.HoveredUnit != null)
                 {
                     DrawHealthBox(LocalPlayer.HoveredUnit);
+                }
+            }
+        }
+
+        internal void CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
+        {
+            // TODO: Not sure what the OG does here.
+            var playerStartPosition = new Vector3(80, 80, 0);
+            if (Waypoints.TryGetByName($"Player_{playerSetting.StartPosition}_Start", out var startWaypoint))
+            {
+                playerStartPosition = startWaypoint.Position;
+            }
+            playerStartPosition.Z += Terrain.HeightMap.GetHeight(playerStartPosition.X, playerStartPosition.Y);
+
+            if (player.Template.StartingBuilding != null)
+            {
+                var startingBuilding = GameObjects.Add(player.Template.StartingBuilding.Value, player);
+                var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+                startingBuilding.UpdateTransform(playerStartPosition, rotation);
+
+                Navigation.UpdateAreaPassability(startingBuilding, false);
+
+                var startingUnit0 = GameObjects.Add(player.Template.StartingUnits[0].Unit.Value, player);
+                var startingUnit0Position = playerStartPosition;
+                startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+                startingUnit0.SetTranslation(startingUnit0Position);
+
+                Game.Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);
+            }
+            else
+            {
+                var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
+                foreach (var gameObject in GameObjects.Items)
+                {
+                    var team = gameObject.Team;
+                    if (team?.Name == $"Player_{playerSetting.StartPosition}_Inherit")
+                    {
+                        var castleBehavior = gameObject.FindBehavior<CastleBehavior>();
+                        if (castleBehavior != null)
+                        {
+                            castleBehaviors.Add((castleBehavior, team));
+                        }
+                    }
+                }
+                foreach (var (castleBehavior, team) in castleBehaviors)
+                {
+                    castleBehavior.Unpack(player, instant: true);
                 }
             }
         }

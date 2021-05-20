@@ -54,7 +54,7 @@ namespace OpenSage.Network
 
         internal void StartGame()
         {
-            var playerSettings = new List<PlayerSetting?>();
+            var playerSettings = new List<PlayerSetting>();
             for (var i = 0; i < Settings.Slots.Length; i++)
             {
                 var slot = Settings.Slots[i];
@@ -75,17 +75,17 @@ namespace OpenSage.Network
 
                 playerSettings.Add(new PlayerSetting(
                     slot.StartPosition,
-                    _game.GetPlayableSides().ElementAt(slot.FactionIndex),
+                    _game.GetPlayableSides().ElementAt(slot.FactionIndex).Name,
                     _game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
                     slot.Team,
-                    owner));
+                    owner,
+                    isLocalForMultiplayer: i == Settings.LocalSlotIndex));
             }
 
             _game.StartSkirmishOrMultiPlayerGame(
                 Settings.MapName,
                 Connection,
                 playerSettings.ToArray(),
-                Settings.LocalSlotIndex,
                 Settings.Seed,
                 IsNetwork);
 

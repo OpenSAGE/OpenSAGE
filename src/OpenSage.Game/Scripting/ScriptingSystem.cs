@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using OpenSage.Data.Sav;
-using OpenSage.Data.Scb;
 using OpenSage.Logic;
 
 namespace OpenSage.Scripting
@@ -338,83 +336,6 @@ namespace OpenSage.Scripting
             if (unknown21 != 0)
             {
                 throw new InvalidDataException();
-            }
-        }
-
-        /// <summary>
-        /// Initializes the skirmish game.
-        /// </summary>
-        public void InitializeSkirmishGame()
-        {
-            var playerNames = Game.Scene3D.MapFile.SidesList.Players.Select(p => p.Properties.GetPropOrNull("playerName")?.Value.ToString()).ToArray();
-
-            var originalPlayerScripts = Game.Scene3D.PlayerScripts.ScriptLists;
-
-            Game.Scene3D.PlayerScripts.ScriptLists = new ScriptList[Game.Scene3D.Players.Count + 1]; // + 1 for neutral player @ index 0
-            CopyScripts(originalPlayerScripts, playerNames, string.Empty, 0, appendIndex: false); // neutral
-            CopyScripts(originalPlayerScripts, playerNames, Game.CivilianPlayer.Name, 1, appendIndex: false); // Civilian
-
-            var skirmishScriptsEntry = Game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
-            if (skirmishScriptsEntry != null)
-            {
-                using (var stream = skirmishScriptsEntry.Open())
-                {
-                    var skirmishScripts = ScbFile.FromStream(stream);
-
-                    // skip civilian player
-                    for (int i = 1; i < Game.Scene3D.Players.Count; i++)
-                    {
-                        var player = Game.Scene3D.Players[i];
-                        if (player == null)
-                        {
-                            continue;
-                        }
-
-                        if (player.IsHuman)
-                        {
-                            // copy the scripts from the civilian player to all human players
-                            CopyScripts(skirmishScripts.PlayerScripts.ScriptLists, skirmishScripts.Players.PlayerNames, Game.CivilianPlayer.Name, i + 1, appendIndex: true);
-                        }
-                        else
-                        {
-                            // copy the scripts from the according skirmish player for all AI players
-                            CopyScripts(skirmishScripts.PlayerScripts.ScriptLists, skirmishScripts.Players.PlayerNames, "Skirmish" + player.Side, i + 1, appendIndex: true);
-                        }
-                    }
-
-                    Game.Scene3D.TeamFactory.Initialize(skirmishScripts.Teams.Teams, Game.Scene3D.Players);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies source scripts to a target player, optionally renaming variables, script and team names based on the target player index.
-        /// </summary>
-        /// <param name="scriptsList">The scripts list.</param>
-        /// <param name="playerNames">The source player names.</param>
-        /// <param name="sourcePlayerName">The name of the source player to copy. This is used to find the index in the <paramref name="playerNames"/> array, which is then used to access the <paramref name="scriptsList"/> array.</param>
-        /// <param name="targetPlayerIndex">The index in the <see cref="_playerScripts"/> array the scripts should be copied to.
-        /// 0 .. Neutral
-        /// 1 .. Civilian
-        /// 2 .. player 1
-        /// 3 .. player 2
-        /// ...
-        /// </param>.
-        /// <param name="appendIndex">If set to <c>true</c>, the player index will be appended to all script, team and variable names in order to create unique names.</param>
-        private void CopyScripts(ScriptList[] scriptsList, string[] playerNames, string sourcePlayerName, int targetPlayerIndex, bool appendIndex)
-        {
-            var sourcePlayerIndex = Array.FindIndex(playerNames, p => p.Equals(sourcePlayerName, StringComparison.OrdinalIgnoreCase));
-            if (sourcePlayerIndex >= 0)
-            {
-                // In script files, the neutral player at index 0 is not included in the player names list
-                if (scriptsList.Length > playerNames.Length)
-                {
-                    sourcePlayerIndex++;
-                }
-
-                // For player 1, we want to append "0" to all script names and variables, but his position in the array is 2.
-                var appendix = appendIndex ? (targetPlayerIndex - 2).ToString() : null;
-                Game.Scene3D.PlayerScripts.ScriptLists[targetPlayerIndex] = scriptsList[sourcePlayerIndex].Copy(appendix);
             }
         }
     }

@@ -18,19 +18,21 @@ namespace OpenSage.Logic
     {
         public ColorRgb Color { get; set; }
         public int? StartPosition { get; set; }
-        public PlayerTemplate Template { get; set; }
+        public string SideName { get; set; }
         public PlayerOwner Owner { get; set; }
         public string Name { get; set; }
         public int Team { get; set; }
+        public bool IsLocalForMultiplayer { get; set; }
 
-        public PlayerSetting(int? startPosition, PlayerTemplate template, ColorRgb color, int team, PlayerOwner owner = PlayerOwner.None, string name = "")
+        public PlayerSetting(int? startPosition, string sideName, ColorRgb color, int team, PlayerOwner owner = PlayerOwner.None, string name = "", bool isLocalForMultiplayer = false)
         {
             StartPosition = startPosition;
-            Template = template;
+            SideName = sideName;
             Color = color;
             Owner = owner;
             Name = name;
             Team = team;
+            IsLocalForMultiplayer = isLocalForMultiplayer;
         }
     }
 }

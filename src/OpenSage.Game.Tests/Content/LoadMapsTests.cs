@@ -34,10 +34,15 @@ namespace OpenSage.Tests.Content
                     _testOutputHelper.WriteLine($"Loading {map.FilePath}...");
 
                     game.AssetStore.PushScope();
-                    using (var scene = game.LoadMap(map.FilePath))
-                    {
-                        Assert.NotNull(scene);
-                    }
+
+                    throw new System.NotImplementedException();
+
+                    // TODO: Need to update to use new way of starting game.
+                    //using (var scene = game.LoadMap(map.FilePath))
+                    //{
+                    //    Assert.NotNull(scene);
+                    //}
+
                     game.AssetStore.PopScope();
                 }
             }
