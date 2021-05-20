@@ -27,6 +27,23 @@ namespace OpenSage.Data.Map
             }
         }
 
+        internal AssetPropertyCollection() { }
+
+        public void AddAsciiString(string key, string value)
+        {
+            Add(new AssetProperty(key, AssetPropertyType.AsciiString, value));
+        }
+
+        public void AddBoolean(string key, bool value)
+        {
+            Add(new AssetProperty(key, AssetPropertyType.Boolean, value));
+        }
+
+        public void AddInteger(string key, uint value)
+        {
+            Add(new AssetProperty(key, AssetPropertyType.Integer, value));
+        }
+
         protected override string GetKeyForItem(AssetProperty item)
         {
             return item.Key.Name;

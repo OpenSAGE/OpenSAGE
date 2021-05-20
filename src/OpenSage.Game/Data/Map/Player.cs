@@ -4,8 +4,8 @@ namespace OpenSage.Data.Map
 {
     public sealed class Player
     {
-        public AssetPropertyCollection Properties { get; private set; }
-        public BuildListItem[] BuildList { get; private set; }
+        public AssetPropertyCollection Properties { get; internal set; }
+        public BuildListItem[] BuildList { get; internal set; }
 
         internal static Player Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
         {

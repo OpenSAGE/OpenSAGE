@@ -93,6 +93,8 @@ namespace OpenSage.Data.Map
 
         public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
 
+        public Team[] GetTeams() => SidesList.Teams ?? Teams.Items;
+
         public static Stream Decompress(Stream stream)
         {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))

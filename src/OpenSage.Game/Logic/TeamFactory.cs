@@ -48,14 +48,6 @@ namespace OpenSage.Logic
             _teamTemplatesByName.Add(name, teamTemplate);
         }
 
-        internal void AddReplayObserver(PlayerManager playerManager)
-        {
-            AddTeamTemplate(
-                "teamReplayObserver",
-                playerManager.GetPlayerByName("ReplayObserver"),
-                true);
-        }
-
         public TeamTemplate FindTeamTemplateByName(string name)
         {
             if (_teamTemplatesByName.TryGetValue(name, out var result))

@@ -12,8 +12,6 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<string, GameObject> _nameLookup;
         private readonly List<GameObject> _createList;
         private readonly List<uint> _destroyList;
-        private readonly Player _civilianPlayer;
-        private readonly Navigation.Navigation _navigation;
 
         private uint _nextObjectId;
 
@@ -21,24 +19,19 @@ namespace OpenSage.Logic.Object
 
         private static readonly DistinctLogger Logger = new(NLog.LogManager.GetCurrentClassLogger());
 
-        internal GameObjectCollection(
-            GameContext gameContext,
-            Player civilianPlayer,
-            Navigation.Navigation navigation)
+        internal GameObjectCollection(GameContext gameContext)
         {
             _gameContext = gameContext;
             _items = new Dictionary<uint, GameObject>();
             _nameLookup = new Dictionary<string, GameObject>();
-            _civilianPlayer = civilianPlayer;
             _destroyList = new List<uint>();
             _createList = new List<GameObject>();
-            _navigation = navigation;
             _nextObjectId = 1;
         }
 
         public GameObject Add(string typeName)
         {
-            return Add(typeName, _civilianPlayer);
+            return Add(typeName, _gameContext.Scene3D.PlayerManager.GetCivilianPlayer());
         }
 
         public GameObject Add(string typeName, Player player)
@@ -56,7 +49,7 @@ namespace OpenSage.Logic.Object
 
         public GameObject Add(ObjectDefinition objectDefinition)
         {
-            return Add(objectDefinition, _civilianPlayer);
+            return Add(objectDefinition, _gameContext.Scene3D.PlayerManager.GetCivilianPlayer());
         }
 
         public GameObject Add(ObjectDefinition objectDefinition, Player player)

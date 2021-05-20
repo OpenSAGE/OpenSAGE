@@ -22,6 +22,14 @@ namespace OpenSage.Data.Map
             };
         }
 
+        internal AssetPropertyKey(string name, AssetPropertyType propertyType)
+        {
+            PropertyType = propertyType;
+            Name = name;
+        }
+
+        internal AssetPropertyKey() { }
+
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             writer.Write((byte) PropertyType);

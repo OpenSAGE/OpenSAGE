@@ -6,7 +6,7 @@ namespace OpenSage.Data.Map
     [DebuggerDisplay("Team '{GetName()}'")]
     public sealed class Team
     {
-        public AssetPropertyCollection Properties { get; private set; }
+        public AssetPropertyCollection Properties { get; internal set; }
 
         internal static Team Parse(BinaryReader reader, MapParseContext context)
         {

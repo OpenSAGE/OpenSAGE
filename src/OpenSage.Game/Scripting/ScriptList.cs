@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.Data.Sav;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
 {
@@ -11,8 +11,8 @@ namespace OpenSage.Scripting
     {
         public const string AssetName = "ScriptList";
 
-        public ScriptGroup[] ScriptGroups { get; private set; }
-        public Script[] Scripts { get; private set; }
+        public ScriptGroup[] ScriptGroups { get; private set; } = Array.Empty<ScriptGroup>();
+        public Script[] Scripts { get; private set; } = Array.Empty<Script>();
 
         public void Execute(ScriptExecutionContext context)
         {

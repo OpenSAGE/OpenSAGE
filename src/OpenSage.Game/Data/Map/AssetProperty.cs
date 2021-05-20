@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -51,6 +50,14 @@ namespace OpenSage.Data.Map
                 Value = value
             };
         }
+
+        internal AssetProperty(string name, AssetPropertyType propertyType, object value)
+        {
+            Key = new AssetPropertyKey(name, propertyType);
+            Value = value;
+        }
+
+        internal AssetProperty() { }
 
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {

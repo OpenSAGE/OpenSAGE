@@ -24,6 +24,15 @@ namespace OpenSage.Mathematics
             return new ColorRgb(r, g, b);
         }
 
+        public uint ToUInt32()
+        {
+            var result = 0;
+            result |= (R << 16);
+            result |= (G << 8);
+            result |= (B << 0);
+            return (uint)result;
+        }
+
         public ColorRgba ToColorRgba()
         {
             return new ColorRgba(R, G, B, 255);

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Data.Map;
+using OpenSage.Content;
 using OpenSage.Data.Sav;
+using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
@@ -19,38 +19,47 @@ namespace OpenSage.Logic
             _players = new List<Player>();
         }
 
-        internal void OnNewGame(MapFile mapFile, Game game)
+        internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game)
         {
-            _players = Player.FromMapData(mapFile.SidesList.Players, game.AssetStore).ToList();
+            _players = CreatePlayers(mapPlayers, game.AssetStore).ToList();
 
-            // TODO: This is completely wrong.
-            LocalPlayer = _players[2];
-        }
-
-        internal void SetSkirmishPlayers(IEnumerable<Player> players, Player localPlayer)
-        {
-            _players = players.ToList();
-
-            if (!_players.Contains(localPlayer))
+            foreach (var player in _players)
             {
-                throw new ArgumentException(
-                    $"Argument {nameof(localPlayer)} should be included in {nameof(players)}",
-                    nameof(localPlayer));
+                if (player.IsHuman)
+                {
+                    LocalPlayer = player;
+                    break;
+                }
             }
 
-            LocalPlayer = localPlayer;
+            // TODO: Setup player relationships.
         }
 
-        internal void AddReplayObserver(Game game)
+        // This needs to operate on the entire player list, because players have references to each other
+        // (allies and enemies).
+        private static IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, AssetStore assetStore)
         {
-            _players.Add(
-                new Player(
-                    game.AssetStore.PlayerTemplates.GetByName("FactionObserver"),
-                    new Mathematics.ColorRgb(),
-                    game.AssetStore)
-                {
-                    Name = "ReplayObserver"
-                });
+            var players = new Dictionary<string, Player>();
+            var allies = new Dictionary<string, string[]>();
+            var enemies = new Dictionary<string, string[]>();
+
+            foreach (var mapPlayer in mapPlayers)
+            {
+                var player = Player.FromMapData(mapPlayer, assetStore);
+                players[player.Name] = player;
+                allies[player.Name] =
+                    (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
+                enemies[player.Name] =
+                    (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ');
+            }
+
+            foreach (var (name, player) in players)
+            {
+                player.Allies = allies[name].Select(ally => players[ally]).ToSet();
+                player.Enemies = enemies[name].Select(enemy => players[enemy]).ToSet();
+            }
+
+            return players.Values;
         }
 
         public Player GetPlayerByName(string name)
@@ -62,6 +71,9 @@ namespace OpenSage.Logic
         {
             return _players.IndexOf(player);
         }
+
+        // TODO: Is this right?
+        public Player GetCivilianPlayer() => _players[1];
 
         internal void LogicTick()
         {

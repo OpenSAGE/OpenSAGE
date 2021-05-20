@@ -89,11 +89,9 @@ namespace OpenSage.Logic
 
         public ColorRgb Color { get; }
 
-        private HashSet<Player> _allies;
-        public IReadOnlyCollection<Player> Allies => _allies;
+        public HashSet<Player> Allies { get; internal set; }
 
-        private HashSet<Player> _enemies;
-        public IReadOnlyCollection<Player> Enemies => _enemies;
+        public HashSet<Player> Enemies { get; internal set; }
 
         // TODO: Does the order matter? Is it ever visible in UI?
         // TODO: Yes the order does matter. For example, the sound played when moving mixed groups of units is the one for the most-recently-selected unit.
@@ -109,8 +107,8 @@ namespace OpenSage.Logic
             Template = template;
             Color = color;
             _selectedUnits = new HashSet<GameObject>();
-            _allies = new HashSet<Player>();
-            _enemies = new HashSet<Player>();
+            Allies = new HashSet<Player>();
+            Enemies = new HashSet<Player>();
 
             _upgrades = new List<Upgrade>();
             _upgradesInProgress = new StringSet();
@@ -568,69 +566,30 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            return new Player(template, color, assetStore)
+            var result = new Player(template, color, assetStore)
             {
                 Side = side,
                 Name = name,
                 DisplayName = translatedDisplayName,
                 IsHuman = isHuman
             };
-        }
 
-        // This needs to operate on the entire player list, because players have references to each other
-        // (allies and enemies).
-        internal static IEnumerable<Player> FromMapData(Data.Map.Player[] mapPlayers, AssetStore assetStore)
-        {
-            var players = new Dictionary<string, Player>();
-            var allies = new Dictionary<string, string[]>();
-            var enemies = new Dictionary<string, string[]>();
-
-            foreach (var mapPlayer in mapPlayers)
+            if (template != null)
             {
-                var player = FromMapData(mapPlayer, assetStore);
-                players[player.Name] = player;
-                allies[player.Name] =
-                    (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
-                enemies[player.Name] =
-                    (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ');
+                result.BankAccount.Money = (uint) (template.StartMoney + assetStore.GameData.Current.DefaultStartingCash);
             }
-
-            foreach (var (name, player) in players)
-            {
-                player._allies = allies[name].Select(ally => players[ally]).ToSet();
-                player._enemies = enemies[name].Select(enemy => players[enemy]).ToSet();
-            }
-
-            return players.Values;
-        }
-
-        public static Player FromTemplate(GameData gameData, PlayerTemplate template, AssetStore assetStore, PlayerSetting? setting = null)
-        {
-            var color = setting.HasValue ? setting.Value.Color : template.PreferredColor;
-
-            // TODO: Use rest of the properties from the template
-            var result = new Player(template, color, assetStore)
-            {
-                Side = template.Side,
-                Name = setting == null ? template.Name : setting?.Name,
-                DisplayName = template.DisplayName.Translate(),
-                IsHuman = setting?.Owner == PlayerOwner.Player,
-                Team = setting?.Team ?? default,
-            };
-
-            result.BankAccount.Money = (uint) (template.StartMoney + gameData.DefaultStartingCash);
 
             return result;
         }
 
         public void AddAlly(Player player)
         {
-            _allies.Add(player);
+            Allies.Add(player);
         }
 
         public void AddEnemy(Player player)
         {
-            _enemies.Add(player);
+            Enemies.Add(player);
         }
     }
 
