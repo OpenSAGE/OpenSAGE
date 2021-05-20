@@ -184,7 +184,11 @@ namespace OpenSage.Network
 
             ColorIndex = (sbyte) reader.ReadInt32();
             StartPosition = (byte) reader.ReadInt32();
-            FactionIndex = (byte) reader.ReadInt32();
+
+            // Bit ugly... this is really an index into player templates,
+            // but FactionIndex only counts playable sides... and also is 1-based.
+            FactionIndex = (byte) (reader.ReadInt32() - 1);
+
             Team = (sbyte) reader.ReadInt32();
 
             var colorChosen = reader.ReadInt32();

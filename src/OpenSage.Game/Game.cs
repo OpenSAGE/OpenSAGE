@@ -557,7 +557,7 @@ namespace OpenSage
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
             SidesListUtility.SetupGameSides(
-                ContentManager,
+                this,
                 mapFile,
                 playerSettings,
                 gameType,

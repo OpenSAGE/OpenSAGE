@@ -11,7 +11,7 @@ namespace OpenSage.Data.Map
     internal static class SidesListUtility
     {
         public static void SetupGameSides(
-            ContentManager contentManager,
+            Game game,
             MapFile mapFile,
             PlayerSetting[] playerSettings,
             GameType gameType,
@@ -34,7 +34,7 @@ namespace OpenSage.Data.Map
             else
             {
                 SetupSkirmishGameSides(
-                    contentManager,
+                    game,
                     mapFile,
                     playerSettings,
                     gameType,
@@ -84,7 +84,7 @@ namespace OpenSage.Data.Map
         }
 
         private static void SetupSkirmishGameSides(
-            ContentManager contentManager,
+            Game game,
             MapFile mapFile,
             PlayerSetting[] playerSettings,
             GameType gameType,
@@ -202,7 +202,7 @@ namespace OpenSage.Data.Map
 
             //var isSandbox = gameType == GameType.Skirmish && !hasAIPlayer;
 
-            var skirmishScriptsEntry = contentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
+            var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
 
             // TODO: Generals and ZH use SkirmishScripts.scb,
             // but later games use "libraries".
@@ -229,22 +229,23 @@ namespace OpenSage.Data.Map
                     }
                     else
                     {
-                        var faction = (string) mapPlayers[i].Properties["playerFaction"].Value;
+                        var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
+                        var sourcePlayerName = $"Skirmish{playerSide}";
 
                         // Copy the scripts from the according skirmish player for all AI players.
                         CopyScripts(
                             skirmishScripts.PlayerScripts.ScriptLists,
                             skirmishScripts.Players.PlayerNames,
-                            "Skirmish" + faction,
+                            sourcePlayerName,
                             mapScriptLists,
                             i,
                             appendIndex: true);
 
                         // TODO: Not sure about the order the teams are added.
-                        foreach (var team in mapFile.GetTeams())
+                        foreach (var team in skirmishScripts.Teams.Teams)
                         {
                             var teamOwner = (string) team.Properties["teamOwner"].Value;
-                            if (teamOwner == faction)
+                            if (teamOwner == sourcePlayerName)
                             {
                                 var teamName = $"{team.Properties["teamName"].Value}{i}";
                                 mapTeams.Add(CreateTeam(
