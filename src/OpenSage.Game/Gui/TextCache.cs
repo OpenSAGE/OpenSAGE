@@ -130,7 +130,7 @@ namespace OpenSage.Gui
                 try
                 {
                     x.DrawText(
-                        new TextGraphicsOptions
+                        new DrawingOptions
                         {
                             GraphicsOptions = new GraphicsOptions
                             {
