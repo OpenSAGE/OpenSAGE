@@ -61,15 +61,21 @@ namespace OpenSage.Utilities
 
         private static readonly SDL_GetDisplayDPI_Delegate GetDisplayDPIImpl = Sdl2Native.LoadFunction<SDL_GetDisplayDPI_Delegate>("SDL_GetDisplayDPI");
 
-        public static unsafe void SDL_GetDisplayDPI(int displayIndex, float* ddpi, float* hdpi, float* vdpi) => GetDisplayDPIImpl(displayIndex, ddpi, hdpi, vdpi);
+        public static unsafe int SDL_GetDisplayDPI(int displayIndex, float* ddpi, float* hdpi, float* vdpi) => GetDisplayDPIImpl(displayIndex, ddpi, hdpi, vdpi);
 
         public static unsafe float GetDisplayScale(int displayIndex)
         {
             float hdpi;
-            SDL_GetDisplayDPI(displayIndex, null, &hdpi, null);
+            int result = SDL_GetDisplayDPI(displayIndex, null, &hdpi, null);
+
+            // The function call did not succeed.
+            // TODO: We should check why with SDL_GetError
+            if (result != 0)
+            {
+                return 1.0f;
+            }
 
             var defaultDpi = PlatformUtility.GetDefaultDpi();
-
             return hdpi / defaultDpi;
         }
 
