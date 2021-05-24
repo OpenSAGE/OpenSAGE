@@ -707,7 +707,7 @@ namespace OpenSage.Logic
             }
 
             var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 50 && unknown4 != 51)
+            if (unknown4 != 50 && unknown4 != 51 && unknown4 != 8)
             {
                 throw new InvalidDataException();
             }
@@ -787,10 +787,12 @@ namespace OpenSage.Logic
     public sealed class SupplyManager
     {
         private readonly ObjectIdSet _supplyWarehouses;
+        private readonly ObjectIdSet _supplyCenters;
 
         internal SupplyManager()
         {
             _supplyWarehouses = new ObjectIdSet();
+            _supplyCenters = new ObjectIdSet();
         }
 
         internal void Load(SaveFileReader reader)
@@ -798,13 +800,7 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             _supplyWarehouses.Load(reader);
-
-            var objectIdSet = new ObjectIdSet();
-            objectIdSet.Load(reader);
-            if (objectIdSet.Count > 0)
-            {
-                throw new InvalidDataException();
-            }
+            _supplyCenters.Load(reader);
         }
     }
 
