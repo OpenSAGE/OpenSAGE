@@ -40,7 +40,7 @@ namespace OpenSage.Data.Sav
             }
             else
             {
-                game.StartSinglePlayerGame(mapPathInSaveFolder);
+                game.StartSinglePlayerGame(mapPath1);
             }
         }
     }
