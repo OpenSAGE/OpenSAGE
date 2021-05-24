@@ -19,9 +19,9 @@ namespace OpenSage.Logic
             _players = new List<Player>();
         }
 
-        internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game)
+        internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game, GameType gameType)
         {
-            _players = CreatePlayers(mapPlayers, game.AssetStore).ToList();
+            _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToList();
 
             foreach (var player in _players)
             {
@@ -37,16 +37,16 @@ namespace OpenSage.Logic
 
         // This needs to operate on the entire player list, because players have references to each other
         // (allies and enemies).
-        private static IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, AssetStore assetStore)
+        private static IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, AssetStore assetStore, GameType gameType)
         {
             var players = new Dictionary<string, Player>();
             var allies = new Dictionary<string, string[]>();
             var enemies = new Dictionary<string, string[]>();
 
-            var index = 0u;
+            var id = 0u;
             foreach (var mapPlayer in mapPlayers)
             {
-                var player = Player.FromMapData(index++, mapPlayer, assetStore);
+                var player = Player.FromMapData(id++, mapPlayer, assetStore, gameType != GameType.SinglePlayer);
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');

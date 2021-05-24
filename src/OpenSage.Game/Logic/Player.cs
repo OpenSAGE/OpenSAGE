@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Map;
 using OpenSage.Data.Sav;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -17,6 +17,8 @@ namespace OpenSage.Logic
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly AssetStore _assetStore;
+
+        private readonly SupplyManager _supplyManager;
 
         private readonly List<Upgrade> _upgrades;
         private readonly StringSet _upgradesInProgress;
@@ -41,6 +43,8 @@ namespace OpenSage.Logic
 
         public bool IsHuman { get; private set; }
 
+        public Team DefaultTeam { get; private set; }
+
         public readonly BankAccount BankAccount;
 
         public Rank Rank { get; set; }
@@ -51,6 +55,8 @@ namespace OpenSage.Logic
         public bool CanBuildBuildings;
         public float GeneralsExperienceMultiplier;
         public bool ShowOnScoreScreen;
+
+        public AIPlayer AIPlayer { get; private set; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public int GetEnergy(GameObjectCollection allGameObjects)
@@ -111,6 +117,8 @@ namespace OpenSage.Logic
             _selectedUnits = new HashSet<GameObject>();
             Allies = new HashSet<Player>();
             Enemies = new HashSet<Player>();
+
+            _supplyManager = new SupplyManager();
 
             _upgrades = new List<Upgrade>();
             _upgradesInProgress = new StringSet();
@@ -408,57 +416,71 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            reader.ReadUInt32(); // Player index
+            var playerId = reader.ReadUInt32();
+            System.Diagnostics.Debug.WriteLine("- PlayerId: " + playerId);
+            if (playerId != Id)
+            {
+                throw new InvalidDataException();
+            }
 
             var numTeamTemplates = reader.ReadUInt16();
+            System.Diagnostics.Debug.WriteLine("- TeamTemplates: " + numTeamTemplates);
             for (var i = 0; i < numTeamTemplates; i++)
             {
                 var teamTemplateId = reader.ReadUInt32();
+                System.Diagnostics.Debug.WriteLine("  - TeamTemplateId: " + teamTemplateId);
                 var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
                 _teamTemplates.Add(teamTemplate);
             }
 
-            var someCount = reader.ReadUInt16();
-            for (var i = 0; i < someCount; i++)
+            var buildListItemCount = reader.ReadUInt16();
+            var buildListItems = new BuildListItem[buildListItemCount];
+            for (var i = 0; i < buildListItemCount; i++)
             {
-                var unknown10 = reader.ReadUInt16();
-                if (unknown10 != 2)
-                {
-                    //throw new InvalidDataException();
-                }
-
-                var objectName = reader.ReadAsciiString();
-                var position = reader.ReadVector3();
-
-                reader.__Skip(18);
-
-                var maybeHealth = reader.ReadUInt32(); // 100
-
-                reader.__Skip(63);
+                buildListItems[i] = new BuildListItem();
+                buildListItems[i].Load(reader);
             }
 
             var isAIPlayer = reader.ReadBoolean();
+            if (isAIPlayer != (AIPlayer != null))
+            {
+                throw new InvalidDataException();
+            }
             if (isAIPlayer)
             {
-                // TODO: There are sometimes floats in here, X and Y and maybe a height.
-                reader.__Skip(86);
+                AIPlayer.Load(reader);
             }
 
-            reader.ReadBoolean();
+            var hasSupplyManager = reader.ReadBoolean();
+            if (hasSupplyManager)
+            {
+                _supplyManager.Load(reader);
+            }
 
             var somePlayerType = reader.ReadBoolean();
             if (somePlayerType)
             {
+                reader.ReadVersion(1);
+
                 var constructedUnits = new ObjectIdSet();
                 constructedUnits.Load(reader);
 
-                var constructedBuildings = new ObjectIdSet();
-                constructedBuildings.Load(reader);
+                var unknown10 = reader.ReadUInt32();
+                if (unknown10 != 0)
+                {
+                    throw new InvalidDataException();
+                }
 
-                reader.__Skip(13);
+                var unknown10_2 = reader.ReadUInt32();
+                if (unknown10_2 != 0)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
-            var playerID = reader.ReadUInt32();
+            var defaultTeamId = reader.ReadUInt32();
+            System.Diagnostics.Debug.WriteLine("- DefaultTeamId " + defaultTeamId);
+            //DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
 
             _sciences.Load(reader);
 
@@ -532,7 +554,7 @@ namespace OpenSage.Logic
             reader.__Skip(14);
         }
 
-        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore)
+        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore, bool isSkirmish)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
@@ -573,8 +595,12 @@ namespace OpenSage.Logic
                 Side = side,
                 Name = name,
                 DisplayName = translatedDisplayName,
-                IsHuman = isHuman
+                IsHuman = isHuman,
             };
+
+            result.AIPlayer = isHuman || template == null || side == "FactionObserver"
+                ? null
+                : (isSkirmish && side != "FactionCivilian" ? new SkirmishAIPlayer(result) : new AIPlayer(result));
 
             if (template != null)
             {
@@ -595,6 +621,184 @@ namespace OpenSage.Logic
         }
     }
 
+    public class AIPlayer
+    {
+        private readonly Player _owner;
+
+        internal AIPlayer(Player owner)
+        {
+            _owner = owner;
+        }
+
+        internal virtual void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var unknownCount = reader.ReadUInt16();
+            for (var i = 0; i < unknownCount; i++)
+            {
+                reader.ReadVersion(1);
+
+                var unknownInt3 = reader.ReadUInt16();
+                if (unknownInt3 != 1)
+                {
+                    throw new InvalidDataException();
+                }
+
+                reader.ReadBoolean();
+
+                var objectName = reader.ReadAsciiString();
+
+                var objectId = reader.ReadObjectID();
+
+                var unknownInt1 = reader.ReadUInt32(); // 0
+                var unknownInt2 = reader.ReadUInt32(); // 1
+
+                var unknownBool5 = reader.ReadBoolean();
+                var unknownBool6 = reader.ReadBoolean();
+                var unknownBool7 = reader.ReadBoolean();
+
+                var unknownInt2_1 = reader.ReadUInt32(); // 11
+
+                for (var j = 0; j < 11; j++)
+                {
+                    var unknownByte = reader.ReadByte();
+                    if (unknownByte != 0)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+            }
+
+            var unknown1 = reader.ReadUInt16();
+            if (unknown1 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var playerId = reader.ReadUInt32();
+            if (playerId != _owner.Id)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool2 = reader.ReadBoolean();
+
+            var unknown2 = reader.ReadUInt32();
+            if (unknown2 != 2 && unknown2 != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown3 = reader.ReadInt32();
+            if (unknown3 != 0 && unknown3 != -1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown4 = reader.ReadUInt32();
+            if (unknown4 != 50 && unknown4 != 51)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown5 = reader.ReadUInt32();
+            if (unknown5 != 0 && unknown5 != 50)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown6 = reader.ReadUInt32();
+            if (unknown6 != 10)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown7 = reader.ReadObjectID();
+
+            var unknown8 = reader.ReadUInt32();
+            if (unknown8 != 0 && unknown8 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown9 = reader.ReadUInt32();
+            if (unknown9 != 1 && unknown9 != 0 && unknown9 != 2)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknown10 = reader.ReadInt32();
+            if (unknown10 != -1 && unknown10 != 0 && unknown10 != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            var unknownPosition = reader.ReadVector3();
+            var unknownBool8 = reader.ReadBoolean();
+            var unknownFloat = reader.ReadSingle();
+
+            for (var i = 0; i < 22; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
+    }
+
+    public sealed class SkirmishAIPlayer : AIPlayer
+    {
+        internal SkirmishAIPlayer(Player owner)
+            : base(owner)
+        {
+
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            for (var i = 0; i < 32; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
+    }
+
+    public sealed class SupplyManager
+    {
+        private readonly ObjectIdSet _supplyWarehouses;
+
+        internal SupplyManager()
+        {
+            _supplyWarehouses = new ObjectIdSet();
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            _supplyWarehouses.Load(reader);
+
+            var objectIdSet = new ObjectIdSet();
+            objectIdSet.Load(reader);
+            if (objectIdSet.Count > 0)
+            {
+                throw new InvalidDataException();
+            }
+        }
+    }
+
     public enum RelationshipType : uint
     {
         Enemies = 0,
@@ -602,7 +806,7 @@ namespace OpenSage.Logic
         Allies = 2,
     }
 
-    internal sealed class PlayerRelationships
+    public sealed class PlayerRelationships
     {
         private readonly Dictionary<uint, RelationshipType> _store;
 

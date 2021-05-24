@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Numerics;
+using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -19,12 +20,12 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal void Load(BinaryReader reader)
+        internal void Load(SaveFileReader reader)
         {
-            var version = reader.ReadByte();
+            reader.ReadVersion(2);
 
-            BuildingName = reader.ReadBytePrefixedAsciiString();
-            Name = reader.ReadBytePrefixedAsciiString();
+            BuildingName = reader.ReadAsciiString();
+            Name = reader.ReadAsciiString();
             Position = reader.ReadVector3();
 
             var unknown1 = reader.ReadUInt32();
@@ -41,13 +42,9 @@ namespace OpenSage.Data.Map
 
             Angle = reader.ReadSingle();
 
-            var unknown3 = reader.ReadBooleanChecked();
+            var unknown3 = reader.ReadBoolean();
 
-            var unknown4 = reader.ReadByte();
-            if (unknown4 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            Rebuilds = reader.ReadByte();
 
             var unknown5 = reader.ReadUInt32();
             if (unknown5 != 0u)
@@ -57,19 +54,20 @@ namespace OpenSage.Data.Map
 
             StartingHealth = reader.ReadUInt32();
 
-            var unknown6 = reader.ReadBooleanChecked();
-            var unknown7 = reader.ReadBooleanChecked();
-            var unknown8 = reader.ReadBooleanChecked();
-            var unknown9 = reader.ReadBooleanChecked();
+            var unknown6 = reader.ReadBoolean();
+            var unknown7 = reader.ReadBoolean();
+            var unknown8 = reader.ReadBoolean();
+            var unknown9 = reader.ReadBoolean();
             var unknown10 = reader.ReadUInt32();
             var unknown11 = reader.ReadUInt32();
+            var unknown12 = reader.ReadBoolean();
 
-            for (var i = 0; i < 51; i++)
+            for (var i = 0; i < 50; i++)
             {
-                var unknown12 = reader.ReadByte();
-                if (unknown12 != 0)
+                var unknown13 = reader.ReadByte();
+                if (unknown13 != 0)
                 {
-                    throw new InvalidDataException();
+                    //throw new InvalidDataException();
                 }
             }
         }

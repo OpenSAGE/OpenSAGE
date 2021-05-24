@@ -108,12 +108,13 @@ namespace OpenSage
             int randomSeed,
             Data.Map.Player[] mapPlayers,
             Data.Map.Team[] mapTeams,
-            ScriptList[] mapScriptLists)
+            ScriptList[] mapScriptLists,
+            GameType gameType)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             var contentManager = game.ContentManager;
 
-            PlayerManager.OnNewGame(mapPlayers, game);
+            PlayerManager.OnNewGame(mapPlayers, game, gameType);
 
             TeamFactory = new TeamFactory();
             TeamFactory.Initialize(mapTeams, PlayerManager.Players);

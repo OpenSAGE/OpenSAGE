@@ -363,7 +363,7 @@ namespace OpenSage.Logic.Object
             var unknownFloat1 = reader.ReadSingle();
             if (unknownFloat1 != 1.0f)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknownFloat2 = reader.ReadSingle();

@@ -293,7 +293,10 @@ namespace OpenSage.Logic.Object
             var unknownInt21 = reader.ReadUInt32(); // 0
             var unknownBool10 = reader.ReadBooleanChecked();
             var unknownBool11 = reader.ReadBooleanChecked();
-            var unknownInt22 = reader.ReadUInt32(); // 0
+            var unknownInt22 = reader.ReadBooleanChecked(); // 0
+            var unknownInt22_2 = reader.ReadBooleanChecked(); // 0
+            var unknownInt22_3 = reader.ReadBooleanChecked(); // 0
+            var attackPriorityName = reader.ReadBytePrefixedAsciiString();
             var unknownInt23 = reader.ReadUInt32(); // 0
             var unknownBool12 = reader.ReadBooleanChecked();
             var unknownInt23_1 = reader.ReadUInt32(); // 0
