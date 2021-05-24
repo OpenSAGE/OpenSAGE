@@ -462,17 +462,17 @@ namespace OpenSage.Logic
             {
                 reader.ReadVersion(1);
 
-                var constructedUnits = new ObjectIdSet();
-                constructedUnits.Load(reader);
+                var tunnels = new ObjectIdSet();
+                tunnels.Load(reader);
 
-                var unknown10 = reader.ReadUInt32();
-                if (unknown10 != 0)
+                var containedCount = reader.ReadUInt32();
+                for (var i = 0; i < containedCount; i++)
                 {
-                    throw new InvalidDataException();
+                    var containedObjectId = reader.ReadObjectID();
                 }
 
-                var unknown10_2 = reader.ReadUInt32();
-                if (unknown10_2 != 0)
+                var tunnelCount = reader.ReadUInt32();
+                if (tunnelCount != tunnels.Count)
                 {
                     throw new InvalidDataException();
                 }
@@ -480,7 +480,11 @@ namespace OpenSage.Logic
 
             var defaultTeamId = reader.ReadUInt32();
             System.Diagnostics.Debug.WriteLine("- DefaultTeamId " + defaultTeamId);
-            //DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
+            DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
+            if (DefaultTeam.Template.Owner != this)
+            {
+                throw new InvalidDataException();
+            }
 
             _sciences.Load(reader);
 
@@ -562,6 +566,11 @@ namespace OpenSage.Logic
             {
                 // TODO: Probably not right.
                 side = "FactionChina";
+            }
+            if (side.StartsWith("FactionGLA", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                // TODO: Probably not right.
+                side = "FactionGLA";
             }
 
             // We need the template for default values
