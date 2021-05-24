@@ -572,7 +572,8 @@ namespace OpenSage
                 Environment.TickCount,
                 mapPlayers,
                 mapTeams,
-                mapScriptLists);
+                mapScriptLists,
+                gameType);
         }
 
         public Window LoadWindow(string wndFileName)

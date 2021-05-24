@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Content;
 using OpenSage.Data.Scb;
 using OpenSage.Logic;
 using OpenSage.Scripting;

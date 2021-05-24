@@ -34,7 +34,7 @@ namespace OpenSage.Diagnostics.AssetViews
                     true,
                     new MeshShaderResources.RenderItemConstantsPS
                     {
-                        HouseColor = Vector3.One, // context.Game.CivilianPlayer.Color.ToVector3(),
+                        HouseColor = Vector3.One,
                         Opacity = 1.0f
                     });
             }
