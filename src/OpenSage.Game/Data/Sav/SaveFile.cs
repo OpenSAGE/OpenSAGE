@@ -52,11 +52,11 @@ namespace OpenSage.Data.Sav
                 var reader = new SaveFileReader(binaryReader);
 
                 var gameState = new GameState();
-                MapFile map = null;
                 GameLogic gameLogic = null;
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
                 var terrainLogic = new TerrainLogic();
+                var terrainVisual = new TerrainVisual();
                 var partitionCellManager = new PartitionCellManager(game);
 
                 while (true)
@@ -140,15 +140,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_TerrainVisual":
-                            {
-                                var version = reader.ReadByte();
-                                reader.__Skip(6);
-                                for (var i = 0; i < map.HeightMapData.Area; i++)
-                                {
-                                    var unknown = reader.ReadByte();
-                                }
-                                break;
-                            }
+                            terrainVisual.Load(reader, game);
+                            break;
 
                         case "CHUNK_GhostObject":
                             {
