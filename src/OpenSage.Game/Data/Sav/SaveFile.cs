@@ -142,27 +142,7 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_InGameUI":
-                            {
-                                var version = reader.ReadByte();
-                                reader.ReadUInt32(); // 0
-                                reader.ReadBoolean();
-                                reader.ReadBoolean();
-                                reader.ReadBoolean();
-                                reader.ReadUInt32(); // 0
-                                var something = reader.ReadUInt32();
-                                while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
-                                {
-                                    var someString1 = reader.ReadAsciiString();
-                                    var someString2 = reader.ReadAsciiString();
-                                    var unknown1 = reader.ReadUInt32();
-                                    var unknown2 = reader.ReadUInt32(); // 0xFFFFFFFF
-                                    reader.ReadBoolean();
-                                    reader.ReadBoolean();
-                                    reader.ReadBoolean();
-
-                                    something = reader.ReadUInt32();
-                                }
-                            }
+                            game.AssetStore.InGameUI.Current.Load(reader);
                             break;
 
                         case "CHUNK_Partition":

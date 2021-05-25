@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Gui.InGame
 {
@@ -356,6 +356,32 @@ namespace OpenSage.Gui.InGame
 
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(2);
+
+            reader.ReadUInt32(); // 0
+            reader.ReadBoolean();
+            reader.ReadBoolean();
+            reader.ReadBoolean();
+            reader.ReadUInt32(); // 0
+
+            // TODO: Superweapon something...
+            var something = reader.ReadUInt32();
+            while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
+            {
+                var someString1 = reader.ReadAsciiString();
+                var someString2 = reader.ReadAsciiString();
+                var unknown1 = reader.ReadUInt32();
+                var unknown2 = reader.ReadUInt32(); // 0xFFFFFFFF
+                reader.ReadBoolean();
+                reader.ReadBoolean();
+                reader.ReadBoolean();
+
+                something = reader.ReadUInt32();
+            }
+        }
     }
 
     public sealed class RadiusCursor
