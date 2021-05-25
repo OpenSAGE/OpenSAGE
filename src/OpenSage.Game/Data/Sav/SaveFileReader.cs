@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
@@ -153,6 +154,13 @@ namespace OpenSage.Data.Sav
 
                 numBytesRemaining -= numBytesRead;
             }
+        }
+
+        public void ReadSpan<T>(Span<T> span)
+            where T : unmanaged
+        {
+            var spanBytes = MemoryMarshal.Cast<T, byte>(span);
+            _binaryReader.BaseStream.Read(spanBytes);
         }
 
         public uint BeginSegment()
