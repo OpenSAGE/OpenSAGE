@@ -2,6 +2,7 @@
 using System.Text;
 using OpenSage.Client;
 using OpenSage.Data.Map;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Logic;
 using OpenSage.Terrain;
 
@@ -122,19 +123,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_TacticalView":
-                            {
-                                var version = reader.ReadByte();
-                                var cameraAngle = reader.ReadSingle();
-                                var cameraPosition = reader.ReadVector2();
-
-                                var unknown2 = reader.ReadUInt32();
-                                if (unknown2 != 0)
-                                {
-                                    throw new InvalidDataException();
-                                }
-
-                                break;
-                            }
+                            ((RtsCameraController) game.Scene3D.CameraController).Load(reader);
+                            break;
 
                         case "CHUNK_GameClient":
                             gameClient = new GameClient(game.Scene3D, gameLogic);
