@@ -56,6 +56,7 @@ namespace OpenSage.Data.Sav
                 GameClient gameClient = null;
                 CampaignManager campaignManager = null;
                 var terrainLogic = new TerrainLogic();
+                var partitionCellManager = new PartitionCellManager(game);
 
                 while (true)
                 {
@@ -84,6 +85,7 @@ namespace OpenSage.Data.Sav
 
                         case "CHUNK_GameStateMap":
                             GameStateMap.Load(reader, game);
+                            partitionCellManager.OnNewGame();
                             break;
 
                         case "CHUNK_TerrainLogic":
@@ -164,27 +166,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_Partition":
-                            {
-                                var version = reader.ReadByte();
-                                var partitionCellSize = reader.ReadSingle();
-                                var count = reader.ReadUInt32();
-                                for (var i = 0; i < count; i++)
-                                {
-                                    reader.__Skip(65);
-                                }
-                                var someOtherCount = reader.ReadUInt32();
-                                for (var i = 0; i < someOtherCount; i++)
-                                {
-                                    reader.ReadBoolean();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadUInt16();
-                                    reader.ReadUInt32();
-                                }
-                                break;
-                            }
+                            partitionCellManager.Load(reader);
+                            break;
 
                         case "CHUNK_TerrainVisual":
                             {
