@@ -29,7 +29,7 @@ namespace OpenSage.Logic
             var id = reader.ReadUInt32();
             if (id != Id)
             {
-                //throw new InvalidDataException();
+                throw new InvalidDataException();
             }
 
             var numObjects = reader.ReadUInt16();

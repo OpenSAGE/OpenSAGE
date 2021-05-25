@@ -56,8 +56,6 @@ namespace OpenSage.Data.Map
                 Properties = replayObserverPlayerProperties
             });
 
-            tempMapTeams.Add(CreateDefaultTeam("ReplayObserver"));
-
             tempMapScriptLists.Add(new ScriptList());
 
             mapPlayers = tempMapPlayers.ToArray();
@@ -186,7 +184,6 @@ namespace OpenSage.Data.Map
                 mapScriptLists,
                 0,
                 appendIndex: false);
-            mapTeams.Add(CreateDefaultTeam(neutralPlayerName));
 
             // Copy civilian player scripts.
             var civilianPlayerName = (string) mapPlayers[1].Properties["playerName"].Value;
@@ -197,7 +194,6 @@ namespace OpenSage.Data.Map
                 mapScriptLists,
                 1,
                 appendIndex: false);
-            mapTeams.Add(CreateDefaultTeam(civilianPlayerName));
 
             //var isSandbox = gameType == GameType.Skirmish && !hasAIPlayer;
 
@@ -209,6 +205,10 @@ namespace OpenSage.Data.Map
             {
                 using var stream = skirmishScriptsEntry.Open();
                 var skirmishScripts = ScbFile.FromStream(stream);
+
+                // This probably isn't right, but it does make the teams match those in .sav files.
+                // We first add human player(s) teams, then the replay observer team, 
+                // then neutral and civilian teams, and then finally AI skirmish players.
 
                 // Skip neutral and civilian players.
                 for (var i = 2; i < mapPlayers.Count; i++)
@@ -226,7 +226,17 @@ namespace OpenSage.Data.Map
 
                         mapTeams.Add(CreateDefaultTeam((string) mapPlayers[i].Properties["playerName"].Value));
                     }
-                    else
+                }
+
+                mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
+
+                mapTeams.Add(CreateDefaultTeam(neutralPlayerName));
+                mapTeams.Add(CreateDefaultTeam(civilianPlayerName));
+
+                // Skip neutral and civilian players.
+                for (var i = 2; i < mapPlayers.Count; i++)
+                {
+                    if (!(bool) mapPlayers[i].Properties["playerIsHuman"].Value)
                     {
                         var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
                         var sourcePlayerName = $"Skirmish{playerSide}";
@@ -305,6 +315,8 @@ namespace OpenSage.Data.Map
             mapPlayers.AddRange(mapFile.SidesList.Players);
             mapTeams.AddRange(mapFile.GetTeams());
             mapScriptLists.AddRange(mapFile.GetPlayerScriptsList().ScriptLists);
+
+            mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
         }
     }
 }

@@ -47,7 +47,7 @@ namespace OpenSage.Logic
             System.Diagnostics.Debug.WriteLine("  - PlayerId " + playerId);
             if (playerId != Owner.Id)
             {
-                //throw new InvalidDataException();
+                throw new InvalidDataException();
             }
 
             _attackPriorityName = reader.ReadAsciiString();
@@ -70,10 +70,10 @@ namespace OpenSage.Logic
                 {
                     //throw new InvalidDataException();
                     team = TeamFactory.AddTeam(this);
-                    //if (team.Id != id)
-                    //{
-                    //    throw new InvalidDataException();
-                    //}
+                    if (team.Id != id)
+                    {
+                        throw new InvalidDataException();
+                    }
                 }
 
                 team.Load(reader);
