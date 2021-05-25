@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Data.Sav;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 using Veldrid;
@@ -308,6 +309,14 @@ namespace OpenSage.Graphics.Cameras
         public void GoToObject(Logic.Object.GameObject gameObject)
         {
             TerrainPosition = gameObject.Translation;
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var cameraAngle = reader.ReadSingle(); // TODO
+            _terrainPosition = reader.ReadVector3();
         }
 
         internal void DrawInspector()
