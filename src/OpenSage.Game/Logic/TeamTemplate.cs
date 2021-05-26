@@ -8,7 +8,7 @@ namespace OpenSage.Logic
     [DebuggerDisplay("TeamTemplate '{Name}'")]
     public sealed class TeamTemplate
     {
-        private readonly Dictionary<uint, Team> _teamsById;
+        private readonly List<Team> _teams;
 
         private string _attackPriorityName;
         private TeamTemplateData _templateData;
@@ -31,12 +31,24 @@ namespace OpenSage.Logic
             // TODO: Read this from map data.
             _templateData = new TeamTemplateData();
 
-            _teamsById = new Dictionary<uint, Team>();
+            _teams = new List<Team>();
         }
 
         internal void AddTeam(Team team)
         {
-            _teamsById.Add(team.Id, team);
+            _teams.Add(team);
+        }
+
+        public Team FindTeamById(uint id)
+        {
+            foreach (var team in _teams)
+            {
+                if (team.Id == id)
+                {
+                    return team;
+                }
+            }
+            return null;
         }
 
         internal void Load(SaveFileReader reader)
@@ -44,7 +56,6 @@ namespace OpenSage.Logic
             reader.ReadVersion(2);
 
             var playerId = reader.ReadUInt32();
-            System.Diagnostics.Debug.WriteLine("  - PlayerId " + playerId);
             if (playerId != Owner.Id)
             {
                 throw new InvalidDataException();
@@ -58,22 +69,15 @@ namespace OpenSage.Logic
 
             var teamCount = reader.ReadUInt16();
 
-            System.Diagnostics.Debug.WriteLine("  - Teams:" + teamCount);
-
             for (var i = 0; i < teamCount; i++)
             {
                 var id = reader.ReadUInt32();
 
-                System.Diagnostics.Debug.WriteLine("    - TeamId: " + id);
-
-                if (!_teamsById.TryGetValue(id, out var team))
+                var team = FindTeamById(id);
+                if (team == null)
                 {
-                    //throw new InvalidDataException();
                     team = TeamFactory.AddTeam(this);
-                    if (team.Id != id)
-                    {
-                        throw new InvalidDataException();
-                    }
+                    team.Id = id;
                 }
 
                 team.Load(reader);
