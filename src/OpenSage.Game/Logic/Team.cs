@@ -9,7 +9,7 @@ namespace OpenSage.Logic
         private uint _numDestroyedSomething;
 
         public readonly TeamTemplate Template;
-        public readonly uint Id;
+        public uint Id { get; internal set; }
         public List<uint> ObjectIds = new List<uint>();
         public uint TargetObjectID;
 

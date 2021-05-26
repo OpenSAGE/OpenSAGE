@@ -417,19 +417,20 @@ namespace OpenSage.Logic
             }
 
             var playerId = reader.ReadUInt32();
-            System.Diagnostics.Debug.WriteLine("- PlayerId: " + playerId);
             if (playerId != Id)
             {
                 throw new InvalidDataException();
             }
 
             var numTeamTemplates = reader.ReadUInt16();
-            System.Diagnostics.Debug.WriteLine("- TeamTemplates: " + numTeamTemplates);
             for (var i = 0; i < numTeamTemplates; i++)
             {
                 var teamTemplateId = reader.ReadUInt32();
-                System.Diagnostics.Debug.WriteLine("  - TeamTemplateId: " + teamTemplateId);
                 var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                if (teamTemplate.Owner != this)
+                {
+                    throw new InvalidDataException();
+                }
                 _teamTemplates.Add(teamTemplate);
             }
 
@@ -479,7 +480,6 @@ namespace OpenSage.Logic
             }
 
             var defaultTeamId = reader.ReadUInt32();
-            System.Diagnostics.Debug.WriteLine("- DefaultTeamId " + defaultTeamId);
             DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
             if (DefaultTeam.Template.Owner != this)
             {
@@ -707,9 +707,9 @@ namespace OpenSage.Logic
             }
 
             var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 50 && unknown4 != 51 && unknown4 != 8)
+            if (unknown4 != 50 && unknown4 != 51 && unknown4 != 8 && unknown4 != 35)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknown5 = reader.ReadUInt32();

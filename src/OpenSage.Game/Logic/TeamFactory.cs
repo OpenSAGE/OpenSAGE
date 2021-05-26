@@ -11,8 +11,7 @@ namespace OpenSage.Logic
         private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
         private readonly Dictionary<string, TeamTemplate> _teamTemplatesByName;
 
-        private readonly Dictionary<uint, Team> _teamsById;
-        private uint _nextTeamId;
+        private uint _lastTeamId;
 
         public TeamFactory()
         {
@@ -20,8 +19,7 @@ namespace OpenSage.Logic
             _teamTemplatesById = new Dictionary<uint, TeamTemplate>();
             _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
 
-            _teamsById = new Dictionary<uint, Team>();
-            _nextTeamId = 1;
+            _lastTeamId = 0;
         }
 
         public void Initialize(Data.Map.Team[] mapTeams, IReadOnlyList<Player> players)
@@ -66,9 +64,9 @@ namespace OpenSage.Logic
 
         internal Team AddTeam(TeamTemplate teamTemplate)
         {
-            var team = new Team(teamTemplate, _nextTeamId++);
+            _lastTeamId++;
 
-            _teamsById.Add(team.Id, team);
+            var team = new Team(teamTemplate, _lastTeamId);
 
             teamTemplate.AddTeam(team);
 
@@ -95,9 +93,13 @@ namespace OpenSage.Logic
 
         public Team FindTeamById(uint id)
         {
-            if (_teamsById.TryGetValue(id, out var result))
+            foreach (var teamTemplate in _teamTemplates)
             {
-                return result;
+                var team = teamTemplate.FindTeamById(id);
+                if (team != null)
+                {
+                    return team;
+                }
             }
             return null;
         }
@@ -106,7 +108,7 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            var unknown1 = reader.ReadUInt32();
+            _lastTeamId = reader.ReadUInt32();
 
             var count = reader.ReadUInt16();
             if (count != _teamTemplatesById.Count)
@@ -114,16 +116,10 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            System.Diagnostics.Debug.WriteLine("TeamTemplates: " + count);
-
             for (var i = 0; i < count; i++)
             {
                 var id = reader.ReadUInt32();
-
-                System.Diagnostics.Debug.WriteLine("- TeamTemplateId: " + id);
-
                 var teamTemplate = _teamTemplatesById[id];
-
                 teamTemplate.Load(reader);
             }
         }
