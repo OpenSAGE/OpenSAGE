@@ -195,8 +195,6 @@ namespace OpenSage.Data.Map
                 1,
                 appendIndex: false);
 
-            //var isSandbox = gameType == GameType.Skirmish && !hasAIPlayer;
-
             var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
 
             // TODO: Generals and ZH use SkirmishScripts.scb,
@@ -264,6 +262,20 @@ namespace OpenSage.Data.Map
                             }
                         }
                     }
+                }
+            }
+
+            if (playerSettings.Length > 1)
+            {
+                var multiplayerScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\MultiplayerScripts.scb");
+
+                if (multiplayerScriptsEntry != null)
+                {
+                    using var stream = multiplayerScriptsEntry.Open();
+                    var multiplayerScripts = ScbFile.FromStream(stream);
+
+                    // TODO: This is a bit hardcoded.
+                    mapScriptLists[0] = multiplayerScripts.PlayerScripts.ScriptLists[0];
                 }
             }
         }
