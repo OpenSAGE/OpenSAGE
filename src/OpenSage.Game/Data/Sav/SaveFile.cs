@@ -58,6 +58,7 @@ namespace OpenSage.Data.Sav
                 var terrainLogic = new TerrainLogic();
                 var terrainVisual = new TerrainVisual();
                 var partitionCellManager = new PartitionCellManager(game);
+                var ghostObjectManager = new GhostObjectManager();
 
                 while (true)
                 {
@@ -144,55 +145,8 @@ namespace OpenSage.Data.Sav
                             break;
 
                         case "CHUNK_GhostObject":
-                            {
-                                var version = reader.ReadByte();
-                                reader.ReadBoolean();
-                                reader.ReadUInt32();
-                                var count = reader.ReadUInt16();
-                                for (var i = 0; i < count; i++)
-                                {
-                                    var someId = reader.ReadUInt32();
-                                    reader.ReadBoolean(); // 1
-                                    reader.ReadBoolean(); // 1
-                                    var someId2 = reader.ReadUInt32(); // Same as someId
-                                    reader.ReadUInt32();
-                                    reader.ReadByte();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.ReadSingle();
-                                    reader.__Skip(14);
-                                    var otherCount = reader.ReadByte();
-                                    for (var j = 0; j < otherCount; j++)
-                                    {
-                                        var modelName = reader.ReadAsciiString();
-                                        var someFloat = reader.ReadSingle();
-                                        var someInt = reader.ReadUInt32();
-                                        var someBool = reader.ReadBoolean();
-                                        var modelTransform = reader.ReadMatrix4x3Transposed();
-                                        var numMeshes = reader.ReadUInt32();
-                                        for (var k = 0; k < numMeshes; k++)
-                                        {
-                                            var meshName = reader.ReadAsciiString();
-                                            var meshBool = reader.ReadBoolean();
-                                            var meshTransform = reader.ReadMatrix4x3Transposed();
-                                        }
-                                    }
-                                    reader.ReadBoolean();
-                                    reader.ReadUInt32();
-                                    reader.ReadUInt32();
-                                    reader.ReadUInt32();
-                                    var unknown = reader.ReadBoolean();
-                                    if (unknown)
-                                    {
-                                        reader.ReadByte();
-                                        reader.ReadUInt32();
-                                    }
-                                }
-                                break;
-                            }
+                            ghostObjectManager.Load(reader, gameLogic, game);
+                            break;
 
                         default:
                             throw new InvalidDataException($"Unknown chunk type '{chunkName}'.");
@@ -201,12 +155,6 @@ namespace OpenSage.Data.Sav
                     reader.EndSegment();
                 }
             }
-        }
-
-        private sealed class GameObjectState
-        {
-            public string Name;
-            public ushort Id;
         }
     }
 
