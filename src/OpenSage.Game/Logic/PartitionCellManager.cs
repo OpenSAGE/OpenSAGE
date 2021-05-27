@@ -59,6 +59,40 @@ namespace OpenSage.Logic
                 _cells[i].Load(reader);
             }
 
+#if DEBUG
+            var builder = new System.Text.StringBuilder();
+            for (var y = 0; y < _numCellsY; y++)
+            {
+                for (var x = 0; x < _numCellsX; x++)
+                {
+                    var cell = _cells[((_numCellsY - 1 - y) * _numCellsX) + x];
+                    var value = cell.Values[2];
+
+                    char c;
+                    if (value.State < 0)
+                    {
+                        c = (char)((-value.State) + '1');
+                    }
+                    else if (value.State == 0)
+                    {
+                        c = '-';
+                    }
+                    else if (value.State == 1)
+                    {
+                        c = '*';
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    builder.Append(c);
+                }
+                builder.AppendLine();
+            }
+            File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
+#endif
+
             var someOtherCount = reader.ReadUInt32();
             for (var i = 0; i < someOtherCount; i++)
             {
