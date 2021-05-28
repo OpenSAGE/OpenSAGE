@@ -71,7 +71,7 @@ namespace OpenSage.Logic
                     char c;
                     if (value.State < 0)
                     {
-                        c = (char)((-value.State) + '1');
+                        c = (char)((-value.State) + '0');
                     }
                     else if (value.State == 0)
                     {
@@ -98,11 +98,22 @@ namespace OpenSage.Logic
             {
                 reader.ReadVersion(1);
                 var position = reader.ReadVector3();
-                reader.ReadSingle();
+                var visionRange = reader.ReadSingle();
                 reader.ReadUInt16();
-                reader.ReadUInt32();
+                var frameSomething = reader.ReadUInt32();
             }
         }
+
+        // TODO: We think the algorithm is:
+        // onMove(prevPosition, newPosition){
+        //   foreach(visibleCellsOn(prevPosition) as cell){
+        //     setTimeout(() => cell--, 5000);
+        //     }
+        //   
+        //   foreach(visibleCellsOn(newPosition) as cell){
+        //     cell++
+        //   }
+        // }
     }
 
     public sealed class PartitionCell

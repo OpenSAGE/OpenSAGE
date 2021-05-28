@@ -94,8 +94,9 @@ namespace OpenSage.Data.Map
             // Neutral player.
             mapPlayers.Add(originalMapPlayers[0]);
 
-            // Civilian player.
-            mapPlayers.Add(originalMapPlayers[1]);
+            // Civilian player. It isn't necessarily the second player.
+            // TODO: There might be more than one civilian player.
+            mapPlayers.Add(originalMapPlayers.FirstOrDefault(x => (string)x.Properties["playerFaction"].Value == "FactionCivilian"));
 
             //var hasAIPlayer = false;
             for (var i = 0; i < playerSettings.Length; i++)
