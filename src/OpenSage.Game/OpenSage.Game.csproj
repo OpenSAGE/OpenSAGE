@@ -14,7 +14,7 @@
     <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
     <PackageReference Include="protobuf-net" Version="3.0.101" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta12" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
     <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
     <PackageReference Include="SharpAudio.Codec" Version="1.0.27-beta" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
