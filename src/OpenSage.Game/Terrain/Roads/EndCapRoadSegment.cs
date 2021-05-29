@@ -136,8 +136,9 @@ namespace OpenSage.Terrain.Roads
                 }
                 else
                 {
-                    var nearestPointOnSegment = segment.StartPosition + segmentDirection * signedDistanceFromStart;
-                    return new EndCapInfo(angle, Vector3.Normalize(position - nearestPointOnSegment), segmentTemplate, squaredNormalDistance);
+                    var factor = Math.Sign(Vector3.Dot(toCornerDirection, incomingRoadData.OutDirection));
+                    var incomingDirection = factor * toCornerDirection;
+                    return new EndCapInfo(angle, incomingDirection, segmentTemplate, squaredNormalDistance);
                 }
             }
         }
