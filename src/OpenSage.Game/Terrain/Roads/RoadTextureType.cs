@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Terrain.Roads
 {
-    internal enum RoadTextureType
+    public enum RoadTextureType
     {
         Straight,
         BroadCurve,

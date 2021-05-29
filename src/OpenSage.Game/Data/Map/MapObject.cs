@@ -23,16 +23,24 @@ namespace OpenSage.Data.Map
 
         public AssetPropertyCollection Properties { get; private set; }
 
+        public MapObject(Vector3 position, float angle, RoadType roadType, string typeName)
+        {
+            Position = position;
+            Angle = angle;
+            RoadType = roadType;
+            TypeName = typeName;
+        }
+
         internal static MapObject Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
-                return new MapObject
+                return new MapObject(
+                    reader.ReadVector3(),
+                    reader.ReadSingle(),
+                    reader.ReadUInt32AsEnumFlags<RoadType>(),
+                    reader.ReadUInt16PrefixedAsciiString())
                 {
-                    Position = reader.ReadVector3(),
-                    Angle = reader.ReadSingle(),
-                    RoadType = reader.ReadUInt32AsEnumFlags<RoadType>(),
-                    TypeName = reader.ReadUInt16PrefixedAsciiString(),
                     Properties = AssetPropertyCollection.Parse(reader, context)
                 };
             });

@@ -182,7 +182,7 @@ namespace OpenSage.Terrain.Roads
             Start = End;
             End = temp;
 
-            // swap the end cap flag as well (but not the corner type)
+            // swap the end cap flag as well
             var startHadEndCap = StartType.HasFlag(RoadType.EndCap);
             var endHadEndCap = EndType.HasFlag(RoadType.EndCap);
 
@@ -202,6 +202,18 @@ namespace OpenSage.Terrain.Roads
             else
             {
                 EndType &= ~RoadType.EndCap;
+            }
+
+            // if start and end have different curve types, delete them
+            // (for whatever reason)
+            var curveFlags = RoadType.Angled | RoadType.TightCurve;
+            var startCurveType = StartType & curveFlags;
+            var endCurveType = EndType & curveFlags;
+
+            if (startCurveType != endCurveType)
+            {
+                StartType &= ~curveFlags;
+                EndType &= ~curveFlags;
             }
         }
     }

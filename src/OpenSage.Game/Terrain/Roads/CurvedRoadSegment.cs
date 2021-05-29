@@ -75,36 +75,18 @@ namespace OpenSage.Terrain.Roads
             }
         }
 
-        private static RoadTextureType ChooseCurveType(RoadTopologyEdge startEdge, RoadTopologyEdge endEdge, in Vector3 position)
+        internal static RoadTextureType ChooseCurveType(RoadTopologyEdge edge1, RoadTopologyEdge edge2, in Vector3 position)
         {
-            // This algorithm seems weird and I'm pretty sure this is not how it's done in the original games.
-            // While it does seem to produce the same results, there's probably a less arbitrary and more concise
-            // way to implement this. It might be connected to the alignment of the orientation (see RoadTopology.cs).
+            // Because of the alignment (see RoadTopology.AlignOrientation()),
+            // there is always one outgoing and one incoming edge.
+            var outgoingEdge = edge1.Start.Position == position ? edge1 : edge2;
 
-            var startType = startEdge.Start.Position == position ? startEdge.StartType : startEdge.EndType;
-            var endType = endEdge.Start.Position == position ? endEdge.StartType : endEdge.EndType;
-
-            var type = startType & endType;
-            if (type.HasFlag(RoadType.TightCurve))
+            return outgoingEdge.StartType switch
             {
-                return RoadTextureType.TightCurve;
-            }
-            else if (type.HasFlag(RoadType.Angled))
-            {
-                return RoadTextureType.Straight;
-            }
-            else
-            {
-                var firstType = startEdge.Index < endEdge.Index ? startType : endType;
-                if (firstType.HasFlag(RoadType.Angled))
-                {
-                    return RoadTextureType.Straight;
-                }
-                else
-                {
-                    return RoadTextureType.BroadCurve;
-                }
-            }
+                RoadType t when t.HasFlag(RoadType.Angled) => RoadTextureType.Straight,
+                RoadType t when t.HasFlag(RoadType.TightCurve) => RoadTextureType.TightCurve,
+                _ => RoadTextureType.BroadCurve
+            };
         }
 
         private static void CreateCurve(
