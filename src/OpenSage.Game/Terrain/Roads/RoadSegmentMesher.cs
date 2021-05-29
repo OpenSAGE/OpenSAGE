@@ -275,12 +275,29 @@ namespace OpenSage.Terrain.Roads
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
             var neighborNormal = GetNeighborNormal(neighbor, atEnd);
+            var segment = (StraightRoadSegment) Segment;
+            var oppositeNeighbor = atEnd ? segment.Start.To : segment.End.To;
+
             var toCornerDirection = neighbor.To switch
             {
-                null => DirectionNormalNoZ,                                                      // if I have no neighbor, use my own normal
-                StraightRoadSegment _ => Vector3.Normalize(DirectionNormalNoZ + neighborNormal), // if my neighbor is also a straight road segment, meet in the middle
-                _ => neighborNormal,                                                             // otherwise use my unflexible neighbor's normal
+                null when oppositeNeighbor is CrossingRoadSegment crossing =>   // special handling to reproduce (somewhat strange) behavior of the original engine
+                    OriginalNormal(crossing.Position),
+                null =>                                                         // if I have no neighbor, use my own normal
+                    DirectionNormalNoZ,                                         
+                StraightRoadSegment _ =>                                        // if my neighbor is also a straight road segment, meet in the middle
+                    Vector3.Normalize(DirectionNormalNoZ + neighborNormal),     
+                _ => neighborNormal,                                            // otherwise use my unflexible neighbor's normal
             };
+
+            Vector3 OriginalNormal(Vector3 crossingPosition)
+            {
+                var originalDirection = atEnd ?
+                    segment.EndPosition - crossingPosition :
+                    crossingPosition - segment.StartPosition;
+
+                var originalDirectionNoZ = Vector3.Normalize(originalDirection.WithZ(0));
+                return Vector3.Cross(originalDirectionNoZ, Vector3.UnitZ);
+            }
 
             // This shouldn't happen but sometimes does in broken maps (Heartland Shield for example).
             if (toCornerDirection.LengthSquared() < 0.1f)

@@ -20,7 +20,7 @@ namespace OpenSage.Terrain.Roads
 
         public Vector3 StartPosition { get; }
         public Vector3 EndPosition { get; }
-        private Vector3 Position { get; }
+        public Vector3 Position { get; }
         public IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
         public RoadTextureType Type { get; }
         public bool MirrorTexture { get; set; } = false;
