@@ -31,10 +31,68 @@ namespace OpenSage.Tests.Terrain.Roads
         };
 
         [Theory]
+        [InlineData(SW, Angled, NW, Angled, SW, Angled, SE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NW, Angled, NE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, SE, Angled, SW, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NE, Angled, NW, Angled, RoadTextureType.Straight)]
+
+        [InlineData(SW, Angled, NW, Angled, SW, Angled, SE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NW, Angled, NE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, SE, Angled, SW, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NE, Angled, NW, TightCurve, RoadTextureType.BroadCurve)]
+
+        [InlineData(SW, Angled, NW, Angled, SW, TightCurve, SE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NW, TightCurve, NE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, Angled, NW, Angled, SE, TightCurve, SW, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, Angled, NE, TightCurve, NW, Angled, RoadTextureType.Straight)]
+
         [InlineData(SW, Angled, NW, Angled, SW, TightCurve, SE, TightCurve, RoadTextureType.Straight)]
         [InlineData(SW, Angled, NW, Angled, NW, TightCurve, NE, TightCurve, RoadTextureType.TightCurve)]
         [InlineData(SW, Angled, NW, Angled, SE, TightCurve, SW, TightCurve, RoadTextureType.Straight)]
         [InlineData(SW, Angled, NW, Angled, NE, TightCurve, NW, TightCurve, RoadTextureType.TightCurve)]
+
+
+        [InlineData(SW, Angled, NW, TightCurve, SW, Angled, SE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NW, Angled, NE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, SE, Angled, SW, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NE, Angled, NW, Angled, RoadTextureType.Straight)]
+
+        [InlineData(SW, Angled, NW, TightCurve, SW, Angled, SE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NW, Angled, NE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, SE, Angled, SW, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NE, Angled, NW, TightCurve, RoadTextureType.BroadCurve)]
+
+        [InlineData(SW, Angled, NW, TightCurve, SW, TightCurve, SE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NW, TightCurve, NE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, Angled, NW, TightCurve, SE, TightCurve, SW, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NE, TightCurve, NW, Angled, RoadTextureType.Straight)]
+
+        [InlineData(SW, Angled, NW, TightCurve, SW, TightCurve, SE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NW, TightCurve, NE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, Angled, NW, TightCurve, SE, TightCurve, SW, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, Angled, NW, TightCurve, NE, TightCurve, NW, TightCurve, RoadTextureType.TightCurve)]
+
+
+        [InlineData(SW, TightCurve, NW, Angled, SW, Angled, SE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NW, Angled, NE, Angled, RoadTextureType.Straight)]
+        [InlineData(SW, TightCurve, NW, Angled, SE, Angled, SW, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NE, Angled, NW, Angled, RoadTextureType.Straight)]
+
+        [InlineData(SW, TightCurve, NW, Angled, SW, Angled, SE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NW, Angled, NE, TightCurve, RoadTextureType.Straight)]
+        [InlineData(SW, TightCurve, NW, Angled, SE, Angled, SW, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NE, Angled, NW, TightCurve, RoadTextureType.BroadCurve)]
+
+        [InlineData(SW, TightCurve, NW, Angled, SW, TightCurve, SE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NW, TightCurve, NE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, SE, TightCurve, SW, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NE, TightCurve, NW, Angled, RoadTextureType.Straight)]
+
+        [InlineData(SW, TightCurve, NW, Angled, SW, TightCurve, SE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NW, TightCurve, NE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, SE, TightCurve, SW, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, Angled, NE, TightCurve, NW, TightCurve, RoadTextureType.TightCurve)]
+
 
         [InlineData(SW, TightCurve, NW, TightCurve, SW, Angled, SE, Angled, RoadTextureType.TightCurve)]
         [InlineData(SW, TightCurve, NW, TightCurve, NW, Angled, NE, Angled, RoadTextureType.Straight)]
@@ -46,15 +104,15 @@ namespace OpenSage.Tests.Terrain.Roads
         [InlineData(SW, TightCurve, NW, TightCurve, SE, Angled, SW, TightCurve, RoadTextureType.TightCurve)]
         [InlineData(SW, TightCurve, NW, TightCurve, NE, Angled, NW, TightCurve, RoadTextureType.BroadCurve)]
 
-        [InlineData(SW, Angled, NW, TightCurve, SW, TightCurve, SE, TightCurve, RoadTextureType.Straight)]
-        [InlineData(SW, Angled, NW, TightCurve, NW, TightCurve, NE, TightCurve, RoadTextureType.TightCurve)]
-        [InlineData(SW, Angled, NW, TightCurve, SE, TightCurve, SW, TightCurve, RoadTextureType.Straight)]
-        [InlineData(SW, Angled, NW, TightCurve, NE, TightCurve, NW, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, SW, TightCurve, SE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, NW, TightCurve, NE, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, SE, TightCurve, SW, Angled, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, NE, TightCurve, NW, Angled, RoadTextureType.Straight)]
 
-        [InlineData(SW, Angled, NW, TightCurve, SW, Angled, SE, TightCurve, RoadTextureType.Straight)]
-        [InlineData(SW, Angled, NW, TightCurve, NW, Angled, NE, TightCurve, RoadTextureType.Straight)]
-        [InlineData(SW, Angled, NW, TightCurve, SE, Angled, SW, TightCurve, RoadTextureType.Straight)]
-        [InlineData(SW, Angled, NW, TightCurve, NE, Angled, NW, TightCurve, RoadTextureType.BroadCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, SW, TightCurve, SE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, NW, TightCurve, NE, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, SE, TightCurve, SW, TightCurve, RoadTextureType.TightCurve)]
+        [InlineData(SW, TightCurve, NW, TightCurve, NE, TightCurve, NW, TightCurve, RoadTextureType.TightCurve)]
         public void CurveType(
             NodePosition startPosition1, RoadType startType1,
             NodePosition endPosition1, RoadType endType1,
