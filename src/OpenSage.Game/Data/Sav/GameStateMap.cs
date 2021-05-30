@@ -17,7 +17,7 @@ namespace OpenSage.Data.Sav
 
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(
-                game.ContentManager.UserMapsFileSystem.RootDirectory,
+                game.ContentManager.UserDataFileSystem.RootDirectory,
                 mapPath1);
             using (var mapOutputStream = File.OpenWrite(mapPathInSaveFolder))
             {

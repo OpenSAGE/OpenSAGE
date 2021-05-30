@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 using OpenSage.Utilities;
 using Veldrid;
 

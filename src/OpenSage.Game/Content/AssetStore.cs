@@ -1,7 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
-using OpenSage.Data;
 using OpenSage.Data.StreamFS;
 using OpenSage.Eva;
 using OpenSage.FX;
@@ -15,6 +14,7 @@ using OpenSage.Gui.InGame;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
+using OpenSage.IO;
 using OpenSage.LivingWorld;
 using OpenSage.LivingWorld.AutoResolve;
 using OpenSage.Lod;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
 using OpenSage.Gui;
+using OpenSage.IO;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

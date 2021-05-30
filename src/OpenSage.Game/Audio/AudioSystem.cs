@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data;
 using OpenSage.Graphics.Cameras;
+using OpenSage.IO;
 using OpenSage.Logic.Object;
 using SharpAudio;
 using SharpAudio.Codec;

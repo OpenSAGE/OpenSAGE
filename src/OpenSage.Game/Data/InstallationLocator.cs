@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
+using OpenSage.IO;
 
 namespace OpenSage.Data
 {
@@ -48,13 +49,18 @@ namespace OpenSage.Data
 
         public FileSystem CreateFileSystem()
         {
-            FileSystem nextFileSystem = null;
+            var result = new CompositeFileSystem(
+                new DiskFileSystem(Path),
+                new BigFileSystem(Path));
+
             if (_baseGameInstallation != null)
             {
-                nextFileSystem = new FileSystem(_baseGameInstallation.Path);
+                result = new CompositeFileSystem(
+                    result,
+                    new BigFileSystem(_baseGameInstallation.Path));
             }
 
-            return new FileSystem(Path, nextFileSystem);
+            return result;
         }
     }
 
