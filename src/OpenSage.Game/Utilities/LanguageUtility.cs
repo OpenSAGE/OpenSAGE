@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using OpenSage.Data;
+using OpenSage.IO;
 
 namespace OpenSage.Utilities
 {
@@ -16,7 +16,7 @@ namespace OpenSage.Utilities
         /// <param name="gameDefinition"></param>
         /// <param name="rootDirectory"></param>
         /// <returns>language as string</returns>
-        public static string ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
+        public static string ReadCurrentLanguage(IGameDefinition gameDefinition, FileSystem fileSystem)
         {
             if (PlatformUtility.IsWindowsPlatform())
             {
@@ -32,13 +32,13 @@ namespace OpenSage.Utilities
             switch (gameDefinition.Game)
             {
                 case SageGame.CncGenerals:
-                    return DetectFromFileSystem(rootDirectory, "Audio", ".big");
+                    return DetectFromFileSystem(fileSystem, "", "Audio", ".big");
                 case SageGame.CncGeneralsZeroHour:
-                    return DetectFromFileSystem(rootDirectory, "Audio", "ZH.big");
+                    return DetectFromFileSystem(fileSystem, "", "Audio", "ZH.big");
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    return DetectFromFileSystem(Path.Combine(rootDirectory, "lang"), "", "Audio.big");
+                    return DetectFromFileSystem(fileSystem, "lang", "", "Audio.big");
             }
 
             return DefaultLanguage;
@@ -72,15 +72,15 @@ namespace OpenSage.Utilities
         /// <param name="filePrefix"></param>
         /// <param name="fileSuffix"></param>
         /// <returns>language as string</returns>
-        private static string DetectFromFileSystem(string rootDirectory, string filePrefix, string fileSuffix)
+        private static string DetectFromFileSystem(FileSystem fileSystem, string directory, string filePrefix, string fileSuffix)
         {
             if (string.IsNullOrEmpty(filePrefix) && string.IsNullOrEmpty(fileSuffix))
             {
                 return DefaultLanguage;
             }
 
-            var files = Directory.GetFiles(rootDirectory, $"{filePrefix}*{fileSuffix}", SearchOption.TopDirectoryOnly) // there's no sense in searching subfolders
-                .Select(x => Path.GetFileName(x))
+            var files = fileSystem.GetFilesInDirectory(directory, $"{filePrefix}*{fileSuffix}") // there's no sense in searching subfolders
+                .Select(x => Path.GetFileName(x.FilePath))
                 .Select(x => string.IsNullOrEmpty(filePrefix) ? x : x[filePrefix.Length..])
                 .Select(x => string.IsNullOrEmpty(fileSuffix) ? x : x[..^fileSuffix.Length]);
             foreach (var file in files)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using OpenSage.IO;
 
 namespace OpenSage.Data.Tga
 {

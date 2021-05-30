@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.StreamFS;
+using OpenSage.IO;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Content
@@ -45,11 +46,12 @@ namespace OpenSage.Content
                         @"Data\Ini\Music.ini");
                     break;
                 case Subsystem.ObjectCreation:
+                    LoadFiles(@"Data\INI\Default\Object.ini");
+                    _contentManager.LoadIniFiles(@"Data\INI\Object");
+                    // TODO: Not sure of order here, but they definitely need to be loaded after all the object ini files above.
                     LoadFiles(
-                        @"Data\INI\Default\Object.ini",
                         @"Data\INI\Upgrade.ini",
                         @"Data\INI\Crate.ini");
-                    _contentManager.LoadIniFiles(@"Data\INI\Object");
                     break;
                 case Subsystem.Locomotors:
                     LoadFiles(
@@ -89,8 +91,8 @@ namespace OpenSage.Content
                     LoadFiles(
                         @"Data\INI\WindowTransitions.ini",
                         @"Data\INI\ControlBarScheme.ini");
-                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
-                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated");
+                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512");
                     break;
                 case Subsystem.Multiplayer:
                     LoadFiles(@"Data\INI\Multiplayer.ini");
@@ -223,9 +225,9 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
-                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
-                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\AptImages\");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512");
+                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\AptImages");
                             break;
                     }
                     break;
@@ -422,7 +424,7 @@ namespace OpenSage.Content
                             break;
                         case InitPath folder:
                             // TODO: Validate that exclusions work.
-                            var entries = _fileSystem.GetFiles(folder.Value).WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
+                            var entries = _fileSystem.GetFilesInDirectory(folder.Value).WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
                             foreach (var file in entries)
                             {
                                 yield return file;

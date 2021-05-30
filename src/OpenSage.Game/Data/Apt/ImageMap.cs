@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt

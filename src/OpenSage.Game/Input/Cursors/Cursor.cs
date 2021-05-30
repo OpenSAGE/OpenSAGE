@@ -1,8 +1,8 @@
 ﻿using System;
-using OpenSage.Data;
-using OpenSage.Data.Ani;
-using OpenSage.Utilities;
 using System.Runtime.InteropServices;
+using OpenSage.Data.Ani;
+using OpenSage.IO;
+using OpenSage.Utilities;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
