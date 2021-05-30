@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.StreamFS;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 
 namespace OpenSage.Audio
 {

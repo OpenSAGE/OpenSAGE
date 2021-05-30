@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics;
+using OpenSage.IO;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using Veldrid;
 using Veldrid.ImageSharp;
 

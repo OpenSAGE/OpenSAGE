@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ImGuiNET;
-using OpenSage.Data;
+using OpenSage.IO;
 using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.UI

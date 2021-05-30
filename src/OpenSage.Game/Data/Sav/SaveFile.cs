@@ -3,6 +3,7 @@ using System.Text;
 using OpenSage.Client;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
+using OpenSage.IO;
 using OpenSage.Logic;
 using OpenSage.Terrain;
 

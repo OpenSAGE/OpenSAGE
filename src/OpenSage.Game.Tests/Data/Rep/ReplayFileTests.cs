@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
+using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -127,7 +128,7 @@ namespace OpenSage.Tests.Data.Rep
 
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
-            using (var fileSystem = new FileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))
+            using (var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))
             {
                 var entry = fileSystem.GetFile(testName + ".rep");
                 return ReplayFile.FromFileSystemEntry(entry);

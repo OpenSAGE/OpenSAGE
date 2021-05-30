@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -25,7 +26,7 @@ namespace OpenSage.Mods.Generals.Gui
                             ((GeneralsControlBar) context.Game.Scene2D.ControlBar).ToggleSize();
                             break;
                         case "ControlBar.wnd:ButtonOptions":
-                            context.WindowManager.PushWindow("Menus/QuitMenu.wnd");
+                            context.WindowManager.PushWindow(Path.Combine("Menus", "QuitMenu.wnd"));
                             break;
                         case "ControlBar.wnd:ButtonGeneral":
                             var window = context.WindowManager.PushWindow("GeneralsExpPoints.wnd");

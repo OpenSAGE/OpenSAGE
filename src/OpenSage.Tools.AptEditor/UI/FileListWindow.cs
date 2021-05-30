@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using ImGuiNET;
-using OpenSage.Data;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
 

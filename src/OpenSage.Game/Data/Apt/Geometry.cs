@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt

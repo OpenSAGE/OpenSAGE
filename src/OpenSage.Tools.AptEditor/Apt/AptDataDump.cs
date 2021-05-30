@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using OpenSage.Data.Apt;
-using OpenSage.Tools.AptEditor.Apt.Writer;
-using OpenSage.Data;
+using System.Linq;
 using System.Threading.Tasks;
+using OpenSage.Data.Apt;
+using OpenSage.IO;
+using OpenSage.Tools.AptEditor.Apt.Writer;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 
 namespace OpenSage.Data.StreamFS
 {

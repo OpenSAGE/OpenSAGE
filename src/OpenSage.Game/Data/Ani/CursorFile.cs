@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.IO;
 
 namespace OpenSage.Data.Ani
 {

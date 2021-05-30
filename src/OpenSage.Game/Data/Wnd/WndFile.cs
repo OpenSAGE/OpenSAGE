@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd.Parser;
 using OpenSage.Gui;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd

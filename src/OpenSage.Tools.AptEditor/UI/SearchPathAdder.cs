@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ImGuiNET;
-using OpenSage.Data;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
 
@@ -146,7 +146,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 .Select(entry => entry.FilePath)
                 .ToArray();
             var detectedFromCustomFiles = _autoDetect
-                .Where(path => FileSystem.NormalizeFilePath(Path.GetFileName(path)) == name);
+                .Where(path => Path.GetFileName(path) == name);
             if (!detectedFromGameFileSystem.Any() && !detectedFromCustomFiles.Any())
             {
                 return false;
