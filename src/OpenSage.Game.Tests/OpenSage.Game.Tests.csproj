@@ -4,25 +4,9 @@
     <RootNamespace>OpenSage.Tests</RootNamespace>    
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Terrain\Roads\RoadAlignmentTests\AlignmentChange.map" />
-    <None Remove="Terrain\Roads\RoadAlignmentTests\Broad.map" />
-    <None Remove="Terrain\Roads\RoadAlignmentTests\BroadCurve.map" />
-    <None Remove="Terrain\Roads\RoadAlignmentTests\CHI01.map" />
-    <None Remove="Terrain\Roads\RoadAlignmentTests\NoAlignmentChange.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Terrain\Roads\RoadAlignmentTests\AlignmentChange.map">
+    <None Update="Terrain\Roads\RoadAlignmentTests\*.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Terrain\Roads\RoadAlignmentTests\CHI01.map">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Terrain\Roads\RoadAlignmentTests\NoAlignmentChange.map">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Terrain\Roads\RoadAlignmentTests\BroadCurve.map" />
+    </None>
   </ItemGroup>
   
   <ItemGroup>
