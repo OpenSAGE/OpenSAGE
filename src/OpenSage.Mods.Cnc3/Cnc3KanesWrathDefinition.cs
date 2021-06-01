@@ -31,6 +31,8 @@ namespace OpenSage.Mods.CnC3
 
         public uint ScriptingTicksPerSecond => 5;
 
+        public string GetLocalizedStringsPath(string language) => "cnc3";
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();

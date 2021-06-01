@@ -52,7 +52,7 @@ namespace OpenSage.Content
                 Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem);
 
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
+                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, game.Definition);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
 
                 void OnLanguageChanged(object sender, EventArgs e)
