@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using OpenSage.Data;
 using OpenSage.Data.Map;
+using OpenSage.IO;
 using OpenSage.Terrain.Roads;
 using Xunit;
 using static OpenSage.Terrain.Roads.RoadTextureType;
@@ -49,7 +45,7 @@ namespace OpenSage.Tests.Terrain.Roads
 
         private RoadTopology LoadTopologyFromMapFile([CallerMemberName]string mapName = "")
         {
-            var fileSystem = new FileSystem(Path.Combine(Environment.CurrentDirectory, "Terrain", "Roads", "RoadAlignmentTests"));
+            var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Terrain", "Roads", "RoadAlignmentTests"));
             var mapFile = MapFile.FromFileSystemEntry(fileSystem.GetFile(mapName + ".map"));
 
             var topology = RoadTopologyLoader.FromMapObjects(mapFile.ObjectsList.Objects);
