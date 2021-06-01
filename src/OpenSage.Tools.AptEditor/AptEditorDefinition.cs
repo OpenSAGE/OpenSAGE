@@ -29,6 +29,7 @@ namespace OpenSage.Tools.AptEditor
         public string LauncherExecutable => throw new NotSupportedException("This is apt editor");
         public ICommandListOverlaySource CommandListOverlay => throw new NotSupportedException("This is apt editor");
         public uint ScriptingTicksPerSecond => 1; // actually not used
+        public string GetLocalizedStringsPath(string language) => throw new NotSupportedException("This is apt editor");
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
