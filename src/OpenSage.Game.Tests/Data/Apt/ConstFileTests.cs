@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.FileFormats.Big;
+using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 

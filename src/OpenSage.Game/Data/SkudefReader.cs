@@ -19,11 +19,22 @@ namespace OpenSage.Data
                 var body = Path.GetFileNameWithoutExtension(fileName);
                 body = body[(body.IndexOf('_') + 1)..];
                 var lastUnderscore = body.LastIndexOf('_');
-                var versions = body[(lastUnderscore + 1)..].Split('.');
+                string languageName;
+                string[] versions;
+                if (lastUnderscore != -1)
+                {
+                    languageName = body.Substring(0, lastUnderscore);
+                    versions = body[(lastUnderscore + 1)..].Split('.');
+                }
+                else
+                {
+                    languageName = body;
+                    versions = new[] { "0", "0" };
+                }
 
                 return new SkudefVersion
                 {
-                    LanguageName = body.Substring(0, lastUnderscore),
+                    LanguageName = languageName,
                     VersionMajor = int.Parse(versions[0]),
                     VersionMinor = int.Parse(versions[1]),
                 };
