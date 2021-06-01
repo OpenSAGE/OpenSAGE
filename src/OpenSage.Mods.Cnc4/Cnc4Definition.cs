@@ -4,6 +4,7 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using System.IO;
 
 namespace OpenSage.Mods.Cnc4
 {
@@ -31,6 +32,8 @@ namespace OpenSage.Mods.Cnc4
         public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
+
+        public string GetLocalizedStringsPath(string language) => Path.Combine("data", "gamestrings");
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 
