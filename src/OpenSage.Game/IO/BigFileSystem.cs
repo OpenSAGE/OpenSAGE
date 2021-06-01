@@ -24,7 +24,7 @@ namespace OpenSage.IO
 
             foreach (var bigArchiveEntry in bigArchive.Entries)
             {
-                var directoryParts = bigArchiveEntry.FullName.Split('\\');
+                var directoryParts = bigArchiveEntry.FullName.Split('\\', '/');
 
                 var bigDirectory = _rootDirectory;
                 for (var i = 0; i < directoryParts.Length - 1; i++)

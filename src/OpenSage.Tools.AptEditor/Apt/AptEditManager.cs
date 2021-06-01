@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
@@ -15,13 +14,6 @@ namespace OpenSage.Tools.AptEditor.Apt
         public AptEditManager(AptFile aptFile)
         {
             AptFile = aptFile;
-        }
-
-        public static AptEditManager Load(string rootPath, string aptPath)
-        {
-            var fs = new FileSystem(rootPath);
-            var entry = fs.GetFile(aptPath);
-            return new AptEditManager(AptFile.FromFileSystemEntry(entry));
         }
 
         public void Edit(IEditAction editAction)

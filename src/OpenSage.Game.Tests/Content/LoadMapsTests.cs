@@ -27,7 +27,10 @@ namespace OpenSage.Tests.Content
 
             using (var game = new Game(installation, GraphicsBackend.Direct3D11))
             {
-                var maps = game.ContentManager.FileSystem.GetFiles("maps").Where(x => x.FilePath.EndsWith(".map")).ToList();
+                var maps = game.ContentManager.FileSystem
+                    .GetFilesInDirectory("maps", "*.map")
+                    .Where(x => x.FilePath.EndsWith(".map"))
+                    .ToList();
 
                 foreach (var map in maps)
                 {

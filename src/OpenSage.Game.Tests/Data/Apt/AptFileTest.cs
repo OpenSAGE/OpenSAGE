@@ -1,5 +1,5 @@
-﻿using OpenSage.Data;
-using OpenSage.Data.Apt;
+﻿using OpenSage.Data.Apt;
+using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,7 +33,7 @@ namespace OpenSage.Tests.Data.Apt
         [GameFact(SageGame.Bfme2)]
         public void CheckEntryCount()
         {
-            var fileSystem = new FileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
+            var fileSystem = new BigFileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
             var entry = fileSystem.GetFile(@"MainMenu.apt");
 
             var data = AptFile.FromFileSystemEntry(entry);
