@@ -672,9 +672,17 @@ namespace OpenSage
             // TODO: Difficulty
 
             var campaign = AssetStore.CampaignTemplates.GetByName(side);
-            var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
+            var firstMission = campaign.Missions[campaign.FirstMission];
 
             StartSinglePlayerGame(firstMission.Map);
+        }
+
+        public void StartCampaign(string campaignName, string missionName)
+        {
+            var campaign = AssetStore.CampaignTemplates.GetByName(campaignName);
+            var mission = campaign.Missions[missionName];
+
+            StartSinglePlayerGame(mission.Map);
         }
 
         public void StartSkirmishOrMultiPlayerGame(
@@ -721,6 +729,8 @@ namespace OpenSage
             {
                 Scene2D.AptWindowManager.PopWindow();
             }
+
+            InGame = false;
 
             ShowMainMenu();
         }
