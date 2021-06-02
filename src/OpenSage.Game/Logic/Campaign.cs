@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Data.StreamFS;
@@ -21,8 +22,13 @@ namespace OpenSage.Logic
             { "FinalVictoryMovie", (parser, x) => x.FinalMovie = parser.ParseAssetReference() },
             { "IsChallengeCampaign", (parser, x) => x.IsChallengeCampaign = parser.ParseBoolean() },
             { "PlayerFaction", (parser, x) => x.PlayerFaction = parser.ParseAssetReference() },
-            { "Mission", (parser, x) => x.Missions.Add(MissionTemplate.Parse(parser)) }
+            { "Mission", (parser, x) => x.AddMission(MissionTemplate.Parse(parser)) }
         };
+
+        private void AddMission(MissionTemplate mission)
+        {
+            Missions.Add(mission.Name, mission);
+        }
 
         internal static CampaignTemplate ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
         {
@@ -58,7 +64,7 @@ namespace OpenSage.Logic
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string PlayerFaction { get; private set; }
 
-        public List<MissionTemplate> Missions { get; } = new List<MissionTemplate>();
+        public Dictionary<string, MissionTemplate> Missions { get; } = new Dictionary<string, MissionTemplate>(StringComparer.InvariantCultureIgnoreCase);
     }
 
     public sealed class MissionTemplate
