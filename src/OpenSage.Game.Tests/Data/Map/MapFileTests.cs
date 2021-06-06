@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data.Map;
 using OpenSage.Scripting;
@@ -632,7 +633,7 @@ namespace OpenSage.Tests.Data.Map
             Assert.Equal("Free Animation 1", cameraAnimation0.Name);
 
             var cameraAnimation1 = mapFile.CameraAnimationList.Animations[1];
-            
+
             Assert.Equal("Free Animation 2", cameraAnimation1.Name);
 
             var cameraAnimation2 = mapFile.CameraAnimationList.Animations[2];
@@ -731,6 +732,19 @@ namespace OpenSage.Tests.Data.Map
             Assert.Equal(2, mapFile.BuildLists.Items.Length);
 
             Assert.Equal(6, mapFile.BuildLists.Items[1].Items.Length);
+        }
+
+        [Fact]
+        public void SkyboxSettings()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(500.5f, mapFile.SkyboxSettings.Position.X);
+            Assert.Equal(393.5f, mapFile.SkyboxSettings.Position.Y);
+            Assert.Equal(97.5f, mapFile.SkyboxSettings.Position.Z);
+            Assert.Equal(2.5f, mapFile.SkyboxSettings.Scale);
+            Assert.Equal(10.5 * (float) Math.PI / 180, mapFile.SkyboxSettings.Rotation);
+            Assert.Equal("MountainSnow", mapFile.SkyboxSettings.TextureScheme);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
