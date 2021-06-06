@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {
@@ -6,25 +8,30 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "SkyboxSettings";
 
-        public byte[] Unknown { get; private set; }
+        public Vector3 Position { get; private set; }
+        public float Scale { get; private set; }
+        public float Rotation { get; private set; }
+        public string TextureScheme { get; private set; }
 
         internal static SkyboxSettings Parse(BinaryReader reader, MapParseContext context)
         {
-            return ParseAsset(reader, context, version =>
-            {
-                // TODO
-                return new SkyboxSettings
+            return ParseAsset(reader, context, version => new SkyboxSettings
                 {
-                    Unknown = reader.ReadBytes(32)
-                };
-            });
+                    Position = reader.ReadVector3(),
+                    Scale = reader.ReadSingle(),
+                    Rotation = reader.ReadSingle(),
+                    TextureScheme = reader.ReadUInt16PrefixedAsciiString()
+                });
         }
 
         internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write(Unknown);
+                writer.Write(Position);
+                writer.Write(Scale);
+                writer.Write(Rotation);
+                writer.WriteUInt16PrefixedAsciiString(TextureScheme);
             });
         }
     }
