@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using OpenSage.Mathematics.FixedMath;
+using FixedMath.NET;
 
 namespace OpenSage.Logic.Object
 {

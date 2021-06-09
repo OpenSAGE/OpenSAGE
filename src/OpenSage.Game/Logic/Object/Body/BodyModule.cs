@@ -4,7 +4,7 @@ using System.IO;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
-using OpenSage.Mathematics.FixedMath;
+using FixedMath.NET;
 
 namespace OpenSage.Logic.Object
 {
