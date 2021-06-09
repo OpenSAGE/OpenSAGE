@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FixedMath.NET" Version="1.0.1" />
     <PackageReference Include="ImGui.NET" Version="1.78.0" />
     <PackageReference Include="LiteNetLib" Version="0.9.5" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
