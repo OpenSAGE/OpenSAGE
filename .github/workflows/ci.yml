@@ -34,7 +34,10 @@ jobs:
         dotnet-version: 5.0.202
 
     - name: Test
-      run: dotnet test src --configuration Release --filter Category!=Interactive
+      run: dotnet test src --configuration Release --filter Category!=Interactive /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1
 
     - name: Publish
       run: dotnet publish src/OpenSage.Launcher --configuration Release --runtime ${{ matrix.runtime }} --output build/artifacts/${{ matrix.runtime }}
