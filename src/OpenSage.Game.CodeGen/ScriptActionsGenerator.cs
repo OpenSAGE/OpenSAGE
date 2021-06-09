@@ -33,7 +33,7 @@ namespace OpenSage.Game.CodeGen
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            context.AddSource("ScriptActions.Execution.generated.cs", sb.ToString());
+            context.AddSource("ScriptActions.Execution.g.cs", sb.ToString());
         }
 
         private static void WriteCases(GeneratorExecutionContext context, StringBuilder sb)
