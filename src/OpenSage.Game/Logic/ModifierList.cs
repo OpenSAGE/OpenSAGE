@@ -3,7 +3,7 @@ using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Mathematics.FixedMath;
+using FixedMath.NET;
 using System;
 using System.Collections.Generic;
 

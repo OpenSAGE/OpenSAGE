@@ -19,7 +19,7 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
-using OpenSage.Mathematics.FixedMath;
+using FixedMath.NET;
 using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
