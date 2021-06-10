@@ -34,7 +34,7 @@ jobs:
         dotnet-version: 5.0.202
 
     - name: Test
-      run: dotnet test src --configuration Release --filter Category!=Interactive /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+      run: dotnet test src --configuration Release --filter Category!=Interactive --collect:"XPlat Code Coverage"
 
     - name: Upload coverage
       uses: codecov/codecov-action@v1
