@@ -16,7 +16,7 @@ namespace OpenSage.Tools.AptEditor
     internal class AptEditorDefinition : IGameDefinition
     {
         public static IPathResolver TexturePathResolver => PathResolvers.Bfme2Texture;
-        public SageGame Game => SageGame.Ra3;
+        public SageGame Game => SageGame.Tool;
         public string DisplayName => "Apt Editor";
         public IGameDefinition? BaseGame => null;
         public bool LauncherImagePrefixLang => false;
