@@ -33,7 +33,7 @@ namespace OpenSage.Tools.AptEditor
                 X = 100,
                 Y = 100,
                 WindowWidth = 400,
-                WindowHeight = 100,
+                WindowHeight = 150,
                 WindowInitialState = WindowState.Normal,
                 WindowTitle = "OpenSAGE Apt Editor"
             };
@@ -78,7 +78,9 @@ namespace OpenSage.Tools.AptEditor
                     var open = true;
                     if (ImGui.Begin("Launcher", ref open, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
                     {
-                        ImGui.Text("Start OpenSage Apt Editor by providing a root path.");
+                        ImGui.TextWrapped("Start OpenSage Apt Editor by providing a root path.");
+                        ImGui.TextWrapped("It's recommended that you set it to " +
+                            "the RA3SDK_UI_ScreensPack folder so you could load apt files more easily.");
                         rootPathInput.InputText("##rootPath", out var inputRootPath);
                         if (ImGui.Button("Load"))
                         {
