@@ -13,6 +13,7 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly CustomSuggestionBox _filePathInput;
         private string? _value;
         private bool _open;
+        private bool _showHint;
 
         public AptFileSelector(FileSystem fileSystem)
         {
@@ -50,6 +51,11 @@ namespace OpenSage.Tools.AptEditor.UI
                 ImGui.SameLine();
                 _filePathInput.Draw();
 
+                if (_showHint)
+                {
+                    ImGui.TextWrapped("You need to add the containing folder to the search path by using File -> Add Search Path.");
+                }
+
                 if (ImGui.Button("Open"))
                 {
                     var value = _filePathInput.Value;
@@ -57,6 +63,10 @@ namespace OpenSage.Tools.AptEditor.UI
                     {
                         _value = value;
                         Visible = false;
+                    }
+                    else
+                    {
+                        _showHint = true;
                     }
                 }
 
