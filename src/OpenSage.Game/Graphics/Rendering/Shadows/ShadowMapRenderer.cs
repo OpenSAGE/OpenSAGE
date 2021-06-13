@@ -119,7 +119,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
         public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
         {
-            if (!scene.Shadows.VisualizeShadowFrustums)
+            if (scene?.Shadows.VisualizeShadowFrustums is not true)
             {
                 return;
             }

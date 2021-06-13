@@ -2,6 +2,7 @@
 {
     public enum SageGame
     {
+        Tool,
         CncGenerals,
         CncGeneralsZeroHour,
         Bfme,
