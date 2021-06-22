@@ -10,7 +10,7 @@ namespace OpenSage.Data.Scb
         public PlayerScriptsList PlayerScripts { get; private set; }
         public NamedCameras NamedCameras { get; private set; }
         public CameraAnimationList CameraAnimationList { get; private set; }
-        public ScriptsPlayers Players { get; private set; }
+        public ScriptsPlayers ScriptsPlayers { get; private set; }
         public ObjectsList ObjectsList { get; private set; }
         public PolygonTriggers PolygonTriggers { get; private set; }
         public ScriptTeams Teams { get; private set; }
@@ -52,7 +52,7 @@ namespace OpenSage.Data.Scb
                         break;
 
                     case ScriptsPlayers.AssetName:
-                        result.Players = ScriptsPlayers.Parse(reader, context);
+                        result.ScriptsPlayers = ScriptsPlayers.Parse(reader, context);
                         break;
 
                     case ObjectsList.AssetName:
@@ -130,7 +130,7 @@ namespace OpenSage.Data.Scb
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ScriptsPlayers.AssetName));
-            Players.WriteTo(writer);
+            ScriptsPlayers.WriteTo(writer, assetNames);
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
             ObjectsList.WriteTo(writer, assetNames);
