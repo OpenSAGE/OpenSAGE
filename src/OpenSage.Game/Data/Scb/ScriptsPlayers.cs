@@ -11,7 +11,7 @@ namespace OpenSage.Data.Scb
         public bool HasPlayerProperties { get; private set; }
         public ushort Unknown { get; private set; }
 
-        public ScriptPlayer[] Players { get; private set; }
+        public ScriptsPlayer[] Players { get; private set; }
 
         internal static ScriptsPlayers Parse(BinaryReader reader, MapParseContext context)
         {
@@ -35,10 +35,10 @@ namespace OpenSage.Data.Scb
                     }
                 }
 
-                var scriptPlayers = new ScriptPlayer[numPlayers];
+                var scriptPlayers = new ScriptsPlayer[numPlayers];
                 for (var i = 0; i < scriptPlayers.Length; i++)
                 {
-                    scriptPlayers[i] = ScriptPlayer.Parse(reader, context, hasPlayerProperties);
+                    scriptPlayers[i] = ScriptsPlayer.Parse(reader, context, hasPlayerProperties);
                 }
 
                 return new ScriptsPlayers
