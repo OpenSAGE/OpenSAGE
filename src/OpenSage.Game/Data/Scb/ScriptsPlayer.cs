@@ -4,14 +4,14 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Scb
 {
-    public sealed class ScriptPlayer
+    public sealed class ScriptsPlayer
     {
         public string Name { get; private set; }
         public AssetPropertyCollection Properties { get; private set; }
 
-        internal static ScriptPlayer Parse(BinaryReader reader, MapParseContext context, bool parseProperties)
+        internal static ScriptsPlayer Parse(BinaryReader reader, MapParseContext context, bool parseProperties)
         {
-            return new ScriptPlayer()
+            return new ScriptsPlayer()
             {
                 Name = reader.ReadUInt16PrefixedAsciiString(),
                 Properties = parseProperties ? AssetPropertyCollection.Parse(reader, context) : null
