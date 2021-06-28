@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using OpenSage.Data.Map;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Scb
@@ -9,64 +8,67 @@ namespace OpenSage.Data.Scb
     {
         public const string AssetName = "ScriptsPlayers";
 
-        public uint Unknown1 { get; private set; }
-        public ushort Unknown2 { get; private set; }
+        public bool HasPlayerProperties { get; private set; }
+        public ushort Unknown { get; private set; }
 
-        public string[] PlayerNames { get; private set; }
+        public ScriptsPlayer[] Players { get; private set; }
 
         internal static ScriptsPlayers Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
-                var unknown1 = 0u;
+                var hasPlayerProperties = false;
                 if (version > 1)
                 {
-                    unknown1 = reader.ReadUInt32();
-                    if (unknown1 != 0)
+                    hasPlayerProperties = reader.ReadBooleanUInt32Checked();
+                }
+
+                var numPlayers = reader.ReadUInt32();
+
+                ushort unknown = 0;
+                if (version < 2)
+                {
+                    unknown = reader.ReadUInt16();
+                    if (unknown != 0)
                     {
                         throw new InvalidDataException();
                     }
                 }
 
-                var numPlayers = reader.ReadUInt32();
-
-                var unknown2 = reader.ReadUInt16();
-                if (unknown2 != 0)
+                var scriptPlayers = new ScriptsPlayer[numPlayers];
+                for (var i = 0; i < scriptPlayers.Length; i++)
                 {
-                    throw new InvalidDataException();
-                }
-
-                var playerNames = new string[numPlayers - 1];
-                for (var i = 0; i < playerNames.Length; i++)
-                {
-                    playerNames[i] = reader.ReadUInt16PrefixedAsciiString();
+                    scriptPlayers[i] = ScriptsPlayer.Parse(reader, context, hasPlayerProperties);
                 }
 
                 return new ScriptsPlayers
                 {
-                    Unknown1 = unknown1,
-                    Unknown2 = unknown2,
-                    PlayerNames = playerNames
+                    HasPlayerProperties = hasPlayerProperties,
+                    Unknown = unknown,
+                    Players = scriptPlayers
                 };
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteAssetTo(writer, () =>
             {
                 if (Version > 1)
                 {
-                    writer.Write(Unknown1);
+                    writer.WriteBooleanUInt32(HasPlayerProperties);
                 }
 
-                writer.Write((uint) PlayerNames.Length + 1);
+                writer.Write((uint) Players.Length + 1);
 
-                writer.Write(Unknown2);
-
-                foreach (var playerName in PlayerNames)
+                if (Version < 2)
                 {
-                    writer.WriteUInt16PrefixedAsciiString(playerName);
+                    writer.Write(Unknown);
+                }
+
+                foreach (var player in Players)
+                {
+                    player.WriteTo(writer, assetNames);
                 }
             });
         }

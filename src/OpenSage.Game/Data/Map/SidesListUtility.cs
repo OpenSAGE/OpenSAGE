@@ -209,6 +209,8 @@ namespace OpenSage.Data.Map
                 // We first add human player(s) teams, then the replay observer team, 
                 // then neutral and civilian teams, and then finally AI skirmish players.
 
+                var skirmishScriptsPlayerNames = skirmishScripts.ScriptsPlayers.Players.Select(p => p.Name).ToArray();
+
                 // Skip neutral and civilian players.
                 for (var i = 2; i < mapPlayers.Count; i++)
                 {
@@ -217,7 +219,7 @@ namespace OpenSage.Data.Map
                         // Copy the scripts from the civilian player to all human players.
                         CopyScripts(
                             skirmishScripts.PlayerScripts.ScriptLists,
-                            skirmishScripts.Players.PlayerNames,
+                            skirmishScriptsPlayerNames,
                             civilianPlayerName,
                             mapScriptLists,
                             i,
@@ -243,7 +245,7 @@ namespace OpenSage.Data.Map
                         // Copy the scripts from the according skirmish player for all AI players.
                         CopyScripts(
                             skirmishScripts.PlayerScripts.ScriptLists,
-                            skirmishScripts.Players.PlayerNames,
+                            skirmishScriptsPlayerNames,
                             sourcePlayerName,
                             mapScriptLists,
                             i,
