@@ -47,6 +47,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             LogicalBranch = logicalBranch;
             Name = labelName;
         }
+
+        public override string ToString()
+        {
+            return "LogicalDestination";
+        }
     }
 
     internal class LogicalEndOfFunction : InstructionBase
@@ -60,6 +65,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             // Parameters = new List<Value>();
             LogicalDefineFunction = logicalDefineFunction;
+        }
+
+        public override string ToString()
+        {
+            return "LogicalEndOfFunction";
         }
     }
 

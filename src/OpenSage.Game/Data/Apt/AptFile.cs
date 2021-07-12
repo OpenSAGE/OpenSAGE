@@ -74,13 +74,14 @@ namespace OpenSage.Data.Apt
                     {
                         throw new FileNotFoundException("Cannot find imported file", importPath);
                     }
-                    importApt = AptFile.FromFileSystemEntry(importEntry);
+                    importApt = AptFile.FromFileSystemEntry(importEntry); // If this step is not problematic, initactions should be processed automatically
                     importDict[import.Movie] = importApt;
                 }
 
                 //get the export from that apt and proceed
                 var export = importApt.Movie.Exports.Find(x => x.Name == import.Name);
 
+                // TODO: Unable to import sprites with initactions
                 //place the exported character inside our movie
                 Movie.Characters[(int) import.Character] = importApt.Movie.Characters[(int) export.Character];
             }

@@ -213,6 +213,40 @@ namespace OpenSage.Gui.Apt.ActionScript
                     throw new NotImplementedException();
             }
         }
+         
+        public bool DeleteProperty(PropertyType property)
+        {
+            switch (property)
+            {
+                /*case PropertyType.Target:
+                    result = Value.FromString(GetTargetPath());
+                    break;
+                case PropertyType.Name:
+                    result = Value.FromString(Item.Name);
+                    break;
+                case PropertyType.X:
+                    result = Value.FromFloat(Item.Transform.GeometryTranslation.X);
+                    break;
+                case PropertyType.Y:
+                    result = Value.FromFloat(Item.Transform.GeometryTranslation.Y);
+                    break;*/
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return false;
+        }
+
+        public bool DeleteProperty2(PropertyType property)
+        {
+            var res = this.DeleteProperty(property);
+            if (!res)
+            {
+                if (this.GetParent() != null)
+                    this.GetParent().DeleteProperty2(property);
+            }
+            return res;
+        }
 
         /// <summary>
         /// Calculates the absolute target path

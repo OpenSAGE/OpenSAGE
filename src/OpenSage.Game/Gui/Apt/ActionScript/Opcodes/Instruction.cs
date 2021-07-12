@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -68,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         MbLength = 0x31, //MB is multibyte strings
         Ord = 0x32, //CHAR to ASCII
         Chr = 0x33, //ASCII to CHAR
-        GetTimer = 0x34,
+        GetTime = 0x34,
         MbSubString = 0x35, //MB is multibyte strings
         MbOrd = 0x36, //MB is multibyte strings
         MbChr = 0x37, //MB is multibyte strings
@@ -218,6 +219,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual List<Value> Parameters { get; set; }
 
         public abstract void Execute(ActionContext context);
+        public override string ToString()
+        {
+            string[] pv;// = { };
+            var param_val = this.Parameters.Take(5).ToArray();
+            pv = param_val.Select(x => x.ToStringWithType()).ToArray();
+            string t = this.Type.ToString();
+            var ans = String.Format("{0}({1})", t, String.Join(", ", pv));
+            return ans;
+        }
+
+        public string GetDetailedInfo()
+        {
+            throw new NotImplementedException("ＤｅＤｅＤｏｎ!");
+        }
+
     }
 
     /// <summary>

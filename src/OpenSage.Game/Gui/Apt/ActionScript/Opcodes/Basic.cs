@@ -100,6 +100,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
+            var property = context.Pop().ToEnum<PropertyType>();
+            var target = context.GetTarget(context.Pop().ToString());
+
+            target.ToObject().DeleteProperty(property);
         }
     }
 
@@ -112,7 +116,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var property = context.Pop().ToEnum<PropertyType>();
+            context.Scope.DeleteProperty2(property);
         }
     }
 
@@ -132,6 +137,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    public sealed class DefineLocal2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Var;
+
+        public override void Execute(ActionContext context)
+        {
+            var varName = context.Pop().ToString();
+            if (context.Locals.ContainsKey(varName))
+                return;
+            else
+                context.Locals[varName] = Value.Undefined(); 
+        }
+    }
+
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
@@ -141,7 +160,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Pop();
+            context.Push(Value.FromInteger(val.ToInteger()));
         }
     }
 
@@ -189,6 +209,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             // TODO: fix this
+            // TODO: see definelocal2
             //throw new NotImplementedException();
         }
     }
@@ -207,6 +228,53 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             var rnd = new Random();
             context.Push(Value.FromInteger(rnd.Next(0, max)));
+        }
+    }
+
+    /// <summary>
+    /// Unknown yet
+    /// </summary>
+    public sealed class ImplementsOp: InstructionBase
+    {
+        public override InstructionType Type => InstructionType.ImplementsOp;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException(context.DumpStack());
+            var cst = context.Pop().ToFunction();
+            Value[] args = FunctionCommon.GetArgumentsFromStack(context);
+        }
+    }
+
+    /// <summary>
+    /// Unknown yet
+    /// </summary>
+    public sealed class CastOp : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.CastOp;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException(context.DumpStack());
+            var obj = context.Pop().ToObject();
+            var cst = context.Pop().ToFunction();
+            
+        }
+    }
+
+    /// <summary>
+    /// Shall be the same as getTime in ActionSctipt.
+    /// Need to be certained: the description file says getting the millseconds since Flash Player started.
+    /// So this action will get the millseconds since the program started.
+    /// The return value shall be put in stack.
+    /// </summary>
+    public sealed class GetTime: InstructionBase
+    {
+        public override InstructionType Type => InstructionType.GetTime;
+
+        public override void Execute(ActionContext context)
+        {
+            context.Global.CallBuiltInFunction(context, "getTime", null);
         }
     }
 }

@@ -194,13 +194,16 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new RandomNumber();
                             break;
                         case InstructionType.Delete:
-                            instruction = new Delete();
+                            instruction = new Delete(); // NIE
                             break;
                         case InstructionType.Delete2:
                             instruction = new Delete2();
                             break;
                         case InstructionType.DefineLocal:
                             instruction = new DefineLocal();
+                            break;
+                        case InstructionType.Var:
+                            instruction = new DefineLocal2();
                             break;
                         case InstructionType.CallFunction:
                             instruction = new CallFunction();
@@ -211,9 +214,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         case InstructionType.Modulo:
                             instruction = new Modulo();
                             break;
-                        case InstructionType.NewObject:
-                            instruction = new NewObject();
-                            break;
                         case InstructionType.InitArray:
                             instruction = new InitArray();
                             break;
@@ -221,16 +221,16 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new InitObject();
                             break;
                         case InstructionType.TypeOf:
-                            instruction = new TypeOf();
+                            instruction = new TypeOf(); // TODO UINT Problem
                             break;
                         case InstructionType.Add2:
-                            instruction = new Add2();
+                            instruction = new Add2(); // TODO Type Conversion Problem
                             break;
                         case InstructionType.LessThan2:
                             instruction = new LessThan2();
                             break;
                         case InstructionType.Equals2:
-                            instruction = new Equals2();
+                            instruction = new Equals2(); // TODO diff e and e2
                             break;
                         case InstructionType.ToString:
                             instruction = new ToString();
@@ -249,9 +249,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                             break;
                         case InstructionType.Decrement:
                             instruction = new Decrement();
-                            break;
-                        case InstructionType.CallMethod:
-                            instruction = new CallMethod();
                             break;
                         case InstructionType.Enumerate2:
                             instruction = new Enumerate2();
@@ -357,8 +354,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                                 reader.ReadUInt64();
                             }
                             break;
-                        case InstructionType.PushData:
+                        case InstructionType.PushData: // TODO doubtful
                             {
+                                throw new NotImplementedException();
                                 instruction = new PushData();
 
                                 var count = reader.ReadUInt32();
@@ -471,6 +469,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new PushShort();
                             parameters.Add(Value.FromInteger(reader.ReadUInt16()));
                             break;
+                        case InstructionType.EA_PushLong:
+                            instruction = new PushLong();
+                            parameters.Add(Value.FromUInteger(reader.ReadUInt32()));
+                            break;
                         case InstructionType.End:
                             instruction = new End();
                             break;
@@ -478,9 +480,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new CallNamedMethod();
                             parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
-                        case InstructionType.Var:
-                            instruction = new Var();
-                            break;
+                        //case InstructionType.Var:
+                        //    instruction = new Var();
+                        //    break;
                         case InstructionType.EA_PushRegister:
                             instruction = new PushRegister();
                             parameters.Add(Value.FromInteger(reader.ReadByte()));
@@ -496,10 +498,28 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new StrictEquals();
                             break;
                         case InstructionType.Extends:
-                            instruction = new Extends();
+                            instruction = new Extends(); // NIE ScriptObject
                             break;
                         case InstructionType.InstanceOf:
-                            instruction = new InstanceOf();
+                            instruction = new InstanceOf(); // NIE SO
+                            break;
+                        case InstructionType.ImplementsOp:
+                            instruction = new ImplementsOp(); // NIE SO
+                            break;
+                        case InstructionType.CastOp:
+                            instruction = new CastOp(); // NIE SO
+                            break;
+                        case InstructionType.NewMethod:
+                            instruction = new NewMethod(); // NIE
+                            break;
+                        case InstructionType.CallMethod:
+                            instruction = new CallMethod();
+                            break;
+                        case InstructionType.NewObject:
+                            instruction = new NewObject(); // NIE
+                            break;
+                        case InstructionType.GetTime:
+                            instruction = new GetTime();
                             break;
                         default:
                             throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());

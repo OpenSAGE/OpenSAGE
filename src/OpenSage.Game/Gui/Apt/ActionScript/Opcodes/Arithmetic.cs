@@ -11,7 +11,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Pop();
+            var b = context.Pop();
+
+            context.Push(Value.FromFloat(b.ToFloat() + a.ToFloat()));
         }
     }
 
@@ -64,7 +67,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Pop();
+            var b = context.Pop();
+
+            context.Push(Value.FromFloat(b.ToFloat() * a.ToFloat()));
         }
     }
 
@@ -77,7 +83,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Pop();
+            var b = context.Pop();
+
+            var af = a.ToFloat();
+            var bf = b.ToFloat();
+
+            var val_to_push = Value.FromFloat(float.NaN);
+
+            if (!(af.Equals(Value.FromFloat(0)))) { val_to_push = Value.FromFloat(bf / af); }
+
+            context.Push(val_to_push);
         }
     }
 
@@ -90,7 +106,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Pop();
+            var b = context.Pop();
+
+            var af = a.ToFloat();
+            var bf = b.ToFloat();
+
+            var val_to_push = Value.FromFloat(float.NaN);
+
+            if (!(bf.Equals(Value.FromFloat(0)))) { val_to_push = Value.FromFloat(af % bf); }
+
+            context.Push(val_to_push);
         }
     }
 
@@ -117,7 +143,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var num = context.Pop().ToInteger();
+            context.Push(Value.FromInteger(--num));
         }
     }
 

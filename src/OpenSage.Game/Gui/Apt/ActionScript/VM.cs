@@ -29,6 +29,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         public delegate AptFile HandleExternalMovie(string movie);
         public HandleExternalMovie MovieHandler;
 
+        public VM(HandleCommand hc, HandleExternVariable hev, HandleExternalMovie hem) : this()
+        {
+            CommandHandler = hc;
+            VariableHandler = hev;
+            MovieHandler = hem;
+        }
         public VM()
         {
             GlobalObject = new ObjectContext();

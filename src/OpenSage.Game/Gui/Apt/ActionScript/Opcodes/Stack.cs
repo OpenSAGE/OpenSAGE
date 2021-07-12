@@ -74,6 +74,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Read an int32 and push it to the stack (although claimed to be long)
+    /// </summary>
+    public sealed class PushLong : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushLong;
+        public override uint Size => 4;
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Parameters[0]);
+        }
+    }
+
+    /// <summary>
     /// Read the variable name from the pool and push that variable's value to the stack
     /// </summary>
     public sealed class PushValueOfVar : InstructionBase

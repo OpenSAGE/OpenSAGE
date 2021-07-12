@@ -30,6 +30,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             Return = false;
         }
 
+        public string DumpStack()
+        {
+            var stack_val = _stack.ToArray();
+            var ans = String.Join("|", stack_val.Select(x => x.ToStringWithType()).ToArray());
+
+            ans = String.Format("TOP|{0}|BOTTOM", ans);
+            return ans;
+        }
+
         public void Push(Value v)
         {
             _stack.Push(v);

@@ -239,17 +239,38 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var name = context.Pop().ToString();
-            var nArgs = context.Pop().ToInteger();
-
-            Value[] args = new Value[nArgs];
-
-            for (int i = 0; i < nArgs; ++i)
-            {
-                args[i] = context.Pop();
-            }
+            var args = FunctionCommon.GetArgumentsFromStack(context);
 
             var obj = context.ConstructObject(name, args);
             context.Push(obj);
+        }
+    }
+
+    /// <summary>
+    /// From its name, looks like it corresponds to the method definition of ECMAScript.
+    /// Since it doesn't have any parameters, it should be using the stack.
+    /// </summary>
+    public sealed class NewMethod : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.NewMethod;
+
+        public override void Execute(ActionContext context)
+        {
+            var name = context.Pop().ToString();
+            var obj = context.Pop();
+            var args = FunctionCommon.GetArgumentsFromStack(context);
+
+            if (name.Length == 0)
+                FunctionCommon.ExecuteFunction(obj, args, context.Scope, context);
+            // throw new NotImplementedException("what the hell is a construction function?");
+            else
+                FunctionCommon.ExecuteFunction(name, args, obj.ToObject(), context);
+
+            //WRONG!!!!
+            // pop it if the value is undefined
+            //var ret = context.Peek();
+            //if (ret.Type.Equals(ValueType.Undefined))
+            //    context.Pop();
         }
     }
 
@@ -262,7 +283,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var nArgs = context.Pop().ToInteger();
+            var obj = new ObjectContext();
+            for (int i = 0; i < nArgs; ++i)
+            {
+                var vi = context.Pop();
+                var ni = context.Pop().ToEnum<PropertyType>();
+                obj.SetProperty(ni, vi);
+            }
+
+            context.Push(Value.FromObject(obj));
         }
     }
 
@@ -286,6 +316,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case ValueType.Boolean:
                     result = Value.FromString("boolean");
                     break;
+                case ValueType.UInteger:
                 case ValueType.Integer:
                 case ValueType.Short:
                 case ValueType.Float:
@@ -321,7 +352,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(context.DumpStack());
         }
     }
 
@@ -335,7 +366,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(context.DumpStack());
+
         }
     }
+
 }

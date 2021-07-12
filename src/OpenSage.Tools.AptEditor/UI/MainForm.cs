@@ -23,6 +23,7 @@ namespace OpenSage.Tools.AptEditor.UI
             new FrameList(),
             new FrameItemList(),
             new GeometryEditor(),
+            new ConstantPool(), 
         };
         private readonly ExportPathSelector _exportPathSelector = new ExportPathSelector();
         private readonly AptFileSelector _aptFileSelector;

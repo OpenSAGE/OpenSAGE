@@ -37,6 +37,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         }
 
         // Play frames without executing actions, since currently we can't handle all actions properly anyway.
+        // TODO: may cause a huge perfoemance loss
         public void PlayToFrameNoActions(int frameNumber)
         {
             if (!(Item is SpriteItem))
@@ -96,7 +97,7 @@ namespace OpenSage.Tools.AptEditor.Apt
                 {
                     case FrameLabel _:
                     case Data.Apt.FrameItems.Action _: // no actions
-                    case InitAction _:
+                    // case InitAction _:
                         break;
                     default:
                         sprite.HandleFrameItem(item);
@@ -122,7 +123,7 @@ namespace OpenSage.Tools.AptEditor.Apt
                     case ButtonItem button:
                     case RenderItem render:
                         // currently these item's Update does nothing
-                        item.Update(new TimeInterval(sprite.Context.MillisecondsPerFrame, 0));
+                        item.Update(new TimeInterval(sprite.Context.MsPerFrame, 0));
                         break;
                     default:
                         throw new NotImplementedException();

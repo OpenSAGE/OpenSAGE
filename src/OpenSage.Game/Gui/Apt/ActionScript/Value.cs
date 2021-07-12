@@ -11,6 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         Constant,
         Boolean,
         Integer,
+        UInteger, 
         Register,
         Short,
         Float,
@@ -27,6 +28,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private string _string;
         private bool _boolean;
         private int _number;
+        private uint _number_uint;
         private double _decimal;
         private ObjectContext _object;
         private Function _function;
@@ -132,6 +134,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             var v = new Value();
             v.Type = ValueType.Integer;
             v._number = num;
+            return v;
+        }
+
+        // TODO is it okay?
+        public static Value FromUInteger(uint num)
+        {
+            var v = new Value();
+            v.Type = ValueType.UInteger;
+            v._number_uint = num;
             return v;
         }
 
@@ -254,7 +265,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return _boolean.ToString();
                 case ValueType.Short:
                 case ValueType.Integer:
+                case ValueType.Constant:
                     return _number.ToString();
+                case ValueType.UInteger:
+                    return _number_uint.ToString();
                 case ValueType.Float:
                     return _decimal.ToString();
                 case ValueType.Undefined:
@@ -262,9 +276,17 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Object:
                     return _object.Item.Name;
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException(Type.ToString());
             }
         }
+
+        public string ToStringWithType()
+        {
+            var ttype = "Invalid";
+            try { ttype = this.Type.ToString(); }
+            catch (InvalidOperationException e) {}
+            return String.Format("({0}){1}", ttype, this.ToString());
+            }
 
         // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3
         public double ToFloat()
