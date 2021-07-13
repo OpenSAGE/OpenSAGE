@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Apt;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -150,10 +151,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Value.Undefined();
         }
 
-        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
+        public ActionContext GetActionContext(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
         {
             var stream = new InstructionStream(code);
-            var instr = stream.GetInstruction();
+        
             var context = new ActionContext(4)
             {
                 Global = GlobalObject,
@@ -162,6 +163,20 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Stream = stream,
                 Constants = consts,
             };
+            return context;
+        }
+
+        public InstructionBase ExecuteOnce(ActionContext context)
+        {
+            var instr = context.Stream.GetInstruction();
+            instr.Execute(context);
+            return instr;
+        }
+        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts) { Execute(GetActionContext(code, scope, consts)); }
+        public void Execute(ActionContext context)
+        { 
+            var stream = context.Stream;
+            var instr = stream.GetInstruction();
 
             InstructionBase prev = null;
 

@@ -40,7 +40,7 @@ namespace OpenSage.Gui.Apt
         internal AptContext(ImageMap imageMap, string movieName, AssetStore assetStore) : this(assetStore, null, null, imageMap, movieName) { }
 
         public AptContext(AssetStore assetStore, AptFile apt, VM avm) : this(assetStore, apt, avm, null, null) { }
-        public AptContext(AptWindow window) : this(window, null) { }
+        public AptContext(AptWindow window) : this(window, null) { Window = window; }
         public AptContext(AptWindow window, VM avm): this(window.AssetStore, window.AptFile, avm) { Window = window; }
         
         // TODO resolve dependencies?
@@ -50,6 +50,10 @@ namespace OpenSage.Gui.Apt
 
             // Data.Apt should be only containers with no calculations
             // resolve imports
+            foreach (Import import in movie.Imports)
+            {
+                AptFile af = null;
+            }
 
             // attach initactions properly to sprites
             foreach (Character c in movie.Characters)

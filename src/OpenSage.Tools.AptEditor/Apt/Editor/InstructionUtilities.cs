@@ -124,8 +124,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public List<InstructionBase> Items { get; set; }
         public Dictionary<string, LogicalDestination> BranchDestinations { get; set; }
 
+        public InstructionCollection Insts { get; private set; }
+
         public LogicalInstructions(InstructionCollection existingCollection)
         {
+            Insts = existingCollection;
+
             var branchDestinations = new Dictionary<int, List<LogicalDestination>>();
             var endOfFunctions = new Dictionary<int, LogicalEndOfFunction>();
 

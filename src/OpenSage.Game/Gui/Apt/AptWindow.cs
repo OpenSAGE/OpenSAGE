@@ -50,7 +50,7 @@ namespace OpenSage.Gui.Apt
 
             //Create our context
             var context_avm = new VM(HandleCommand, HandleVariable, HandleMovie);
-            _context = new AptContext(AssetStore, aptFile, context_avm);
+            _context = new AptContext(this, context_avm);
 
             //First thing to do here is to initialize the display list
             Root = AddDisposable(new SpriteItem

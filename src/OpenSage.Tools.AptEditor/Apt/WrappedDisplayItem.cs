@@ -5,6 +5,7 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt;
+using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
@@ -12,7 +13,9 @@ namespace OpenSage.Tools.AptEditor.Apt
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public DisplayItem Item { get; }
-
+        public AptContext Context => Item.Context;
+        public Character Character => Item.Character;
+        public ObjectContext ScriptObject => Item.ScriptObject;
         public WrappedDisplayItem(Character character, AptContext context, SpriteItem parent)
         {
             Visible = true;
@@ -24,6 +27,7 @@ namespace OpenSage.Tools.AptEditor.Apt
             });
             Item.Transform = ItemTransform.None;
             Item.Create(character, context, parent);
+            // ScriptObject = Item.ScriptObject;
         }
 
         public override void Create(Character character, AptContext context, SpriteItem? parent = null)

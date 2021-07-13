@@ -243,7 +243,9 @@ namespace OpenSage.Gui.Apt
                     _actionList.Add(action);
                     break;
                 case InitAction iaction:
-                    throw new NotImplementedException("init action test");
+                    break;
+                    // TODO 
+                    //throw new NotImplementedException("init action test");
                 case BackgroundColor bg:
                     if (SetBackgroundColor != null)
                     {
