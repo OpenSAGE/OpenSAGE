@@ -297,5 +297,3 @@ __pycache__/
 
 imgui.ini
 
-*.csproj
-src/OpenSage.sln
