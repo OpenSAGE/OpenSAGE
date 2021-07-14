@@ -47,6 +47,8 @@ namespace OpenSage.Gui.Apt
         public AptContext LoadContext()
         {
             var movie = AptFile.Movie;
+            var global = Avm.GlobalObject;
+            var extobj = Avm.ExternObject;
 
             // Data.Apt should be only containers with no calculations
             // resolve imports
@@ -58,10 +60,16 @@ namespace OpenSage.Gui.Apt
             // attach initactions properly to sprites
             foreach (Character c in movie.Characters)
             {
-
+                // currently did by AptFile
             }
 
             // resolve exports
+            foreach (Export export in movie.Exports)
+            {
+                var chrname = export.Name;
+                var character = movie.Characters[(int)export.Character];
+            }
+
 
             return this;
         }
@@ -74,6 +82,11 @@ namespace OpenSage.Gui.Apt
             var movie = callee.Container.Movie;
 
             return movie.Characters[id];
+        }
+
+        public DisplayItem GetInstantiatedCharacter(int id, Character callee)
+        {
+            return null;
         }
 
         public Geometry GetGeometry(uint id, Character callee)

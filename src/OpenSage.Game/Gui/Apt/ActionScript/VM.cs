@@ -76,6 +76,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value Execute(Function func, Value[] args, ObjectContext scope)
         {
+            if (func == Function.FunctionConstructor)
+            {
+                throw new NotImplementedException("Unfortunately, we do not have an interpreter yet.");
+            }
+            else if (func == Function.ObjectConstructor)
+            {
+                return Value.FromObject(new ObjectContext());
+            }
+
             var code = func.Instructions;
 
             var stream = new InstructionStream(code);
@@ -86,14 +95,15 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Variables = scope.Variables
             };
 
-            var context = new ActionContext(func.NumberRegisters)
-            {
-                Global = GlobalObject,
-                Scope = localScope,
-                Apt = scope.Item.Context,
-                Stream = stream,
-                Constants = scope.Item.Character.Container.Constants.Entries
-            };
+            var context = GetActionContext(func.NumberRegisters, code, localScope, scope.Item.Character.Container.Constants.Entries);
+            //new ActionContext()
+            //{
+            //    Global = GlobalObject,
+            //    Scope = localScope,
+            //    Apt = scope.Item.Context,
+            //    Stream = stream,
+            //    Constants = scope.Item.Character.Container.Constants.Entries
+            //};
 
             //parameters in the old version are just stored as local variables
             if (!func.IsNewVersion)
@@ -151,11 +161,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Value.Undefined();
         }
 
-        public ActionContext GetActionContext(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
+        public ActionContext GetActionContext(int numRegisters, InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
         {
             var stream = new InstructionStream(code);
         
-            var context = new ActionContext(4)
+            var context = new ActionContext(numRegisters)
             {
                 Global = GlobalObject,
                 Scope = scope,
@@ -172,7 +182,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             instr.Execute(context);
             return instr;
         }
-        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts) { Execute(GetActionContext(code, scope, consts)); }
+        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts) { Execute(GetActionContext(4, code, scope, consts)); }
         public void Execute(ActionContext context)
         { 
             var stream = context.Stream;

@@ -25,8 +25,24 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string Parameter;
     }
 
-    public sealed class Function
+    public sealed class Function: ObjectContext
     {
+        public static Function FunctionConstructor => ObjectContext._ffc;
+        public static Function ObjectConstructor => ObjectContext._foc;
+
+        public Function(): base()
+        {
+            __proto__ = FunctionPrototype;
+            var prt = new ObjectContext();
+            prt.constructor = this;
+            this.prototype = prt;
+        }
+
+        internal Function(bool JustUsedToCreateObjectPrototype): base(JustUsedToCreateObjectPrototype)
+        {
+            __proto__ = FunctionPrototype;
+        }
+
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
         public int NumberRegisters { get; set; }

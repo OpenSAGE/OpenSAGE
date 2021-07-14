@@ -306,7 +306,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             break;
                         case InstructionType.SetRegister:
                             instruction = new SetRegister();
-                            parameters.Add(Value.FromInteger(reader.ReadInt32()));
+                            parameters.Add(Value.FromRegister(reader.ReadUInt32()));
                             break;
                         case InstructionType.ConstantPool:
                             {
@@ -485,7 +485,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         //    break;
                         case InstructionType.EA_PushRegister:
                             instruction = new PushRegister();
-                            parameters.Add(Value.FromInteger(reader.ReadByte()));
+                            parameters.Add(Value.FromRegister(reader.ReadByte()));
                             break;
                         case InstructionType.EA_PushConstantWord:
                             instruction = new PushConstantWord();

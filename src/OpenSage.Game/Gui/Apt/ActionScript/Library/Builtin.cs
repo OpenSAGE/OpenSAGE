@@ -22,7 +22,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             BuiltinClasses = new Dictionary<string, Func<Value[], Value>>
             {
                 ["Color"] = args => Value.FromObject(new ASColor()),
-                ["Array"] = args => Value.FromObject(new ASArray(args))
+                ["Array"] = args => Value.FromObject(new ASArray(args)),
+                ["Object"] = args => Value.FromObject(new ObjectContext()),
+                ["Function"] = args => throw new NotImplementedException("Nonetheless this is not the real ActionScript. "),
             };
 
             // list of builtin variables
@@ -61,7 +63,24 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
-                }
+                },
+                /*
+                ["prototype"] = (ctx, v) =>
+                {
+                    ctx.prototype = v.ToObject();
+                    ctx.Variables["prototype"] = v;
+                },
+                ["__proto__"] = (ctx, v) =>
+                {
+                    ctx.__proto__ = v.ToObject();
+                    ctx.Variables["__proto__"] = v;
+                },
+                ["constructor"] = (ctx, v) =>
+                {
+                    ctx.constructor = v.ToFunction();
+                    ctx.Variables["constructor"] = v;
+                },
+                */
             };
 
             // list of builtin functions
@@ -76,7 +95,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 // Global constructors / functions
                 ["Boolean"] = BoolFunc,
                 ["attachMovie"] = AttachMovie,
-                ["getTime"] = (actx, ctx, args) => GetTime(actx)
+                ["getTime"] = (actx, ctx, args) => GetTime(actx),
+                
             };
         }
 

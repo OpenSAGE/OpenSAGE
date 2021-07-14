@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     public class Value
     {
-        public ValueType Type { get; set; }
+        public ValueType Type { get; private set; }
 
         private string _string;
         private bool _boolean;
@@ -83,6 +83,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static Value FromObject(ObjectContext obj)
         {
+            if (obj != null && obj.IsFunction()) return FromFunction((Function) obj);
             var v = new Value();
             v.Type = ValueType.Object;
             v._object = obj;
@@ -177,7 +178,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return new ASString(_string);
             }
 
-            if (Type != ValueType.Object)
+            if (Type == ValueType.Function)
+            {
+                return _function;
+            }
+
+            if (Type != ValueType.Object && Type != ValueType.Function)
                 throw new InvalidOperationException();
 
             return _object;
@@ -248,6 +254,11 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Function ToFunction()
         {
+            if (Type == ValueType.Undefined)
+            {
+                logger.Error("Undefined Function!");
+                return null;
+            }
             if (Type != ValueType.Function)
                 throw new InvalidOperationException();
 
@@ -266,6 +277,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Short:
                 case ValueType.Integer:
                 case ValueType.Constant:
+                case ValueType.Register:
                     return _number.ToString();
                 case ValueType.UInteger:
                     return _number_uint.ToString();
@@ -274,7 +286,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Undefined:
                     return "";
                 case ValueType.Object:
-                    return _object.Item.Name;
+                    return _object == null ? "null": _object.ToString();
+                case ValueType.Function:
+                    return $"Function({_function.Parameters.Count}, {_function.Constants.Count})";
                 default:
                     throw new NotImplementedException(Type.ToString());
             }
@@ -294,6 +308,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             switch (Type)
             {
                 case ValueType.Constant:
+                case ValueType.Register:
                 case ValueType.Short:
                 case ValueType.Integer:
                     return _number;

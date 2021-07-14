@@ -11,6 +11,22 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public ObjectContext __proto__
+        {
+            get { return GetMember("__proto__").ToObject(); }
+            set { SetMember("__proto__", Value.FromObject(value)); }
+        }
+        public ObjectContext prototype
+        {
+            get { return GetMember("prototype").ToObject(); }
+            set { SetMember("prototype", Value.FromObject(value)); }
+        }
+        public Function constructor
+        {
+            get { return GetMember("constructor").ToFunction(); }
+            set { SetMember("constructor", Value.FromFunction(value)); }
+        }
+
         /// <summary>
         /// The item that this context is connected to
         /// </summary>
@@ -31,6 +47,16 @@ namespace OpenSage.Gui.Apt.ActionScript
             //Actionscript variables are not case sensitive!
             Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
             Constants = new List<Value>();
+
+            __proto__ = ObjectPrototype;
+        }
+
+        internal protected ObjectContext(bool JustUsedToCreateObjectPrototype)
+        {
+            Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
+            Constants = new List<Value>();
+
+            __proto__ = null;
         }
 
         /// <summary>
@@ -38,10 +64,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public ObjectContext(DisplayItem item)
+        public ObjectContext(DisplayItem item) : this()
         {
-            Variables = Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
-            Constants = new List<Value>();
             Item = item;
 
             //initialize item dependent properties
@@ -55,7 +79,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            if (IsBuiltInVariable(name))
+            if (!(name == "__proto__" || name == "prototype" || name == "constructor") && 
+                IsBuiltInVariable(name))
             {
                 return GetBuiltInVariable(name);
             }
@@ -67,6 +92,18 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             logger.Warn($"[WARN] Undefined variable: {name}");
             return Value.Undefined();
+        }
+
+
+        public virtual void SetMember(string name, Value val)
+        {
+            logger.Warn("Not comprehensive function: SetMember");
+            if (!(name == "__proto__" || name == "prototype" || name == "constructor") &&
+                IsBuiltInVariable(name))
+            {
+                SetBuiltInVariable(name, val);
+            }
+            Variables[name] = val;
         }
 
         /// <summary>
@@ -119,6 +156,37 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             Builtin.CallBuiltInFunction(name, actx, this, args);
         }
+        
+        private static ObjectContext _createPrototypes()
+        {
+            var _op = new ObjectContext(false);
+            FunctionPrototype = new ObjectContext(false);
+            _foc = new Function(false);
+            _ffc = new Function(false);
+
+            FunctionPrototype.constructor = _ffc;
+            FunctionPrototype.__proto__ = _op;
+            _foc.__proto__ = FunctionPrototype;
+            _ffc.__proto__ = FunctionPrototype;
+            _foc.prototype = _op;
+            _ffc.prototype = FunctionPrototype;
+
+            _op.constructor = _foc;
+            return _op;
+        }
+
+        // class inheritance
+        protected internal static Function _foc { get; private set; }
+        protected internal static Function _ffc { get; private set; }
+        public static readonly ObjectContext ObjectPrototype = _createPrototypes(); // = new ObjectContext(false) { __proto__ = null, constructor = Function.ObjectConstructor };
+        public static ObjectContext FunctionPrototype { get; private set; } // = new ObjectContext() { constructor = Function.FunctionConstructor };
+
+        public bool IsFunction()  { return this is Function || __proto__ == FunctionPrototype;  }
+        public bool IsConstructor() { return IsFunction() && prototype.IsPrototype(); }
+        public bool IsPrototype() { return constructor != null && constructor.IsFunction(); }
+
+
+        // properties
 
         private void InitializeProperties()
         {
@@ -265,6 +333,23 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return path;
+        }
+
+        public override string ToString()
+        {
+            return Item == null ? "null item" : Item.Name;
+        }
+
+        public string ToStringDisp()
+        {
+            string ans = "{\n";
+            foreach (string s in Variables.Keys)
+            { 
+                Variables.TryGetValue(s, out var v);
+                ans = ans + s + ": " + v + ", \n";
+            }
+            ans = ans + "}";
+            return ans;
         }
     }
 }

@@ -417,7 +417,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 return true;
             }
 
-            throw new NotImplementedException();
+            throw new NotImplementedException(instruction.GetType().ToString());
         }
 
         private static (string, Type, ValueType[])[] RetrieveFixedSizeInstructionMetaData()
@@ -477,10 +477,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushFalse",           typeof(PushFalse),          none),
                 ("PushNull",            typeof(PushNull),           none),
                 ("PushUndefined",       typeof(PushUndefined),      none),
+                ("CastOp",              typeof(CastOp),             none),
+                ("ImplememtsOp",        typeof(ImplementsOp),       none),
                 // with parameters
                 ("GotoFrame",           typeof(GotoFrame),          new[] { ValueType.Integer }),
                 ("GetUrl",              typeof(GetUrl),             new[] { ValueType.String, ValueType.String }),
-                ("SetRegister",         typeof(SetRegister),        new[] { ValueType.Integer }),
+                ("SetRegister",         typeof(SetRegister),        new[] { ValueType.Register }),
                 // ("ConstantPool",        typeof(ConstantPool),       new[] { (ValueType.) }),
                 ("GotoLabel",           typeof(GotoLabel),          new[] { ValueType.String }),
                 // ("DefineFunction2",     typeof(DefineFunction2),    new[] { (ValueType) }),
@@ -507,7 +509,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("End",                 typeof(End),                none),
                 ("CallNamedMethod",     typeof(CallNamedMethod),    new[] { ValueType.Constant }),
                 ("Var",                 typeof(Var),                none),
-                ("PushRegister",        typeof(PushRegister),       new[] { ValueType.Integer }),
+                ("PushRegister",        typeof(PushRegister),       new[] { ValueType.Register }),
                 ("PushConstantWord",    typeof(PushConstantWord),   new[] { ValueType.Constant }),
                 ("CallFunctionPop",     typeof(CallFunctionPop),    none),
                 ("StrictEquals",        typeof(StrictEquals),       none),

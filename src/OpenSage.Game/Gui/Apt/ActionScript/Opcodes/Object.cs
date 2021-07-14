@@ -55,7 +55,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             else
             {
-                obj.Variables[memberName] = valueVal;
+                obj.SetMember(memberName, valueVal);
             }
         }
     }
@@ -352,7 +352,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException(context.DumpStack());
+            // throw new NotImplementedException(context.DumpStack());
+            var sup = context.Pop().ToFunction();
+            var cls = context.Pop().ToFunction();
+            var obj = new ObjectContext();
+            obj.__proto__ = sup.prototype;
+            obj.constructor = sup;
+            cls.prototype = obj;
+            // Do not push it back
+            // context.Push(Value.FromObject(obj));
         }
     }
 
