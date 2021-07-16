@@ -6,34 +6,97 @@ using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
+    public sealed class ActionScope: ObjectContext
+    {
+        public ActionScope ParentScope { get; private set; }
+
+        public ActionScope(ActionScope parent): base()
+        { 
+            ParentScope = parent;
+        }
+    }
+
     public sealed class ActionContext
     {
-        public ObjectContext Scope { get; set; }
-        public ObjectContext Global { get; set; }
+        public ObjectContext This { get; private set; }
+        public ObjectContext Global { get; private set; }
+        public ActionContext Outer { get; private set; }
         public AptContext Apt { get; set; }
         public InstructionStream Stream { get; set; }
-        public Value[] Registers { get; set; }
-        public Dictionary<string, Value> Params { get; set; }
-        public Dictionary<string, Value> Locals { get; set; }
+        public int RegisterCount { get; private set; }
+        public Dictionary<string, Value> Params { get; private set; }
+        public Dictionary<string, Value> Locals { get; private set; }
         public bool Return { get; set; }
-        public List<ConstantEntry> Constants { get; set; }
+        public List<ConstantEntry> GlobalConstantPool { get; set; }
 
         private Stack<Value> _stack;
+        private Value[] _registers { get; set; }
 
-        public ActionContext(int numRegisters = 0)
+        public ActionContext(ObjectContext globalVar, ObjectContext thisVar, ActionContext outerVar, int numRegisters = 0)
         {
+            // assignments
+            Global = globalVar;
+            This = thisVar;
+            Outer = outerVar; // null if the most outside
+            RegisterCount = numRegisters;
+
+            // initializations
             _stack = new Stack<Value>();
-            Registers = new Value[numRegisters];
+            _registers = new Value[RegisterCount];
             Params = new Dictionary<string, Value>();
             Locals = new Dictionary<string, Value>();
-            Constants = new List<ConstantEntry>();
+            GlobalConstantPool = new List<ConstantEntry>();
             Return = false;
         }
+        //public ActionContext(int numRegisters = 0)
+        //{
+        //    
+        //}
+
+        // register operations
+
+        public bool RegisterStored(int id) { return _registers[id] != null; }
+
+        public Value GetRegister(int id) {
+            if (id < 0 || id >= RegisterCount)
+            {
+                throw new InvalidOperationException($"Register number {id} is not appropriate! it should be 0~{RegisterCount - 1}.");
+            }
+            else
+            {
+                return RegisterStored(id) ? _registers[id] : Value.Undefined() ;
+            }
+            
+        }
+
+        public void SetRegister(int id, Value val)
+        {
+            if (id < 0 || id >= RegisterCount)
+            {
+                throw new InvalidOperationException($"Register number {id} is not appropriate! it should be 0~{RegisterCount - 1}.");
+            }
+            else
+            {
+                _registers[id] = val;
+            }
+        }
+
+        public string DumpRegister()
+        {
+            var ans = $"Total {RegisterCount} Registers";
+            for (int i = 0; i < RegisterCount; ++i)
+            {
+                if (_registers[i] != null) ans = ans + $"\n[{i}]{_registers[i].ToStringWithType(this)}";
+            }
+            return ans;
+        }
+
+        // stack operations
 
         public string DumpStack()
         {
             var stack_val = _stack.ToArray();
-            var ans = String.Join("|", stack_val.Select(x => x.ToStringWithType()).ToArray());
+            var ans = String.Join("|", stack_val.Select(x => x.ToStringWithType(this)).ToArray());
 
             ans = String.Format("TOP|{0}|BOTTOM", ans);
             return ans;
@@ -107,11 +170,11 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (Builtin.IsBuiltInVariable(name))
             {
-                obj = Builtin.GetBuiltInVariable(name, Scope);
+                obj = Builtin.GetBuiltInVariable(name, This);
             }
             else
             {
-                obj = Scope.GetMember(name);
+                obj = This.GetMember(name);
             }
 
             return obj;
@@ -126,10 +189,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             //empty target means the current scope
             if (target.Length == 0)
-                return Value.FromObject(Scope);
+                return Value.FromObject(This);
 
             //depending on wether or not this is a relative path or not
-            ObjectContext obj = target.First() == '/' ? Apt.Root.ScriptObject : Scope;
+            ObjectContext obj = target.First() == '/' ? Apt.Root.ScriptObject : This;
 
             foreach (var part in target.Split('/'))
             {
@@ -151,7 +214,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="constructor"></param>
         /// <returns></returns>
-        public Value ConstructObject(string name, Value[] args)
+        public Value ConstructObject(string name, Value[] args) // TODO need reconstruction
         {
             Value result = null;
             if (Builtin.IsBuiltInClass(name))
@@ -178,7 +241,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             //order is important
             if (flags.HasFlag(FunctionPreloadFlags.PreloadThis))
             {
-                Registers[reg] = Value.FromObject(Scope);
+                _registers[reg] = Value.FromObject(This);
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
@@ -191,22 +254,22 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
             {
-                Registers[reg] = Value.FromObject(Apt.Root.ScriptObject);
+                _registers[reg] = Value.FromObject(Apt.Root.ScriptObject);
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                Registers[reg] = Value.FromObject(Scope.GetParent());
+                _registers[reg] = Value.FromObject(This.GetParent());
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
             {
-                Registers[reg] = Value.FromObject(Apt.Avm.GlobalObject);
+                _registers[reg] = Value.FromObject(Apt.Avm.GlobalObject);
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
             {
-                Registers[reg] = Value.FromObject(Apt.Avm.ExternObject);
+                _registers[reg] = Value.FromObject(Apt.Avm.ExternObject);
                 ++reg;
             }
             if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))
@@ -221,7 +284,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))
             {
-                Locals["this"] = Value.FromObject(Scope);
+                Locals["this"] = Value.FromObject(This);
             }
         }
     }

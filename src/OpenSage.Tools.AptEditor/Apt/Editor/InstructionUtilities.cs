@@ -47,7 +47,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             LogicalBranch = logicalBranch;
             Name = labelName;
         }
-
+        public override string ToString(ActionContext context) { return ToString(); }
         public override string ToString()
         {
             return "LogicalDestination";
@@ -67,6 +67,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             LogicalDefineFunction = logicalDefineFunction;
         }
 
+        public override string ToString(ActionContext context) { return ToString(); }
         public override string ToString()
         {
             return "LogicalEndOfFunction";
@@ -433,7 +434,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("Subtract",            typeof(Subtract),           none),
                 ("Multiply",            typeof(Multiply),           none),
                 ("Divide",              typeof(Divide),             none),
-                ("Not",                 typeof(Not),                none),
+                ("Modulo",              typeof(Modulo),             none),
+                ("LogicalAnd",          typeof(LogicalAnd),         none),
+                ("LogicalOr",           typeof(LogicalOr),          none),
+                ("LogicalNot",          typeof(LogicalNot),         none),
+                ("BitwiseAnd",          typeof(BitwiseAnd),         none),
+                ("BitwiseOr",           typeof(BitwiseOr),          none),
+                ("BitwiseXOr",          typeof(BitwiseXOr),         none),
+                ("ShiftLeft",           typeof(ShiftLeft),          none),
+                ("ShiftRight",          typeof(ShiftRight),         none),
+                ("ShiftRight2",         typeof(ShiftRight2),        none),
                 ("StringEquals",        typeof(StringEquals),       none),
                 ("Pop",                 typeof(Pop),                none),
                 ("ToInteger",           typeof(ToInteger),          none),
@@ -442,15 +452,21 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("StringConcat",        typeof(StringConcat),       none),
                 ("GetProperty",         typeof(GetProperty),        none),
                 ("SetProperty",         typeof(SetProperty),        none),
+                ("RemoveSprite",        typeof(RemoveSprite),       none),
+                ("CloneSprite",         typeof(CloneSprite),        none),
                 ("Trace",               typeof(Trace),              none),
                 ("Delete",              typeof(Delete),             none),
                 ("Delete2",             typeof(Delete2),            none),
+
                 ("DefineLocal",         typeof(DefineLocal),        none),
+                ("DefineLocal2",        typeof(DefineLocal2),       none),
                 ("CallFunction",        typeof(CallFunction),       none),
                 ("Return",              typeof(Return),             none),
                 ("NewObject",           typeof(NewObject),          none),
+                ("NewMethod",           typeof(NewMethod),          none),
                 ("InitArray",           typeof(InitArray),          none),
                 ("InitObject",          typeof(InitObject),         none),
+
                 ("TypeOf",              typeof(TypeOf),             none),
                 ("Add2",                typeof(Add2),               none),
                 ("LessThan2",           typeof(LessThan2),          none),
@@ -462,13 +478,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("Increment",           typeof(Increment),          none),
                 ("Decrement",           typeof(Decrement),          none),
                 ("CallMethod",          typeof(CallMethod),         none),
+                ("EACallMethod",        typeof(EACallMethod),       none),
                 ("Enumerate2",          typeof(Enumerate2),         none),
                 ("PushThis",            typeof(PushThis),           none),
                 ("PushZero",            typeof(PushZero),           none),
                 ("PushOne",             typeof(PushOne),            none),
                 ("CallFunc",            typeof(CallFunc),           none),
                 ("CallMethodPop",       typeof(CallMethodPop),      none),
-                ("BitwiseXOr",          typeof(BitwiseXOr),         none),
                 ("Greater",             typeof(Greater),            none),
                 ("PushThisVar",         typeof(PushThisVar),        none),
                 ("PushGlobalVar",       typeof(PushGlobalVar),      none),
@@ -479,6 +495,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushUndefined",       typeof(PushUndefined),      none),
                 ("CastOp",              typeof(CastOp),             none),
                 ("ImplememtsOp",        typeof(ImplementsOp),       none),
+                ("GetTime",             typeof(GetTime),            none),
                 // with parameters
                 ("GotoFrame",           typeof(GotoFrame),          new[] { ValueType.Integer }),
                 ("GetUrl",              typeof(GetUrl),             new[] { ValueType.String, ValueType.String }),
@@ -506,6 +523,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushFloat",           typeof(PushFloat),          new[] { ValueType.Float }),
                 ("PushByte",            typeof(PushByte),           new[] { ValueType.Integer }),
                 ("PushShort",           typeof(PushShort),          new[] { ValueType.Integer }),
+                ("PushLong",            typeof(PushLong),           new[] { ValueType.Integer }), // TODO need reconstruction
                 ("End",                 typeof(End),                none),
                 ("CallNamedMethod",     typeof(CallNamedMethod),    new[] { ValueType.Constant }),
                 ("Var",                 typeof(Var),                none),

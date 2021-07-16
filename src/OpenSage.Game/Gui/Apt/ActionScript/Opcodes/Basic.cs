@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Apt;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -26,12 +27,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //create a new constantpool
-            var pool = context.Scope.Constants;
+            var pool = context.This.Constants;
             pool.Clear();
 
             for (var i = 0; i < Parameters.Count; ++i)
             {
-                pool.Add(Parameters[i].ResolveConstant(context));
+                Value result;
+                var entry = context.GlobalConstantPool[Parameters[i].ToInteger()];
+                switch (entry.Type)
+                {
+                    case ConstantEntryType.String:
+                        result = Value.FromString((string) entry.Value);
+                        break;
+                    case ConstantEntryType.Register:
+                        result = Value.FromRegister((uint) entry.Value);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                pool.Add(result);
             }
         }
     }
@@ -66,7 +80,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             //store the value inside the specified register
             var reg = Parameters[0].ToInteger();
-            context.Registers[reg] = val;
+            context.SetRegister(reg, val);
         }
     }
 
@@ -93,6 +107,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
     /// <summary>
     /// Pops a property name and an object from the stack. Then deletes the property in that object
+    /// The description file says "property", but one can't access a property from a string,
+    /// so I take the "property" as "member".
     /// </summary>
     public sealed class Delete : InstructionBase
     {
@@ -103,7 +119,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var property = context.Pop().ToEnum<PropertyType>();
             var target = context.GetTarget(context.Pop().ToString());
 
-            target.ToObject().DeleteProperty(property);
+            target.ToObject().DeleteMember(property);
         }
     }
 
@@ -117,7 +133,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var property = context.Pop().ToEnum<PropertyType>();
-            context.Scope.DeleteProperty2(property);
+            context.This.DeleteMember2(property);
         }
     }
 
@@ -255,10 +271,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException(context.DumpStack());
             var obj = context.Pop().ToObject();
             var cst = context.Pop().ToFunction();
-            
+            ObjectContext val = obj.InstanceOf(cst) ? obj : null;
+            context.Push(Value.FromObject(val));
         }
     }
 

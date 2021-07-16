@@ -185,6 +185,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool IsConstructor() { return IsFunction() && prototype.IsPrototype(); }
         public bool IsPrototype() { return constructor != null && constructor.IsFunction(); }
 
+        public bool InstanceOf(ObjectContext cst) // TODO Not complete
+        {
+            return cst.IsFunction() && (cst.prototype == this.__proto__);
+        }
 
         // properties
 
@@ -282,7 +286,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
          
-        public bool DeleteProperty(PropertyType property)
+        public bool DeleteMember(PropertyType property)
         {
             switch (property)
             {
@@ -305,13 +309,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             return false;
         }
 
-        public bool DeleteProperty2(PropertyType property)
+        public bool DeleteMember2(PropertyType property)
         {
-            var res = this.DeleteProperty(property);
+            var res = this.DeleteMember(property);
             if (!res)
             {
                 if (this.GetParent() != null)
-                    this.GetParent().DeleteProperty2(property);
+                    this.GetParent().DeleteMember2(property);
             }
             return res;
         }
@@ -338,6 +342,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         public override string ToString()
         {
             return Item == null ? "null item" : Item.Name;
+        }
+
+        public Value ToPrimitive()
+        {
+            return null;
         }
 
         public string ToStringDisp()

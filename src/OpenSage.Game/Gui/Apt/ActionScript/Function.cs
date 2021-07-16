@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -46,8 +47,94 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
         public int NumberRegisters { get; set; }
-        public List<Value> Constants { get; set; }
+        public new List<Value> Constants { get; set; }
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
+
+
+
+        public ActionContext GetContext(VM vm, Value[] args, ObjectContext scope)
+        {
+
+            var code = Instructions;
+
+            var localScope = new ObjectContext(scope.Item)
+            {
+                Constants = Constants,
+                Variables = scope.Variables
+            };
+
+            var context = vm.GetActionContext(NumberRegisters, code, localScope, scope.Item.Character.Container.Constants.Entries);
+            var stream = context.Stream;
+            //new ActionContext()
+            //{
+            //    Global = GlobalObject,
+            //    Scope = localScope,
+            //    Apt = scope.Item.Context,
+            //    Stream = stream,
+            //    Constants = scope.Item.Character.Container.Constants.Entries
+            //};
+
+            
+            if (!IsNewVersion) // parameters in the old version are just stored as local variables
+            {
+                for (var i = 0; i < Parameters.Count; ++i)
+                {
+                    var name = Parameters[i].ToString();
+                    bool provided = i < args.Length;
+                    context.Params[name] = provided ? args[i] : Value.Undefined();
+                }
+            }
+            else // parameters can be stored in both registers and local variables
+            {
+                for (var i = 0; i < Parameters.Count; i += 2)
+                {
+                    var reg = Parameters[i].ToInteger();
+                    var name = Parameters[i + 1].ToString();
+                    int argIndex = i >> 1;
+                    bool provided = (argIndex) < args.Length;
+
+                    if (reg != 0)
+                    {
+                        context.SetRegister(reg, provided ? args[argIndex] : Value.Undefined());
+                    }
+                    else
+                    {
+                        context.Params[name] = provided ? args[argIndex] : Value.Undefined();
+                    }
+                }
+            }
+
+            if (IsNewVersion)
+            {
+                context.Preload(Flags);
+            }
+
+            return context;
+        }
+
+        public Value Execute(ActionContext context)
+        {
+            var stream = context.Stream;
+
+            var instr = stream.GetInstruction();
+            InstructionBase prevInstr = null;
+
+            while (instr.Type != InstructionType.End)
+            {
+                instr.Execute(context);
+
+                if (context.Return)
+                    return context.Pop();
+
+                if (stream.IsFinished())
+                    break;
+
+                prevInstr = instr;
+                instr = stream.GetInstruction();
+            }
+
+            return Value.Undefined();
+        }
     }
 }

@@ -65,7 +65,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     if (_context != null)
                     {
                         var lef = _context.Avm.ExecuteOnce(_acontext);
-                        last_executed_func = lef.ToString();
+                        last_executed_func = lef.ToString(_acontext);
                     }
                     else
                     {
@@ -109,19 +109,19 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Separator();
 
                 ImGui.Text("Registers:");
-                ImGui.Text(_acontext == null ? "Not Applicable" : $"{_acontext.Registers[0]} {_acontext.Registers[1]} {_acontext.Registers[2]} {_acontext.Registers[3]}");
+                ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpRegister());
 
                 ImGui.Text("Stack:");
-                ImGui.Text(_acontext == null? "Not Applicable" : _acontext.DumpStack());
+                ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpStack());
 
                 ImGui.Text("Last Execution:");
                 ImGui.Text(last_executed_func);
 
                 ImGui.Text("KW Global:");
-                ImGui.Text(_acontext == null? "null" : _acontext.Global.ToStringDisp());
+                ImGui.Text(_acontext == null ? "null" : _acontext.Global.ToStringDisp());
 
                 ImGui.Text("KW This:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.Scope.ToStringDisp());
+                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp());
 
                 if (_instructions != null && ImGui.Begin("Codes"))
                 { 
@@ -138,7 +138,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         }
                         else
                         {
-                            ImGui.Button(_instructions.Items[i].ToString());
+                            ImGui.Button(_instructions.Items[i].ToString(_acontext));
                         }
                     }
                 }

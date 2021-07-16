@@ -41,7 +41,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.Scope.Constants[id]);
+            context.Push(context.This.Constants[id]);
         }
     }
 
@@ -98,7 +98,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var str = context.Scope.Constants[id].ToString();
+            var str = context.This.Constants[id].ToString();
 
             Value result;
 
@@ -196,7 +196,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Push(Value.FromObject(context.Scope));
+            context.Push(Value.FromObject(context.This));
         }
     }
 
@@ -254,7 +254,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             // TODO: check if this is correct
             var name = context.Pop();
-            context.Scope.Variables[name.ToString()] = Value.FromInteger(0);
+            context.This.SetMember(name.ToString(), Value.FromInteger(0));
         }
     }
 
@@ -312,7 +312,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.Scope.Constants[id]);
+            context.Push(context.This.Constants[id]);
         }
     }
 

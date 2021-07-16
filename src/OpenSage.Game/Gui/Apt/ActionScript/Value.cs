@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript.Library;
@@ -11,7 +13,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         Constant,
         Boolean,
         Integer,
-        UInteger, 
         Register,
         Short,
         Float,
@@ -28,7 +29,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         private string _string;
         private bool _boolean;
         private int _number;
-        private uint _number_uint;
         private double _decimal;
         private ObjectContext _object;
         private Function _function;
@@ -44,10 +44,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Register)
                 return this;
 
-            if (context.Registers.Length - 1 < _number)
-                return FromInteger(_number);
-
-            return context.Registers[_number];
+            var result = this;
+            if (_number < context.RegisterCount && context.RegisterStored(_number))
+            {
+                var entry = context.GetRegister(_number);
+                result = entry;
+            }
+            return result;
         }
 
         public Value ResolveConstant(ActionContext context)
@@ -55,21 +58,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Constant)
                 return this;
 
-            Value result;
-
-            var entry = context.Constants[_number];
-            switch (entry.Type)
-            {
-                case ConstantEntryType.String:
-                    result = FromString((string) entry.Value);
-                    break;
-                case ConstantEntryType.Register:
-                    result = FromRegister((uint) entry.Value);
-                    break;
-                default:
-                    throw new NotImplementedException();
+            var result = this;
+            if (_number < context.This.Constants.Count) {
+                var entry = context.This.Constants[_number];
+                result = entry;
             }
-
             return result;
         }
 
@@ -142,8 +135,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         public static Value FromUInteger(uint num)
         {
             var v = new Value();
-            v.Type = ValueType.UInteger;
-            v._number_uint = num;
+            if (num > 0x0FFFFFFF)
+            {
+                v.Type = ValueType.Float;
+                v._decimal = (double) num;
+            }
+            else
+            {
+                v.Type = ValueType.Integer;
+                v._number = (int) num;
+            }
             return v;
         }
 
@@ -200,6 +201,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
+        }
+
+        public uint ToUInteger()
+        {
+            double number = ToFloat();
+            if (double.IsNaN(number) || double.IsInfinity(number)) return 0;
+            double posInt = Math.Sign(number) * (int) Math.Abs(number);
+            uint ans = (uint) (posInt % 0x10000000);
+            return ans;
         }
 
         /// Used by AptEditor to get actual id of constant / register
@@ -279,12 +289,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Constant:
                 case ValueType.Register:
                     return _number.ToString();
-                case ValueType.UInteger:
-                    return _number_uint.ToString();
                 case ValueType.Float:
                     return _decimal.ToString();
                 case ValueType.Undefined:
-                    return "";
+                    return "undefined"; // follows ECMA-262
                 case ValueType.Object:
                     return _object == null ? "null": _object.ToString();
                 case ValueType.Function:
@@ -294,12 +302,20 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
-        public string ToStringWithType()
+        public string ToStringWithType(ActionContext ctx)
         {
-            var ttype = "Invalid";
-            try { ttype = this.Type.ToString(); }
+            var ttype = "?";
+            try { ttype = this.Type.ToString().Substring(0, 3); }
             catch (InvalidOperationException e) {}
-            return String.Format("({0}){1}", ttype, this.ToString());
+            String tstr = null;
+            if (this.Type == ValueType.Constant && ctx != null)
+            {
+                tstr = this.ResolveConstant(ctx).ToString();
+            }
+            else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
+            else if (this.Type == ValueType.Object) tstr = this.ToString();
+            else tstr = this.ToString();
+            return String.Format("({0}){1}", ttype, tstr);
             }
 
         // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3

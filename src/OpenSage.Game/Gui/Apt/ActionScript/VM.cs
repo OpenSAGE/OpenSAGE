@@ -14,8 +14,10 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         private TimeInterval _lastTick;
         private Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>> _intervals;
+        private Stack<ActionContext> _callStack;
 
         public ObjectContext GlobalObject { get; }
+        public ActionContext GlobalContext { get; }
         public ObjectContext ExternObject { get; }
 
         // Delegate to call a function inside the engine
@@ -39,9 +41,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         public VM()
         {
             GlobalObject = new ObjectContext();
+            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4);
             ExternObject = new ExternObject(this);
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
+            _callStack = new Stack<ActionContext>();
         }
+
+        // interval operations
 
         public void CreateInterval(string name, int duration, Function func, ObjectContext ctx, Value[] args)
         {
@@ -74,6 +80,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             _intervals.Remove(name);
         }
 
+        // stack operations
+
+        public void PushStack(ActionContext context) { _callStack.Push(context); }
+        public void ForceReturn() { }
+
         public Value Execute(Function func, Value[] args, ObjectContext scope)
         {
             if (func == Function.FunctionConstructor)
@@ -85,9 +96,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return Value.FromObject(new ObjectContext());
             }
 
-            var code = func.Instructions;
-
-            var stream = new InstructionStream(code);
+            var code = func.Instructions;            
 
             var localScope = new ObjectContext(scope.Item)
             {
@@ -96,6 +105,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             };
 
             var context = GetActionContext(func.NumberRegisters, code, localScope, scope.Item.Character.Container.Constants.Entries);
+            var stream = context.Stream;
             //new ActionContext()
             //{
             //    Global = GlobalObject,
@@ -127,7 +137,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                     if (reg != 0)
                     {
-                        context.Registers[reg] = provided ? args[argIndex] : Value.Undefined();
+                        context.SetRegister(reg, provided ? args[argIndex] : Value.Undefined());
                     }
                     else
                     {
@@ -161,17 +171,27 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Value.Undefined();
         }
 
+        public ActionContext GetActionContext(int numRegisters, List<ConstantEntry> consts, ActionContext outerVar, ObjectContext thisVar, InstructionCollection code)
+        {
+            if (thisVar is null) thisVar = GlobalObject;
+            var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
+            {
+                Apt = thisVar.Item != null ? thisVar.Item.Context : null,
+                Stream = new InstructionStream(code),
+                GlobalConstantPool = consts,
+            };
+            return context;
+        }
+
         public ActionContext GetActionContext(int numRegisters, InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
         {
             var stream = new InstructionStream(code);
         
-            var context = new ActionContext(numRegisters)
+            var context = new ActionContext(GlobalObject, scope, null, numRegisters)
             {
-                Global = GlobalObject,
-                Scope = scope,
                 Apt = scope.Item.Context,
                 Stream = stream,
-                Constants = consts,
+                GlobalConstantPool = consts,
             };
             return context;
         }

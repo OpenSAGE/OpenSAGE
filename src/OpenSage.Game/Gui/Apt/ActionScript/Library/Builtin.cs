@@ -64,23 +64,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
                 },
-                /*
-                ["prototype"] = (ctx, v) =>
-                {
-                    ctx.prototype = v.ToObject();
-                    ctx.Variables["prototype"] = v;
-                },
-                ["__proto__"] = (ctx, v) =>
-                {
-                    ctx.__proto__ = v.ToObject();
-                    ctx.Variables["__proto__"] = v;
-                },
-                ["constructor"] = (ctx, v) =>
-                {
-                    ctx.constructor = v.ToFunction();
-                    ctx.Variables["constructor"] = v;
-                },
-                */
             };
 
             // list of builtin functions

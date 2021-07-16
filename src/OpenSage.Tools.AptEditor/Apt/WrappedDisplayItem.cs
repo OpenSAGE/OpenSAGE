@@ -13,9 +13,9 @@ namespace OpenSage.Tools.AptEditor.Apt
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public DisplayItem Item { get; }
-        public AptContext Context => Item.Context;
-        public Character Character => Item.Character;
-        public ObjectContext ScriptObject => Item.ScriptObject;
+        public new AptContext Context => Item.Context;
+        public new Character Character => Item.Character;
+        public new ObjectContext ScriptObject => Item.ScriptObject;
         public WrappedDisplayItem(Character character, AptContext context, SpriteItem parent)
         {
             Visible = true;

@@ -15,7 +15,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var member = context.Scope.Constants[id].ToString();
+            var member = context.This.Constants[id].ToString();
 
             //pop the object
             var objectVal = context.Pop();
@@ -46,17 +46,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the member name
             var memberName = context.Pop().ToString();
             //pop the object
-            var p = context.Pop();
-            var obj = p.ToObject();
-
-            if (obj.IsBuiltInVariable(memberName))
-            {
-                obj.SetBuiltInVariable(memberName, valueVal);
-            }
+            var obj = context.Pop().ToObject();
+            if (obj is null)
+                throw new NotImplementedException("Do not know what to do in this situation");
             else
-            {
                 obj.SetMember(memberName, valueVal);
-            }
+
         }
     }
 
@@ -93,7 +88,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var name = context.Pop().ToString();
-            context.Scope.Variables[name] = Parameters[0];
+            context.This.SetMember(name, Parameters[0]);
         }
     }
 
@@ -107,13 +102,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var variableName = context.Pop();
-            Value variable = Value.Undefined();
-            if (context.Scope.Variables.ContainsKey(variableName.ToString()))
-            {
-                variable = context.Scope.Variables[variableName.ToString()];
-            }
-
+            var variableName = context.Pop().ToString();
+            Value variable = context.This.GetMember(variableName);
             context.Push(variable);
         }
     }
@@ -127,19 +117,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            //pop the value
             var valueVal = context.Pop();
-            //pop the member name
             var memberName = context.Pop().ToString();
-
-            if (context.CheckLocal(memberName))
-            {
-                context.Locals[memberName] = valueVal;
-            }
-            else
-            {
-                context.Scope.Variables[memberName] = valueVal;
-            }
+            context.This.SetMember(memberName, valueVal);
         }
     }
 
@@ -190,6 +170,36 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var target = context.GetTarget(context.Pop().ToString());
 
             target.ToObject().SetProperty(property, value);
+        }
+    }
+
+    /// <summary>
+    /// clones a sprite to assigned depth and target.
+    /// </summary>
+    public sealed class CloneSprite : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.CloneSprite;
+
+        public override void Execute(ActionContext context)
+        {
+            var depth = context.Pop();
+            var target = context.Pop();
+            var source = context.Pop();
+            throw new NotImplementedException();            
+        }
+    }
+
+    /// <summary>
+    /// removes a sprite.
+    /// </summary>
+    public sealed class RemoveSprite : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.RemoveSprite;
+
+        public override void Execute(ActionContext context)
+        {
+            var target = context.Pop();
+            throw new NotImplementedException();
         }
     }
 
@@ -261,7 +271,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             if (name.Length == 0)
-                FunctionCommon.ExecuteFunction(obj, args, context.Scope, context);
+                FunctionCommon.ExecuteFunction(obj, args, context.This, context);
             // throw new NotImplementedException("what the hell is a construction function?");
             else
                 FunctionCommon.ExecuteFunction(name, args, obj.ToObject(), context);
@@ -271,6 +281,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //var ret = context.Peek();
             //if (ret.Type.Equals(ValueType.Undefined))
             //    context.Pop();
+            throw new NotImplementedException(context.DumpStack());
         }
     }
 
@@ -316,7 +327,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case ValueType.Boolean:
                     result = Value.FromString("boolean");
                     break;
-                case ValueType.UInteger:
                 case ValueType.Integer:
                 case ValueType.Short:
                 case ValueType.Float:
@@ -335,7 +345,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     result = Value.FromString("undefined");
                     break;
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(val.Type.ToString());
             }
 
             context.Push(result);
@@ -343,8 +353,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
-    /// From its name, looks like it extends an object.
-    /// Since it doesn't have any parameters, it might extend objects from the stack.
+    /// Set the inheritance structure of a class.
+    /// See https://www.adobe.com/content/dam/acom/en/devnet/pdf/swf-file-format-spec.pdf p.114 "ActionExtends"
     /// </summary>
     public sealed class Extends : InstructionBase
     {
@@ -352,21 +362,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            // throw new NotImplementedException(context.DumpStack());
+            // TODO This will override functions in the old prototype of cls.
+            // I followed the document, but don't know if will cause issues.
             var sup = context.Pop().ToFunction();
             var cls = context.Pop().ToFunction();
             var obj = new ObjectContext();
             obj.__proto__ = sup.prototype;
             obj.constructor = sup;
             cls.prototype = obj;
-            // Do not push it back
-            // context.Push(Value.FromObject(obj));
         }
     }
 
     /// <summary>
-    /// From its name, looks like it corresponds to the `instanceof` keyword of ECMAScript.
-    /// Since it doesn't have any parameters, it should be using the stack.
+    /// Corresponds to the `instanceof` keyword of ECMAScript.
     /// </summary>
     public sealed class InstanceOf : InstructionBase
     {
@@ -374,8 +382,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException(context.DumpStack());
-
+            var constr = context.Pop().ToFunction();
+            var obj = context.Pop().ToObject();
+            var val = obj.InstanceOf(constr);
+            context.Push(Value.FromBoolean(val));
         }
     }
 

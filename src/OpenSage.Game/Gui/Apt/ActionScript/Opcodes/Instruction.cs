@@ -39,9 +39,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         //Basic logic operations
         Equals = 0x0E,
         LessThan = 0x0F,
-        And = 0x10,
-        Or = 0x11,
-        Not = 0x12,
+        LogicalAnd = 0x10,
+        LogicalOr = 0x11,
+        LogicalNot = 0x12,
         //Basic string operations
         StringEquals = 0x13,
         StringLength = 0x14,
@@ -221,9 +221,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public abstract void Execute(ActionContext context);
         public override string ToString()
         {
+            return ToString(null);
+        }
+        public virtual string ToString(ActionContext context)
+        {
             string[] pv;// = { };
             var param_val = this.Parameters.Take(5).ToArray();
-            pv = param_val.Select(x => x.ToStringWithType()).ToArray();
+            pv = param_val.Select(x => x.ToStringWithType(context)).ToArray();
             string t = this.Type.ToString();
             var ans = String.Format("{0}({1})", t, String.Join(", ", pv));
             return ans;

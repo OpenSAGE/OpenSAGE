@@ -73,7 +73,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
                 instructionWriter.WriteSimpleInstruction(InstructionType.SetVariable);
                 instructionWriter.WriteSimpleInstruction(InstructionType.End);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushOne);
-                instructionWriter.WriteSimpleInstruction(InstructionType.Not);
+                instructionWriter.WriteSimpleInstruction(InstructionType.LogicalNot);
                 instructionWriter.WriteSimpleInstruction(InstructionType.BranchIfTrue, 18);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushString, variableNamePosition);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushString, rightValuePosition);
