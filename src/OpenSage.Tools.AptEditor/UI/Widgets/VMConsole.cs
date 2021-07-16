@@ -41,7 +41,11 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ObjectContext ocon = manager.CurrentDisplay.ScriptObject;
 
                 _context = manager.CurrentDisplay.Context;
-                _acontext = _context.Avm.GetActionContext(4, _instructions.Insts, ocon, _context.Constants.Entries);
+                _acontext = new ActionContext(_context.Avm.GlobalObject, ocon, null, 4)
+                {
+                    Apt = _context,
+                    Stream = new InstructionStream(_instructions.Insts),
+                };
             }
             
         }

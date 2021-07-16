@@ -15,7 +15,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var member = context.This.Constants[id].ToString();
+            var member = context.Constants[id].ToString();
 
             //pop the object
             var objectVal = context.Pop();

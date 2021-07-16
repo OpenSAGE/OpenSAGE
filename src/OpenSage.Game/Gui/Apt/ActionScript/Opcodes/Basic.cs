@@ -26,27 +26,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            //create a new constantpool
-            var pool = context.This.Constants;
-            pool.Clear();
-
-            for (var i = 0; i < Parameters.Count; ++i)
-            {
-                Value result;
-                var entry = context.GlobalConstantPool[Parameters[i].ToInteger()];
-                switch (entry.Type)
-                {
-                    case ConstantEntryType.String:
-                        result = Value.FromString((string) entry.Value);
-                        break;
-                    case ConstantEntryType.Register:
-                        result = Value.FromRegister((uint) entry.Value);
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
-                pool.Add(result);
-            }
+            context.ReformConstantPool(Parameters);
         }
     }
 
@@ -116,9 +96,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var property = context.Pop().ToEnum<PropertyType>();
+            var property = context.Pop().ToString();
             var target = context.GetTarget(context.Pop().ToString());
-
             target.ToObject().DeleteMember(property);
         }
     }
@@ -132,8 +111,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var property = context.Pop().ToEnum<PropertyType>();
-            context.This.DeleteMember2(property);
+            var property = context.Pop().ToString();
+            context.DeleteValueOnChain(property);
         }
     }
 
@@ -148,8 +127,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var value = context.Pop();
             var varName = context.Pop().ToString();
-
-            context.Locals[varName] = value;
+            context.SetValueOnLocal(varName, value);
         }
     }
 
@@ -160,10 +138,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var varName = context.Pop().ToString();
-            if (context.Locals.ContainsKey(varName))
+            if (context.HasValueOnLocal(varName))
                 return;
             else
-                context.Locals[varName] = Value.Undefined(); 
+                context.SetValueOnLocal(varName, Value.Undefined()); 
         }
     }
 

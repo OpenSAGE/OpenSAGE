@@ -37,7 +37,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         public Dictionary<string, Value> Variables { get; set; }
 
-        public List<Value> Constants { get; set; }
+        // public List<Value> Constants { get; set; }
 
         /// <summary>
         /// this ActionScript object is not bound bound to an item, e.g. for global object
@@ -46,7 +46,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             //Actionscript variables are not case sensitive!
             Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
-            Constants = new List<Value>();
+            // Constants = new List<Value>();
 
             __proto__ = ObjectPrototype;
         }
@@ -54,7 +54,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         internal protected ObjectContext(bool JustUsedToCreateObjectPrototype)
         {
             Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
-            Constants = new List<Value>();
+            // Constants = new List<Value>();
 
             __proto__ = null;
         }
@@ -79,8 +79,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            if (!(name == "__proto__" || name == "prototype" || name == "constructor") && 
-                IsBuiltInVariable(name))
+            if (IsBuiltInVariable(name))
             {
                 return GetBuiltInVariable(name);
             }
@@ -98,12 +97,36 @@ namespace OpenSage.Gui.Apt.ActionScript
         public virtual void SetMember(string name, Value val)
         {
             logger.Warn("Not comprehensive function: SetMember");
-            if (!(name == "__proto__" || name == "prototype" || name == "constructor") &&
-                IsBuiltInVariable(name))
+            if (IsBuiltInVariable(name))
             {
                 SetBuiltInVariable(name, val);
             }
             Variables[name] = val;
+        }
+
+        public virtual bool HasMember(string name)
+        {
+            if (IsBuiltInVariable(name))
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                return Variables.ContainsKey(name);
+            }
+            
+        }
+
+        public virtual void DeleteMember(string name)
+        {
+            if (IsBuiltInVariable(name))
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                if (HasMember(name)) Variables.Remove(name);
+            }
         }
 
         /// <summary>
@@ -113,6 +136,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual bool IsBuiltInVariable(string name)
         {
+            if (name == "__proto__" || name == "prototype" || name == "constructor")
+                return false;
             return Builtin.IsBuiltInVariable(name);
         }
 
@@ -284,40 +309,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 default:
                     throw new NotImplementedException();
             }
-        }
-         
-        public bool DeleteMember(PropertyType property)
-        {
-            switch (property)
-            {
-                /*case PropertyType.Target:
-                    result = Value.FromString(GetTargetPath());
-                    break;
-                case PropertyType.Name:
-                    result = Value.FromString(Item.Name);
-                    break;
-                case PropertyType.X:
-                    result = Value.FromFloat(Item.Transform.GeometryTranslation.X);
-                    break;
-                case PropertyType.Y:
-                    result = Value.FromFloat(Item.Transform.GeometryTranslation.Y);
-                    break;*/
-                default:
-                    throw new NotImplementedException();
-            }
-
-            return false;
-        }
-
-        public bool DeleteMember2(PropertyType property)
-        {
-            var res = this.DeleteMember(property);
-            if (!res)
-            {
-                if (this.GetParent() != null)
-                    this.GetParent().DeleteMember2(property);
-            }
-            return res;
         }
 
         /// <summary>

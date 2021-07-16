@@ -59,8 +59,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return this;
 
             var result = this;
-            if (_number < context.This.Constants.Count) {
-                var entry = context.This.Constants[_number];
+            if (_number < context.Constants.Count) {
+                var entry = context.Constants[_number];
                 result = entry;
             }
             return result;

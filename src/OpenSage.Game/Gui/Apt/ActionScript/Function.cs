@@ -47,25 +47,29 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
         public int NumberRegisters { get; set; }
-        public new List<Value> Constants { get; set; }
+        public List<Value> Constants { get; set; }
+        public ActionContext DefinedContext { get; set; }
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
 
 
 
-        public ActionContext GetContext(VM vm, Value[] args, ObjectContext scope)
+        public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)
         {
+            var outerVar = vm.CurrentContext();
 
             var code = Instructions;
 
-            var localScope = new ObjectContext(scope.Item)
+            var context = vm.GetActionContext(outerVar, thisVar, NumberRegisters, Constants, code);
+
+            /*var localScope = new ObjectContext(thisVar.Item)
             {
                 Constants = Constants,
-                Variables = scope.Variables
+                Variables = thisVar.Variables
             };
 
-            var context = vm.GetActionContext(NumberRegisters, code, localScope, scope.Item.Character.Container.Constants.Entries);
-            var stream = context.Stream;
+            var context = vm.GetActionContext(NumberRegisters, code, localScope, thisVar.Item.Character.Container.Constants.Entries);
+            */
             //new ActionContext()
             //{
             //    Global = GlobalObject,

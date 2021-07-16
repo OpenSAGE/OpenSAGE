@@ -82,10 +82,52 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // stack operations
 
-        public void PushStack(ActionContext context) { _callStack.Push(context); }
+        public void PushContext(ActionContext context) { _callStack.Push(context); }
+        public ActionContext PopContext() { return _callStack.Pop(); }
+        public ActionContext CurrentContext() { return _callStack.Peek(); }
         public void ForceReturn() { }
 
-        public Value Execute(Function func, Value[] args, ObjectContext scope)
+
+        public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
+        {
+            if (thisVar is null) thisVar = GlobalObject;
+            var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
+            {
+                Apt = outerVar.Apt,
+                Stream = new InstructionStream(code),
+                Constants = consts,
+            };
+            return context;
+        }
+
+        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
+        {
+            if (thisVar is null) thisVar = GlobalObject;
+            var context = new ActionContext(GlobalObject, thisVar, null, numRegisters)
+            {
+                Apt = apt,
+                Stream = new InstructionStream(code),
+                Constants = consts,
+            };
+            return context;
+        }
+        /*
+        public ActionContext GetActionContext(int numRegisters, InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
+        {
+            var stream = new InstructionStream(code);
+
+            var context = new ActionContext(GlobalObject, scope, null, numRegisters)
+            {
+                Apt = scope.Item.Context,
+                Stream = stream,
+                Constants = consts,
+            };
+            return context;
+        }
+        */
+        // execution
+
+        public Value Execute(Function func, Value[] args, ObjectContext thisVar)
         {
             if (func == Function.FunctionConstructor)
             {
@@ -96,60 +138,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return Value.FromObject(new ObjectContext());
             }
 
-            var code = func.Instructions;            
-
-            var localScope = new ObjectContext(scope.Item)
-            {
-                Constants = func.Constants,
-                Variables = scope.Variables
-            };
-
-            var context = GetActionContext(func.NumberRegisters, code, localScope, scope.Item.Character.Container.Constants.Entries);
+            var context = func.GetContext(this, args, thisVar);
             var stream = context.Stream;
-            //new ActionContext()
-            //{
-            //    Global = GlobalObject,
-            //    Scope = localScope,
-            //    Apt = scope.Item.Context,
-            //    Stream = stream,
-            //    Constants = scope.Item.Character.Container.Constants.Entries
-            //};
-
-            //parameters in the old version are just stored as local variables
-            if (!func.IsNewVersion)
-            {
-                for (var i = 0; i < func.Parameters.Count; ++i)
-                {
-                    var name = func.Parameters[i].ToString();
-                    bool provided = i < args.Length;
-
-                    context.Params[name] = provided ? args[i] : Value.Undefined();
-                }
-            }
-            else
-            {
-                for (var i = 0; i < func.Parameters.Count; i += 2)
-                {
-                    var reg = func.Parameters[i].ToInteger();
-                    var name = func.Parameters[i + 1].ToString();
-                    var argIndex = i / 2;
-                    bool provided = (argIndex) < args.Length;
-
-                    if (reg != 0)
-                    {
-                        context.SetRegister(reg, provided ? args[argIndex] : Value.Undefined());
-                    }
-                    else
-                    {
-                        context.Params[name] = provided ? args[argIndex] : Value.Undefined();
-                    }
-                }
-            }
-
-            if (func.IsNewVersion)
-            {
-                context.Preload(func.Flags);
-            }
+ 
 
             var instr = stream.GetInstruction();
             InstructionBase prevInstr = null;
@@ -171,38 +162,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Value.Undefined();
         }
 
-        public ActionContext GetActionContext(int numRegisters, List<ConstantEntry> consts, ActionContext outerVar, ObjectContext thisVar, InstructionCollection code)
-        {
-            if (thisVar is null) thisVar = GlobalObject;
-            var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
-            {
-                Apt = thisVar.Item != null ? thisVar.Item.Context : null,
-                Stream = new InstructionStream(code),
-                GlobalConstantPool = consts,
-            };
-            return context;
-        }
-
-        public ActionContext GetActionContext(int numRegisters, InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
-        {
-            var stream = new InstructionStream(code);
-        
-            var context = new ActionContext(GlobalObject, scope, null, numRegisters)
-            {
-                Apt = scope.Item.Context,
-                Stream = stream,
-                GlobalConstantPool = consts,
-            };
-            return context;
-        }
-
         public InstructionBase ExecuteOnce(ActionContext context)
         {
             var instr = context.Stream.GetInstruction();
             instr.Execute(context);
             return instr;
         }
-        public void Execute(InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts) { Execute(GetActionContext(4, code, scope, consts)); }
+
+        // TODO all should be replaced. This is an extremely dangerous call.
+        public void Execute(InstructionCollection code, ObjectContext scope, AptContext apt) { Execute(GetActionContext(apt, scope, 4, null, code)); }
         public void Execute(ActionContext context)
         { 
             var stream = context.Stream;

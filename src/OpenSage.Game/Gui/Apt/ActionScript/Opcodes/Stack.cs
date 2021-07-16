@@ -41,7 +41,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.This.Constants[id]);
+            context.Push(context.Constants[id]);
         }
     }
 
@@ -98,7 +98,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var str = context.This.Constants[id].ToString();
+            var str = context.Constants[id].ToString();
 
             Value result;
 
@@ -106,9 +106,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
-            else if (context.CheckLocal(str))
+            else if (context.HasValueOnLocal(str))
             {
-                result = context.GetLocal(str);
+                result = context.GetValueOnLocal(str);
             }
             else
             {
@@ -312,7 +312,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.This.Constants[id]);
+            context.Push(context.Constants[id]);
         }
     }
 

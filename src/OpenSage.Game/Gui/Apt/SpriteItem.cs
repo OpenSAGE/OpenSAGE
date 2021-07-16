@@ -357,7 +357,7 @@ namespace OpenSage.Gui.Apt
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
                             Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject,
-                                                Character.Container.Constants.Entries);
+                                                Context);
                         }
                     }
                 }
@@ -379,7 +379,7 @@ namespace OpenSage.Gui.Apt
             foreach (var action in _actionList)
             {
                 Context.Avm.Execute(action.Instructions, ScriptObject,
-                        ScriptObject.Item.Character.Container.Constants.Entries);
+                        ScriptObject.Item.Context); // original: Character.Container.Constants.Entries not sure if the same
             }
             _actionList.Clear();
 

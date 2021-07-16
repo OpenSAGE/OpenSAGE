@@ -22,6 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return args;
         }
 
+        // TODO this function is no longer safe. try to use the new model.
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
         {
             if (funcVal.Type != ValueType.Undefined)
@@ -33,6 +34,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 logger.Warn($"Function val is wrong is wrong type: {funcVal}");
             }
+        }
+
+        public static void ExecuteFunction(Value funcVal, Value[] args, ActionContext context)
+        {
+
         }
 
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
@@ -101,7 +107,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = 4,
-                Constants = new List<Value>(context.This.Constants),
+                Constants = context.Constants, // do not need copy, see df2
+                DefinedContext = context, 
                 IsNewVersion = false
             };
 
@@ -146,7 +153,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = nRegisters,
-                Constants = new List<Value>(context.This.Constants),
+                Constants = context.Constants, // do not need shallow copy anymore since won't override
+                DefinedContext = context,
                 Flags = flags,
                 IsNewVersion = true
             };
@@ -251,7 +259,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.This.Constants[id].ToString();
+            var funcName = context.Constants[id].ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
@@ -270,7 +278,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.This.Constants[id].ToString();
+            var funcName = context.Constants[id].ToString();
             var argCount = context.Pop().ToInteger();
 
             var args = new Value[argCount];
@@ -294,7 +302,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.This.Constants[id].ToString();
+            var funcName = context.Constants[id].ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, context.This, context);
@@ -334,6 +342,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
     /// <summary>
     /// Call a function that is defined in the current scope
+    /// Since there is no reference, assume the popping order is correct
     /// </summary>
     public sealed class CallNamedMethod : InstructionBase
     {
@@ -343,7 +352,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.This.Constants[id].ToString();
+            var funcName = context.Constants[id].ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
@@ -351,7 +360,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             var result = context.Pop();
             var varName = context.Pop();
-            context.Locals[varName.ToString()] = result;
+
+            context.SetValueOnLocal(varName.ToString(), result);
         }
     }
 

@@ -20,14 +20,15 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         public ObjectContext This { get; private set; }
         public ObjectContext Global { get; private set; }
-        public ActionContext Outer { get; private set; }
+        public ActionContext Outer { get; private set; } 
         public AptContext Apt { get; set; }
         public InstructionStream Stream { get; set; }
         public int RegisterCount { get; private set; }
         public Dictionary<string, Value> Params { get; private set; }
-        public Dictionary<string, Value> Locals { get; private set; }
+        private Dictionary<string, Value> _locals; 
         public bool Return { get; set; }
-        public List<ConstantEntry> GlobalConstantPool { get; set; }
+        public List<ConstantEntry> GlobalConstantPool => Apt.Constants.Entries;
+        public List<Value> Constants { get; set; }
 
         private Stack<Value> _stack;
         private Value[] _registers { get; set; }
@@ -37,6 +38,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             // assignments
             Global = globalVar;
             This = thisVar;
+            if (outerVar == this) outerVar = null;
             Outer = outerVar; // null if the most outside
             RegisterCount = numRegisters;
 
@@ -44,14 +46,41 @@ namespace OpenSage.Gui.Apt.ActionScript
             _stack = new Stack<Value>();
             _registers = new Value[RegisterCount];
             Params = new Dictionary<string, Value>();
-            Locals = new Dictionary<string, Value>();
-            GlobalConstantPool = new List<ConstantEntry>();
+            _locals = new Dictionary<string, Value>();
+            Constants = new List<Value>();
             Return = false;
         }
-        //public ActionContext(int numRegisters = 0)
-        //{
-        //    
-        //}
+
+        // basics
+
+        public bool IsOutermost() { return Outer == null || Outer == this; }
+
+        // constant operations
+
+        public void ReformConstantPool(List<Value> Parameters)
+        {
+            var pool = new List<Value>();
+
+            for (var i = 0; i < Parameters.Count; ++i)
+            {
+                Value result;
+                var entry = GlobalConstantPool[Parameters[i].ToInteger()];
+                switch (entry.Type)
+                {
+                    case ConstantEntryType.String:
+                        result = Value.FromString((string) entry.Value);
+                        break;
+                    case ConstantEntryType.Register:
+                        result = Value.FromRegister((uint) entry.Value);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                pool.Add(result);
+            }
+
+            Constants = pool;
+        }
 
         // register operations
 
@@ -117,6 +146,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _stack.Pop().ResolveConstant(this).ResolveRegister(this);
         }
 
+        // parameters
+
         /// <summary>
         /// Check if a specific string is a parameter in the current params
         /// </summary>
@@ -142,9 +173,34 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="name">variable name</param>
         /// <returns></returns>
-        public bool CheckLocal(string name)
+        public bool HasValueOnLocal(string name)
         {
-            return Locals.ContainsKey(name);
+            if (!IsOutermost())
+            {
+                return _locals.ContainsKey(name);
+            }
+            else
+            {
+                return Global.HasMember(name);
+            }
+            
+        }
+
+        public bool HasValueOnChain(string name)
+        {
+            var ans = false;
+            var env = this;
+            while (env != null)
+            {
+                if (env.HasValueOnLocal(name))
+                {
+                    ans = true;
+                    break;
+                }
+                env = env.Outer;
+            }
+
+            return ans;
         }
 
         /// <summary>
@@ -152,11 +208,87 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="name">local name</param>
         /// <returns></returns>
-        public Value GetLocal(string name)
+        public Value GetValueOnLocal(string name)
         {
-            return Locals[name];
+            if (!IsOutermost())
+            {
+                return HasValueOnLocal(name) ? _locals[name] : Value.Undefined();
+            }
+            else
+            {
+                return Global.GetMember(name);
+            }
         }
 
+        public Value GetValueOnChain(string name)
+        {
+            var ans = Value.Undefined();
+            var env = this;
+            while (env != null)
+            {
+                if (env.HasValueOnLocal(name))
+                {
+                    ans = env.GetValueOnLocal(name);
+                    break;
+                }
+                env = env.Outer;
+            }
+
+            return ans;
+        }
+
+        public void SetValueOnLocal(string name, Value val)
+        {
+            if (!IsOutermost())
+            {
+                _locals[name] = val;
+            }
+            else
+            {
+                Global.SetMember(name, val);
+            }
+        }
+
+        public void SetValueOnChain(string name, Value val)
+        {
+            var env = this;
+            while (env != null)
+            {
+                if (env.HasValueOnLocal(name))
+                {
+                    env.SetValueOnLocal(name, val);
+                    return;
+                }
+                env = env.Outer;
+            }
+            SetValueOnLocal(name, val);
+        }
+
+        public void DeleteValueOnLocal(string name)
+        {
+            if (!IsOutermost())
+            {
+                if (HasValueOnLocal(name)) _locals.Remove(name);
+            }
+            else
+            {
+                Global.DeleteMember(name);
+            }
+        }
+
+        public void DeleteValueOnChain(string name)
+        {
+            var env = this;
+            while (env != null)
+            {
+                if (env.HasValueOnLocal(name))
+                {
+                    env.DeleteValueOnLocal(name);
+                    return;
+                }
+                env = env.Outer;
+            }
+        }
 
         /// <summary>
         /// Checks for special handled/global objects. After that checks for child objects of the
@@ -284,7 +416,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))
             {
-                Locals["this"] = Value.FromObject(This);
+                _locals["this"] = Value.FromObject(This);
             }
         }
     }
