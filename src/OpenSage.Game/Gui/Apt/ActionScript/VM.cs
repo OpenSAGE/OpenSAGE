@@ -20,6 +20,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ActionContext GlobalContext { get; }
         public ObjectContext ExternObject { get; }
 
+        public ObjectContext FunctionPrototype { get; }
+        public ObjectContext ObjectPrototype { get; }
+
         // Delegate to call a function inside the engine
         public delegate void HandleCommand(ActionContext context, string command, string param);
         public HandleCommand CommandHandler;
@@ -45,6 +48,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             ExternObject = new ExternObject(this);
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
             _callStack = new Stack<ActionContext>();
+
+            // initialize global vars and methods
+
+
+
         }
 
         // interval operations
@@ -85,6 +93,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public void PushContext(ActionContext context) { _callStack.Push(context); }
         public ActionContext PopContext() { return _callStack.Pop(); }
         public ActionContext CurrentContext() { return _callStack.Peek(); }
+        public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
         public void ForceReturn() { }
 
 
@@ -127,17 +136,64 @@ namespace OpenSage.Gui.Apt.ActionScript
         */
         // execution
 
-        public Value Execute(Function func, Value[] args, ObjectContext thisVar)
+
+        /// <summary>
+        /// Execute once in the current ActionContext.
+        /// </summary>
+        /// <returns></returns>
+        public InstructionBase ExecuteOnce()
         {
-            if (func == Function.FunctionConstructor)
+            InstructionBase ans = null;
+
+            var context = CurrentContext();
+            if (context.Halt)
             {
-                throw new NotImplementedException("Unfortunately, we do not have an interpreter yet.");
-            }
-            else if (func == Function.ObjectConstructor)
-            {
-                return Value.FromObject(new ObjectContext());
+                throw new NotImplementedException("No more instructions");
             }
 
+            var stream = context.Stream;
+            if (stream.IsFinished()) context.Return = true;
+            else
+            {
+                ans = stream.GetInstruction();
+                ans.Execute(context);
+            }
+
+            if (context.Return)
+            {
+                if (!IsCurrentContextGlobal())
+                {
+                    var ret = context.Pop();
+                    PopContext();
+                    CurrentContext().Push(ret);
+                }
+                else
+                {
+                    context.Halt = true;
+                }
+            }
+
+            return ans;
+        }
+
+        public void ExecuteUntilReturn()
+        {
+            var context = CurrentContext();
+            while (!context.Return) ExecuteOnce();
+        }
+
+        public void ExecuteUntilHalt()
+        {
+            while (!CurrentContext().Halt) ExecuteOnce();
+        }
+
+        public Value Execute(Function func, Value[] args, ObjectContext thisVar)
+        {
+            func.Invoke(this, thisVar, args);
+            ExecuteUntilReturn();
+            var ret = CurrentContext().Pop();
+            return ret;
+            /*
             var context = func.GetContext(this, args, thisVar);
             var stream = context.Stream;
  
@@ -159,7 +215,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr = stream.GetInstruction();
             }
 
-            return Value.Undefined();
+            return Value.Undefined();*/
         }
 
         public InstructionBase ExecuteOnce(ActionContext context)

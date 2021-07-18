@@ -6,6 +6,43 @@ using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
+    // ECMA-262 #8.3.1
+    public class Property
+    {
+        public bool Enumerable { get; set; }
+        public bool Configurable { get; set; }
+
+        public static NamedDataProperty D(Value val, bool w, bool e, bool c) {
+            return new NamedDataProperty()
+            {
+                Value = val,
+                Writable = w,
+                Enumerable = e,
+                Configurable = c,
+            };
+        }
+        public static NamedAccessoryProperty A(Func<VM, ObjectContext, Value> g, Action<VM, ObjectContext, Value> s, bool e, bool c)
+        {
+            return new NamedAccessoryProperty()
+            {
+                Get = g, 
+                Set = s, 
+                Enumerable = e,
+                Configurable = c,
+            };
+        }
+    }
+    public class NamedDataProperty: Property
+    {
+        public Value Value { get; set; }
+        public bool Writable { get; set; }
+    }
+    public class NamedAccessoryProperty: Property
+    {
+        public Func<VM, ObjectContext, Value> Get { get; set; }
+        public Action<VM, ObjectContext, Value> Set { get; set; }
+    }
+
     public class ObjectContext
     {
 
@@ -36,8 +73,132 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Contains functions and member variables
         /// </summary>
         public Dictionary<string, Value> Variables { get; set; }
+        private Dictionary<string, Property> Properties;
 
         // public List<Value> Constants { get; set; }
+
+        // internal properties
+
+        protected ObjectContext Prototype;
+        protected string Class => "Object";
+        protected bool Extensible;
+
+        private static ObjectContext _createPrototypes()
+        {
+            var _op = new ObjectContext(false);
+            FunctionPrototype = new ObjectContext(false);
+            _foc = new SpecOp((a, b, c) => new ObjectContext(), false);
+            _ffc = new SpecOp((a, b, c) => throw new NotImplementedException("Nonetheless this is not the real ActionScript."), false); ;
+
+            FunctionPrototype.constructor = _ffc;
+            FunctionPrototype.__proto__ = _op;
+            _foc.__proto__ = FunctionPrototype;
+            _ffc.__proto__ = FunctionPrototype;
+            _foc.prototype = _op;
+            _ffc.prototype = FunctionPrototype;
+
+            _op.constructor = _foc;
+            return _op;
+        }
+
+        // class inheritance
+        protected internal static Function _foc { get; private set; }
+        protected internal static Function _ffc { get; private set; }
+        public static readonly ObjectContext ObjectPrototype = _createPrototypes(); // = new ObjectContext(false) { __proto__ = null, constructor = Function.ObjectConstructor };
+        public static ObjectContext FunctionPrototype { get; private set; } // = new ObjectContext() { constructor = Function.FunctionConstructor };
+
+        protected static Dictionary<string, Property> _properties = new Dictionary<string, Property>
+        {
+            ["constructor"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => { tv.Prototype = vm.ObjectPrototype; }
+                 )), true, false, false),
+            ["__proto__"] = Property.A(
+                 (vm, tv) => Value.FromObject(tv.Prototype),
+                 (vm, tv, val) => tv.Prototype = val.ToObject(), 
+                 false, false),
+        };
+
+        protected static Dictionary<string, Property> _staticProperties = new Dictionary<string, Property>
+        {
+            ["prototype"] = Property.D(Value.Undefined(), true, false, false),
+        };
+
+        protected static Dictionary<string, Property> _methods = new Dictionary<string, Property>
+        {
+            ["addProperty"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => {
+                     string name = args.Length > 0 ? args[0].ToString() : null;
+                     Function getter = args.Length > 1 ? args[1].ToFunction() : null;
+                     Function setter = args.Length > 2 ? args[2].ToFunction() : null;
+                     tv.AddProperty(name, getter, setter);
+                 }
+                 )), true, false, false),
+            ["hasOwnProperty"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => {
+                     var name = args.Length > 0 ? args[0].ToString() : null;
+                     var ans = tv.HasOwnMember(name);
+                     vm.CurrentContext().Push(Value.FromBoolean(ans));
+                 }
+                 )), true, false, false),
+            ["isPropertyEnumerable"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => {
+                     var name = args.Length > 0 ? args[0].ToString() : null;
+                     var ans = tv.IsPropertyEnumerable(name);
+                     vm.CurrentContext().Push(Value.FromBoolean(ans));
+                 }
+                 )), true, false, false),
+            ["isPrototypeOf"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => {
+                     var name = args.Length > 0 ? args[0].ToObject() : null;
+                     var ans = tv.IsPrototypeOf(name);
+                     vm.CurrentContext().Push(Value.FromBoolean(ans));
+                 }
+                 )), true, false, false),
+            ["toString"] = Property.D(Value.FromFunction(new SpecOp(
+                 (vm, tv, args) => {
+                     var ans = tv.ToString();
+                     vm.CurrentContext().Push(Value.FromString(ans));
+                 }
+                 )), true, false, false),
+        };
+        /*
+        public static ObjectContext GetPrototype(VM vm)
+        {
+            var base_proto = Prototype.Prototype;
+            Prototype = base_proto;
+            foreach (var prop in _properties)
+            {
+                AddMember(prop.Key, prop.Value);
+            }
+        }
+
+        public static Function GetConstructor(VM vm)
+        {
+            var obj_proto = new ObjectContext((VM) null);
+            var func_proto = new ObjectContext((VM) null);
+            var _foc = new SpecOp((a, b, c) => { }, false);
+            var _ffc = new SpecOp((a, b, c) => throw new NotImplementedException("Nonetheless this is not the real ActionScript."), false); ;
+
+            func_proto.constructor = _ffc;
+            func_proto.__proto__ = obj_proto;
+            _foc.__proto__ = func_proto;
+            _ffc.__proto__ = func_proto;
+            _foc.prototype = obj_proto;
+            _ffc.prototype = func_proto;
+
+            obj_proto.constructor = _foc;
+
+            // Function constr = new SpecOp()
+        }
+        */
+
+        // equivalent to [[Construct]]
+        public ObjectContext(VM vm)
+        {
+            Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
+
+            Prototype = vm.ObjectPrototype;
+        }
 
         /// <summary>
         /// this ActionScript object is not bound bound to an item, e.g. for global object
@@ -49,6 +210,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             // Constants = new List<Value>();
 
             __proto__ = ObjectPrototype;
+
+            // SetMember("hasOwnProperty", Value.FromFunction(new FunctionCaller(
+            //     (vm, tv, args) => Value.FromBoolean(tv.HasMember(args[0].ToString()))
+            //     ))) ;
         }
 
         internal protected ObjectContext(bool JustUsedToCreateObjectPrototype)
@@ -72,8 +237,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             InitializeProperties();
         }
 
+        public virtual void AddProperty(string name, Function getter, Function setter)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// return a variable, when not present return Undefined
+        /// equivalent to the specop [[Get]]
         /// </summary>
         /// <param name="name">variable name</param>
         /// <returns></returns>
@@ -117,6 +288,17 @@ namespace OpenSage.Gui.Apt.ActionScript
             
         }
 
+        public virtual bool HasOwnMember(string name)
+        {
+            throw new NotImplementedException();
+            return false;
+        }
+        public virtual bool IsPropertyEnumerable(string name)
+        {
+            throw new NotImplementedException();
+            return false;
+        }
+
         public virtual void DeleteMember(string name)
         {
             if (IsBuiltInVariable(name))
@@ -127,6 +309,28 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 if (HasMember(name)) Variables.Remove(name);
             }
+        }
+        /// <summary>
+        ///
+        /// this: should be a prototype (has "constructor": function)
+        /// theClass: should be an instance (has "prototype": constructor function)
+        /// </summary>
+        /// <param name="theClass"></param>
+        /// <returns></returns>
+        public bool IsPrototypeOf(ObjectContext theClass)
+        {
+            var ans = false;
+            var proto = __proto__;
+            while (proto != null)
+            {
+                if (proto == theClass)
+                {
+                    ans = true;
+                    break;
+                }
+                proto = proto.__proto__;
+            }
+            return ans;
         }
 
         /// <summary>
@@ -181,30 +385,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             Builtin.CallBuiltInFunction(name, actx, this, args);
         }
-        
-        private static ObjectContext _createPrototypes()
-        {
-            var _op = new ObjectContext(false);
-            FunctionPrototype = new ObjectContext(false);
-            _foc = new Function(false);
-            _ffc = new Function(false);
 
-            FunctionPrototype.constructor = _ffc;
-            FunctionPrototype.__proto__ = _op;
-            _foc.__proto__ = FunctionPrototype;
-            _ffc.__proto__ = FunctionPrototype;
-            _foc.prototype = _op;
-            _ffc.prototype = FunctionPrototype;
-
-            _op.constructor = _foc;
-            return _op;
-        }
-
-        // class inheritance
-        protected internal static Function _foc { get; private set; }
-        protected internal static Function _ffc { get; private set; }
-        public static readonly ObjectContext ObjectPrototype = _createPrototypes(); // = new ObjectContext(false) { __proto__ = null, constructor = Function.ObjectConstructor };
-        public static ObjectContext FunctionPrototype { get; private set; } // = new ObjectContext() { constructor = Function.FunctionConstructor };
 
         public bool IsFunction()  { return this is Function || __proto__ == FunctionPrototype;  }
         public bool IsConstructor() { return IsFunction() && prototype.IsPrototype(); }

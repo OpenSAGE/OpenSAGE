@@ -4,6 +4,7 @@ using OpenSage.Data.Apt.Characters;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Diagnostics
 {
@@ -33,11 +34,12 @@ namespace OpenSage.Diagnostics
                 case ValueType.Float:
                     return value.ToFloat();
                 case ValueType.Object:
-                    return "[OBJECT]";
-                case ValueType.Function:
-                    return "[FUNCTION]";
-                case ValueType.Array:
-                    return "[ARRAY]";
+                    if (value.ToObject() is Function)
+                        return "[FUNCTION]";
+                    else if (value.ToObject() is ASArray)
+                        return "[ARRAY]";
+                    else
+                        return "[OBJECT]";
                 case ValueType.Undefined:
                     return "[UNDEFINED]";
             }

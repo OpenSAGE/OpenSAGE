@@ -332,7 +332,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                                 }
                             }
                             break;
-                        case InstructionType.DefineFunction2: // TODO Flags? & Exec. Env.
+                        case InstructionType.DefineFunction2: // TODO Flags?
                             {
                                 instruction = new DefineFunction2();
                                 var name = reader.ReadStringAtOffset();
@@ -385,7 +385,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new CallFunction();
                             break;
                         case InstructionType.EA_CallFunc:
-                            instruction = new CallFunc(); // NIE don't know the difference
+                            instruction = new CallFunc(); // NIE don't know the difference, plan to implement when encountered
                             break;
                         case InstructionType.EA_CallFuncPop:
                             instruction = new CallFunctionPop();
@@ -415,7 +415,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new Enumerate2();
                             break;
                         case InstructionType.Equals2:
-                            instruction = new Equals2(); // TODO diff e and e2
+                            instruction = new Equals2(); // TODO Follow ECMA-262 #11.9.3
                             break;
                         case InstructionType.GetMember:
                             instruction = new GetMember();
@@ -430,7 +430,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new InitObject(); // TODO member/property issue
                             break;
                         case InstructionType.NewMethod:
-                            instruction = new NewMethod();
+                            instruction = new NewMethod(); // TODO not sure if correct, the document is vague
                             break;
                         case InstructionType.NewObject:
                             instruction = new NewObject();

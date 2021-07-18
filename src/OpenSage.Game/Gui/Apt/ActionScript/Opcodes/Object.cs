@@ -235,7 +235,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var memberVal = context.Pop().ToString();
             var objectVal = context.Pop().ToObject();
 
-            objectVal.Variables[memberVal] = Parameters[0];
+            objectVal.SetMember(memberVal, Parameters[0]);
         }
     }
 
@@ -269,19 +269,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var name = context.Pop().ToString();
             var obj = context.Pop();
             var args = FunctionCommon.GetArgumentsFromStack(context);
-
+            
+            if (name.Length != 0) obj = obj.ToObject().GetMember(name);
+            /*
             if (name.Length == 0)
                 FunctionCommon.ExecuteFunction(obj, args, context.This, context);
-            // throw new NotImplementedException("what the hell is a construction function?");
             else
                 FunctionCommon.ExecuteFunction(name, args, obj.ToObject(), context);
+            */
+            var thisVar = new ObjectContext();
+            FunctionCommon.CreateFunctionContext(obj, args, context, thisVar);
 
-            //WRONG!!!!
-            // pop it if the value is undefined
-            //var ret = context.Peek();
-            //if (ret.Type.Equals(ValueType.Undefined))
-            //    context.Pop();
-            throw new NotImplementedException(context.DumpStack());
+            context.Apt.Avm.ExecuteUntilReturn();
+            context.Pop();
+            context.Push(Value.FromObject(thisVar));
         }
     }
 
@@ -335,11 +336,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case ValueType.Object:
                     if (val.ToObject().Item.Character is Movie)
                         result = Value.FromString("movieclip");
+                    else if (val.ToObject() is Function)
+                        result = Value.FromString("function");
                     else
                         result = Value.FromString("object");
-                    break;
-                case ValueType.Function:
-                    result = Value.FromString("function");
                     break;
                 case ValueType.Undefined:
                     result = Value.FromString("undefined");

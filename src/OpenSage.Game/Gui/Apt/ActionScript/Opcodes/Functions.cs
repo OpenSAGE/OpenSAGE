@@ -35,11 +35,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 logger.Warn($"Function val is wrong is wrong type: {funcVal}");
             }
         }
-
-        public static void ExecuteFunction(Value funcVal, Value[] args, ActionContext context)
+        public static void CreateFunctionContext(string funcName, Value[] args, ActionContext context, ObjectContext thisVar = null)
         {
-
+            CreateFunctionContext(context.GetValueOnChain(funcName), args, context, thisVar);
         }
+        public static void CreateFunctionContext(Value funcVal, Value[] args, ActionContext context, ObjectContext thisVar = null)
+        {
+            if (funcVal.Type != ValueType.Undefined)
+            {
+                var func = funcVal.ToFunction();
+                var vm = context.Apt.Avm;
+                if (thisVar == null) thisVar = context.Global;
+                func.Invoke(vm, thisVar, args);
+            }
+            else
+            {
+                logger.Warn($"Function val is wrong is wrong type: {funcVal}");
+            }
+        }
+    
 
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
         {
@@ -47,10 +61,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 var func = funcVal.ToFunction();
                 var vm = context.Apt.Avm;
-                var ret = vm.Execute(func, args, scope);
-
-                if (ret != null)
-                    context.Push(ret);
+                func.Invoke(vm, scope, args); // return value should be in stack
             }
             else
             {
@@ -102,7 +113,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function()
+            var func = new Function1()
             {
                 Parameters = paramList,
                 Instructions = code,
@@ -115,7 +126,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.Variables[name] = funcVal;
+                context.This.SetMember(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -148,7 +159,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function()
+            var func = new Function1()
             {
                 Parameters = paramList,
                 Instructions = code,
@@ -162,7 +173,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.Variables[name] = funcVal;
+                context.This.SetMember(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -199,16 +210,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+                FunctionCommon.CreateFunctionContext(funcName, args, context, obj);
+                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
             {
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
+                FunctionCommon.CreateFunctionContext(funcName, args, context);
+                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
         }
     }
@@ -234,16 +245,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+                FunctionCommon.CreateFunctionContext(funcName, args, context, obj);
+                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
             {
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
+                FunctionCommon.CreateFunctionContext(funcName, args, context);
+                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
         }
     }
@@ -321,8 +332,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.This, context);
+            FunctionCommon.CreateFunctionContext(funcName, args, context);
+            // FunctionCommon.ExecuteFunction(funcName, args, context.This, context);
         }
     }
 
@@ -376,8 +387,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.This, context);
+            FunctionCommon.CreateFunctionContext(funcName, args, context);
+            // FunctionCommon.ExecuteFunction(funcName, args, context.This, context);
         }
     }
 }

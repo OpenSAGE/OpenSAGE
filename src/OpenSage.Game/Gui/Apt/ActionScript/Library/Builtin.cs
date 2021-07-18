@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
@@ -23,8 +24,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 ["Color"] = args => Value.FromObject(new ASColor()),
                 ["Array"] = args => Value.FromObject(new ASArray(args)),
-                ["Object"] = args => Value.FromObject(new ObjectContext()),
-                ["Function"] = args => throw new NotImplementedException("Nonetheless this is not the real ActionScript. "),
+                //["Object"] = Function.ObjectConstructor,
+                //["Function"] = Function.FunctionConstructor,
+            };
+
+            // list of builtin functions
+            BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
+            {
+                // MovieClip methods
+                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(actx, ctx, args),
+                ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
+                ["stop"] = (actx, ctx, args) => Stop(ctx),
+                // Global constructors / functions
+                ["clearInterval"] = ClearInterval,
+                ["setInterval"] = SetInterval,
+                ["loadMovie"] = LoadMovie,
+                ["Boolean"] = BoolFunc,
+                ["attachMovie"] = AttachMovie,
+                ["getTime"] = (actx, ctx, args) => GetTime(actx),
+
             };
 
             // list of builtin variables
@@ -34,7 +52,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
                 ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
                 ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject),
-                // Object specifc
+                // MovieClip methods
                 ["_parent"] = GetParent,
                 ["_name"] = ctx => Value.FromString(ctx.Item.Name),
                 ["_x"] = GetX,
@@ -64,22 +82,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
                 },
-            };
-
-            // list of builtin functions
-            BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
-            {
-                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(actx, ctx, args),
-                ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
-                ["stop"] = (actx, ctx, args) => Stop(ctx),
-                ["clearInterval"] = ClearInterval,
-                ["setInterval"] = SetInterval,
-                ["loadMovie"] = LoadMovie,
-                // Global constructors / functions
-                ["Boolean"] = BoolFunc,
-                ["attachMovie"] = AttachMovie,
-                ["getTime"] = (actx, ctx, args) => GetTime(actx),
-                
             };
         }
 

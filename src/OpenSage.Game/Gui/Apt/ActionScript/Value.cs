@@ -17,8 +17,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         Short,
         Float,
         Object,
-        Function,
-        Array,
+        // Function,
+        // Array,
         Undefined
     }
 
@@ -31,8 +31,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         private int _number;
         private double _decimal;
         private ObjectContext _object;
-        private Function _function;
-        private Value[] _array;
+        // private Function _function;
+        // private Value[] _array;
 
         public bool IsNumericType()
         {
@@ -69,8 +69,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         public static Value FromFunction(Function func)
         {
             var v = new Value();
-            v.Type = ValueType.Function;
-            v._function = func;
+            v.Type = ValueType.Object;
+            v._object = func;
             return v;
         }
 
@@ -86,8 +86,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         public static Value FromArray(Value[] array)
         {
             var v = new Value();
-            v.Type = ValueType.Array;
-            v._array = array;
+            v.Type = ValueType.Object;
+            v._object = new ASArray(array);
             return v;
         }
 
@@ -179,12 +179,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return new ASString(_string);
             }
 
-            if (Type == ValueType.Function)
-            {
-                return _function;
-            }
-
-            if (Type != ValueType.Object && Type != ValueType.Function)
+            if (Type != ValueType.Object)
                 throw new InvalidOperationException();
 
             return _object;
@@ -269,10 +264,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                 logger.Error("Undefined Function!");
                 return null;
             }
-            if (Type != ValueType.Function)
+            if (Type != ValueType.Object || _object is not Function)
                 throw new InvalidOperationException();
 
-            return _function;
+            return (Function) _object;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -294,9 +289,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Undefined:
                     return "undefined"; // follows ECMA-262
                 case ValueType.Object:
+                    // if (_object is Function)
+                    // {
+                    //     var f = (Function) _object;
+                    //     return $"Function({f.Parameters.Count}, {f.Constants.Count})";
+                    // }
                     return _object == null ? "null": _object.ToString();
-                case ValueType.Function:
-                    return $"Function({_function.Parameters.Count}, {_function.Constants.Count})";
                 default:
                     throw new NotImplementedException(Type.ToString());
             }

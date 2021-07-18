@@ -46,6 +46,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     Apt = _context,
                     Stream = new InstructionStream(_instructions.Insts),
                 };
+                _context.Avm.PushContext(_acontext);
             }
             
         }
@@ -68,7 +69,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     if (_context != null)
                     {
-                        var lef = _context.Avm.ExecuteOnce(_acontext);
+                        var lef = _context.Avm.ExecuteOnce(); // _acontext);
                         last_executed_func = lef.ToString(_acontext);
                     }
                     else

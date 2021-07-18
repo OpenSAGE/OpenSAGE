@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -26,22 +27,94 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string Parameter;
     }
 
-    public sealed class Function: ObjectContext
+    public abstract class Function: ObjectContext
     {
-        public static Function FunctionConstructor => ObjectContext._ffc;
-        public static Function ObjectConstructor => ObjectContext._foc;
+        public static Function FunctionConstructor => _ffc;
+        public static Function ObjectConstructor => _foc;
 
         public Function(): base()
         {
             __proto__ = FunctionPrototype;
             var prt = new ObjectContext();
             prt.constructor = this;
-            this.prototype = prt;
+            prototype = prt;
+
+            if (this is not SpecOp)
+            {
+                SetMember("apply", Value.FromObject(new SpecOp(Apply)));
+                SetMember("call", Value.FromObject(new SpecOp(Call)));
+            }
         }
 
-        internal Function(bool JustUsedToCreateObjectPrototype): base(JustUsedToCreateObjectPrototype)
+        public Function(VM vm): base(vm)
+        {
+
+        }
+
+        internal Function(bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
         {
             __proto__ = FunctionPrototype;
+
+            if (this is not SpecOp)
+            {
+                SetMember("apply", Value.FromObject(new SpecOp(Apply)));
+                SetMember("call", Value.FromObject(new SpecOp(Call)));
+            }
+        }
+        public abstract void Invoke(VM vm, ObjectContext thisVar, Value[] args);
+
+        public void Apply(VM vm, ObjectContext thisVar, Value[] args)
+        {
+            var thisVar_ = args.Length > 0 ? args[0] : Value.Undefined();
+            var args_ = args.Length > 1 ? ((ASArray)args[1].ToObject()).GetValues() : new Value[0];
+            Invoke(vm, thisVar_.ToObject(), args_);
+        }
+
+        public void Call(VM vm, ObjectContext thisVar, Value[] args)
+        {
+            var thisVar_ = Value.Undefined();
+            var args_ = new Value[args.Length > 0 ? args.Length - 1 : 0];
+            if (args.Length > 0) {
+                thisVar_ = args[0];
+                Array.Copy(args, 1, args_, 0, args_.Length);
+            }
+            Invoke(vm, thisVar_.ToObject(), args_);
+        }
+
+    }
+
+    public class SpecOp: Function
+    {
+        public Action<VM, ObjectContext, Value[]> F { get; private set; }
+        public SpecOp(Action<VM, ObjectContext, Value[]> f): base()
+        {
+            F = f;
+            SetMember("apply", Value.FromObject(this)); // Not sure if correct
+            SetMember("call", Value.FromObject(this));
+        }
+
+        public SpecOp(Action<VM, ObjectContext, Value[]> f, VM vm) : base(vm)
+        {
+            F = f;
+            SetMember("apply", Value.FromObject(this)); // Not sure if correct
+            SetMember("call", Value.FromObject(this));
+        }
+
+        internal SpecOp(Action<VM, ObjectContext, Value[]> f, bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
+        {
+            F = f;
+            SetMember("apply", Value.FromObject(this)); // Not sure if correct
+            SetMember("call", Value.FromObject(this));
+        }
+
+        public override void Invoke (VM vm, ObjectContext thisVar, Value[] args) { F(vm, thisVar, args); }
+    }
+
+    public class Function1: Function
+    {
+
+        public Function1(): base()
+        {
         }
 
         public InstructionCollection Instructions { get; set; }
@@ -52,15 +125,15 @@ namespace OpenSage.Gui.Apt.ActionScript
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
 
-
+        public override void Invoke(VM vm, ObjectContext thisVar, Value[] args)
+        {
+            var context = GetContext(vm, args, thisVar);
+            vm.PushContext(context);
+        }
 
         public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)
         {
-            var outerVar = vm.CurrentContext();
-
-            var code = Instructions;
-
-            var context = vm.GetActionContext(outerVar, thisVar, NumberRegisters, Constants, code);
+            var context = vm.GetActionContext(DefinedContext, thisVar, NumberRegisters, Constants, Instructions);
 
             /*var localScope = new ObjectContext(thisVar.Item)
             {
@@ -117,28 +190,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return context;
         }
 
-        public Value Execute(ActionContext context)
-        {
-            var stream = context.Stream;
-
-            var instr = stream.GetInstruction();
-            InstructionBase prevInstr = null;
-
-            while (instr.Type != InstructionType.End)
-            {
-                instr.Execute(context);
-
-                if (context.Return)
-                    return context.Pop();
-
-                if (stream.IsFinished())
-                    break;
-
-                prevInstr = instr;
-                instr = stream.GetInstruction();
-            }
-
-            return Value.Undefined();
-        }
     }
+
+   
 }

@@ -6,16 +6,6 @@ using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    public sealed class ActionScope: ObjectContext
-    {
-        public ActionScope ParentScope { get; private set; }
-
-        public ActionScope(ActionScope parent): base()
-        { 
-            ParentScope = parent;
-        }
-    }
-
     public sealed class ActionContext
     {
         public ObjectContext This { get; private set; }
@@ -27,6 +17,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Dictionary<string, Value> Params { get; private set; }
         private Dictionary<string, Value> _locals; 
         public bool Return { get; set; }
+        public bool Halt { get; set; }
         public List<ConstantEntry> GlobalConstantPool => Apt.Constants.Entries;
         public List<Value> Constants { get; set; }
 
@@ -334,7 +325,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 }
                 else
                 {
-                    obj = obj.Variables[part].ToObject();
+                    obj = obj.GetMember(part).ToObject();
                 }
             }
 
@@ -348,17 +339,22 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public Value ConstructObject(string name, Value[] args) // TODO need reconstruction
         {
-            Value result = null;
-            if (Builtin.IsBuiltInClass(name))
+            var funcVal = GetValueOnChain(name);
+            Value ret = null;
+            if (funcVal.Type != ValueType.Object || !funcVal.ToObject().IsFunction())
             {
-                result = Builtin.GetBuiltInClass(name, args);
+                throw new InvalidOperationException("Not a function");
             }
             else
             {
-                throw new NotImplementedException();
+                var func = funcVal.ToFunction();
+                var thisVar = new ObjectContext();
+                func.Invoke(Apt.Avm, thisVar, args);
+                Apt.Avm.ExecuteUntilReturn();
+                Pop(); // discard the returned value
+                ret = Value.FromObject(thisVar);
             }
-
-            return result;
+            return ret;
         }
 
         /// <summary>
