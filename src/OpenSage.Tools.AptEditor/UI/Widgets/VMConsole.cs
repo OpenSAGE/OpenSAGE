@@ -41,7 +41,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ObjectContext ocon = manager.CurrentDisplay.ScriptObject;
 
                 _context = manager.CurrentDisplay.Context;
-                _acontext = new ActionContext(_context.Avm.GlobalObject, ocon, null, 4)
+                _acontext = new ActionContext(_context.Avm.GlobalObject, ocon, _context.Avm.CurrentContext(), 4)
                 {
                     Apt = _context,
                     Stream = new InstructionStream(_instructions.Insts),
@@ -123,10 +123,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 ImGui.Text(last_executed_func);
 
                 ImGui.Text("KW Global:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.Global.ToStringDisp());
+                ImGui.Text(_acontext == null ? "null" : _acontext.Global.ToStringDisp(_acontext));
 
                 ImGui.Text("KW This:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp());
+                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp(_acontext));
 
                 if (_instructions != null && ImGui.Begin("Codes"))
                 { 

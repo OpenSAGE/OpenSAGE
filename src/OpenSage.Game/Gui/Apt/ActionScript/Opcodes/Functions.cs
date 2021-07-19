@@ -44,9 +44,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             if (funcVal.Type != ValueType.Undefined)
             {
                 var func = funcVal.ToFunction();
-                var vm = context.Apt.Avm;
                 if (thisVar == null) thisVar = context.Global;
-                func.Invoke(vm, thisVar, args);
+                func.Invoke(context, thisVar, args);
             }
             else
             {
@@ -60,8 +59,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             if (funcVal.Type != ValueType.Undefined)
             {
                 var func = funcVal.ToFunction();
-                var vm = context.Apt.Avm;
-                func.Invoke(vm, scope, args); // return value should be in stack
+                func.Invoke(context, scope, args); // return value should be in stack
             }
             else
             {
@@ -113,7 +111,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function1()
+            var func = new DefinedFunction(context.Apt.Avm)
             {
                 Parameters = paramList,
                 Instructions = code,
@@ -159,7 +157,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function1()
+            var func = new DefinedFunction(context.Apt.Avm)
             {
                 Parameters = paramList,
                 Instructions = code,

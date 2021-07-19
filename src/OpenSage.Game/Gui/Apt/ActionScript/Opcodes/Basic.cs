@@ -81,7 +81,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 args[i] = context.Pop();
             }
 
-            context.Push(Value.FromArray(args));
+            context.Push(Value.FromArray(args, context.Apt.Avm));
         }
     }
 
@@ -186,7 +186,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var obj = context.Pop().ToObject();
             context.Push(Value.FromObject(null));
             // Not sure if this is correct
-            foreach (var slot in obj.Variables.Keys)
+            foreach (var slot in obj.GetAllProperties())
             {
                 context.Push(Value.FromString(slot));
             }

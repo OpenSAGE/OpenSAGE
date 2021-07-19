@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -151,7 +152,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var property = context.Pop().ToEnum<PropertyType>();
             var target = context.GetTarget(context.Pop().ToString());
 
-            var prop = target.ToObject().GetProperty(property);
+            var prop = ((StageObject) target.ToObject()).GetProperty(property);
             context.Push(prop);
         }
     }
@@ -169,7 +170,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var property = context.Pop().ToEnum<PropertyType>();
             var target = context.GetTarget(context.Pop().ToString());
 
-            target.ToObject().SetProperty(property, value);
+             target.ToObject<StageObject>().SetProperty(property, value);
         }
     }
 
@@ -251,8 +252,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var name = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            var obj = context.ConstructObject(name, args);
-            context.Push(obj);
+            context.ConstructObjectAndPush(name, args);
         }
     }
 
@@ -277,12 +277,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             else
                 FunctionCommon.ExecuteFunction(name, args, obj.ToObject(), context);
             */
-            var thisVar = new ObjectContext();
+            var thisVar = new ObjectContext(context.Apt.Avm);
+            context.PushRecallCode(new PushValue(Value.FromObject(thisVar)));
+            context.PushRecallCode(new Pop());
             FunctionCommon.CreateFunctionContext(obj, args, context, thisVar);
-
+            /*
             context.Apt.Avm.ExecuteUntilReturn();
             context.Pop();
             context.Push(Value.FromObject(thisVar));
+            */
+            
         }
     }
 
@@ -296,12 +300,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var nArgs = context.Pop().ToInteger();
-            var obj = new ObjectContext();
+            var obj = new ObjectContext(context.Apt.Avm);
             for (int i = 0; i < nArgs; ++i)
             {
                 var vi = context.Pop();
-                var ni = context.Pop().ToEnum<PropertyType>();
-                obj.SetProperty(ni, vi);
+                var ni = context.Pop().ToString();
+                obj.SetMember(ni, vi);
             }
 
             context.Push(Value.FromObject(obj));
@@ -334,7 +338,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     result = Value.FromString("number");
                     break;
                 case ValueType.Object:
-                    if (val.ToObject().Item.Character is Movie)
+                    if (val.ToObject() is MovieClip)
                         result = Value.FromString("movieclip");
                     else if (val.ToObject() is Function)
                         result = Value.FromString("function");
@@ -366,7 +370,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             // I followed the document, but don't know if will cause issues.
             var sup = context.Pop().ToFunction();
             var cls = context.Pop().ToFunction();
-            var obj = new ObjectContext();
+            var obj = new ObjectContext(context.Apt.Avm);
             obj.__proto__ = sup.prototype;
             obj.constructor = sup;
             cls.prototype = obj;

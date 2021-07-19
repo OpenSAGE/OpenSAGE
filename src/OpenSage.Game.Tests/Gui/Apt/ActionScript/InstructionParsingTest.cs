@@ -4,6 +4,7 @@ using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Gui.Apt.ActionScript.Library;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Text.Encoding;
@@ -113,8 +114,9 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             // Assert that after parsing instructions, stream will be sought back
             Assert.True(afterInstructions == magic);
 
-            var context = new ObjectContext(new SpriteItem());
             var vm = new VM();
+            var context = new StageObject(new SpriteItem(), vm);
+            
             vm.Execute(collection, context, null);
             // Assert that during execution of instructions, the right value is set
             Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));

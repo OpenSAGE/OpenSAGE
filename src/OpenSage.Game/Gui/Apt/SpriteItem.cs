@@ -5,6 +5,7 @@ using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.ActionScript.Library;
 using OpenSage.Mathematics;
 using Veldrid;
 using Action = OpenSage.Data.Apt.FrameItems.Action;
@@ -57,7 +58,7 @@ namespace OpenSage.Gui.Apt
             Context = context;
             Content = AddDisposable(new DisplayList());
             Parent = parent;
-            ScriptObject = new ObjectContext(this);
+            ScriptObject = new StageObject(this);
 
             // Fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -406,7 +407,7 @@ namespace OpenSage.Gui.Apt
 
         public DisplayItem GetNamedItem(string name)
         {
-            return ScriptObject.Variables[name].ToObject().Item;
+            return ((StageObject) ScriptObject.Variables[name].ToObject()).Item;
         }
     }
 }

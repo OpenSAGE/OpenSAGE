@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -340,6 +341,32 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var strVal = context.Pop().ToString();
             context.Push(Value.FromInteger(int.Parse(strVal)));
+        }
+    }
+
+    public sealed class PushValue: InstructionBase
+    {
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+
+        public PushValue(Value v): base() { Parameters = new List<Value> { v }; }
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Parameters[0]);
+        }
+    }
+
+    public class PushToIndex: InstructionBase
+    {
+        public static Stack<Value> IndexedVars = new Stack<Value>();
+        public static Value PopValue() { return IndexedVars.Pop(); }
+
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+
+        public override void Execute(ActionContext context)
+        {
+            var ret = context.Pop();
+            IndexedVars.Push(ret);
         }
     }
 }

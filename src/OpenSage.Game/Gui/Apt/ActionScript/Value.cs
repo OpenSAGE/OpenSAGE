@@ -19,11 +19,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         Object,
         // Function,
         // Array,
-        Undefined
+        Undefined,
+
     }
 
     public class Value
     {
+        // Any random Value with a fixed pointer
+        // Used in debug and stack trace
+        public static readonly Value Indexed = FromInteger(114514);
+
         public ValueType Type { get; private set; }
 
         private string _string;
@@ -37,6 +42,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool IsNumericType()
         {
             return Type == ValueType.Float || Type == ValueType.Integer;
+        }
+
+        public bool Enumerable()
+        {
+            // TODO try to implement although not necessary
+            return false;
         }
 
         public Value ResolveRegister(ActionContext context)
@@ -83,11 +94,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
-        public static Value FromArray(Value[] array)
+        public static Value FromArray(Value[] array, VM vm)
         {
             var v = new Value();
             v.Type = ValueType.Object;
-            v._object = new ASArray(array);
+            v._object = new ASArray(array, vm);
             return v;
         }
 
@@ -166,6 +177,19 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public T ToObject<T>() where T: ObjectContext
+        {
+            if (Type == ValueType.Undefined)
+            {
+                logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+
+            return (T) _object;
+        }
+
         public ObjectContext ToObject()
         {
             if (Type == ValueType.Undefined)
@@ -176,7 +200,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (Type == ValueType.String)
             {
-                return new ASString(_string);
+                return new ASString(this, null);
             }
 
             if (Type != ValueType.Object)

@@ -406,10 +406,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new DefineLocal2();
                             break;
                         case InstructionType.Delete:
-                            instruction = new Delete();
+                            instruction = new Delete(); // NIE DOM
                             break;
                         case InstructionType.Delete2:
-                            instruction = new Delete2();
+                            instruction = new Delete2(); // NIE DOM
                             break;
                         case InstructionType.Enumerate2:
                             instruction = new Enumerate2();
@@ -433,7 +433,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new NewMethod(); // TODO not sure if correct, the document is vague
                             break;
                         case InstructionType.NewObject:
-                            instruction = new NewObject();
+                            instruction = new NewObject(); // TODO replace stack representations
                             break;
 
 

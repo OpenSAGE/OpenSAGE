@@ -4,6 +4,7 @@ using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -12,6 +13,8 @@ namespace OpenSage.Gui.Apt.ActionScript
     /// </summary>
     public sealed class VM
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private TimeInterval _lastTick;
         private Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>> _intervals;
         private Stack<ActionContext> _callStack;
@@ -20,8 +23,19 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ActionContext GlobalContext { get; }
         public ObjectContext ExternObject { get; }
 
-        public ObjectContext FunctionPrototype { get; }
-        public ObjectContext ObjectPrototype { get; }
+        public static readonly Dictionary<string, Type> BuiltinClassesMapping = new Dictionary<string, Type>() {
+            ["Object"] = typeof(ObjectContext),
+            ["Function"] = typeof(Function),
+            ["Array"] = typeof(ASArray),
+            ["Color"] = typeof(ASColor),
+            ["String"] = typeof(ASString),
+            ["MovieClip"] = typeof(MovieClip),
+            ["TextField"] = typeof(TextField), 
+        };
+        public Dictionary<string, ObjectContext> Prototypes { get; private set; }
+        public Dictionary<ObjectContext, Type> PrototypesInverse { get; private set; }
+
+        public ObjectContext GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
 
         // Delegate to call a function inside the engine
         public delegate void HandleCommand(ActionContext context, string command, string param);
@@ -41,18 +55,84 @@ namespace OpenSage.Gui.Apt.ActionScript
             VariableHandler = hev;
             MovieHandler = hem;
         }
+
+        public void RegisterClass(string className, Type classType)
+        {
+            var cst_param = new VM[] { this };
+            var newProto = (ObjectContext) Activator.CreateInstance(classType, cst_param);
+            var props = (Dictionary<string, Func<VM, Property>>) classType.GetField("PropertiesDefined").GetValue(null);
+            var stats = (Dictionary<string, Func<VM, Property>>) classType.GetField("StaticPropertiesDefined").GetValue(null);
+            foreach (var p in props)
+                newProto.SetOwnProperty(p.Key, p.Value(this));
+            var cst = newProto.constructor;
+            cst.prototype = newProto;
+            foreach (var p in stats)
+                cst.SetOwnProperty(p.Key, p.Value(this));
+            Prototypes[className] = newProto;
+            PrototypesInverse[newProto] = classType;
+           
+        }
+
+        public ObjectContext ConstructClass(Function cst_func)
+        {
+            var proto = cst_func.prototype;
+            while (proto != null)
+            {
+                if (PrototypesInverse.ContainsKey(proto)) break;
+                proto = proto.__proto__;
+            }
+            var cst_param = new VM[] { this };
+            var ret = (ObjectContext) Activator.CreateInstance(PrototypesInverse[proto], cst_param);
+            ret.__proto__ = cst_func.prototype;
+            return ret;
+        }
+
         public VM()
         {
-            GlobalObject = new ObjectContext();
-            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4);
-            ExternObject = new ExternObject(this);
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
             _callStack = new Stack<ActionContext>();
 
+            // initialize prototypes and constructors of Object and Function class
+            Prototypes = new Dictionary<string, ObjectContext>() { ["Object"] = new ObjectContext(null) };
+            var obj_proto = Prototypes["Object"];
+            var func_proto = new NativeFunction(obj_proto); // Set the PrototypeInternal property
+            Prototypes["Function"] = func_proto;
+            PrototypesInverse = new Dictionary<ObjectContext, Type>() { [obj_proto] = typeof(ObjectContext), [func_proto] = typeof(DefinedFunction), };
+
+            foreach (var p in ObjectContext.PropertiesDefined)
+                obj_proto.SetOwnProperty(p.Key, p.Value(this));
+            foreach (var p in Function.PropertiesDefined)
+                func_proto.SetOwnProperty(p.Key, p.Value(this));
+
+            var obj_cst = obj_proto.constructor;
+            var func_cst = func_proto.constructor;
+            obj_cst.prototype = obj_proto;
+            func_cst.prototype = func_proto;
+
+            foreach (var p in ObjectContext.StaticPropertiesDefined)
+                obj_cst.SetOwnProperty(p.Key, p.Value(this));
+            foreach (var p in Function.StaticPropertiesDefined)
+                func_cst.SetOwnProperty(p.Key, p.Value(this));
+
+            // initialize built-in classes
+            foreach (var c in BuiltinClassesMapping)
+            {
+                if (c.Key == "Object" || c.Key == "Function")
+                    continue;
+                RegisterClass(c.Key, c.Value);
+            }
+
             // initialize global vars and methods
+            GlobalObject = new ObjectContext(this); // TODO replace it to Stage
+            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4);
+            ExternObject = new ExternObject(this);
+            PushContext(GlobalContext);
 
-
-
+            // expose all classes to global object
+            foreach (var c in Prototypes)
+            {
+                GlobalObject.SetMember(c.Key, Value.FromFunction(c.Value.constructor));
+            }
         }
 
         // interval operations
@@ -91,7 +171,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         // stack operations
 
         public void PushContext(ActionContext context) { _callStack.Push(context); }
-        public ActionContext PopContext() { return _callStack.Pop(); }
+        public ActionContext PopContext()
+        {
+            if (IsCurrentContextGlobal())
+                throw new InvalidOperationException("Gloabl execution context is not possible to pop.");
+            else
+                return _callStack.Pop();
+        }
         public ActionContext CurrentContext() { return _callStack.Peek(); }
         public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
         public void ForceReturn() { }
@@ -158,6 +244,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 ans = stream.GetInstruction();
                 ans.Execute(context);
             }
+            context = CurrentContext();
 
             if (context.Return)
             {
@@ -165,14 +252,20 @@ namespace OpenSage.Gui.Apt.ActionScript
                 {
                     var ret = context.Pop();
                     PopContext();
-                    CurrentContext().Push(ret);
+                    // not sure if it is correct, the document is vague again
+                    var ccur = CurrentContext();
+                    ccur.Push(ret);
+                    // special operations requiring being executed after function return
+                    context = ccur;
                 }
                 else
                 {
                     context.Halt = true;
                 }
             }
-
+            // special operations requiring being executed after function return
+            while (context.HasRecallCode())
+                context.PopRecallCode().Execute(context);
             return ans;
         }
 
@@ -189,7 +282,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value Execute(Function func, Value[] args, ObjectContext thisVar)
         {
-            func.Invoke(this, thisVar, args);
+            func.Invoke(this.CurrentContext(), thisVar, args);
             ExecuteUntilReturn();
             var ret = CurrentContext().Pop();
             return ret;

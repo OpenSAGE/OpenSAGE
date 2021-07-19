@@ -119,9 +119,10 @@ namespace OpenSage.Diagnostics
                         ImGuiUtility.BeginPropertyList();
                         if (_selectedItem.ScriptObject != null)
                         {
-                            foreach (var variable in _selectedItem.ScriptObject.Variables)
+                            var so = _selectedItem.ScriptObject;
+                            foreach (var key in so.GetAllProperties())
                             {
-                                ImGuiUtility.PropertyRow(variable.Key, CreateObject(variable.Value));
+                                ImGuiUtility.PropertyRow(key, CreateObject(so.GetMember(key)));
                             }
                         }
                         ImGuiUtility.EndPropertyList();

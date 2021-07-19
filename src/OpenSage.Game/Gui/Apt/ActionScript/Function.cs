@@ -29,48 +29,56 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     public abstract class Function: ObjectContext
     {
-        public static Function FunctionConstructor => _ffc;
-        public static Function ObjectConstructor => _foc;
+        // public static Function FunctionConstructor => _ffc;
+        // public static Function ObjectConstructor => _foc;
 
-        public Function(): base()
+        public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {
-            __proto__ = FunctionPrototype;
-            var prt = new ObjectContext();
-            prt.constructor = this;
-            prototype = prt;
+            // methods
+            ["apply"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+                 (vm, tv, args) => { ((Function) tv).Apply(vm, tv, args); }
+                 , avm)), true, false, false),
+            ["call"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+                 (vm, tv, args) => { ((Function) tv).Call(vm, tv, args); }
+                 , avm)), true, false, false),
+        };
 
-            if (this is not SpecOp)
-            {
-                SetMember("apply", Value.FromObject(new SpecOp(Apply)));
-                SetMember("call", Value.FromObject(new SpecOp(Call)));
-            }
+        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        {
+            // ["prototype"] = (avm) => Property.D(Value.FromObject(avm.GetPrototype("Function")), true, false, false),
+        };
+
+
+        public Function() : this(null)
+        {
         }
 
         public Function(VM vm): base(vm)
         {
-
+            PrototypeInternal = vm is null ? null : vm.Prototypes["Function"];
+            var prt = new ObjectContext(vm);
+            prt.constructor = this;
+            prototype = prt;
         }
-
+        /*
         internal Function(bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
         {
             __proto__ = FunctionPrototype;
 
-            if (this is not SpecOp)
-            {
-                SetMember("apply", Value.FromObject(new SpecOp(Apply)));
-                SetMember("call", Value.FromObject(new SpecOp(Call)));
-            }
         }
-        public abstract void Invoke(VM vm, ObjectContext thisVar, Value[] args);
 
-        public void Apply(VM vm, ObjectContext thisVar, Value[] args)
+        */
+
+        public abstract void Invoke(ActionContext context, ObjectContext thisVar, Value[] args);
+
+        public void Apply(ActionContext context, ObjectContext thisVar, Value[] args)
         {
             var thisVar_ = args.Length > 0 ? args[0] : Value.Undefined();
             var args_ = args.Length > 1 ? ((ASArray)args[1].ToObject()).GetValues() : new Value[0];
-            Invoke(vm, thisVar_.ToObject(), args_);
+            Invoke(context, thisVar_.ToObject(), args_);
         }
 
-        public void Call(VM vm, ObjectContext thisVar, Value[] args)
+        public void Call(ActionContext context, ObjectContext thisVar, Value[] args)
         {
             var thisVar_ = Value.Undefined();
             var args_ = new Value[args.Length > 0 ? args.Length - 1 : 0];
@@ -78,42 +86,45 @@ namespace OpenSage.Gui.Apt.ActionScript
                 thisVar_ = args[0];
                 Array.Copy(args, 1, args_, 0, args_.Length);
             }
-            Invoke(vm, thisVar_.ToObject(), args_);
+            Invoke(context, thisVar_.ToObject(), args_);
         }
 
     }
 
-    public class SpecOp: Function
+    public class NativeFunction: Function
     {
-        public Action<VM, ObjectContext, Value[]> F { get; private set; }
-        public SpecOp(Action<VM, ObjectContext, Value[]> f): base()
+        public Action<ActionContext, ObjectContext, Value[]> F { get; private set; }
+        public NativeFunction(VM vm) : this(null, vm)
+        {
+        }
+
+        public NativeFunction(Action<ActionContext, ObjectContext, Value[]> f, VM vm) : base(vm)
+        {
+            F = f;
+            // SetMember("apply", Value.FromObject(this)); // Not sure if correct
+            // SetMember("call", Value.FromObject(this));
+        }
+
+        public NativeFunction(ObjectContext pti) : base(null)
+        {
+            PrototypeInternal = pti;
+        }
+        /*
+        internal NativeFunction(Action<ActionContext, ObjectContext, Value[]> f, bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
         {
             F = f;
             SetMember("apply", Value.FromObject(this)); // Not sure if correct
             SetMember("call", Value.FromObject(this));
         }
 
-        public SpecOp(Action<VM, ObjectContext, Value[]> f, VM vm) : base(vm)
-        {
-            F = f;
-            SetMember("apply", Value.FromObject(this)); // Not sure if correct
-            SetMember("call", Value.FromObject(this));
-        }
-
-        internal SpecOp(Action<VM, ObjectContext, Value[]> f, bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
-        {
-            F = f;
-            SetMember("apply", Value.FromObject(this)); // Not sure if correct
-            SetMember("call", Value.FromObject(this));
-        }
-
-        public override void Invoke (VM vm, ObjectContext thisVar, Value[] args) { F(vm, thisVar, args); }
+        */
+        public override void Invoke (ActionContext context, ObjectContext thisVar, Value[] args) { F(context, thisVar, args); }
     }
 
-    public class Function1: Function
+    public class DefinedFunction: Function
     {
 
-        public Function1(): base()
+        public DefinedFunction(VM vm): base(vm)
         {
         }
 
@@ -125,10 +136,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
 
-        public override void Invoke(VM vm, ObjectContext thisVar, Value[] args)
+        public override void Invoke(ActionContext context, ObjectContext thisVar, Value[] args)
         {
-            var context = GetContext(vm, args, thisVar);
-            vm.PushContext(context);
+            var vm = context.Apt.Avm;
+            var acontext = GetContext(vm, args, thisVar);
+            vm.PushContext(acontext);
         }
 
         public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)

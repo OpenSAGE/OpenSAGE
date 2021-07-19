@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -22,6 +23,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public List<Value> Constants { get; set; }
 
         private Stack<Value> _stack;
+        private Stack<InstructionBase> _immiexec;
         private Value[] _registers { get; set; }
 
         public ActionContext(ObjectContext globalVar, ObjectContext thisVar, ActionContext outerVar, int numRegisters = 0)
@@ -35,6 +37,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             // initializations
             _stack = new Stack<Value>();
+            _immiexec = new Stack<InstructionBase>();
             _registers = new Value[RegisterCount];
             Params = new Dictionary<string, Value>();
             _locals = new Dictionary<string, Value>();
@@ -45,6 +48,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         // basics
 
         public bool IsOutermost() { return Outer == null || Outer == this; }
+
+        public void PushRecallCode(InstructionBase inst) { _immiexec.Push(inst); }
+        public InstructionBase PopRecallCode() { return _immiexec.Pop(); }
+        public InstructionBase FirstRecallCode() { return _immiexec.Peek(); }
+        public bool HasRecallCode() { return _immiexec.Count != 0; }
 
         // constant operations
 
@@ -129,12 +137,18 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value Peek()
         {
-            return _stack.Peek().ResolveConstant(this).ResolveRegister(this);
+            var ret = _stack.Peek();
+            if (ReferenceEquals(ret, Value.Indexed))
+                ret = PushToIndex.PopValue();
+            return ret.ResolveConstant(this).ResolveRegister(this);
         }
 
         public Value Pop()
         {
-            return _stack.Pop().ResolveConstant(this).ResolveRegister(this);
+            var ret = _stack.Pop();
+            if (ReferenceEquals(ret, Value.Indexed))
+                ret = PushToIndex.PopValue();
+            return ret.ResolveConstant(this).ResolveRegister(this);
         }
 
         // parameters
@@ -321,7 +335,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 if (part == "..")
                 {
-                    obj = obj.GetParent();
+                    obj = ((StageObject) obj).GetParent();
                 }
                 else
                 {
@@ -337,7 +351,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="constructor"></param>
         /// <returns></returns>
-        public Value ConstructObject(string name, Value[] args) // TODO need reconstruction
+        public void ConstructObjectAndPush(string name, Value[] args) // TODO need reconstruction
         {
             var funcVal = GetValueOnChain(name);
             Value ret = null;
@@ -347,14 +361,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             else
             {
-                var func = funcVal.ToFunction();
-                var thisVar = new ObjectContext();
-                func.Invoke(Apt.Avm, thisVar, args);
-                Apt.Avm.ExecuteUntilReturn();
-                Pop(); // discard the returned value
-                ret = Value.FromObject(thisVar);
+                var cst_func = funcVal.ToFunction();
+                var thisVar = Apt.Avm.ConstructClass(cst_func);
+                PushRecallCode(new PushValue(Value.FromObject(thisVar)));
+                PushRecallCode(new Pop());
+                cst_func.Invoke(this, thisVar, args);
+                // Apt.Avm.ExecuteUntilReturn();
+                // Pop(); // discard the returned value
+                // ret = Value.FromObject(thisVar);
             }
-            return ret;
         }
 
         /// <summary>
@@ -387,7 +402,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                _registers[reg] = Value.FromObject(This.GetParent());
+                _registers[reg] = Value.FromObject(((StageObject) This).GetParent());
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
