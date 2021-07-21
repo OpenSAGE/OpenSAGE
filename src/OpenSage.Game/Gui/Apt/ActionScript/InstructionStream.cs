@@ -23,17 +23,21 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         /// <summary>
-        /// Get an instruction and move to the next instruction right away. Skip paddings
+        /// Get an instruction. Skip paddings
         /// </summary>
         /// <returns></returns>
         public InstructionBase GetInstructionNoMove()
         {
             if (Index < 0 || _instructions.Count < Index - 1)
-            {
                 throw new IndexOutOfRangeException();
-            }
-
             return _instructions.GetInstructionByIndex(Index);
+        }
+
+        public void ToNextInstruction()
+        {
+            if (Index < 0 || _instructions.Count < Index - 1)
+                throw new IndexOutOfRangeException();
+            ++Index;
         }
 
         /// <summary>
@@ -43,10 +47,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionBase GetInstruction()
         {
             if (Index < 0 || _instructions.Count < Index - 1)
-            {
                 throw new IndexOutOfRangeException();
-            }
-
             return _instructions.GetInstructionByIndex(Index++);
         }
 

@@ -17,7 +17,7 @@ using Veldrid;
 using Geometry = OpenSage.Data.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
-
+ 
 namespace OpenSage.Mods.Bfme
 {
     class AptControlBar : IControlBar

@@ -107,18 +107,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
-            else if (context.HasValueOnLocal(str))
-            {
-                result = context.GetValueOnLocal(str);
-            }
             else
             {
-                result = context.GetObject(str);
+                result = context.GetValueOnChain(str);
             }
-
-            if (result == null)
-                throw new InvalidOperationException();
-
             context.Push(result);
         }
     }
@@ -353,20 +345,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             context.Push(Parameters[0]);
-        }
-    }
-
-    public class PushToIndex: InstructionBase
-    {
-        public static Stack<Value> IndexedVars = new Stack<Value>();
-        public static Value PopValue() { return IndexedVars.Pop(); }
-
-        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
-
-        public override void Execute(ActionContext context)
-        {
-            var ret = context.Pop();
-            IndexedVars.Push(ret);
         }
     }
 }

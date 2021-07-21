@@ -10,25 +10,20 @@ namespace OpenSage.Gui.Apt.ActionScript
     public enum ValueType
     {
         String,
-        Constant,
         Boolean,
         Integer,
-        Register,
         Short,
         Float,
         Object,
-        // Function,
-        // Array,
         Undefined,
 
+        Constant,
+        Register,
+        Return,
     }
 
     public class Value
     {
-        // Any random Value with a fixed pointer
-        // Used in debug and stack trace
-        public static readonly Value Indexed = FromInteger(114514);
-
         public ValueType Type { get; private set; }
 
         private string _string;
@@ -36,8 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private int _number;
         private double _decimal;
         private ObjectContext _object;
-        // private Function _function;
-        // private Value[] _array;
+        private ActionContext _actx;
 
         public bool IsNumericType()
         {
@@ -75,6 +69,28 @@ namespace OpenSage.Gui.Apt.ActionScript
                 result = entry;
             }
             return result;
+        }
+
+        public Value ResolveReturn()
+        {
+            if (Type != ValueType.Return)
+                return this;
+            return _actx.Return ? _actx.ReturnValue : Undefined();
+        }
+
+        public Value GetReturnValue()
+        {
+            if (Type != ValueType.Return)
+                return this;
+            return _actx.Return ? _actx.ReturnValue : null;
+        }
+
+        internal Value ToNumber()
+        {
+            if (IsNumericType())
+                return Type == ValueType.Float ? Value.FromFloat(_decimal) : Value.FromInteger(_number);
+            else
+                return Value.FromInteger(0);
         }
 
         public static Value FromFunction(Function func)
@@ -115,6 +131,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             var v = new Value();
             v.Type = ValueType.Constant;
             v._number = (int) id;
+            return v;
+        }
+
+        public static Value ReturnValue(ActionContext actx)
+        {
+            var v = new Value();
+            v.Type = ValueType.Return;
+            v._actx = actx;
             return v;
         }
 
@@ -313,12 +337,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Undefined:
                     return "undefined"; // follows ECMA-262
                 case ValueType.Object:
-                    // if (_object is Function)
-                    // {
-                    //     var f = (Function) _object;
-                    //     return $"Function({f.Parameters.Count}, {f.Constants.Count})";
-                    // }
                     return _object == null ? "null": _object.ToString();
+                case ValueType.Return:
+                    return _actx.ReturnValue == null ? "undefined" : _actx.ReturnValue.ToString();
                 default:
                     throw new NotImplementedException(Type.ToString());
             }
@@ -330,11 +351,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             try { ttype = this.Type.ToString().Substring(0, 3); }
             catch (InvalidOperationException e) {}
             String tstr = null;
-            if (this.Type == ValueType.Constant && ctx != null)
-            {
-                tstr = this.ResolveConstant(ctx).ToString();
-            }
+            if (this.Type == ValueType.Constant && ctx != null) tstr = this.ResolveConstant(ctx).ToString();
             else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
+            else if (this.Type == ValueType.Return) tstr = this.ResolveReturn().ToString();
             else if (this.Type == ValueType.Object) tstr = this.ToString();
             else tstr = this.ToString();
             return String.Format("({0}){1}", ttype, tstr);

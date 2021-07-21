@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                  (actx, tv, args) => {
                      ((ASString) tv).PrototypeInternal = actx.Apt.Avm.Prototypes["String"];
                      ((ASString) tv)._value = args[0].ToString();
-                     actx.Push(Value.FromObject(tv));
+                     return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
             ["length"] = (avm) => Property.A(
@@ -21,10 +21,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 , false, false),
             // methods
             ["substr"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => {
-                     var ans = ((ASString) tv).substr(args);
-                     vm.Push(ans);
-                 }
+                 (vm, tv, args) => ((ASString) tv).substr(args)
                  , avm)), true, false, false),
             // TODO
         };
@@ -70,6 +67,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 throw new InvalidOperationException("Argument count invalid!");
             }
+        }
+
+        public override string ToString()
+        {
+            return _value;
         }
     }
 }

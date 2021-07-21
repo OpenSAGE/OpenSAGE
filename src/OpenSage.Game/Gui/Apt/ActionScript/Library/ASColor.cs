@@ -14,13 +14,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             ["getRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (vm, tv, args) => {
                      var ans = ((ASColor) tv).getRGB();
-                     vm.Push(ans);
+                     return ans;
                  }
                  , avm)), true, false, false),
             ["setRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                 (vm, tv, args) => {
                     ((ASColor) tv).setRGB(args);
-                    vm.Push(Value.Undefined());
+                    return null;
                 }
                 , avm)), true, false, false),
         };

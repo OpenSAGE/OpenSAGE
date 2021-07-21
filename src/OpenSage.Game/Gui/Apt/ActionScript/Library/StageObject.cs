@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
@@ -246,19 +245,31 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             ["gotoAndPlay"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      ((MovieClip) tv).GotoAndPlay(actx, args);
-                     actx.Push(Value.Undefined());
+                     return null;
                  }
                  , avm)), true, false, false),
             ["gotoAndStop"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      ((MovieClip) tv).GotoAndStop(args);
-                     actx.Push(Value.Undefined());
+                     return null;
                  }
                  , avm)), true, false, false),
             ["stop"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      ((MovieClip) tv).Stop();
-                     actx.Push(Value.Undefined());
+                     return null;
+                 }
+                 , avm)), true, false, false),
+            ["loadMovie"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+                 (actx, tv, args) => {
+                     ((MovieClip) tv).LoadMovie(actx, args);
+                     return null;
+                 }
+                 , avm)), true, false, false),
+            ["attachMovie"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+                 (actx, tv, args) => {
+                     var m = ((MovieClip) tv).AttachMovie(actx, args);
+                     return Value.FromObject(m);
                  }
                  , avm)), true, false, false),
         };
@@ -343,5 +354,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 throw new InvalidOperationException();
             }
         }
+
+        public void LoadMovie(ActionContext context, Value[] args)
+        {
+            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
+            var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
+
+            context.Apt.Window.Manager.QueryPush(window);
+        }
+
+        public MovieClip AttachMovie(ActionContext context, Value[] args)
+        {
+            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
+            var name = args[1].ToString();
+            var depth = args[2].ToInteger();
+
+            throw new NotImplementedException();
+        }
+
     }
 }

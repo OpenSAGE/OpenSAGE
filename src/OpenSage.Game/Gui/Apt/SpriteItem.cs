@@ -318,7 +318,7 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
             }
 
             displayItem.Transform = cTransform;
@@ -345,7 +345,7 @@ namespace OpenSage.Gui.Apt
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
                 displayItem.Name = po.Name;
             }
 
@@ -407,7 +407,7 @@ namespace OpenSage.Gui.Apt
 
         public DisplayItem GetNamedItem(string name)
         {
-            return ((StageObject) ScriptObject.Variables[name].ToObject()).Item;
+            return ScriptObject.GetMember(name).ToObject<StageObject>().Item;
         }
     }
 }

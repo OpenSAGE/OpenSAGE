@@ -69,7 +69,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     if (_context != null)
                     {
-                        var lef = _context.Avm.ExecuteOnce(); // _acontext);
+                        var lef = _context.Avm.ExecuteOnce(); 
                         last_executed_func = lef.ToString(_acontext);
                     }
                     else

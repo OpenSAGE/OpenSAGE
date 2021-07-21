@@ -9,6 +9,8 @@ namespace OpenSage.Gui.Apt.ActionScript
 {
     public sealed class ActionContext
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public ObjectContext This { get; private set; }
         public ObjectContext Global { get; private set; }
         public ActionContext Outer { get; private set; } 
@@ -19,6 +21,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private Dictionary<string, Value> _locals; 
         public bool Return { get; set; }
         public bool Halt { get; set; }
+        public Value ReturnValue { get; set; }
         public List<ConstantEntry> GlobalConstantPool => Apt.Constants.Entries;
         public List<Value> Constants { get; set; }
 
@@ -43,6 +46,12 @@ namespace OpenSage.Gui.Apt.ActionScript
             _locals = new Dictionary<string, Value>();
             Constants = new List<Value>();
             Return = false;
+        }
+
+        public ActionContext(Value v)
+        {
+            Return = v != null;
+            ReturnValue = v;
         }
 
         // basics
@@ -138,17 +147,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Value Peek()
         {
             var ret = _stack.Peek();
-            if (ReferenceEquals(ret, Value.Indexed))
-                ret = PushToIndex.PopValue();
-            return ret.ResolveConstant(this).ResolveRegister(this);
+            return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
         }
 
         public Value Pop()
         {
             var ret = _stack.Pop();
-            if (ReferenceEquals(ret, Value.Indexed))
-                ret = PushToIndex.PopValue();
-            return ret.ResolveConstant(this).ResolveRegister(this);
+            return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
         }
 
         // parameters
@@ -225,6 +230,12 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
+        /// <summary>
+        /// Checks for special handled/global objects. After that checks for child objects of the
+        /// current object
+        /// </summary>
+        /// <param name="name">the object name</param>
+        /// <returns></returns>
         public Value GetValueOnChain(string name)
         {
             var ans = Value.Undefined();
@@ -238,7 +249,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 }
                 env = env.Outer;
             }
-
+            if (ans == null || ans.Type == ValueType.Undefined)
+                logger.Warn($"[WARN] Undefined property: {name}");
             return ans;
         }
 
@@ -296,28 +308,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         /// <summary>
-        /// Checks for special handled/global objects. After that checks for child objects of the
-        /// current object
-        /// </summary>
-        /// <param name="name">the object name</param>
-        /// <returns></returns>
-        public Value GetObject(string name)
-        {
-            Value obj = null;
-
-            if (Builtin.IsBuiltInVariable(name))
-            {
-                obj = Builtin.GetBuiltInVariable(name, This);
-            }
-            else
-            {
-                obj = This.GetMember(name);
-            }
-
-            return obj;
-        }
-
-        /// <summary>
         /// Get the current target path
         /// </summary>
         /// <param name="target"></param>
@@ -354,7 +344,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         public void ConstructObjectAndPush(string name, Value[] args) // TODO need reconstruction
         {
             var funcVal = GetValueOnChain(name);
-            Value ret = null;
             if (funcVal.Type != ValueType.Object || !funcVal.ToObject().IsFunction())
             {
                 throw new InvalidOperationException("Not a function");
@@ -364,7 +353,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 var cst_func = funcVal.ToFunction();
                 var thisVar = Apt.Avm.ConstructClass(cst_func);
                 PushRecallCode(new PushValue(Value.FromObject(thisVar)));
-                PushRecallCode(new Pop());
                 cst_func.Invoke(this, thisVar, args);
                 // Apt.Avm.ExecuteUntilReturn();
                 // Pop(); // discard the returned value

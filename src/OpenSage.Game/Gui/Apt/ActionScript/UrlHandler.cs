@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             else
             {
                 //DO STUFF
-                var targetObject = context.This.Variables[target].ToObject<StageObject>();
+                var targetObject = context.This.GetMember(target).ToObject<StageObject>();
 
                 if (!(targetObject.Item is SpriteItem))
                 {

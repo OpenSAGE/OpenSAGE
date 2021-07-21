@@ -36,10 +36,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             // methods
             ["apply"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => { ((Function) tv).Apply(vm, tv, args); }
+                 (vm, tv, args) => { ((Function) tv).Apply(vm, tv, args); return null; }
                  , avm)), true, false, false),
             ["call"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => { ((Function) tv).Call(vm, tv, args); }
+                 (vm, tv, args) => { return ((Function) tv).Call(vm, tv, args); }
                  , avm)), true, false, false),
         };
 
@@ -69,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         */
 
-        public abstract void Invoke(ActionContext context, ObjectContext thisVar, Value[] args);
+        public abstract Value Invoke(ActionContext context, ObjectContext thisVar, Value[] args);
 
         public void Apply(ActionContext context, ObjectContext thisVar, Value[] args)
         {
@@ -78,7 +78,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             Invoke(context, thisVar_.ToObject(), args_);
         }
 
-        public void Call(ActionContext context, ObjectContext thisVar, Value[] args)
+        public Value Call(ActionContext context, ObjectContext thisVar, Value[] args)
         {
             var thisVar_ = Value.Undefined();
             var args_ = new Value[args.Length > 0 ? args.Length - 1 : 0];
@@ -86,39 +86,29 @@ namespace OpenSage.Gui.Apt.ActionScript
                 thisVar_ = args[0];
                 Array.Copy(args, 1, args_, 0, args_.Length);
             }
-            Invoke(context, thisVar_.ToObject(), args_);
+            return Invoke(context, thisVar_.ToObject(), args_);
         }
 
     }
 
     public class NativeFunction: Function
     {
-        public Action<ActionContext, ObjectContext, Value[]> F { get; private set; }
+        public Func<ActionContext, ObjectContext, Value[], Value> F { get; private set; }
         public NativeFunction(VM vm) : this(null, vm)
         {
         }
 
-        public NativeFunction(Action<ActionContext, ObjectContext, Value[]> f, VM vm) : base(vm)
+        public NativeFunction(Func<ActionContext, ObjectContext, Value[], Value> f, VM vm) : base(vm)
         {
             F = f;
-            // SetMember("apply", Value.FromObject(this)); // Not sure if correct
-            // SetMember("call", Value.FromObject(this));
         }
 
         public NativeFunction(ObjectContext pti) : base(null)
         {
             PrototypeInternal = pti;
         }
-        /*
-        internal NativeFunction(Action<ActionContext, ObjectContext, Value[]> f, bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
-        {
-            F = f;
-            SetMember("apply", Value.FromObject(this)); // Not sure if correct
-            SetMember("call", Value.FromObject(this));
-        }
 
-        */
-        public override void Invoke (ActionContext context, ObjectContext thisVar, Value[] args) { F(context, thisVar, args); }
+        public override Value Invoke (ActionContext context, ObjectContext thisVar, Value[] args) { return F(context, thisVar, args); }
     }
 
     public class DefinedFunction: Function
@@ -136,11 +126,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
 
-        public override void Invoke(ActionContext context, ObjectContext thisVar, Value[] args)
+        public override Value Invoke(ActionContext context, ObjectContext thisVar, Value[] args)
         {
             var vm = context.Apt.Avm;
             var acontext = GetContext(vm, args, thisVar);
             vm.PushContext(acontext);
+            return Value.ReturnValue(acontext);
         }
 
         public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)

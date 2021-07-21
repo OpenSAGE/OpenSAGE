@@ -406,10 +406,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new DefineLocal2();
                             break;
                         case InstructionType.Delete:
-                            instruction = new Delete(); // NIE DOM
+                            instruction = new Delete();
                             break;
                         case InstructionType.Delete2:
-                            instruction = new Delete2(); // NIE DOM
+                            instruction = new Delete2();
                             break;
                         case InstructionType.Enumerate2:
                             instruction = new Enumerate2();
@@ -427,7 +427,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new InitArray();
                             break;
                         case InstructionType.InitObject:
-                            instruction = new InitObject(); // TODO member/property issue
+                            instruction = new InitObject();
                             break;
                         case InstructionType.NewMethod:
                             instruction = new NewMethod(); // TODO not sure if correct, the document is vague
@@ -435,8 +435,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         case InstructionType.NewObject:
                             instruction = new NewObject(); // TODO replace stack representations
                             break;
-
-
 
 
                         case InstructionType.BranchIfTrue:
@@ -482,6 +480,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             //the constant id that should be pushed
                             parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
+
                         case InstructionType.EA_GetNamedMember:
                             instruction = new GetNamedMember();
                             parameters.Add(Value.FromConstant(reader.ReadByte()));
@@ -498,6 +497,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new CallNamedMethodPop();
                             parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
+                        case InstructionType.EA_CallNamedMethod: // TODO name retrieve
+                            instruction = new CallNamedMethod();
+                            parameters.Add(Value.FromConstant(reader.ReadByte()));
+                            break;
+
                         case InstructionType.EA_PushFloat:
                             instruction = new PushFloat();
                             parameters.Add(Value.FromFloat(reader.ReadSingle()));
@@ -517,10 +521,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         case InstructionType.End: // NIE do not know what to do
                             instruction = new End();
                             break;
-                        case InstructionType.EA_CallNamedMethod: // TODO name retrieve
-                            instruction = new CallNamedMethod();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
-                            break;
                         case InstructionType.EA_PushRegister:
                             instruction = new PushRegister();
                             parameters.Add(Value.FromRegister(reader.ReadByte()));
@@ -529,10 +529,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new PushConstantWord();
                             parameters.Add(Value.FromConstant(reader.ReadUInt16()));
                             break;
-                        // OOP Related
-
-
-
                         case InstructionType.StrictEqual:
                             instruction = new StrictEquals();
                             break;

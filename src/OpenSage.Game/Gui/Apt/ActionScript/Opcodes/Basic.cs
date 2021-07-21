@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenSage.Data.Apt;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -268,7 +268,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Global.CallBuiltInFunction(context, "getTime", null);
+            context.Push(Builtin.GetTimer());
         }
     }
 }

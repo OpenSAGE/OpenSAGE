@@ -110,6 +110,8 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void ResetAptWindow()
         {
+            // unload current resources
+
             CurrentWindow = null;
             CurrentDisplay = null;
             // CurrentActions = null;
@@ -120,9 +122,12 @@ namespace OpenSage.Tools.AptEditor.UI
                 windows.PopWindow();
             }
 
+            // load new resources
+
             var multiplied = DisplayBackgroundColor.ToVector4() * 255;
             var color = new ColorRgba((byte) multiplied.X, (byte) multiplied.Y, (byte) multiplied.Z, (byte) multiplied.W);
             windows.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, color));
+
             if (AptManager != null)
             {
                 CurrentWindow = new AptWindow(Game, Game.ContentManager, AptManager.AptFile);

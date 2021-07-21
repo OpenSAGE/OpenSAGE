@@ -12,6 +12,8 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         public bool Enumerable { get; set; }
         public bool Configurable { get; set; }
+        public bool Writable { get; set; }
+        public bool Hidden { get; set; }
 
         public static NamedDataProperty D(Value val, bool w, bool e, bool c) {
             return new NamedDataProperty()
@@ -20,6 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Writable = w,
                 Enumerable = e,
                 Configurable = c,
+                Hidden = false,
             };
         }
         public static NamedAccessoryProperty A(Func<ObjectContext, Value> g, Action<ObjectContext, Value> s, bool e, bool c)
@@ -30,6 +33,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Set = s,
                 Enumerable = e,
                 Configurable = c,
+                Writable = true,
+                Hidden = false,
             };
         }
 
@@ -41,7 +46,6 @@ namespace OpenSage.Gui.Apt.ActionScript
     public class NamedDataProperty: Property
     {
         public Value Value { get; set; }
-        public bool Writable { get; set; }
         public override string ToString(ActionContext actx)
         {
             return Value.ToStringWithType(actx);
@@ -78,10 +82,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// Contains functions and member variables
         /// </summary>
-        public Dictionary<string, Value> Variables { get; set; }
-        private Dictionary<string, Property> Properties;
-
-        // public List<Value> Constants { get; set; }
+        /// 
+        protected Dictionary<string, Property> _properties;
 
         // internal properties
 
@@ -89,41 +91,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string Class;
         public bool Extensible;
 
-        /*
-        private static ObjectContext _createPrototypes()
-        {
-            var _op = new ObjectContext(false);
-            FunctionPrototype = new ObjectContext(false);
-            _foc = new NativeFunction((a, b, c) => new ObjectContext(), false);
-            _ffc = new NativeFunction((a, b, c) => throw new NotImplementedException("Nonetheless this is not the real ActionScript."), false); ;
-
-            FunctionPrototype.constructor = _ffc;
-            FunctionPrototype.__proto__ = _op;
-            _foc.__proto__ = FunctionPrototype;
-            _ffc.__proto__ = FunctionPrototype;
-            _foc.prototype = _op;
-            _ffc.prototype = FunctionPrototype;
-
-            _op.constructor = _foc;
-            return _op;
-        }
-      
-
-        // class inheritance
-        protected internal static Function _foc { get; private set; }
-        protected internal static Function _ffc { get; private set; }
-        public static readonly ObjectContext ObjectPrototype = _createPrototypes(); // = new ObjectContext(false) { __proto__ = null, constructor = Function.ObjectConstructor };
-        public static ObjectContext FunctionPrototype { get; private set; } // = new ObjectContext() { constructor = Function.FunctionConstructor };
-         */
-
         // prototype declaration
 
         public static Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>> ()
         {
             // properties
             ["constructor"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => { tv.PrototypeInternal = actx.Apt.Avm.Prototypes["Object"]; actx.Push(Value.FromObject(tv)); }
-                 , avm)), true, false, false),
+                 (actx, tv, args) => {
+                     tv.PrototypeInternal = actx.Apt.Avm.Prototypes["Object"];
+                     return Value.FromObject(tv);
+                 }, avm)), true, false, false),
             ["__proto__"] = (avm) => Property.A(
                  (tv) => Value.FromObject(tv.PrototypeInternal),
                  (tv, val) => tv.PrototypeInternal = val.ToObject(), 
@@ -135,33 +112,34 @@ namespace OpenSage.Gui.Apt.ActionScript
                      Function getter = args.Length > 1 ? args[1].ToFunction() : null;
                      Function setter = args.Length > 2 ? args[2].ToFunction() : null;
                      tv.AddProperty(actx, name, getter, setter);
+                     return null;
                  }
                  , avm)), true, false, false),
             ["hasOwnProperty"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      var name = args.Length > 0 ? args[0].ToString() : null;
                      var ans = tv.HasOwnMember(name);
-                     actx.Push(Value.FromBoolean(ans));
+                     return Value.FromBoolean(ans);
                  }
                  , avm)), true, false, false),
             ["isPropertyEnumerable"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      var name = args.Length > 0 ? args[0].ToString() : null;
                      var ans = tv.IsPropertyEnumerable(name);
-                     actx.Push(Value.FromBoolean(ans));
+                     return Value.FromBoolean(ans);
                  }
                  , avm)), true, false, false),
             ["isPrototypeOf"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      var theClass = args.Length > 0 ? args[0].ToObject() : null;
                      var ans = tv.IsPrototypeOf(theClass);
-                     actx.Push(Value.FromBoolean(ans));
+                     return Value.FromBoolean(ans);
                  }
                  , avm)), true, false, false),
             ["toString"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      var ans = tv.ToString();
-                     actx.Push(Value.FromString(ans));
+                     return Value.FromString(ans);
                  }
                  , avm)), true, false, false),
         };
@@ -170,14 +148,14 @@ namespace OpenSage.Gui.Apt.ActionScript
         { 
             // ["prototype"] = (avm) => Property.D(Value.FromObject(avm.GetPrototype("Object")), true, false, false),
         };
-        
 
-        // equivalent to [[Construct]]
+        /// <summary>
+        /// equivalent to [[Construct]]
+        /// </summary>
         public ObjectContext(VM vm)
         {
             //Actionscript variables are not case sensitive!
-            Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
-            Properties = new Dictionary<string, Property>(StringComparer.OrdinalIgnoreCase);
+            _properties = new Dictionary<string, Property>(StringComparer.OrdinalIgnoreCase);
             PrototypeInternal = vm == null ? null : vm.Prototypes["Object"];
             Class = "Object";
         }
@@ -185,39 +163,52 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// this ActionScript object is not bound bound to an item, e.g. for global object
         /// </summary>
-        public ObjectContext(): this((VM) null)
-        {
-            // __proto__ = ObjectPrototype;
-        }
+        public ObjectContext() : this((VM) null) { }
 
-        public Dictionary<string, Property>.KeyCollection GetAllProperties() { return Properties.Keys; }
+        public Dictionary<string, Property>.KeyCollection GetAllProperties() { return _properties.Keys; }
 
         public virtual void AddProperty(ActionContext context, string name, Function getter, Function setter)
         {
             Func<ObjectContext, Value> fget = getter == null ? null : (tv) =>
             {
-                context.PushRecallCode(new PushToIndex());
-                getter.Invoke(context, tv, new Value[0]);
-                return Value.Indexed;
+                var val = getter.Invoke(context, tv, new Value[0]);
+                return val;
             };
             Action<ObjectContext, Value> fset = setter == null ? null : (tv, val) =>
             {
-                context.PushRecallCode(new Pop());
                 setter.Invoke(context, tv, new Value[1] { val });
             };
             var prop = Property.A(fget, fset, false, true);
-            Properties[name] = prop;
+            _properties[name] = prop;
         }
 
         public virtual void SetOwnProperty(string name, Property prop)
         {
-            Properties[name] = prop;
+            _properties[name] = prop;
+        }
+
+        public void SetPropertyFlags(string name, int set, int clear)
+        {
+            if (!HasOwnMember(name)) return;
+            var swp = (set & 4) > 0;
+            var sdp = (set & 2) > 0;
+            var shid = (set & 1) > 0;
+            var cwp = (clear & 4) > 0;
+            var cdp = (clear & 2) > 0;
+            var chid = (clear & 1) > 0;
+            var prop = _properties[name];
+            if (swp) prop.Writable = false;
+            if (sdp) prop.Configurable = false;
+            if (shid) prop.Hidden = true;
+            if (cwp) prop.Writable = true;
+            if (cdp) prop.Configurable = true;
+            if (chid) prop.Hidden = false;
         }
 
         public virtual Value GetOwnMember(string name)
         {
             Value ans = Value.Undefined();
-            if (Properties.TryGetValue(name, out var prop))
+            if (_properties.TryGetValue(name, out var prop))
             {
                 if (prop is NamedDataProperty)
                     ans = ((NamedDataProperty) prop).Value;
@@ -237,58 +228,56 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (val == null)
                 val = Value.FromObject(null);
-            if (Properties.TryGetValue(name, out var prop))
+            if (_properties.TryGetValue(name, out var prop))
             {
-                if (prop is NamedDataProperty)
+                if (prop.Writable)
                 {
-                    var prop_ = (NamedDataProperty) prop;
-                    if (prop_.Writable)
+                    if (prop is NamedDataProperty prop_)
                     {
                         if (localOverride == null)
                         {
                             if (prop_.Configurable)
                                 prop_.Enumerable = val.Enumerable();
                             prop_.Value = val;
-                            Properties[name] = prop_;
+                            _properties[name] = prop_;
                         }
                         else
                             localOverride.SetOwnMember(name, val, null);
                     }
-                    else
-                        logger.Warn($"[WARN] Unwritable property: {name}");
-                }
                     
-                else if (prop is NamedAccessoryProperty)
-                {
-                    var prop_ = (NamedAccessoryProperty) prop;
-                    if (prop_.Set != null)
-                        prop_.Set(localOverride == null ? this : localOverride, val);
-                    else
-                        logger.Warn($"[WARN] property's setter is null: {name}");
+                    else if (prop is NamedAccessoryProperty prop__)
+                    {
+                        if (prop__.Set != null)
+                            prop__.Set(localOverride == null ? this : localOverride, val);
+                        else
+                            logger.Warn($"[WARN] property's setter is null: {name}");
+                    }
                 }
+                else
+                    logger.Warn($"[WARN] Unwritable property: {name}");
             }
             else
             {
                 var prop1 = Property.D(val, true, val.Enumerable(), true);
-                Properties[name] = prop1;
+                _properties[name] = prop1;
             }
         }
 
         public virtual bool HasOwnMember(string name)
         {
-            return Properties.ContainsKey(name) && GetOwnMember(name).Type != ValueType.Undefined;
+            return _properties.ContainsKey(name) && GetOwnMember(name).Type != ValueType.Undefined;
         }
 
         public virtual bool DeleteOwnMember(string name)
         {
-            if (Properties.TryGetValue(name, out var prop))
+            if (_properties.TryGetValue(name, out var prop))
             {
                 // not necessary?
                 // if (prop is NamedDataProperty && ((NamedDataProperty) prop).Value.Type == ValueType.Undefined)
                 //     return true;
                 if (prop.Configurable)
                 {
-                    Properties.Remove(name);
+                    _properties.Remove(name);
                     return true;
                 }
                 else
@@ -335,6 +324,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 var thisVar = this;
                 while (thisVar != null)
                 {
+                    // case 2: property exists on chain
                     if (thisVar.HasOwnMember(name))
                     {
                         thisVar.SetOwnMember(name, val, this);
@@ -342,6 +332,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                     }
                     thisVar = thisVar.PrototypeInternal;
                 }
+                // case 3: property does not exist, create one
                 SetOwnMember(name, val);
             }
         }
@@ -372,7 +363,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 if (thisVar.HasOwnMember(name))
                 {
-                    return thisVar.Properties[name].Enumerable;
+                    return thisVar._properties[name].Enumerable;
                 }
                 thisVar = thisVar.PrototypeInternal;
             }
@@ -409,12 +400,20 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public bool InstanceOf(ObjectContext cst) // TODO Not complete
         {
-            return cst.IsFunction() && (cst.prototype == this.__proto__);
+            if (!cst.IsFunction()) return false; // not even a constructor
+            var tproto = __proto__;
+            var cproto = cst.prototype;
+            while (tproto != null)
+            {
+                if (cproto == tproto) return true;
+                tproto = tproto.__proto__;
+            }
+            return false;
         }
 
         public override string ToString()
         {
-            return base.ToString();
+            return $"[{GetType().Name}]";
         }
 
         public Value ToPrimitive()
@@ -425,71 +424,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string ToStringDisp(ActionContext actx)
         {
             string ans = "{\n";
-            foreach (string s in Properties.Keys)
+            foreach (string s in _properties.Keys)
             {
-                Properties.TryGetValue(s, out var v);
+                _properties.TryGetValue(s, out var v);
                 ans = ans + s + ": " + v.ToString(actx) + ", \n";
             }
             ans = ans + "}";
             return ans;
         }
-
-        // ****** The following functions are to be moved to several different classes
-
-        /// <summary>
-        /// Check wether or not a string is a builtin flash variable
-        /// </summary>
-        /// <param name="name">variable name</param>
-        /// <returns></returns>
-        public virtual bool IsBuiltInVariable(string name)
-        {
-            if (name == "__proto__" || name == "prototype" || name == "constructor")
-                return false;
-            return Builtin.IsBuiltInVariable(name);
-        }
-
-        /// <summary>
-        /// Get builtin variable
-        /// </summary>
-        /// <param name="name">variable name</param>
-        /// <returns></returns>
-        public virtual Value GetBuiltInVariable(string name)
-        {
-            return Builtin.GetBuiltInVariable(name, this);
-        }
-
-        /// <summary>
-        /// Set a builtin flash variable
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="val"></param>
-        public virtual void SetBuiltInVariable(string name, Value val)
-        {
-            Builtin.SetBuiltInVariable(name, this, val);
-        }
-
-        /// <summary>
-        /// Check whether or not a string is a builtin flash function
-        /// </summary>
-        /// <param name="name">function name</param>
-        /// <returns></returns>
-        public virtual bool IsBuiltInFunction(string name)
-        {
-            return Builtin.IsBuiltInFunction(name);
-        }
-
-        /// <summary>
-        /// Execute a builtin function maybe move builtin functions elsewhere
-        /// </summary>
-        /// <param name="actx"></param>
-        /// <param name="name">function name</param>
-        /// <param name="args"></param>
-        public virtual void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
-        {
-            Builtin.CallBuiltInFunction(name, actx, this, args);
-        }
-
-
-       
     }
 }

@@ -3,6 +3,9 @@ using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
+using System.Collections.Generic;
+using OpenSage.Data.Apt.FrameItems;
+using System;
 
 namespace OpenSage.Gui.Apt
 {
@@ -22,26 +25,22 @@ namespace OpenSage.Gui.Apt
         public static readonly uint MsPerFrameDefault = 30;
         public SpriteItem Root { get; set; }
 
-        // Most general one
-        internal AptContext(AssetStore assetStore, AptFile apt, VM avm, ImageMap imageMap, string movieName)
-        {
-            _assetStore = assetStore;
-
-            AptFile = apt;
+        // The general constructor
+        public AptContext(AptWindow window, VM avm = null) {
+            Window = window;
+            _assetStore = window.AssetStore;
+            AptFile = window.AptFile;
 
             if (avm == null) avm = new VM();
-                Avm = avm;
+            Avm = avm;
+        }
+
+        // Constructor to be used without an apt file
+        internal AptContext(ImageMap imageMap, string movieName, AssetStore assetStore) {
+            _assetStore = assetStore;
             _imageMap = imageMap;
             _movieName = movieName;
-
-            
         }
-        //constructor to be used without an apt file
-        internal AptContext(ImageMap imageMap, string movieName, AssetStore assetStore) : this(assetStore, null, null, imageMap, movieName) { }
-
-        public AptContext(AssetStore assetStore, AptFile apt, VM avm) : this(assetStore, apt, avm, null, null) { }
-        public AptContext(AptWindow window) : this(window, null) { Window = window; }
-        public AptContext(AptWindow window, VM avm): this(window.AssetStore, window.AptFile, avm) { Window = window; }
         
         // TODO resolve dependencies?
         public AptContext LoadContext()
@@ -50,6 +49,8 @@ namespace OpenSage.Gui.Apt
             var global = Avm.GlobalObject;
             var extobj = Avm.ExternObject;
 
+            var initactions = new Dictionary<uint, InstructionCollection>();
+
             // Data.Apt should be only containers with no calculations
             // resolve imports
             foreach (Import import in movie.Imports)
@@ -57,10 +58,17 @@ namespace OpenSage.Gui.Apt
                 AptFile af = null;
             }
 
-            // attach initactions properly to sprites
-            foreach (Character c in movie.Characters)
+            // find all initactions
+            // cover the old one if sprite id is repeated
+            // this follows the file spec
+            foreach (var v in movie.Frames)
+                foreach (var act in v.FrameItems)
+                    if (act is InitAction iact)
+                        initactions[iact.Sprite] = iact.Instructions;
+
+            foreach (var iact in initactions)
             {
-                // currently did by AptFile
+
             }
 
             // resolve exports
@@ -84,9 +92,9 @@ namespace OpenSage.Gui.Apt
             return movie.Characters[id];
         }
 
-        public DisplayItem GetInstantiatedCharacter(int id, Character callee)
+        public DisplayItem GetInstantiatedCharacter(int id)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public Geometry GetGeometry(uint id, Character callee)

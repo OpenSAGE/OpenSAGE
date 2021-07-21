@@ -218,6 +218,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual uint Size { get { return 0; } set { } }
         public virtual List<Value> Parameters { get; set; }
 
+        public bool Breakpoint { get; set; }
+
         public abstract void Execute(ActionContext context);
         public override string ToString()
         {

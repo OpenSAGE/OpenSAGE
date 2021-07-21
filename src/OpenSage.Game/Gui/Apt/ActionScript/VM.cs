@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Apt;
-using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Gui.Apt.ActionScript.Library;
 
@@ -16,22 +15,17 @@ namespace OpenSage.Gui.Apt.ActionScript
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         private TimeInterval _lastTick;
+        private DateTime _pauseTick;
+        private bool _paused;
         private Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>> _intervals;
+
         private Stack<ActionContext> _callStack;
+        private Queue<ActionContext> _execQueue;
 
         public ObjectContext GlobalObject { get; }
         public ActionContext GlobalContext { get; }
         public ObjectContext ExternObject { get; }
-
-        public static readonly Dictionary<string, Type> BuiltinClassesMapping = new Dictionary<string, Type>() {
-            ["Object"] = typeof(ObjectContext),
-            ["Function"] = typeof(Function),
-            ["Array"] = typeof(ASArray),
-            ["Color"] = typeof(ASColor),
-            ["String"] = typeof(ASString),
-            ["MovieClip"] = typeof(MovieClip),
-            ["TextField"] = typeof(TextField), 
-        };
+        
         public Dictionary<string, ObjectContext> Prototypes { get; private set; }
         public Dictionary<ObjectContext, Type> PrototypesInverse { get; private set; }
 
@@ -70,7 +64,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 cst.SetOwnProperty(p.Key, p.Value(this));
             Prototypes[className] = newProto;
             PrototypesInverse[newProto] = classType;
-           
         }
 
         public ObjectContext ConstructClass(Function cst_func)
@@ -90,7 +83,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         public VM()
         {
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
+            _paused = false;
+
             _callStack = new Stack<ActionContext>();
+            _execQueue = new Queue<ActionContext>();
 
             // initialize prototypes and constructors of Object and Function class
             Prototypes = new Dictionary<string, ObjectContext>() { ["Object"] = new ObjectContext(null) };
@@ -115,7 +111,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 func_cst.SetOwnProperty(p.Key, p.Value(this));
 
             // initialize built-in classes
-            foreach (var c in BuiltinClassesMapping)
+            foreach (var c in Builtin.BuiltinClasses)
             {
                 if (c.Key == "Object" || c.Key == "Function")
                     continue;
@@ -128,19 +124,27 @@ namespace OpenSage.Gui.Apt.ActionScript
             ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
 
-            // expose all classes to global object
+            // expose builtin stuffs
+            // classes
             foreach (var c in Prototypes)
-            {
                 GlobalObject.SetMember(c.Key, Value.FromFunction(c.Value.constructor));
+            // variables
+            foreach (var c in Builtin.BuiltinVariables)
+                GlobalObject.SetOwnProperty(c.Key, c.Value(this));
+            // functions
+            foreach (var c in Builtin.BuiltinFunctions)
+            {
+                var f = Value.FromFunction(new NativeFunction(c.Value, this));
+                GlobalObject.SetOwnProperty(c.Key, Property.D(f, false, false, false));
             }
         }
 
-        // interval operations
+        // interval & debug operations
 
         public void CreateInterval(string name, int duration, Function func, ObjectContext ctx, Value[] args)
         {
             _intervals[name] = (_lastTick,
-                                duration,
+                                duration, // milliseconds
                                 func,
                                 ctx,
                                 args
@@ -149,9 +153,9 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public void UpdateIntervals(TimeInterval current)
         {
-            for (int i = 0; i < _intervals.Count; ++i)
+            foreach (var interval_kv in _intervals)
             {
-                var interval = _intervals.Values.ElementAt(i);
+                var interval = interval_kv.Value;
 
                 if (current.TotalTime.TotalMilliseconds > (interval.Item1.TotalTime.TotalMilliseconds + interval.Item2))
                 {
@@ -162,13 +166,32 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             _lastTick = current;
         }
-
+         
         public void ClearInterval(string name)
         {
             _intervals.Remove(name);
         }
 
-        // stack operations
+        public void Pause()
+        {
+            if (!_paused)
+            {
+                _paused = true;
+                _pauseTick = DateTime.Now;
+            }
+        }
+
+        public void Resume()
+        {
+            if (_paused)
+            {
+                _paused = false;
+                var span = DateTime.Now.Subtract(_pauseTick);
+                _lastTick = new TimeInterval(_lastTick.TotalTime.Add(span), _lastTick.DeltaTime);
+            }
+        }
+
+        // stack & queue operations
 
         public void PushContext(ActionContext context) { _callStack.Push(context); }
         public ActionContext PopContext()
@@ -182,6 +205,22 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
         public void ForceReturn() { }
 
+        public void EnqueueContext(ActionContext context) { _execQueue.Enqueue(context); }
+        public ActionContext DequeueContext() { return _execQueue.Dequeue(); }
+        public ActionContext CurrentContextInQueue() { return _execQueue.Peek(); }
+        public bool HasContextInQueue() { return _execQueue.Count > 0; }
+
+        public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args)
+        {
+            
+        }
+        public void EnqueueContext(InstructionCollection insts, ObjectContext thisVar, AptContext apt)
+        {
+            var context = GetActionContext(apt, thisVar, 4, null, insts);
+            EnqueueContext(context);
+        }
+
+        // context, execution & debug
 
         public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
         {
@@ -198,7 +237,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
         {
             if (thisVar is null) thisVar = GlobalObject;
-            var context = new ActionContext(GlobalObject, thisVar, null, numRegisters)
+            var context = new ActionContext(GlobalObject, thisVar, GlobalContext, numRegisters)
             {
                 Apt = apt,
                 Stream = new InstructionStream(code),
@@ -227,113 +266,92 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Execute once in the current ActionContext.
         /// </summary>
         /// <returns></returns>
-        public InstructionBase ExecuteOnce()
+        public InstructionBase ExecuteOnce(bool ignoreBreakpoint = false) // TODO comprehensive logic needs observation
         {
             InstructionBase ans = null;
 
             var context = CurrentContext();
-            if (context.Halt)
-            {
-                throw new NotImplementedException("No more instructions");
-            }
 
             var stream = context.Stream;
-            if (stream.IsFinished()) context.Return = true;
+            if (stream.IsFinished())
+                context.Halt = true;
             else
             {
-                ans = stream.GetInstruction();
-                ans.Execute(context);
-            }
-            context = CurrentContext();
-
-            if (context.Return)
-            {
-                if (!IsCurrentContextGlobal())
+                ans = stream.GetInstructionNoMove();
+                if (!ignoreBreakpoint && ans.Breakpoint)
                 {
-                    var ret = context.Pop();
-                    PopContext();
-                    // not sure if it is correct, the document is vague again
-                    var ccur = CurrentContext();
-                    ccur.Push(ret);
-                    // special operations requiring being executed after function return
-                    context = ccur;
+                    Pause();
+                    return ans;
                 }
                 else
                 {
-                    context.Halt = true;
+                    stream.ToNextInstruction();
+                    ans.Execute(context);
+                }
+                    
+            }
+            // If a defined function is invoked, the current context should be the function's
+            // If a native function is invoked, no context is created, so it should still be itself
+            context = CurrentContext(); 
+
+            // 3 situations can lead to Halt == true :
+            // End(); Return(); stream.IsFinished().
+            if (context.Halt)
+            {
+                if (!IsCurrentContextGlobal())
+                {
+                    PopContext();
+                    context = CurrentContext();
+                }
+                else
+                {
+                    throw new InvalidOperationException("This situation should never happen.");
                 }
             }
-            // special operations requiring being executed after function return
+
+            // In some cases, special operations requiring being executed after function return,
+            // Including function return, new object.
             while (context.HasRecallCode())
                 context.PopRecallCode().Execute(context);
             return ans;
         }
 
-        public void ExecuteUntilReturn()
-        {
-            var context = CurrentContext();
-            while (!context.Return) ExecuteOnce();
-        }
-
         public void ExecuteUntilHalt()
         {
-            while (!CurrentContext().Halt) ExecuteOnce();
+            var context = CurrentContext();
+            while (!IsCurrentContextGlobal() && !context.Halt && _paused == false)
+                ExecuteOnce();
+        }
+
+        public void ExecuteUntilGlobal()
+        {
+            while (!IsCurrentContextGlobal() && _paused == false)
+                ExecuteUntilHalt();
+        }
+
+        public void ExecuteUntilEmpty()
+        {
+            while ((HasContextInQueue() || (!IsCurrentContextGlobal())) && _paused == false)
+            {
+                if (IsCurrentContextGlobal())
+                    PushContext(DequeueContext());
+                ExecuteUntilGlobal();
+            }
         }
 
         public Value Execute(Function func, Value[] args, ObjectContext thisVar)
         {
-            func.Invoke(this.CurrentContext(), thisVar, args);
-            ExecuteUntilReturn();
-            var ret = CurrentContext().Pop();
-            return ret;
-            /*
-            var context = func.GetContext(this, args, thisVar);
-            var stream = context.Stream;
- 
-
-            var instr = stream.GetInstruction();
-            InstructionBase prevInstr = null;
-
-            while (instr.Type != InstructionType.End)
-            {
-                instr.Execute(context);
-
-                if (context.Return)
-                    return context.Pop();
-
-                if (stream.IsFinished())
-                    break;
-
-                prevInstr = instr;
-                instr = stream.GetInstruction();
-            }
-
-            return Value.Undefined();*/
-        }
-
-        public InstructionBase ExecuteOnce(ActionContext context)
-        {
-            var instr = context.Stream.GetInstruction();
-            instr.Execute(context);
-            return instr;
+            var ret = func.Invoke(CurrentContext(), thisVar, args);
+            if (func is DefinedFunction)
+                ExecuteUntilHalt();
+            return ret.ResolveReturn();
         }
 
         // TODO all should be replaced. This is an extremely dangerous call.
-        public void Execute(InstructionCollection code, ObjectContext scope, AptContext apt) { Execute(GetActionContext(apt, scope, 4, null, code)); }
-        public void Execute(ActionContext context)
-        { 
-            var stream = context.Stream;
-            var instr = stream.GetInstruction();
-
-            InstructionBase prev = null;
-
-            while (instr.Type != InstructionType.End)
-            {
-                instr.Execute(context);
-
-                prev = instr;
-                instr = stream.GetInstruction();
-            }
+        public void Execute(InstructionCollection code, ObjectContext scope, AptContext apt)
+        {
+            PushContext(GetActionContext(apt, scope, 4, null, code));
+            ExecuteUntilHalt();
         }
 
         public void Handle(ActionContext context, string url, string target)

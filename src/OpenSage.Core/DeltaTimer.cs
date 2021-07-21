@@ -73,6 +73,8 @@ namespace OpenSage
             DeltaTime = deltaTime;
         }
 
+        public TimeInterval(TimeInterval t) : this(t.TotalTime, t.DeltaTime) { }
+
         public static TimeInterval Zero { get; } = new TimeInterval();
 
         // This is the ratio between stopwatch ticks and timespan ticks

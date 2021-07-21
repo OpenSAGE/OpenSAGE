@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                  (actx, tv, args) => {
                      ((ASArray) tv).PrototypeInternal = actx.Apt.Avm.Prototypes["Array"];
                      ((ASArray) tv)._values = new List<Value>(args);
-                     actx.Push(Value.FromObject(tv));
+                     return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
             ["length"] = (avm) => Property.A(
@@ -71,6 +71,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             _values.CopyTo(0, ans, 0, _values.Count);
             return ans;
         }
+
+        public Value GetValue(int index) { return _values[index]; }
 
         public override string ToString()
         {

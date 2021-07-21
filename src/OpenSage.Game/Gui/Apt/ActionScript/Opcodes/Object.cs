@@ -68,8 +68,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var str = Parameters[0].ToString();
 
-            //check if this a special object, like _root, _parent etc.
-            var result = context.GetObject(str);
+            // check if this a special object, like _root, _parent etc.
+            // this is automatically done by the built-in variables in the global object.
+            var result = context.GetValueOnChain(str);
 
             if (result == null)
                 throw new InvalidOperationException();
@@ -279,8 +280,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             */
             var thisVar = new ObjectContext(context.Apt.Avm);
             context.PushRecallCode(new PushValue(Value.FromObject(thisVar)));
-            context.PushRecallCode(new Pop());
-            FunctionCommon.CreateFunctionContext(obj, args, context, thisVar);
+            FunctionCommon.StartExecutingFunction(obj, args, context, thisVar);
             /*
             context.Apt.Avm.ExecuteUntilReturn();
             context.Pop();
