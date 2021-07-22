@@ -18,9 +18,27 @@ namespace OpenSage.Data.Apt
         public Movie Movie { get; private set; }
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
+        public Dictionary<string, FileSystemEntry> ImportMap { get; private set; }
 
         internal bool IsEmpty = true;
-        
+
+        class _fec : IEqualityComparer<FileSystemEntry>
+        {
+            public bool Equals(FileSystemEntry b1, FileSystemEntry b2)
+            {
+                return b1.ToString().Equals(b2.ToString());
+            }
+
+            public int GetHashCode(FileSystemEntry bx)
+            {
+                return bx.ToString().GetHashCode();
+            }
+        }
+
+        private static _fec __fec = new _fec();
+        private static Dictionary<FileSystemEntry, AptFile> _cache = new Dictionary<FileSystemEntry, AptFile>(__fec);
+        private static List<FileSystemEntry> _recent = new List<FileSystemEntry>();
+        private static readonly int _max_count = 12;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -56,61 +74,44 @@ namespace OpenSage.Data.Apt
                 GeometryMap[shape.Geometry] = shapeGeometry;
             }
 
-            var importDict = new Dictionary<string, AptFile>();
-
+            ImportMap = new Dictionary<string, FileSystemEntry>();
             //resolve imports
             foreach (var import in Movie.Imports)
+                if (!ImportMap.ContainsKey(import.Movie))
             {
-                //open the apt file where our character is located
-                AptFile importApt;
-
-                if (importDict.ContainsKey(import.Movie))
-                {
-                    importApt = importDict[import.Movie];
-                }
-                else
-                {
-                    var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                    var importEntry = FileSystem.GetFile(importPath);
-                    if(importEntry == null)
-                    {
-                        throw new FileNotFoundException("Cannot find imported file", importPath);
-                    }
-                    importApt = AptFile.FromFileSystemEntry(importEntry); // If this step is not problematic, initactions should be processed automatically
-                    importDict[import.Movie] = importApt;
-                }
-
-                //get the export from that apt and proceed
-                var export = importApt.Movie.Exports.Find(x => x.Name == import.Name);
-
-                // TODO: Unable to import sprites with initactions
-                //place the exported character inside our movie
-                Movie.Characters[(int) import.Character] = importApt.Movie.Characters[(int) export.Character];
+                var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                var importEntry = FileSystem.GetFile(importPath);
+                if(importEntry == null)
+                    throw new FileNotFoundException("Cannot find imported file", importPath);
+                ImportMap[import.Movie] = importEntry;
             }
 
-            // resolve initactions
-            foreach (var frame in Movie.Frames)
-            {
-                foreach (var item in frame.FrameItems)
-                {
-                    if (item is InitAction ia)
-                    {
-                        var spr = Movie.Characters[(int)ia.Sprite];
-                        if (spr is Sprite sprite)
-                        {
-                            sprite.InitActions = ia.Instructions;
-                        }
-                        else
-                        {
-                            throw new NotImplementedException("ARIENAI!!!!!!!");
-                        }
-                    }
-                }
-            }
         }
 
-        // TODO: Caching support
         public static AptFile FromFileSystemEntry(FileSystemEntry entry)
+        {
+            if (!_cache.ContainsKey(entry)) {
+                _cache[entry] = FromFileSystemEntryRaw(entry);
+                _recent.Add(entry);
+                if (_recent.Count > _max_count)
+                {
+                    _cache.Remove(_recent[0]);
+                    _recent.Remove(_recent[0]);
+                }   
+            }
+            else
+            {
+                foreach (var v in _recent)
+                    if (__fec.Equals(v, entry))
+                    {
+                        _recent.Remove(v);
+                        break;
+                    }
+                _recent.Add(entry);
+            }
+            return _cache[entry];
+        }
+        public static AptFile FromFileSystemEntryRaw(FileSystemEntry entry)
         {
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
@@ -141,8 +142,9 @@ namespace OpenSage.Data.Apt
             var apt = new AptFile(constData, null, name)
             {
                 ImageMap = new ImageMap(),
-                GeometryMap = new Dictionary<uint, Geometry>()
-            };
+                GeometryMap = new Dictionary<uint, Geometry>(),
+                ImportMap = new Dictionary<string, FileSystemEntry>(), 
+        };
             apt.Movie = Movie.CreateEmpty(apt, width, height, millisecondsPerFrame);
             return apt;
         }

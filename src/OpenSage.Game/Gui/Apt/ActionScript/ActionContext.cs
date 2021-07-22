@@ -24,6 +24,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Value ReturnValue { get; set; }
         public List<ConstantEntry> GlobalConstantPool { get; set; }
         public List<Value> Constants { get; set; }
+        public string DisplayName { get; set; } // only used for display purpose
 
         private Stack<Value> _stack;
         private Stack<InstructionBase> _immiexec;
@@ -56,6 +57,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionBase PopRecallCode() { return _immiexec.Pop(); }
         public InstructionBase FirstRecallCode() { return _immiexec.Peek(); }
         public bool HasRecallCode() { return _immiexec.Count != 0; }
+
+        public override string ToString()
+        {
+            return DisplayName == null ? "[ActionContext]" : $"[{DisplayName}]";
+        }
 
         // constant operations
 
@@ -127,9 +133,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string DumpStack()
         {
             var stack_val = _stack.ToArray();
-            var ans = String.Join("|", stack_val.Select(x => x.ToStringWithType(this)).ToArray());
+            var ans = string.Join("|", stack_val.Select(x => x.ToStringWithType(this)).ToArray());
 
-            ans = String.Format("TOP|{0}|BOTTOM", ans);
+            ans = string.Format("TOP|{0}|BOTTOM", ans);
             return ans;
         }
 

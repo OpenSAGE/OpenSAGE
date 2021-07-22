@@ -3,6 +3,7 @@ using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.Util;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
+using System.Numerics;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
@@ -10,6 +11,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         LogicalInstructions _instructions = null;
         AptContext _context = null;
+        ObjectContext _dispobj = null;
         ActionContext _acontext = null;
         InputComboBox _editBox = new AutoSuggestionBox
         {
@@ -28,27 +30,25 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         string exec_code_ref = "";
         string last_executed_func = "Initial output";
 
+        Vector4 _breakColor = new Vector4(0, 1, 0, 0);
+        string _breakDesc = "●";
+
         public void CheckEnv(AptSceneManager manager)
         {
-            if (manager.CurrentActions == null || manager.CurrentDisplay is null)
+            if (manager.CurrentWindow == null || manager.CurrentDisplay is null)
             {
                 _context = null;
                 _acontext = null;
+                _instructions = null;
+                _dispobj = null;
             }
-            else if (_instructions != manager.CurrentActions)
+            else
             {
                 _instructions = manager.CurrentActions;
-                ObjectContext ocon = manager.CurrentDisplay.ScriptObject;
-
+                _dispobj = manager.CurrentDisplay.ScriptObject;
                 _context = manager.CurrentDisplay.Context;
-                _acontext = new ActionContext(_context.Avm.GlobalObject, ocon, _context.Avm.CurrentContext(), 4)
-                {
-                    Apt = _context,
-                    Stream = new InstructionStream(_instructions.Insts),
-                };
-                // _context.Avm.PushContext(_acontext);
+                _acontext = _context.Avm.CurrentContext();
             }
-            
         }
 
         public void Draw(AptSceneManager manager)
@@ -89,9 +89,6 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                             _context.Avm.Pause();
                     }
                 }
-                    
-              
-
                 
                 ImGui.InputText("Type", ref input_type, 1000);
                 //ImGui.SameLine();
@@ -120,20 +117,33 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ImGui.Separator();
 
+                ImGui.Text("Last Execution:");
+                ImGui.Text(last_executed_func);
+
                 ImGui.Text("Registers:");
                 ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpRegister());
 
                 ImGui.Text("Stack:");
                 ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpStack());
 
-                ImGui.Text("Last Execution:");
-                ImGui.Text(last_executed_func);
+                ImGui.Text("Execution Context:");
+                ImGui.Text(_context == null ? "Not Applicable" : _context.Avm.DumpContextStack());
+
+                ImGui.Text("Code Queue:");
+                ImGui.Text(_context == null ? "Not Applicable" : _context.Avm.DumpContextQueue());
+
+                
+
+                ImGui.Text("KW This:");
+                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp(_acontext));
+
+                ImGui.Text("Display Item:");
+                ImGui.Text(_dispobj == null ? "null" : _dispobj.ToStringDisp(_acontext));
 
                 ImGui.Text("KW Global:");
                 ImGui.Text(_acontext == null ? "null" : _acontext.Global.ToStringDisp(_acontext));
 
-                ImGui.Text("KW This:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp(_acontext));
+                
 
                 if (_instructions != null && ImGui.Begin("Codes"))
                 { 
@@ -150,7 +160,15 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         }
                         else
                         {
-                            ImGui.Button(_instructions.Items[i].ToString(_acontext));
+                            if (_instructions.Items[i].Breakpoint)
+                            {
+                                ImGui.TextColored(_breakColor, _breakDesc);
+                                ImGui.SameLine();
+                            }
+                            if (ImGui.Button(_instructions.Items[i].ToString(_acontext)))
+                            {
+                                _instructions.Items[i].Breakpoint = !_instructions.Items[i].Breakpoint;
+                            }
                         }
                     }
                 }

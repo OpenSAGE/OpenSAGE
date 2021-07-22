@@ -43,7 +43,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public delegate AptFile HandleExternalMovie(string movie);
         public HandleExternalMovie MovieHandler;
 
-        public VM(HandleCommand hc, HandleExternVariable hev, HandleExternalMovie hem) : this()
+        public void SetHandlers(HandleCommand hc, HandleExternVariable hev, HandleExternalMovie hem)
         {
             CommandHandler = hc;
             VariableHandler = hev;
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ret;
         }
 
-        public VM()
+        public VM(AptContext apt = null)
         {
             _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
             _paused = false;
@@ -120,7 +120,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             // initialize global vars and methods
             GlobalObject = new ObjectContext(this); // TODO replace it to Stage
-            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4);
+            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4) { Apt = apt, DisplayName = "GlobalContext", };
             ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
 
@@ -159,7 +159,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                 if (current.TotalTime.TotalMilliseconds > (interval.Item1.TotalTime.TotalMilliseconds + interval.Item2))
                 {
-                    EnqueueContext(interval.Item3, interval.Item4, interval.Item5);
+                    EnqueueContext(interval.Item3, interval.Item4, interval.Item5, "Interval");
                     interval.Item1 = current;
                 }
             }
@@ -205,51 +205,70 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
         public ActionContext CurrentContext() { return _callStack.Peek(); }
         public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
-        public void ForceReturn() { }
+
+        public string DumpContextStack()
+        {
+            var stack_val = _callStack.ToArray();
+            var ans = string.Join("\n", stack_val.Select(x => x.ToString()).ToArray());
+            return ans;
+        }
 
         public void EnqueueContext(ActionContext context) { _execQueue.Enqueue(context); }
         public ActionContext DequeueContext() { return _execQueue.Dequeue(); }
         public ActionContext CurrentContextInQueue() { return _execQueue.Peek(); }
         public bool HasContextInQueue() { return _execQueue.Count > 0; }
+        public string DumpContextQueue()
+        {
+            var stack_val = _execQueue.ToArray();
+            var ans = string.Join("\n", stack_val.Select(x => x.ToString()).ToArray());
+            return ans;
+        }
 
-        public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args)
+        public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args, string name = null)
         {
             if (f is DefinedFunction fd)
                 EnqueueContext(fd.GetContext(this, args, thisVar));
             else
             {
                 Action<ActionContext> f1 = (_) => f.Invoke(GlobalContext, thisVar, args);
-                EnqueueContext(GetActionContext(GlobalContext, thisVar, 4, null, InstructionCollection.Native(f1)));
+                EnqueueContext(GetActionContext(GlobalContext, thisVar, 4, null, InstructionCollection.Native(f1), name));
             }
         }
-        public void EnqueueContext(DisplayItem item, InstructionCollection insts)
+        public void EnqueueContext(DisplayItem item, InstructionCollection insts, string name = null)
         {
-            var context = GetActionContext(item.Context, item.ScriptObject, 4, item.Constants, insts);
+            var context = GetActionContext(item.Context, item.ScriptObject, 4, item.Constants, insts, name);
+            EnqueueContext(context);
+        }
+        public void EnqueueContext(InstructionCollection insts, AptContext apt, string name = null)
+        {
+            var context = GetActionContext(apt, null, 4, apt.Constants.Entries, insts, name);
             EnqueueContext(context);
         }
 
         // context, execution & debug
-        public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
+        public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
             {
                 Apt = outerVar.Apt,
-                GlobalConstantPool = outerVar.Apt.Constants.Entries, 
+                GlobalConstantPool = outerVar.Apt.Constants.Entries,
                 Stream = new InstructionStream(code),
                 Constants = consts,
+                DisplayName = name, 
             };
             return context;
         }
 
-        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code)
+        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ActionContext(GlobalObject, thisVar, GlobalContext, numRegisters)
             {
                 Apt = apt,
-                GlobalConstantPool = consts, 
+                GlobalConstantPool = consts,
                 Stream = new InstructionStream(code),
+                DisplayName = name, 
             };
             return context;
         }

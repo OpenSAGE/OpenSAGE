@@ -26,7 +26,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 Import = movie.Imports.FirstOrDefault(i => i.Character == index);
                 ExportedName = movie.Exports.FirstOrDefault(e => e.Character == index)?.Name;
                 Index = index;
-                Type = character.GetType().Name;
+                Type = character == null ? "temporary null" : character.GetType().Name;
                 Name = name;
                 if (character is Shape shape)
                 {
@@ -48,7 +48,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Manager = manager;
             for (var i = 0; i < Movie.Characters.Count; ++i)
             {
-                _characterNames.Add(i, $"#{i} {Movie.Characters[i].GetType().Name}");
+                var chr = Movie.Characters[i];
+                var name = chr == null ? "temporary null" : chr.GetType().Name;
+                _characterNames.Add(i, $"#{i} {name}");
             }
         }
 

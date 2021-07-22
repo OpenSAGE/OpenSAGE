@@ -83,6 +83,7 @@ namespace OpenSage.Tools.AptEditor.Apt
             }
         }
 
+        // try to execute actions!
         private static void UpdateNextFrameNoActions(SpriteItem sprite)
         {
             if (!((Playable) sprite.Character).Frames.Any())
@@ -100,8 +101,6 @@ namespace OpenSage.Tools.AptEditor.Apt
                 switch (item)
                 {
                     case FrameLabel _:
-                    case Data.Apt.FrameItems.Action _: // no actions
-                    // case InitAction _:
                         break;
                     default:
                         sprite.HandleFrameItem(item);

@@ -6,6 +6,7 @@ using Veldrid;
 using System.Collections.Generic;
 using OpenSage.Data.Apt.FrameItems;
 using System;
+using System.IO;
 
 namespace OpenSage.Gui.Apt
 {
@@ -25,13 +26,18 @@ namespace OpenSage.Gui.Apt
         public static readonly uint MsPerFrameDefault = 30;
         public SpriteItem Root { get; set; }
 
+        public Dictionary<int, (string, string)> ImportDict { get; private set; }
+        public Dictionary<string, int> ExportDict { get; private set; }
+        public Dictionary<string, AptContext> ImportContextDict { get; private set; }
+        public Dictionary<int, InstructionCollection> InitActionsDict { get; private set; }
+
         // The general constructor
-        public AptContext(AptWindow window, VM avm = null) {
+        public AptContext(AptWindow window, AptFile file = null, VM avm = null) {
             Window = window;
             _assetStore = window.AssetStore;
-            AptFile = window.AptFile;
-
-            if (avm == null) avm = new VM();
+            if (file == null) file = window == null ? null : window.AptFile;
+            AptFile = file;
+            if (avm == null) avm = new VM(this);
             Avm = avm;
         }
 
@@ -41,22 +47,31 @@ namespace OpenSage.Gui.Apt
             _imageMap = imageMap;
             _movieName = movieName;
         }
-        
-        // TODO resolve dependencies?
+
         public AptContext LoadContext()
         {
             var movie = AptFile.Movie;
-            var global = Avm.GlobalObject;
-            var extobj = Avm.ExternObject;
-
-            var initactions = new Dictionary<uint, InstructionCollection>();
 
             // Data.Apt should be only containers with no calculations
             // resolve imports
-            foreach (Import import in movie.Imports)
+
+            ImportContextDict = new Dictionary<string, AptContext>();
+
+            foreach (var import in AptFile.ImportMap)
             {
-                AptFile af = null;
+                //open the apt file where our character is located
+                var importFile = AptFile.FromFileSystemEntry(import.Value);
+                var importContext = new AptContext(Window, importFile, Avm)
+                {
+                    Root = Root,
+                };
+                importContext.LoadContext();
+                ImportContextDict[import.Key] = importContext;
             }
+
+            // resolve initactions
+
+            InitActionsDict = new Dictionary<int, InstructionCollection>();
 
             // find all initactions
             // cover the old one if sprite id is repeated
@@ -64,20 +79,32 @@ namespace OpenSage.Gui.Apt
             foreach (var v in movie.Frames)
                 foreach (var act in v.FrameItems)
                     if (act is InitAction iact)
-                        initactions[iact.Sprite] = iact.Instructions;
+                        InitActionsDict[(int) iact.Sprite] = iact.Instructions;
 
-            foreach (var iact in initactions)
+            foreach (var ia in InitActionsDict)
             {
-
+                var spr = movie.Characters[ia.Key];
+                if (spr is Sprite sprite)
+                    sprite.InitActions = ia.Value;
+                else
+                    throw new InvalidDataException("Initactions should onle be attached to Sprites.");
             }
 
-            // resolve exports
-            foreach (Export export in movie.Exports)
-            {
-                var chrname = export.Name;
-                var character = movie.Characters[(int)export.Character];
-            }
+            // resolve imports and exports
 
+            ImportDict = new Dictionary<int, (string, string)>();
+            ExportDict = new Dictionary<string, int>();
+            foreach (var import in movie.Imports)
+                ImportDict[(int) import.Character] = (import.Name, import.Movie);
+            foreach (var export in movie.Exports)
+                ExportDict[export.Name] = (int) export.Character;
+            
+            // execute initactions
+
+            foreach (var a in InitActionsDict)
+            {
+                Avm.EnqueueContext(a.Value, this, $"Initaction #{a.Key}");
+            }
 
             return this;
         }
@@ -92,9 +119,23 @@ namespace OpenSage.Gui.Apt
             return movie.Characters[id];
         }
 
-        public DisplayItem GetInstantiatedCharacter(int id)
+        public DisplayItem GetInstantiatedCharacter(int id, ItemTransform initState, SpriteItem parent = null)
         {
-            throw new NotImplementedException();
+            if (ImportDict.ContainsKey(id))
+            {
+                var import_context = ImportContextDict[ImportDict[id].Item2];
+                return import_context.GetInstantiatedCharacter(import_context.ExportDict[ImportDict[id].Item1], initState, parent);
+            }
+            var chr = AptFile.Movie.Characters[id];
+            DisplayItem displayItem = chr switch
+            {
+                Playable _ => new SpriteItem(),
+                Button _ => new ButtonItem(),
+                _ => new RenderItem(),
+            };
+            displayItem.Transform = initState;
+            displayItem.Create(chr, this, parent);
+            return displayItem;
         }
 
         public Geometry GetGeometry(uint id, Character callee)

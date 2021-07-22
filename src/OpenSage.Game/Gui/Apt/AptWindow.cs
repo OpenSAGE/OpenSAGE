@@ -55,8 +55,8 @@ namespace OpenSage.Gui.Apt
             AptFile = aptFile;
 
             //Create our context
-            var context_avm = new VM(HandleCommand, HandleVariable, HandleMovie);
-            _context = new AptContext(this, context_avm);
+            _context = new AptContext(this);
+            _context.Avm.SetHandlers(HandleCommand, HandleVariable, HandleMovie);
 
             //First thing to do here is to initialize the display list
             Root = AddDisposable(new SpriteItem
@@ -92,14 +92,12 @@ namespace OpenSage.Gui.Apt
         internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
             var vm = _context.Avm;
-            if (!vm.Paused())
-            {
-                vm.ExecuteUntilEmpty(); // clear remaining codes
-                vm.UpdateIntervals(gt);
-                Root.Update(gt);
-                Root.EnqueueActions(gt);
-                vm.ExecuteUntilEmpty();
-            }
+
+            vm.ExecuteUntilEmpty(); // clear remaining codes
+            vm.UpdateIntervals(gt);
+            Root.Update(gt);
+            Root.EnqueueActions(gt);
+            vm.ExecuteUntilEmpty();
             
         }
 

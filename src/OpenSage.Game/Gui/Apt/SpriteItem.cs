@@ -243,9 +243,8 @@ namespace OpenSage.Gui.Apt
                     _actionList.Add(action);
                     break;
                 case InitAction iaction:
+                    // executed in importing
                     break;
-                    // TODO 
-                    //throw new NotImplementedException("init action test");
                 case BackgroundColor bg:
                     if (SetBackgroundColor != null)
                     {
@@ -329,9 +328,11 @@ namespace OpenSage.Gui.Apt
             {
                 return;
             }
-
-            var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
+            var displayItem = Context.GetInstantiatedCharacter(po.Character, itemTransform, this);
+            /*
+            var character = Context.GetCharacter(po.Character, _sprite);
+            
             DisplayItem displayItem = character switch
             {
                 Playable _ => new SpriteItem(),
@@ -340,7 +341,7 @@ namespace OpenSage.Gui.Apt
             };
             displayItem.Transform = itemTransform;
             displayItem.Create(character, Context, this);
-
+            */
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
@@ -356,7 +357,7 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.Avm.EnqueueContext(displayItem, clipEvent.Instructions);
+                            Context.Avm.EnqueueContext(displayItem, clipEvent.Instructions, displayItem.Name + ".onInit");
                         }
                     }
                 }
@@ -376,7 +377,7 @@ namespace OpenSage.Gui.Apt
         {
             // enqueue all actions
             foreach (var action in _actionList)
-                Context.Avm.EnqueueContext(this, action.Instructions);
+                Context.Avm.EnqueueContext(this, action.Instructions, Name);
             _actionList.Clear();
 
             // enqueue all subitems actions

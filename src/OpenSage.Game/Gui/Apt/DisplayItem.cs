@@ -75,7 +75,7 @@ namespace OpenSage.Gui.Apt
         public AptContext Context { get; protected set; }
         public SpriteItem Parent { get; protected set; }
         public Character Character { get; protected set; }
-        public List<ConstantEntry> Constants => Character.Container.Constants.Entries;
+        public List<ConstantEntry> Constants => Context.AptFile.Constants.Entries;
         public ItemTransform Transform { get; set; }
         public StageObject ScriptObject { get; protected set; }
         public string Name { get; set; }

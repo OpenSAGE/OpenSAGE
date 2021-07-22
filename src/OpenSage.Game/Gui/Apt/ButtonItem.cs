@@ -8,6 +8,8 @@ namespace OpenSage.Gui.Apt
 {
     public class ButtonItem : TexturedItem
     {
+        private Button _button;
+
         private bool _isHovered = false;
         private bool _isDown = false;
         private ItemTransform _curTransform;
@@ -21,7 +23,7 @@ namespace OpenSage.Gui.Apt
             Name = "";
             Visible = true;
 
-            var button = Character as Button;
+            _button = Character as Button;
 
             _actionList = new List<InstructionCollection>();
         }
@@ -31,7 +33,7 @@ namespace OpenSage.Gui.Apt
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-            var button = Character as Button;
+            var button = _button;
 
             var transform = _curTransform.GeometryRotation;
             transform.Translation = _curTransform.GeometryTranslation;// * scaling;
@@ -100,7 +102,7 @@ namespace OpenSage.Gui.Apt
 
         private void ApplyCurrentRecord(ref Matrix3x2 t)
         {
-            var button = Character as Button;
+            var button = _button;
             var idx = button.Records.FindIndex(br => br.Flags.HasFlag(ButtonRecordFlags.StateHit));
             if (idx != -1)
             {
@@ -133,7 +135,7 @@ namespace OpenSage.Gui.Apt
         public override void EnqueueActions(TimeInterval gt)
         {
             foreach (var action in _actionList)
-                Context.Avm.EnqueueContext(Parent, action);
+                Context.Avm.EnqueueContext(Parent, action, Name);
             _actionList.Clear();
         }
     }
