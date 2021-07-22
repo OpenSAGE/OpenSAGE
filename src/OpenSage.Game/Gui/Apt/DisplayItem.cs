@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.ActionScript.Library;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
@@ -48,14 +52,32 @@ namespace OpenSage.Gui.Apt
         }
     }
 
+    public struct ItemShape : ICloneable
+    {
+        public Vector2 TopLeft;
+        public Vector2 BottomRight;
+
+        public ItemShape(float top, float left, float bottom, float right)
+        {
+            TopLeft = new Vector2(left, top);
+            BottomRight = new Vector2(right, bottom);
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+    }
+
     [DebuggerDisplay("[DisplayItem:{Name}]")]
     public abstract class DisplayItem : DisposableBase
     {
         public AptContext Context { get; protected set; }
         public SpriteItem Parent { get; protected set; }
         public Character Character { get; protected set; }
+        public List<ConstantEntry> Constants => Context.AptFile.Constants.Entries;
         public ItemTransform Transform { get; set; }
-        public ObjectContext ScriptObject { get; protected set; }
+        public StageObject ScriptObject { get; protected set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
         public int? ClipDepth { get; set; }
@@ -96,8 +118,11 @@ namespace OpenSage.Gui.Apt
 
         protected virtual void RenderImpl(AptRenderingContext renderingContext) { }
 
-        public virtual void RunActions(TimeInterval gt) { }
+        public virtual void EnqueueActions(TimeInterval gt) { }
 
+        public virtual DisplayItem GetFocus(Point2D mousePos, bool mouseDown) { return this; }
         public virtual bool HandleInput(Point2D mousePos, bool mouseDown) { return false; }
+
+        public virtual bool HandleEvent(ClipEventFlags flags) { return false; }
     }
 }

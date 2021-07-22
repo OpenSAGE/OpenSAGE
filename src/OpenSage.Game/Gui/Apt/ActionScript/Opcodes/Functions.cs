@@ -22,6 +22,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return args;
         }
 
+        // TODO this function is no longer safe. try to use the new model.
+        // TODO try to fix compatibility
         public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
         {
             if (funcVal.Type != ValueType.Undefined)
@@ -35,41 +37,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
         }
 
-        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
+        public static Value StartExecutingFunction(string funcName, Value[] args, ActionContext context, ObjectContext thisVar = null)
+        {
+            return StartExecutingFunction(context.GetValueOnChain(funcName), args, context, thisVar);
+        }
+        public static Value StartExecutingFunction(Value funcVal, Value[] args, ActionContext context, ObjectContext thisVar = null)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
                 var func = funcVal.ToFunction();
-                var vm = context.Apt.Avm;
-                var ret = vm.Execute(func, args, scope);
-
-                if (ret != null)
-                    context.Push(ret);
+                if (thisVar == null) thisVar = context.Global;
+                return func.Invoke(context, thisVar, args);
             }
             else
             {
                 logger.Warn($"Function val is wrong is wrong type: {funcVal}");
             }
+            return null;
         }
-
-        public static void ExecuteFunction(string funcName, Value[] args, ObjectContext scope, ActionContext context)
-        {
-            if (scope == null)
-            {
-                logger.Error($"Cannot execute function \"{funcName}\" on null object");
-                return;
-            }
-
-            if (scope.IsBuiltInFunction(funcName))
-            {
-                scope.CallBuiltInFunction(context, funcName, args);
-            }
-            else
-            {
-                var funcVal = scope.GetMember(funcName);
-                ExecuteFunction(funcVal, args, scope, context);
-            }
-        }
+    
     }
 
     /// <summary>
@@ -96,19 +82,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function()
+            var func = new DefinedFunction(context.Apt.Avm)
             {
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = 4,
-                Constants = new List<Value>(context.Scope.Constants),
+                Constants = context.Constants, // do not need copy, see df2
+                DefinedContext = context, 
                 IsNewVersion = false
             };
 
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.Scope.Variables[name] = funcVal;
+                context.This.SetMember(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -141,12 +128,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function()
+            var func = new DefinedFunction(context.Apt.Avm)
             {
                 Parameters = paramList,
                 Instructions = code,
                 NumberRegisters = nRegisters,
-                Constants = new List<Value>(context.Scope.Constants),
+                Constants = context.Constants, // do not need shallow copy anymore since won't override
+                DefinedContext = context,
                 Flags = flags,
                 IsNewVersion = true
             };
@@ -154,7 +142,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.Scope.Variables[name] = funcVal;
+                context.This.SetMember(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -164,6 +152,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
     /// <summary>
     /// Return out of the current function back to the calling point
+    /// If the function does not have a return statement, the value should be null
+    /// Else, the value is set to anything other than null (including undefined)
     /// </summary>
     public sealed class Return : InstructionBase
     {
@@ -172,37 +162,77 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             context.Return = true;
+            context.Halt = true;
+            var ret = context.Pop();
+            context.ReturnValue = ret == null ? Value.FromObject(null) : ret;
         }
+    }
+
+    public sealed class DealWithReturnValue : InstructionBase
+    {
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+
+        public DealWithReturnValue(Value v) : base() { Parameters = new List<Value> { v }; }
+
+        public override void Execute(ActionContext context)
+        {
+            // TODO what on earth does the document mean?
+            /*
+            // original implementation
+            var ret = Parameters[0] == null ? null : Parameters[0].GetReturnValue();
+            if (ret != null) context.Push(ret);
+            */
+            // implementation from observation
+            context.Push(Parameters[0] == null ? Value.Undefined() : Parameters[0].ResolveReturn());
+
+        }
+    }
+
+    public sealed class ExecNativeCode : InstructionBase
+    {
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+
+        private Action<ActionContext> _action;
+
+        public ExecNativeCode(Action<ActionContext> a) : base() { _action = a; }
+
+        public override void Execute(ActionContext context) { _action(context); }
     }
 
     /// <summary>
     /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
     /// </summary>
-    public sealed class CallMethod : InstructionBase
+    public class CallMethod : InstructionBase
     {
         public override InstructionType Type => InstructionType.CallMethod;
 
         public override void Execute(ActionContext context)
         {
             var funcName = context.Pop().ToString();
-
+            var ret = (Value) null;
             // If funcname is defined we need get the function from an object
             if (funcName.Length > 0)
             {
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+                ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
             {
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
+                ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
+                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
+    }
+
+    public sealed class EACallMethod: CallMethod
+    {
+        public override InstructionType Type => InstructionType.EA_CallMethod;
     }
 
     /// <summary>
@@ -215,23 +245,24 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var funcName = context.Pop().ToString();
-
+            var ret = (Value) null;
             // If funcname is defined we need get the function from an object
             if (funcName.Length > 0)
             {
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+                ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
             {
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
+                ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
+                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 
@@ -245,12 +276,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
+            var funcName = Parameters[0].ResolveConstant(context).ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 
@@ -264,17 +295,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
-            var argCount = context.Pop().ToInteger();
+            var funcName = Parameters[0].ResolveConstant(context).ToString();
+            var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            var args = new Value[argCount];
-            for (int i = 0; i < argCount; ++i)
-            {
-                args[i] = context.Pop();
-            }
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 
@@ -288,11 +313,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
+            var funcName = Parameters[0].ResolveConstant(context).ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 
@@ -308,8 +333,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 
@@ -329,6 +354,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
     /// <summary>
     /// Call a function that is defined in the current scope
+    /// Since there is no reference, assume the popping order is correct
     /// </summary>
     public sealed class CallNamedMethod : InstructionBase
     {
@@ -338,15 +364,22 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
+            var funcName = context.Constants[id].ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+            FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+            context.Apt.Avm.ExecuteUntilHalt();
 
-            var result = context.Pop();
-            var varName = context.Pop();
-            context.Locals[varName.ToString()] = result;
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+            context.PushRecallCode(new ExecNativeCode((_) =>
+            {
+                var result = ret.ResolveReturn();
+                var varName = context.Pop();
+                context.SetValueOnLocal(varName.ToString(), result);
+            }));
+
+            
         }
     }
 
@@ -361,8 +394,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(new DealWithReturnValue(ret));
         }
     }
 }

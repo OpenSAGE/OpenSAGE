@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Apt;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript.Library;
@@ -8,33 +10,38 @@ namespace OpenSage.Gui.Apt.ActionScript
     public enum ValueType
     {
         String,
-        Constant,
         Boolean,
         Integer,
-        Register,
         Short,
         Float,
         Object,
-        Function,
-        Array,
-        Undefined
+        Undefined,
+
+        Constant,
+        Register,
+        Return,
     }
 
     public class Value
     {
-        public ValueType Type { get; set; }
+        public ValueType Type { get; private set; }
 
         private string _string;
         private bool _boolean;
         private int _number;
         private double _decimal;
         private ObjectContext _object;
-        private Function _function;
-        private Value[] _array;
+        private ActionContext _actx;
 
         public bool IsNumericType()
         {
             return Type == ValueType.Float || Type == ValueType.Integer;
+        }
+
+        public bool Enumerable()
+        {
+            // TODO try to implement although not necessary
+            return false;
         }
 
         public Value ResolveRegister(ActionContext context)
@@ -42,10 +49,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Register)
                 return this;
 
-            if (context.Registers.Length - 1 < _number)
-                return FromInteger(_number);
-
-            return context.Registers[_number];
+            var result = this;
+            if (_number < context.RegisterCount && context.RegisterStored(_number))
+            {
+                var entry = context.GetRegister(_number);
+                result = entry;
+            }
+            return result;
         }
 
         public Value ResolveConstant(ActionContext context)
@@ -53,45 +63,58 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Constant)
                 return this;
 
-            Value result;
-
-            var entry = context.Constants[_number];
-            switch (entry.Type)
-            {
-                case ConstantEntryType.String:
-                    result = FromString((string) entry.Value);
-                    break;
-                case ConstantEntryType.Register:
-                    result = FromRegister((uint) entry.Value);
-                    break;
-                default:
-                    throw new NotImplementedException();
+            var result = this;
+            if (_number < context.Constants.Count) {
+                var entry = context.Constants[_number];
+                result = entry;
             }
-
             return result;
+        }
+
+        public Value ResolveReturn()
+        {
+            if (Type != ValueType.Return)
+                return this;
+            return _actx.Return ? _actx.ReturnValue : Undefined();
+        }
+
+        public Value GetReturnValue()
+        {
+            if (Type != ValueType.Return)
+                return this;
+            return _actx.Return ? _actx.ReturnValue : null;
+        }
+
+        internal Value ToNumber()
+        {
+            if (IsNumericType())
+                return Type == ValueType.Float ? Value.FromFloat(_decimal) : Value.FromInteger(_number);
+            else
+                return Value.FromInteger(0);
         }
 
         public static Value FromFunction(Function func)
         {
             var v = new Value();
-            v.Type = ValueType.Function;
-            v._function = func;
+            v.Type = ValueType.Object;
+            v._object = func;
             return v;
         }
 
         public static Value FromObject(ObjectContext obj)
         {
+            if (obj != null && obj.IsFunction()) return FromFunction((Function) obj);
             var v = new Value();
             v.Type = ValueType.Object;
             v._object = obj;
             return v;
         }
 
-        public static Value FromArray(Value[] array)
+        public static Value FromArray(Value[] array, VM vm)
         {
             var v = new Value();
-            v.Type = ValueType.Array;
-            v._array = array;
+            v.Type = ValueType.Object;
+            v._object = new ASArray(array, vm);
             return v;
         }
 
@@ -108,6 +131,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             var v = new Value();
             v.Type = ValueType.Constant;
             v._number = (int) id;
+            return v;
+        }
+
+        public static Value ReturnValue(ActionContext actx)
+        {
+            var v = new Value();
+            v.Type = ValueType.Return;
+            v._actx = actx;
             return v;
         }
 
@@ -135,6 +166,23 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+        // TODO is it okay?
+        public static Value FromUInteger(uint num)
+        {
+            var v = new Value();
+            if (num > 0x0FFFFFFF)
+            {
+                v.Type = ValueType.Float;
+                v._decimal = (double) num;
+            }
+            else
+            {
+                v.Type = ValueType.Integer;
+                v._number = (int) num;
+            }
+            return v;
+        }
+
         public static Value FromFloat(double num)
         {
             var v = new Value();
@@ -153,6 +201,19 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public T ToObject<T>() where T: ObjectContext
+        {
+            if (Type == ValueType.Undefined)
+            {
+                logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+
+            return (T) _object;
+        }
+
         public ObjectContext ToObject()
         {
             if (Type == ValueType.Undefined)
@@ -163,7 +224,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (Type == ValueType.String)
             {
-                return new ASString(_string);
+                return new ASString(this, null);
             }
 
             if (Type != ValueType.Object)
@@ -183,6 +244,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
+        }
+
+        public uint ToUInteger()
+        {
+            double number = ToFloat();
+            if (double.IsNaN(number) || double.IsInfinity(number)) return 0;
+            double posInt = Math.Sign(number) * (int) Math.Abs(number);
+            uint ans = (uint) (posInt % 0x10000000);
+            return ans;
         }
 
         /// Used by AptEditor to get actual id of constant / register
@@ -237,10 +307,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Function ToFunction()
         {
-            if (Type != ValueType.Function)
+            if (Type == ValueType.Undefined)
+            {
+                logger.Error("Undefined Function!");
+                return null;
+            }
+            if (Type != ValueType.Object || _object is not Function)
                 throw new InvalidOperationException();
 
-            return _function;
+            return (Function) _object;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -254,17 +329,35 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return _boolean.ToString();
                 case ValueType.Short:
                 case ValueType.Integer:
+                case ValueType.Constant:
+                case ValueType.Register:
                     return _number.ToString();
                 case ValueType.Float:
                     return _decimal.ToString();
                 case ValueType.Undefined:
-                    return "";
+                    return "undefined"; // follows ECMA-262
                 case ValueType.Object:
-                    return _object.Item.Name;
+                    return _object == null ? "null": _object.ToString();
+                case ValueType.Return:
+                    return _actx.ReturnValue == null ? "undefined" : _actx.ReturnValue.ToString();
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException(Type.ToString());
             }
         }
+
+        public string ToStringWithType(ActionContext ctx)
+        {
+            var ttype = "?";
+            try { ttype = this.Type.ToString().Substring(0, 3); }
+            catch (InvalidOperationException e) {}
+            String tstr = null;
+            if (this.Type == ValueType.Constant && ctx != null) tstr = this.ResolveConstant(ctx).ToString();
+            else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
+            else if (this.Type == ValueType.Return) tstr = this.ResolveReturn().ToString();
+            else if (this.Type == ValueType.Object) tstr = this.ToString();
+            else tstr = this.ToString();
+            return String.Format("({0}){1}", ttype, tstr);
+            }
 
         // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3
         public double ToFloat()
@@ -272,6 +365,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             switch (Type)
             {
                 case ValueType.Constant:
+                case ValueType.Register:
                 case ValueType.Short:
                 case ValueType.Integer:
                     return _number;

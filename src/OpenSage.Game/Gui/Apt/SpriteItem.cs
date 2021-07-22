@@ -5,6 +5,7 @@ using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.ActionScript.Library;
 using OpenSage.Mathematics;
 using Veldrid;
 using Action = OpenSage.Data.Apt.FrameItems.Action;
@@ -56,7 +57,7 @@ namespace OpenSage.Gui.Apt
             Context = context;
             Content = AddDisposable(new DisplayList());
             Parent = parent;
-            ScriptObject = new ObjectContext(this);
+            ScriptObject = new StageObject(this);
 
             // Fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -202,7 +203,7 @@ namespace OpenSage.Gui.Apt
             if (State == PlayState.STOPPED)
                 return false;
 
-            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Context.MillisecondsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Context.MsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
@@ -240,6 +241,9 @@ namespace OpenSage.Gui.Apt
                     break;
                 case Action action:
                     _actionList.Add(action);
+                    break;
+                case InitAction iaction:
+                    // executed in importing
                     break;
                 case BackgroundColor bg:
                     if (SetBackgroundColor != null)
@@ -312,7 +316,7 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
             }
 
             displayItem.Transform = cTransform;
@@ -324,9 +328,11 @@ namespace OpenSage.Gui.Apt
             {
                 return;
             }
-
-            var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
+            var displayItem = Context.GetInstantiatedCharacter(po.Character, itemTransform, this);
+            /*
+            var character = Context.GetCharacter(po.Character, _sprite);
+            
             DisplayItem displayItem = character switch
             {
                 Playable _ => new SpriteItem(),
@@ -335,11 +341,11 @@ namespace OpenSage.Gui.Apt
             };
             displayItem.Transform = itemTransform;
             displayItem.Create(character, Context, this);
-
+            */
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
                 displayItem.Name = po.Name;
             }
 
@@ -351,8 +357,7 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject,
-                                                Character.Container.Constants.Entries);
+                            Context.Avm.EnqueueContext(displayItem, clipEvent.Instructions, displayItem.Name + ".onInit");
                         }
                     }
                 }
@@ -368,40 +373,48 @@ namespace OpenSage.Gui.Apt
         }
 
 
-        public override void RunActions(TimeInterval gt)
+        public override void EnqueueActions(TimeInterval gt)
         {
-            //execute all actions now
+            // enqueue all actions
             foreach (var action in _actionList)
-            {
-                Context.Avm.Execute(action.Instructions, ScriptObject,
-                        ScriptObject.Item.Character.Container.Constants.Entries);
-            }
+                Context.Avm.EnqueueContext(this, action.Instructions, Name);
             _actionList.Clear();
 
-            //execute all subitems actions now
-            //update all subitems
+            // enqueue all subitems actions
+            // subitems should be already updated by AptWindow
             foreach (var item in Content.Items.Values)
+                item.EnqueueActions(gt);
+        }
+
+        public override DisplayItem GetFocus(Point2D mousePos, bool mouseDown)
+        {
+            var ans = this;
+            foreach (var item in Content.ReverseItems.Values)
             {
-                item.RunActions(gt);
             }
+
+                return ans;
         }
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
+            // Logger.Info($"MouseInput {mousePos}, {mouseDown}");\
+            var ans = true;
+
             foreach (var item in Content.ReverseItems.Values)
             {
-                if (item.HandleInput(mousePos, mouseDown))
+                if (!item.HandleInput(mousePos, mouseDown))
                 {
-                    return true;
+                    ans = false;
                 }
             }
 
-            return false;
+            return ans;
         }
 
         public DisplayItem GetNamedItem(string name)
         {
-            return ScriptObject.Variables[name].ToObject().Item;
+            return ScriptObject.GetMember(name).ToObject<StageObject>().Item;
         }
     }
 }

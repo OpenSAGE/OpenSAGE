@@ -36,6 +36,12 @@ namespace OpenSage.Gui.Apt
         public AptInputMessageHandler InputHandler { get; set; }
         public AptContext Context => _context;
 
+        // event handler related
+        public DisplayItem MouseFocus { get; private set; }
+        public DisplayItem MouseFocusOnLastStateChanged { get; private set; }
+        public bool MouseState { get; private set; }
+        public DisplayItem KeyFocus { get; private set; }
+
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
         /// </summary>
@@ -50,6 +56,7 @@ namespace OpenSage.Gui.Apt
 
             //Create our context
             _context = new AptContext(this);
+            _context.Avm.SetHandlers(HandleCommand, HandleVariable, HandleMovie);
 
             //First thing to do here is to initialize the display list
             Root = AddDisposable(new SpriteItem
@@ -60,9 +67,8 @@ namespace OpenSage.Gui.Apt
             Root.Create(aptFile.Movie, _context);
 
             _context.Root = Root;
-            _context.Avm.CommandHandler = HandleCommand;
-            _context.Avm.VariableHandler = HandleVariable;
-            _context.Avm.MovieHandler = HandleMovie;
+
+            _context.LoadContext();
 
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
@@ -75,6 +81,7 @@ namespace OpenSage.Gui.Apt
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
             _destinationSize = new Vector2(windowSize.Width, windowSize.Height);
+
         }
 
         internal bool HandleInput(Point2D mousePos, bool mouseDown)
@@ -84,9 +91,14 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
-            _context.Avm.UpdateIntervals(gt);
+            var vm = _context.Avm;
+
+            vm.ExecuteUntilEmpty(); // clear remaining codes
+            vm.UpdateIntervals(gt);
             Root.Update(gt);
-            Root.RunActions(gt);
+            Root.EnqueueActions(gt);
+            vm.ExecuteUntilEmpty();
+            
         }
 
         internal Vector2 GetScaling()

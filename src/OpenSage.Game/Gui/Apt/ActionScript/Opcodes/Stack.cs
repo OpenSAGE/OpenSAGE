@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -41,7 +42,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.Scope.Constants[id]);
+            context.Push(context.Constants[id]);
         }
     }
 
@@ -74,6 +75,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Read an int32 and push it to the stack (although claimed to be long)
+    /// </summary>
+    public sealed class PushLong : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushLong;
+        public override uint Size => 4;
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Parameters[0]);
+        }
+    }
+
+    /// <summary>
     /// Read the variable name from the pool and push that variable's value to the stack
     /// </summary>
     public sealed class PushValueOfVar : InstructionBase
@@ -84,7 +99,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var str = context.Scope.Constants[id].ToString();
+            var str = context.Constants[id].ToString();
 
             Value result;
 
@@ -92,18 +107,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
-            else if (context.CheckLocal(str))
-            {
-                result = context.GetLocal(str);
-            }
             else
             {
-                result = context.GetObject(str);
+                result = context.GetValueOnChain(str);
             }
-
-            if (result == null)
-                throw new InvalidOperationException();
-
             context.Push(result);
         }
     }
@@ -182,7 +189,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Push(Value.FromObject(context.Scope));
+            context.Push(Value.FromObject(context.This));
         }
     }
 
@@ -240,7 +247,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             // TODO: check if this is correct
             var name = context.Pop();
-            context.Scope.Variables[name.ToString()] = Value.FromInteger(0);
+            context.This.SetMember(name.ToString(), Value.FromInteger(0));
         }
     }
 
@@ -253,7 +260,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            context.Push(Value.FromObject(context.Apt.Avm.ExternObject));
+            context.Push(Value.FromObject(context.Apt.Avm.GlobalObject));
         }
     }
 
@@ -298,7 +305,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            context.Push(context.Scope.Constants[id]);
+            context.Push(context.Constants[id]);
         }
     }
 
@@ -326,6 +333,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var strVal = context.Pop().ToString();
             context.Push(Value.FromInteger(int.Parse(strVal)));
+        }
+    }
+
+    public sealed class PushValue: InstructionBase
+    {
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+
+        public PushValue(Value v): base() { Parameters = new List<Value> { v }; }
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Parameters[0]);
         }
     }
 }
