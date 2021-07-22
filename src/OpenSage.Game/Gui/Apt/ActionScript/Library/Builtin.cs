@@ -39,7 +39,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["getTimer"] = (actx, ctx, args) => GetTimer(),
                 ["clearInterval"] = ClearInterval,
                 ["setInterval"] = SetInterval,
-                ["ASSetPropFlags"] = (actx, ctx, args) => { ASSetPropFlags(args[0].ToObject(), args[1], args[2].ToInteger(), args[3].ToInteger()); return null; },
+                ["ASSetPropFlags"] = (actx, ctx, args) => { ASSetPropFlags(
+                    args[0].ToObject(),
+                    args[1],
+                    args.Length > 2 ? args[2].ToInteger() : 0,
+                    args.Length > 3 ? args[3].ToInteger() : 0); return null; },
             };
 
             // list of builtin variables
@@ -105,6 +109,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 for (int i = 0; i < l; ++i)
                     obj.SetPropertyFlags(_arr.GetValue(l).ToString(), setFlags, clearFlags);
             }
+            else if ((properties.Type == ValueType.Object && properties.ToObject() == null) || properties == null) // null means all properties
+                foreach (var p in obj.GetAllProperties())
+                    obj.SetPropertyFlags(p, setFlags, clearFlags);
             else
                 throw new InvalidOperationException($"Invalid argument: properties {properties}");
         }

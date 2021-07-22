@@ -131,7 +131,7 @@ namespace OpenSage.Tools.AptEditor.UI
             if (AptManager != null)
             {
                 CurrentWindow = new AptWindow(Game, Game.ContentManager, AptManager.AptFile);
-                CurrentWindow.Context.LoadContext();
+                
                 var root = CurrentWindow.Root;
                 // hack: an AptWindow will always be updated by the game when it's loaded
                 // because AptWindow.Root.IsNewFrame() will return true if the private member
@@ -141,6 +141,8 @@ namespace OpenSage.Tools.AptEditor.UI
                 var field = root.GetType().GetField("_lastUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
                 field!.SetValue(root, new TimeInterval(1, 0));
                 CurrentWindow.Root.Stop();
+
+                CurrentWindow.Context.Avm.Pause();
 
                 // set display list
                 var list = CurrentWindow.Root.Content;

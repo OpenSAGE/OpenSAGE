@@ -85,6 +85,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new ReadOnlyCollection<InstructionBase>(_instructions.Values);
         }
 
+        public static InstructionCollection Native(Action<ActionContext> act)
+        {
+            var inst = new ExecNativeCode(act);
+            var insts = new SortedList<int, InstructionBase> { [0] = inst, };
+            return new InstructionCollection(insts);
+        }
+
         public int GetPositionByIndex(int index)
         {
             return _instructions.Keys[index];

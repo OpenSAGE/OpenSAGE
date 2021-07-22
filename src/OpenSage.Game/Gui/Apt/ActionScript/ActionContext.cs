@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool Return { get; set; }
         public bool Halt { get; set; }
         public Value ReturnValue { get; set; }
-        public List<ConstantEntry> GlobalConstantPool => Apt.Constants.Entries;
+        public List<ConstantEntry> GlobalConstantPool { get; set; }
         public List<Value> Constants { get; set; }
 
         private Stack<Value> _stack;
@@ -46,12 +46,6 @@ namespace OpenSage.Gui.Apt.ActionScript
             _locals = new Dictionary<string, Value>();
             Constants = new List<Value>();
             Return = false;
-        }
-
-        public ActionContext(Value v)
-        {
-            Return = v != null;
-            ReturnValue = v;
         }
 
         // basics

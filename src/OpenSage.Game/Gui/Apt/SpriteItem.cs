@@ -39,7 +39,6 @@ namespace OpenSage.Gui.Apt
         public int CurrentFrame => (int) _currentFrame;
 
         public Dictionary<string, uint> FrameLabels { get; private set; }
-        public List<Action> InitActionList { get; set; }
         public PlayState State { get; private set; }
 
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
@@ -357,8 +356,7 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject,
-                                                Context);
+                            Context.Avm.EnqueueContext(displayItem, clipEvent.Instructions);
                         }
                     }
                 }
@@ -374,35 +372,43 @@ namespace OpenSage.Gui.Apt
         }
 
 
-        public override void RunActions(TimeInterval gt)
+        public override void EnqueueActions(TimeInterval gt)
         {
-            //execute all actions now
+            // enqueue all actions
             foreach (var action in _actionList)
-            {
-                Context.Avm.Execute(action.Instructions, ScriptObject,
-                        ScriptObject.Item.Context); // original: Character.Container.Constants.Entries not sure if the same
-            }
+                Context.Avm.EnqueueContext(this, action.Instructions);
             _actionList.Clear();
 
-            //execute all subitems actions now
-            //update all subitems
+            // enqueue all subitems actions
+            // subitems should be already updated by AptWindow
             foreach (var item in Content.Items.Values)
+                item.EnqueueActions(gt);
+        }
+
+        public override DisplayItem GetFocus(Point2D mousePos, bool mouseDown)
+        {
+            var ans = this;
+            foreach (var item in Content.ReverseItems.Values)
             {
-                item.RunActions(gt);
             }
+
+                return ans;
         }
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
+            // Logger.Info($"MouseInput {mousePos}, {mouseDown}");\
+            var ans = true;
+
             foreach (var item in Content.ReverseItems.Values)
             {
-                if (item.HandleInput(mousePos, mouseDown))
+                if (!item.HandleInput(mousePos, mouseDown))
                 {
-                    return true;
+                    ans = false;
                 }
             }
 
-            return false;
+            return ans;
         }
 
         public DisplayItem GetNamedItem(string name)

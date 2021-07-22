@@ -46,7 +46,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     Apt = _context,
                     Stream = new InstructionStream(_instructions.Insts),
                 };
-                _context.Avm.PushContext(_acontext);
+                // _context.Avm.PushContext(_acontext);
             }
             
         }
@@ -65,7 +65,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("Exec"))
+                if (ImGui.Button("Exec Once"))
                 {
                     if (_context != null)
                     {
@@ -78,11 +78,18 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     }
                     
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("Exec(Jump Code Blocks)"))
+                if (_context != null)
                 {
-
+                    ImGui.SameLine();
+                    if (ImGui.Button(_context.Avm.Paused() ? "Resume" : "Pause"))
+                    {
+                        if (_context.Avm.Paused())
+                            _context.Avm.Resume();
+                        else
+                            _context.Avm.Pause();
+                    }
                 }
+                    
               
 
                 

@@ -36,6 +36,12 @@ namespace OpenSage.Gui.Apt
         public AptInputMessageHandler InputHandler { get; set; }
         public AptContext Context => _context;
 
+        // event handler related
+        public DisplayItem MouseFocus { get; private set; }
+        public DisplayItem MouseFocusOnLastStateChanged { get; private set; }
+        public bool MouseState { get; private set; }
+        public DisplayItem KeyFocus { get; private set; }
+
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
         /// </summary>
@@ -62,6 +68,8 @@ namespace OpenSage.Gui.Apt
 
             _context.Root = Root;
 
+            _context.LoadContext();
+
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
 
@@ -83,9 +91,16 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
-            _context.Avm.UpdateIntervals(gt);
-            Root.Update(gt);
-            Root.RunActions(gt);
+            var vm = _context.Avm;
+            if (!vm.Paused())
+            {
+                vm.ExecuteUntilEmpty(); // clear remaining codes
+                vm.UpdateIntervals(gt);
+                Root.Update(gt);
+                Root.EnqueueActions(gt);
+                vm.ExecuteUntilEmpty();
+            }
+            
         }
 
         internal Vector2 GetScaling()

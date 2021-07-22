@@ -115,7 +115,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             Assert.True(afterInstructions == magic);
 
             var vm = new VM();
-            var context = new StageObject(new SpriteItem(), vm);
+            var context = new ObjectContext(vm);
             
             vm.Execute(collection, context, null);
             // Assert that during execution of instructions, the right value is set

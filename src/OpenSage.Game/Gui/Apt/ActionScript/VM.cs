@@ -159,12 +159,12 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                 if (current.TotalTime.TotalMilliseconds > (interval.Item1.TotalTime.TotalMilliseconds + interval.Item2))
                 {
-                    Execute(interval.Item3, interval.Item5, interval.Item4);
+                    EnqueueContext(interval.Item3, interval.Item4, interval.Item5);
                     interval.Item1 = current;
                 }
             }
-
             _lastTick = current;
+            ExecuteUntilEmpty();
         }
          
         public void ClearInterval(string name)
@@ -180,6 +180,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 _pauseTick = DateTime.Now;
             }
         }
+
+        public bool Paused() { return _paused; }
 
         public void Resume()
         {
@@ -212,55 +214,45 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args)
         {
-            
+            if (f is DefinedFunction fd)
+                EnqueueContext(fd.GetContext(this, args, thisVar));
+            else
+            {
+                Action<ActionContext> f1 = (_) => f.Invoke(GlobalContext, thisVar, args);
+                EnqueueContext(GetActionContext(GlobalContext, thisVar, 4, null, InstructionCollection.Native(f1)));
+            }
         }
-        public void EnqueueContext(InstructionCollection insts, ObjectContext thisVar, AptContext apt)
+        public void EnqueueContext(DisplayItem item, InstructionCollection insts)
         {
-            var context = GetActionContext(apt, thisVar, 4, null, insts);
+            var context = GetActionContext(item.Context, item.ScriptObject, 4, item.Constants, insts);
             EnqueueContext(context);
         }
 
         // context, execution & debug
-
         public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
             {
                 Apt = outerVar.Apt,
+                GlobalConstantPool = outerVar.Apt.Constants.Entries, 
                 Stream = new InstructionStream(code),
                 Constants = consts,
             };
             return context;
         }
 
-        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code)
+        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ActionContext(GlobalObject, thisVar, GlobalContext, numRegisters)
             {
                 Apt = apt,
+                GlobalConstantPool = consts, 
                 Stream = new InstructionStream(code),
-                Constants = consts,
             };
             return context;
         }
-        /*
-        public ActionContext GetActionContext(int numRegisters, InstructionCollection code, ObjectContext scope, List<ConstantEntry> consts)
-        {
-            var stream = new InstructionStream(code);
-
-            var context = new ActionContext(GlobalObject, scope, null, numRegisters)
-            {
-                Apt = scope.Item.Context,
-                Stream = stream,
-                Constants = consts,
-            };
-            return context;
-        }
-        */
-        // execution
-
 
         /// <summary>
         /// Execute once in the current ActionContext.

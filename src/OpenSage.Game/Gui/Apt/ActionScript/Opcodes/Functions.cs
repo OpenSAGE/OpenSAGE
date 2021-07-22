@@ -176,10 +176,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
+            // TODO what on earth does the document mean?
+            /*
+            // original implementation
             var ret = Parameters[0] == null ? null : Parameters[0].GetReturnValue();
             if (ret != null) context.Push(ret);
-            // TODO what on earth does the document mean?
-            // I just implement it in the original way.
+            */
+            // implementation from observation
+            context.Push(Parameters[0] == null ? Value.Undefined() : Parameters[0].ResolveReturn());
+
         }
     }
 

@@ -130,12 +130,10 @@ namespace OpenSage.Gui.Apt
             _curTransform.GeometryRotation.M22 *= windowScaling.Y;
         }
 
-        public override void RunActions(TimeInterval gt)
+        public override void EnqueueActions(TimeInterval gt)
         {
             foreach (var action in _actionList)
-            {
-                Context.Avm.Execute(action, Parent.ScriptObject, Parent.Context);
-            }
+                Context.Avm.EnqueueContext(Parent, action);
             _actionList.Clear();
         }
     }
