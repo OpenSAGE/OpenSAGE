@@ -57,7 +57,7 @@ namespace OpenSage.Gui.Apt
             Context = context;
             Content = AddDisposable(new DisplayList());
             Parent = parent;
-            ScriptObject = new StageObject(this);
+            ScriptObject = new MovieClip(this);
 
             // Fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -330,18 +330,7 @@ namespace OpenSage.Gui.Apt
             }
             var itemTransform = CreateTransform(po);
             var displayItem = Context.GetInstantiatedCharacter(po.Character, itemTransform, this);
-            /*
-            var character = Context.GetCharacter(po.Character, _sprite);
-            
-            DisplayItem displayItem = character switch
-            {
-                Playable _ => new SpriteItem(),
-                Button _ => new ButtonItem(),
-                _ => new RenderItem(),
-            };
-            displayItem.Transform = itemTransform;
-            displayItem.Create(character, Context, this);
-            */
+
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
@@ -377,7 +366,7 @@ namespace OpenSage.Gui.Apt
         {
             // enqueue all actions
             foreach (var action in _actionList)
-                Context.Avm.EnqueueContext(this, action.Instructions, Name);
+                Context.Avm.EnqueueContext(this, action.Instructions, $"FrameAction: \"{Name}\"");
             _actionList.Clear();
 
             // enqueue all subitems actions

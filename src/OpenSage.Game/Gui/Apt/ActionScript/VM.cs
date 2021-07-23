@@ -239,9 +239,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             var context = GetActionContext(item.Context, item.ScriptObject, 4, item.Constants, insts, name);
             EnqueueContext(context);
         }
-        public void EnqueueContext(InstructionCollection insts, AptContext apt, string name = null)
+        public void EnqueueContext(InstructionCollection insts, AptContext apt, ObjectContext thisVar = null, string name = null)
         {
-            var context = GetActionContext(apt, null, 4, apt.Constants.Entries, insts, name);
+            var context = GetActionContext(apt, thisVar, 4, apt.Constants.Entries, insts, name);
             EnqueueContext(context);
         }
 
@@ -356,13 +356,6 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (func is DefinedFunction)
                 ExecuteUntilHalt();
             return ret.ResolveReturn();
-        }
-
-        // TODO all should be replaced. This is an extremely dangerous call.
-        public void Execute(InstructionCollection code, ObjectContext scope, AptContext apt)
-        {
-            PushContext(GetActionContext(apt, scope, 4, null, code));
-            ExecuteUntilHalt();
         }
 
         public void Handle(ActionContext context, string url, string target)

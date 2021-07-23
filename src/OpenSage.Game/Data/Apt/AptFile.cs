@@ -77,14 +77,17 @@ namespace OpenSage.Data.Apt
             ImportMap = new Dictionary<string, FileSystemEntry>();
             //resolve imports
             foreach (var import in Movie.Imports)
-                if (!ImportMap.ContainsKey(import.Movie))
-            {
-                var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                var importEntry = FileSystem.GetFile(importPath);
-                if(importEntry == null)
-                    throw new FileNotFoundException("Cannot find imported file", importPath);
-                ImportMap[import.Movie] = importEntry;
-            }
+            if (!ImportMap.ContainsKey(import.Movie))
+                {
+                    var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                    var importEntry = FileSystem.GetFile(importPath);
+                    if(importEntry == null)
+                        throw new FileNotFoundException("Cannot find imported file", importPath);
+                    ImportMap[import.Movie] = importEntry;
+
+                    // Some dirty tricks to avoid the above exception
+                    FromFileSystemEntry(importEntry);
+                }                               
 
         }
 

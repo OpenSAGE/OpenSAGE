@@ -30,6 +30,16 @@ namespace OpenSage.Tools.AptEditor.Apt
             // ScriptObject = Item.ScriptObject;
         }
 
+        public override void Update(TimeInterval gt)
+        {
+            base.Update(gt);
+        }
+
+        public override void EnqueueActions(TimeInterval gt)
+        {
+            Item.EnqueueActions(gt);
+        }
+
         public override void Create(Character character, AptContext context, SpriteItem? parent = null)
         {
             throw new NotSupportedException();

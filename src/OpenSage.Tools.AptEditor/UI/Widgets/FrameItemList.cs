@@ -13,7 +13,6 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         public const string Name = "Frame Properties";
         private FrameItemUtilities? _utilities;
-        // private VMConsole? _currentFrameAction;
         private int? _newPlaceObjectDepth;
         private int? _newPlaceCharacter;
         private ErrorType? _whyCannotPlaceCharacter;

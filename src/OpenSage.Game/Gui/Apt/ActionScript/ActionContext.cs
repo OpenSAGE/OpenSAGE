@@ -381,7 +381,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
-                throw new NotImplementedException();
+                _registers[reg] = Value.FromObject(This.__proto__.__proto__.constructor);
+                ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
             {
@@ -405,7 +406,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))
             {
-                throw new NotImplementedException();
+                _locals["super"] = Value.FromObject(This.__proto__.__proto__.constructor);
             }
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))

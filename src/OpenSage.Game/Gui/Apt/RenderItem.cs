@@ -23,7 +23,11 @@ namespace OpenSage.Gui.Apt
             Character = character;
             Context = context;
             Parent = parent;
-            ScriptObject = new StageObject(this);
+            ScriptObject = character switch
+            {
+                Text _ => new TextField(this),
+                _ => new StageObject(this),
+            };
             Name = "";
             Visible = true;
             TextValue = character is Text text ? LocalizedString.CreateApt(text.Content) : null;

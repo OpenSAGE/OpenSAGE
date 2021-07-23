@@ -57,14 +57,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             if (args == null) _values = new List<Value>();
             else _values = new List<Value>(args);
         }
-        /*
-        public ASArray(Value[] args) : base()
-        {
-            _values = new List<Value>(args);
-            // list of builtin variables
-            _builtinVariablesGet.Add("length", () => Value.FromInteger(_values.Count));
-        }
-        */
+
         public Value[] GetValues()
         {
             Value[] ans = new Value[_values.Count];

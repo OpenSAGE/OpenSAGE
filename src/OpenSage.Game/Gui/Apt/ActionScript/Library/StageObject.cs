@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
@@ -45,16 +46,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         /// </summary>
         public DisplayItem Item { get; private set; }
 
-        public StageObject(DisplayItem item) : this(item, item.Context.Avm) { }
         /// <summary>
         /// this ActionScript object is bound to an item
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public StageObject(DisplayItem item, VM vm) : base(vm)
+        public StageObject(DisplayItem item, VM vm = null) : base(vm == null ? (item == null ? null : item.Context.Avm) : vm)
         {
             Item = item;
-            // InitializeProperties();
         }
 
         public override string ToString()
@@ -62,20 +61,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return Item == null ? "StageObject" : Item.Name;
         }
 
-
-        // properties
-        /*
-        private void InitializeProperties()
-        {
-            //TODO: avoid new fancy switch
-            switch (Item.Character)
-            {
-                case Text t:
-                    Variables["textColor"] = Value.FromString(t.Color.ToHex());
-                    break;
-            }
-        }
-        */
         /// <summary>
         /// used by text
         /// </summary>
@@ -195,7 +180,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.PropertiesDefined)
         {
             ["textColor"] = (avm) => Property.A(
-                (tv) => throw new NotImplementedException(),
+                (tv) => Value.FromString(((Text) ((StageObject)tv).Item.Character).Color.ToHex()),
                 (tv, val) =>
                 {
                     var ctx = (StageObject) tv;
@@ -213,19 +198,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 false, false),
         };
 
-        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.StaticPropertiesDefined)
         {
             
         };
 
         public TextField(VM vm) : this(null, vm) { }
-
-        public TextField(RenderItem item) : this(item, item.Context.Avm) { }
-
-        public TextField(RenderItem item, VM vm) : base(item, vm)
-        {
-            
-        }
+        public TextField(RenderItem item, VM vm = null) : base(item, vm) { }
     }
 
     public class MovieClip : StageObject
@@ -274,20 +253,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                  , avm)), true, false, false),
         };
 
-        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.StaticPropertiesDefined)
         {
             
         };
 
-        public MovieClip(VM vm) : this(null, vm) { }
-
-        public MovieClip(RenderItem item) : this(item, item.Context.Avm) { }
-
-        public MovieClip(RenderItem item, VM vm) : base(item, vm)
-        {
-
-        }
-
+        public MovieClip(SpriteItem item, VM vm = null) : base(item, vm) { }
 
         public void GotoAndPlay(ActionContext actx, Value[] args)
         {

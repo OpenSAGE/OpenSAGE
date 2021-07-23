@@ -120,71 +120,71 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         }
     }
 
+    internal class LogicalCodeContext : InstructionBase
+    {
+        public override InstructionType Type => InnerAction.Type;
+        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public InstructionBase InnerAction { get; private set; }
+        public LogicalInstructions Instructions { get; private set; }
+
+        public LogicalCodeContext(InstructionBase instruction, InstructionCollection insts)
+        {
+            InnerAction = instruction;
+            Instructions = new LogicalInstructions(insts);
+        }
+
+        // Probably it would be better to update InnerFunction.Parameter each time this.Parameter changes
+        public List<Value> CreateRealParameters(int functionSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString(ActionContext context)
+        {
+            return InnerAction.ToString(context);
+        }
+    }
     internal class LogicalInstructions
     {
         public List<InstructionBase> Items { get; set; }
-        public Dictionary<string, LogicalDestination> BranchDestinations { get; set; }
-
         public InstructionCollection Insts { get; private set; }
 
-        public LogicalInstructions(InstructionCollection existingCollection)
+        public LogicalInstructions(InstructionCollection insts)
         {
-            Insts = existingCollection;
+            Insts = insts;
+            var stream = new InstructionStream(insts);
 
-            var branchDestinations = new Dictionary<int, List<LogicalDestination>>();
-            var endOfFunctions = new Dictionary<int, LogicalEndOfFunction>();
-
-            // First pass: create deep copy of instructions, collect LogicalDestinations and LogicalEndOfFunctions
-            var firstPassProcessed = new List<(int, InstructionBase)>();
-            /// Sometimes we need to know the end address of current instruction, 
-            /// which is the start address of next instruction
-            var tasksForNextStep = new Stack<Action<int>>();
-            foreach (var (position, instruction) in existingCollection.GetPositionedInstructions())
-            {
-                while (tasksForNextStep.Any())
-                {
-                    tasksForNextStep.Pop()(position);
-                }
-
-                var instructionToBeAdded =
-                    InstructionUtility.NewLogicalInstruction(instruction.GetType(), instruction.Parameters,
-                                                             out var pairedInstruction);
-
-                switch (instructionToBeAdded)
-                {
-                    case LogicalBranch logicalBranch:
-                        var offset = logicalBranch.InnerInstruction.Parameters.First().ToInteger();
-                        tasksForNextStep.Push(nextPosition =>
-                        {
-                            var destination = nextPosition + offset;
-                            branchDestinations.GetOrCreate(destination).Add(logicalBranch.Destination);
-                        });
-                        break;
-                    case LogicalDefineFunction logicalDefineFunction:
-                        var functionSize = logicalDefineFunction.InnerInstruction.Parameters.Last().ToInteger();
-                        tasksForNextStep.Push(nextPosition =>
-                        {
-                            var endOfFunction = nextPosition + functionSize;
-                            endOfFunctions[endOfFunction] = logicalDefineFunction.EndOfFunction;
-                        });
-                        break;
-                }
-
-                firstPassProcessed.Add((position, instructionToBeAdded));
-            }
-
-            // Second pass: add LogicalDestinations and LogicalEndOfFunctions to instruciton list
             Items = new List<InstructionBase>();
-            foreach (var (position, instruction) in firstPassProcessed)
+            while (!stream.IsFinished())
             {
-                if (endOfFunctions.TryGetValue(position, out var endOfFunction))
+                var instruction = stream.GetInstruction();
+                var size = -114514;
+                if (instruction is DefineFunction)
                 {
-                    Items.Add(endOfFunction);
+                    var nParams = instruction.Parameters[1].ToInteger();
+                    size = instruction.Parameters[2 + nParams].ToInteger();
+                }
+                else if (instruction is DefineFunction2)
+                {
+                    var nParams = instruction.Parameters[1].ToInteger();
+                    size = instruction.Parameters[4 + nParams * 2].ToInteger();
+                }
+                else if (instruction is BranchIfTrue || instruction is BranchAlways)
+                {
+                    size = instruction.Parameters[0].ToInteger();
                 }
 
-                if (branchDestinations.TryGetValue(position, out var logicalDestinations))
+                if (size > 0)
                 {
-                    Items.AddRange(logicalDestinations);
+                    try
+                    {
+                        var codes = stream.GetInstructions(size);
+                        instruction = new LogicalCodeContext(instruction, codes);
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
                 }
 
                 Items.Add(instruction);

@@ -103,7 +103,7 @@ namespace OpenSage.Gui.Apt
 
             foreach (var a in InitActionsDict)
             {
-                Avm.EnqueueContext(a.Value, this, $"Initaction #{a.Key}");
+                Avm.EnqueueContext(a.Value, this, null, $"Initaction #{a.Key}");
             }
 
             return this;

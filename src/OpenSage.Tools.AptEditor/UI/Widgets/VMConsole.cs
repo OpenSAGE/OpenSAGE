@@ -30,8 +30,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         string exec_code_ref = "";
         string last_executed_func = "Initial output";
 
-        Vector4 _breakColor = new Vector4(0, 1, 0, 0);
-        string _breakDesc = "●";
+        Vector4 _breakColor = new Vector4(1f, 0.1f, 0.1f, 1f);
+        Vector4 _unbreakColor = new Vector4(0.1f, 0.1f, 0.1f, 1f);
+        string _breakDesc = "*";
 
         public void CheckEnv(AptSceneManager manager)
         {
@@ -57,24 +58,29 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
             if (ImGui.Begin("VM Console"))
             {
-                
+                // ImGui.Columns(2);
                 ImGui.InputInt("Line", ref int_input);
-                //ImGui.SameLine();
+                ImGui.SameLine();
                 if (ImGui.Button("Goto"))
                 {
 
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("Exec Once"))
+                // ImGui.SameLine();
+                if (ImGui.Button("Exec1"))
                 {
-                    if (_context != null)
+                    if (!_acontext.IsOutermost())
                     {
-                        var lef = _context.Avm.ExecuteOnce(); 
+                        var lef = _context.Avm.ExecuteOnce(true); 
                         last_executed_func = lef.ToString(_acontext);
+                    }
+                    else if (_context != null)
+                    {
+                        _context.Avm.PushContext(_context.Avm.DequeueContext());
+                        last_executed_func = "New Actions Pushed";
                     }
                     else
                     {
-                        last_executed_func = "Action not loaded";
+                        last_executed_func = "AptContext Not Loaded";
                     }
                     
                 }
@@ -87,6 +93,30 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                             _context.Avm.Resume();
                         else
                             _context.Avm.Pause();
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("EUHalt"))
+                    {
+                        if (_context.Avm.Paused())
+                        {
+                            _context.Avm.Resume();
+                            _context.Avm.ExecuteUntilHalt();
+                            _context.Avm.Pause();
+                        }
+                        else
+                            _context.Avm.ExecuteUntilHalt();
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("EUGlob"))
+                    {
+                        if (_context.Avm.Paused())
+                        {
+                            _context.Avm.Resume();
+                            _context.Avm.ExecuteUntilGlobal();
+                            _context.Avm.Pause();
+                        }
+                        else
+                            _context.Avm.ExecuteUntilGlobal();
                     }
                 }
                 
@@ -135,7 +165,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 
 
                 ImGui.Text("KW This:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.This.ToStringDisp(_acontext));
+                ImGui.Text(_acontext == null ? "null" : (
+                    _acontext.This == _acontext.Global ? "Same as Global" : _acontext.This.ToStringDisp(_acontext)
+                    ));
 
                 ImGui.Text("Display Item:");
                 ImGui.Text(_dispobj == null ? "null" : _dispobj.ToStringDisp(_acontext));
@@ -146,35 +178,45 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 
 
                 if (_instructions != null && ImGui.Begin("Codes"))
-                { 
-                    for (var i = 0; i < _instructions.Items.Count; ++i)
-                    {
-                        if (i == _editingIndex)
-                        {
-                            _editBox.Draw();
-                            ImGui.SameLine();
-                            if (ImGui.Button("Done"))
-                            {
-                                _editingIndex = -1;
-                            }
-                        }
-                        else
-                        {
-                            if (_instructions.Items[i].Breakpoint)
-                            {
-                                ImGui.TextColored(_breakColor, _breakDesc);
-                                ImGui.SameLine();
-                            }
-                            if (ImGui.Button(_instructions.Items[i].ToString(_acontext)))
-                            {
-                                _instructions.Items[i].Breakpoint = !_instructions.Items[i].Breakpoint;
-                            }
-                        }
-                    }
+                {
+                    DrawCodes(_instructions);
                 }
                 ImGui.End();
             }
             ImGui.End();
+        }
+
+        internal void DrawCodes(LogicalInstructions insts, int indent = 0)
+        {
+            for (var i = 0; i < insts.Items.Count; ++i)
+            {
+                if (i == _editingIndex)
+                {
+                    _editBox.Draw();
+                    ImGui.SameLine();
+                    if (ImGui.Button("Done"))
+                    {
+                        _editingIndex = -1;
+                    }
+                }
+                else
+                {
+                    var inst = insts.Items[i];
+
+                    ImGui.TextColored(inst.Breakpoint ? _breakColor : _unbreakColor, _breakDesc);
+                    ImGui.SameLine(24, indent);
+                
+                    if (ImGui.Button(inst.ToString(_acontext)))
+                    {
+                        inst.Breakpoint = !inst.Breakpoint;
+                    }
+
+                    if (inst is LogicalCodeContext lcc)
+                    {
+                        DrawCodes(lcc.Instructions, indent + 16);
+                    }
+                }
+            }
         }
     }
 }

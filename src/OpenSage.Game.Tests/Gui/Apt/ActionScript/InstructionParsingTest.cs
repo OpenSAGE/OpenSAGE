@@ -116,8 +116,9 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
 
             var vm = new VM();
             var context = new ObjectContext(vm);
-            
-            vm.Execute(collection, context, null);
+
+            vm.EnqueueContext(collection, null, context, "Parsing Test");
+            vm.ExecuteUntilHalt();
             // Assert that during execution of instructions, the right value is set
             Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
         }

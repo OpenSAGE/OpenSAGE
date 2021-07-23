@@ -39,18 +39,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             if (value == null) _value = "null";
             else _value = value.ToString();
         }
-        /*
-        public ASString(string value) : base()
-        {
-            _value = value;
-
-            //list of builtin functions
-            _builtinFunctions.Add("substr", substr);
-
-            // list of builtin variables
-            _builtinVariablesGet.Add("length", () => Value.FromInteger(_value.Length));
-        }
-        */
         public int GetLength() { return _value.Length; }
 
         public Value substr(Value[] args)

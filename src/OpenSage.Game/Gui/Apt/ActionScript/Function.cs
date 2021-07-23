@@ -29,8 +29,6 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     public abstract class Function: ObjectContext
     {
-        // public static Function FunctionConstructor => _ffc;
-        // public static Function ObjectConstructor => _foc;
 
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {
@@ -60,14 +58,6 @@ namespace OpenSage.Gui.Apt.ActionScript
             prt.constructor = this;
             prototype = prt;
         }
-        /*
-        internal Function(bool JustUsedToCreateObjectPrototype) : base(JustUsedToCreateObjectPrototype)
-        {
-            __proto__ = FunctionPrototype;
-
-        }
-
-        */
 
         public abstract Value Invoke(ActionContext context, ObjectContext thisVar, Value[] args);
 
@@ -94,9 +84,8 @@ namespace OpenSage.Gui.Apt.ActionScript
     public class NativeFunction: Function
     {
         public Func<ActionContext, ObjectContext, Value[], Value> F { get; private set; }
-        public NativeFunction(VM vm) : this(null, vm)
-        {
-        }
+
+        public NativeFunction(VM vm) : this(null, vm) { }
 
         public NativeFunction(Func<ActionContext, ObjectContext, Value[], Value> f, VM vm) : base(vm)
         {
@@ -113,10 +102,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     public class DefinedFunction: Function
     {
-
-        public DefinedFunction(VM vm): base(vm)
-        {
-        }
+        public DefinedFunction(VM vm): base(vm) { }
 
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
@@ -137,24 +123,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)
         {
             var context = vm.GetActionContext(DefinedContext, thisVar, NumberRegisters, Constants, Instructions);
-
-            /*var localScope = new ObjectContext(thisVar.Item)
-            {
-                Constants = Constants,
-                Variables = thisVar.Variables
-            };
-
-            var context = vm.GetActionContext(NumberRegisters, code, localScope, thisVar.Item.Character.Container.Constants.Entries);
-            */
-            //new ActionContext()
-            //{
-            //    Global = GlobalObject,
-            //    Scope = localScope,
-            //    Apt = scope.Item.Context,
-            //    Stream = stream,
-            //    Constants = scope.Item.Character.Container.Constants.Entries
-            //};
-
             
             if (!IsNewVersion) // parameters in the old version are just stored as local variables
             {

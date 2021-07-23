@@ -24,17 +24,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         // TODO this function is no longer safe. try to use the new model.
         // TODO try to fix compatibility
-        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+        public static Value ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
                 var func = funcVal.ToFunction();
                 var ret = vm.Execute(func, args, scope);
+                return ret;
             }
             else
             {
                 logger.Warn($"Function val is wrong is wrong type: {funcVal}");
             }
+            return Value.Undefined();
         }
 
         public static Value StartExecutingFunction(string funcName, Value[] args, ActionContext context, ObjectContext thisVar = null)
@@ -66,6 +68,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.DefineFunction;
         public override uint Size => 24;
+
+        public override string GetParameterDesc(ActionContext context)
+        {
+            var name = Parameters[0].ToString();
+            var nParams = Parameters[1].ToInteger();
+            var size = Parameters[2 + nParams].ToInteger();
+            return $"\"{name}\", {nParams} Params, {size} Bytes of Code";
+        }
 
         public override void Execute(ActionContext context)
         {
@@ -110,6 +120,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.DefineFunction2;
         public override uint Size => 28;
+
+        public override string GetParameterDesc(ActionContext context)
+        {
+            var name = Parameters[0].ToString();
+            var nParams = Parameters[1].ToInteger();
+            var nRegisters = Parameters[2].ToInteger();
+            FunctionPreloadFlags flags = (FunctionPreloadFlags) Parameters[3].ToInteger();
+            var size = Parameters[4 + nParams * 2].ToInteger();
+            return $"\"{name}\", {nParams} Params, {nRegisters} Regs, {size} Bytes of Code, Flags: {flags}";
+        }
 
         public override void Execute(ActionContext context)
         {
@@ -177,8 +197,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             // TODO what on earth does the document mean?
-            /*
             // original implementation
+            /*
             var ret = Parameters[0] == null ? null : Parameters[0].GetReturnValue();
             if (ret != null) context.Push(ret);
             */

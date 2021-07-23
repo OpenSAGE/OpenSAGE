@@ -205,7 +205,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (chid) prop.Hidden = false;
         }
 
-        public virtual Value GetOwnMember(string name)
+        public virtual Value GetOwnMember(string name, ObjectContext localOverride = null)
         {
             Value ans = Value.Undefined();
             if (_properties.TryGetValue(name, out var prop))
@@ -216,7 +216,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 {
                     var prop_ = (NamedAccessoryProperty) prop;
                     if (prop_.Get != null)
-                        ans = prop_.Get(this);
+                        ans = prop_.Get(localOverride == null ? this : localOverride);
                     else
                         logger.Warn($"[WARN] property's getter is null: {name}");
                 }
@@ -303,7 +303,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 if (thisVar.HasOwnMember(name))
                 {
-                    var val = thisVar.GetOwnMember(name);
+                    var val = thisVar.GetOwnMember(name, this);
                     if (val.Type != ValueType.Undefined)
                         return val;
                 }

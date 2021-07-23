@@ -28,6 +28,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             context.ReformConstantPool(Parameters);
         }
+
+        public override string GetParameterDesc(ActionContext context)
+        {
+            return $"{Parameters.Count} Constants: {Parameters[0]}, {Parameters[1]}, {Parameters[2]}, ..., {Parameters[Parameters.Count - 1]}";
+        }
     }
 
     /// <summary>

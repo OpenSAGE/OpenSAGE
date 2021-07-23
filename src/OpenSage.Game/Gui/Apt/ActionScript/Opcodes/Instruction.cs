@@ -225,14 +225,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             return ToString(null);
         }
-        public virtual string ToString(ActionContext context)
+
+        public virtual string GetParameterDesc(ActionContext context)
         {
             string[] pv;// = { };
-            var param_val = this.Parameters.Take(5).ToArray();
+            var param_val = Parameters.Take(5).ToArray();
             pv = param_val.Select(x => x.ToStringWithType(context)).ToArray();
-            string t = this.Type.ToString();
-            var ans = String.Format("{0}({1})", t, String.Join(", ", pv));
-            return ans;
+            return string.Join(", ", pv);
+        }
+        public virtual string ToString(ActionContext context)
+        {
+            return $"{Type}({GetParameterDesc(context)}): {Size}";
         }
 
         public string GetDetailedInfo()

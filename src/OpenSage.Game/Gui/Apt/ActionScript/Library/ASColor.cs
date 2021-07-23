@@ -33,13 +33,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         private ColorRgba _color = ColorRgba.White;
 
         public ASColor(VM vm) : base(vm) { }
-        /*
-        public ASColor() : base()
-        {
-            //list of builtin functions
-            _builtinFunctions.Add("setRGB", setRGB);
-        }
-        */
         public Value getRGB()
         {
             return Value.FromInteger(_color.ToIntegerRGB());
