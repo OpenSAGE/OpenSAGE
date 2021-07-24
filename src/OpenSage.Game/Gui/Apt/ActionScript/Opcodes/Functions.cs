@@ -236,7 +236,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
                 ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
-                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
@@ -244,7 +243,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
                 ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
-                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
@@ -272,7 +270,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
                 ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
-                // FunctionCommon.ExecuteFunction(funcName, args, obj, context);
             }
             // Else the function is on the stack
             else
@@ -280,7 +277,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 var funcVal = context.Pop();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
                 ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
-                // FunctionCommon.ExecuteFunction(funcVal, args, context.This, context);
             }
             context.PushRecallCode(new DealWithReturnValue(ret));
         }

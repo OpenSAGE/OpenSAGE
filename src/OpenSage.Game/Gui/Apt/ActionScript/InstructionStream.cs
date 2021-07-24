@@ -10,7 +10,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// the list of instructions overall
         /// </summary>
-        private InstructionCollection _instructions;
+        public InstructionCollection Instructions { get; private set; }
         /// <summary>
         /// the current instruction
         /// </summary>
@@ -18,7 +18,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public InstructionStream(InstructionCollection instructions)
         {
-            _instructions = instructions;
+            Instructions = instructions;
             Index = 0;
         }
 
@@ -28,14 +28,14 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionBase GetInstructionNoMove()
         {
-            if (Index < 0 || _instructions.Count < Index - 1)
+            if (Index < 0 || Instructions.Count < Index - 1)
                 throw new IndexOutOfRangeException();
-            return _instructions.GetInstructionByIndex(Index);
+            return Instructions.GetInstructionByIndex(Index);
         }
 
         public void ToNextInstruction()
         {
-            if (Index < 0 || _instructions.Count < Index - 1)
+            if (Index < 0 || Instructions.Count < Index - 1)
                 throw new IndexOutOfRangeException();
             ++Index;
         }
@@ -46,9 +46,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public InstructionBase GetInstruction()
         {
-            if (Index < 0 || _instructions.Count < Index - 1)
+            if (Index < 0 || Instructions.Count < Index - 1)
                 throw new IndexOutOfRangeException();
-            return _instructions.GetInstructionByIndex(Index++);
+            return Instructions.GetInstructionByIndex(Index++);
         }
 
         /// <summary>
@@ -59,11 +59,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionCollection GetInstructions(int bytes, bool offsetIndex = true)
         {
             // get the amount of instructions contained in that byterange
-            var startPosition = _instructions.GetPositionByIndex(Index);
+            var startPosition = Instructions.GetPositionByIndex(Index);
             var endPosition = startPosition + bytes;
 
 
-            var subRange = _instructions.GetPositionedInstructions().Skip(Index).TakeWhile((kv) => kv.Key < endPosition);
+            var subRange = Instructions.GetPositionedInstructions().Skip(Index).TakeWhile((kv) => kv.Key < endPosition);
             if (subRange.Any() && subRange.First().Key != startPosition) // sanity check
             {
                 throw new InvalidOperationException("Didn't not get the right instructions!");
@@ -87,7 +87,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public bool IsFinished()
         {
-            return Index == _instructions.Count || Index == -1;
+            return Index == Instructions.Count || Index == -1;
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <param name="offset">The offset how much to move in bytes</param>
         public void Branch(int offset)
         {
-            var startPosition = _instructions.GetPositionByIndex(Index);
+            var startPosition = Instructions.GetPositionByIndex(Index);
             var destinationPosition = startPosition + offset;
-            Index = _instructions.GetIndexByPosition(destinationPosition);
+            Index = Instructions.GetIndexByPosition(destinationPosition);
         }
 
         // TODO: OOB Check?

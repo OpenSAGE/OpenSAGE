@@ -213,10 +213,23 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
+        public string[] ListContextStack()
+        {
+            var ans = new string[_callStack.Count];
+            for (int i = 0; i < _callStack.Count; ++i)
+            {
+                ans[i] = $"[{i}]{(_callStack.ElementAt(i).ToString())}";
+            }
+            return ans;
+        }
+
+        public ActionContext GetStackContext(int index) { return _callStack.ElementAt(index); }
+
         public void EnqueueContext(ActionContext context) { _execQueue.Enqueue(context); }
         public ActionContext DequeueContext() { return _execQueue.Dequeue(); }
         public ActionContext CurrentContextInQueue() { return _execQueue.Peek(); }
         public bool HasContextInQueue() { return _execQueue.Count > 0; }
+
         public string DumpContextQueue()
         {
             var stack_val = _execQueue.ToArray();
@@ -224,6 +237,17 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
+        public string[] ListContextQueue()
+        {
+            var ans = new string[_execQueue.Count];
+            for (int i = 0; i < _execQueue.Count; ++i)
+            {
+                ans[i] = $"[{i}]{(_execQueue.ElementAt(i).ToString())}";
+            }
+            return ans;
+        }
+
+        public ActionContext GetQueueContext(int index) { return _execQueue.ElementAt(index); }
         public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args, string name = null)
         {
             if (f is DefinedFunction fd)

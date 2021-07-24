@@ -55,6 +55,11 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         public Func<ObjectContext, Value> Get { get; set; }
         public Action<ObjectContext, Value> Set { get; set; }
+
+        public override string ToString(ActionContext actx)
+        {
+            return $"NAP(Get: {Get}, Set: {Set})";
+        }
     }
 
     public class ObjectContext
@@ -431,6 +436,20 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             ans = ans + "}";
             return ans;
+        }
+
+        public (string[], string[]) ToListDisp(ActionContext actx)
+        {
+            var ans1 = new string[_properties.Keys.Count];
+            var ans2 = GetAllProperties().ToArray();
+            for (int i = 0; i < _properties.Count; ++i)
+            {
+                var k = ans2[i];
+                _properties.TryGetValue(k, out var v);
+                ans1[i] = $"{k}: {v.ToString(actx)}";
+                ans2[i] = k;
+            }
+            return (ans1, ans2);
         }
     }
 }

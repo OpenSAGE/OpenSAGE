@@ -272,20 +272,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
             
             if (name.Length != 0) obj = obj.ToObject().GetMember(name);
-            /*
-            if (name.Length == 0)
-                FunctionCommon.ExecuteFunction(obj, args, context.This, context);
-            else
-                FunctionCommon.ExecuteFunction(name, args, obj.ToObject(), context);
-            */
+
             var thisVar = new ObjectContext(context.Apt.Avm);
             context.PushRecallCode(new PushValue(Value.FromObject(thisVar)));
             FunctionCommon.StartExecutingFunction(obj, args, context, thisVar);
-            /*
-            context.Apt.Avm.ExecuteUntilReturn();
-            context.Pop();
-            context.Push(Value.FromObject(thisVar));
-            */
             
         }
     }

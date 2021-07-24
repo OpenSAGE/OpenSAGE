@@ -51,7 +51,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 // properties
                 ["_root"] = (avm) => Property.A(
-                     (tv) => Value.FromObject(((StageObject) tv).Item.Context.Root.ScriptObject),
+                     (tv) => {
+                         if (tv is not StageObject) return Value.Undefined();
+                         return Value.FromObject(((StageObject) tv).Item.Context.Root.ScriptObject);
+                     },
                      null, false, false),
                 ["_global"] = (avm) => Property.A(
                      (tv) => Value.FromObject(avm.GlobalObject),

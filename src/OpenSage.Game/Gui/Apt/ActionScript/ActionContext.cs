@@ -123,7 +123,18 @@ namespace OpenSage.Gui.Apt.ActionScript
             var ans = $"Total {RegisterCount} Registers";
             for (int i = 0; i < RegisterCount; ++i)
             {
-                if (_registers[i] != null) ans = ans + $"\n[{i}]{_registers[i].ToStringWithType(this)}";
+                if (_registers[i] != null) ans = ans + $"[{i}]{_registers[i].ToStringWithType(this)}";
+            }
+            return ans;
+        }
+
+        public string[] ListRegister()
+        {
+            var ans = new string[RegisterCount];
+            var null_str = "unused";
+            for (int i = 0; i < RegisterCount; ++i)
+            {
+                ans[i] = $"[{i}]{(_registers[i] == null ? null_str :_registers[i].ToStringWithType(this))}";
             }
             return ans;
         }
@@ -138,6 +149,18 @@ namespace OpenSage.Gui.Apt.ActionScript
             ans = string.Format("TOP|{0}|BOTTOM", ans);
             return ans;
         }
+
+        public string[] ListStack()
+        {
+            var ans = new string[_stack.Count];
+            for (int i = 0; i < _stack.Count; ++i)
+            {
+                ans[i] = $"[{i}]{_stack.ElementAt(i).ToStringWithType(this)}";
+            }
+            return ans;
+        }
+
+        public Value GetStackElement(int index) { return _stack.ElementAt(index); }
 
         public void Push(Value v)
         {

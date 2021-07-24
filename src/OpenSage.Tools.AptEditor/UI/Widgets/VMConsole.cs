@@ -7,6 +7,31 @@ using System.Numerics;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
+    internal class ObjectDescription
+    {
+        public ObjectContext obj;
+        public ObjectContext tv;
+        public ActionContext actx;
+        public string[] disp;
+        public string[] val;
+        public string addr;
+        public ObjectDescription sub;
+        public int elem_sel;
+
+        public ObjectDescription(ObjectContext obj, ActionContext actx = null)
+        {
+            this.obj = obj;
+            tv = obj;
+            this.actx = actx;
+            addr = "";
+            if (obj != null)
+            {
+                var objd = obj.ToListDisp(actx);
+                disp = objd.Item1;
+                val = objd.Item2;
+            }
+        }
+    }
     internal class VMConsole : IWidget
     {
         LogicalInstructions _instructions = null;
@@ -29,6 +54,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         int int_input = 0;
         string exec_code_ref = "";
         string last_executed_func = "Initial output";
+
+        int selected_stack = 0;
+        int selected_reg = 0;
+        int selected_cstack = 0;
+        int selected_cqueue = 0;
+
+        ObjectDescription obj_disp = null;
+        int obj_elem_sel = 0;
 
         Vector4 _breakColor = new Vector4(1f, 0.1f, 0.1f, 1f);
         Vector4 _unbreakColor = new Vector4(0.1f, 0.1f, 0.1f, 1f);
@@ -58,7 +91,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
             if (ImGui.Begin("VM Console"))
             {
-                // ImGui.Columns(2);
+                ImGui.Columns(2);
                 ImGui.InputInt("Line", ref int_input);
                 ImGui.SameLine();
                 if (ImGui.Button("Goto"))
@@ -71,7 +104,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     if (!_acontext.IsOutermost())
                     {
                         var lef = _context.Avm.ExecuteOnce(true); 
-                        last_executed_func = lef.ToString(_acontext);
+                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
                     }
                     else if (_context != null)
                     {
@@ -145,37 +178,90 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     throw new System.NotImplementedException(exec_code_ref);
                 }
 
-                ImGui.Separator();
-
                 ImGui.Text("Last Execution:");
                 ImGui.Text(last_executed_func);
 
-                ImGui.Text("Registers:");
-                ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpRegister());
+                if (_acontext != null)
+                {
+                    var stacks = _acontext.ListStack();
+                    var regs = _acontext.ListRegister();
+                    if (ImGui.ListBox($"Regs[{regs.Length}]", ref selected_reg, regs, regs.Length))
+                    {
+                        var obj = _acontext.GetRegister(selected_reg).ToObject();
+                        obj_disp = new ObjectDescription(obj, _acontext);
+                    }
+                    if (ImGui.ListBox($"Stack[{stacks.Length}]", ref selected_stack, stacks, stacks.Length))
+                    {
+                        var obj = _acontext.GetStackElement(selected_stack).ToObject();
+                        obj_disp = new ObjectDescription(obj, _acontext);
+                    }
+                }
 
-                ImGui.Text("Stack:");
-                ImGui.Text(_acontext == null ? "Not Applicable" : _acontext.DumpStack());
+                if (_context != null)
+                {
+                    var cs = _context.Avm.ListContextStack();
+                    var cq = _context.Avm.ListContextQueue();
+                    if (ImGui.ListBox($"E.Cont.[{cs.Length}]", ref selected_cstack, cs, cs.Length))
+                    {
+                        var str = _context.Avm.GetStackContext(selected_cstack).Stream;
+                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                    }
+                    if (ImGui.ListBox($"Queue[{cq.Length}]", ref selected_cqueue, cq, cq.Length))
+                    {
+                        var str = _context.Avm.GetQueueContext(selected_cqueue).Stream;
+                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                    }
 
-                ImGui.Text("Execution Context:");
-                ImGui.Text(_context == null ? "Not Applicable" : _context.Avm.DumpContextStack());
+                }
+                if (ImGui.Button("This"))
+                {
+                    obj_disp = _acontext == null ? null : new ObjectDescription(_acontext.This, _acontext) { addr = "this" };
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Global"))
+                {
+                    obj_disp = _acontext == null ? null : new ObjectDescription(_acontext.Global, _acontext) { addr = "_global" };
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Display Item"))
+                {
+                    obj_disp = _dispobj == null ? null : new ObjectDescription(_dispobj, _acontext) { addr = _dispobj.ToString() };
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Root"))
+                {
+                    obj_disp = _context == null ? null : new ObjectDescription(_context.Root.ScriptObject, _acontext) { addr = "_root" };
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Extern"))
+                {
+                    obj_disp = _context == null ? null : new ObjectDescription(_context.Avm.ExternObject, _acontext) { addr = "extern" };
+                }
 
-                ImGui.Text("Code Queue:");
-                ImGui.Text(_context == null ? "Not Applicable" : _context.Avm.DumpContextQueue());
+                ImGui.NextColumn();
 
-                
+                var od = obj_disp;
+                while (od != null && od.disp != null)
+                {
+                    // ImGui.Text(od.addr);
+                    if (ImGui.ListBox(od.addr, ref od.elem_sel, od.disp, od.disp.Length))
+                    {
+                        od.sub = new ObjectDescription(od.tv.GetMember(od.val[od.elem_sel]).ToObject(), od.actx) { addr = od.addr + "\n." + od.val[od.elem_sel] };
+                    }
+                    if (ImGui.Button("__proto__"))
+                        od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__" };
+                    ImGui.SameLine();
+                    if (ImGui.Button("__proto__(keep \"this\")"))
+                        od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__", tv = od.obj };
+                    ImGui.SameLine();
+                    if (ImGui.Button("constructor"))
+                        od.sub = new ObjectDescription(od.obj.constructor, od.actx) { addr = od.addr + "\n.constructor" };
+                    if (od.obj is DefinedFunction && SameLine() && ImGui.Button("code"))
+                        manager.CurrentActions = new LogicalInstructions(((DefinedFunction) od.obj).Instructions);
+                    od = od.sub;
+                }
+               
 
-                ImGui.Text("KW This:");
-                ImGui.Text(_acontext == null ? "null" : (
-                    _acontext.This == _acontext.Global ? "Same as Global" : _acontext.This.ToStringDisp(_acontext)
-                    ));
-
-                ImGui.Text("Display Item:");
-                ImGui.Text(_dispobj == null ? "null" : _dispobj.ToStringDisp(_acontext));
-
-                ImGui.Text("KW Global:");
-                ImGui.Text(_acontext == null ? "null" : _acontext.Global.ToStringDisp(_acontext));
-
-                
 
                 if (_instructions != null && ImGui.Begin("Codes"))
                 {
@@ -185,6 +271,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
             ImGui.End();
         }
+
+        internal bool SameLine() { ImGui.SameLine(); return true; }
 
         internal void DrawCodes(LogicalInstructions insts, int indent = 0)
         {

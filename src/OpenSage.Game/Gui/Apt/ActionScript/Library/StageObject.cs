@@ -258,6 +258,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             
         };
 
+        public MovieClip(VM vm) : this(null, vm) { }
         public MovieClip(SpriteItem item, VM vm = null) : base(item, vm) { }
 
         public void GotoAndPlay(ActionContext actx, Value[] args)

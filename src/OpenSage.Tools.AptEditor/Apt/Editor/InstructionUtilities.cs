@@ -148,6 +148,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     {
         public List<InstructionBase> Items { get; set; }
         public InstructionCollection Insts { get; private set; }
+        public string Address;
 
         public LogicalInstructions(InstructionCollection insts)
         {
