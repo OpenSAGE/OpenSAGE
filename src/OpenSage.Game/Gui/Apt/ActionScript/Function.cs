@@ -32,6 +32,12 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {
+            // properties
+            ["constructor"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+                 (actx, tv, args) => {
+                     tv.__proto__ = actx.Apt.Avm.Prototypes["Function"];
+                     return Value.FromObject(tv);
+                 }, avm)), true, false, false),
             // methods
             ["apply"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (vm, tv, args) => { ((Function) tv).Apply(vm, tv, args); return null; }
@@ -51,9 +57,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
         }
 
-        public Function(VM vm): base(vm)
+        public Function(VM vm): base(vm, "Function")
         {
-            PrototypeInternal = vm is null ? null : vm.Prototypes["Function"];
             var prt = new ObjectContext(vm);
             prt.constructor = this;
             prototype = prt;

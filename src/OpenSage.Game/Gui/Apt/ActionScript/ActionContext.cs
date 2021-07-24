@@ -175,6 +175,11 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value Pop()
         {
+            if (_stack.Count == 0)
+            {
+                logger.Warn("[WARN] Trying to pop the stack while it is empty");
+                return Value.Undefined();
+            }
             var ret = _stack.Pop();
             return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
         }

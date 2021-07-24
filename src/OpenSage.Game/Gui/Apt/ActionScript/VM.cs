@@ -58,7 +58,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             var stats = (Dictionary<string, Func<VM, Property>>) classType.GetField("StaticPropertiesDefined").GetValue(null);
             foreach (var p in props)
                 newProto.SetOwnProperty(p.Key, p.Value(this));
-            var cst = newProto.constructor;
+            if (!newProto.HasOwnMember("constructor"))
+                newProto.constructor = new NativeFunction((actx, tv, args) => Value.Undefined(), this); // TODO not sure if it is correct
+            var cst = newProto.constructor; 
             cst.prototype = newProto;
             foreach (var p in stats)
                 cst.SetOwnProperty(p.Key, p.Value(this));
@@ -351,27 +353,33 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public void ExecuteUntilHalt()
+        public InstructionBase ExecuteUntilHalt()
         {
             var context = CurrentContext();
+            InstructionBase ans = null;
             while (!IsCurrentContextGlobal() && !context.Halt && _paused == false)
-                ExecuteOnce();
+                ans = ExecuteOnce();
+            return ans;
         }
 
-        public void ExecuteUntilGlobal()
+        public InstructionBase ExecuteUntilGlobal()
         {
+            InstructionBase ans = null;
             while (!IsCurrentContextGlobal() && _paused == false)
-                ExecuteUntilHalt();
+                ans = ExecuteUntilHalt();
+            return ans;
         }
 
-        public void ExecuteUntilEmpty()
+        public InstructionBase ExecuteUntilEmpty()
         {
+            InstructionBase ans = null;
             while ((HasContextInQueue() || (!IsCurrentContextGlobal())) && _paused == false)
             {
                 if (IsCurrentContextGlobal())
                     PushContext(DequeueContext());
-                ExecuteUntilGlobal();
+                ans = ExecuteUntilGlobal();
             }
+            return ans;
         }
 
         public Value Execute(Function func, Value[] args, ObjectContext thisVar)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using SharpFileDialog;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data;
@@ -47,7 +48,7 @@ namespace OpenSage.Tools.AptEditor
                                                         window.Height);
             using var gameTimer = new DeltaTimer();
             string? rootPath = null;
-            var rootPathInput = new ImGuiTextBox(1024);
+            var inputRootPath = "G:\\Games\\RA#s\\aptuis\\aptui"; // TODO I wanted to cache it, but it turned out to be complicated
 
             void OnWindowResized()
             {
@@ -82,14 +83,17 @@ namespace OpenSage.Tools.AptEditor
                         ImGui.TextWrapped("It's recommended that you set it to " +
                             "the RA3SDK_UI_ScreensPack folder so you could load apt files more easily.");
 
-                        // TODO More fancy implementations?
-                        var defaultInputPath = "G:\\Games\\RA#s\\aptuis\\aptui";
-                        
-                        rootPathInput.InputText("##rootPath", out var inputRootPath);
+                        ImGui.InputText("##rootPath", ref inputRootPath, 1024);
+
+                        ImGui.SameLine();
+                        if (ImGui.Button("..."))
+                        {
+                            var dirDialog = new DirectoryDialog("Select Root Path");
+                            dirDialog.Open(result => inputRootPath = result.FileName);
+                        }
                         if (ImGui.Button("Load"))
                         {
                             rootPath = inputRootPath;
-                            if (rootPath.Length < 1) rootPath = defaultInputPath;
                             window.Close();
                         }
                     }

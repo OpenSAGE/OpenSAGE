@@ -4,6 +4,7 @@ using OpenSage.Tools.AptEditor.Util;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using System.Numerics;
+using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
@@ -15,6 +16,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         public string[] disp;
         public string[] val;
         public string addr;
+        public string obj_str;
         public ObjectDescription sub;
         public int elem_sel;
 
@@ -92,16 +94,17 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             if (ImGui.Begin("VM Console"))
             {
                 ImGui.Columns(2);
+
                 ImGui.InputInt("Line", ref int_input);
                 ImGui.SameLine();
-                if (ImGui.Button("Goto"))
+                if (ImGui.Button("Goto") && _acontext != null)
                 {
-
+                    _acontext.Stream.GotoIndex(int_input);
                 }
                 // ImGui.SameLine();
                 if (ImGui.Button("Exec1"))
                 {
-                    if (!_acontext.IsOutermost())
+                    if (_acontext != null && (!_acontext.IsOutermost()))
                     {
                         var lef = _context.Avm.ExecuteOnce(true); 
                         last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
@@ -130,26 +133,30 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     ImGui.SameLine();
                     if (ImGui.Button("EUHalt"))
                     {
+                        InstructionBase lef = null;
                         if (_context.Avm.Paused())
                         {
                             _context.Avm.Resume();
-                            _context.Avm.ExecuteUntilHalt();
+                            lef = _context.Avm.ExecuteUntilHalt();
                             _context.Avm.Pause();
                         }
                         else
-                            _context.Avm.ExecuteUntilHalt();
+                            lef = _context.Avm.ExecuteUntilHalt();
+                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
                     }
                     ImGui.SameLine();
                     if (ImGui.Button("EUGlob"))
                     {
+                        InstructionBase lef = null;
                         if (_context.Avm.Paused())
                         {
                             _context.Avm.Resume();
-                            _context.Avm.ExecuteUntilGlobal();
+                            lef = _context.Avm.ExecuteUntilGlobal();
                             _context.Avm.Pause();
                         }
                         else
-                            _context.Avm.ExecuteUntilGlobal();
+                            lef = _context.Avm.ExecuteUntilGlobal();
+                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
                     }
                 }
                 
@@ -159,21 +166,16 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 //ImGui.SameLine();
                 if (ImGui.Button("Push"))
                 {
-
+                    throw new System.NotImplementedException(input_val);
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("Pop"))
                 {
-
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Pop & Show"))
-                {
-
+                    _acontext.Pop();
                 }
 
                 
-                ImGui.InputTextMultiline("Code", ref exec_code_ref, 114514, new System.Numerics.Vector2(200, 200));
+                ImGui.InputTextMultiline("Code", ref exec_code_ref, 114514, new Vector2(300, 200));
                 if (ImGui.Button("Exec Code")) {
                     throw new System.NotImplementedException(exec_code_ref);
                 }
@@ -240,26 +242,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ImGui.NextColumn();
 
-                var od = obj_disp;
-                while (od != null && od.disp != null)
-                {
-                    // ImGui.Text(od.addr);
-                    if (ImGui.ListBox(od.addr, ref od.elem_sel, od.disp, od.disp.Length))
-                    {
-                        od.sub = new ObjectDescription(od.tv.GetMember(od.val[od.elem_sel]).ToObject(), od.actx) { addr = od.addr + "\n." + od.val[od.elem_sel] };
-                    }
-                    if (ImGui.Button("__proto__"))
-                        od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__" };
-                    ImGui.SameLine();
-                    if (ImGui.Button("__proto__(keep \"this\")"))
-                        od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__", tv = od.obj };
-                    ImGui.SameLine();
-                    if (ImGui.Button("constructor"))
-                        od.sub = new ObjectDescription(od.obj.constructor, od.actx) { addr = od.addr + "\n.constructor" };
-                    if (od.obj is DefinedFunction && SameLine() && ImGui.Button("code"))
-                        manager.CurrentActions = new LogicalInstructions(((DefinedFunction) od.obj).Instructions);
-                    od = od.sub;
-                }
+                DrawObject(obj_disp, manager);
                
 
 
@@ -273,11 +256,38 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         }
 
         internal bool SameLine() { ImGui.SameLine(); return true; }
-
+        internal void DrawObject(ObjectDescription od, AptSceneManager manager, int layer = 0)
+        {
+            if (od == null || od.disp == null) return;
+            var id = od.GetHashCode();
+            using var _ = new ImGuiIDHelper("ObjectPropertyEntry", ref id);
+            if (ImGui.ListBox(od.addr, ref od.elem_sel, od.disp, od.disp.Length))
+            {
+                var od_val = od.tv.GetMember(od.val[od.elem_sel]);
+                if (od_val.Type != ValueType.Object)
+                    od.obj_str = od_val.ToStringWithType(_acontext);
+                od.sub = new ObjectDescription(od_val.Type == ValueType.Object ? od_val.ToObject() : null, od.actx) { addr = od.addr + "\n." + od.val[od.elem_sel] };
+            }
+            if (od.obj_str != null && od.obj_str != "")
+                ImGui.Text($"Selected: {od.obj_str}");
+            if (ImGui.Button("__proto__"))
+                od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__" };
+            ImGui.SameLine();
+            if (ImGui.Button("Keep \"this\""))
+                od.sub = new ObjectDescription(od.obj.__proto__, od.actx) { addr = od.addr + "\n.__proto__", tv = od.tv };
+            ImGui.SameLine();
+            if (ImGui.Button("constructor"))
+                od.sub = new ObjectDescription(od.obj.constructor, od.actx) { addr = od.addr + "\n.constructor" };
+            if (od.obj is DefinedFunction && SameLine() && ImGui.Button("Code"))
+                manager.CurrentActions = new LogicalInstructions(((DefinedFunction) od.obj).Instructions);
+            DrawObject(od.sub, manager, layer + 1);
+        }
         internal void DrawCodes(LogicalInstructions insts, int indent = 0)
         {
-            for (var i = 0; i < insts.Items.Count; ++i)
+            foreach (var c in insts.Items)
             {
+                // TODO Edit
+                /*
                 if (i == _editingIndex)
                 {
                     _editBox.Draw();
@@ -288,11 +298,18 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     }
                 }
                 else
+                */
                 {
-                    var inst = insts.Items[i];
+                    var ind = c.Key + insts.IndexOffset;
+                    var inst = c.Value;
 
+                    var id = inst.GetHashCode();
+                    using var _ = new ImGuiIDHelper("Instructions", ref id);
+
+                    ImGui.Text($" {ind}");
+                    ImGui.SameLine(0, 0);
                     ImGui.TextColored(inst.Breakpoint ? _breakColor : _unbreakColor, _breakDesc);
-                    ImGui.SameLine(24, indent);
+                    ImGui.SameLine(48, indent);
                 
                     if (ImGui.Button(inst.ToString(_acontext)))
                     {

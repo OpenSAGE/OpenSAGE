@@ -228,10 +228,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var funcName = context.Pop().ToString();
+            var funcNameVal = context.Pop();
+            var funcName = funcNameVal.ToString();
             var ret = (Value) null;
             // If funcname is defined we need get the function from an object
-            if (funcName.Length > 0)
+            if (funcNameVal.Type != ValueType.Undefined && funcName.Length > 0)
             {
                 var obj = context.Pop().ToObject();
                 var args = FunctionCommon.GetArgumentsFromStack(context);
@@ -256,30 +257,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
     /// </summary>
-    public sealed class CallMethodPop : InstructionBase
+    public sealed class CallMethodPop : CallMethod
     {
         public override InstructionType Type => InstructionType.EA_CallMethodPop;
 
-        public override void Execute(ActionContext context)
-        {
-            var funcName = context.Pop().ToString();
-            var ret = (Value) null;
-            // If funcname is defined we need get the function from an object
-            if (funcName.Length > 0)
-            {
-                var obj = context.Pop().ToObject();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-                ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
-            }
-            // Else the function is on the stack
-            else
-            {
-                var funcVal = context.Pop();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-                ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
-            }
-            context.PushRecallCode(new DealWithReturnValue(ret));
-        }
+        // Since the execution (in original implementation)
+        // is precisely the same as CallMethod, omit it
+        // TODO Don't know if the word pop means discard the return value
     }
 
     /// <summary>

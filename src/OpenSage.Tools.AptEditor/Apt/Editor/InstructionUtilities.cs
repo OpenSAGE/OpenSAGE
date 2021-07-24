@@ -127,10 +127,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBase InnerAction { get; private set; }
         public LogicalInstructions Instructions { get; private set; }
 
-        public LogicalCodeContext(InstructionBase instruction, InstructionCollection insts)
+        public override bool Breakpoint
+        {
+            get { return InnerAction.Breakpoint; }
+            set { InnerAction.Breakpoint = value; }
+        }
+
+        public LogicalCodeContext(InstructionBase instruction, InstructionCollection insts, int index_offset = 0)
         {
             InnerAction = instruction;
-            Instructions = new LogicalInstructions(insts);
+            Instructions = new LogicalInstructions(insts, index_offset);
         }
 
         // Probably it would be better to update InnerFunction.Parameter each time this.Parameter changes
@@ -146,18 +152,21 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     }
     internal class LogicalInstructions
     {
-        public List<InstructionBase> Items { get; set; }
+        public Dictionary<int, InstructionBase> Items { get; set; }
         public InstructionCollection Insts { get; private set; }
         public string Address;
+        public int IndexOffset;
 
-        public LogicalInstructions(InstructionCollection insts)
+        public LogicalInstructions(InstructionCollection insts, int index_offset = 0)
         {
             Insts = insts;
+            IndexOffset = index_offset;
             var stream = new InstructionStream(insts);
 
-            Items = new List<InstructionBase>();
+            Items = new Dictionary<int, InstructionBase>();
             while (!stream.IsFinished())
             {
+                var index = stream.Index;
                 var instruction = stream.GetInstruction();
                 var size = -114514;
                 if (instruction is DefineFunction)
@@ -180,7 +189,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     try
                     {
                         var codes = stream.GetInstructions(size);
-                        instruction = new LogicalCodeContext(instruction, codes);
+                        instruction = new LogicalCodeContext(instruction, codes, IndexOffset + index + 1);
                     }
                     catch (Exception e)
                     {
@@ -188,7 +197,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     }
                 }
 
-                Items.Add(instruction);
+                Items.Add(index, instruction);
             }
         }
 

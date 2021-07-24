@@ -34,7 +34,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         private string _value;
 
         public ASString(VM vm) : this(null, vm) { }
-        public ASString(Value value, VM vm) : base(vm)
+        public ASString(Value value, VM vm) : base(vm, "String")
         {
             if (value == null) _value = "null";
             else _value = value.ToString();

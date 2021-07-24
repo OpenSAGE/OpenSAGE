@@ -12,29 +12,36 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         {
             // properties
             ["_parent"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).AnotherGetParent(),
+                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
+                        ((StageObject) tv).AnotherGetParent(),
                 (tv, val) => { throw new NotImplementedException(); }, 
                 false, false),
             ["_x"] = (avm) => Property.A(
-                (tv) => Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.X),
+                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.X),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_y"] = (avm) => Property.A(
-                (tv) => Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.Y),
+                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.Y),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_name"] = (avm) => Property.A(
-                (tv) => Value.FromString(((StageObject) tv).Item.Name),
+                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromString(((StageObject) tv).Item.Name),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_alpha"] = (avm) => Property.A(
-                (tv) => throw new NotImplementedException(),
+                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject) tv).Item.Transform.ColorTransform.A * 100),
                 (tv, val) =>
                 {
                     var ctx = (StageObject) tv;
+                    if (ctx is null)
+                        return;
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
-                        transform.WithColorTransform(transform.ColorTransform.WithA(val.ToInteger() / 100.0f));
+                        transform.WithColorTransform(transform.ColorTransform.WithA((float) (val.ToFloat() / 100.0)));
                 },
                 false, false),
             // methods
@@ -51,7 +58,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public StageObject(DisplayItem item, VM vm = null) : base(vm == null ? (item == null ? null : item.Context.Avm) : vm)
+        public StageObject(DisplayItem item, VM vm = null, string prototype_indicator = "Object") : base(vm == null ? (item == null ? null : item.Context.Avm) : vm, prototype_indicator)
         {
             Item = item;
         }
@@ -195,7 +202,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
                 },
-                false, false),
+                true, false),
         };
 
         public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.StaticPropertiesDefined)
@@ -204,7 +211,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         };
 
         public TextField(VM vm) : this(null, vm) { }
-        public TextField(RenderItem item, VM vm = null) : base(item, vm) { }
+        public TextField(RenderItem item, VM vm = null) : base(item, vm, "TextField") { }
     }
 
     public class MovieClip : StageObject
@@ -259,7 +266,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         };
 
         public MovieClip(VM vm) : this(null, vm) { }
-        public MovieClip(SpriteItem item, VM vm = null) : base(item, vm) { }
+        public MovieClip(SpriteItem item, VM vm = null) : base(item, vm, "MovieClip") { }
 
         public void GotoAndPlay(ActionContext actx, Value[] args)
         {

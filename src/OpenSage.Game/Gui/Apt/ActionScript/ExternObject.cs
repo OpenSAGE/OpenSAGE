@@ -4,7 +4,7 @@
     {
         private VM _vm;
 
-        public ExternObject(VM vm)
+        public ExternObject(VM vm): base(vm)
         {
             _vm = vm;
         }

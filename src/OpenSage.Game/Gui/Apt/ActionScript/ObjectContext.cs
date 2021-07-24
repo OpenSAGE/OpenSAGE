@@ -13,7 +13,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool Enumerable { get; set; }
         public bool Configurable { get; set; }
         public bool Writable { get; set; }
-        public bool Hidden { get; set; }
 
         public static NamedDataProperty D(Value val, bool w, bool e, bool c) {
             return new NamedDataProperty()
@@ -22,7 +21,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Writable = w,
                 Enumerable = e,
                 Configurable = c,
-                Hidden = false,
             };
         }
         public static NamedAccessoryProperty A(Func<ObjectContext, Value> g, Action<ObjectContext, Value> s, bool e, bool c)
@@ -34,7 +32,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Enumerable = e,
                 Configurable = c,
                 Writable = true,
-                Hidden = false,
             };
         }
 
@@ -98,7 +95,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // prototype declaration
 
-        public static Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>> ()
+        public static Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>> () // __proto__
         {
             // properties
             ["constructor"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
@@ -108,7 +105,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                  }, avm)), true, false, false),
             ["__proto__"] = (avm) => Property.A(
                  (tv) => Value.FromObject(tv.PrototypeInternal),
-                 (tv, val) => tv.PrototypeInternal = val.ToObject(), 
+                 (tv, val) => tv.PrototypeInternal = val.ToObject(),
                  false, false),
             // methods
             ["addProperty"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
@@ -149,7 +146,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                  , avm)), true, false, false),
         };
 
-        public static Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>> ()
+        public static Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>> () // constructor
         { 
             // ["prototype"] = (avm) => Property.D(Value.FromObject(avm.GetPrototype("Object")), true, false, false),
         };
@@ -157,18 +154,21 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// equivalent to [[Construct]]
         /// </summary>
-        public ObjectContext(VM vm)
+        public ObjectContext(VM vm, string prototype_indicator)
         {
             //Actionscript variables are not case sensitive!
             _properties = new Dictionary<string, Property>(StringComparer.OrdinalIgnoreCase);
-            PrototypeInternal = vm == null ? null : vm.Prototypes["Object"];
-            Class = "Object";
+            if (vm != null && vm.Prototypes.TryGetValue(prototype_indicator, out var proto))
+                PrototypeInternal = proto;
+            else if (vm != null && vm.Prototypes.TryGetValue("Object", out var protoObj))
+                PrototypeInternal = protoObj;
+            Class = prototype_indicator;
         }
 
         /// <summary>
         /// this ActionScript object is not bound bound to an item, e.g. for global object
         /// </summary>
-        public ObjectContext() : this((VM) null) { }
+        public ObjectContext(VM vm) : this(vm, "Object") { } // Do not simplify it due to the reflection
 
         public Dictionary<string, Property>.KeyCollection GetAllProperties() { return _properties.Keys; }
 
@@ -204,10 +204,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             var prop = _properties[name];
             if (swp) prop.Writable = false;
             if (sdp) prop.Configurable = false;
-            if (shid) prop.Hidden = true;
+            if (shid) prop.Enumerable = false;
             if (cwp) prop.Writable = true;
             if (cdp) prop.Configurable = true;
-            if (chid) prop.Hidden = false;
+            if (chid) prop.Enumerable = true;
         }
 
         public virtual Value GetOwnMember(string name, ObjectContext localOverride = null)
@@ -263,14 +263,18 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             else
             {
-                var prop1 = Property.D(val, true, val.Enumerable(), true);
+                var prop1 = Property.D(val, true, true, true);
                 _properties[name] = prop1;
             }
         }
 
         public virtual bool HasOwnMember(string name)
         {
-            return _properties.ContainsKey(name) && GetOwnMember(name).Type != ValueType.Undefined;
+            return _properties.ContainsKey(name) &&
+                    ((_properties[name] is NamedDataProperty &&
+                    ((NamedDataProperty) _properties[name]).Value != null &&
+                    ((NamedDataProperty) _properties[name]).Value.Type != ValueType.Undefined) ||
+                    _properties[name] is NamedAccessoryProperty);
         }
 
         public virtual bool DeleteOwnMember(string name)

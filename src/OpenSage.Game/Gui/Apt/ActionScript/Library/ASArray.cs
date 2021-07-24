@@ -52,7 +52,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         }
 
         public ASArray(VM vm) : this(null, vm) { }
-        public ASArray(Value[] args, VM vm): base(vm)
+        public ASArray(Value[] args, VM vm): base(vm, "Array")
         {
             if (args == null) _values = new List<Value>();
             else _values = new List<Value>(args);
