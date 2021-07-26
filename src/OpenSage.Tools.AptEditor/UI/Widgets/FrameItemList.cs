@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.Apt.Editor.FrameItems;
@@ -78,6 +80,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     if (ImGui.Button("Frame Action"))
                     {
                         manager.CurrentActions = item.Instructions;
+                        manager.CurrentTitle = $"Frame Action";
+
                     }
                 }
                 ImGui.Separator();
@@ -94,6 +98,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     if (ImGui.Button("Sprite InitAction"))
                     {
                         manager.CurrentActions = item.Instructions;
+                        manager.CurrentTitle = $"Sprite #{item.Sprite} Initaction";
                     }
                 }
                 ImGui.Separator();
@@ -132,7 +137,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     ImGui.Spacing();
                     ProcessName(placeObject);
                     ImGui.Spacing();
-                    ProcessClipEvents(placeObject);
+                    ProcessClipEvents(placeObject, manager);
                     ImGui.Separator();
                 }
                 ImGui.Unindent();
@@ -362,15 +367,44 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
         }
 
-        private static void ProcessClipEvents(LogicalPlaceObject placeObject)
+        private void ProcessClipEvents(LogicalPlaceObject placeObject, AptSceneManager manager)
         {
             if (placeObject.ClipEvents == null)
             {
-                ImGui.Button("Add Ciip Events");
+                ImGui.Button("Add Clip Events");
                 return;
             }
 
             ImGui.Text($"Clip Event Count: {placeObject.ClipEvents.Count}");
+            var id = 0;
+            var toBeRemoved = new List<LogicalClipEvent>();
+            foreach (var clipEvent in placeObject.ClipEvents)
+            {
+                using var _ = new ImGuiIDHelper("Clip events", ref id);
+
+                ImGui.Separator();
+                if (ImGui.Button("Remove clip event"))
+                {
+                    toBeRemoved.Add(clipEvent);
+                    // _clipEventInstructions.Remove(clipEvent);
+                }
+                ImGui.Value("Flags", 0, clipEvent.Flags.ToString());
+                ImGui.Value("KeyCode", clipEvent.KeyCode);
+                if (ImGui.Button("Instructions"))
+                {
+                    manager.CurrentActions = clipEvent.Instructions;
+                    manager.CurrentTitle = "Clip Event Actions";
+                    // TODO adapt to new 
+                    // VMConsole is modified to a larrrrrrrrrrrrrrrrrrrrge extent
+                    // if (!_clipEventInstructions.ContainsKey(clipEvent))
+                    // {
+
+                    //      _clipEventInstructions[clipEvent] = new InstructionEditor(clipEvent.Instructions);
+                    // }
+                }
+            }
+
+            toBeRemoved.ForEach(placeObject.RemoveClipEvent);
             return;
         }
 

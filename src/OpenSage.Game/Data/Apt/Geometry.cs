@@ -253,6 +253,32 @@ namespace OpenSage.Data.Apt
             var size = botRight - topLeft;
             BoundingBox = new RectangleF(topLeft.X, topLeft.Y, size.X, size.Y);
         }
+
+        public bool Contains(Vector2 point)
+        {
+            foreach (var entry in Entries)
+            {
+                switch (entry)
+                {
+                    case GeometryLines gl:
+                        foreach (var line in gl.Lines)
+                            if (line.Contains(point))
+                                return true;
+                        break;
+                    case GeometrySolidTriangles gst:
+                        foreach (var tri in gst.Triangles)
+                            if (TriangleUtility.IsPointInside(tri.V0, tri.V1, tri.V2, point))
+                                return true;
+                        break;
+                    case GeometryTexturedTriangles gtt:
+                        foreach (var tri in gtt.Triangles)
+                            if (TriangleUtility.IsPointInside(tri.V0, tri.V1, tri.V2, point))
+                                return true;
+                        break;
+                }
+            }
+            return false;
+        }
     }
 
     public class GeometrySolidTriangles : IGeometryEntry

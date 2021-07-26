@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
@@ -31,18 +32,33 @@ namespace OpenSage.Gui.Apt
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public override DisplayItem GetMouseFocus(Vector2 mousePos)
+        {
+            var verts = _button.Vertices;
+            foreach (var tri in _button.Triangles)
+            {
+                if (TriangleUtility.IsPointInside(verts[tri.IDX0], verts[tri.IDX0], verts[tri.IDX0], mousePos))
+                    return this;
+            }
+            return null;
+        }
+
+        public override bool HandleEvent(ClipEventFlags flags)
+        {
+            throw new System.NotImplementedException(flags.ToString());
+        }
+
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-            var button = _button;
 
-            var transform = _curTransform.GeometryRotation;
-            transform.Translation = _curTransform.GeometryTranslation;// * scaling;
+            var transform = _curTransform.GeometryTransform;
+
             ApplyCurrentRecord(ref transform);
 
-            var verts = button.Vertices;
+            var verts = _button.Vertices;
             var mouse = new Point2D(mousePos.X, mousePos.Y);
 
-            foreach (var tri in button.Triangles)
+            foreach (var tri in _button.Triangles)
             {
                 var v1 = Vector2.Transform(verts[tri.IDX0], transform);
                 var v2 = Vector2.Transform(verts[tri.IDX1], transform);
@@ -53,10 +69,10 @@ namespace OpenSage.Gui.Apt
                     if (!_isHovered)
                     {
                         logger.Debug("Hit: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
+                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
                         if (idx != -1)
                         {
-                            _actionList.Add(button.Actions[idx].Instructions);
+                            _actionList.Add(_button.Actions[idx].Instructions);
                         }
                         _isHovered = true;
                     }
@@ -64,10 +80,10 @@ namespace OpenSage.Gui.Apt
                     if (_isHovered && mouseDown && !_isDown)
                     {
                         logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
+                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
                         if (idx != -1)
                         {
-                            _actionList.Add(button.Actions[idx].Instructions);
+                            _actionList.Add(_button.Actions[idx].Instructions);
                         }
                         _isDown = true;
                     }
@@ -75,10 +91,10 @@ namespace OpenSage.Gui.Apt
                     if (_isHovered && !mouseDown && _isDown)
                     {
                         logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
+                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
                         if (idx != -1)
                         {
-                            _actionList.Add(button.Actions[idx].Instructions);
+                            _actionList.Add(_button.Actions[idx].Instructions);
                         }
                         _isDown = false;
                     }
@@ -89,10 +105,10 @@ namespace OpenSage.Gui.Apt
 
             if (_isHovered)
             {
-                var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToIdle));
+                var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToIdle));
                 if (idx != -1)
                 {
-                    _actionList.Add(button.Actions[idx].Instructions);
+                    _actionList.Add(_button.Actions[idx].Instructions);
                 }
                 _isHovered = false;
                 logger.Debug("Unhovered: " + mousePos.X + "-" + mousePos.Y);
@@ -127,9 +143,7 @@ namespace OpenSage.Gui.Apt
             _curTransform = renderingContext.CurrentTransform * Transform;
 
             var windowScaling = renderingContext.Window.GetScaling();
-            _curTransform.GeometryTranslation *= windowScaling;
-            _curTransform.GeometryRotation.M11 *= windowScaling.X;
-            _curTransform.GeometryRotation.M22 *= windowScaling.Y;
+            _curTransform.GeometryTransform *= Matrix3x2.CreateScale(windowScaling);
         }
 
         public override void EnqueueActions(TimeInterval gt)

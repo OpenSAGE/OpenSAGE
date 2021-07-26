@@ -68,10 +68,10 @@ namespace OpenSage.Data.Apt
             GeometryMap = new Dictionary<uint, Geometry>();
             foreach (Shape shape in Movie.Characters.FindAll((x) => x is Shape))
             {
-                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", +shape.Geometry + ".ru");
+                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", +shape.GeometryId + ".ru");
                 var shapeEntry = FileSystem.GetFile(ruPath);
                 var shapeGeometry = Geometry.FromFileSystemEntry(this, shapeEntry);
-                GeometryMap[shape.Geometry] = shapeGeometry;
+                GeometryMap[shape.GeometryId] = shapeGeometry;
             }
 
             ImportMap = new Dictionary<string, FileSystemEntry>();

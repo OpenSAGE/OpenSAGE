@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
@@ -17,7 +18,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             public int Index { get; }
             public string Type { get; }
             public string Name { get; }
-            public Vector4? ShapeBounds { get; }
+            public RectangleF? ShapeBounds { get; }
             public int? ShapeGeometry { get; }
 
             public Description(Movie movie, int index, string name)
@@ -31,7 +32,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 if (character is Shape shape)
                 {
                     ShapeBounds = shape.Bounds;
-                    ShapeGeometry = (int) shape.Geometry;
+                    ShapeGeometry = (int) shape.GeometryId;
                 }
             }
         }
@@ -79,7 +80,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public void SetShapeGeometry(int shapeIndex, int geometryId)
         {
             var shape = (Shape) GetCharacterByIndex(shapeIndex);
-            var current = shape.Geometry;
+            var current = shape.GeometryId;
             var edit = new EditAction(() => shape.Modify((uint) geometryId),
                                       () => shape.Modify(current),
                                       "Set Shape Geometry");

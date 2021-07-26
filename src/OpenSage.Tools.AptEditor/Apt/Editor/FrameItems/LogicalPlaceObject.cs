@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Mathematics;
 
@@ -12,6 +11,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
     {
         private readonly Action<IEditAction> _edit;
         private readonly PlaceObject _linkedPlaceObject;
+        private List<LogicalClipEvent>? _logicalClipEvents;
 
         public bool ModifyingExisting { get; private set; }
         public int? Character { get; private set; }
@@ -24,7 +24,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
         public Vector4? ColorTransform { get; private set; }
         public float? Ratio { get; private set; }
         public string? Name { get; private set; }
-        public List<ClipEvent>? ClipEvents { get; private set; }
+        public IReadOnlyList<LogicalClipEvent>? ClipEvents => _logicalClipEvents;
 
         public LogicalPlaceObject(Action<IEditAction> edit, PlaceObject po)
         {
@@ -61,7 +61,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
             {
-                ClipEvents = po.ClipEvents;
+                _logicalClipEvents = po.ClipEvents.Select(x => new LogicalClipEvent(edit, x)).ToList();
             }
         }
 
@@ -109,6 +109,29 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
                 _linkedPlaceObject.SetColorTransform(rgba);
                 return previous;
             });
+        }
+
+        public void AddClipEvent(LogicalClipEvent item)
+        {
+            RemoveClipEvent(item);
+            item ??= new(_edit, new() { Instructions = new(new()) });
+            if (_logicalClipEvents is null)
+            {
+                _linkedPlaceObject.SetClipEvents(_linkedPlaceObject.ClipEvents ?? new());
+                _logicalClipEvents = new();
+            }
+            _linkedPlaceObject.ClipEvents!.Add(item.Linked);
+            _logicalClipEvents.Add(item);
+        }
+
+        public void RemoveClipEvent(LogicalClipEvent item)
+        {
+            _logicalClipEvents?.Remove(item);
+            _linkedPlaceObject.ClipEvents?.Remove(item.Linked);
+            if (_linkedPlaceObject.ClipEvents?.Count == 0)
+            {
+                _linkedPlaceObject.SetClipEvents(null);
+            }
         }
 
         public void InitTransform()

@@ -1,6 +1,8 @@
-﻿using OpenSage.Content.Translation;
+﻿using System.Numerics;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Library;
 using Veldrid;
@@ -71,6 +73,27 @@ namespace OpenSage.Gui.Apt
             }
         }
 
+        public override DisplayItem GetMouseFocus(Vector2 mousePos)
+        {
+            var ret = false;
+            if (Character is Text t)
+                ret = t.Bounds.Contains(mousePos);
+            else if (Character is Shape s)
+                ret = s.Geometry == null ?
+                    s.Bounds.Contains(mousePos) :
+                    s.Geometry.Contains(mousePos);
+                // TODO The geometry is not loaded by default, this will cause some problems
+                // in some very special cases (like 2 circle in 2 sides of the screen while the
+                // mouse points the center). Better try to load it when the context is created.
+            return ret ? this : null;
+        }
+
+        public override bool HandleEvent(ClipEventFlags flags)
+        {
+            CallClipEvent(flags);
+            return true;
+        }
+
         protected override void RenderImpl(AptRenderingContext renderingContext)
         {
             if (!Visible)
@@ -83,7 +106,7 @@ namespace OpenSage.Gui.Apt
             switch (Character)
             {
                 case Shape s:
-                    var geometry = Context.GetGeometry(s.Geometry, Character);
+                    var geometry = Context.GetGeometry(s.GeometryId, Character);
                     if (RenderCallback != null)
                     {
                         RenderCallback(renderingContext, geometry, Texture);

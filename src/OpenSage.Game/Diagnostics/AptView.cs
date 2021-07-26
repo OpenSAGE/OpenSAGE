@@ -108,7 +108,7 @@ namespace OpenSage.Diagnostics
                             {
                                 var shape = _selectedItem.Character as Shape;
                                 ImGuiUtility.BeginPropertyList();
-                                ImGuiUtility.PropertyRow("GeometryID", shape.Geometry);
+                                ImGuiUtility.PropertyRow("GeometryID", shape.GeometryId);
                                 ImGuiUtility.EndPropertyList();
                             }
                             break;

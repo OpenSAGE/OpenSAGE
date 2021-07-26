@@ -119,8 +119,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Writer
             using (var shapeWriter = GetWriter(shapeMemory)) {
                 shapeWriter.Write((UInt32)CharacterType.Shape);
                 shapeWriter.Write((UInt32)Character.SIGNATURE);
-                shapeWriter.Write((Vector4)shape.Bounds);
-                shapeWriter.Write((UInt32)shape.Geometry);
+                var b = shape.Bounds;
+                shapeWriter.Write(new Vector4(b.Left, b.Top, b.Right, b.Bottom));
+                shapeWriter.Write((UInt32)shape.GeometryId);
             }
             return shapeMemory.StartAddress;
         }

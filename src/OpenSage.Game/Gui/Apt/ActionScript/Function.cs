@@ -128,6 +128,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)
         {
             var context = vm.GetActionContext(DefinedContext, thisVar, NumberRegisters, Constants, Instructions);
+
+            if (args == null)
+                args = new Value[0];
             
             if (!IsNewVersion) // parameters in the old version are just stored as local variables
             {

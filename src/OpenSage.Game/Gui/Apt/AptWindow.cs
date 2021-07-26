@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -86,6 +87,55 @@ namespace OpenSage.Gui.Apt
 
         internal bool HandleInput(Point2D mousePos, bool mouseDown)
         {
+            var windowScaling = new Vector2(1, 1) / GetScaling();
+            var screenPos = Vector2.Transform(mousePos.ToVector2(), Matrix3x2.CreateScale(windowScaling));
+
+            var curFocus = Root.GetMouseFocus(screenPos);
+
+            var state_changed_flag = mouseDown != MouseState;
+            var focus_changed_flag = curFocus != MouseFocus;
+
+            // MouseUp, MouseDown, MouseMove
+            // Press, Release, ReleaseOutside
+            if (state_changed_flag)
+            {
+                if (Root != null)
+                    Root.HandleEventOnTree(mouseDown ? ClipEventFlags.MouseDown : ClipEventFlags.MouseUp);
+                if (curFocus != null)
+                    curFocus.HandleEvent(mouseDown ? ClipEventFlags.Press : ClipEventFlags.Release);
+                if (focus_changed_flag && !mouseDown)
+                    if (MouseFocusOnLastStateChanged != null)
+                        MouseFocusOnLastStateChanged.HandleEvent(ClipEventFlags.ReleaseOutside);
+            }
+            else
+                if (Root != null)
+                    Root.HandleEventOnTree(ClipEventFlags.MouseMove);
+
+            // DragOut, DragOver, RollOut, RollOver
+            if (focus_changed_flag)
+            {
+                if (curFocus != null)
+                    curFocus.HandleEvent(mouseDown ? ClipEventFlags.DragOver : ClipEventFlags.RollOver);
+                if (MouseFocus != null)
+                    MouseFocus.HandleEvent(mouseDown ? ClipEventFlags.DragOut : ClipEventFlags.RollOut);
+            }
+
+            // KeyFocus Related
+            if (state_changed_flag && mouseDown)
+            {
+                if (KeyFocus != curFocus)
+                {
+                    // curfocus handle event onsetfocus
+                    // keyfocus handle event onkillfocus
+                    KeyFocus = curFocus;
+                }
+            }
+
+            MouseState = mouseDown;
+            MouseFocus = curFocus;
+            if (state_changed_flag) MouseFocusOnLastStateChanged = curFocus;
+
+            // TODO should be removed eventually
             return Root.HandleInput(mousePos, mouseDown);
         }
 

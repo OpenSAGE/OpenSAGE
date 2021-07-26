@@ -45,8 +45,9 @@ namespace OpenSage.Tools.AptEditor
             var translatedPlace = PlaceObject.Create(1, triangle);
             translatedPlace.SetTransform(new ItemTransform
             {
-                GeometryRotation = Matrix3x2.Identity,
-                GeometryTranslation = new Vector2(20, 0),
+                // GeometryRotation = Matrix3x2.Identity,
+                // GeometryTranslation = new Vector2(20, 0),
+                GeometryTransform = Matrix3x2.CreateTranslation(20, 0),
                 ColorTransform = ColorRgbaF.Red
             });
             var sprite = CreateSprite(aptFile, new[]
@@ -58,8 +59,9 @@ namespace OpenSage.Tools.AptEditor
             var rotatedSprite = PlaceObject.Create(1, sprite);
             rotatedSprite.SetTransform(new ItemTransform
             {
-                GeometryRotation = Matrix3x2.CreateRotation(MathF.PI / 2),
-                GeometryTranslation = new Vector2(20, 20),
+                GeometryTransform =
+                    Matrix3x2.CreateRotation(MathF.PI / 2) *
+                    Matrix3x2.CreateTranslation(20, 20),
                 ColorTransform = ColorRgbaF.White
             });
 

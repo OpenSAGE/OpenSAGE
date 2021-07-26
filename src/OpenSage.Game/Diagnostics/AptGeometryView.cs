@@ -130,13 +130,14 @@ namespace OpenSage.Diagnostics
             public void Render(DrawingContext2D drawingContext)
             {
                 var shapeBoundingBox = _shape.BoundingBox;
-
+                
                 var translation = new Vector2(-shapeBoundingBox.X, -shapeBoundingBox.Y);
+                var mat = Matrix3x2.CreateScale(_scale);
+                mat.Translation = translation;
 
                 var itemTransform = new ItemTransform(
                     ColorRgbaF.White,
-                    Matrix3x2.CreateScale(_scale, _scale),
-                    translation);
+                    mat);
 
                 _renderingContext.SetDrawingContext(drawingContext);
                 _renderingContext.PushTransform(itemTransform);

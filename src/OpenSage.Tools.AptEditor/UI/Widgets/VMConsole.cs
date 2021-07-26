@@ -45,6 +45,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             Suggestions = InstructionUtility.InstructionNames
         };
         int _editingIndex = -1;
+        string _title = "";
 
         //public VMConsole(LogicalInstructions instructions)
         //{
@@ -76,6 +77,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 _context = null;
                 _acontext = null;
                 _instructions = null;
+                _title = "";
                 _dispobj = null;
             }
             else
@@ -83,13 +85,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 _instructions = manager.CurrentActions;
                 _dispobj = manager.CurrentDisplay.ScriptObject;
                 _context = manager.CurrentDisplay.Context;
-                _acontext = _context.Avm.CurrentContext();
+                _title = manager.CurrentTitle;
             }
         }
 
         public void Draw(AptSceneManager manager)
         {
             CheckEnv(manager);
+            var cur_ctx = _context == null ? null : _context.Avm.CurrentContext();
 
             if (ImGui.Begin("VM Console"))
             {
@@ -97,17 +100,17 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ImGui.InputInt("Line", ref int_input);
                 ImGui.SameLine();
-                if (ImGui.Button("Goto") && _acontext != null)
+                if (ImGui.Button("Goto") && cur_ctx != null)
                 {
-                    _acontext.Stream.GotoIndex(int_input);
+                    cur_ctx.Stream.GotoIndex(int_input);
                 }
                 // ImGui.SameLine();
                 if (ImGui.Button("Exec1"))
                 {
-                    if (_acontext != null && (!_acontext.IsOutermost()))
+                    if (cur_ctx != null && (!cur_ctx.IsOutermost()))
                     {
                         var lef = _context.Avm.ExecuteOnce(true); 
-                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
+                        last_executed_func = lef == null ? "null" : lef.ToString(cur_ctx);
                     }
                     else if (_context != null)
                     {
@@ -205,13 +208,17 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     var cq = _context.Avm.ListContextQueue();
                     if (ImGui.ListBox($"E.Cont.[{cs.Length}]", ref selected_cstack, cs, cs.Length))
                     {
-                        var str = _context.Avm.GetStackContext(selected_cstack).Stream;
+                        _acontext = _context.Avm.GetStackContext(selected_cstack);
+                        var str = _acontext.Stream;
                         manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                        manager.CurrentTitle = $"ActionContext {_acontext}";
                     }
                     if (ImGui.ListBox($"Queue[{cq.Length}]", ref selected_cqueue, cq, cq.Length))
                     {
-                        var str = _context.Avm.GetQueueContext(selected_cqueue).Stream;
+                        _acontext = _context.Avm.GetQueueContext(selected_cqueue);
+                        var str = _acontext.Stream;
                         manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                        manager.CurrentTitle = $"ActionContext {_acontext}";
                     }
 
                 }
@@ -246,7 +253,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                
 
 
-                if (_instructions != null && ImGui.Begin("Codes"))
+                if (_instructions != null && ImGui.Begin($"Code: \"{_title}\""))
                 {
                     DrawCodes(_instructions);
                 }
@@ -279,7 +286,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             if (ImGui.Button("constructor"))
                 od.sub = new ObjectDescription(od.obj.constructor, od.actx) { addr = od.addr + "\n.constructor" };
             if (od.obj is DefinedFunction && SameLine() && ImGui.Button("Code"))
-                manager.CurrentActions = new LogicalInstructions(((DefinedFunction) od.obj).Instructions);
+            {
+                var dod = od.obj as DefinedFunction;
+                _acontext = dod.GetContext(_context.Avm, null, null);
+                manager.CurrentActions = new LogicalInstructions(dod.Instructions);
+                manager.CurrentTitle = $"Function {dod}";
+            }
+                
             DrawObject(od.sub, manager, layer + 1);
         }
         internal void DrawCodes(LogicalInstructions insts, int indent = 0)

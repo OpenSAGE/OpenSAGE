@@ -14,36 +14,46 @@ namespace OpenSage.Gui.Apt
 {
     public struct ItemTransform : ICloneable
     {
-        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity, Vector2.Zero);
+        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity);
 
         public ColorRgbaF ColorTransform;
-        public Matrix3x2 GeometryRotation;
-        public Vector2 GeometryTranslation;
+        public Matrix3x2 GeometryTransform; // should be right product
+        public Matrix2x2 GeometryRotationScale // TODO determine scale first or rotation first
+        {
+            get { return new Matrix2x2(GeometryTransform.M11, GeometryTransform.M12, GeometryTransform.M21, GeometryTransform.M22); }
+            set { GeometryTransform.M11 = value.M11; GeometryTransform.M12 = value.M12; GeometryTransform.M21 = value.M21; GeometryTransform.M22 = value.M22; }
+        }
+        public Vector2 GeometryTranslation { get { return GeometryTransform.Translation; } set { GeometryTransform.Translation = value; } }
 
-        public ItemTransform(in ColorRgbaF color, in Matrix3x2 rotation, in Vector2 translation)
+        public ItemTransform(in ColorRgbaF color, in Matrix3x2 transform)
         {
             ColorTransform = color;
-            GeometryRotation = rotation;
+            GeometryTransform = transform;
+        }
+
+        public ItemTransform(in ColorRgbaF color, in Matrix2x2 rotAndScale, in Vector2 translation)
+        {
+            ColorTransform = color;
+            GeometryTransform = Matrix3x2.Identity; 
+            GeometryRotationScale = rotAndScale;
             GeometryTranslation = translation;
         }
 
         public static ItemTransform operator *(in ItemTransform a, in ItemTransform b)
         {
             return new ItemTransform(a.ColorTransform * b.ColorTransform,
-                                     a.GeometryRotation * b.GeometryRotation,
-                                     a.GeometryTranslation + b.GeometryTranslation);
+                                     a.GeometryTransform * b.GeometryTransform);
         }
 
         public void Scale(float x, float y)
         {
-            GeometryRotation = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryRotation);
+            GeometryTransform = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryTransform);
         }
 
         public ItemTransform WithColorTransform(in ColorRgbaF color)
         {
             return new ItemTransform(color,
-                         GeometryRotation,
-                         GeometryTranslation);
+                         GeometryTransform);
         }
 
         public object Clone()
@@ -75,8 +85,10 @@ namespace OpenSage.Gui.Apt
         public AptContext Context { get; protected set; }
         public SpriteItem Parent { get; protected set; }
         public Character Character { get; protected set; }
+        public List<ClipEvent> ClipEvents { get; set; } = new List<ClipEvent>();
+        public AptContext ClipEventDefinedContext { get; set; }
         public List<ConstantEntry> Constants => Context.AptFile.Constants.Entries;
-        public ItemTransform Transform { get; set; }
+        public ItemTransform Transform { get; set; } = ItemTransform.None;
         public StageObject ScriptObject { get; protected set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
@@ -118,11 +130,43 @@ namespace OpenSage.Gui.Apt
 
         protected virtual void RenderImpl(AptRenderingContext renderingContext) { }
 
+        public virtual bool CallClipEventLocal(ClipEventFlags flags)
+        {
+            if (ClipEvents == null)
+                return false;
+            foreach (var clipEvent in ClipEvents)
+            {
+                if (clipEvent.Flags.HasFlag(flags))
+                {
+                    Context.Avm.EnqueueContext(clipEvent.Instructions, ClipEventDefinedContext, ScriptObject, Name + "." + flags.ToString());
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public virtual void CallClipEvent(ClipEventFlags flags)
+        {
+            var thisobj = this;
+            while (thisobj != null)
+            {
+                var call_flag = thisobj.CallClipEventLocal(flags);
+                if (call_flag) return;
+                thisobj = thisobj.Parent;
+            }
+        }
+
         public virtual void EnqueueActions(TimeInterval gt) { }
 
-        public virtual DisplayItem GetFocus(Point2D mousePos, bool mouseDown) { return this; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mousePos"> the mouse position for the local 2d homogeneous coordinate.</param>
+        /// <returns></returns>
+        public abstract DisplayItem GetMouseFocus(Vector2 mousePos);
+
         public virtual bool HandleInput(Point2D mousePos, bool mouseDown) { return false; }
 
-        public virtual bool HandleEvent(ClipEventFlags flags) { return false; }
+        public abstract bool HandleEvent(ClipEventFlags flags); // { return false; }
     }
 }

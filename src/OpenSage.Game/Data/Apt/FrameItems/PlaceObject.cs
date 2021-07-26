@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
@@ -10,14 +9,14 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt.FrameItems
 {
-    public enum ClipEventFlags : uint
+    public enum ClipEventFlags : uint // TODO what the hell are all kinds of this...it is different to the swf file formats.
     {
         KeyUp = 0x800000,
         KeyDown = 0x400000,
         MouseUp = 0x200000,
         MouseDown = 0x100000,
         MouseMove = 0x080000,
-        Unload = 0x040000,
+        Construct = 0x040000,
         EnterFrame = 0x020000,
         Load = 0x010000,
         DragOver = 0x008000,
@@ -28,16 +27,16 @@ namespace OpenSage.Data.Apt.FrameItems
         Press = 0x000400,
         DragOut = 0x000200,
         Data = 0x000100,
-        Construct = 0x000004,
+        Unload = 0x000004,
         KeyPress = 0x000002,
         Initialize = 0x000001,
     }
 
     public sealed class ClipEvent
     {
-        public ClipEventFlags Flags { get; private set; }
-        public Byte KeyCode { get; private set; }
-        public InstructionCollection Instructions { get; private set; }
+        public ClipEventFlags Flags { get; set; }
+        public Byte KeyCode { get; set; }
+        public InstructionCollection Instructions { get; set; }
 
         public static ClipEvent Parse(BinaryReader reader)
         {
@@ -170,8 +169,7 @@ namespace OpenSage.Data.Apt.FrameItems
 
         public void SetTransform(in ItemTransform transform)
         {
-            var matrix = transform.GeometryRotation;
-            matrix.Translation = transform.GeometryTranslation;
+            var matrix = transform.GeometryTransform;
             SetTransform(matrix);
             SetColorTransform(transform.ColorTransform.ToColorRgba());
         }
@@ -213,6 +211,19 @@ namespace OpenSage.Data.Apt.FrameItems
             else
             {
                 Flags &= ~PlaceObjectFlags.HasName;
+            }
+        }
+
+        public void SetClipEvents(List<ClipEvent> clipEvents)
+        {
+            ClipEvents = clipEvents;
+            if (ClipEvents is not null)
+            {
+                Flags |= PlaceObjectFlags.HasClipAction;
+            }
+            else
+            {
+                Flags &= ~PlaceObjectFlags.HasClipAction;
             }
         }
     }

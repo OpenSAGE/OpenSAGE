@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
@@ -27,6 +28,8 @@ namespace OpenSage.Tools.AptEditor.Apt
             });
             Item.Transform = ItemTransform.None;
             Item.Create(character, context, parent);
+            Transform = Item.Transform;
+            Name = $"(Wrapped){Item.Name}";
             // ScriptObject = Item.ScriptObject;
         }
 
@@ -149,6 +152,18 @@ namespace OpenSage.Tools.AptEditor.Apt
         private static List<Frame> GetFrames(SpriteItem sprite)
         {
             return ((Playable) sprite.Character).Frames;
+        }
+
+        public override DisplayItem GetMouseFocus(Vector2 mousePos)
+        {
+            var r = Item.GetMouseFocus(mousePos);
+            Logger.Info(r == null ? "null" : $"{r.GetHashCode()}|{r.Name}|{r.ToString()}");
+            return r;
+        }
+
+        public override bool HandleEvent(ClipEventFlags flags)
+        {
+            return Item.HandleEvent(flags);
         }
     }
 }

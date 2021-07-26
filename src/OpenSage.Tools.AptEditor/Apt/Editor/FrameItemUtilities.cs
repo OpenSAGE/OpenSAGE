@@ -24,11 +24,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private readonly Playable _character;
         private readonly AptSceneManager _manager;
         private readonly Frame _storedFrame;
-        private readonly SortedDictionary<int, LogicalPlaceObject?> _placeObjects = new SortedDictionary<int, LogicalPlaceObject?>();
-        private readonly List<FrameLabel> _frameLabels = new List<FrameLabel>();
-        private readonly List<LogicalAction> _frameActions = new List<LogicalAction>();
-        private readonly List<LogicalInitAction> _initActions = new List<LogicalInitAction>();
-        private readonly List<BackgroundColor> _backgroundColors = new List<BackgroundColor>();
+        private readonly SortedDictionary<int, LogicalPlaceObject?> _placeObjects = new();
+        private readonly List<FrameLabel> _frameLabels = new();
+        private readonly List<LogicalAction> _frameActions = new();
+        private readonly List<LogicalInitAction> _initActions = new();
+        private readonly List<BackgroundColor> _backgroundColors = new();
 
         private FrameItemUtilities(Playable character, AptSceneManager manager, Frame currentFrame)
         {

@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Gui.Apt.ActionScript
+﻿using System;
+
+namespace OpenSage.Gui.Apt.ActionScript
 {
     public sealed class ExternObject : ObjectContext
     {
@@ -17,6 +19,11 @@
         public override Value GetMember(string name)
         {
             return _vm.VariableHandler(name);
+        }
+
+        public override void SetMember(string name, Value val)
+        {
+            throw new NotImplementedException();
         }
     }
 }

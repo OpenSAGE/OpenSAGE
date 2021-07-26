@@ -26,6 +26,8 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         public ValueType Type { get; private set; }
 
+        public string DisplayString { get; set; }
+
         private string _string;
         private bool _boolean;
         private int _number;
@@ -201,7 +203,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public T ToObject<T>() where T: ObjectContext
+        public T ToObject<T>() where T : ObjectContext
         {
             if (Type == ValueType.Undefined)
             {
@@ -258,16 +260,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Used by AptEditor to get actual id of constant / register
         public uint GetIDValue()
         {
-            if(Type != ValueType.Constant && Type != ValueType.Register)
+            if (Type != ValueType.Constant && Type != ValueType.Register)
                 throw new InvalidOperationException();
-            
-            return (uint)_number;
+
+            return (uint) _number;
         }
 
         // TODO: implement integer conversion etc.
         public double ToReal()
         {
-            if(Type == ValueType.Float) {
+            if (Type == ValueType.Float) {
                 return _decimal;
             }
 
@@ -337,7 +339,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Undefined:
                     return "undefined"; // follows ECMA-262
                 case ValueType.Object:
-                    return _object == null ? "null": _object.ToString();
+                    return _object == null ? "null" : _object.ToString();
                 case ValueType.Return:
                     return _actx.ReturnValue == null ? "undefined" : _actx.ReturnValue.ToString();
                 default:
@@ -349,14 +351,17 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             var ttype = "?";
             try { ttype = this.Type.ToString().Substring(0, 3); }
-            catch (InvalidOperationException e) {}
-            String tstr = null;
-            if (this.Type == ValueType.Constant && ctx != null) tstr = this.ResolveConstant(ctx).ToString();
-            else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
-            else if (this.Type == ValueType.Return) tstr = this.ResolveReturn().ToString();
-            else if (this.Type == ValueType.Object) tstr = this.ToString();
-            else tstr = this.ToString();
-            return String.Format("({0}){1}", ttype, tstr);
+            catch (InvalidOperationException e) { }
+            string tstr = DisplayString;
+            if (tstr == null || tstr == "")
+            {
+                if (this.Type == ValueType.Constant && ctx != null) tstr = this.ResolveConstant(ctx).ToString();
+                else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
+                else if (this.Type == ValueType.Return) tstr = this.ResolveReturn().ToString();
+                else if (this.Type == ValueType.Object) tstr = this.ToString();
+                else tstr = this.ToString();
+            }
+            return $"({ttype}){tstr}";
             }
 
         // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3

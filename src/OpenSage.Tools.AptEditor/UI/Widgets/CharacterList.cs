@@ -130,13 +130,21 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         {
                             var si = sprite.InitActions;
                             if (si != null)
+                            {
                                 manager.CurrentActions = new LogicalInstructions(si);
+                                manager.CurrentTitle = $"Sprite #{desc.Index} Initaction";
+                            }
                             else
+                            {
                                 manager.CurrentActions = null;
+                                manager.CurrentTitle = "";
+                            }
+                                
                         }
                         else
                         {
                             manager.CurrentActions = null;
+                            manager.CurrentTitle = "";
                         }
                     }
                     DrawSelectedCharacterDescription(desc);

@@ -401,6 +401,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (flags.HasFlag(FunctionPreloadFlags.PreloadThis))
             {
                 _registers[reg] = Value.FromObject(This);
+                _registers[reg].DisplayString = "Preload This";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
@@ -410,26 +411,31 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
                 _registers[reg] = Value.FromObject(This.__proto__.__proto__.constructor);
+                _registers[reg].DisplayString = "Preload Super";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
             {
                 _registers[reg] = Value.FromObject(Apt.Root.ScriptObject);
+                _registers[reg].DisplayString = "Preload Root";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
                 _registers[reg] = Value.FromObject(((StageObject) This).GetParent());
+                _registers[reg].DisplayString = "Preload Parent";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
             {
                 _registers[reg] = Value.FromObject(Apt.Avm.GlobalObject);
+                _registers[reg].DisplayString = "Preload Global";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
             {
                 _registers[reg] = Value.FromObject(Apt.Avm.ExternObject);
+                _registers[reg].DisplayString = "Preload Extern";
                 ++reg;
             }
             if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))

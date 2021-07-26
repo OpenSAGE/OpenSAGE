@@ -262,19 +262,16 @@ namespace OpenSage.Gui.Apt
 
         private ItemTransform CreateTransform(PlaceObject po)
         {
-            Matrix3x2 geoRotate;
-            Vector2 geoTranslate;
+            Matrix3x2 geoTransform;
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
             {
-                geoRotate = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                geoTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                             po.RotScale.M21, po.RotScale.M22,
-                                            0, 0);
-                geoTranslate = new Vector2(po.Translation.X, po.Translation.Y);
+                                            po.Translation.X, po.Translation.Y);
             }
             else
             {
-                geoRotate = Matrix3x2.Identity;
-                geoTranslate = Vector2.Zero;
+                geoTransform = Matrix3x2.Identity;
             }
 
             ColorRgbaF colorTransform;
@@ -287,7 +284,7 @@ namespace OpenSage.Gui.Apt
                 colorTransform = ColorRgbaF.White;
             }
 
-            return new ItemTransform(colorTransform, geoRotate, geoTranslate);
+            return new ItemTransform(colorTransform, geoTransform);
         }
 
         private void MoveItem(PlaceObject po)
@@ -303,10 +300,10 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
             {
-                cTransform.GeometryRotation = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                cTransform.GeometryTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                                         po.RotScale.M21, po.RotScale.M22,
-                                                        0, 0);
-                cTransform.GeometryTranslation = new Vector2(po.Translation.X, po.Translation.Y);
+                                                        po.Translation.X, po.Translation.Y);
+                // cTransform.GeometryTranslation = new Vector2();
             }
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
@@ -338,18 +335,13 @@ namespace OpenSage.Gui.Apt
                 displayItem.Name = po.Name;
             }
 
-            if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction) && po.ClipEvents != null)
             {
-                if (po.ClipEvents != null)
-                {
-                    foreach (var clipEvent in po.ClipEvents)
-                    {
-                        if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
-                        {
-                            Context.Avm.EnqueueContext(displayItem, clipEvent.Instructions, displayItem.Name + ".onInit");
-                        }
-                    }
-                }
+                displayItem.ClipEvents = new List<ClipEvent>(po.ClipEvents);
+                displayItem.ClipEventDefinedContext = Context;
+                displayItem.CallClipEventLocal(ClipEventFlags.Initialize);
+                displayItem.CallClipEventLocal(ClipEventFlags.Load);
+                displayItem.CallClipEventLocal(ClipEventFlags.Construct); // TODO can't tell the difference
             }
 
             if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
@@ -375,14 +367,45 @@ namespace OpenSage.Gui.Apt
                 item.EnqueueActions(gt);
         }
 
-        public override DisplayItem GetFocus(Point2D mousePos, bool mouseDown)
+        public override DisplayItem GetMouseFocus(Vector2 mousePos)
         {
-            var ans = this;
+            var ans = (DisplayItem) null;
             foreach (var item in Content.ReverseItems.Values)
             {
+                if (Matrix3x2.Invert(item.Transform.GeometryTransform, out var mat_inv))
+                {
+                    var mp_new = Vector2.Transform(mousePos, mat_inv);
+                    var ans_item = item.GetMouseFocus(mp_new);
+                    if (ans_item != null && (
+                        item is SpriteItem ||
+                        item is ButtonItem ||
+                        (item is RenderItem && item.Character is Text) // TODO not sure if correct, trying to retrieve textbox
+                        ))
+                        ans = ans_item;
+                    else if (ans_item != null)
+                        ans = ans_item;
+                    // ans = this;
+                    if (ans != null)
+                        break;
+                }
             }
+            return ans;
+        }
 
-                return ans;
+        public override bool HandleEvent(ClipEventFlags flags)
+        {
+            CallClipEvent(flags);
+            return true;
+        }
+
+        public void HandleEventOnTree(ClipEventFlags flags)
+        {
+            foreach (var item in Content.ReverseItems.Values)
+            {
+                item.HandleEvent(flags);
+                if (item is SpriteItem si)
+                    si.HandleEventOnTree(flags);
+            }
         }
 
         public override bool HandleInput(Point2D mousePos, bool mouseDown)

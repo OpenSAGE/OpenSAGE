@@ -28,6 +28,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public LogicalInstructions? CurrentActions { get; set; }
         public bool IsCurrentCharacterImported => CurrentCharacter?.Container != AptManager?.AptFile;
         public string? CurrentAptPath { get; private set; }
+        public string CurrentTitle { get; set; }
         public int NumberOfFrames { get; private set; }
         public int? CurrentFrameWrapped => NumberOfFrames == 0 ? new int?() : CurrentFrame % NumberOfFrames;
         public int CurrentFrame { get; private set; }
@@ -38,8 +39,8 @@ namespace OpenSage.Tools.AptEditor.UI
         }
         public float CurrentScale
         {
-            get => CurrentWindow?.WindowTransform.GeometryRotation.M11 ?? 1;
-            set => SetTransform((ref ItemTransform t) => t.GeometryRotation = Matrix3x2.CreateScale(value));
+            get => CurrentWindow?.WindowTransform.GeometryTransform.M11 ?? 1;
+            set => SetTransform((ref ItemTransform t) => t.GeometryRotationScale = new Matrix2x2(value, 0, 0, value));
         }
         public ColorRgbaF DisplayBackgroundColor { get; private set; }
         public Game Game { get; }
@@ -64,6 +65,7 @@ namespace OpenSage.Tools.AptEditor.UI
             CurrentWindow = null;
             CurrentDisplay = null;
             CurrentActions = null;
+            CurrentTitle = "";
         }
 
         public void LoadApt(string path)
