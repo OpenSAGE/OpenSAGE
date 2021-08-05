@@ -5,8 +5,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two strings from the stack and concatenate them
     /// </summary>
-    public sealed class StringConcat : InstructionBase
+    public sealed class StringConcat : InstructionMonoPush
     {
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
         public override InstructionType Type => InstructionType.StringConcat;
 
         public override void Execute(ActionContext context)
@@ -24,8 +26,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two strings from the stack and check if they are equal
     /// </summary>
-    public sealed class StringEquals : InstructionBase
+    public sealed class StringEquals : InstructionMonoPush
     {
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
         public override InstructionType Type => InstructionType.StringEquals;
 
         public override void Execute(ActionContext context)

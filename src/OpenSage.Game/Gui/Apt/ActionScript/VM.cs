@@ -283,6 +283,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Constants = consts,
                 DisplayName = name, 
             };
+            if (context.Stream.GetInstructionNoMove().Type == InstructionType.ConstantPool)
+                context.Stream.GetInstructionNoMove().Execute(context);
             return context;
         }
 
@@ -296,6 +298,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Stream = new InstructionStream(code),
                 DisplayName = name, 
             };
+            if (context.Stream.GetInstructionNoMove().Type == InstructionType.ConstantPool)
+                context.Stream.GetInstructionNoMove().Execute(context);
             return context;
         }
 

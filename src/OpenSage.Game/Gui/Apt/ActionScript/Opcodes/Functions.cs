@@ -68,6 +68,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.DefineFunction;
         public override uint Size => 24;
+        public override bool IsStatement => throw new NotSupportedException();
 
         public override string GetParameterDesc(ActionContext context)
         {
@@ -120,6 +121,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.DefineFunction2;
         public override uint Size => 28;
+        public override bool IsStatement => throw new NotSupportedException();
 
         public override string GetParameterDesc(ActionContext context)
         {
@@ -175,9 +177,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// If the function does not have a return statement, the value should be null
     /// Else, the value is set to anything other than null (including undefined)
     /// </summary>
-    public sealed class Return : InstructionBase
+    public sealed class Return : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Return;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -225,6 +228,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public class CallMethod : InstructionBase
     {
         public override InstructionType Type => InstructionType.CallMethod;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -273,6 +277,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_CallNamedMethodPop;
         public override uint Size => 1;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -292,6 +297,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_CallNamedFunc;
         public override uint Size => 1;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -310,6 +316,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_CallNamedFuncPop;
         public override uint Size => 1;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -328,6 +335,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.CallFunction;
         public override uint Size => 0;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -345,6 +353,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_CallFunc;
         public override uint Size => 0;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -389,6 +398,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class CallFunctionPop : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_CallFuncPop;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {

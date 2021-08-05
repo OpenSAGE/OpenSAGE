@@ -3,7 +3,7 @@
     /// <summary>
     /// Used to get variables from the engine (?)
     /// </summary>
-    public sealed class GetUrl : InstructionBase
+    public sealed class GetUrl : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GetURL;
         public override uint Size => 8;
@@ -20,8 +20,9 @@
     /// <summary>
     /// Used to get variables from the engine (?) (stack based)
     /// </summary>
-    public sealed class GetUrl2 : InstructionBase
+    public sealed class GetUrl2 : InstructionMonoPushPop
     {
+        public override uint StackPop => 2;
         public override InstructionType Type => InstructionType.GetURL2;
 
         public override void Execute(ActionContext context)

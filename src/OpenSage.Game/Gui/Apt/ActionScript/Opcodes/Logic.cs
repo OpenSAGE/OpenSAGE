@@ -7,9 +7,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two values from stack and check them for equality. Does work with types. Result on stack
     /// </summary>
-    public sealed class Equals2 : InstructionBase
+    public sealed class Equals2 : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.Equals2;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -25,9 +27,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// Pop two values from stack and compare the two values using the Strict Equality Comparison Algorithm.
     /// Push the resulting Boolean value onto the stack.
     /// </summary>
-    public sealed class StrictEquals : InstructionBase
+    public sealed class StrictEquals : InstructionMonoPush
     {
-        public override InstructionType Type => InstructionType.Equals2;
+        public override InstructionType Type => InstructionType.StrictEqual;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -41,9 +45,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
     /// </summary>
-    public sealed class LessThan : InstructionBase
+    public sealed class LessThan : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.LessThan;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         //Should work according to ECMA-262 Section 11.8.5
         public override void Execute(ActionContext context)
@@ -63,9 +69,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
     /// </summary>
-    public sealed class LessThan2 : InstructionBase
+    public sealed class LessThan2 : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.LessThan2;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         //Should work according to ECMA-262 Section 11.8.5 https://262.ecma-international.org/5.1/#sec-11.8.5
         public override void Execute(ActionContext context)
@@ -86,9 +94,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     //Pop two values A,B from stack and check if B is greater A (reverse stack order)
-    public sealed class Greater : InstructionBase
+    public sealed class Greater : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.Greater;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -100,9 +110,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     //Pop two values A,B from stack and calculate their bitwise and. Result on stack
-    public sealed class BitwiseAnd : InstructionBase
+    public sealed class BitwiseAnd : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.BitwiseAnd;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -115,9 +127,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     //Pop two values A,B from stack and calculate their bitwise or. Result on stack
-    public sealed class BitwiseOr : InstructionBase
+    public sealed class BitwiseOr : InstructionMonoPush
     {
-        public override InstructionType Type => InstructionType.BitwiseAnd;
+        public override InstructionType Type => InstructionType.BitwiseOr;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -130,9 +144,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     //Pop two values A,B from stack and calculate their bitwise xor. Result on stack
-    public sealed class BitwiseXOr : InstructionBase
+    public sealed class BitwiseXOr : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.BitwiseXOr;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -147,9 +163,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop a value from stack, convert it to boolean. Push the inverted value back to stack
     /// </summary>
-    public sealed class LogicalNot : InstructionBase
+    public sealed class LogicalNot : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.LogicalNot;
+        public override bool PushStack => true;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -162,9 +180,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two values from stack and check their logical and value in float.
     /// </summary>
-    public sealed class LogicalAnd : InstructionBase
+    public sealed class LogicalAnd : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.LogicalAnd;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         //Should work according to ECMA-262 Section 11.8.5
         public override void Execute(ActionContext context)
@@ -178,9 +198,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop two values from stack and check their logical and value in float.
     /// </summary>
-    public sealed class LogicalOr : InstructionBase
+    public sealed class LogicalOr : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.LogicalOr;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         //Should work according to ECMA-262 Section 11.8.5
         public override void Execute(ActionContext context)

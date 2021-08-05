@@ -3,10 +3,11 @@
     /// <summary>
     /// Pops a bool from the stack. If the bool is true jump to the byte offset (parameter)
     /// </summary>
-    public sealed class BranchIfTrue : InstructionBase
+    public sealed class BranchIfTrue : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.BranchIfTrue;
         public override uint Size => 4;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -21,7 +22,7 @@
     // <summary>
     /// Jump to the byte offset (parameter)
     /// </summary>
-    public sealed class BranchAlways : InstructionBase
+    public sealed class BranchAlways : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.BranchAlways;
         public override uint Size => 4;

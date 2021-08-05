@@ -100,7 +100,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
                 ImGui.InputInt("Line", ref int_input);
                 ImGui.SameLine();
-                if (ImGui.Button("Goto") && cur_ctx != null)
+                if (ImGui.Button("Goto") && cur_ctx != null && cur_ctx.Stream != null)
                 {
                     cur_ctx.Stream.GotoIndex(int_input);
                 }

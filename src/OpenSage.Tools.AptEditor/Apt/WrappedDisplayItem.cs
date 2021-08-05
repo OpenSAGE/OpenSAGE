@@ -157,7 +157,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         public override DisplayItem GetMouseFocus(Vector2 mousePos)
         {
             var r = Item.GetMouseFocus(mousePos);
-            Logger.Info(r == null ? "null" : $"{r.GetHashCode()}|{r.Name}|{r.ToString()}");
+            // Logger.Info(r == null ? "null" : $"{r.GetHashCode()}|{r.Name}|{r.ToString()}");
             return r;
         }
 

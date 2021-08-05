@@ -6,7 +6,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Start playback of the current object (must be sprite)
     /// </summary>
-    public sealed class Play : InstructionBase
+    public sealed class Play : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Play;
 
@@ -27,7 +27,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Stop playback of the current object (must be sprite)
     /// </summary>
-    public sealed class Stop : InstructionBase
+    public sealed class Stop : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Stop;
 
@@ -48,7 +48,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Jump to a specific frame number (must be sprite)
     /// </summary>
-    public sealed class GotoFrame : InstructionBase
+    public sealed class GotoFrame : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GotoFrame;
         public override uint Size => 4;
@@ -71,10 +71,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Jump to a specific frame (label or number) and start playing or stop
     /// </summary>
-    public sealed class GotoFrame2 : InstructionBase
+    public sealed class GotoFrame2 : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GotoFrame2;
         public override uint Size => 4;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -112,7 +113,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Jump to a labeled frame (must be sprite)
     /// </summary>
-    public sealed class GotoLabel : InstructionBase
+    public sealed class GotoLabel : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GotoLabel;
         public override uint Size => 4;
@@ -132,7 +133,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// NextFrame 
     /// </summary>
-    public sealed class NextFrame : InstructionBase
+    public sealed class NextFrame : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.NextFrame;
 

@@ -167,6 +167,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             _stack.Push(v);
         }
 
+        public void Push(Value[] v)
+        {
+            if (v == null) return;
+            foreach (var v_ in v)
+                _stack.Push(v_);
+        }
+
         public Value Peek()
         {
             var ret = _stack.Peek();
@@ -182,6 +189,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             var ret = _stack.Pop();
             return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
+        }
+
+        public Value[] Pop(uint count)
+        {
+            if (count < 1) return null;
+            var ans = new Value[count];
+            for (int i = 0; i < count; ++i)
+                ans[i] = Pop();
+            return ans;
         }
 
         // parameters
@@ -371,7 +387,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public void ConstructObjectAndPush(string name, Value[] args) // TODO need reconstruction
         {
-            var funcVal = GetValueOnChain(name);
+            ConstructObjectAndPush(GetValueOnChain(name), args);
+        }
+
+        public void ConstructObjectAndPush(Value funcVal, Value[] args)
+        {
             if (funcVal.Type != ValueType.Object || !funcVal.ToObject().IsFunction())
             {
                 throw new InvalidOperationException("Not a function");
@@ -382,9 +402,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 var thisVar = Apt.Avm.ConstructClass(cst_func);
                 PushRecallCode(new PushValue(Value.FromObject(thisVar)));
                 cst_func.Invoke(this, thisVar, args);
-                // Apt.Avm.ExecuteUntilReturn();
-                // Pop(); // discard the returned value
-                // ret = Value.FromObject(thisVar);
             }
         }
 

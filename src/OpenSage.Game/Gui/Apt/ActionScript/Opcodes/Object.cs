@@ -8,10 +8,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// Pop an object from stack and retrieve the member name from the pool. Push the member of
     /// the object to stack.
     /// </summary>
-    public sealed class GetNamedMember : InstructionBase
+    public sealed class GetNamedMember : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.EA_GetNamedMember;
         public override uint Size => 1;
+        public override bool PushStack => true;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -36,9 +38,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// set the member of a specific object (everything on stack)
     /// </summary>
-    public sealed class SetMember : InstructionBase
+    public sealed class SetMember : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.SetMember;
+        public override uint StackPop => 3;
 
         public override void Execute(ActionContext context)
         {
@@ -59,10 +62,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Get a variable from the current object and push it to the stack
     /// </summary>
-    public sealed class GetStringVar : InstructionBase
+    public sealed class GetStringVar : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.EA_GetStringVar;
         public override uint Size => 4;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -82,10 +86,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Set a string variable in the current scope
     /// </summary>
-    public sealed class SetStringVar : InstructionBase
+    public sealed class SetStringVar : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.EA_SetStringVar;
         public override uint Size => 4;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -97,9 +102,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops variable name and pushes the corresponding variable back to stack
     /// </summary>
-    public sealed class GetVariable : InstructionBase
+    public sealed class GetVariable : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GetVariable;
+        public override bool PopStack => true;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -113,9 +120,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops variable name and value from the stack. Then set the variable to that value.
     /// </summary>
-    public sealed class SetVariable : InstructionBase
+    public sealed class SetVariable : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.SetVariable;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -128,9 +136,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// get the member of a specific object. Result will be pushed to stack
     /// </summary>
-    public sealed class GetMember : InstructionBase
+    public sealed class GetMember : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.GetMember;
+        public override uint StackPop => 2;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -144,9 +154,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// get a property and push it to the stack
     /// </summary>
-    public sealed class GetProperty : InstructionBase
+    public sealed class GetProperty : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.GetProperty;
+        public override uint StackPop => 2;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -161,9 +173,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// set a property. Get value, name and object from stack
     /// </summary>
-    public sealed class SetProperty : InstructionBase
+    public sealed class SetProperty : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.SetProperty;
+        public override uint StackPop => 3;
 
         public override void Execute(ActionContext context)
         {
@@ -178,10 +191,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// clones a sprite to assigned depth and target.
     /// </summary>
-    public sealed class CloneSprite : InstructionBase
+    public sealed class CloneSprite : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.CloneSprite;
-
+        public override uint StackPop => 3;
         public override void Execute(ActionContext context)
         {
             var depth = context.Pop();
@@ -194,9 +207,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// removes a sprite.
     /// </summary>
-    public sealed class RemoveSprite : InstructionBase
+    public sealed class RemoveSprite : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.RemoveSprite;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -208,10 +222,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops an object from the stack and retrieves a member variable which is pushed to stack
     /// </summary>
-    public sealed class GetStringMember : InstructionBase
+    public sealed class GetStringMember : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.EA_GetStringMember;
         public override uint Size => 4;
+        public override bool PopStack => true;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -227,10 +243,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    public sealed class SetStringMember : InstructionBase
+    public sealed class SetStringMember : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.EA_SetStringMember;
         public override uint Size => 4;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -247,6 +264,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class NewObject : InstructionBase
     {
         public override InstructionType Type => InstructionType.NewObject;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -264,6 +282,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class NewMethod : InstructionBase
     {
         public override InstructionType Type => InstructionType.NewMethod;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -273,9 +292,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             
             if (name.Length != 0) obj = obj.ToObject().GetMember(name);
 
-            var thisVar = new ObjectContext(context.Apt.Avm);
-            context.PushRecallCode(new PushValue(Value.FromObject(thisVar)));
-            FunctionCommon.StartExecutingFunction(obj, args, context, thisVar);
+            context.ConstructObjectAndPush(obj, args);
             
         }
     }
@@ -286,6 +303,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class InitObject : InstructionBase
     {
         public override InstructionType Type => InstructionType.InitObject;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -305,9 +323,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a value from the stack pushes it's type as a string to stack
     /// </summary>
-    public sealed class TypeOf : InstructionBase
+    public sealed class TypeOf : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.TypeOf;
+        public override bool PopStack => true;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -350,9 +370,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// Set the inheritance structure of a class.
     /// See https://www.adobe.com/content/dam/acom/en/devnet/pdf/swf-file-format-spec.pdf p.114 "ActionExtends"
     /// </summary>
-    public sealed class Extends : InstructionBase
+    public sealed class Extends : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.Extends;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -370,9 +391,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Corresponds to the `instanceof` keyword of ECMAScript.
     /// </summary>
-    public sealed class InstanceOf : InstructionBase
+    public sealed class InstanceOf : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.InstanceOf;
+        public override uint StackPop => 2;
+        public override bool PushStack => true;
 
         public override void Execute(ActionContext context)
         {

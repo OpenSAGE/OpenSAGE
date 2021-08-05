@@ -6,7 +6,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// End the execution of the current Action
     /// </summary>
-    public sealed class End : InstructionBase
+    public sealed class End : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.End;
 
@@ -19,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Declare a pool of constants that will be used in the current scope. Mostly used at start.
     /// </summary>
-    public sealed class ConstantPool : InstructionBase
+    public sealed class ConstantPool : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.ConstantPool;
         public override uint Size => 8;
@@ -38,15 +38,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pop a string from stack and print it to console. Used for debug purposes.
     /// </summary>
-    public sealed class Trace : InstructionBase
+    public sealed class Trace : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Trace;
+        public override bool PopStack => true;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public override void Execute(ActionContext context)
+        public override Value ExecuteWithArgs2(Value poppedVal)
         {
-            logger.Debug($"[TRACE] {context.Pop().ToString()}");
+            logger.Debug($"[TRACE] {poppedVal.ToString()}");
+            return null;
         }
     }
 
@@ -79,12 +81,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var nArgs = context.Pop().ToInteger();
-            var args = new Value[nArgs];
-
-            for (var i = 0; i < nArgs; ++i)
-            {
-                args[i] = context.Pop();
-            }
+            var args = context.Pop((uint) nArgs);
 
             context.Push(Value.FromArray(args, context.Apt.Avm));
         }
@@ -95,9 +92,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// The description file says "property", but one can't access a property from a string,
     /// so I take the "property" as "member".
     /// </summary>
-    public sealed class Delete : InstructionBase
+    public sealed class Delete : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Delete;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -110,9 +108,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a property name from the stack. Then deletes the property
     /// </summary>
-    public sealed class Delete2 : InstructionBase
+    public sealed class Delete2 : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Delete2;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -124,9 +123,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops name & value. Then set the variable. If value is already defined, overwrite it
     /// </summary>
-    public sealed class DefineLocal : InstructionBase
+    public sealed class DefineLocal : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.DefineLocal;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -136,9 +136,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    public sealed class DefineLocal2 : InstructionBase
+    public sealed class DefineLocal2 : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Var;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -153,9 +154,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToInteger : InstructionBase
+    public sealed class ToInteger : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.ToInteger;
+        public override bool PushStack => true;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -167,9 +170,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToString : InstructionBase
+    public sealed class ToString : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.ToString;
+        public override bool PushStack => true;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -185,6 +190,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class Enumerate2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.Enumerate2;
+        public override bool IsStatement => false;
 
         public override void Execute(ActionContext context)
         {
@@ -201,24 +207,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops an object from stack and enumerates it's slots
     /// </summary>
-    public sealed class Var : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.Var;
-
-        public override void Execute(ActionContext context)
-        {
-            // TODO: fix this
-            // TODO: see definelocal2
-            //throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Pops an object from stack and enumerates it's slots
-    /// </summary>
-    public sealed class RandomNumber : InstructionBase
+    public sealed class RandomNumber : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Random;
+        public override bool PushStack => true;
+        public override bool PopStack => true;
 
         public override void Execute(ActionContext context)
         {
@@ -248,9 +241,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Unknown yet
     /// </summary>
-    public sealed class CastOp : InstructionBase
+    public sealed class CastOp : InstructionMonoPush
     {
         public override InstructionType Type => InstructionType.CastOp;
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
 
         public override void Execute(ActionContext context)
         {
@@ -267,13 +262,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// So this action will get the millseconds since the program started.
     /// The return value shall be put in stack.
     /// </summary>
-    public sealed class GetTime: InstructionBase
+    public sealed class GetTime: InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.GetTime;
+        public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override Value ExecuteWithArgs2(Value v)
         {
-            context.Push(Builtin.GetTimer());
+            return Builtin.GetTimer();
         }
     }
 }
