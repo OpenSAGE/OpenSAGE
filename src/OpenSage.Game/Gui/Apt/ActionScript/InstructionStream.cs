@@ -94,11 +94,12 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Move the instruction stream
         /// </summary>
         /// <param name="offset">The offset how much to move in bytes</param>
-        public void Branch(int offset)
+        public void Branch(int offset) { Index = GetBranchDestination(offset, Index); }
+        public int GetBranchDestination(int offset, int index)
         {
-            var startPosition = Instructions.GetPositionByIndex(Index);
+            var startPosition = Instructions.GetPositionByIndex(index);
             var destinationPosition = startPosition + offset;
-            Index = Instructions.GetIndexByPosition(destinationPosition);
+            return Instructions.GetIndexByPosition(destinationPosition);
         }
 
         // TODO: OOB Check?

@@ -329,7 +329,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         inst.Breakpoint = !inst.Breakpoint;
                     }
 
-                    if (inst is LogicalCodeContext lcc)
+                    if (inst is LogicalFunctionContext lcc)
                     {
                         DrawCodes(lcc.Instructions, indent + 16);
                     }

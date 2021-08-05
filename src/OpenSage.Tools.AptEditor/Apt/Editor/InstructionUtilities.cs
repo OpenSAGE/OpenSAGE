@@ -8,29 +8,160 @@ using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
-    internal static class UtilityMethodsExtensions
+ 
+    internal class LogicalTaggedInstruction : InstructionBase
     {
-        public static string InstructionName(this InstructionBase instruction)
+        public string Tag = "";
+        public InstructionBase InnerAction { get; protected set; }
+        public override InstructionType Type => InnerAction.Type;
+        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override bool Breakpoint
         {
-            switch (instruction)
-            {
-                case LogicalDestination destination:
-                    return "BranchDestination";
-                case LogicalEndOfFunction endOfFunction:
-                    return "EndOfFunction";
-                default:
-                    return instruction.Type.ToString();
-            }
+            get { return InnerAction.Breakpoint; }
+            set { InnerAction.Breakpoint = value; }
+        }
+        public LogicalTaggedInstruction(InstructionBase instruction, string tag = "")
+        {
+            InnerAction = instruction;
+            Tag = tag;
+        }
+        public override string ToString(ActionContext context)
+        {
+            if (Tag == null || Tag == "") return InnerAction.ToString(context);
+
+            return $"// Tagged: {Tag}\n{InnerAction.ToString(context)}";
+        }
+    }
+
+    internal class LogicalFunctionContext : LogicalTaggedInstruction
+    {
+        public LogicalInstructions Instructions { get; private set; }
+
+        public LogicalFunctionContext(InstructionBase instruction, InstructionCollection insts, int index_offset = 0): base(instruction)
+        {
+            Instructions = new LogicalInstructions(insts, index_offset);
         }
 
-        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TKey: notnull where TValue : new()
+        // Probably it would be better to update InnerFunction.Parameter each time this.Parameter changes
+        public List<Value> CreateRealParameters(int functionSize)
         {
-            if (!dict.ContainsKey(key))
-            {
-                dict.Add(key, new TValue());
-            }
+            throw new NotImplementedException();
+        }
+        
+    }
 
-            return dict[key];
+    internal class LogicalInstructions
+    {
+        public SortedDictionary<int, InstructionBase> Items { get; set; }
+        public InstructionCollection Insts { get; private set; }
+        public string Address;
+        public int IndexOffset;
+
+        public LogicalInstructions(InstructionCollection insts, int index_offset = 0)
+        {
+            Insts = insts;
+            IndexOffset = index_offset;
+            var stream = new InstructionStream(insts);
+
+            Items = new SortedDictionary<int, InstructionBase>();
+            var branch_dict = new Dictionary<string, int>(); // position: label
+            var label_number = 0;
+            while (!stream.IsFinished())
+            {
+                var index = stream.Index;
+                var instruction = stream.GetInstruction();
+
+                if (instruction is DefineFunction || instruction is DefineFunction2)
+                {
+                    var nParams = instruction.Parameters[1].ToInteger();
+                    var size =
+                        instruction is DefineFunction ?
+                        instruction.Parameters[2 + nParams].ToInteger() :
+                        instruction.Parameters[4 + nParams * 2].ToInteger();
+                    
+                    var codes = stream.GetInstructions(size);
+                    instruction = new LogicalFunctionContext(instruction, codes, IndexOffset + index + 1);
+                }
+
+                else if (instruction is BranchIfTrue || instruction is BranchAlways)
+                {
+                    var tag = $"label{++label_number}";
+                    var index_dest = stream.GetBranchDestination(instruction.Parameters[0].ToInteger(), index);
+                    if (index_dest == -1)
+                        branch_dict[tag + $": {index}+({instruction.Parameters[0].ToInteger()})"] = index;
+                    else
+                        branch_dict[tag] = index_dest;
+                    instruction = new LogicalTaggedInstruction(instruction, tag);
+                }
+
+                Items.Add(index, instruction);
+            }
+            // branch destination tag
+            foreach (var kvp in branch_dict)
+                Items[kvp.Value] = new LogicalTaggedInstruction(Items[kvp.Value], kvp.Key);
+        }
+
+        private int IndexOfNextRealInstruction(int currentIndex)
+        {
+            for (var i = currentIndex + 1; i < Items.Count; ++i)
+            {
+                switch (Items[i])
+                {
+                    case LogicalDestination _:
+                    case LogicalEndOfFunction _:
+                        continue;
+                    default:
+                        return i;
+                }
+            }
+            throw new IndexOutOfRangeException();
+        }
+
+        public InstructionCollection ConvertToRealInstructions()
+        {
+            // A pretty stupid methodnull
+            var positionOfBranches = new Dictionary<LogicalBranch, int>();
+            var positionOfDefineFunctions = new Dictionary<LogicalDefineFunction, int>();
+            var sortedList = new SortedList<int, InstructionBase>();
+            for (var i = 0; i < Items.Count; ++i)
+            {
+                var current = Items[i];
+                switch (current)
+                {
+                    case LogicalDestination logicalDestination:
+                        {
+                            var sourceIndex = positionOfBranches[logicalDestination.LogicalBranch];
+                            var sourceNext = IndexOfNextRealInstruction(sourceIndex);
+                            var destination = IndexOfNextRealInstruction(i);
+                            var offset = destination - sourceNext;
+                            var parameters = logicalDestination.LogicalBranch.InnerInstruction.Parameters;
+                            parameters[0] = Value.FromInteger(offset);
+                        }
+                        break;
+                    case LogicalEndOfFunction logicalEndOfFunction:
+                        {
+                            var sourceIndex = positionOfDefineFunctions[logicalEndOfFunction.LogicalDefineFunction];
+                            var sourceNext = IndexOfNextRealInstruction(sourceIndex);
+                            var destination = IndexOfNextRealInstruction(i);
+                            var size = destination - sourceNext;
+                            var parameters = logicalEndOfFunction.LogicalDefineFunction.CreateRealParameters(size);
+                            logicalEndOfFunction.LogicalDefineFunction.InnerInstruction.Parameters = parameters;
+                        }
+                        break;
+                    case LogicalBranch logicalBranch:
+                        positionOfBranches.Add(logicalBranch, i);
+                        sortedList.Add(i, logicalBranch.InnerInstruction);
+                        break;
+                    case LogicalDefineFunction defineFunction:
+                        positionOfDefineFunctions.Add(defineFunction, i);
+                        sortedList.Add(i, defineFunction.InnerInstruction);
+                        break;
+                    default:
+                        sortedList.Add(i, current);
+                        break;
+                }
+            }
+            return new InstructionCollection(sortedList);
         }
     }
 
@@ -53,6 +184,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             return "LogicalDestination";
         }
     }
+
 
     internal class LogicalEndOfFunction : InstructionBase
     {
@@ -117,151 +249,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public List<Value> CreateRealParameters(int functionSize)
         {
             throw new NotImplementedException();
-        }
-    }
-
-    internal class LogicalCodeContext : InstructionBase
-    {
-        public override InstructionType Type => InnerAction.Type;
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
-        public InstructionBase InnerAction { get; private set; }
-        public LogicalInstructions Instructions { get; private set; }
-
-        public override bool Breakpoint
-        {
-            get { return InnerAction.Breakpoint; }
-            set { InnerAction.Breakpoint = value; }
-        }
-
-        public LogicalCodeContext(InstructionBase instruction, InstructionCollection insts, int index_offset = 0)
-        {
-            InnerAction = instruction;
-            Instructions = new LogicalInstructions(insts, index_offset);
-        }
-
-        // Probably it would be better to update InnerFunction.Parameter each time this.Parameter changes
-        public List<Value> CreateRealParameters(int functionSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToString(ActionContext context)
-        {
-            return InnerAction.ToString(context);
-        }
-    }
-    internal class LogicalInstructions
-    {
-        public Dictionary<int, InstructionBase> Items { get; set; }
-        public InstructionCollection Insts { get; private set; }
-        public string Address;
-        public int IndexOffset;
-
-        public LogicalInstructions(InstructionCollection insts, int index_offset = 0)
-        {
-            Insts = insts;
-            IndexOffset = index_offset;
-            var stream = new InstructionStream(insts);
-
-            Items = new Dictionary<int, InstructionBase>();
-            while (!stream.IsFinished())
-            {
-                var index = stream.Index;
-                var instruction = stream.GetInstruction();
-                var size = -114514;
-                if (instruction is DefineFunction)
-                {
-                    var nParams = instruction.Parameters[1].ToInteger();
-                    size = instruction.Parameters[2 + nParams].ToInteger();
-                }
-                else if (instruction is DefineFunction2)
-                {
-                    var nParams = instruction.Parameters[1].ToInteger();
-                    size = instruction.Parameters[4 + nParams * 2].ToInteger();
-                }
-                else if (instruction is BranchIfTrue || instruction is BranchAlways)
-                {
-                    size = instruction.Parameters[0].ToInteger();
-                }
-
-                if (size > 0)
-                {
-                    try
-                    {
-                        var codes = stream.GetInstructions(size);
-                        instruction = new LogicalCodeContext(instruction, codes, IndexOffset + index + 1);
-                    }
-                    catch (Exception e)
-                    {
-
-                    }
-                }
-
-                Items.Add(index, instruction);
-            }
-        }
-
-        private int IndexOfNextRealInstruction(int currentIndex)
-        {
-            for (var i = currentIndex + 1; i < Items.Count; ++i)
-            {
-                switch (Items[i])
-                {
-                    case LogicalDestination _:
-                    case LogicalEndOfFunction _:
-                        continue;
-                    default:
-                        return i;
-                }
-            }
-            throw new IndexOutOfRangeException();
-        }
-
-        public InstructionCollection ConvertToRealInstructions()
-        {
-            // A pretty stupid methodnull
-            var positionOfBranches = new Dictionary<LogicalBranch, int>();
-            var positionOfDefineFunctions = new Dictionary<LogicalDefineFunction, int>();
-            var sortedList = new SortedList<int, InstructionBase>();
-            for (var i = 0; i < Items.Count; ++i)
-            {
-                var current = Items[i];
-                switch (current)
-                {
-                    case LogicalDestination logicalDestination:
-                        {
-                            var sourceIndex = positionOfBranches[logicalDestination.LogicalBranch];
-                            var sourceNext = IndexOfNextRealInstruction(sourceIndex);
-                            var destination = IndexOfNextRealInstruction(i);
-                            var offset = destination - sourceNext;
-                            var parameters = logicalDestination.LogicalBranch.InnerInstruction.Parameters;
-                            parameters[0] = Value.FromInteger(offset);
-                        }
-                        break;
-                    case LogicalEndOfFunction logicalEndOfFunction:
-                        {
-                            var sourceIndex = positionOfDefineFunctions[logicalEndOfFunction.LogicalDefineFunction];
-                            var sourceNext = IndexOfNextRealInstruction(sourceIndex);
-                            var destination = IndexOfNextRealInstruction(i);
-                            var size = destination - sourceNext;
-                            var parameters = logicalEndOfFunction.LogicalDefineFunction.CreateRealParameters(size);
-                            logicalEndOfFunction.LogicalDefineFunction.InnerInstruction.Parameters = parameters;
-                        }
-                        break;
-                    case LogicalBranch logicalBranch:
-                        positionOfBranches.Add(logicalBranch, i);
-                        sortedList.Add(i, logicalBranch.InnerInstruction);
-                        break;
-                    case LogicalDefineFunction defineFunction:
-                        positionOfDefineFunctions.Add(defineFunction, i);
-                        sortedList.Add(i, defineFunction.InnerInstruction);
-                        break;
-                    default:
-                        sortedList.Add(i, current);
-                        break;
-                }
-            }
-            return new InstructionCollection(sortedList);
         }
     }
 
@@ -536,7 +523,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("PushLong",            typeof(PushLong),           new[] { ValueType.Integer }), // TODO need reconstruction
                 ("End",                 typeof(End),                none),
                 ("CallNamedMethod",     typeof(CallNamedMethod),    new[] { ValueType.Constant }),
-                ("Var",                 typeof(Var),                none),
                 ("PushRegister",        typeof(PushRegister),       new[] { ValueType.Register }),
                 ("PushConstantWord",    typeof(PushConstantWord),   new[] { ValueType.Constant }),
                 ("CallFunctionPop",     typeof(CallFunctionPop),    none),
@@ -569,6 +555,32 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("ConstantPool", typeof(ConstantPool), new ValueTypePattern(none, new[] { ValueType.Constant }, none)),
                 ("PushData", typeof(PushData), new ValueTypePattern(none, new[] { ValueType.Constant }, none)),
             };
+        }
+    }
+
+    internal static class UtilityMethodsExtensions
+    {
+        public static string InstructionName(this InstructionBase instruction)
+        {
+            switch (instruction)
+            {
+                case LogicalDestination destination:
+                    return "BranchDestination";
+                case LogicalEndOfFunction endOfFunction:
+                    return "EndOfFunction";
+                default:
+                    return instruction.Type.ToString();
+            }
+        }
+
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TKey : notnull where TValue : new()
+        {
+            if (!dict.ContainsKey(key))
+            {
+                dict.Add(key, new TValue());
+            }
+
+            return dict[key];
         }
     }
 }

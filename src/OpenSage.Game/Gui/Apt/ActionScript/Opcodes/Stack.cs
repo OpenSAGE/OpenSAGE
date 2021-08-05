@@ -38,7 +38,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class PushConstantByte : InstructionMonoPushPop
     {
-        public override bool PushStack => true;s
+        public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushConstantByte;
         public override uint Size => 1;
 
