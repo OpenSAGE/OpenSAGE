@@ -8,11 +8,23 @@ using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
- 
+    internal enum TagType
+    {
+        None, 
+        Label,
+        GotoLabel,
+        DefineFunction, 
+    }
+
     internal class LogicalTaggedInstruction : InstructionBase
     {
         public string Tag = "";
+        public object AdditionalData;
+        public TagType TagType;
+        public TagType FinalTagType { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalTagType : TagType; } }
         public InstructionBase InnerAction { get; protected set; }
+        public InstructionBase FinalInnerAction { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalInnerAction : InnerAction; } }
+        public LogicalTaggedInstruction FinalTaggedInnerAction { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalTaggedInnerAction : this; } }
         public override InstructionType Type => InnerAction.Type;
         public override void Execute(ActionContext context) => throw new InvalidOperationException();
         public override bool Breakpoint
@@ -20,11 +32,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             get { return InnerAction.Breakpoint; }
             set { InnerAction.Breakpoint = value; }
         }
-        public LogicalTaggedInstruction(InstructionBase instruction, string tag = "")
+        public LogicalTaggedInstruction(InstructionBase instruction, string tag = "", TagType type = TagType.None)
         {
             InnerAction = instruction;
             Tag = tag;
+            TagType = type;
         }
+
         public override string ToString(ActionContext context)
         {
             if (Tag == null || Tag == "") return InnerAction.ToString(context);
@@ -37,7 +51,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     {
         public LogicalInstructions Instructions { get; private set; }
 
-        public LogicalFunctionContext(InstructionBase instruction, InstructionCollection insts, int index_offset = 0): base(instruction)
+        public LogicalFunctionContext(InstructionBase instruction, InstructionCollection insts, int index_offset = 0): base(instruction, "", TagType.DefineFunction)
         {
             Instructions = new LogicalInstructions(insts, index_offset);
         }
@@ -50,11 +64,26 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         
     }
 
+    internal class InstructionBlock
+    {
+        public SortedDictionary<int, InstructionBase> Items { get; set; }
+        public LogicalTaggedInstruction BranchCondition;
+        public InstructionBlock NextBlockCondition;
+        public InstructionBlock NextBlockDefault;
+        public string Label;
+
+        public InstructionBlock(InstructionBlock prev = null) {
+            Items = new();
+            if (prev != null)
+                prev.NextBlockDefault = this;
+        }
+    }
+
     internal class LogicalInstructions
     {
         public SortedDictionary<int, InstructionBase> Items { get; set; }
+        public InstructionBlock BaseBlock { get; set; }
         public InstructionCollection Insts { get; private set; }
-        public string Address;
         public int IndexOffset;
 
         public LogicalInstructions(InstructionCollection insts, int index_offset = 0)
@@ -88,17 +117,77 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     var tag = $"label{++label_number}";
                     var index_dest = stream.GetBranchDestination(instruction.Parameters[0].ToInteger(), index + 1);
                     if (index_dest == -1)
-                        branch_dict[tag + $": {index}+({instruction.Parameters[0].ToInteger()})"] = index;
+                        branch_dict[tag + $": {index + 1}+({instruction.Parameters[0].ToInteger()})"] = index;
                     else
                         branch_dict[tag] = index_dest;
-                    instruction = new LogicalTaggedInstruction(instruction, "Goto " + tag);
+                    instruction = new LogicalTaggedInstruction(instruction, "Goto " + tag, TagType.GotoLabel) { AdditionalData = tag };
                 }
 
                 Items.Add(index, instruction);
             }
             // branch destination tag
             foreach (var kvp in branch_dict)
-                Items[kvp.Value] = new LogicalTaggedInstruction(Items[kvp.Value], kvp.Key);
+                Items[kvp.Value] = new LogicalTaggedInstruction(Items[kvp.Value], kvp.Key, TagType.Label) { AdditionalData = kvp.Key };
+
+            // block division
+            BaseBlock = new InstructionBlock();
+            var block_branch_dict = new Dictionary<string, InstructionBlock>();
+            var current_block = BaseBlock;
+            // first iter: maintain BranchCondition & NextBlockDefault
+            foreach (var kvp in Items)
+            {
+                var new_block_needed = false;
+                Dictionary<int, InstructionBase> new_block_items = null;
+                var pos = kvp.Key;
+                var inst = kvp.Value;
+                if ((inst is LogicalTaggedInstruction lti && lti.TagType == TagType.Label) || inst is Enumerate2)// TODO need some instances to determine how to deal with Enumerate2
+                {
+                    var new_block = new InstructionBlock(current_block);
+                    new_block.Items[pos] = inst;
+                    current_block = new_block;
+                    if (inst is LogicalTaggedInstruction lti2) {
+                        block_branch_dict[(string) lti2.AdditionalData] = new_block;
+                        if (lti2.FinalTagType == TagType.GotoLabel)
+                        {
+                            var new_new_block = new InstructionBlock(new_block);
+                            new_block.BranchCondition = lti2.FinalTaggedInnerAction;
+                            current_block = new_new_block;
+                        }
+                    }
+                }
+                else if (inst is LogicalTaggedInstruction lti3 && lti3.TagType == TagType.GotoLabel)
+                {
+                    var new_block = new InstructionBlock(current_block);
+                    current_block.BranchCondition = lti3.FinalTaggedInnerAction;
+                    current_block.Items[pos] = inst;
+                    current_block = new_block;
+                }
+                else
+                {
+                    current_block.Items[pos] = inst;
+                }
+            }
+            // second iter: maintain Label
+            foreach (var kvp in block_branch_dict)
+            {
+                var lbl = kvp.Key;
+                var blk = kvp.Value;
+                if (blk.Label == null || blk.Label == "")
+                    blk.Label = lbl;
+                else
+                    blk.Label += $", {lbl}";
+            }
+            // third iter: maintain NextBlockCondition
+            current_block = BaseBlock;
+            while (current_block != null)
+            {
+                if (current_block.BranchCondition != null)
+                    if (block_branch_dict.TryGetValue((string) current_block.BranchCondition.AdditionalData, out var blk))
+                        current_block.NextBlockCondition = blk;
+                    else
+                        current_block.NextBlockCondition = new InstructionBlock() { Label = current_block.BranchCondition.Tag };
+                current_block = current_block.NextBlockDefault;
+            }
         }
 
         private int IndexOfNextRealInstruction(int currentIndex)
