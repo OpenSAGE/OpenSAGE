@@ -227,6 +227,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public virtual string GetParameterDesc(ActionContext context)
         {
+            if (Parameters == null) return "";
             string[] pv;// = { };
             var param_val = Parameters.Take(5).ToArray();
             pv = param_val.Select(x => x.ToStringWithType(context)).ToArray();

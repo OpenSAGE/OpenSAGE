@@ -79,19 +79,19 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         instruction.Parameters[2 + nParams].ToInteger() :
                         instruction.Parameters[4 + nParams * 2].ToInteger();
                     
-                    var codes = stream.GetInstructions(size);
+                    var codes = stream.GetInstructions(size, true, true);
                     instruction = new LogicalFunctionContext(instruction, codes, IndexOffset + index + 1);
                 }
 
                 else if (instruction is BranchIfTrue || instruction is BranchAlways)
                 {
                     var tag = $"label{++label_number}";
-                    var index_dest = stream.GetBranchDestination(instruction.Parameters[0].ToInteger(), index);
+                    var index_dest = stream.GetBranchDestination(instruction.Parameters[0].ToInteger(), index + 1);
                     if (index_dest == -1)
                         branch_dict[tag + $": {index}+({instruction.Parameters[0].ToInteger()})"] = index;
                     else
                         branch_dict[tag] = index_dest;
-                    instruction = new LogicalTaggedInstruction(instruction, tag);
+                    instruction = new LogicalTaggedInstruction(instruction, "Goto " + tag);
                 }
 
                 Items.Add(index, instruction);

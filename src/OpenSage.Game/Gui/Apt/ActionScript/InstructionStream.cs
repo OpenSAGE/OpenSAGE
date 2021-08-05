@@ -56,7 +56,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="bytes">The size of the instructions to be extracted in bytes</param>
         /// <returns></returns>
-        public InstructionCollection GetInstructions(int bytes, bool offsetIndex = true)
+        public InstructionCollection GetInstructions(int bytes, bool offsetIndex = true, bool createEnd = false)
         {
             // get the amount of instructions contained in that byterange
             var startPosition = Instructions.GetPositionByIndex(Index);
@@ -76,6 +76,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (offsetIndex)
                 Index += instructions.Count;
+
+            if (createEnd)
+                instructions.Add(Instructions.GetPositionByIndex(Index), new End());
 
             return new InstructionCollection(instructions);
         }
