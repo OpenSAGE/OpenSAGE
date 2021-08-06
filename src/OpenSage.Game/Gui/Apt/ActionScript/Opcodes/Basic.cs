@@ -154,38 +154,26 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToInteger : InstructionMonoPushPop
+    public sealed class ToInteger : InstructionMonoOperator
     {
+        public override Func<Value, Value> Operator =>
+            (a) => Value.FromInteger(a.ToInteger());
         public override InstructionType Type => InstructionType.ToInteger;
-        public override bool PushStack => true;
-        public override bool PopStack => true;
-
-        public override void Execute(ActionContext context)
-        {
-            var val = context.Pop();
-            context.Push(Value.FromInteger(val.ToInteger()));
-        }
     }
 
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToString : InstructionMonoPushPop
+    public sealed class ToString : InstructionMonoOperator
     {
+        public override Func<Value, Value> Operator =>
+            (a) => Value.FromString(a.ToString());
         public override InstructionType Type => InstructionType.ToString;
-        public override bool PushStack => true;
-        public override bool PopStack => true;
-
-        public override void Execute(ActionContext context)
-        {
-            var val = context.Pop();
-            context.Push(Value.FromString(val.ToString()));
-        }
     }
 
 
     /// <summary>
-    /// Pops an object from stack and enumerates it's slots
+    /// Pops an object from stack and enumerates its slots
     /// </summary>
     public sealed class Enumerate2 : InstructionBase
     {
@@ -207,20 +195,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops an object from stack and enumerates it's slots
     /// </summary>
-    public sealed class RandomNumber : InstructionMonoPushPop
+    public sealed class RandomNumber : InstructionMonoOperator
     {
+        public override Func<Value, Value> Operator =>
+            (max) => Value.FromInteger(new Random().Next(0, max.ToInteger()));
         public override InstructionType Type => InstructionType.Random;
-        public override bool PushStack => true;
-        public override bool PopStack => true;
-
-        public override void Execute(ActionContext context)
-        {
-            // TODO: fix this
-            var max = context.Pop().ToInteger();
-
-            var rnd = new Random();
-            context.Push(Value.FromInteger(rnd.Next(0, max)));
-        }
     }
 
     /// <summary>
@@ -241,19 +220,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Unknown yet
     /// </summary>
-    public sealed class CastOp : InstructionMonoPush
+    public sealed class CastOp : InstructionDiOperator
     {
+        public override Func<Value, Value, Value> Operator =>
+            (objv, cstv) =>
+            {
+                var obj = objv.ToObject();
+                var cst = cstv.ToFunction();
+                ObjectContext val = obj.InstanceOf(cst) ? obj : null;
+                return Value.FromObject(val);
+            };
         public override InstructionType Type => InstructionType.CastOp;
-        public override bool PushStack => true;
-        public override uint StackPop => 2;
-
-        public override void Execute(ActionContext context)
-        {
-            var obj = context.Pop().ToObject();
-            var cst = context.Pop().ToFunction();
-            ObjectContext val = obj.InstanceOf(cst) ? obj : null;
-            context.Push(Value.FromObject(val));
-        }
     }
 
     /// <summary>
@@ -262,14 +239,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// So this action will get the millseconds since the program started.
     /// The return value shall be put in stack.
     /// </summary>
-    public sealed class GetTime: InstructionMonoPushPop
+    public sealed class GetTime: InstructionPushValue
     {
+        public override Value ValueToPush => Builtin.GetTimer();
         public override InstructionType Type => InstructionType.GetTime;
-        public override bool PushStack => true;
-
-        public override Value ExecuteWithArgs2(Value v)
-        {
-            return Builtin.GetTimer();
-        }
     }
 }

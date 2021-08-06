@@ -400,7 +400,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 var cst_func = funcVal.ToFunction();
                 var thisVar = Apt.Avm.ConstructClass(cst_func);
-                PushRecallCode(new PushValue(Value.FromObject(thisVar)));
+                PushRecallCode(new InstructionPushValue(Value.FromObject(thisVar)));
                 cst_func.Invoke(this, thisVar, args);
             }
         }

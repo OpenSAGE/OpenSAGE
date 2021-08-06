@@ -71,11 +71,153 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBlock NextBlockCondition;
         public InstructionBlock NextBlockDefault;
         public string Label;
+        public CodeTree Tree = null;
 
         public InstructionBlock(InstructionBlock prev = null) {
             Items = new();
             if (prev != null)
                 prev.NextBlockDefault = this;
+        }
+
+        public void DecompileToTree()
+        {
+            Tree = new();
+            foreach(var kvp in Items)
+            {
+                var inst = kvp.Value;
+                CodeTree.Node node = inst.IsStatement ? new CodeTree.NodeStatement() : new CodeTree.NodeExpression();
+                node.Instruction = inst;
+                Tree.NodeList.Add(node);
+                node.GetExpressions(Tree);
+            }
+        }
+
+        public string GetCode()
+        {
+            var ans = "";
+            foreach (var node in Tree.NodeList)
+                ans += node.GetCode(Tree) + ";\n";
+            return ans;
+        }
+    }
+
+    internal class CodeTree
+    {
+        public List<Node> NodeList = new();
+        public abstract class Node
+        {
+            public List<NodeExpression> Expressions = new();
+            public InstructionBase Instruction;
+
+            public virtual string GetCode(CodeTree tree)
+            {
+                var vals = new string[Expressions.Count];
+                for (int i = 0; i < Expressions.Count; ++i)
+                {
+                    var node = Expressions[i];
+                    if (node == null)
+                    {
+                        vals[i] = $"args[{i}]";
+                    }
+                    else
+                    {
+                        var flag = node.GetValue(tree, out var val);
+                        if (flag)
+                            vals[i] = val.ToString();
+                        else
+                            vals[i] = node.GetCode(tree);
+                    }
+
+                }
+                return Instruction.ToString(vals);
+            }
+            public void GetExpressions(CodeTree tree)
+            {
+                Expressions = new();
+                if (Instruction is InstructionMonoPush inst)
+                {
+                    // TODO need some modifications inside instruction
+                    for (int i = 0; i < inst.StackPop; ++i)
+                    {
+                        var ind = tree.NodeList.FindIndex(n => n is NodeExpression);
+                        NodeExpression val = null;
+                        if (ind == -1)
+                            val = null;
+                        else
+                        {
+                            var node = (NodeExpression) tree.NodeList[ind];
+                            var able_to_delete = true; // TODO some special nodes shouldn't be deleted like Enumerate
+                            if (able_to_delete)
+                                tree.NodeList.RemoveAt(ind);
+                            val = node;
+                        }
+                        Expressions.Add(val);
+                    }
+                }
+                else // special instructions
+                {
+                    // TODO
+                }
+
+            }
+        }
+        public class NodeExpression : Node
+        {
+            public bool GetValue(CodeTree tree, out Value ret)
+            {
+                ret = null;
+                var vals = new Value[Expressions.Count];
+                for (int i = 0; i < Expressions.Count; ++i)
+                {
+                    var node = Expressions[i];
+                    var flag = node.GetValue(tree, out var val);
+                    if (!flag)
+                        return false;
+                    else
+                        vals[i] = val;
+                }
+                try
+                {
+                    if (Instruction is InstructionMonoPush inst && inst.PushStack)
+                    {
+                        ret = inst.ExecuteWithArgs2(vals);
+                    }
+                    else
+                    {
+                        //TODO
+                        return false;
+                    }
+                        
+                } catch (NotImplementedException)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public override string GetCode(CodeTree tree)
+            {
+                if (GetValue(tree, out var val_))
+                    return val_.ToString();
+                else // if (Instruction is InstructionMonoPush inst)
+                {
+                    return base.GetCode(tree);
+                }
+            }
+        }
+        public class NodeStatement: Node
+        {
+            public override string GetCode(CodeTree tree)
+            {
+                return base.GetCode(tree);
+            }
+        }
+        public class NodeControl: NodeStatement
+        {
+            public override string GetCode(CodeTree tree)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 
@@ -188,6 +330,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         current_block.NextBlockCondition = new InstructionBlock() { Label = current_block.BranchCondition.Tag };
                 current_block = current_block.NextBlockDefault;
             }
+
+            // decompilation
+            foreach (var a in BaseBlock.Items)
+                System.Console.WriteLine(a);
+            System.Console.WriteLine();
+            BaseBlock.DecompileToTree();
+            System.Console.WriteLine(BaseBlock.GetCode());
         }
 
         private int IndexOfNextRealInstruction(int currentIndex)

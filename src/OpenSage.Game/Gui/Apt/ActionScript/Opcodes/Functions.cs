@@ -64,11 +64,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// Declare a new named or anonymous function (depending on function name) that will either be
     /// pushed to stack or set as a variable. 
     /// </summary>
-    public sealed class DefineFunction : InstructionBase
+    public sealed class DefineFunction : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.DefineFunction;
         public override uint Size => 24;
-        public override bool IsStatement => throw new NotSupportedException();
+        public override bool PushStack => Parameters[0].ToString().Length == 0;
 
         public override string GetParameterDesc(ActionContext context)
         {
@@ -117,11 +117,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// Declare a new named or anonymous function (depending on function name) that will either be
     /// pushed to stack or set as a variable. 
     /// </summary>
-    public sealed class DefineFunction2 : InstructionBase
+    public sealed class DefineFunction2 : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.DefineFunction2;
         public override uint Size => 28;
-        public override bool IsStatement => throw new NotSupportedException();
+        public override bool PushStack => Parameters[0].ToString().Length == 0;
 
         public override string GetParameterDesc(ActionContext context)
         {

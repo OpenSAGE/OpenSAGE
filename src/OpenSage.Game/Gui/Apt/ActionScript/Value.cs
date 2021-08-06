@@ -347,6 +347,39 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
+        public string GetStringType()
+        {
+            string result = null;
+            switch (Type)
+            {
+                case ValueType.String:
+                    result = "string";
+                    break;
+                case ValueType.Boolean:
+                    result = "boolean";
+                    break;
+                case ValueType.Integer:
+                case ValueType.Short:
+                case ValueType.Float:
+                    result = "number";
+                    break;
+                case ValueType.Object:
+                    if (_object is MovieClip)
+                        result = "movieclip";
+                    else if (_object is Function)
+                        result = "function";
+                    else
+                        result = "object";
+                    break;
+                case ValueType.Undefined:
+                    result = "undefined";
+                    break;
+                default:
+                    throw new InvalidOperationException(Type.ToString());
+            }
+            return result;
+        }
+
         public string ToStringWithType(ActionContext ctx)
         {
             var ttype = "?";

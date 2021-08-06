@@ -323,47 +323,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops a value from the stack pushes it's type as a string to stack
     /// </summary>
-    public sealed class TypeOf : InstructionMonoPushPop
+    public sealed class TypeOf : InstructionMonoOperator
     {
+        public override Func<Value, Value> Operator => (v) => Value.FromString(v.GetStringType());
         public override InstructionType Type => InstructionType.TypeOf;
-        public override bool PopStack => true;
-        public override bool PushStack => true;
-
-        public override void Execute(ActionContext context)
-        {
-            var val = context.Pop();
-            Value result = null;
-
-            switch (val.Type)
-            {
-                case ValueType.String:
-                    result = Value.FromString("string");
-                    break;
-                case ValueType.Boolean:
-                    result = Value.FromString("boolean");
-                    break;
-                case ValueType.Integer:
-                case ValueType.Short:
-                case ValueType.Float:
-                    result = Value.FromString("number");
-                    break;
-                case ValueType.Object:
-                    if (val.ToObject() is MovieClip)
-                        result = Value.FromString("movieclip");
-                    else if (val.ToObject() is Function)
-                        result = Value.FromString("function");
-                    else
-                        result = Value.FromString("object");
-                    break;
-                case ValueType.Undefined:
-                    result = Value.FromString("undefined");
-                    break;
-                default:
-                    throw new InvalidOperationException(val.Type.ToString());
-            }
-
-            context.Push(result);
-        }
     }
 
     /// <summary>

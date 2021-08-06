@@ -223,7 +223,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public abstract void Execute(ActionContext context);
         public override string ToString()
         {
-            return ToString(null);
+            return ToString((ActionContext) null);
         }
         public virtual string GetParameterDesc(ActionContext context)
         {
@@ -235,7 +235,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public virtual string ToString(ActionContext context)
         {
-            return $"{Type}({GetParameterDesc(context)}): {Size}";
+            return $"{Type}({GetParameterDesc(context)})";//: {Size}";
+        }
+
+        public virtual string ToString(string[] parameters)
+        {
+            var t = (Parameters == null || Parameters.Count == 0) ? Type.ToString() : ToString();
+            return $"{t}({string.Join(", ", parameters)})";
         }
     }
 
@@ -315,6 +321,57 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual Value ExecuteWithArgs2(Value poppedVal)
         {
             throw new NotImplementedException();
+        }
+    }
+    public class InstructionPushValue : InstructionMonoPushPop
+    {
+        public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
+        public override bool PushStack => true;
+        public InstructionPushValue() : base() { }
+        public InstructionPushValue(Value v) : base() { Parameters = new List<Value> { v }; }
+        public virtual Value ValueToPush => Parameters[0];
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(ValueToPush);
+        }
+        public override Value ExecuteWithArgs2(Value poppedVal)
+        {
+            return ValueToPush;
+        }
+    }
+
+    public abstract class InstructionMonoOperator: InstructionMonoPushPop
+    {
+        public override bool PushStack => true;
+        public override bool PopStack => true;
+        public virtual Func<Value, Value> Operator => throw new NotImplementedException();
+
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Operator(context.Pop()));
+        }
+        public override Value ExecuteWithArgs2(Value poppedVal)
+        {
+            return Operator(poppedVal);
+        }
+    }
+
+    public abstract class InstructionDiOperator : InstructionMonoPush
+    {
+        public override bool PushStack => true;
+        public override uint StackPop => 2;
+        public virtual Func<Value, Value, Value> Operator => throw new NotImplementedException();
+
+        public override void Execute(ActionContext context)
+        {
+            var a = context.Pop();
+            var b = context.Pop();
+            context.Push(Operator(a, b));
+        }
+        public override Value ExecuteWithArgs2(Value[] poppedVals)
+        {
+            return Operator(poppedVals[0], poppedVals[1]);
         }
     }
 
