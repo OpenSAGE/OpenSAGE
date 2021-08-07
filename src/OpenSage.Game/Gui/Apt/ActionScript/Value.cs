@@ -27,6 +27,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ValueType Type { get; private set; }
 
         public string DisplayString { get; set; }
+        public bool IsNotCompileTimeConstant;
+        public bool IsCompileTimeString;
 
         private string _string;
         private bool _boolean;
@@ -279,13 +281,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public bool ToBoolean()
         {
-            if (Type == ValueType.String || Type == ValueType.Object)
-                throw new InvalidOperationException();
-
             bool var;
-
             switch (Type)
             {
+                case ValueType.String:
+                    var = _string.Length > 0;
+                    break;
+                case ValueType.Object:
+                    var = _object == null;
+                    break;
                 case ValueType.Boolean:
                     var = _boolean;
                     break;

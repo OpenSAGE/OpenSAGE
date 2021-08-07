@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Gui.Apt.ActionScript.Library;
+using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -31,6 +32,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override string GetParameterDesc(ActionContext context)
         {
+            if (Parameters.Count <= 5)
+                return $"{Parameters.Count} Constants: {string.Join(", ", Parameters.Select((x)=>x.ToString()).ToArray())}";
             return $"{Parameters.Count} Constants: {Parameters[0]}, {Parameters[1]}, {Parameters[2]}, ..., {Parameters[Parameters.Count - 1]}";
         }
     }
@@ -50,6 +53,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             logger.Debug($"[TRACE] {poppedVal.ToString()}");
             return null;
         }
+        public override string ToString(string[] p)
+        {
+            return $"trace({p[0]})";
+        }
+
     }
 
     /// <summary>
@@ -69,6 +77,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var reg = Parameters[0].ToInteger();
             context.SetRegister(reg, val);
         }
+        public override string ToString(string[] p)
+        {
+            return $"reg[{Parameters[0]}] = {p[0]}";
+        }
     }
 
     /// <summary>
@@ -84,6 +96,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = context.Pop((uint) nArgs);
 
             context.Push(Value.FromArray(args, context.Apt.Avm));
+        }
+
+        public override string ToString(string[] p)
+        {
+            return $"[{p[0]}]";
         }
     }
 
@@ -195,11 +212,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Pops an object from stack and enumerates it's slots
     /// </summary>
-    public sealed class RandomNumber : InstructionMonoOperator
+    public sealed class RandomNumber : InstructionMonoPushPop
     {
-        public override Func<Value, Value> Operator =>
+        public override bool PushStack => true;
+        public override bool PopStack => true;
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Operator(context.Pop()));
+        }
+        private Func<Value, Value> Operator =>
             (max) => Value.FromInteger(new Random().Next(0, max.ToInteger()));
         public override InstructionType Type => InstructionType.Random;
+        public override string ToString(string[] p)
+        {
+            return $"random({p[0]})";
+        }
     }
 
     /// <summary>
@@ -239,9 +266,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// So this action will get the millseconds since the program started.
     /// The return value shall be put in stack.
     /// </summary>
-    public sealed class GetTime: InstructionPushValue
+    public sealed class GetTime: InstructionMonoPushPop
     {
-        public override Value ValueToPush => Builtin.GetTimer();
+        public override bool PushStack => true;
+        public override void Execute(ActionContext context)
+        {
+            context.Push(Builtin.GetTimer());
+        }
         public override InstructionType Type => InstructionType.GetTime;
+        public override string ToString(string[] p)
+        {
+            return "getTimer()";
+        }
     }
 }

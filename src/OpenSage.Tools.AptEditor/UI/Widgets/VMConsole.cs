@@ -210,14 +210,14 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                     {
                         _acontext = _context.Avm.GetStackContext(selected_cstack);
                         var str = _acontext.Stream;
-                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions, _context.AptFile.Constants.Entries);
                         manager.CurrentTitle = $"ActionContext {_acontext}";
                     }
                     if (ImGui.ListBox($"Queue[{cq.Length}]", ref selected_cqueue, cq, cq.Length))
                     {
                         _acontext = _context.Avm.GetQueueContext(selected_cqueue);
                         var str = _acontext.Stream;
-                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions);
+                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions, _context.AptFile.Constants.Entries);
                         manager.CurrentTitle = $"ActionContext {_acontext}";
                     }
 
@@ -289,7 +289,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             {
                 var dod = od.obj as DefinedFunction;
                 _acontext = dod.GetContext(_context.Avm, null, null);
-                manager.CurrentActions = new LogicalInstructions(dod.Instructions);
+                manager.CurrentActions = new LogicalInstructions(dod.Instructions, _context.AptFile.Constants.Entries);
                 manager.CurrentTitle = $"Function {dod}";
             }
                 

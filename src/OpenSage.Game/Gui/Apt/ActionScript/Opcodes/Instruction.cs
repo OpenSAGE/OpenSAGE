@@ -219,6 +219,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual List<Value> Parameters { get; set; }
         public virtual bool Breakpoint { get; set; }
         public virtual bool IsStatement => true;
+        public virtual int Precendence => 114514;
 
         public abstract void Execute(ActionContext context);
         public override string ToString()
@@ -238,11 +239,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return $"{Type}({GetParameterDesc(context)})";//: {Size}";
         }
 
-        public virtual string ToString(string[] parameters)
+        public string ToString2(string[] parameters)
         {
             var t = (Parameters == null || Parameters.Count == 0) ? Type.ToString() : ToString();
             return $"{t}({string.Join(", ", parameters)})";
         }
+        public virtual string ToString(string[] p) { return ToString2(p); }
     }
 
     public abstract class InstructionFixedStackOpr: InstructionBase

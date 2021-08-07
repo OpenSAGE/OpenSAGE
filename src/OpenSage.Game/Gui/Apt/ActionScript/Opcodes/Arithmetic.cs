@@ -10,6 +10,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value, Value> Operator =>
             (a, b) => Value.FromFloat(b.ToFloat() + a.ToFloat());
         public override InstructionType Type => InstructionType.Add;
+        public override int Precendence => 13;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} + {p[0]}";
+        }
     }
 
     /// <summary>
@@ -20,6 +25,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value, Value> Operator =>
             (a, b) => Value.FromFloat(b.ToFloat() - a.ToFloat());
         public override InstructionType Type => InstructionType.Subtract;
+        public override int Precendence => 13;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} - {p[0]}";
+        }
     }
 
     /// <summary>
@@ -34,6 +44,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             Value.FromFloat(b.ToFloat() + a.ToFloat()) :
             Value.FromString(b.ToString() + a.ToString());
         public override InstructionType Type => InstructionType.Add2;
+        public override int Precendence => 13;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} + {p[0]}";
+        }
     }
 
     /// <summary>
@@ -44,6 +59,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value, Value> Operator =>
             (a, b) => Value.FromFloat(b.ToFloat() * a.ToFloat());
         public override InstructionType Type => InstructionType.Multiply;
+        public override int Precendence => 14;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} * {p[0]}";
+        }
     }
 
     /// <summary>
@@ -64,6 +84,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 return val_to_push;
             };
         public override InstructionType Type => InstructionType.Divide;
+        public override int Precendence => 14;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} / {p[0]}";
+        }
     }
 
     /// <summary>
@@ -74,6 +99,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value, Value> Operator =>
             (a, b) => Value.FromFloat(a.ToFloat() % b.ToFloat());
         public override InstructionType Type => InstructionType.Modulo;
+        public override int Precendence => 14;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} % {p[0]}";
+        }
     }
 
     /// <summary>
@@ -84,6 +114,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value> Operator =>
             (a) => Value.FromInteger(a.ToInteger() + 1);
         public override InstructionType Type => InstructionType.Increment;
+        public override int Precendence => 15;
+        public override string ToString(string[] p)
+        {
+            return $"++{p[0]}";
+        }
     }
 
     /// <summary>
@@ -94,6 +129,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value> Operator =>
             (a) => Value.FromInteger(a.ToInteger() - 1);
         public override InstructionType Type => InstructionType.Decrement;
+        public override int Precendence => 15;
+        public override string ToString(string[] p)
+        {
+            return $"--{p[0]}";
+        }
     }
 
     public sealed class ShiftLeft : InstructionDiOperator
@@ -106,6 +146,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 return Value.FromInteger(val << count);
             };
         public override InstructionType Type => InstructionType.ShiftLeft;
+        public override int Precendence => 12;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} << {p[0]}";
+        }
     }
 
     public sealed class ShiftRight : InstructionDiOperator
@@ -118,6 +163,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 return Value.FromInteger(val >> count);
             };
         public override InstructionType Type => InstructionType.ShiftRight;
+        public override int Precendence => 12;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} >> {p[0]}";
+        }
     }
 
     // shift right as uint
@@ -131,5 +181,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 return Value.FromInteger((int) (val >> count));
             };
         public override InstructionType Type => InstructionType.ShiftRight2;
+        public override int Precendence => 12;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} >>> {p[0]}";
+        }
     }
 }

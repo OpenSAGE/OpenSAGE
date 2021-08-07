@@ -15,6 +15,10 @@
 
             context.Apt.Avm.Handle(context, url, target);
         }
+        public override string ToString(string[] p)
+        {
+            return $"getURL({Parameters[0]}, {Parameters[1]})";
+        }
     }
 
     /// <summary>
@@ -31,6 +35,10 @@
             var url = context.Pop().ToString();
 
             context.Apt.Avm.Handle(context, url, target.ToString());
+        }
+        public override string ToString(string[] p)
+        {
+            return $"getURL({p[1]}, {p[0]})";
         }
     }
 }

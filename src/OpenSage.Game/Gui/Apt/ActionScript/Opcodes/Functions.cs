@@ -189,6 +189,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var ret = context.Pop();
             context.ReturnValue = ret == null ? Value.FromObject(null) : ret;
         }
+        public override string ToString(string[] p)
+        {
+            return $"return {p[0]}";
+        }
     }
 
     public sealed class DealWithReturnValue : InstructionBase
@@ -251,6 +255,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]}{(p[0] == "undefined" || p[0] == "" ? "" : ".")}{p[0]}({string.Join(", ", p.Skip(2))})";
+        }
     }
 
     public sealed class EACallMethod: CallMethod
@@ -288,6 +296,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}.bind({p[1]})({string.Join(", ", p.Skip(2))})";
+        }
     }
 
     /// <summary>
@@ -306,6 +318,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
+        }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}({string.Join(", ", p.Skip(1))})";
         }
     }
 
@@ -326,6 +342,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}({string.Join(", ", p.Skip(1))})";
+        }
     }
 
     /// <summary>
@@ -343,6 +363,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
             var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
+        }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}({string.Join(", ", p.Skip(1))})";
         }
     }
 
@@ -388,7 +412,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 context.SetValueOnLocal(varName.ToString(), result);
             }));
 
-            
+        }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}.bind({p[1]})({string.Join(", ", p.Skip(2))})";
         }
     }
 
@@ -406,6 +433,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var args = FunctionCommon.GetArgumentsFromStack(context);
             var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
+        }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}({string.Join(", ", p.Skip(1))})";
         }
     }
 }

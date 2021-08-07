@@ -36,22 +36,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// <summary>
     /// Push the current object to the stack
     /// </summary>
-    public sealed class PushThis : InstructionMonoPushPop
+    public sealed class PushThis : PushThisVar
     {
-        public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushThis;
-
-        public override void Execute(ActionContext context)
-        {
-            // TODO what's the difference between this and PushThisVar?
-            context.Push(Value.FromObject(context.This));
-        }
     }
 
     /// <summary>
     /// Push the current object to the stack
     /// </summary>
-    public sealed class PushThisVar : InstructionMonoPushPop
+    public class PushThisVar : InstructionMonoPushPop
     {
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushThisVar;
@@ -59,6 +52,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             context.Push(Value.FromObject(context.This));
+        }
+        public override string ToString(string[] p)
+        {
+            return "this";
         }
     }
 
@@ -89,13 +86,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             context.Push(result);
         }
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}";
+        }
     }
     /// <summary>
     /// Get multiple variables from the pool and push them to the stack
     /// </summary>
-    public sealed class PushData : InstructionMonoPushPop
+    public sealed class PushData : InstructionBase
     {
-        public override bool PushStack => true;
         public override InstructionType Type => InstructionType.PushData;
         public override uint Size => 8;
 
@@ -135,6 +135,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             context.Push(Value.FromObject(context.Apt.Avm.GlobalObject));
+        }
+        public override string ToString(string[] p)
+        {
+            return "_global";
         }
     }
 
@@ -183,6 +187,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             context.Push(context.Constants[id]);
+        }
+        public override string ToString(string[] p)
+        {
+            return $"cst{p[0]}";
         }
     }
 
@@ -280,6 +288,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             context.Push(Parameters[0].ResolveRegister(context));
         }
+        public override string ToString(string[] p)
+        {
+            return $"reg{p[0]}";
+        }
     }
 
     /// <summary>
@@ -296,6 +308,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             context.Push(context.Constants[id]);
+        }
+        public override string ToString(string[] p)
+        {
+            return $"cst{p[0]}";
         }
     }
 

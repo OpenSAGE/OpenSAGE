@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript.Library;
+using System.Linq;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -33,6 +34,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 context.Push(Value.Undefined());
             }
         }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]}.{p[0]}";
+        }
     }
 
     /// <summary>
@@ -56,6 +62,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             else
                 obj.SetMember(memberName, valueVal);
 
+        }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[2]}.{p[1]} = {p[0]}";
         }
     }
 
@@ -81,6 +92,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             context.Push(result);
         }
+        public override string ToString(string[] p)
+        {
+            return Parameters[0].ToString();
+        }
     }
 
     /// <summary>
@@ -96,6 +111,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var name = context.Pop().ToString();
             context.This.SetMember(name, Parameters[0]);
+        }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"this.{p[0]} = {Parameters[0]}";
         }
     }
 
@@ -115,6 +135,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             Value variable = context.This.GetMember(variableName);
             context.Push(variable);
         }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"this.{p[0]}";
+        }
     }
 
     /// <summary>
@@ -130,6 +155,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var valueVal = context.Pop();
             var memberName = context.Pop().ToString();
             context.This.SetMember(memberName, valueVal);
+        }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"this.{p[1]} = {p[0]}";
         }
     }
 
@@ -148,6 +178,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var obj = context.Pop().ToObject();
 
             context.Push(obj.GetMember(member.ToString()));
+        }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]}.{p[0]}";
         }
     }
 
@@ -168,6 +203,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var prop = ((StageObject) target.ToObject()).GetProperty(property);
             context.Push(prop);
         }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"(target)\"{p[1]}\".{p[0]}";
+        }
     }
 
     /// <summary>
@@ -186,6 +226,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
              target.ToObject<StageObject>().SetProperty(property, value);
         }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"(target)\"{p[2]}\".{p[1]} = {p[0]}";
+        }
     }
 
     /// <summary>
@@ -195,6 +240,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.CloneSprite;
         public override uint StackPop => 3;
+
         public override void Execute(ActionContext context)
         {
             var depth = context.Pop();
@@ -241,6 +287,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             context.Push(valueVal);
         }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]}.{Parameters[0]}";
+        }
     }
 
     public sealed class SetStringMember : InstructionMonoPush
@@ -255,6 +306,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var objectVal = context.Pop().ToObject();
 
             objectVal.SetMember(memberVal, Parameters[0]);
+        }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]}.{p[0]} = {Parameters[0]}";
         }
     }
 
@@ -273,6 +329,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             context.ConstructObjectAndPush(name, args);
         }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"new {p[0]}({string.Join(", ", p.Skip(1))})";
+        }
     }
 
     /// <summary>
@@ -286,14 +347,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var name = context.Pop().ToString();
+            var nameVal = context.Pop();
+            var name = nameVal.ToString();
             var obj = context.Pop();
             var args = FunctionCommon.GetArgumentsFromStack(context);
             
-            if (name.Length != 0) obj = obj.ToObject().GetMember(name);
+            if (nameVal.Type != ValueType.Undefined && name.Length != 0) obj = obj.ToObject().GetMember(name);
 
             context.ConstructObjectAndPush(obj, args);
             
+        }
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"new {p[1]}{(p[0] == "undefined" || p[0] == "" ? "" : ".")}{p[0]}({string.Join(", ", p.Skip(2))})";
         }
     }
 
@@ -318,6 +385,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             context.Push(Value.FromObject(obj));
         }
+        public override string ToString(string[] p)
+        {
+            return $"{{{string.Join(", ", p)}}}";
+        }
     }
 
     /// <summary>
@@ -327,6 +398,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override Func<Value, Value> Operator => (v) => Value.FromString(v.GetStringType());
         public override InstructionType Type => InstructionType.TypeOf;
+        public override int Precendence => 15;
+        public override string ToString(string[] p)
+        {
+            return $"typeof {p[0]}";
+        }
     }
 
     /// <summary>
@@ -349,6 +425,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             obj.constructor = sup;
             cls.prototype = obj;
         }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]}.prototype.__proto__ = {p[0]}.prototype";
+        }
     }
 
     /// <summary>
@@ -366,6 +447,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var obj = context.Pop().ToObject();
             var val = obj.InstanceOf(constr);
             context.Push(Value.FromBoolean(val));
+        }
+        public override int Precendence => 11;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} instanceof {p[0]}";
         }
     }
 
