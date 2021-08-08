@@ -27,8 +27,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ValueType Type { get; private set; }
 
         public string DisplayString { get; set; }
-        public bool IsNotCompileTimeConstant;
-        public bool IsCompileTimeString;
 
         private string _string;
         private bool _boolean;

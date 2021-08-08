@@ -177,6 +177,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var member = context.Pop();
             var obj = context.Pop().ToObject();
 
+            // TODO What about arrays?
             context.Push(obj.GetMember(member.ToString()));
         }
         public override int Precendence => 18;

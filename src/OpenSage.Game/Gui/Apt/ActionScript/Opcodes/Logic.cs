@@ -15,7 +15,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 10;
         public override string ToString(string[] p)
         {
-            return $"{p[0]} == {p[1]}";
+            return $"{p[1]} == {p[0]}";
         }
     }
 
@@ -31,7 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 10;
         public override string ToString(string[] p)
         {
-            return $"{p[0]} === {p[1]}";
+            return $"{p[1]} === {p[0]}";
         }
     }
 

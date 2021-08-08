@@ -20,10 +20,16 @@
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
     <PackageReference Include="SharpFileDialog" Version="0.1.0-beta1-0018-g44d70ab277" />
+    <PackageReference Include="Xceed.Products.Wpf.Toolkit.AvalonDock" Version="4.2.21354.9000" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+  </ItemGroup>
+  
 </Project>

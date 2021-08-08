@@ -25,7 +25,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBase InnerAction { get; protected set; }
         public InstructionBase FinalInnerAction { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalInnerAction : InnerAction; } }
         public LogicalTaggedInstruction FinalTaggedInnerAction { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalTaggedInnerAction : this; } }
+
         public override InstructionType Type => InnerAction.Type;
+        public override List<Value> Parameters => InnerAction.Parameters;
+        public override bool IsStatement => InnerAction.IsStatement;
+        public override int Precendence => InnerAction.Precendence;
+
         public override void Execute(ActionContext context) => throw new InvalidOperationException();
         public override bool Breakpoint
         {
@@ -38,12 +43,19 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Tag = tag;
             TagType = type;
         }
-
+        public override string GetParameterDesc(ActionContext context)
+        {
+            return InnerAction.GetParameterDesc(context);
+        }
         public override string ToString(ActionContext context)
         {
             if (Tag == null || Tag == "") return InnerAction.ToString(context);
 
             return $"// Tagged: {Tag}\n{InnerAction.ToString(context)}";
+        }
+        public override string ToString(string[] p)
+        {
+            return InnerAction.ToString(p);
         }
     }
 
@@ -60,7 +72,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             Instructions = new LogicalInstructions(insts, consts, index_offset, constpool, regnames);
             
         }
-        public Dictionary<int, string> Preload(FunctionPreloadFlags flags)
+        public static Dictionary<int, string> Preload(FunctionPreloadFlags flags)
         {
             int reg = 1;
             var _registers = new Dictionary<int, string>();
@@ -150,7 +162,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             var ans = "";
             foreach (var node in Tree.NodeList)
-                ans += node.GetCode(Tree) + ";\n";
+                if (node == null)
+                    ans += "[[null node]];\n";
+                else
+                    ans += node.GetCode(Tree) + ";\n";
             return ans;
         }
     }
@@ -160,21 +175,37 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public List<Node> NodeList = new();
         public List<Value> Constants;
         public Dictionary<int, string> RegNames;
-        public string ToStringInCodingForm(Value v)
+        public bool ToStringInCodingForm(Value v, out string ret)
         {
+            ret = null;
+            var ans = true;
             if (v.Type == ValueType.Constant)
                 if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count)
+                {
                     v = Constants[v.ToInteger()];
+                    if (v.Type == ValueType.String)
+                        ret = v.ToString();
+                }
                 else
-                    v = Value.FromString($"const[{v.ToInteger()}]");
+                {
+                    ret = $"const[{v.ToInteger()}]";
+                    ans = false;
+                }
 
             if (v.Type == ValueType.Register)
                 if (RegNames != null && RegNames.TryGetValue(v.ToInteger(), out var reg))
-                    v = Value.FromString(reg);
+                {
+                    ret = reg;
+                    ans = false;
+                }
                 else
-                    v = Value.FromString($"reg[{v.ToInteger()}]");
+                {
+                    ret = $"reg[{v.ToInteger()}]";
+                    ans = false;
+                }
 
-            return v.ToString();
+            if (ret == null) ret = v.ToString();
+            return ans;
         }
         public NodeExpression FindFirstNodeExpression(bool deleteIfPossible = true)
         {
@@ -228,15 +259,52 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     {
                         var flag = node.GetValue(tree, out var val);
                         if (flag)
-                            vals[i] = tree.ToStringInCodingForm(val); 
+                        {
+                            var flag2 = tree.ToStringInCodingForm(val, out vals[i]);
+                            // Special judge to flexible argument type opcodes
+                            if (flag2 && ((
+                                    Instruction.Type == InstructionType.Add2 ||
+                                    Instruction.Type == InstructionType.GetURL ||
+                                    Instruction.Type == InstructionType.GetURL2 ||
+                                    Instruction.Type == InstructionType.StringConcat ||
+                                    Instruction.Type == InstructionType.StringEquals
+                                ) || (i == 0 && (
+                                    Instruction.Type == InstructionType.DefineLocal ||
+                                    Instruction.Type == InstructionType.Var ||
+                                    Instruction.Type == InstructionType.ToInteger ||
+                                    Instruction.Type == InstructionType.ToString ||
+                                    Instruction.Type == InstructionType.SetMember ||
+                                    Instruction.Type == InstructionType.SetVariable ||
+                                    Instruction.Type == InstructionType.SetProperty ||
+                                    Instruction.Type == InstructionType.EA_PushString ||
+                                    Instruction.Type == InstructionType.EA_SetStringMember ||
+                                    Instruction.Type == InstructionType.EA_SetStringVar ||
+                                    Instruction.Type == InstructionType.EA_PushConstantByte ||
+                                    Instruction.Type == InstructionType.EA_PushConstantWord ||
+                                    Instruction.Type == InstructionType.Trace
+                                ))) &&
+                                (val.Type == ValueType.String || val.Type == ValueType.Constant))
+                                vals[i] = $"\"{vals[i]}\"";
+                        }
                         else
+                        {
                             vals[i] = node.GetCode(tree);
+                            // if ins pre higher than v pre, ()
+                            if (node.Instruction != null && Instruction.Precendence > node.Instruction.Precendence)
+                                vals[i] = $"({vals[i]})";
+                        }
                     }
 
                 }
                 string ret = null;
-                try { ret = Instruction.ToString(vals); }
-                catch { ret = Instruction.ToString2(vals); }
+                try
+                {
+                    ret = Instruction.ToString(vals);
+                }
+                catch
+                {
+                    ret = Instruction.ToString2(vals);
+                }
                 return ret;
             }
             public void GetExpressions(CodeTree tree)
@@ -340,10 +408,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     for (int i = 0; i < inst.StackPop; ++i)
                         Expressions.Add(tree.FindFirstNodeExpression());
                 }
-                else // not implemented instructions
+                else if (!spec_proc_flag) // not implemented instructions
                 {
-                    
+                    throw new NotImplementedException(instruction.Type.ToString());
                 }
+
+                // filter string
 
             }
         }
@@ -356,13 +426,21 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 for (int i = 0; i < Expressions.Count; ++i)
                 {
                     var node = Expressions[i];
+                    if (node == null)
+                        return false;
                     var flag = node.GetValue(tree, out var val);
                     if (!flag)
                         return false;
                     else
                     {
                         if (val.Type == ValueType.Constant || val.Type == ValueType.Register)
-                            val = Value.FromString(tree.ToStringInCodingForm(val));
+                        {
+                            var flag2 = tree.ToStringInCodingForm(val, out var str);
+                            if (!flag2)
+                                return false;
+                            else
+                                val = Value.FromString(str);
+                        }
                         vals[i] = val;
                     }
                         
@@ -388,29 +466,29 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             public override string GetCode(CodeTree tree)
             {
+                string ret = null;
                 if (GetValue(tree, out var val_))
-                    return tree.ToStringInCodingForm(val_);
+                {
+                    tree.ToStringInCodingForm(val_, out ret);
+                }
                 else // if (Instruction is InstructionMonoPush inst)
                 {
-                    return base.GetCode(tree);
+                    ret = base.GetCode(tree);
                 }
+                return ret;
             }
         }
         public class NodeValue: NodeExpression
         {
             public Value Value;
-            public bool IsString;
             public NodeValue (Value v, bool iss = false)
             {
                 Value = v;
-                IsString = iss;
             }
             public override bool GetValue(CodeTree tree, out Value ret)
             {
                 // Better not use FromArray()
                 ret = Value;
-                if (IsString && ret.Type == ValueType.String)
-                    ret = Value.FromString($"\"{ret}\"");
                 return true;
             }
         }
@@ -438,7 +516,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     if (!flag)
                         vals[i] = node.GetCode(tree);
                     else
-                        vals[i] = tree.ToStringInCodingForm(val);
+                    {
+                        tree.ToStringInCodingForm(val, out vals[i]);
+                        if (val.Type == ValueType.String || val.Type == ValueType.Constant)
+                            vals[i] = $"\"{vals[i]}\"";
+            }
                 }
                 return $"{string.Join(", ", vals)}";
             }
@@ -474,7 +556,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             Insts = insts;
             IndexOffset = index_offset;
-            var stream = new InstructionStream(insts);
+            var stream = new InstructionStream(insts.AddEnd());
 
             Constants = constpool;
             RegNames = regnames;
@@ -586,11 +668,18 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             }
 
             // decompilation
+            if (consts == null) return;
             foreach (var a in BaseBlock.Items)
                 System.Console.WriteLine(a);
             System.Console.WriteLine();
-            BaseBlock.DecompileToTree();
-            System.Console.WriteLine(BaseBlock.GetCode());
+            current_block = BaseBlock;
+            while (current_block != null)
+            {
+                current_block.DecompileToTree();
+                System.Console.WriteLine(current_block.GetCode());
+                current_block = current_block.NextBlockDefault;
+            }
+                
         }
 
         private int IndexOfNextRealInstruction(int currentIndex)
@@ -960,7 +1049,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 ("Add2",                typeof(Add2),               none),
                 ("LessThan2",           typeof(LessThan2),          none),
                 ("Equals2",             typeof(Equals2),            none),
-                ("ToString",            typeof(ToString),           none),
+                ("ToString",            typeof(ToStringOpCode),           none),
                 ("PushDuplicate",       typeof(PushDuplicate),      none),
                 ("GetMember",           typeof(GetMember),          none),
                 ("SetMember",           typeof(SetMember),          none),

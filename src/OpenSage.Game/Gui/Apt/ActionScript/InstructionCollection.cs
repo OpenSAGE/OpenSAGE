@@ -85,6 +85,15 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new ReadOnlyCollection<InstructionBase>(_instructions.Values);
         }
 
+        public InstructionCollection AddEnd()
+        {
+            if (_instructions.Values.Last().Type == InstructionType.End)
+                return this;
+            var _inst = new SortedList<int, InstructionBase>(_instructions);
+            _inst[_inst.Keys.Last() + 1] = new End();
+            return new InstructionCollection(_inst);
+        }
+
         public static InstructionCollection Native(Action<ActionContext> act)
         {
             var inst = new ExecNativeCode(act);
@@ -243,7 +252,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                             instruction = new LessThan2(); // TODO Type Conversion Problem
                             break;
                         case InstructionType.ToString:
-                            instruction = new ToString();
+                            instruction = new ToStringOpCode();
                             break;
                         case InstructionType.PushDuplicate:
                             instruction = new PushDuplicate();

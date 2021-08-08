@@ -427,7 +427,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
-                _registers[reg] = Value.FromObject(This.__proto__.__proto__.constructor);
+                try
+                {
+                    _registers[reg] = Value.FromObject(This.__proto__.__proto__.constructor);
+                }
+                catch
+                {
+                    _registers[reg] = Value.FromObject(null);
+                }
                 _registers[reg].DisplayString = "Preload Super";
                 ++reg;
             }
@@ -457,7 +464,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))
             {
-                _locals["super"] = Value.FromObject(This.__proto__.__proto__.constructor);
+                try
+                {
+                    _locals["super"] = Value.FromObject(This.__proto__.__proto__.constructor);
+                }
+                catch
+                {
+                    _locals["super"] = Value.FromObject(null);
+                }
             }
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))

@@ -117,7 +117,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 15;
         public override string ToString(string[] p)
         {
-            return $"++{p[0]}";
+            return $"{p[0]} + 1";
         }
     }
 
@@ -132,7 +132,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 15;
         public override string ToString(string[] p)
         {
-            return $"--{p[0]}";
+            return $"{p[0]} - 1";
         }
     }
 

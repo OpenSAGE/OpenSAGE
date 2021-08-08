@@ -9,10 +9,14 @@ using OpenSage.Tools.AptEditor.Util;
 using Veldrid;
 using Veldrid.StartupUtilities;
 
+using System.Threading.Tasks;
+using System.Windows;
+
 namespace OpenSage.Tools.AptEditor
 {
-    class Program
+    class Program: Application
     {
+        // [STAThread]
         static void Main(string[] args)
         {
             Platform.Start();
@@ -35,7 +39,7 @@ namespace OpenSage.Tools.AptEditor
                 Y = 100,
                 WindowWidth = 400,
                 WindowHeight = 150,
-                WindowInitialState = WindowState.Normal,
+                WindowInitialState = Veldrid.WindowState.Normal,
                 WindowTitle = "OpenSAGE Apt Editor"
             };
             VeldridStartup.CreateWindowAndGraphicsDevice(createInfo, out var window, out var outGraphicsDevice);

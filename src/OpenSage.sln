@@ -52,7 +52,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigTool", "O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.AptEditor", "OpenSage.Tools.AptEditor\OpenSage.Tools.AptEditor.csproj", "{CC67942B-862D-48DA-B2A5-BD61B924E4D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Game.CodeGen", "OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj", "{EBD0B02E-A685-4D8C-91C1-45419A95CAD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game.CodeGen", "OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj", "{EBD0B02E-A685-4D8C-91C1-45419A95CAD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

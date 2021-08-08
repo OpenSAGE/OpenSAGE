@@ -219,7 +219,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual List<Value> Parameters { get; set; }
         public virtual bool Breakpoint { get; set; }
         public virtual bool IsStatement => true;
-        public virtual int Precendence => 114514;
+        public virtual int Precendence => IsStatement ? 114-514-1919-810 : 18; // Just a meme, as long as it is a negative number it is okay
 
         public abstract void Execute(ActionContext context);
         public override string ToString()
@@ -239,7 +239,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return $"{Type}({GetParameterDesc(context)})";//: {Size}";
         }
 
-        public string ToString2(string[] parameters)
+        public virtual string ToString2(string[] parameters)
         {
             var t = (Parameters == null || Parameters.Count == 0) ? Type.ToString() : ToString();
             return $"{t}({string.Join(", ", parameters)})";

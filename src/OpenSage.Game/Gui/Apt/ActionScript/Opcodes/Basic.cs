@@ -77,6 +77,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var reg = Parameters[0].ToInteger();
             context.SetRegister(reg, val);
         }
+        public override int Precendence => 3;
         public override string ToString(string[] p)
         {
             return $"reg[{Parameters[0]}] = {p[0]}";
@@ -97,7 +98,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             context.Push(Value.FromArray(args, context.Apt.Avm));
         }
-
+        public override int Precendence => 18;
         public override string ToString(string[] p)
         {
             return $"[{p[0]}]";
@@ -120,6 +121,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var target = context.GetTarget(context.Pop().ToString());
             target.ToObject().DeleteMember(property);
         }
+        public override int Precendence => 15;
+        public override string ToString(string[] p)
+        {
+            return $"delete {p[1]}.{p[0]}";
+        }
     }
 
     /// <summary>
@@ -134,6 +140,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var property = context.Pop().ToString();
             context.DeleteValueOnChain(property);
+        }
+        public override int Precendence => 15;
+        public override string ToString(string[] p)
+        {
+            return $"delete {p[0]}";
         }
     }
 
@@ -151,6 +162,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var varName = context.Pop().ToString();
             context.SetValueOnLocal(varName, value);
         }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[1]} = {p[0]}";
+        }
     }
 
     public sealed class DefineLocal2 : InstructionMonoPushPop
@@ -166,6 +182,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             else
                 context.SetValueOnLocal(varName, Value.Undefined()); 
         }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]} = typeof({p[0]}) == \"undefined\" ? undefined : {p[0]}";
+        }
     }
 
     /// <summary>
@@ -176,16 +197,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override Func<Value, Value> Operator =>
             (a) => Value.FromInteger(a.ToInteger());
         public override InstructionType Type => InstructionType.ToInteger;
+        public override string ToString(string[] p)
+        {
+            return $"parseInt({p[0]})";
+        }
     }
 
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToString : InstructionMonoOperator
+    public sealed class ToStringOpCode : InstructionMonoOperator
     {
         public override Func<Value, Value> Operator =>
             (a) => Value.FromString(a.ToString());
         public override InstructionType Type => InstructionType.ToString;
+        public override int Precendence => 18;
+        public override string ToString(string[] p)
+        {
+            return $"String({p[0]})";
+        }
     }
 
 

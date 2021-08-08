@@ -111,6 +111,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             else
                 context.Push(funcVal);
         }
+        public override string ToString(string[] p)
+        {
+            var nParams = Parameters[1].ToInteger();
+            var a = new List<string>();
+            for (int i = 0; i < nParams; ++i)
+                a.Add(Parameters[i + 2].ToString());
+            return $"{Parameters[0]}{(Parameters[0].ToString().Length == 0 ? "" : " = ")}function({string.Join(", ", a)}) {{ {Parameters[2 + nParams].ToInteger()} }}";
+        }
     }
 
     /// <summary>
@@ -168,6 +176,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
+        }
+        public override string ToString(string[] p)
+        {
+            var nParams = Parameters[1].ToInteger();
+            var a = new List<string>();
+            for (int i = 0; i < nParams; ++i)
+                a.Add(Parameters[5 + i * 2].ToString());
+            return $"{Parameters[0]}{(Parameters[0].ToString().Length == 0 ? "" : " = ")}function({string.Join(", ", a)}) {{ {Parameters[4 + nParams * 2].ToInteger()} }}";
         }
     }
 

@@ -289,7 +289,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             {
                 var dod = od.obj as DefinedFunction;
                 _acontext = dod.GetContext(_context.Avm, null, null);
-                manager.CurrentActions = new LogicalInstructions(dod.Instructions, _context.AptFile.Constants.Entries);
+                var reg = 
+                manager.CurrentActions = new LogicalInstructions(dod.Instructions, _context.AptFile.Constants.Entries, 0, dod.Constants, LogicalFunctionContext.Preload(dod.Flags));
                 manager.CurrentTitle = $"Function {dod}";
             }
                 

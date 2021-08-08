@@ -122,6 +122,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var name = context.Pop();
             context.This.SetMember(name.ToString(), Value.FromInteger(0));
         }
+        public override int Precendence => 3;
+        public override string ToString(string[] p)
+        {
+            return $"{p[0]} = 0";
+        }
     }
 
     /// <summary>
@@ -190,7 +195,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public override string ToString(string[] p)
         {
-            return $"cst{p[0]}";
+            return $"{p[0]}";
         }
     }
 
@@ -290,7 +295,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public override string ToString(string[] p)
         {
-            return $"reg{p[0]}";
+            return $"{p[0]}";
         }
     }
 
@@ -311,7 +316,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public override string ToString(string[] p)
         {
-            return $"cst{p[0]}";
+            return $"{p[0]}";
         }
     }
 
