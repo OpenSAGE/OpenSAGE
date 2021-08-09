@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Tools.AptEditor.Apt.Editor.FrameItems;
 using OpenSage.Tools.AptEditor.UI;
-using Action = OpenSage.Data.Apt.FrameItems.Action;
+using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {

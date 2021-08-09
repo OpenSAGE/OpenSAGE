@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public enum CharacterType : uint
     {
@@ -21,13 +21,13 @@ namespace OpenSage.Data.Apt.Characters
         Video = 12
     };
 
-    public class Playable : Character
+    public abstract class Playable : Character
     {
         public List<Frame> Frames { get; protected set; }
     }
 
     //base class for all characters used in apt
-    public class Character
+    public abstract class Character
     {
         public const uint SIGNATURE = 0x09876543;
         public AptFile Container { get; protected set; }

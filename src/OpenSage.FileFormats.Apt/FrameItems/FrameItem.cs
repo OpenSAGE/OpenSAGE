@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt.FrameItems
+namespace OpenSage.FileFormats.Apt.FrameItems
 {
     public enum FrameItemType
     {
@@ -14,7 +13,7 @@ namespace OpenSage.Data.Apt.FrameItems
         InitAction = 8
     };
 
-    public class FrameItem
+    public abstract class FrameItem
     {
         public static FrameItem Create(BinaryReader reader)
         {

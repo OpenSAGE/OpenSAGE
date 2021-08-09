@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.FileFormats.Apt
 {
 
     public interface IImageAssignment
@@ -60,11 +60,9 @@ namespace OpenSage.Data.Apt
             Mapping = new Dictionary<int, IImageAssignment>();
         }
 
-        public static ImageMap FromFileSystemEntry(FileSystemEntry entry)
+        public static ImageMap FromFileSystemEntry(Stream stream)
         {
             var map = new ImageMap();
-
-            using (var stream = entry.Open())
             using (var reader = new StreamReader(stream))
             {
                 string line;

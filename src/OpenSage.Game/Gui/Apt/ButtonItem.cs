@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
@@ -14,6 +14,7 @@ namespace OpenSage.Gui.Apt
         private bool _isHovered = false;
         private bool _isDown = false;
         private ItemTransform _curTransform;
+        private List<(ButtonActionFlags, InstructionCollection)> _instsList;
         private List<InstructionCollection> _actionList;
 
         public override void Create(Character chararacter, AptContext context, SpriteItem parent = null)
@@ -25,8 +26,10 @@ namespace OpenSage.Gui.Apt
             Visible = true;
 
             _button = Character as Button;
-
-            _actionList = new List<InstructionCollection>();
+            _instsList = new();
+            _actionList = new();
+            foreach (var insts in _button.Actions)
+                _instsList.Add((insts.Flags, InstructionCollection.Parse(insts.Instructions)));
         }
 
 
@@ -45,9 +48,34 @@ namespace OpenSage.Gui.Apt
 
         public override bool HandleEvent(ClipEventFlags flags)
         {
-            throw new System.NotImplementedException(flags.ToString());
+            if (flags.HasFlag(ClipEventFlags.RollOver))
+                return HandleLocalEvent(ButtonActionFlags.IdleToOverUp);
+            if (flags.HasFlag(ClipEventFlags.Press))
+                return HandleLocalEvent(ButtonActionFlags.OverUpToOverDown);
+            if (flags.HasFlag(ClipEventFlags.Release))
+                return HandleLocalEvent(ButtonActionFlags.OverDownToOverUp);
+            if (flags.HasFlag(ClipEventFlags.RollOut))
+                return HandleLocalEvent(ButtonActionFlags.OverUpToIdle);
+            return false;
         }
 
+        public bool HandleLocalEvent(ButtonActionFlags flags)
+        {
+            var idx = _instsList.FindIndex(ba => ba.Item1.HasFlag(flags));
+            if (idx != -1)
+            {
+                _actionList.Add(_instsList[idx].Item2);
+                return true;
+            }
+            return false;
+        }
+        public override void EnqueueActions(TimeInterval gt)
+        {
+            // enqueue all actions
+            foreach (var action in _actionList)
+                Context.Avm.EnqueueContext(this, action, $"ButtonAction: \"{Name}\"");
+            _actionList.Clear();
+        }
         public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
 
@@ -69,10 +97,9 @@ namespace OpenSage.Gui.Apt
                     if (!_isHovered)
                     {
                         logger.Debug("Hit: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
-                        if (idx != -1)
+                        if (HandleLocalEvent(ButtonActionFlags.IdleToOverUp))
                         {
-                            _actionList.Add(_button.Actions[idx].Instructions);
+                            return true;
                         }
                         _isHovered = true;
                     }
@@ -80,10 +107,9 @@ namespace OpenSage.Gui.Apt
                     if (_isHovered && mouseDown && !_isDown)
                     {
                         logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
-                        if (idx != -1)
+                        if (HandleLocalEvent(ButtonActionFlags.OverUpToOverDown))
                         {
-                            _actionList.Add(_button.Actions[idx].Instructions);
+                            // _actionList.Add(_button.Actions[idx].Instructions);
                         }
                         _isDown = true;
                     }
@@ -91,10 +117,9 @@ namespace OpenSage.Gui.Apt
                     if (_isHovered && !mouseDown && _isDown)
                     {
                         logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
-                        var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
-                        if (idx != -1)
+                        if (HandleLocalEvent(ButtonActionFlags.OverDownToOverUp))
                         {
-                            _actionList.Add(_button.Actions[idx].Instructions);
+                            // _actionList.Add(_button.Actions[idx].Instructions);
                         }
                         _isDown = false;
                     }
@@ -105,10 +130,9 @@ namespace OpenSage.Gui.Apt
 
             if (_isHovered)
             {
-                var idx = _button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToIdle));
-                if (idx != -1)
+                if (HandleLocalEvent(ButtonActionFlags.OverUpToIdle))
                 {
-                    _actionList.Add(_button.Actions[idx].Instructions);
+                    // _actionList.Add(_button.Actions[idx].Instructions);
                 }
                 _isHovered = false;
                 logger.Debug("Unhovered: " + mousePos.X + "-" + mousePos.Y);
@@ -146,11 +170,5 @@ namespace OpenSage.Gui.Apt
             _curTransform.GeometryTransform *= Matrix3x2.CreateScale(windowScaling);
         }
 
-        public override void EnqueueActions(TimeInterval gt)
-        {
-            foreach (var action in _actionList)
-                Context.Avm.EnqueueContext(Parent, action, Name);
-            _actionList.Clear();
-        }
     }
 }

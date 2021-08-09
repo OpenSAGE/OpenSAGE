@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {

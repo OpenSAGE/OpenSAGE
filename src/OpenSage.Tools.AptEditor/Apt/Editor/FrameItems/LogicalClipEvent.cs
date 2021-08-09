@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
 {
@@ -38,7 +38,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
                 return previous;
             }, keyCode);
         }
-
+        // TODO
+        /*
         public void SetInstructions(LogicalInstructions instructions)
         {
             MakeEdit("Set clip event instructions", i =>
@@ -49,7 +50,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
                 return previous;
             }, instructions);
         }
-
+        */
         private void MakeEdit<T>(string description, Func<T, T> edit, T state) => _edit(new EditAction<T>(edit, state, description));
     }
 }

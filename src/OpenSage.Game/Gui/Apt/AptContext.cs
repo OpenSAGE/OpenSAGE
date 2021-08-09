@@ -1,10 +1,11 @@
 ﻿using OpenSage.Content;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Data;
 using Veldrid;
 using System.Collections.Generic;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 using System;
 using System.IO;
 
@@ -60,7 +61,7 @@ namespace OpenSage.Gui.Apt
             foreach (var import in AptFile.ImportMap)
             {
                 //open the apt file where our character is located
-                var importFile = AptFile.FromFileSystemEntry(import.Value);
+                var importFile = AptFile.FromFileSystemEntry(import.Value, AptFile.StreamGetter);
                 var importContext = new AptContext(Window, importFile, Avm)
                 {
                     Root = Root,
@@ -79,8 +80,16 @@ namespace OpenSage.Gui.Apt
             foreach (var v in movie.Frames)
                 foreach (var act in v.FrameItems)
                     if (act is InitAction iact)
-                        InitActionsDict[(int) iact.Sprite] = iact.Instructions;
-
+                    {
+                        var sid = (int) iact.Sprite;
+                        if (movie.Characters.Count <= sid)
+                            throw new InvalidDataException("Initactions should be attached to existing Sprites.");
+                        else if (InitActionsDict.TryGetValue(sid, out var _))
+                            throw new InvalidDataException("Initactions should onle be attached to Sprites.");
+                        else
+                            InitActionsDict[sid] = InstructionCollection.Parse(iact.Instructions);
+                    }
+            /*
             foreach (var ia in InitActionsDict)
             {
                 var spr = movie.Characters[ia.Key];
@@ -89,6 +98,7 @@ namespace OpenSage.Gui.Apt
                 else
                     throw new InvalidDataException("Initactions should onle be attached to Sprites.");
             }
+            */
 
             // resolve imports and exports
 

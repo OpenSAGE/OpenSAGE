@@ -1,9 +1,8 @@
 ﻿using System.IO;
-using OpenSage.Content.Translation;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public sealed class Text : Character
     {

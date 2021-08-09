@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor

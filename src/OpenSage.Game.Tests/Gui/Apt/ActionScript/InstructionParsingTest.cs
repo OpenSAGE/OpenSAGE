@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
@@ -106,7 +107,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             var rightValue = "test2";
             var stream = Get19SimpleInstructions(paramName, "test1", rightValue, magic);
             var reader = new BinaryReader(stream, UTF8, true);
-            var collection = InstructionCollection.Parse(stream, reader.ReadUInt32());
+            var collection = InstructionCollection.Parse(InstructionStorage.Parse(stream, reader.ReadUInt32()));
             // Assert that the last pathological branch instruction was not read
             Assert.True(collection.Count == 19);
 

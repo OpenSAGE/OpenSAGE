@@ -2,7 +2,7 @@
 using System.IO;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.FileFormats.Apt
 {
     public sealed class ConstantData
     {
@@ -14,9 +14,8 @@ namespace OpenSage.Data.Apt
             Entries = new List<ConstantEntry>();
         }
 
-        public static ConstantData FromFileSystemEntry(FileSystemEntry entry)
+        public static ConstantData FromFileSystemEntry(Stream stream)
         {
-            using var stream = entry.Open();
             using var reader = new BinaryReader(stream);
             var data = new ConstantData();
 

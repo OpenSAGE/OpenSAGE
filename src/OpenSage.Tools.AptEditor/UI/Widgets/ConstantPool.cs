@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.Util;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {

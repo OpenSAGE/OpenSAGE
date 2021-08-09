@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using OpenSage.FileFormats;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Tools.AptEditor.Util;

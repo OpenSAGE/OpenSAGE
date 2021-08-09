@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
 
     [Flags]
@@ -88,10 +88,10 @@ namespace OpenSage.Data.Apt.Characters
         public ButtonActionFlags Flags;
         public ButtonInput KeyCode;
         public Byte Reserved;
-        public InstructionCollection Instructions;
+        public InstructionStorage Instructions;
 
         public ButtonAction(ButtonActionFlags flags, ButtonInput input, Byte res,
-            InstructionCollection instructions)
+            InstructionStorage instructions)
         {
             Flags = flags;
             KeyCode = input;
@@ -105,7 +105,7 @@ namespace OpenSage.Data.Apt.Characters
             var input = reader.ReadUInt16AsEnum<ButtonInput>();
             var reserved = reader.ReadByte();
             var instructionsPosition = reader.ReadUInt32();
-            var instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
+            var instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
 
             return new ButtonAction(flags, input, reserved, instructions);
         }

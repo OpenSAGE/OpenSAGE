@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Big;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,7 +21,7 @@ namespace OpenSage.Tests.Data.Apt
         {
             InstalledFilesTestData.ReadFiles(".const", _output, entry =>
             {
-                var constFile = ConstantData.FromFileSystemEntry(entry);
+                var constFile = ConstantData.FromFileSystemEntry(entry.Open());
 
                 Assert.NotNull(constFile);
             });
@@ -36,7 +36,7 @@ namespace OpenSage.Tests.Data.Apt
             {
                 var entry = bigArchive.GetEntry(@"MainMenu.const");
 
-                var data = ConstantData.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
+                var data = ConstantData.FromFileSystemEntry(entry.Open());
                 Assert.NotNull(data);
 
                 //requires unmodified main menu

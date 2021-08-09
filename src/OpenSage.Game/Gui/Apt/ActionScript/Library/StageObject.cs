@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt.Characters;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {

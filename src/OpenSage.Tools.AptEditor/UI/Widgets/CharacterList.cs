@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets

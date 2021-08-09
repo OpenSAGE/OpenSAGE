@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.Apt.Writer

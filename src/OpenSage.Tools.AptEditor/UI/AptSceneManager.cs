@@ -3,8 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.Data;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
@@ -80,7 +81,7 @@ namespace OpenSage.Tools.AptEditor.UI
             AptFile aptFile;
             try
             {
-                aptFile = AptFile.FromFileSystemEntry(entry);
+                aptFile = AptFileHelper.FromFileSystemEntry(entry);
             }
             catch (FileNotFoundException fileNotFound)
             {

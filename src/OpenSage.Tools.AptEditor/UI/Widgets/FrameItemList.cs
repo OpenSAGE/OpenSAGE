@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.Apt.Editor.FrameItems;

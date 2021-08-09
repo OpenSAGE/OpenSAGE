@@ -1,7 +1,8 @@
 ﻿using System;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript.Library;
 using System.Linq;
+using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {

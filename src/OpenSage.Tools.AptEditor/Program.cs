@@ -16,9 +16,13 @@ namespace OpenSage.Tools.AptEditor
 {
     class Program: Application
     {
-        // [STAThread]
+        [STAThread]
         static void Main(string[] args)
         {
+
+            var w = new MainWindow();
+            w.Show();
+
             Platform.Start();
 
             var rootPath = Launcher();

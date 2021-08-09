@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;

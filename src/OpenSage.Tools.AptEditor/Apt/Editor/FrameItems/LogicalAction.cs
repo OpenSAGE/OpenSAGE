@@ -1,4 +1,4 @@
-﻿using Action = OpenSage.Data.Apt.FrameItems.Action;
+﻿using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
 {

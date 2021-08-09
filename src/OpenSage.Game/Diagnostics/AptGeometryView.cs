@@ -3,7 +3,7 @@ using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Content;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;

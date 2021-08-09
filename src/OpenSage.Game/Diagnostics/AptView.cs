@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;

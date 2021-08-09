@@ -1,5 +1,5 @@
 using System.IO;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 
 using System;
 using System.Text;

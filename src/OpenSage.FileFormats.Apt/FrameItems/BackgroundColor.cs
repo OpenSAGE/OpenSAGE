@@ -1,9 +1,8 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.FrameItems
+namespace OpenSage.FileFormats.Apt.FrameItems
 {
     public sealed class BackgroundColor : FrameItem
     {

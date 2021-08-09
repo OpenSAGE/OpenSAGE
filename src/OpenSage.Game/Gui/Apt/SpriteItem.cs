@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Library;
 using OpenSage.Mathematics;
 using Veldrid;
-using Action = OpenSage.Data.Apt.FrameItems.Action;
+using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
 
 namespace OpenSage.Gui.Apt
 {
@@ -30,7 +30,7 @@ namespace OpenSage.Gui.Apt
         /// <summary>
         /// required, because actions are always executed at the end of each frame
         /// </summary>
-        private List<Action> _actionList;
+        private List<InstructionCollection> _actionList;
 
         public ColorDelegate SetBackgroundColor { get; set; }
 
@@ -45,10 +45,10 @@ namespace OpenSage.Gui.Apt
         {
             _sprite = (Playable) character;
             _currentFrame = 0;
-            _actionList = new List<Action>();
+            _actionList = new();
             Content?.Dispose();
             RemoveToDispose(Content);
-            FrameLabels = new Dictionary<string, uint>();
+            FrameLabels = new();
             State = PlayState.PLAYING;
 
             Name = "";
@@ -240,7 +240,8 @@ namespace OpenSage.Gui.Apt
                     Content.RemoveItem(ro.Depth);
                     break;
                 case Action action:
-                    _actionList.Add(action);
+                    var a = InstructionCollection.Parse(action.Instructions);
+                    _actionList.Add(a);
                     break;
                 case InitAction iaction:
                     // executed in importing
@@ -337,7 +338,7 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction) && po.ClipEvents != null)
             {
-                displayItem.ClipEvents = new List<ClipEvent>(po.ClipEvents);
+                displayItem.RegisterClipEvents(po.ClipEvents);
                 displayItem.ClipEventDefinedContext = Context;
                 displayItem.CallClipEventLocal(ClipEventFlags.Initialize);
                 displayItem.CallClipEventLocal(ClipEventFlags.Load);
@@ -358,7 +359,7 @@ namespace OpenSage.Gui.Apt
         {
             // enqueue all actions
             foreach (var action in _actionList)
-                Context.Avm.EnqueueContext(this, action.Instructions, $"FrameAction: \"{Name}\"");
+                Context.Avm.EnqueueContext(this, action, $"FrameAction: \"{Name}\"");
             _actionList.Clear();
 
             // enqueue all subitems actions

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.FileFormats;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.FileFormats.Apt.ActionScript;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public sealed class Sprite : Playable
     {
-        public InstructionCollection InitActions { get; set; }
+        public InstructionStorage InitActions { get; set; }
         public static Sprite Parse(BinaryReader reader)
         {
             return new Sprite

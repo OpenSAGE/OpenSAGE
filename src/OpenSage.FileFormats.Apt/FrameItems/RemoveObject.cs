@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Apt.FrameItems
+namespace OpenSage.FileFormats.Apt.FrameItems
 {
     public sealed class RemoveObject : FrameItem
     {

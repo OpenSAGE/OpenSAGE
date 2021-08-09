@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {

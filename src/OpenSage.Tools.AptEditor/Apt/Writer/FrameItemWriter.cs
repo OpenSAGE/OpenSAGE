@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Utilities;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
-using Action = OpenSage.Data.Apt.FrameItems.Action;
+using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
 
 namespace OpenSage.Tools.AptEditor.Apt.Writer {
     public static partial class DataWriter

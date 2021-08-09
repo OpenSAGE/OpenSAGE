@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Tools.AptEditor.UI;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor

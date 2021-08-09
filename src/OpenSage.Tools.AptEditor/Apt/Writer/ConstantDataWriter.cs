@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using OpenSage.FileFormats;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.Apt.Writer

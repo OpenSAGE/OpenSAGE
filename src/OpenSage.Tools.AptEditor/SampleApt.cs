@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
 
@@ -43,13 +43,10 @@ namespace OpenSage.Tools.AptEditor
                 $"t 0:{triSize / 2}:{triSize / 2}:0:{triSize}:{triSize / 2}",
             });
             var translatedPlace = PlaceObject.Create(1, triangle);
-            translatedPlace.SetTransform(new ItemTransform
-            {
-                // GeometryRotation = Matrix3x2.Identity,
-                // GeometryTranslation = new Vector2(20, 0),
-                GeometryTransform = Matrix3x2.CreateTranslation(20, 0),
-                ColorTransform = ColorRgbaF.Red
-            });
+            translatedPlace.SetTransform(
+                Matrix3x2.CreateTranslation(20, 0),
+                ColorRgbaF.Red.ToColorRgba()
+            );
             var sprite = CreateSprite(aptFile, new[]
             {
                 PlaceObject.Create(0, triangle),
@@ -57,13 +54,11 @@ namespace OpenSage.Tools.AptEditor
             });
 
             var rotatedSprite = PlaceObject.Create(1, sprite);
-            rotatedSprite.SetTransform(new ItemTransform
-            {
-                GeometryTransform =
-                    Matrix3x2.CreateRotation(MathF.PI / 2) *
+            rotatedSprite.SetTransform(
+                Matrix3x2.CreateRotation(MathF.PI / 2) *
                     Matrix3x2.CreateTranslation(20, 20),
-                ColorTransform = ColorRgbaF.White
-            });
+                ColorRgbaF.White.ToColorRgba()
+            );
 
             var example1 = CreateSprite(aptFile, new[]
             {

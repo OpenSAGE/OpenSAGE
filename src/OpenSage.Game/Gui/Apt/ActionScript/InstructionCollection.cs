@@ -4,66 +4,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using OpenSage.FileFormats;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
-using static System.Text.Encoding;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    // Provides some helper functions to parse instructions
-    // Implements IDisposable, will automatically seek back the stream once disposed.
-    sealed class InstructionParseHelper : IDisposable
-    {
-        public readonly int StartPosition;
-        public int FurthestBranchDestination;
-
-        // Current Position (at the time of call) relative to StartPosition
-        public int CurrentPosition => (int) (InputStream.Position);
-
-        private Stream InputStream;
-        private long previousPosition;
-        private bool disposed;
-
-        public InstructionParseHelper(Stream input, long instructionStartPosition)
-        {
-            disposed = false;
-
-            InputStream = input;
-            previousPosition = InputStream.Position;
-
-            StartPosition = (int) instructionStartPosition;
-            InputStream.Seek(StartPosition, SeekOrigin.Begin);
-            FurthestBranchDestination = StartPosition;
-        }
-
-        public void Dispose()
-        {
-            if (!disposed)
-            {
-                disposed = true;
-                InputStream.Seek(previousPosition, SeekOrigin.Begin);
-            }
-        }
-
-        public BinaryReader GetReader()
-        {
-            return new BinaryReader(InputStream, UTF8, true);
-        }
-
-        // Check if we can continue to parse instructionsf
-        public bool CanParse(SortedList<int, InstructionBase> instructions)
-        {
-            return instructions.Count == 0 ||
-                instructions.Last().Value.Type != InstructionType.End ||
-                CurrentPosition <= FurthestBranchDestination;
-        }
-
-        // Will calculate FurthestBranchDestination with offset and the current RelativePosition
-        public void ReportBranchOffset(int offset)
-        {
-            FurthestBranchDestination = Math.Max(FurthestBranchDestination, CurrentPosition + offset);
-        }
-    }
-
     public sealed class InstructionCollection
     {
         private readonly SortedList<int, InstructionBase> _instructions;
@@ -129,27 +74,21 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _instructions[position];
         }
 
-        public static InstructionCollection Parse(Stream input, long instructionsPosition)
+        public static InstructionCollection Parse(InstructionStorage insts)
         {
-            var instructions = new SortedList<int, InstructionBase>();
-            using (var helper = new InstructionParseHelper(input, instructionsPosition))
-            {
-                var reader = helper.GetReader();
-                while (helper.CanParse(instructions))
-                {
-                    //now reader the instructions
-                    var instructionPosition = helper.CurrentPosition;
-                    var type = reader.ReadByteAsEnum<InstructionType>();
-                    var requireAlignment = InstructionAlignment.IsAligned(type);
 
-                    if (requireAlignment)
-                    {
-                        reader.Align(4);
-                    }
+            var codes = insts.GetPositionedInstructions();
+            var instructions = new SortedList<int, InstructionBase>();
+            {
+                
+                foreach(var kvp in codes)
+                {
+                    var instructionPosition = kvp.Key;
+                    var type = kvp.Value.Type;
+                    var parameters = kvp.Value.Parameters;
 
                     InstructionBase instruction = null;
-                    var parameters = new List<Value>();
-
+                    
                     switch (type)
                     {
                         case InstructionType.ToNumber:
@@ -295,107 +234,35 @@ namespace OpenSage.Gui.Apt.ActionScript
                             break;
                         case InstructionType.GotoFrame:
                             instruction = new GotoFrame(); // TODO need research
-                            parameters.Add(Value.FromInteger(reader.ReadInt32()));
                             break;
                         case InstructionType.GetURL:
                             instruction = new GetUrl();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.SetRegister:
                             instruction = new SetRegister();
-                            parameters.Add(Value.FromRegister(reader.ReadUInt32()));
                             break;
                         case InstructionType.GotoLabel:
                             instruction = new GotoLabel();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.PushData: // NIE doubtful and not used in any games
-                            {
-                                throw new NotImplementedException();
-                                instruction = new PushData();
-
-                                var count = reader.ReadUInt32();
-                                var constants = reader.ReadFixedSizeArrayAtOffset<uint>(() => reader.ReadUInt32(), count);
-
-                                foreach (var constant in constants)
-                                {
-                                    parameters.Add(Value.FromConstant(constant));
-                                }
-                            }
+                            throw new NotImplementedException();
+                            instruction = new PushData();
                             break;
                         case InstructionType.BranchAlways:
-                            {
-                                instruction = new BranchAlways();
-                                var offset = reader.ReadInt32();
-                                parameters.Add(Value.FromInteger(offset));
-                                helper.ReportBranchOffset(offset);
-                            }
+                            instruction = new BranchAlways();
                             break;
                         case InstructionType.GetURL2:
                             instruction = new GetUrl2();
                             break;
                         // OOP Related
                         case InstructionType.ConstantPool:
-                            {
-                                instruction = new ConstantPool();
-                                var count = reader.ReadUInt32();
-                                var constants = reader.ReadFixedSizeArrayAtOffset<uint>(() => reader.ReadUInt32(), count);
-
-                                foreach (var constant in constants)
-                                {
-                                    parameters.Add(Value.FromConstant(constant));
-                                }
-                            }
+                            instruction = new ConstantPool();
                             break;
                         case InstructionType.DefineFunction2: // TODO Flags?
-                            {
-                                instruction = new DefineFunction2();
-                                var name = reader.ReadStringAtOffset();
-                                var nParams = reader.ReadUInt32();
-                                var nRegisters = reader.ReadByte();
-                                var flags = reader.ReadUInt24();
-
-                                //list of parameter strings
-                                var paramList = reader.ReadFixedSizeListAtOffset<FunctionArgument>(() => new FunctionArgument()
-                                {
-                                    Register = reader.ReadInt32(),
-                                    Parameter = reader.ReadStringAtOffset(),
-                                }, nParams);
-
-                                parameters.Add(Value.FromString(name));
-                                parameters.Add(Value.FromInteger((int) nParams));
-                                parameters.Add(Value.FromInteger((int) nRegisters));
-                                parameters.Add(Value.FromInteger((int) flags));
-                                foreach (var param in paramList)
-                                {
-                                    parameters.Add(Value.FromInteger(param.Register));
-                                    parameters.Add(Value.FromString(param.Parameter));
-                                }
-                                //body size of the function
-                                parameters.Add(Value.FromInteger(reader.ReadInt32()));
-                                //skip 8 bytes
-                                reader.ReadUInt64();
-                            }
+                            instruction = new DefineFunction2();
                             break;
                         case InstructionType.DefineFunction:
-                            {
-                                instruction = new DefineFunction();
-                                var name = reader.ReadStringAtOffset();
-                                //list of parameter strings
-                                var paramList = reader.ReadListAtOffset<string>(() => reader.ReadStringAtOffset());
-
-                                parameters.Add(Value.FromString(name));
-                                parameters.Add(Value.FromInteger(paramList.Count));
-                                foreach (var param in paramList)
-                                {
-                                    parameters.Add(Value.FromString(param));
-                                }
-                                //body size of the function
-                                parameters.Add(Value.FromInteger(reader.ReadInt32()));
-                                //skip 8 bytes
-                                reader.ReadUInt64();
-                            }
+                            instruction = new DefineFunction();
                             break;
                         case InstructionType.CallFunction:
                             instruction = new CallFunction();
@@ -454,96 +321,69 @@ namespace OpenSage.Gui.Apt.ActionScript
 
 
                         case InstructionType.BranchIfTrue:
-                            {
-                                instruction = new BranchIfTrue();
-                                var offset = reader.ReadInt32();
-                                parameters.Add(Value.FromInteger(offset));
-                                helper.ReportBranchOffset(offset);
-                            }
+                            instruction = new BranchIfTrue();
                             break;
                         case InstructionType.GotoFrame2:
                             instruction = new GotoFrame2();
-                            parameters.Add(Value.FromInteger(reader.ReadInt32()));
                             break;
                         case InstructionType.EA_PushString:
                             instruction = new PushString();
-                            //the constant id that should be pushed
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.EA_PushConstantByte:
                             instruction = new PushConstantByte();
-                            //the constant id that should be pushed
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
                         case InstructionType.EA_GetStringVar:
                             instruction = new GetStringVar();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.EA_SetStringVar:
                             instruction = new SetStringVar();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.EA_GetStringMember:
                             instruction = new GetStringMember();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.EA_SetStringMember:
                             instruction = new SetStringMember();
-                            parameters.Add(Value.FromString(reader.ReadStringAtOffset()));
                             break;
                         case InstructionType.EA_PushValueOfVar:
                             instruction = new PushValueOfVar();
-                            //the constant id that should be pushed
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
 
                         case InstructionType.EA_GetNamedMember:
                             instruction = new GetNamedMember();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
                         case InstructionType.EA_CallNamedFuncPop:
                             instruction = new CallNamedFuncPop();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
                         case InstructionType.EA_CallNamedFunc:
                             instruction = new CallNamedFunc();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
                         case InstructionType.EA_CallNamedMethodPop:
                             instruction = new CallNamedMethodPop();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
-                        case InstructionType.EA_CallNamedMethod: // TODO name retrieve
+                        case InstructionType.EA_CallNamedMethod: 
                             instruction = new CallNamedMethod();
-                            parameters.Add(Value.FromConstant(reader.ReadByte()));
                             break;
 
                         case InstructionType.EA_PushFloat:
                             instruction = new PushFloat();
-                            parameters.Add(Value.FromFloat(reader.ReadSingle()));
                             break;
                         case InstructionType.EA_PushByte:
                             instruction = new PushByte();
-                            parameters.Add(Value.FromInteger(reader.ReadByte()));
                             break;
                         case InstructionType.EA_PushShort:
                             instruction = new PushShort();
-                            parameters.Add(Value.FromInteger(reader.ReadUInt16()));
                             break;
                         case InstructionType.EA_PushLong: // TODO follow ECMA-262
                             instruction = new PushLong();
-                            parameters.Add(Value.FromUInteger(reader.ReadUInt32()));
                             break;
-                        case InstructionType.End: // NIE do not know what to do
+                        case InstructionType.End: 
                             instruction = new End();
                             break;
                         case InstructionType.EA_PushRegister:
                             instruction = new PushRegister();
-                            parameters.Add(Value.FromRegister(reader.ReadByte()));
                             break;
                         case InstructionType.EA_PushConstantWord:
                             instruction = new PushConstantWord();
-                            parameters.Add(Value.FromConstant(reader.ReadUInt16()));
                             break;
                         case InstructionType.StrictEqual:
                             instruction = new StrictEquals();
@@ -570,7 +410,9 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                     if (instruction != null)
                     {
-                        instruction.Parameters = parameters;
+                        instruction.Parameters = new();
+                        for (int i = 0; i < parameters.Count; ++i)
+                            instruction.Parameters.Add(Value.FromStorage(parameters[i]));
                         instructions.Add(instructionPosition, instruction);
                     }
                 }

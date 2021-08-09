@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using MoonSharp.Interpreter.Execution.VM;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public sealed class Shape : Character
     {

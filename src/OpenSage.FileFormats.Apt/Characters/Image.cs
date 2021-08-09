@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public sealed class Image : Character
     {

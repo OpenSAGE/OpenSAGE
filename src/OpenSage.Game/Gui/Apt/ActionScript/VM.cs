@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenSage.FileFormats.Apt.ActionScript;
+using InstructionBase = OpenSage.Gui.Apt.ActionScript.Opcodes.InstructionBase;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {

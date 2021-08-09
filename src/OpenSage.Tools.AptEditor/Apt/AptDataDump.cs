@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Data;
 using System.Threading.Tasks;
@@ -26,11 +26,14 @@ namespace OpenSage.Tools.AptEditor.Apt
             ConstantData = ConstantDataWriter.Write(aptData.EntryOffset, file.Constants);
             ImageMapData = ImageMapWriter.Write(file.ImageMap);
             GeometryData = file.GeometryMap.ToDictionary(t => t.Key, t => t.Value.RawText);
+            // TODO of course
+            /*
             var textures = file.ImageMap.Mapping.Values
                 .Select(m => m.TextureId)
                 .Distinct()
-                .Select(id => FindTexture(file.FileSystem, $"apt_{file.MovieName}_{id}.tga"));
+                .Select(id => FindTexture(file.ParentDirectory, $"apt_{file.MovieName}_{id}.tga"));
             Textures = textures.ToArray();
+            */
         }
 
         public async Task WriteTo(DirectoryInfo target)

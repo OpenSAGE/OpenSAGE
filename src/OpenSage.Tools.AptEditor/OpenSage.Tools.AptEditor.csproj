@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Resources/AppIcon.ico</ApplicationIcon>
@@ -17,10 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
     <PackageReference Include="SharpFileDialog" Version="0.1.0-beta1-0018-g44d70ab277" />
-    <PackageReference Include="Xceed.Products.Wpf.Toolkit.AvalonDock" Version="4.2.21354.9000" />
   </ItemGroup>
 
   <ItemGroup>

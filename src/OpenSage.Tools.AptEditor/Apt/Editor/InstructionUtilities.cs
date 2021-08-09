@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
+using Value = OpenSage.Gui.Apt.ActionScript.Value;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
@@ -129,6 +131,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBlock NextBlockDefault;
         public string Label;
         public CodeTree Tree = null;
+        // The decompilation depends on the assumption that
+        // ConstantPool() is only executed at most once in one segment.
         public List<Value> Constants;
         public Dictionary<int, string> Registers;
 
@@ -154,7 +158,6 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 node.Instruction = inst;
                 node.GetExpressions(Tree);
                 Tree.NodeList.Add(node);
-                
             }
         }
 
@@ -551,7 +554,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public Dictionary<int, string> RegNames;
 
         // public 
-
+        public LogicalInstructions(InstructionStorage insts) : this(InstructionCollection.Parse(insts)) { }
         public LogicalInstructions(InstructionCollection insts, List<ConstantEntry> consts = null, int index_offset = 0, List<Value> constpool = null, Dictionary<int, string> regnames = null)
         {
             Insts = insts;

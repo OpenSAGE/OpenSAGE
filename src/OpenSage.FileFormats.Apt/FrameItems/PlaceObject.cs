@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.FileFormats;
-using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.FrameItems
+namespace OpenSage.FileFormats.Apt.FrameItems
 {
     public enum ClipEventFlags : uint // TODO what the hell are all kinds of this...it is different to the swf file formats.
     {
@@ -36,7 +34,7 @@ namespace OpenSage.Data.Apt.FrameItems
     {
         public ClipEventFlags Flags { get; set; }
         public Byte KeyCode { get; set; }
-        public InstructionCollection Instructions { get; set; }
+        public InstructionStorage Instructions { get; set; }
 
         public static ClipEvent Parse(BinaryReader reader)
         {
@@ -46,7 +44,7 @@ namespace OpenSage.Data.Apt.FrameItems
             var offsetToNext = reader.ReadUInt32();
             //var keycode = reader.ReadByte();
             var instructionsPosition = reader.ReadUInt32();
-            ev.Instructions = InstructionCollection.Parse(reader.BaseStream, instructionsPosition);
+            ev.Instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
             return ev;
         }
     }
@@ -167,11 +165,10 @@ namespace OpenSage.Data.Apt.FrameItems
             }
         }
 
-        public void SetTransform(in ItemTransform transform)
+        public void SetTransform(in Matrix3x2? m, in ColorRgba? c)
         {
-            var matrix = transform.GeometryTransform;
-            SetTransform(matrix);
-            SetColorTransform(transform.ColorTransform.ToColorRgba());
+            SetTransform(m);
+            SetColorTransform(c);
         }
 
         public void SetTransform(in Matrix3x2? matrix)

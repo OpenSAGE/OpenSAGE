@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.FileFormats;
 using OpenSage.Gui.Apt.ActionScript.Library;
 
@@ -200,6 +200,26 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+        public static Value FromStorage(ValueStorage s)
+        {
+            switch (s.Type)
+            {
+                case RawValueType.String:
+                    return FromString(s.String);
+                case RawValueType.Integer:
+                    return FromInteger(s.Number);
+                case RawValueType.Float:
+                    return FromFloat(s.Decimal);
+                case RawValueType.Boolean:
+                    return FromBoolean(s.Boolean);
+                case RawValueType.Constant:
+                    return FromConstant((uint) s.Number);
+                case RawValueType.Register:
+                    return FromRegister((uint) s.Number);
+                default:
+                    throw new InvalidOperationException("Well...This situation is really weird to be reached.");
+            }
+        }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

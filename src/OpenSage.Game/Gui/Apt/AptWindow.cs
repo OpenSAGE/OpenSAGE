@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Data;
 using OpenSage.Content;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -209,7 +210,7 @@ namespace OpenSage.Gui.Apt
         {
             var aptFileName = System.IO.Path.ChangeExtension(movie, ".apt");
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
-            var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
 
             return aptFile;
         }

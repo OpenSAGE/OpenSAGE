@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.FileFormats.Apt
 {
     public sealed class Export
     {

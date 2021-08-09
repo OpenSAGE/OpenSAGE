@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Apt.FrameItems;
-using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.FileFormats.Apt
 {
     public sealed class Frame
     {

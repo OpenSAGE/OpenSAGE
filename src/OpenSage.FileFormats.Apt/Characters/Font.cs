@@ -2,7 +2,7 @@
 using System.IO;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.FileFormats.Apt.Characters
 {
     public struct FontGlyph
     {

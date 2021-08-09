@@ -4,11 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.FileFormats.Apt
 {
     public enum GeometryStyle
     {
@@ -36,9 +35,8 @@ namespace OpenSage.Data.Apt
             Container = container;
         }
 
-        public static Geometry FromFileSystemEntry(AptFile container, FileSystemEntry entry)
+        public static Geometry FromFileSystemEntry(AptFile container, Stream stream)
         {
-            using var stream = entry.Open();
             using var reader = new StreamReader(stream);
             return Parse(container, reader);
         }

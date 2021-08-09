@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Gui.Apt.ActionScript.Opcodes
+﻿using OpenSage.FileFormats.Apt.ActionScript;
+
+namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     /// <summary>
     /// Used to get variables from the engine (?)

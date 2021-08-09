@@ -7,7 +7,7 @@ using System.Text;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
@@ -590,7 +590,7 @@ namespace OpenSage
         public AptWindow LoadAptWindow(string aptFileName)
         {
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
-            var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
             return new AptWindow(this, ContentManager, aptFile);
         }
 

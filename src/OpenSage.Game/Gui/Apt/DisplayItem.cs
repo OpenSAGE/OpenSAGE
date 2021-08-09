@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Graphics;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Library;
@@ -85,7 +86,7 @@ namespace OpenSage.Gui.Apt
         public AptContext Context { get; protected set; }
         public SpriteItem Parent { get; protected set; }
         public Character Character { get; protected set; }
-        public List<ClipEvent> ClipEvents { get; set; } = new List<ClipEvent>();
+        public Dictionary<ClipEventFlags, List<(byte, InstructionCollection)>> ClipEvents { get; protected set; } = new ();
         public AptContext ClipEventDefinedContext { get; set; }
         public List<ConstantEntry> Constants => Context.AptFile.Constants.Entries;
         public ItemTransform Transform { get; set; } = ItemTransform.None;
@@ -112,6 +113,22 @@ namespace OpenSage.Gui.Apt
 
         public virtual void Update(TimeInterval gt) { }
 
+        public void RegisterClipEvents(List<ClipEvent> ce)
+        {
+            ClipEvents = new();
+            foreach (var ev in ce) {
+                foreach (ClipEventFlags f in Enum.GetValues(typeof(ClipEventFlags)).Cast<Enum>().Where(ev.Flags.HasFlag))
+                {
+                    if (!ClipEvents.TryGetValue(f, out var lst))
+                    {
+                        ClipEvents[f] = new();
+                        ClipEvents.TryGetValue(f, out lst);
+                    }
+                    lst.Add((ev.KeyCode, InstructionCollection.Parse(ev.Instructions)));
+                }
+            }
+        }
+
         public void Render(AptRenderingContext renderingContext)
         {
             if (ClipDepth.HasValue)
@@ -134,14 +151,14 @@ namespace OpenSage.Gui.Apt
         {
             if (ClipEvents == null)
                 return false;
-            foreach (var clipEvent in ClipEvents)
-            {
-                if (clipEvent.Flags.HasFlag(flags))
-                {
-                    Context.Avm.EnqueueContext(clipEvent.Instructions, ClipEventDefinedContext, ScriptObject, Name + "." + flags.ToString());
-                    return true;
-                }
+            foreach (ClipEventFlags f in Enum.GetValues(typeof(ClipEventFlags)).Cast<Enum>().Where(flags.HasFlag))
+            { // TODO KeyCode special jdudge
+                if (ClipEvents.TryGetValue(f, out var lst))
+                    foreach (var ce in lst)
+                        Context.Avm.EnqueueContext(ce.Item2, ClipEventDefinedContext, ScriptObject, Name + "." + flags.ToString());
+                return true;
             }
+
             return false;
         }
 

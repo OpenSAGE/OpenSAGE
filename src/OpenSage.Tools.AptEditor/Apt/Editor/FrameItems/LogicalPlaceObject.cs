@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Apt.FrameItems;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
