@@ -33,9 +33,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override string GetParameterDesc(ActionContext context)
         {
-            if (Parameters.Count <= 5)
-                return $"{Parameters.Count} Constants: {string.Join(", ", Parameters.Select((x)=>x.ToString()).ToArray())}";
-            return $"{Parameters.Count} Constants: {Parameters[0]}, {Parameters[1]}, {Parameters[2]}, ..., {Parameters[Parameters.Count - 1]}";
+            if (Parameters.Count <= 6)
+                return $"{Parameters.Count - 1} Constants: {string.Join(", ", Parameters.Skip(1).Select((x)=>x.ToString()).ToArray())}";
+            return $"{Parameters.Count - 1} Constants: {Parameters[1]}, {Parameters[2]}, {Parameters[3]}, ..., {Parameters[Parameters.Count - 1]}";
         }
     }
 

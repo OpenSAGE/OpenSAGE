@@ -63,7 +63,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
         }
     }
 
-    public sealed class InstructionStorage
+    public sealed class InstructionStorage : IDataStorage
     {
         private readonly SortedList<int, InstructionCode> _instructions;
 
@@ -284,7 +284,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
 
                         case InstructionType.PushData:
                             paramSequence.Add(RawParamType.UI32);
-                            paramSequence.Add(RawParamType.ArraySizeNoPutInParam);
+                            paramSequence.Add(RawParamType.ArraySize);
                             paramSequence.Add(RawParamType.ArrayBegin);
                             paramSequence.Add(RawParamType.UI32);
                             paramSequence.Add(RawParamType.Constant);
@@ -292,7 +292,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                             break;
                         case InstructionType.ConstantPool:
                             paramSequence.Add(RawParamType.UI32);
-                            paramSequence.Add(RawParamType.ArraySizeNoPutInParam);
+                            paramSequence.Add(RawParamType.ArraySize);
                             paramSequence.Add(RawParamType.ArrayBegin);
                             paramSequence.Add(RawParamType.UI32);
                             paramSequence.Add(RawParamType.Constant);
@@ -343,6 +343,24 @@ namespace OpenSage.FileFormats.Apt.ActionScript
             }
 
             return new InstructionStorage(instructions);
+        }
+
+        public void Write(BinaryWriter writer, MemoryPool memory)
+        {
+            foreach (var kvp in _instructions)
+            {
+                var instruction = kvp.Value;
+                if (instruction.Type == InstructionType.Padding)
+                    continue;
+
+                writer.Write((Byte) instruction.Type);
+                if (InstructionAlignment.IsAligned(instruction.Type))
+                    while (writer.BaseStream.Position % Constants.IntPtrSize != 0)
+                        writer.Write((Byte) 0);
+                    
+                instruction.Write(writer, memory);
+            }
+
         }
     }
 }

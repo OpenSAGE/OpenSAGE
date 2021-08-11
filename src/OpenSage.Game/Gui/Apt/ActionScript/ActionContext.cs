@@ -69,7 +69,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             var pool = new List<Value>();
 
-            for (var i = 0; i < Parameters.Count; ++i)
+            // The first parameter is the constant count, omit it
+            for (var i = 1; i < Parameters.Count; ++i)
             {
                 Value result;
                 var entry = GlobalConstantPool[Parameters[i].ToInteger()];

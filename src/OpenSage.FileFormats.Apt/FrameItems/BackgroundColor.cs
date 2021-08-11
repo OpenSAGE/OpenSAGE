@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
@@ -13,6 +14,11 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             var backgroundColor = new BackgroundColor();
             backgroundColor.Color = reader.ReadColorRgba();
             return backgroundColor;
+        }
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) FrameItemType.BackgroundColor);
+            writer.Write(Color);
         }
     }
 }

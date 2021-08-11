@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt.Characters
 {
     public sealed class Movie : Playable
     {
+        public uint Unknown;
         public List<Character> Characters { get; private set; }
         public List<Import> Imports { get; private set; }
         public List<Export> Exports { get; private set; }
@@ -18,7 +20,7 @@ namespace OpenSage.FileFormats.Apt.Characters
         {
             var movie = new Movie();
             movie.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
-            var unknown = reader.ReadUInt32();
+            movie.Unknown = reader.ReadUInt32();
 
             movie.Characters = reader.ReadListAtOffset<Character>(() => Character.Create(reader, container), true);
 
@@ -30,6 +32,34 @@ namespace OpenSage.FileFormats.Apt.Characters
             movie.Exports = reader.ReadListAtOffset<Export>(() => Export.Parse(reader));
 
             return movie;
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) CharacterType.Movie);
+            writer.Write((UInt32) Character.SIGNATURE);
+
+            writer.WriteArrayAtOffsetWithSize(Frames, pool);
+            writer.Write(Unknown);
+            Func<int, BinaryWriter, MemoryPool, bool> f = (i, w, p) =>
+            {
+                var chr = Characters[i];
+                if (chr == null || i == 0) // TODO i = 0 's address is itself; repair it after the dump is complete
+                {
+                    return false;
+                }
+                else
+                    chr.Write(w, p);
+                return true;
+            };
+            writer.WriteArrayAtOffsetWithSize(Characters.Count, f, pool, true);
+
+            writer.Write((UInt32) ScreenWidth);
+            writer.Write((UInt32) ScreenHeight);
+            writer.Write((UInt32) MillisecondsPerFrame);
+
+            writer.WriteArrayAtOffsetWithSize(Imports, pool);
+            writer.WriteArrayAtOffsetWithSize(Exports, pool);
         }
 
         public static Movie CreateEmpty(AptFile container, int width, int height, int millisecondsPerFrame)

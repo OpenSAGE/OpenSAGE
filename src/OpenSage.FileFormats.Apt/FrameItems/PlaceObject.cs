@@ -30,10 +30,11 @@ namespace OpenSage.FileFormats.Apt.FrameItems
         Initialize = 0x000001,
     }
 
-    public sealed class ClipEvent
+    public sealed class ClipEvent : IDataStorage
     {
         public ClipEventFlags Flags { get; set; }
         public Byte KeyCode { get; set; }
+        public uint OffsetToNext;
         public InstructionStorage Instructions { get; set; }
 
         public static ClipEvent Parse(BinaryReader reader)
@@ -41,11 +42,18 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             var ev = new ClipEvent();
             ev.Flags = reader.ReadUInt24AsEnum<ClipEventFlags>();
             ev.KeyCode = reader.ReadByte();
-            var offsetToNext = reader.ReadUInt32();
+            ev.OffsetToNext = reader.ReadUInt32();
             //var keycode = reader.ReadByte();
             var instructionsPosition = reader.ReadUInt32();
             ev.Instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
             return ev;
+        }
+        public void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.WriteUInt24((uint) Flags);
+            writer.Write(KeyCode);
+            writer.Write(OffsetToNext);
+            writer.WriteInstructions(Instructions, pool);
         }
     }
 
@@ -131,6 +139,31 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             }
 
             return placeobject;
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool memory)
+        {
+            writer.Write((UInt32) FrameItemType.PlaceObject);
+            writer.Write((UInt32) Flags);
+            writer.Write((Int32) Depth);
+            writer.Write((Int32) Character);
+            writer.Write((Matrix2x2) RotScale);
+            writer.Write((Vector2) Translation);
+            writer.Write((ColorRgba) Color);
+            writer.Write((UInt32) 0); // unknown
+            writer.Write((Single) Ratio);
+
+            if (Flags.HasFlag(PlaceObjectFlags.HasName))
+                writer.WriteStringAtOffset(Name, memory);
+            else
+                writer.Write((UInt32) 0);
+
+            writer.Write((Int32) ClipDepth);
+
+            if (Flags.HasFlag(PlaceObjectFlags.HasClipAction))
+                writer.WriteArrayAtOffsetWithSize(ClipEvents, memory);
+            else
+                writer.Write((UInt32) 0);
         }
 
         public static PlaceObject Create(int depth)

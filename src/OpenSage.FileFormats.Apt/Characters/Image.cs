@@ -1,4 +1,5 @@
-using System.IO;
+﻿using System.IO;
+using System;
 
 namespace OpenSage.FileFormats.Apt.Characters
 {
@@ -11,6 +12,13 @@ namespace OpenSage.FileFormats.Apt.Characters
             var image = new Image();
             image.TextureID = reader.ReadUInt32();
             return image;
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) CharacterType.Image);
+            writer.Write((UInt32) Character.SIGNATURE);
+            writer.Write((UInt32) TextureID);
         }
     }
 }

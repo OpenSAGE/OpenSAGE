@@ -2,7 +2,6 @@
 using System.Linq;
 using System.IO;
 using OpenSage.FileFormats.Apt;
-using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Data;
 using System.Threading.Tasks;
 
@@ -20,14 +19,15 @@ namespace OpenSage.Tools.AptEditor.Apt
 
         public AptDataDump(AptFile file)
         {
+            // TODO of course
+            /*
             Name = file.MovieName;
             var aptData = AptDataWriter.Write(file.Movie);
             AptData = aptData.Data;
             ConstantData = ConstantDataWriter.Write(aptData.EntryOffset, file.Constants);
             ImageMapData = ImageMapWriter.Write(file.ImageMap);
             GeometryData = file.GeometryMap.ToDictionary(t => t.Key, t => t.Value.RawText);
-            // TODO of course
-            /*
+            
             var textures = file.ImageMap.Mapping.Values
                 .Select(m => m.TextureId)
                 .Distinct()

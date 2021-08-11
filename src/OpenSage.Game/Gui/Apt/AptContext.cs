@@ -61,7 +61,7 @@ namespace OpenSage.Gui.Apt
             foreach (var import in AptFile.ImportMap)
             {
                 //open the apt file where our character is located
-                var importFile = AptFile.FromFileSystemEntry(import.Value, AptFile.StreamGetter);
+                var importFile = AptFile.FromPath(import.Value, AptFile.StreamGetter);
                 var importContext = new AptContext(Window, importFile, Avm)
                 {
                     Root = Root,

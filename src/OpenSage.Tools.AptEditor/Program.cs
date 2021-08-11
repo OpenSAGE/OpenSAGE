@@ -8,20 +8,15 @@ using OpenSage.Tools.AptEditor.UI;
 using OpenSage.Tools.AptEditor.Util;
 using Veldrid;
 using Veldrid.StartupUtilities;
-
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace OpenSage.Tools.AptEditor
 {
-    class Program: Application
+    class Program
     {
-        [STAThread]
+        
         static void Main(string[] args)
         {
-
-            var w = new MainWindow();
-            w.Show();
 
             Platform.Start();
 

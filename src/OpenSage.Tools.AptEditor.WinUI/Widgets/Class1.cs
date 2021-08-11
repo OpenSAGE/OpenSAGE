@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using AvalonDock.Layout;
 using AvalonDock;
 
-namespace OpenSage.Tools.AptEditor.UI.NewWidgets
+namespace OpenSage.Tools.AptEditor.WinUI.Widgets
 {
     class Class1 : WidgetBase
     {

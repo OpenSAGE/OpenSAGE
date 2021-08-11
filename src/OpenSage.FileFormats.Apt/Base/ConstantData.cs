@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
+using System.Text;
 using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class ConstantData
+    public sealed class ConstantData : IDataStorage
     {
         public List<ConstantEntry> Entries { get; internal set; }
         public uint AptDataEntryOffset { get; internal set; }
@@ -50,11 +52,7 @@ namespace OpenSage.FileFormats.Apt
                     case ConstantEntryType.Undef:
                         throw new InvalidDataException("Undefined const entry");
                     case ConstantEntryType.String:
-                        var strOffset = reader.ReadUInt32();
-                        var pos = reader.BaseStream.Position;
-                        reader.BaseStream.Seek(strOffset, SeekOrigin.Begin);
-                        constEntry.Value = reader.ReadNullTerminatedString();
-                        reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+                        constEntry.Value = reader.ReadStringAtOffset();
                         break;
                     case ConstantEntryType.Register:
                         constEntry.Value = reader.ReadUInt32();
@@ -82,6 +80,47 @@ namespace OpenSage.FileFormats.Apt
             }
 
             return data;
+        }
+        public void Write(BinaryWriter writer, MemoryPool memory)
+        {
+            writer.Write(Encoding.ASCII.GetBytes(Constants.ConstFileMagic));
+            writer.Write((UInt32) AptDataEntryOffset); // TODO from where???
+            // var ___ = 0 / 0;
+            writer.Write((UInt32) Entries.Count);
+            writer.Write((UInt32) 32);
+
+            for (var i = 0; i < Entries.Count; i++)
+            {
+                var entry = Entries[i];
+
+                writer.Write((UInt32) entry.Type);
+
+                switch (entry.Type)
+                {
+                    case ConstantEntryType.Undef:
+                        throw new InvalidDataException("Undefined const entry");
+                    case ConstantEntryType.String:
+                        writer.WriteStringAtOffset((string) entry.Value, memory);
+                        break;
+                    case ConstantEntryType.Register:
+                        writer.Write((UInt32) entry.Value);
+                        break;
+                    case ConstantEntryType.Boolean:
+                        writer.WriteBooleanUInt32((Boolean) entry.Value);
+                        break;
+                    case ConstantEntryType.Float:
+                        writer.Write((Single) entry.Value);
+                        break;
+                    case ConstantEntryType.Integer:
+                        writer.Write((Int32) entry.Value);
+                        break;
+                    case ConstantEntryType.Lookup:
+                        writer.Write((UInt32) entry.Value);
+                        break;
+                    default:
+                        throw new InvalidDataException();
+                }
+            }
         }
     }
 

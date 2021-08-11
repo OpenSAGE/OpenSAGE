@@ -1,0 +1,40 @@
+﻿
+<Window x:Class="OpenSage.Tools.AptEditor.WinUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OpenSage.Tools.AptEditor.WinUI"
+        xmlns:w="clr-namespace:OpenSage.Tools.AptEditor.WinUI.Widgets"
+        xmlns:avalonDock ="https://github.com/Dirkster99/AvalonDock"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="720" Width="1280">
+    <Grid>
+        <avalonDock:DockingManager x:Name="uxDockingManager">
+            <avalonDock:LayoutRoot>
+                <avalonDock:LayoutPanel Orientation="Vertical" DockHeight="*" DockWidth="*">
+                    <avalonDock:LayoutPanel Orientation="Horizontal">
+                        <avalonDock:LayoutDocumentPane>
+                            <w:Class1/>
+                            <avalonDock:LayoutDocument Title="Document1">
+                                
+                            </avalonDock:LayoutDocument>
+                        </avalonDock:LayoutDocumentPane>
+                        <avalonDock:LayoutDocumentPane DockWidth="150">
+                            <!-- ツールウィンドウ -->
+                            <avalonDock:LayoutDocument Title="ToolWindow1">
+                                <w:Class1/>
+                            </avalonDock:LayoutDocument>
+                        </avalonDock:LayoutDocumentPane>
+                    </avalonDock:LayoutPanel>
+                    <avalonDock:LayoutDocumentPane DockHeight="100" DockWidth="*">
+                        <!-- ツールウィンドウ -->
+                        <avalonDock:LayoutDocument Title="ToolWindow2">
+                            <w:Class1/>
+                        </avalonDock:LayoutDocument>
+                    </avalonDock:LayoutDocumentPane>
+                </avalonDock:LayoutPanel>
+            </avalonDock:LayoutRoot>
+        </avalonDock:DockingManager>
+    </Grid>
+</Window>

@@ -38,6 +38,15 @@ namespace OpenSage.FileFormats.Apt.Characters
             };
         }
 
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) CharacterType.Shape);
+            writer.Write((UInt32) Character.SIGNATURE);
+            var b = Bounds;
+            writer.Write(new Vector4(b.Left, b.Top, b.Right, b.Bottom));
+            writer.Write((UInt32) GeometryId);
+        }
+
         public void Modify(uint newGeometryId, bool modifyBounds = false, RectangleF? newBounds = null)
         {
             if (!Container.GeometryMap.TryGetValue(newGeometryId, out var geometry))

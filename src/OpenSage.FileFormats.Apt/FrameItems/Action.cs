@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System;
 using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.FileFormats.Apt.FrameItems
@@ -13,6 +14,12 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             var instructionsPosition = reader.ReadUInt32();
             action.Instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
             return action;
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) FrameItemType.Action);
+            writer.WriteInstructions(Instructions, pool);
         }
     }
 }

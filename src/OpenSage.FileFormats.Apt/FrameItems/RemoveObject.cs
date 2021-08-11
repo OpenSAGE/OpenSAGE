@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System;
 
 namespace OpenSage.FileFormats.Apt.FrameItems
 {
@@ -12,6 +13,12 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             {
                 Depth = reader.ReadInt32()
             };
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) FrameItemType.RemoveObject);
+            writer.Write(Depth);
         }
 
         public static RemoveObject Create(int depth)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using OpenSage.FileFormats.Apt.ActionScript;
 
@@ -102,7 +103,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            foreach (var constant in Parameters)
+            // The first parameter is constant count, omit it
+            foreach (var constant in Parameters.Skip(1))
             {
                 context.Push(constant.ResolveConstant(context));
             }

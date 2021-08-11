@@ -19,9 +19,10 @@ namespace OpenSage.FileFormats.Apt.Characters
         StateHit = 8
     }
 
-    public struct ButtonRecord
+    public struct ButtonRecord : IDataStorage
     {
         public ButtonRecordFlags Flags;
+        public uint Reserved;
         public uint Character;
         public int Depth;
         public Matrix2x2 RotScale;
@@ -33,6 +34,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             Vector2 translation, ColorRgbaF color, Vector4 unknown)
         {
             Flags = flags;
+            Reserved = reserved;
             Character = character;
             Depth = depth;
             RotScale = rotscale;
@@ -53,6 +55,18 @@ namespace OpenSage.FileFormats.Apt.Characters
                 reader.ReadColorRgbaF(),
                 reader.ReadVector4()
                 );
+        }
+
+        public void Write(BinaryWriter writer, MemoryPool _)
+        {
+            writer.Write((byte) Flags);
+            writer.WriteUInt24(Reserved);
+            writer.Write(Character);
+            writer.Write(Depth);
+            writer.Write(RotScale);
+            writer.Write(Translation);
+            writer.Write(Color);
+            writer.Write(Unknown);
         }
     }
 
@@ -83,7 +97,7 @@ namespace OpenSage.FileFormats.Apt.Characters
         Unknown = 240,
     }
 
-    public struct ButtonAction
+    public struct ButtonAction : IDataStorage
     {
         public ButtonActionFlags Flags;
         public ButtonInput KeyCode;
@@ -101,13 +115,19 @@ namespace OpenSage.FileFormats.Apt.Characters
 
         public static ButtonAction Parse(BinaryReader reader)
         {
-            var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
-            var input = reader.ReadUInt16AsEnum<ButtonInput>();
-            var reserved = reader.ReadByte();
-            var instructionsPosition = reader.ReadUInt32();
-            var instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
+            return new(
+                reader.ReadByteAsEnumFlags<ButtonActionFlags>(),
+                reader.ReadUInt16AsEnum<ButtonInput>(),
+                reader.ReadByte(),
+                InstructionStorage.Parse(reader.BaseStream, reader.ReadUInt32()));
+        }
 
-            return new ButtonAction(flags, input, reserved, instructions);
+        public void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((byte) Flags);
+            writer.Write((UInt16) KeyCode);
+            writer.Write((byte) Reserved);
+            writer.WriteInstructions(Instructions, pool);
         }
     }
 
@@ -123,7 +143,6 @@ namespace OpenSage.FileFormats.Apt.Characters
         public static Button Parse(BinaryReader reader)
         {
             var button = new Button();
-
             button.IsMenu = reader.ReadBooleanUInt32Checked();
             button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
@@ -133,9 +152,29 @@ namespace OpenSage.FileFormats.Apt.Characters
 
             //TODO: read actionscript related stuff and buttonrecords
             button.Records = reader.ReadListAtOffset<ButtonRecord>(() => ButtonRecord.Parse(reader));
-
             button.Actions = reader.ReadListAtOffset<ButtonAction>(() => ButtonAction.Parse(reader));
             return button;
+        }
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) CharacterType.Button);
+            writer.Write((UInt32) Character.SIGNATURE);
+            writer.WriteBooleanUInt32(IsMenu);
+            writer.Write((Vector4) Bounds);
+
+            writer.Write((uint) Triangles.Length);
+            writer.Write((uint) Vertices.Length);
+            writer.WriteArrayAtOffset(Triangles.Length,
+                (i, w, p) => {
+                    var ti = Triangles[i];
+                    w.Write(ti.IDX0);
+                    w.Write(ti.IDX1);
+                    w.Write(ti.IDX2);
+                }, pool);
+            writer.WriteArrayAtOffset(Vertices.Length, (i, w, p) => w.Write(Vertices[i]), pool);
+
+            writer.WriteArrayAtOffsetWithSize(Records, pool);
+            writer.WriteArrayAtOffsetWithSize(Actions, pool);
         }
     }
 }

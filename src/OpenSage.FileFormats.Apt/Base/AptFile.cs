@@ -9,6 +9,7 @@ using OpenSage.FileFormats.Apt.FrameItems;
 namespace OpenSage.FileFormats.Apt
 {
     public sealed class AptFile
+
     {
         public string ParentDirectory { get; }
         public ConstantData Constants { get; }
@@ -30,7 +31,7 @@ namespace OpenSage.FileFormats.Apt
             StreamGetter = getter;
         }
 
-        private void Parse(BinaryReader reader)
+        public void Parse(BinaryReader reader)
         {
             //jump to the entry offset
             var entryOffset = Constants.AptDataEntryOffset;
@@ -41,43 +42,13 @@ namespace OpenSage.FileFormats.Apt
 
             //set first character to itself
             Movie.Characters[0] = Movie;
-
-            //load the corresponding image map
-            var datPath = Path.Combine(ParentDirectory, MovieName + ".dat");
-            using (var datEntry = StreamGetter(datPath))
-                ImageMap = ImageMap.FromFileSystemEntry(datEntry);
-
-            //resolve geometries
-            GeometryMap = new Dictionary<uint, Geometry>();
-            foreach (Shape shape in Movie.Characters.FindAll((x) => x is Shape))
-            {
-                var ruPath = Path.Combine(ParentDirectory, MovieName + "_geometry", +shape.GeometryId + ".ru");
-                using (var shapeEntry = StreamGetter(ruPath))
-                {
-                    var shapeGeometry = Geometry.FromFileSystemEntry(this, shapeEntry);
-                    GeometryMap[shape.GeometryId] = shapeGeometry;
-                }
-            }
-
-            ImportMap = new Dictionary<string, string>();
-            //resolve imports
-            foreach (var import in Movie.Imports)
-            if (!ImportMap.ContainsKey(import.Movie))
-                {
-                    var importPath = Path.Combine(ParentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                    var importEntry = StreamGetter(importPath);
-                    if(importEntry == null)
-                        throw new FileNotFoundException("Cannot find imported file", importPath);
-                    ImportMap[import.Movie] = importPath;
-
-                    // Some dirty tricks to avoid the above exception
-                    FromFileSystemEntry(importPath, StreamGetter);
-                }                               
-
         }
-        public static AptFile FromFileSystemEntry(string entryPath, Func<string, Stream> streamGetter)
+
+
+        public static AptFile FromPath(string entryPath, Func<string, Stream> streamGetter)
         {
             var movieName = Path.GetFileNameWithoutExtension(entryPath);
+            var parentDirectory = Path.GetDirectoryName(entryPath);
 
             using (var reader = new BinaryReader(streamGetter(entryPath), Encoding.ASCII, true))
             {
@@ -97,12 +68,50 @@ namespace OpenSage.FileFormats.Apt
                     // Path.Combine(entryPath, Path.ChangeExtension(import.Movie, ".apt"));
                     // FileSystem.GetFile()?
 
-                    var apt = new AptFile(constFile, Path.GetDirectoryName(entryPath), movieName, streamGetter);
+                    var apt = new AptFile(constFile, parentDirectory, movieName, streamGetter);
                     apt.Parse(reader);
+
+                    //load the corresponding image map
+                    var datPath = Path.Combine(parentDirectory, movieName + ".dat");
+                    using (var datEntry = streamGetter(datPath))
+                        apt.ImageMap = ImageMap.FromFileSystemEntry(datEntry);
+
+                    //resolve geometries
+                    apt.GeometryMap = new Dictionary<uint, Geometry>();
+                    foreach (Shape shape in apt.Movie.Characters.FindAll((x) => x is Shape))
+                    {
+                        var ruPath = Path.Combine(parentDirectory, movieName + "_geometry", +shape.GeometryId + ".ru");
+                        using (var shapeEntry = streamGetter(ruPath))
+                        {
+                            var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
+                            apt.GeometryMap[shape.GeometryId] = shapeGeometry;
+                        }
+                    }
+
+                    var importMap = new Dictionary<string, string>();
+                    //resolve imports
+                    foreach (var import in apt.Movie.Imports)
+                        if (!importMap.ContainsKey(import.Movie))
+                        {
+                            var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                            var importEntry = streamGetter(importPath);
+                            if (importEntry == null)
+                                throw new FileNotFoundException("Cannot find imported file", importPath);
+                            importMap[import.Movie] = importPath;
+
+                            // Some dirty tricks to avoid the above exception
+                            FromPath(importPath, streamGetter);
+                        }
+                    apt.ImportMap = importMap;
 
                     return apt;
                 }
             }
+        }
+
+        public void WriteTo(string path, Func<string, Stream> streamGetter)
+        {
+
         }
 
         public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)

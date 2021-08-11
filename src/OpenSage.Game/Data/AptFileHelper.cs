@@ -72,7 +72,7 @@ namespace OpenSage.Data
                     return null;
                 return targetEntry.Open();
             };
-            return AptFile.FromFileSystemEntry(entry.FilePath, getter);
+            return AptFile.FromPath(entry.FilePath, getter);
         }
     }
 }

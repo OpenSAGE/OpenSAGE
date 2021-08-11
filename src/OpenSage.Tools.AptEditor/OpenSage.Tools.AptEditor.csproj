@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Resources/AppIcon.ico</ApplicationIcon>
@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
     <PackageReference Include="SharpFileDialog" Version="0.1.0-beta1-0018-g44d70ab277" />
@@ -28,8 +27,5 @@
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
-  </ItemGroup>
   
 </Project>

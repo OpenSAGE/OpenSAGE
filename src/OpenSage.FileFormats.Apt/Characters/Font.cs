@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt.Characters
@@ -19,22 +20,16 @@ namespace OpenSage.FileFormats.Apt.Characters
         {
             var font = new Font();
             font.Name = reader.ReadStringAtOffset();
-            var glyphCount = reader.ReadUInt32();
-            var glyphOffset = reader.ReadUInt32();
-
-            var currentPos = reader.BaseStream.Position;
-            reader.BaseStream.Seek(glyphOffset, SeekOrigin.Begin);
-
-            font.Glyphs = new List<uint>();
-            for (int i = 0; i < glyphCount; ++i)
-            {
-                font.Glyphs.Add(reader.ReadUInt32());
-            }
-
-            reader.BaseStream.Seek(currentPos, SeekOrigin.Begin);
-
-
+            font.Glyphs = reader.ReadListAtOffset<uint>(() => reader.ReadUInt32());
             return font;
+        }
+        public override void Write(BinaryWriter writer, MemoryPool memory)
+        {
+            writer.Write((UInt32) CharacterType.Font);
+            writer.Write((UInt32) Character.SIGNATURE);
+
+            writer.WriteStringAtOffset(Name, memory);
+            writer.WriteArrayAtOffsetWithSize(Glyphs.Count, (i, w, p) => writer.Write(Glyphs[i]), memory);
         }
     }
 }

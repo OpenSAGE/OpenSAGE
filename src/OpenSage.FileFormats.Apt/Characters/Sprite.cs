@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.Apt.ActionScript;
@@ -15,6 +16,14 @@ namespace OpenSage.FileFormats.Apt.Characters
             {
                 Frames = reader.ReadListAtOffset(() => Frame.Parse(reader))
             };
+        }
+
+        public override void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            writer.Write((UInt32) CharacterType.Sprite);
+            writer.Write((UInt32) Character.SIGNATURE);
+
+            writer.WriteArrayAtOffsetWithSize(Frames, pool);
         }
 
         public static Sprite Create(AptFile container)

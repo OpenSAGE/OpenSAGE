@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Tools.AptEditor.Apt;
-using OpenSage.Tools.AptEditor.Apt.Writer;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
 

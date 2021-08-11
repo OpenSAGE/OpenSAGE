@@ -30,7 +30,6 @@ namespace OpenSage.FileFormats.Apt.ActionScript
         ArrayBegin,
         ArrayEnd,
         ArraySize,
-        ArraySizeNoPutInParam, 
 
         BranchOffset, 
 
