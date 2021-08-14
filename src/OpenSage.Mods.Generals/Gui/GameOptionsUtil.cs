@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -344,11 +344,11 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var colorCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
                 if ((sbyte) colorCombo.Items[colorCombo.SelectedIndex].DataItem != slot.ColorIndex)
-                    colorCombo.SelectedIndex = Array.FindIndex(colorCombo.Items, x => (sbyte) x.DataItem == slot.ColorIndex);
+                    colorCombo.SelectedIndex = Array.FindIndex(colorCombo.Items, x => (sbyte) x.DataItem == slot.ColorIndex - 1);
 
                 var teamCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxTeamPrefix}{slot.Index}");
                 if ((sbyte) teamCombo.Items[teamCombo.SelectedIndex].DataItem != slot.Team)
-                    teamCombo.SelectedIndex = Array.FindIndex(teamCombo.Items, x => (sbyte) x.DataItem == slot.Team);
+                    teamCombo.SelectedIndex = Array.FindIndex(teamCombo.Items, x => (sbyte) x.DataItem == slot.Team - 1);
 
                 var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerTemplatePrefix}{slot.Index}");
                 if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
