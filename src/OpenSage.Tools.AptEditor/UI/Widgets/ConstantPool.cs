@@ -16,7 +16,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         public void Draw(AptSceneManager manager)
         {
-            _data = manager.AptManager?.AptFile.Constants;
+            _data = manager.EditManager?.AptFile.Constants;
 
             if (_data == null) return;
 

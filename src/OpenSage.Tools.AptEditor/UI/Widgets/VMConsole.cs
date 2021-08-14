@@ -72,7 +72,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         public void CheckEnv(AptSceneManager manager)
         {
-            if (manager.CurrentWindow == null || manager.CurrentDisplay is null)
+            if (manager.CurrentWindow == null || manager.CurrentItem is null)
             {
                 _context = null;
                 _acontext = null;
@@ -83,8 +83,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             else
             {
                 _instructions = manager.CurrentActions;
-                _dispobj = manager.CurrentDisplay.ScriptObject;
-                _context = manager.CurrentDisplay.Context;
+                _dispobj = manager.CurrentItem.ScriptObject;
+                _context = manager.CurrentItem.Context;
                 _title = manager.CurrentTitle;
             }
         }
@@ -107,20 +107,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 // ImGui.SameLine();
                 if (ImGui.Button("Exec1"))
                 {
-                    if (cur_ctx != null && (!cur_ctx.IsOutermost()))
-                    {
-                        var lef = _context.Avm.ExecuteOnce(true); 
-                        last_executed_func = lef == null ? "null" : lef.ToString(cur_ctx);
-                    }
-                    else if (_context != null)
-                    {
-                        _context.Avm.PushContext(_context.Avm.DequeueContext());
-                        last_executed_func = "New Actions Pushed";
-                    }
-                    else
-                    {
-                        last_executed_func = "AptContext Not Loaded";
-                    }
+                    manager.ExecuteOnce();
                     
                 }
                 if (_context != null)

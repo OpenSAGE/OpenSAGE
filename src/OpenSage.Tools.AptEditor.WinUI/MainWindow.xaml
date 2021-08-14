@@ -8,33 +8,112 @@
         xmlns:w="clr-namespace:OpenSage.Tools.AptEditor.WinUI.Widgets"
         xmlns:avalonDock ="https://github.com/Dirkster99/AvalonDock"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280">
+        Title="OpenSage AptEditor" Height="720" Width="1280">
     <Grid>
-        <avalonDock:DockingManager x:Name="uxDockingManager">
-            <avalonDock:LayoutRoot>
-                <avalonDock:LayoutPanel Orientation="Vertical" DockHeight="*" DockWidth="*">
-                    <avalonDock:LayoutPanel Orientation="Horizontal">
-                        <avalonDock:LayoutDocumentPane>
-                            <w:Class1/>
-                            <avalonDock:LayoutDocument Title="Document1">
-                                
-                            </avalonDock:LayoutDocument>
-                        </avalonDock:LayoutDocumentPane>
-                        <avalonDock:LayoutDocumentPane DockWidth="150">
-                            <!-- ツールウィンドウ -->
-                            <avalonDock:LayoutDocument Title="ToolWindow1">
+
+        <DockPanel
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            Height="Auto" 
+            Margin="0" UseLayoutRounding="False">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File" DockPanel.Dock="Top">
+                    <MenuItem Header="New" Command="{Binding NewCommand}"/>
+                    <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Save" Command="{Binding ActiveDocument.SaveCommand}"/>
+                    <MenuItem Header="Save As..." Command="{Binding ActiveDocument.SaveAsCommand}"/>
+
+                    <MenuItem ItemsSource="{Binding RecentFiles.MruList.ListOfMRUEntries}" Grid.Row="0" Header="Recent Files"
+                          Visibility="{Binding Path=RecentFiles.MruList.ListOfMRUEntries, Mode=OneWay}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding DisplayPathFileName, Mode=OneWay}" />
+                                <Setter Property="Command" Value="{Binding LoadFile, Mode=OneWay}" />
+                                <Setter Property="CommandParameter" Value="{Binding PathFileName, Mode=OneWay}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Close" Command="{Binding ActiveDocument.CloseCommand}"/>
+
+                </MenuItem>
+                <MenuItem Header="Tools">
+                    <MenuItem Header="RecentFiles" IsChecked="{Binding RecentFiles.IsVisible, Mode=TwoWay}" IsCheckable="True"/>
+                    <MenuItem Header="Properties" IsChecked="{Binding FileStats.IsVisible, Mode=TwoWay}" IsCheckable="True"/>
+                    <MenuItem Header="Show Start Page" Command="{Binding ShowStartPage, Mode=OneWay}"/>
+                </MenuItem>
+                <MenuItem Header="Layout">
+                    <MenuItem Header="Load" Command="{Binding LoadLayoutCommand, ElementName=mainWindow}"/>
+                    <MenuItem Header="Save" Command="{Binding SaveLayoutCommand, ElementName=mainWindow}"/>
+                    <MenuItem Header="Dump to Console" />
+                </MenuItem>
+            </Menu>
+            <ToolBarTray DockPanel.Dock="Top">
+                <ToolBar>
+                    <Button Content="New" />
+                    <Button Content="Open" />
+                    <Button Content="Save" />
+                </ToolBar>
+                <ToolBar>
+                    <Button Content="Cut" />
+                    <Button Content="Copy" />
+                    <Button Content="Paste" />
+                </ToolBar>
+            </ToolBarTray>
+            <avalonDock:DockingManager x:Name="uxDockingManager" 
+                                       DockPanel.Dock="Bottom" 
+                                       HorizontalAlignment="Stretch" 
+                                       VerticalAlignment="Stretch" 
+                                       Height="Auto" >
+                <avalonDock:LayoutRoot>
+                    <avalonDock:LayoutPanel Orientation="Horizontal" DockHeight="*" DockWidth="*">
+                        <avalonDock:LayoutPanel Orientation="Vertical">
+                            <avalonDock:LayoutDocumentPane>
                                 <w:Class1/>
-                            </avalonDock:LayoutDocument>
-                        </avalonDock:LayoutDocumentPane>
+                                <avalonDock:LayoutDocument Title="Document1">
+
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                            <avalonDock:LayoutDocumentPane DockWidth="150">
+                                <!-- ツールウィンドウ -->
+                                <avalonDock:LayoutDocument Title="ToolWindow1">
+                                    <w:Class1/>
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                        </avalonDock:LayoutPanel>
+                        <avalonDock:LayoutPanel Orientation="Vertical">
+                            <avalonDock:LayoutDocumentPane>
+                                <w:Class1/>
+                                <avalonDock:LayoutDocument Title="Document1">
+
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                            <avalonDock:LayoutDocumentPane DockWidth="150">
+                                <!-- ツールウィンドウ -->
+                                <avalonDock:LayoutDocument Title="ToolWindow1">
+                                    <w:Class1/>
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                        </avalonDock:LayoutPanel>
+                        <avalonDock:LayoutPanel Orientation="Vertical">
+                            <avalonDock:LayoutDocumentPane>
+                                <w:Class1/>
+                                <avalonDock:LayoutDocument Title="Document1">
+
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                            <avalonDock:LayoutDocumentPane DockWidth="150">
+                                <!-- ツールウィンドウ -->
+                                <avalonDock:LayoutDocument Title="ToolWindow1">
+                                    <w:Class1/>
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                        </avalonDock:LayoutPanel>
                     </avalonDock:LayoutPanel>
-                    <avalonDock:LayoutDocumentPane DockHeight="100" DockWidth="*">
-                        <!-- ツールウィンドウ -->
-                        <avalonDock:LayoutDocument Title="ToolWindow2">
-                            <w:Class1/>
-                        </avalonDock:LayoutDocument>
-                    </avalonDock:LayoutDocumentPane>
-                </avalonDock:LayoutPanel>
-            </avalonDock:LayoutRoot>
-        </avalonDock:DockingManager>
+                </avalonDock:LayoutRoot>
+            </avalonDock:DockingManager>
+        </DockPanel>
+
     </Grid>
 </Window>

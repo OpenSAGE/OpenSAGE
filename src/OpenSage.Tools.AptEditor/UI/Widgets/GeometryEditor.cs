@@ -16,11 +16,11 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 
         public void Draw(AptSceneManager manager)
         {
-            if (_utilities?.Manager != manager.AptManager)
+            if (_utilities?.Manager != manager.EditManager)
             {
-                _utilities = manager.AptManager is null
+                _utilities = manager.EditManager is null
                     ? null
-                    : new GeometryUtilities(manager.AptManager);
+                    : new GeometryUtilities(manager.EditManager);
                 _selected = null;
                 _lastError = null;
                 _currentInput = string.Empty;

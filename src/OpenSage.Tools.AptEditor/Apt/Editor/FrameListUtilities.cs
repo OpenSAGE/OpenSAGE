@@ -55,7 +55,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var editAction = new EditAction(() => Frames.RemoveAt(frameNumber),
                                             () => Frames.Insert(frameNumber, frameToBeRemoved),
                                             "Remove frame");
-            _manager.AptManager!.Edit(editAction);
+            _manager.EditManager!.Edit(editAction);
         }
 
         public void AppendFrame()
@@ -69,7 +69,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var editAction = new EditAction(() => Frames.Add(newFrame),
                                             () => Frames.RemoveAt(Frames.Count - 1),
                                             "Add new frame");
-            _manager!.AptManager!.Edit(editAction);
+            _manager!.EditManager!.Edit(editAction);
         }
 
     }

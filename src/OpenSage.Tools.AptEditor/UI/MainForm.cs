@@ -56,6 +56,51 @@ namespace OpenSage.Tools.AptEditor.UI
             };
         }
 
+        public void AssignAptFile(string inputAptPath)
+        {
+            try
+            {
+                string? lastFailed = null;
+                while (true)
+                {
+                    try
+                    {
+                        _searchPathAdder.AutoLoad(inputAptPath, loadArtOnly: true); // here it's used to prepare art folder
+                        _manager.LoadApt(inputAptPath);
+                    }
+                    catch (AptLoadFailure loadFailure)
+                    {
+                        if (loadFailure.File is string file)
+                        {
+                            if (file != lastFailed)
+                            {
+                                lastFailed = file;
+                                if (_searchPathAdder.AutoLoad(file, loadArtOnly: false))
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (Path.GetDirectoryName(file) is string directory)
+                            {
+                                _searchPathAdder.MappedPath = directory;
+                            }
+                        }
+                        _loadAptError =
+                            $"Failed to open apt file {loadFailure.File ?? "?"} - {loadFailure.Message}.\n" +
+                            "Consider adding more search paths (File Menu > Add Search Path).";
+                        _searchPathAdder.Visible = true;
+                        _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
+                    }
+                    break;
+                }
+            }
+            catch (Exception unhandleled) when (!Debugger.IsAttached)
+            {
+                _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
+            }
+        }
+
         public void Draw()
         {
             ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
@@ -88,12 +133,12 @@ namespace OpenSage.Tools.AptEditor.UI
                         _manager.LoadApt(SampleApt.Create(name, new Mathematics.ColorRgba(0, 255, 0, 255)), name);
                     }
 
-                    if (ImGui.MenuItem("Export", null, false, _manager.AptManager != null))
+                    if (ImGui.MenuItem("Export", null, false, _manager.EditManager != null))
                     {
                         _exportPathSelector.Visible = true;
                     }
 
-                    if (ImGui.MenuItem("Close", null, false, _manager.AptManager != null))
+                    if (ImGui.MenuItem("Close", null, false, _manager.EditManager != null))
                     {
                         _manager.UnloadApt();
                     }
@@ -117,7 +162,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     ImGui.EndMenu();
                 }
-                if (_manager.AptManager is AptEditManager manager && ImGui.BeginMenu("Edit"))
+                if (_manager.EditManager is AptEditManager manager && ImGui.BeginMenu("Edit"))
                 {
                     var description = manager.GetUndoDescription();
                     if (ImGui.MenuItem(description ?? "Undo", description is not null))
@@ -138,60 +183,20 @@ namespace OpenSage.Tools.AptEditor.UI
 
             if (_exportPathSelector.GetValue() is string exportPath)
             {
-                if (_manager.AptManager != null)
+                if (_manager.EditManager != null)
                 {
-                    var dump = _manager.AptManager.GetAptDataDump();
-                    var task = _manager.AptManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
+                    var dump = _manager.EditManager.GetAptDataDump();
+                    var task = _manager.EditManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
                     _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }
 
             if (_aptFileSelector.GetValue() is string inputAptPath)
             {
-                try
-                {
-                    string? lastFailed = null;
-                    while (true)
-                    {
-                        try
-                        {
-                            _searchPathAdder.AutoLoad(inputAptPath, loadArtOnly: true); // here it's used to prepare art folder
-                            _manager.LoadApt(inputAptPath);
-                        }
-                        catch (AptLoadFailure loadFailure)
-                        {
-                            if (loadFailure.File is string file)
-                            {
-                                if (file != lastFailed)
-                                {
-                                    lastFailed = file;
-                                    if (_searchPathAdder.AutoLoad(file, loadArtOnly: false))
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Path.GetDirectoryName(file) is string directory)
-                                {
-                                    _searchPathAdder.MappedPath = directory;
-                                }
-                            }
-                            _loadAptError =
-                                $"Failed to open apt file {loadFailure.File ?? "?"} - {loadFailure.Message}.\n" +
-                                "Consider adding more search paths (File Menu > Add Search Path).";
-                            _searchPathAdder.Visible = true;
-                            _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
-                        }
-                        break;
-                    }
-                }
-                catch (Exception unhandleled) when (!Debugger.IsAttached)
-                {
-                    _lastSeriousError = unhandleled.Message + '\n' + unhandleled.StackTrace;
-                }
+                AssignAptFile(inputAptPath);
             }
 
-            if (_manager.AptManager == null)
+            if (_manager.EditManager == null)
             {
                 ImGui.Text("Open a .apt file to see its contents.");
             }
@@ -211,7 +216,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 _aptFileSelector.Draw();
                 _searchPathAdder.Draw();
                 _fileListWindow.Draw();
-                if (_lastSeriousError == null && _loadAptError == null && _manager.AptManager != null)
+                if (_lastSeriousError == null && _loadAptError == null && _manager.EditManager != null)
                 {
                     foreach (var widget in _widgets)
                     {

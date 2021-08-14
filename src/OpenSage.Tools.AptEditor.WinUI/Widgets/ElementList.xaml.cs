@@ -10,21 +10,18 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AvalonDock.Layout;
 
-namespace OpenSage.Tools.AptEditor.WinUI
+namespace OpenSage.Tools.AptEditor.WinUI.Widgets
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// ElementList.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ElementList : LayoutDocument
     {
-        public App App;
-        public MainWindow(App app)
+        public ElementList()
         {
-            App = app;
-
             InitializeComponent();
         }
     }

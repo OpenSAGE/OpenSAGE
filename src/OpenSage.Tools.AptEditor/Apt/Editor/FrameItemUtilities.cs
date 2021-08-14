@@ -232,7 +232,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 }
                 _manager.PlayToFrame(_manager.CurrentFrameWrapped!.Value);
             };
-            _manager.AptManager!.Edit(edit);
+            _manager.EditManager!.Edit(edit);
         }
     }
 }

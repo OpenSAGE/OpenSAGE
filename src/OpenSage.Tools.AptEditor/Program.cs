@@ -120,9 +120,12 @@ namespace OpenSage.Tools.AptEditor
             var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
             using var game = new Game(installation, null, new Configuration { LoadShellMap = false });
             // should be the ImGui context created by DeveloperModeView
-            var initialContext = ImGui.GetCurrentContext();
+            
             var device = game.GraphicsDevice;
             var window = game.Window;
+            var mainForm = new MainForm(game);
+
+            var initialContext = ImGui.GetCurrentContext();
             using var imGuiRenderer = new ImGuiRenderer(device,
                                                         game.Panel.OutputDescription,
                                                         window.ClientBounds.Width,
@@ -134,7 +137,7 @@ namespace OpenSage.Tools.AptEditor
             // reset ImGui Context to initial one
             ImGui.SetCurrentContext(initialContext);
 
-            var mainForm = new MainForm(game);
+            
             void OnClientSizeChanged(object? sender, EventArgs args)
             {
                 imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
