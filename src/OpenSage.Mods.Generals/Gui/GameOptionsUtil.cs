@@ -358,7 +358,8 @@ namespace OpenSage.Mods.Generals.Gui
                 var playerCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
 
                 var isLocalSlot = slot == _game.SkirmishManager.Settings.LocalSlot;
-                var editable = (isLocalSlot && !slot.Ready) || (_game.SkirmishManager.IsHosting && slot.State != SkirmishSlotState.Human);
+                // if there is no player or AI in the slot, the other boxes should be disabled
+                var editable = (isLocalSlot && !slot.Ready) || (_game.SkirmishManager.IsHosting && slot.State is not SkirmishSlotState.Human and not SkirmishSlotState.Open and not SkirmishSlotState.Closed);
 
                 // is null in singleplayer games for the local player
                 if (playerCombo != null)
