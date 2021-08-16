@@ -8,6 +8,7 @@ namespace OpenSage.Graphics.Animation
 {
     public sealed class AnimationInstance
     {
+        private readonly GameObject _gameObject;
         private readonly int[] _keyframeIndices;
         private readonly ModelBoneInstance[] _boneInstances;
         private readonly W3DAnimation _animation;
@@ -17,6 +18,7 @@ namespace OpenSage.Graphics.Animation
         private bool _playing;
         private readonly AnimationMode _mode;
         private readonly AnimationFlags _flags;
+        private readonly Random _random;
 
         private float _speedFactor;
 
@@ -24,14 +26,25 @@ namespace OpenSage.Graphics.Animation
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
+        /// <summary>
+        /// Construct a new <see cref="AnimationInstance"/>
+        /// </summary>
+        /// <param name="modelBoneInstances">The bone instances to use, which will be modified as the animation plays</param>
+        /// <param name="animation">The animation to apply to the bones</param>
+        /// <param name="mode">The animation mode</param>
+        /// <param name="flags">Additional animation flags</param>
+        /// <param name="gameObject"></param>
+        /// <param name="random">Random number generator used when combined with <see cref="AnimationFlags.RandomStart"/></param>
         public AnimationInstance(ModelBoneInstance[] modelBoneInstances, W3DAnimation animation,
-            AnimationMode mode, AnimationFlags flags)
+            AnimationMode mode, AnimationFlags flags, GameObject gameObject, Random random)
         {
             _animation = animation;
             _mode = mode;
             _flags = flags;
             _boneInstances = modelBoneInstances;
             _keyframeIndices = new int[animation.Clips.Length];
+            _gameObject = gameObject;
+            _random = random;
         }
 
         public void Play(float speedFactor = 1.0f)
@@ -77,6 +90,10 @@ namespace OpenSage.Graphics.Animation
                     _currentTimeValue = TimeSpan.Zero;
                 }
             }
+            else if (_flags.HasFlag(AnimationFlags.RandomStart))
+            {
+                _currentTimeValue = TimeSpan.FromMilliseconds(_random.Next((int)_animation.Duration.TotalMilliseconds));
+            }
             else
             {
                 //TODO: implement other flags
@@ -121,7 +138,15 @@ namespace OpenSage.Graphics.Animation
             var time = _currentTimeValue;
             var deltaTime = gameTime.DeltaTime * _speedFactor;
 
-            if (!Manual)
+            if (Manual)
+            {
+                // manual can also be used to "hold" an animation, and may have nothing to do with build progress
+                if (_flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
+                {
+                    time = _animation.Duration * _gameObject.BuildProgress * _speedFactor;
+                }
+            }
+            else
             {
                 if (Reverse)
                 {
@@ -185,12 +210,9 @@ namespace OpenSage.Graphics.Animation
 
             _currentTimeValue = time;
 
-            Keyframe? previous;
-            Keyframe? next;
-
             for (var i = 0; i < _animation.Clips.Length; i++)
             {
-                next = null;
+                Keyframe? next = null;
 
                 var clip = _animation.Clips[i];
 
@@ -201,7 +223,11 @@ namespace OpenSage.Graphics.Animation
 
                 // In case we're beyond the animation bounds,
                 // default to the end.
-                previous = clip.Keyframes[_keyframeIndices[i]];
+                var previous = clip.Keyframes[_keyframeIndices[i]];
+                if (previous.Time < _currentTimeValue && Reverse)
+                {
+                    _currentTimeValue = previous.Time - deltaTime;
+                }
 
                 if (Reverse)
                 {
@@ -235,15 +261,11 @@ namespace OpenSage.Graphics.Animation
                         _keyframeIndices[i] = j;
                     }
                 }
-
-                if (previous != null)
-                {
-                    Evaluate(
-                        clip,
-                        previous.Value,
-                        next ?? previous.Value,
-                        _currentTimeValue);
-                }
+                Evaluate(
+                    clip,
+                    previous,
+                    next ?? previous,
+                    _currentTimeValue);
             }
         }
 

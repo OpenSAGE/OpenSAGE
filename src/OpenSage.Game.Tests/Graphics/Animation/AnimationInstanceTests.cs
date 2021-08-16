@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
@@ -16,7 +18,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Once,
-                AnimationFlags.StartFrameFirst);
+                AnimationFlags.StartFrameFirst, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -37,7 +39,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.OnceBackwards,
-                AnimationFlags.StartFrameLast);
+                AnimationFlags.StartFrameLast, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -58,7 +60,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Once,
-                AnimationFlags.StartFrameLast);
+                AnimationFlags.StartFrameLast, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -80,7 +82,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.OnceBackwards,
-                AnimationFlags.StartFrameFirst);
+                AnimationFlags.StartFrameFirst, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -102,7 +104,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Manual,
-                AnimationFlags.StartFrameFirst);
+                AnimationFlags.StartFrameFirst, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -124,7 +126,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Manual,
-                AnimationFlags.StartFrameLast);
+                AnimationFlags.StartFrameLast, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -146,7 +148,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Loop,
-                AnimationFlags.StartFrameFirst);
+                AnimationFlags.StartFrameFirst, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -167,7 +169,7 @@ namespace OpenSage.Tests.Graphics.Animation
             var animation = NewBasicAnimationInstance();
 
             var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.LoopBackwards,
-                AnimationFlags.StartFrameLast);
+                AnimationFlags.StartFrameLast, null, new QuoteUnquoteRandom());
 
             instance.Play();
             var time = TimeInterval.Zero;
@@ -179,6 +181,96 @@ namespace OpenSage.Tests.Graphics.Animation
 
                 Assert.Equal(i % 5, modelBoneInstances[0].AnimatedOffset.Translation.X);
             }
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1111)]
+        [InlineData(2222)]
+        [InlineData(3333)]
+        [InlineData(4000)]
+        [InlineData(4001)]
+        [InlineData(5000)]
+        [InlineData(5001)]
+        public void OnceForwardsRandomStartTest(int rngSeed)
+        {
+            var modelBoneInstances = NewDefaultModelBoneInstances();
+            var animation = NewBasicAnimationInstance();
+            var random = new QuoteUnquoteRandom(rngSeed);
+
+            var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.Once,
+                AnimationFlags.RandomStart, null, random);
+
+            instance.Play();
+            var time = TimeInterval.Zero;
+            float? previous = null;
+            for (var i = 0; i < 5; i++)
+            {
+                instance.Update(time);
+                time = new TimeInterval(time.TotalTime + TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(1));
+
+                if (previous is null)
+                {
+                    previous = modelBoneInstances[0].AnimatedOffset.Translation.X;
+                    continue;
+                }
+
+                var target = previous.Value + 1;
+                if (target > animation.Clips[0].Keyframes.Last().Value.FloatValue)
+                {
+                    target = animation.Clips[0].Keyframes.Last().Value.FloatValue;
+                }
+
+                Assert.Equal(target, modelBoneInstances[0].AnimatedOffset.Translation.X, new ToleranceEqualityComparer(0.001f));
+                previous = modelBoneInstances[0].AnimatedOffset.Translation.X;
+            }
+            instance.Stop();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1111)]
+        [InlineData(2222)]
+        [InlineData(3333)]
+        [InlineData(4000)]
+        [InlineData(4001)]
+        [InlineData(5000)]
+        [InlineData(5001)]
+        public void OnceBackwardsRandomStartTest(int rngSeed)
+        {
+            var modelBoneInstances = NewDefaultModelBoneInstances();
+            var animation = NewBasicAnimationInstance();
+            var random = new QuoteUnquoteRandom(rngSeed);
+
+            var instance = new AnimationInstance(modelBoneInstances, animation, AnimationMode.OnceBackwards,
+                AnimationFlags.RandomStart, null, random);
+
+            instance.Play();
+
+            var time = TimeInterval.Zero;
+            float? previous = null;
+            for (var i = 5; i > 0; i--)
+            {
+                instance.Update(time);
+                time = new TimeInterval(time.TotalTime + TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(1));
+                if (previous is null)
+                {
+                    previous = modelBoneInstances[0].AnimatedOffset.Translation.X;
+                    continue;
+                }
+
+                var target = previous.Value - 1;
+                if (target < 0)
+                {
+                    target = 0;
+                }
+
+                Assert.Equal(target, modelBoneInstances[0].AnimatedOffset.Translation.X, new ToleranceEqualityComparer(0.001f));
+                previous = modelBoneInstances[0].AnimatedOffset.Translation.X;
+            }
+            instance.Stop();
         }
 
         private static ModelBoneInstance[] NewDefaultModelBoneInstances()
@@ -220,6 +312,65 @@ namespace OpenSage.Tests.Graphics.Animation
             };
 
             return new W3DAnimation(string.Empty, TimeSpan.FromSeconds(5), animationClips);
+        }
+    }
+
+    /// <summary>
+    /// Guaranteed random!
+    /// </summary>
+    internal class QuoteUnquoteRandom : Random
+    {
+        private readonly int _random;
+
+        /// <summary>
+        /// Constructs a new "random" number generator which will always return 0.
+        /// </summary>
+        public QuoteUnquoteRandom() : this(0)
+        {
+        }
+
+        /// <summary>
+        /// Constructs a new "random" number generator.
+        /// </summary>
+        /// <param name="random">The "random" value which should always be returned.</param>
+        public QuoteUnquoteRandom(int random)
+        {
+            _random = random;
+        }
+
+        public override int Next()
+        {
+            return _random;
+        }
+
+        public override int Next(int maxValue)
+        {
+            return Next();
+        }
+
+        public override int Next(int minValue, int maxValue)
+        {
+            return Next(minValue);
+        }
+    }
+
+    internal class ToleranceEqualityComparer : IEqualityComparer<float>
+    {
+        private readonly float _tolerance;
+
+        public ToleranceEqualityComparer(float tolerance)
+        {
+            _tolerance = tolerance;
+        }
+
+        public bool Equals(float x, float y)
+        {
+            return Math.Abs(x - y) <= _tolerance;
+        }
+
+        public int GetHashCode(float obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }
