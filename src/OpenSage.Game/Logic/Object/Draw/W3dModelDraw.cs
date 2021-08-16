@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
- 
+
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
             get
@@ -179,7 +179,7 @@ namespace OpenSage.Logic.Object
                     {
                         var flags = animationState.Flags;
                         var mode = animationBlock.AnimationMode;
-                        var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags);
+                        var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
                         modelInstance.AnimationInstances.Add(animationInstance);
                         animationInstance.Play();
                         break;
@@ -271,7 +271,7 @@ namespace OpenSage.Logic.Object
                 {
                     var mode = conditionState.AnimationMode;
                     var flags = conditionState.Flags;
-                    var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, animation, mode, flags);
+                    var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, animation, mode, flags, GameObject, _context.Random);
                     modelInstance.AnimationInstances.Add(animationInstance);
                 }
             }
