@@ -26,7 +26,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         public string GetCursor(KeyModifiers keyModifiers)
         {
-            if (_game.Scene3D.LocalPlayer.SelectedUnits.Count == 0)
+            if (_game.Scene3D.LocalPlayer?.SelectedUnits.Count == 0)
             {
                 return _worldObject != null
                     ? "Select" // TODO: Maybe shouldn't have this here.

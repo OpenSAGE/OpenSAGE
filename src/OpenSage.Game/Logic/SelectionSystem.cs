@@ -80,6 +80,12 @@ namespace OpenSage.Logic
 
         public void OnHoverSelection(Point2D point)
         {
+            // We might not have a local player. E.g. shellmap/replay
+            if (Game.Scene3D.LocalPlayer == null)
+            {
+                return;
+            }
+
             Game.Scene3D.LocalPlayer.HoveredUnit = FindClosestObject(point.ToVector2());
         }
 
