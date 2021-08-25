@@ -41,10 +41,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private Description[]? _cachedDescriptions;
 
         public IReadOnlyDictionary<int, string> CharacterNames => _characterNames;
-        public AptEditManager Manager { get; }
+        public AptEditInstance Manager { get; }
         private Movie Movie => Manager.AptFile.Movie;
 
-        public CharacterUtilities(AptEditManager manager)
+        public CharacterUtilities(AptEditInstance manager)
         {
             Manager = manager;
             for (var i = 0; i < Movie.Characters.Count; ++i)

@@ -18,7 +18,7 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
     /// <summary>
     /// ElementList.xaml 的交互逻辑
     /// </summary>
-    public partial class ElementList : DockPanel
+    public partial class ElementTree : DockPanel
     {
         public ListBoxItem Selected { get; private set; }
 
@@ -27,10 +27,10 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
 
         }
 
-        public ElementList()
+        public ElementTree()
         {
             InitializeComponent();
-            List.SelectionChanged += OnSelectionChanged;
+            // Tree.SelectionChanged += OnSelectionChanged;
         }
     }
 }

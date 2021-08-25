@@ -40,10 +40,10 @@ namespace OpenSage.Tools.AptEditor.UI
         public MainForm(Game game)
         {
             _window = game.Window;
-            _manager = new AptSceneManager(game);
-            _aptFileSelector = new AptFileSelector(game.ContentManager.FileSystem);
-            _searchPathAdder = new SearchPathAdder(game);
-            _fileListWindow = new FileListWindow(game, _aptFileSelector);
+            _manager = new(game);
+            _aptFileSelector = new(game.ContentManager.FileSystem);
+            _searchPathAdder = new(game);
+            _fileListWindow = new(game, _aptFileSelector);
             _fileListWindow.Visible = true;
             _popups = new List<ImGuiModalPopUp>
             {
@@ -56,43 +56,26 @@ namespace OpenSage.Tools.AptEditor.UI
             };
         }
 
-        public void AssignAptFile(string inputAptPath)
+        public void AssignAptFile(string path)
         {
+            string? loadError = null;
             try
             {
-                string? lastFailed = null;
-                while (true)
-                {
-                    try
-                    {
-                        _searchPathAdder.AutoLoad(inputAptPath, loadArtOnly: true); // here it's used to prepare art folder
-                        _manager.LoadApt(inputAptPath);
-                    }
-                    catch (AptLoadFailure loadFailure)
-                    {
-                        if (loadFailure.File is string file)
-                        {
-                            if (file != lastFailed)
-                            {
-                                lastFailed = file;
-                                if (_searchPathAdder.AutoLoad(file, loadArtOnly: false))
-                                {
-                                    continue;
-                                }
-                            }
+                var apt = _fileListWindow.LoadApt(path);
+                _fileListWindow.LoadImportTree(apt);
+                _manager.LoadApt(apt);
+            }
+            catch (FileNotFoundException loadFailure)
+            {
+                _loadAptError =
+                        $"Failed to open apt file {loadFailure.FileName ?? "?"} - {loadFailure.Message}.\n" +
+                        "Consider adding more search paths (File Menu > Add Search Path).";
+                _searchPathAdder.Visible = true;
+                _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
 
-                            if (Path.GetDirectoryName(file) is string directory)
-                            {
-                                _searchPathAdder.MappedPath = directory;
-                            }
-                        }
-                        _loadAptError =
-                            $"Failed to open apt file {loadFailure.File ?? "?"} - {loadFailure.Message}.\n" +
-                            "Consider adding more search paths (File Menu > Add Search Path).";
-                        _searchPathAdder.Visible = true;
-                        _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
-                    }
-                    break;
+                if (Path.GetDirectoryName(loadFailure.FileName) is string directory)
+                {
+                    _searchPathAdder.MappedPath = directory;
                 }
             }
             catch (Exception unhandleled) when (!Debugger.IsAttached)
@@ -162,7 +145,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     ImGui.EndMenu();
                 }
-                if (_manager.EditManager is AptEditManager manager && ImGui.BeginMenu("Edit"))
+                if (_manager.EditManager is AptEditInstance manager && ImGui.BeginMenu("Edit"))
                 {
                     var description = manager.GetUndoDescription();
                     if (ImGui.MenuItem(description ?? "Undo", description is not null))

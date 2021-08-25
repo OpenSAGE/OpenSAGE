@@ -12,10 +12,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     {
         public IEnumerable<KeyValuePair<int, string>> Data =>
             Geometries.Select(kv => new KeyValuePair<int, string>((int) kv.Key, kv.Value.RawText));
-        public AptEditManager Manager { get; }
+        public AptEditInstance Manager { get; }
         private Dictionary<uint, Geometry> Geometries => Manager.AptFile.GeometryMap;
 
-        public GeometryUtilities(AptEditManager manager)
+        public GeometryUtilities(AptEditInstance manager)
         {
             Manager = manager;
         }

@@ -11,7 +11,7 @@ namespace OpenSage.FileFormats.Apt
     public sealed class AptFile
 
     {
-        public string ParentDirectory { get; }
+        public string RootDirectory { get; }
         public ConstantData Constants { get; }
         public string MovieName { get; }
 
@@ -23,34 +23,39 @@ namespace OpenSage.FileFormats.Apt
 
         internal bool IsEmpty = true;
 
-        private AptFile(ConstantData constants, string filesystem, string name, Func<string, Stream> getter)
+        private AptFile(ConstantData constants, string rootDirectory, string name, Func<string, Stream> getter)
         {
             Constants = constants;
-            ParentDirectory = filesystem;
+            RootDirectory = rootDirectory;
             MovieName = name;
             StreamGetter = getter;
         }
 
-        public void Parse(BinaryReader reader)
+        public void CheckImportTree()
         {
-            //jump to the entry offset
-            var entryOffset = Constants.AptDataEntryOffset;
-            reader.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
+            foreach (var import in Movie.Imports)
+            {
+                var importPath = Path.Combine(RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                var importEntry = StreamGetter(importPath);
+                if (importEntry == null)
+                    throw new FileNotFoundException("Cannot find imported file", importPath);
 
-            //proceed loading the characters
-            Movie = (Movie) Character.Create(reader, this);
-
-            //set first character to itself
-            Movie.Characters[0] = Movie;
+                // Some dirty tricks to avoid the above exception
+                var f = FromPath(importPath, StreamGetter);
+                f.CheckImportTree();
+            }
         }
 
 
-        public static AptFile FromPath(string entryPath, Func<string, Stream> streamGetter)
+        public static AptFile FromPath(string aptPath, Func<string, Stream> streamGetter)
         {
-            var movieName = Path.GetFileNameWithoutExtension(entryPath);
-            var parentDirectory = Path.GetDirectoryName(entryPath);
+            var aptName = Path.GetFileNameWithoutExtension(aptPath);
+            var rootDirectory = Path.GetDirectoryName(aptPath);
 
-            using (var reader = new BinaryReader(streamGetter(entryPath), Encoding.ASCII, true))
+            var streamInput = streamGetter(aptPath);
+            if (streamInput == null)
+                throw new FileNotFoundException("Cannot find file", aptPath);
+            using (var reader = new BinaryReader(streamInput, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
                 var magic = reader.ReadFixedLengthString(8);
@@ -60,7 +65,7 @@ namespace OpenSage.FileFormats.Apt
                 }
 
                 //load the corresponding const entry
-                var constPath = Path.ChangeExtension(entryPath, ".const");
+                var constPath = Path.ChangeExtension(aptPath, ".const");
                 using (var stream = streamGetter(constPath))
                 {
                     var constFile = ConstantData.FromFileSystemEntry(stream); 
@@ -68,11 +73,18 @@ namespace OpenSage.FileFormats.Apt
                     // Path.Combine(entryPath, Path.ChangeExtension(import.Movie, ".apt"));
                     // FileSystem.GetFile()?
 
-                    var apt = new AptFile(constFile, parentDirectory, movieName, streamGetter);
-                    apt.Parse(reader);
+                    // create container & load .apt file
+                    var apt = new AptFile(constFile, rootDirectory, aptName, streamGetter);
+                    var entryOffset = constFile.AptDataEntryOffset;
+                    reader.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
+
+                    //proceed loading the characters
+                    apt.Movie = (Movie) Character.Create(reader, apt);
+                    //set first character to itself
+                    apt.Movie.Characters[0] = apt.Movie;
 
                     //load the corresponding image map
-                    var datPath = Path.Combine(parentDirectory, movieName + ".dat");
+                    var datPath = Path.Combine(rootDirectory, aptName + ".dat");
                     using (var datEntry = streamGetter(datPath))
                         apt.ImageMap = ImageMap.FromFileSystemEntry(datEntry);
 
@@ -80,29 +92,13 @@ namespace OpenSage.FileFormats.Apt
                     apt.GeometryMap = new Dictionary<uint, Geometry>();
                     foreach (Shape shape in apt.Movie.Characters.FindAll((x) => x is Shape))
                     {
-                        var ruPath = Path.Combine(parentDirectory, movieName + "_geometry", +shape.GeometryId + ".ru");
+                        var ruPath = Path.Combine(rootDirectory, aptName + "_geometry", +shape.GeometryId + ".ru");
                         using (var shapeEntry = streamGetter(ruPath))
                         {
                             var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
                             apt.GeometryMap[shape.GeometryId] = shapeGeometry;
                         }
                     }
-
-                    var importMap = new Dictionary<string, string>();
-                    //resolve imports
-                    foreach (var import in apt.Movie.Imports)
-                        if (!importMap.ContainsKey(import.Movie))
-                        {
-                            var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                            var importEntry = streamGetter(importPath);
-                            if (importEntry == null)
-                                throw new FileNotFoundException("Cannot find imported file", importPath);
-                            importMap[import.Movie] = importPath;
-
-                            // Some dirty tricks to avoid the above exception
-                            FromPath(importPath, streamGetter);
-                        }
-                    apt.ImportMap = importMap;
 
                     return apt;
                 }

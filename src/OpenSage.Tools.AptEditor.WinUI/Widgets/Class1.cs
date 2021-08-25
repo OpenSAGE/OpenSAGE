@@ -14,13 +14,9 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
     {
         public Class1()
         {
-            Title = "タイトル";
-            ContentId = "ID_0001";
 
-            var panel = new StackPanel();
-            panel.Children.Add(new TextBox() { Width = 100, Height = 50, Text = "テキストボックス" });
-            panel.Children.Add(new Button() { Width = 100, Height = 50, Content = "ボタン" });
-            Content = panel;
+            Children.Add(new TextBox() { Width = 100, Height = 50, Text = "テキストボックス" });
+            Children.Add(new Button() { Width = 100, Height = 50, Content = "ボタン" });
         }
     }
 }

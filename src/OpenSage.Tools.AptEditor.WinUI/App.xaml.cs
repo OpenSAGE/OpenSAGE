@@ -13,6 +13,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
     {
         private TextBox tb_path = null;
         private App _app;
+        public MainWindow MainWindow { get; private set; }
 
         public void CallDialog(object sender, EventArgs e)
         {
@@ -24,7 +25,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
             }
         }
 
-        public PathSelector(App app, string path = null)
+        public PathSelector(App app, MainWindow mwin = null, string path = null)
         {
             ResizeMode = ResizeMode.NoResize;
             Height = 180;
@@ -58,8 +59,8 @@ namespace OpenSage.Tools.AptEditor.WinUI
 
         public void LaunchProgram(object sender, EventArgs e)
         {
-            var mw = new MainWindow(_app);
-            mw.Show();
+            MainWindow = new MainWindow(_app);
+            MainWindow.Show();
             Close();
         }
 
@@ -70,6 +71,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
     public partial class App : Application
     {
         private string _rootPath = "";
+        private PathSelector _pathSelector;
         public string RootPath
         {
             get { return _rootPath; }
@@ -81,13 +83,18 @@ namespace OpenSage.Tools.AptEditor.WinUI
             // TODO
             _rootPath = "G:\\Games\\RA#s\\RA3_MODSDK\\aptui";
         }
+
+        public void ChangeRootPath()
+        {
+            if (_pathSelector == null)
+                _pathSelector = new PathSelector(this, null, _rootPath);
+            _pathSelector.Show();
+        }
         
         public App()
         {
             LoadConfig();
-
-            var pt = new PathSelector(this, _rootPath);
-            pt.Show();
+            ChangeRootPath();
         }
     }
 }

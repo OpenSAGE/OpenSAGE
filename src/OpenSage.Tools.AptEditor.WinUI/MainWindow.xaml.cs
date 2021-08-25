@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using OpenSage.FileFormats.Apt;
+using OpenSage.Tools.AptEditor;
+using OpenSage.Tools.AptEditor.Apt;
+
 namespace OpenSage.Tools.AptEditor.WinUI
 {
     /// <summary>
@@ -20,7 +24,8 @@ namespace OpenSage.Tools.AptEditor.WinUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public App App;
+        public App App { get; private set; }
+        public AptEditInstance CurrentApt { get; private set; }
         public MainWindow(App app)
         {
             App = app;

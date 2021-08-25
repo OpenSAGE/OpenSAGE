@@ -13,15 +13,6 @@ using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal class AptLoadFailure : Exception
-    {
-        public string? File { get; }
-        public AptLoadFailure(string? file) : base(file is null ? "Apt Load failed" : $"Cannot load {file}")
-        {
-            File = file;
-        }
-    }
-
     internal class AptSceneManager
     {
         // deserted
@@ -37,7 +28,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public ColorRgbaF DisplayBackgroundColor { get; private set; }
 
         // edit
-        public AptEditManager? EditManager { get; private set; }
+        public AptEditInstance? EditManager { get; private set; }
         public string? CurrentAptPath { get; private set; }
 
         public int MillisecondsPerFrame => (int) (EditManager?.AptFile.Movie.MillisecondsPerFrame ?? 30);
@@ -81,35 +72,12 @@ namespace OpenSage.Tools.AptEditor.UI
             CurrentTitle = "";
         }
 
-        public void LoadApt(string path)
-        {
-            UnloadApt();
-            var entry = Game.ContentManager.FileSystem.GetFile(path);
-            if (entry == null)
-            {
-                throw new AptLoadFailure(path);
-            }
-
-            AptFile aptFile;
-            try
-            {
-                aptFile = AptFileHelper.FromFileSystemEntry(entry);
-            }
-            catch (FileNotFoundException fileNotFound)
-            {
-                throw new AptLoadFailure(fileNotFound.FileName);
-            }
-
-            CurrentAptPath = path;
-            EditManager = new AptEditManager(aptFile);
-        }
-
         public void LoadApt(AptFile aptFile, string? name = null)
         {
             UnloadApt();
             
             CurrentAptPath = name ?? aptFile.MovieName;
-            EditManager = new AptEditManager(aptFile);
+            EditManager = new AptEditInstance(aptFile);
         }
 
         // Character Loading Operations

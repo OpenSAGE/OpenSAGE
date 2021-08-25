@@ -58,16 +58,17 @@ namespace OpenSage.Gui.Apt
 
             ImportContextDict = new Dictionary<string, AptContext>();
 
-            foreach (var import in AptFile.ImportMap)
+            foreach (var import in AptFile.Movie.Imports)
             {
                 //open the apt file where our character is located
-                var importFile = AptFile.FromPath(import.Value, AptFile.StreamGetter);
+                var importPath = Path.Combine(AptFile.RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                var importFile = AptFile.FromPath(importPath, AptFile.StreamGetter);
                 var importContext = new AptContext(Window, importFile, Avm)
                 {
                     Root = Root,
                 };
                 importContext.LoadContext();
-                ImportContextDict[import.Key] = importContext;
+                ImportContextDict[import.Movie] = importContext;
             }
 
             // resolve initactions

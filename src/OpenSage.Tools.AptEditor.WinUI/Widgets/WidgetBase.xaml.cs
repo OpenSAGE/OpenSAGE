@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Xaml;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +19,7 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
     /// <summary>
     /// WidgetBase.xaml 的交互逻辑
     /// </summary>
-    public partial class WidgetBase : LayoutDocument
+    public partial class WidgetBase : DockPanel
     {
         public WidgetBase()
         {

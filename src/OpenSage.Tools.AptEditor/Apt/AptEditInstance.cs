@@ -5,23 +5,24 @@ using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    public sealed class AptEditManager
+    public sealed class AptEditInstance
     {
         private readonly Stack<IEditAction> _undoStack = new Stack<IEditAction>();
         private readonly Stack<IEditAction> _redoStack = new Stack<IEditAction>();
 
         public AptFile AptFile { get; }
 
-        public AptEditManager(AptFile aptFile)
+        public AptEditInstance(AptFile aptFile)
         {
             AptFile = aptFile;
         }
 
-        public static AptEditManager Load(string rootPath, string aptPath)
+        // Not Recommended?
+        public static AptEditInstance Load(string rootPath, string aptPath)
         {
             var fs = new FileSystem(rootPath);
             var entry = fs.GetFile(aptPath);
-            return new AptEditManager(AptFileHelper.FromFileSystemEntry(entry));
+            return new AptEditInstance(AptFileHelper.FromFileSystemEntry(entry));
         }
 
         public void Edit(IEditAction editAction)

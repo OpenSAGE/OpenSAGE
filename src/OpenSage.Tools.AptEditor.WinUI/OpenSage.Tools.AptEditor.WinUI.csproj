@@ -28,6 +28,7 @@
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats.Apt\OpenSage.FileFormats.Apt.csproj" />
+    <ProjectReference Include="..\OpenSage.Tools.AptEditor\OpenSage.Tools.AptEditor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +38,10 @@
     </ApplicationDefinition>
     <Page Update="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Widgets\ElementTree.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
     <Compile Update="App.xaml.cs">
@@ -59,6 +64,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Update="Widgets\ElementTree.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

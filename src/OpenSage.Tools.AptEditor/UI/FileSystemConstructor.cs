@@ -10,38 +10,24 @@ using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
+using OpenSage.Tools.AptEditor.Apt;
+using OpenSage.FileFormats.Apt;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal sealed class FileListWindow
+    internal sealed class FileListWindow: FileSystemConstructor
     {
-        public FileSystem TargetFileSystem { get; set; }
-        public ref bool Visible => ref _open;
-        public ref int MaxCount => ref _maxCount;
-        public string MappedPath { get; set; } = string.Empty;
-        public Action? Next { get; set; }
 
-        //private readonly FileSuggestionBox _inputBox = new FileSuggestionBox { DirectoryOnly = true };
-        private readonly HashSet<string> _autoDetect = new HashSet<string>();
-        private readonly ConcurrentQueue<string> _list = new ConcurrentQueue<string>();
-        private readonly List<string> _mapped = new List<string>();
+        public ref bool Visible => ref _open;
+        private bool _open;
         private readonly GameWindow _window;
-        private readonly string _rootDirectory;
         private readonly AptFileSelector _aptFileSelector;
 
-        private bool _open;
-        private int _maxCount = 1000;
-        private int _truncatedTo = 0;
-        private string? _lastInput = null;
-        private CancellationTokenSource? _cancellation;
-        private Task? _loadingTask;
-
-        public FileListWindow(Game game, AptFileSelector aptFileSelector)
+        public FileListWindow(Game game, AptFileSelector aptFileSelector) : base(game)
         {
-            TargetFileSystem = game.ContentManager.FileSystem;
-            _window = game.Window;
             _aptFileSelector = aptFileSelector;
-            _rootDirectory = TargetFileSystem.RootDirectory;
+
+            _window = game.Window;
         }
 
         public void Draw()
@@ -51,14 +37,12 @@ namespace OpenSage.Tools.AptEditor.UI
                 Reset(null);
                 return;
             }
-            ImGui.SetNextWindowPos(new Vector2(_window.ClientBounds.Width *2 / 3, 45), ImGuiCond.Always, Vector2.Zero);
+            ImGui.SetNextWindowPos(new Vector2(_window.ClientBounds.Width * 2 / 3, 45), ImGuiCond.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(_window.ClientBounds.Width / 3, 0), ImGuiCond.Always);
 
             var draw = ImGui.Begin("File List", ref Visible);
             if (draw)
             {
-
-
                 TryGetFiles();
 
                 if (_list.Count >= _truncatedTo && _list.Any())
@@ -96,16 +80,85 @@ namespace OpenSage.Tools.AptEditor.UI
                 var wasVisible = true;
                 foreach (var path in list)
                 {
-                    if(ImGui.Button(wasVisible ? path : string.Empty))
+                    if (ImGui.Button(wasVisible ? path : string.Empty))
                     {
                         _aptFileSelector.SetValue(path);
                     }
-                    
+
                     wasVisible = ImGui.IsItemVisible();
                 }
 
             }
             ImGui.End();
+        }
+    }
+
+    internal class FileSystemConstructor
+    {
+        public FileSystem TargetFileSystem { get; set; }
+
+        public ref int MaxCount => ref _maxCount;
+        public string MappedPath { get; set; } = string.Empty;
+        public Action? Next { get; set; }
+
+        //private readonly FileSuggestionBox _inputBox = new FileSuggestionBox { DirectoryOnly = true };
+        protected readonly HashSet<string> _autoDetect = new HashSet<string>();
+        protected readonly ConcurrentQueue<string> _list = new ConcurrentQueue<string>();
+        protected readonly List<string> _mapped = new List<string>();
+        protected readonly string _rootDirectory;
+
+        protected int _maxCount = 1000;
+        protected int _truncatedTo = 0;
+        protected string? _lastInput = null;
+        protected CancellationTokenSource? _cancellation;
+        protected Task? _loadingTask;
+
+        public FileSystemConstructor(Game game)
+        {
+            TargetFileSystem = game.ContentManager.FileSystem;
+            _rootDirectory = TargetFileSystem.RootDirectory;
+        }
+
+        public AptFile LoadApt(string path)
+        {
+            var entry = TargetFileSystem.GetFile(path);
+            if (entry == null)
+            {
+                throw new FileNotFoundException("Cannot find file", path);
+            }
+
+            AutoLoad(path, loadArtOnly: true); // here it's used to prepare art folder
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
+
+            return aptFile;
+        }
+
+        public void LoadImportTree(AptFile apt)
+        {
+            string? lastFailed = null;
+            while (true)
+            {
+                try
+                {
+                    apt.CheckImportTree();
+                }
+                catch (FileNotFoundException loadFailure)
+                {
+                    if (loadFailure.FileName is string file)
+                    {
+                        if (file != lastFailed)
+                        {
+                            lastFailed = file;
+                            if (AutoLoad(file, loadArtOnly: false))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    throw loadFailure;
+                }
+                break;
+            }
         }
 
         public bool AutoLoad(string requiredAptFile, bool loadArtOnly)
@@ -148,7 +201,7 @@ namespace OpenSage.Tools.AptEditor.UI
             return true;
         }
 
-        private void AutoLoadImpl(string sourcePath,
+        public void AutoLoadImpl(string sourcePath,
                                   string? mappedPath,
                                   bool isFromGameFileSystem,
                                   bool loadArtOnly)
@@ -172,7 +225,7 @@ namespace OpenSage.Tools.AptEditor.UI
             Load(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
         }
 
-        private void Load(IEnumerable<(string, string)> listAndMapped,
+        public void Load(IEnumerable<(string, string)> listAndMapped,
                           bool isPhysicalFile,
                           bool loadArtOnly)
         {
@@ -202,7 +255,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }
         }
 
-        private (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)
+        public (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)
         {
             if (isPhysicalFile)
             {
@@ -213,7 +266,7 @@ namespace OpenSage.Tools.AptEditor.UI
             return (entry.Open, entry.Length);
         }
 
-        private void TryGetFiles()
+        public void TryGetFiles()
         {
             var directory = Directory.Exists(_rootDirectory)
                 ? _rootDirectory
@@ -256,7 +309,7 @@ namespace OpenSage.Tools.AptEditor.UI
             }, token);
         }
 
-        private void Reset(string? directory)
+        public void Reset(string? directory)
         {
             if (_lastInput == directory && _truncatedTo == MaxCount)
             {

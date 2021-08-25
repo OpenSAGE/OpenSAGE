@@ -18,11 +18,12 @@
             Margin="0" UseLayoutRounding="False">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File" DockPanel.Dock="Top">
-                    <MenuItem Header="New" Command="{Binding NewCommand}"/>
-                    <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
+                    <MenuItem Header="Select Root Path" Command="{Binding FileSelectRootPath}"/>
+                    <MenuItem Header="New" Command="{Binding FileAddNew}"/>
+                    <MenuItem Header="Import" Command="{Binding FileImport}"/>
                     <Separator/>
-                    <MenuItem Header="Save" Command="{Binding ActiveDocument.SaveCommand}"/>
-                    <MenuItem Header="Save As..." Command="{Binding ActiveDocument.SaveAsCommand}"/>
+                    <MenuItem Header="Save" Command="{Binding FileSave}"/>
+                    <MenuItem Header="Save As..." Command="{Binding FileSaveAs}"/>
 
                     <MenuItem ItemsSource="{Binding RecentFiles.MruList.ListOfMRUEntries}" Grid.Row="0" Header="Recent Files"
                           Visibility="{Binding Path=RecentFiles.MruList.ListOfMRUEntries, Mode=OneWay}">
@@ -43,22 +44,27 @@
                     <MenuItem Header="Properties" IsChecked="{Binding FileStats.IsVisible, Mode=TwoWay}" IsCheckable="True"/>
                     <MenuItem Header="Show Start Page" Command="{Binding ShowStartPage, Mode=OneWay}"/>
                 </MenuItem>
-                <MenuItem Header="Layout">
-                    <MenuItem Header="Load" Command="{Binding LoadLayoutCommand, ElementName=mainWindow}"/>
-                    <MenuItem Header="Save" Command="{Binding SaveLayoutCommand, ElementName=mainWindow}"/>
-                    <MenuItem Header="Dump to Console" />
+                <MenuItem Header="Edit">
+                    <MenuItem Header="Undo" Command="{Binding EditUndo}"/>
+                    <MenuItem Header="Redo" Command="{Binding EditRedo}"/>
+                </MenuItem>
+                <MenuItem Header="Debug">
+                    <MenuItem Header="Start" Command="{Binding DebugStart}"/>
+                    <MenuItem Header="Stop" Command="{Binding DebugStop}"/>
+                    <MenuItem Name="MenuPauseResume" Header="Pause/Resume" Command="{Binding DebugPauseResume}"/>
                 </MenuItem>
             </Menu>
             <ToolBarTray DockPanel.Dock="Top">
                 <ToolBar>
                     <Button Content="New" />
-                    <Button Content="Open" />
                     <Button Content="Save" />
+                    <Button Content="Undo" Command="{Binding EditUndo}"/>
+                    <Button Content="Redo" Command="{Binding EditRedo}"/>
                 </ToolBar>
                 <ToolBar>
-                    <Button Content="Cut" />
-                    <Button Content="Copy" />
-                    <Button Content="Paste" />
+                    <Button Content="Start" />
+                    <Button Content="Stop" />
+                    <Button Name="ButtonPauseResume" Content="Pause/Resume" />
                 </ToolBar>
             </ToolBarTray>
             <avalonDock:DockingManager x:Name="uxDockingManager" 
@@ -70,9 +76,22 @@
                     <avalonDock:LayoutPanel Orientation="Horizontal" DockHeight="*" DockWidth="*">
                         <avalonDock:LayoutPanel Orientation="Vertical">
                             <avalonDock:LayoutDocumentPane>
-                                <w:Class1/>
+                                
                                 <avalonDock:LayoutDocument Title="Document1">
-
+                                    <w:Class1/>
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                            <avalonDock:LayoutDocumentPane DockWidth="150">
+                                <!-- ツールウィンドウ -->
+                                <avalonDock:LayoutDocument Title="ToolWindow1">
+                                    <w:Class1/>
+                                </avalonDock:LayoutDocument>
+                            </avalonDock:LayoutDocumentPane>
+                        </avalonDock:LayoutPanel>
+                        <avalonDock:LayoutPanel Orientation="Vertical">
+                            <avalonDock:LayoutDocumentPane DockHeight="*" DockWidth="*">
+                                <avalonDock:LayoutDocument Title="Document1">
+                                    <w:ElementList/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
@@ -84,21 +103,6 @@
                         </avalonDock:LayoutPanel>
                         <avalonDock:LayoutPanel Orientation="Vertical">
                             <avalonDock:LayoutDocumentPane>
-                                <w:Class1/>
-                                <avalonDock:LayoutDocument Title="Document1">
-
-                                </avalonDock:LayoutDocument>
-                            </avalonDock:LayoutDocumentPane>
-                            <avalonDock:LayoutDocumentPane DockWidth="150">
-                                <!-- ツールウィンドウ -->
-                                <avalonDock:LayoutDocument Title="ToolWindow1">
-                                    <w:Class1/>
-                                </avalonDock:LayoutDocument>
-                            </avalonDock:LayoutDocumentPane>
-                        </avalonDock:LayoutPanel>
-                        <avalonDock:LayoutPanel Orientation="Vertical">
-                            <avalonDock:LayoutDocumentPane>
-                                <w:Class1/>
                                 <avalonDock:LayoutDocument Title="Document1">
 
                                 </avalonDock:LayoutDocument>
