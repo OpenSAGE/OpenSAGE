@@ -51,6 +51,7 @@ namespace OpenSage.Tools.AptEditor.UI
                 ImGui.Text("Load files from path: ");
 
                 _inputBox.Draw();
+
                 TryGetFiles();
 
                 ImGui.Text("File list");
@@ -124,9 +125,9 @@ namespace OpenSage.Tools.AptEditor.UI
                 if (load)
                 {
                     // _inputBox.Value is valid, becasue TryGetFiles() is called after _inputBox.Draw()
-                    Load(list.Select(from => Path.Combine(_inputBox.Value, from)).Zip(_mapped),
-                         isPhysicalFile: true,
-                         loadArtOnly: false);
+                    TargetFileSystem.LoadFiles(list.Select(from => Path.Combine(_inputBox.Value, from)).Zip(_mapped),
+                                               isPhysicalFile: true,
+                                               loadArtOnly: false);
                     Visible = false;
                     Next?.Invoke();
                     Next = null;
@@ -196,87 +197,33 @@ namespace OpenSage.Tools.AptEditor.UI
                                ? relative
                                : Path.Combine(mappedPath, relative)
                            select (path, mapped);
-            Load(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
+            TargetFileSystem.LoadFiles(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
         }
 
-        private void Load(IEnumerable<(string, string)> listAndMapped,
-                          bool isPhysicalFile,
-                          bool loadArtOnly)
+        public void TryGetFiles()
         {
-            var art = FileSystem.NormalizeFilePath("art/textures/");
-            foreach (var (from, to) in listAndMapped)
-            {
-                var (open, length) = GetFile(from, isPhysicalFile);
-                if (!loadArtOnly)
-                {
-                    TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                                FileSystem.NormalizeFilePath(to),
-                                                                length,
-                                                                open));
-                }
-
-                // load art
-                var normalizedArt = FileSystem.NormalizeFilePath(from);
-                var index = normalizedArt.IndexOf(art);
-                if (index == -1)
-                {
-                    continue;
-                }
-                TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                            normalizedArt[index..],
-                                                            length,
-                                                            open));
-            }
-        }
-
-        private (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)
-        {
-            if (isPhysicalFile)
-            {
-                var info = new FileInfo(path);
-                return (info.OpenRead, (uint) info.Length);
-            }
-            var entry = TargetFileSystem.GetFile(path);
-            return (entry.Open, entry.Length);
-        }
-
-        private void TryGetFiles()
-        {
-            var directory = Directory.Exists(_inputBox.Value)
-                ? _inputBox.Value
-                : Path.GetDirectoryName(_inputBox.Value);
+            var directoryRaw = _inputBox.Value;
+            var directory = Directory.Exists(directoryRaw)
+                ? directoryRaw
+                : Path.GetDirectoryName(directoryRaw);
             if (_lastInput == directory && _truncatedTo == MaxCount)
             {
                 return;
             }
             Reset(directory);
 
-            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
-            {
-                return;
-            }
+            var max = _truncatedTo = MaxCount;
 
             _cancellation = new CancellationTokenSource();
             var token = _cancellation.Token;
-            var max = _truncatedTo = MaxCount;
+
             _loadingTask = Task.Run(() =>
             {
-                var files = Directory.EnumerateFiles(directory, "*", new EnumerationOptions
-                {
-                    RecurseSubdirectories = true,
-                    ReturnSpecialDirectories = false
-                });
+                void cancel() { token.ThrowIfCancellationRequested(); }
 
-                token.ThrowIfCancellationRequested();
+                var files = FileUtilities.GetFilesByDirectory(directory, max, null, cancel);
                 foreach (var file in files)
-                {
-                    token.ThrowIfCancellationRequested();
-                    _list.Enqueue(Path.GetRelativePath(directory, file));
-                    if (_list.Count >= max) // sanity check
-                    {
-                        break;
-                    }
-                }
+                    _list.Enqueue(file);
             }, token);
         }
 

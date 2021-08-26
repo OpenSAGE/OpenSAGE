@@ -222,49 +222,9 @@ namespace OpenSage.Tools.AptEditor.UI
                                ? relative
                                : Path.Combine(mappedPath, relative)
                            select (path, mapped);
-            Load(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
+            TargetFileSystem.LoadFiles(filtered.ToArray(), !isFromGameFileSystem, loadArtOnly);
         }
 
-        public void Load(IEnumerable<(string, string)> listAndMapped,
-                          bool isPhysicalFile,
-                          bool loadArtOnly)
-        {
-            var art = FileSystem.NormalizeFilePath("art/textures/");
-            foreach (var (from, to) in listAndMapped)
-            {
-                var (open, length) = GetFile(from, isPhysicalFile);
-                if (!loadArtOnly)
-                {
-                    TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                                FileSystem.NormalizeFilePath(to),
-                                                                length,
-                                                                open));
-                }
-
-                // load art
-                var normalizedArt = FileSystem.NormalizeFilePath(from);
-                var index = normalizedArt.IndexOf(art);
-                if (index == -1)
-                {
-                    continue;
-                }
-                TargetFileSystem.Update(new FileSystemEntry(TargetFileSystem,
-                                                            normalizedArt[index..],
-                                                            length,
-                                                            open));
-            }
-        }
-
-        public (Func<Stream>, uint) GetFile(string path, bool isPhysicalFile)
-        {
-            if (isPhysicalFile)
-            {
-                var info = new FileInfo(path);
-                return (info.OpenRead, (uint) info.Length);
-            }
-            var entry = TargetFileSystem.GetFile(path);
-            return (entry.Open, entry.Length);
-        }
 
         public void TryGetFiles()
         {
@@ -277,35 +237,19 @@ namespace OpenSage.Tools.AptEditor.UI
             }
             Reset(directory);
 
-            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
-            {
-                return;
-            }
+            var max = _truncatedTo = MaxCount;
 
             _cancellation = new CancellationTokenSource();
             var token = _cancellation.Token;
-            var max = _truncatedTo = MaxCount;
+            
             _loadingTask = Task.Run(() =>
             {
-                var files = Directory.EnumerateFiles(directory, "*", new EnumerationOptions
-                {
-                    RecurseSubdirectories = true,
-                    ReturnSpecialDirectories = false
-                });
+                void cancel() { token.ThrowIfCancellationRequested(); }
+                bool filter(string file) { return file.EndsWith(".apt"); }
 
-                token.ThrowIfCancellationRequested();
+                var files = FileUtilities.GetFilesByDirectory(directory, max, filter, cancel);
                 foreach (var file in files)
-                {
-                    token.ThrowIfCancellationRequested();
-                    if (file.EndsWith(".apt"))
-                    {
-                        _list.Enqueue(Path.GetRelativePath(directory, file));
-                        if (_list.Count >= max) // sanity check
-                        {
-                            break;
-                        }
-                    }
-                }
+                    _list.Enqueue(file);
             }, token);
         }
 

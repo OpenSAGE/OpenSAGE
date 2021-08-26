@@ -58,10 +58,10 @@ namespace OpenSage.FileFormats.Apt
             using (var reader = new BinaryReader(streamInput, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
-                var magic = reader.ReadFixedLengthString(8);
-                if (magic != "Apt Data")
+                var fileFormat = reader.ReadFixedLengthString(8);
+                if (fileFormat != "Apt Data")
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidDataException("Not an Apt file");
                 }
 
                 //load the corresponding const entry

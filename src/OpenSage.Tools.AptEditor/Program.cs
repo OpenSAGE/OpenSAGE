@@ -23,7 +23,7 @@ namespace OpenSage.Tools.AptEditor
             var rootPath = Launcher();
             if (rootPath != null)
             {
-                GameWindowAdapter(rootPath);
+                GWA(rootPath);
             }
 
             Platform.Stop();
@@ -115,11 +115,80 @@ namespace OpenSage.Tools.AptEditor
             }
         }
 
+        static void GWA(string rootPath)
+        {
+            ImGuiRenderer? imGuiRenderer = null;
+            CommandList? commandList = null;
+            EventHandler? OnClientSizeChanged = null;
+            EventHandler? OnRendering2D = null;
+            void Attach(Game game)
+            {
+                var device = game.GraphicsDevice;
+                var window = game.Window;
+                var mainForm = new MainForm(game);
+
+                var initialContext = ImGui.GetCurrentContext();
+                imGuiRenderer = new ImGuiRenderer(device,
+                                                            game.Panel.OutputDescription,
+                                                            window.ClientBounds.Width,
+                                                            window.ClientBounds.Height);
+                var font = imGuiRenderer.LoadSystemFont("consola.ttf");
+
+                commandList = device.ResourceFactory.CreateCommandList();
+                var ourContext = ImGui.GetCurrentContext();
+                // reset ImGui Context to initial one
+                ImGui.SetCurrentContext(initialContext);
+
+
+                OnClientSizeChanged = (a, b) =>
+                {
+                    imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
+                };
+                OnRendering2D = (a, b) =>
+                {
+                    var previousContext = ImGui.GetCurrentContext();
+                    ImGui.SetCurrentContext(ourContext);
+                    try
+                    {
+                        commandList.Begin();
+                        commandList.SetFramebuffer(game.Panel.Framebuffer);
+                        imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
+                        using (var fontSetter = new ImGuiFontSetter(font))
+                        {
+                            mainForm.Draw();
+                        }
+                        imGuiRenderer.Render(game.GraphicsDevice, commandList);
+                        commandList.End();
+                        device.SubmitCommands(commandList);
+                    }
+                    finally
+                    {
+                        ImGui.SetCurrentContext(previousContext);
+                    }
+                };
+                window.ClientSizeChanged += OnClientSizeChanged;
+                game.RenderCompleted += OnRendering2D;
+            }
+            void Detach(Game game)
+            {
+                var window = game.Window;
+                game.RenderCompleted -= OnRendering2D;
+                window.ClientSizeChanged -= OnClientSizeChanged;
+                imGuiRenderer!.Dispose();
+                commandList!.Dispose();
+            }
+
+            using var editor = new AptEditor();
+            editor.AddSearchPath(rootPath);
+            editor.InitWindow(Attach, Detach);
+        }
+
         static void GameWindowAdapter(string rootPath)
         {
             var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
             using var game = new Game(installation, null, new Configuration { LoadShellMap = false });
             // should be the ImGui context created by DeveloperModeView
+
             
             var device = game.GraphicsDevice;
             var window = game.Window;
