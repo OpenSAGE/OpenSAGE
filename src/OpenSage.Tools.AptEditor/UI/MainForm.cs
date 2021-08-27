@@ -6,24 +6,59 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using ImGuiNET;
-using OpenSage.Data;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Apt;
+using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal sealed class MainForm
+    internal class MainFormState
+    {
+        public AptSceneInstance Scene { get; protected set; }
+        public AptEditInstance? Edit { get; protected set; }
+
+        public LogicalInstructions? CurrentActions { get; set; }
+        public string? CurrentAptPath { get; protected set; }
+        public string CurrentTitle { get; set; }
+
+        public MainFormState(AptSceneInstance scene)
+        {
+            Scene = scene;
+            CurrentTitle = "Avoiding CS8618";
+            ResetAll();
+        }
+
+        public void ResetAll()
+        {
+            Scene.ResetAll();
+            Edit = null;
+            CurrentActions = null;
+            CurrentAptPath = null;
+            CurrentTitle = "";
+        }
+
+        public void SetApt(string path, AptFile apt)
+        {
+            Scene.SetApt(apt);
+            Edit = new AptEditInstance(apt);
+            CurrentAptPath = path;
+        }
+    }
+
+
+    internal sealed class MainForm : MainFormState
     {
         private readonly List<IWidget> _widgets = new List<IWidget>
         {
             new CharacterList(),
-            new SceneTransform(),
+            new SceneTransform(), // runtime
             new FrameList(),
             new FrameItemList(),
-            new GeometryEditor(),
-            new ConstantPool(),
-            new VMConsole(), 
+            new GeometryEditor(), 
+            new ConstantPool(), 
+            new VMConsole(), // runtime
         };
         private readonly ExportPathSelector _exportPathSelector = new ExportPathSelector();
         private readonly AptFileSelector _aptFileSelector;
@@ -31,16 +66,14 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly FileListWindow _fileListWindow;
         private readonly List<ImGuiModalPopUp> _popups;
         private readonly GameWindow _window;
-        private readonly AptSceneManager _manager;
 
         private readonly List<(Task, string)> _tasks = new List<(Task, string)>();
         private string? _loadAptError;
         private string? _lastSeriousError;
 
-        public MainForm(Game game)
+        public MainForm(Game game) : base(new(game))
         {
             _window = game.Window;
-            _manager = new(game);
             _aptFileSelector = new(game.ContentManager.FileSystem);
             _searchPathAdder = new(game);
             _fileListWindow = new(game, _aptFileSelector);
@@ -58,17 +91,16 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void AssignAptFile(string path)
         {
-            string? loadError = null;
             try
             {
                 var apt = _fileListWindow.LoadApt(path);
                 _fileListWindow.LoadImportTree(apt);
-                _manager.LoadApt(apt);
+                SetApt(path, apt);
             }
             catch (FileNotFoundException loadFailure)
             {
                 _loadAptError =
-                        $"Failed to open apt file {loadFailure.FileName ?? "?"} - {loadFailure.Message}.\n" +
+                        $"Failed to open apt file {loadFailure.FileName ?? "[native]"} - {loadFailure.Message}.\n" +
                         "Consider adding more search paths (File Menu > Add Search Path).";
                 _searchPathAdder.Visible = true;
                 _searchPathAdder.Next = () => _aptFileSelector.Visible = true;
@@ -113,17 +145,18 @@ namespace OpenSage.Tools.AptEditor.UI
                     if (ImGui.MenuItem("Open example...", null, false, true))
                     {
                         var name = "feg_m_mainmenu3d";
-                        _manager.LoadApt(SampleApt.Create(name, new Mathematics.ColorRgba(0, 255, 0, 255)), name);
+                        var sapt = SampleApt.Create(name, new Mathematics.ColorRgba(0, 255, 0, 255));
+                        SetApt(name, sapt);
                     }
 
-                    if (ImGui.MenuItem("Export", null, false, _manager.EditManager != null))
+                    if (ImGui.MenuItem("Export", null, false, Scene.AptFile != null))
                     {
                         _exportPathSelector.Visible = true;
                     }
 
-                    if (ImGui.MenuItem("Close", null, false, _manager.EditManager != null))
+                    if (ImGui.MenuItem("Close", null, false, Scene.AptFile != null))
                     {
-                        _manager.UnloadApt();
+                        ResetAll();
                     }
 
                     if (ImGui.MenuItem("Add Search paths..."))
@@ -145,7 +178,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
                     ImGui.EndMenu();
                 }
-                if (_manager.EditManager is AptEditInstance manager && ImGui.BeginMenu("Edit"))
+                if (Edit is AptEditInstance manager && ImGui.BeginMenu("Edit"))
                 {
                     var description = manager.GetUndoDescription();
                     if (ImGui.MenuItem(description ?? "Undo", description is not null))
@@ -166,10 +199,10 @@ namespace OpenSage.Tools.AptEditor.UI
 
             if (_exportPathSelector.GetValue() is string exportPath)
             {
-                if (_manager.EditManager != null)
+                if (Edit != null)
                 {
-                    var dump = _manager.EditManager.GetAptDataDump();
-                    var task = _manager.EditManager.GetAptDataDump().WriteTo(new DirectoryInfo(exportPath));
+                    var dump = Edit.GetAptDataDump();
+                    var task = dump.WriteTo(new DirectoryInfo(exportPath));
                     _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }
@@ -179,13 +212,13 @@ namespace OpenSage.Tools.AptEditor.UI
                 AssignAptFile(inputAptPath);
             }
 
-            if (_manager.EditManager == null)
+            if (Scene.AptFile == null)
             {
                 ImGui.Text("Open a .apt file to see its contents.");
             }
             else
             {
-                ImGui.Text($"Currently loaded Apt file: {_manager.CurrentAptPath}");
+                ImGui.Text($"Currently loaded Apt file: {CurrentAptPath}");
             }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 100);
@@ -199,11 +232,11 @@ namespace OpenSage.Tools.AptEditor.UI
                 _aptFileSelector.Draw();
                 _searchPathAdder.Draw();
                 _fileListWindow.Draw();
-                if (_lastSeriousError == null && _loadAptError == null && _manager.EditManager != null)
+                if (_lastSeriousError == null && _loadAptError == null && Scene.AptFile != null && Edit != null)
                 {
                     foreach (var widget in _widgets)
                     {
-                        widget.Draw(_manager);
+                        widget.Draw(this);
                     }
                 }
             }

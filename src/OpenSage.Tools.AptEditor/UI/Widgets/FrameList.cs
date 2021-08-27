@@ -20,9 +20,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             _frameListUtilities = new FrameListUtilities();
         }
 
-        public void Draw(AptSceneManager manager)
+        public void Draw(MainFormState scene)
         {
-            if (_frameListUtilities.Reset(manager))
+            var manager = scene.Scene;
+            if (_frameListUtilities.Reset(scene))
             {
                 // if this is a different frame (imply _utilities.Active == true)
                 ImGui.SetNextWindowSize(Vector2.Zero);
@@ -76,7 +77,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             ImGui.End();
         }
 
-        private void ProcessPlay(AptSceneManager manager)
+        private void ProcessPlay(AptSceneInstance manager)
         {
             if (!_playing)
             {

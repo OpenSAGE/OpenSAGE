@@ -12,6 +12,7 @@ using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
 using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.FileFormats.Apt;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
@@ -133,6 +134,7 @@ namespace OpenSage.Tools.AptEditor.UI
             return aptFile;
         }
 
+        [SuppressMessage("Microsoft.Performance", "CA2200", MessageId = "intentional")]
         public void LoadImportTree(AptFile apt)
         {
             string? lastFailed = null;

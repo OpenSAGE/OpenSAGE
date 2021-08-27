@@ -180,7 +180,7 @@ namespace OpenSage.Tools.AptEditor
 
             using var editor = new AptEditor();
             editor.AddSearchPath(rootPath);
-            editor.InitWindow(Attach, Detach);
+            editor.InitConsole(Attach, Detach);
         }
 
         static void GameWindowAdapter(string rootPath)

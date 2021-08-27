@@ -22,7 +22,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public IReadOnlyList<BackgroundColor> BackgroundColors => _backgroundColors;
 
         private readonly Playable _character;
-        private readonly AptSceneManager _manager;
+        private readonly MainFormState _manager;
         private readonly Frame _storedFrame;
         private readonly SortedDictionary<int, LogicalPlaceObject?> _placeObjects = new();
         private readonly List<FrameLabel> _frameLabels = new();
@@ -30,7 +30,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private readonly List<LogicalInitAction> _initActions = new();
         private readonly List<BackgroundColor> _backgroundColors = new();
 
-        private FrameItemUtilities(Playable character, AptSceneManager manager, Frame currentFrame)
+        private FrameItemUtilities(Playable character, MainFormState manager, Frame currentFrame)
         {
             _character = character;
             _manager = manager;
@@ -64,19 +64,19 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             }
         }
 
-        public static FrameItemUtilities? Reset(AptSceneManager manager, FrameItemUtilities? current)
+        public static FrameItemUtilities? Reset(MainFormState manager, FrameItemUtilities? current)
         {
-            if (manager.IsCurrentCharacterImported)
+            if (manager.Scene.IsCurrentCharacterImported)
             {
                 return null;
             }
 
-            if (manager.CurrentCharacter is not Playable p)
+            if (manager.Scene.CurrentCharacter is not Playable p)
             {
                 return null;
             }
 
-            if (manager.CurrentFrameWrapped is not int frameNumber)
+            if (manager.Scene.CurrentFrameWrapped is not int frameNumber)
             {
                 return null;
             }
@@ -226,13 +226,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         {
             edit.OnEdit += delegate
             {
-                if (_manager.CurrentCharacter != _character)
+                if (_manager.Scene.CurrentCharacter != _character)
                 {
                     return; // to do: swtich to character
                 }
-                _manager.PlayToFrame(_manager.CurrentFrameWrapped!.Value);
+                _manager.Scene.PlayToFrame(_manager.Scene.CurrentFrameWrapped!.Value);
             };
-            _manager.EditManager!.Edit(edit);
+            _manager.Edit!.Edit(edit);
         }
     }
 }

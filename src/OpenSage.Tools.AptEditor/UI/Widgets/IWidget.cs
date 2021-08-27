@@ -2,6 +2,6 @@
 {
     internal interface IWidget
     {
-        void Draw(AptSceneManager manager);
+        void Draw(MainFormState manager);
     }
 }

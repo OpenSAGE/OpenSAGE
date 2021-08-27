@@ -14,15 +14,15 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private string? _newCharacterName = null;
         private bool _isCreatingNewShape = true;
 
-        public void Draw(AptSceneManager manager)
+        public void Draw(MainFormState manager)
         {
-            if (_utilities?.Manager != manager.EditManager)
+            if (_utilities?.Manager != manager.Edit)
             {
                 _lastSelectedCharacter = -1;
                 _decidingExportName = string.Empty;
-                _utilities = manager.EditManager is null
+                _utilities = manager.Edit is null
                     ? null
-                    : new CharacterUtilities(manager.EditManager);
+                    : new CharacterUtilities(manager.Edit);
             }
 
             if (_utilities is null)
@@ -84,7 +84,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
         }
 
-        private void ListCharacterDescription(AptSceneManager manager)
+        private void ListCharacterDescription(MainFormState manager)
         {
             var indexColor = new Vector4(0, 1, 1, 1);
             var typeColor = new Vector4(0, 0.8f, 0.2f, 1);
@@ -119,10 +119,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     _lastSelectedCharacter = desc.Index;
                     var selectedCharacter = _utilities.GetCharacterByIndex(desc.Index);
-                    if (manager.CurrentCharacter != selectedCharacter)
+                    if (manager.Scene.CurrentCharacter != selectedCharacter)
                     {
                         System.Console.WriteLine($"Setting new character {desc.Index} {selectedCharacter.GetType().Name}");
-                        manager.SetCharacter(selectedCharacter);
+                        manager.Scene.SetCharacter(selectedCharacter);
                         _decidingExportName = desc.ExportedName ?? desc.Name;
 
                         // VM stuffs

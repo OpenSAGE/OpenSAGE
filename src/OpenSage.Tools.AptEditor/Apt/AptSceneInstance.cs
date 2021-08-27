@@ -9,34 +9,25 @@ using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Apt;
-using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal class AptSceneManager
+    internal class AptSceneInstance
     {
-        // deserted
-        public Character? CurrentCharacter { get; private set; }
-        public LogicalInstructions? CurrentActions { get; set; }
-        public bool IsCurrentCharacterImported => CurrentCharacter?.Container != EditManager?.AptFile;
+        public Game Game { get; }
+        public ColorRgbaF DisplayBackgroundColor { get; private set; }
 
-        public string CurrentTitle { get; set; }
+        public AptFile? AptFile { get; private set; }
+        public int MillisecondsPerFrame => (int) (AptFile?.Movie.MillisecondsPerFrame ?? 30);
+        
+        public AptWindow? CurrentWindow { get; private set; }
+        public WrappedDisplayItem CurrentItem { get; private set; }
+        public Character? CurrentCharacter { get; private set; }
+        public bool IsCurrentCharacterImported => CurrentCharacter?.Container != AptFile;
+
         public int NumberOfFrames { get; private set; }
         public int? CurrentFrameWrapped => NumberOfFrames == 0 ? new int?() : CurrentFrame % NumberOfFrames;
         public int CurrentFrame { get; private set; }
-
-        public ColorRgbaF DisplayBackgroundColor { get; private set; }
-
-        // edit
-        public AptEditInstance? EditManager { get; private set; }
-        public string? CurrentAptPath { get; private set; }
-
-        public int MillisecondsPerFrame => (int) (EditManager?.AptFile.Movie.MillisecondsPerFrame ?? 30);
-
-        // runtime
-        public Game Game { get; }
-        public AptWindow? CurrentWindow { get; private set; }
-        public WrappedDisplayItem CurrentItem { get; private set; }
 
         public Vector2 CurrentOffset
         {
@@ -50,34 +41,36 @@ namespace OpenSage.Tools.AptEditor.UI
         }
 
 
-        public AptSceneManager(Game game)
+        public AptSceneInstance(Game game)
         {
-            UnloadApt();
+            ResetAll();
             Game = game;
         }
 
         // Apt Loading Operations
 
-        public void UnloadApt()
+        public void ResetAll()
         {
-            CurrentAptPath = null;
+            if (CurrentWindow != null)
+            {
+                var list = CurrentWindow.Root.Content;
+                while (list.Items.Any())
+                    list.RemoveItem(list.Items.Keys.First());
+            }
             NumberOfFrames = 0;
             CurrentFrame = 0;
             CurrentOffset = Vector2.Zero;
             CurrentScale = 1;
-            EditManager = null;
+            AptFile = null;
             CurrentWindow = null;
             CurrentItem = null;
-            CurrentActions = null;
-            CurrentTitle = "";
+            CurrentCharacter = null;
         }
 
-        public void LoadApt(AptFile aptFile, string? name = null)
+        public void SetApt(AptFile aptFile)
         {
-            UnloadApt();
-            
-            CurrentAptPath = name ?? aptFile.MovieName;
-            EditManager = new AptEditInstance(aptFile);
+            ResetAll();
+            AptFile = aptFile;
         }
 
         // Character Loading Operations
@@ -113,9 +106,9 @@ namespace OpenSage.Tools.AptEditor.UI
             var color = new ColorRgba((byte) multiplied.X, (byte) multiplied.Y, (byte) multiplied.Z, (byte) multiplied.W);
             windows.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, color));
 
-            if (EditManager != null)
+            if (AptFile != null)
             {
-                CurrentWindow = new AptWindow(Game, Game.ContentManager, EditManager.AptFile);
+                CurrentWindow = new AptWindow(Game, Game.ContentManager, AptFile);
                 
                 var root = CurrentWindow.Root;
                 // hack: an AptWindow will always be updated by the game when it's loaded
@@ -132,9 +125,8 @@ namespace OpenSage.Tools.AptEditor.UI
                 // set display list
                 var list = CurrentWindow.Root.Content;
                 while (list.Items.Any())
-                {
                     list.RemoveItem(list.Items.Keys.First());
-                }
+
                 if (CurrentCharacter != null)
                 {
                     CurrentItem = new WrappedDisplayItem(CurrentCharacter, CurrentWindow.Context, CurrentWindow.Root);
@@ -149,7 +141,7 @@ namespace OpenSage.Tools.AptEditor.UI
 
         public void SetCharacter(Character character)
         {
-            if (EditManager is null)
+            if (AptFile is null)
             {
                 throw new InvalidOperationException();
             }

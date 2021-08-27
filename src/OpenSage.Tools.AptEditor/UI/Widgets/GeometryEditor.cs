@@ -14,13 +14,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private string _currentInput = string.Empty;
         private string? _lastError;
 
-        public void Draw(AptSceneManager manager)
+        public void Draw(MainFormState manager)
         {
-            if (_utilities?.Manager != manager.EditManager)
+            if (_utilities?.Manager != manager.Edit)
             {
-                _utilities = manager.EditManager is null
+                _utilities = manager.Edit is null
                     ? null
-                    : new GeometryUtilities(manager.EditManager);
+                    : new GeometryUtilities(manager.Edit);
                 _selected = null;
                 _lastError = null;
                 _currentInput = string.Empty;

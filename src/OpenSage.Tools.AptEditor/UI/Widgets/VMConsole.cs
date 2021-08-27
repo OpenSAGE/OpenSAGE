@@ -70,9 +70,10 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         Vector4 _unbreakColor = new Vector4(0.1f, 0.1f, 0.1f, 1f);
         string _breakDesc = "*";
 
-        public void CheckEnv(AptSceneManager manager)
+        public void CheckEnv(MainFormState manager)
         {
-            if (manager.CurrentWindow == null || manager.CurrentItem is null)
+            var scene = manager.Scene;
+            if (scene.CurrentWindow == null || scene.CurrentItem is null)
             {
                 _context = null;
                 _acontext = null;
@@ -83,13 +84,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             else
             {
                 _instructions = manager.CurrentActions;
-                _dispobj = manager.CurrentItem.ScriptObject;
-                _context = manager.CurrentItem.Context;
+                _dispobj = scene.CurrentItem.ScriptObject;
+                _context = scene.CurrentItem.Context;
                 _title = manager.CurrentTitle;
             }
         }
 
-        public void Draw(AptSceneManager manager)
+        public void Draw(MainFormState manager)
         {
             CheckEnv(manager);
             var cur_ctx = _context == null ? null : _context.Avm.CurrentContext();
@@ -107,7 +108,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 // ImGui.SameLine();
                 if (ImGui.Button("Exec1"))
                 {
-                    manager.ExecuteOnce();
+                    last_executed_func = manager.Scene.ExecuteOnce();
                     
                 }
                 if (_context != null)
@@ -250,7 +251,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         }
 
         internal bool SameLine() { ImGui.SameLine(); return true; }
-        internal void DrawObject(ObjectDescription od, AptSceneManager manager, int layer = 0)
+        internal void DrawObject(ObjectDescription od, MainFormState manager, int layer = 0)
         {
             if (od == null || od.disp == null) return;
             var id = od.GetHashCode();

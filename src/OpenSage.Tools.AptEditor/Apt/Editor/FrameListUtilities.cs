@@ -12,10 +12,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public bool Active => Frames != null;
         public Playable? CurrentCharacter { get; private set; }
         public List<Frame>? Frames => CurrentCharacter?.Frames;
-        private AptSceneManager? _manager;
+        private MainFormState? _manager;
 
         // return true if they are new frames
-        public bool Reset(AptSceneManager manager)
+        public bool Reset(MainFormState manager)
         {
             _manager ??= manager;
             if (_manager != manager)
@@ -23,7 +23,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 throw new NotSupportedException();
             }
 
-            var newCharacter = _manager?.CurrentCharacter as Playable;
+            var newCharacter = _manager?.Scene.CurrentCharacter as Playable;
             if (CurrentCharacter != newCharacter)
             {
                 CurrentCharacter = newCharacter;
@@ -49,13 +49,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var nextFrame = frameNumber == Frames.Count - 1
                 ? Frames.Count - 1
                 : frameNumber;
-            _manager!.PlayToFrame(nextFrame);
+            _manager!.Scene.PlayToFrame(nextFrame);
 
             var frameToBeRemoved = Frames[frameNumber];
             var editAction = new EditAction(() => Frames.RemoveAt(frameNumber),
                                             () => Frames.Insert(frameNumber, frameToBeRemoved),
                                             "Remove frame");
-            _manager.EditManager!.Edit(editAction);
+            _manager.Edit!.Edit(editAction);
         }
 
         public void AppendFrame()
@@ -69,7 +69,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             var editAction = new EditAction(() => Frames.Add(newFrame),
                                             () => Frames.RemoveAt(Frames.Count - 1),
                                             "Add new frame");
-            _manager!.EditManager!.Edit(editAction);
+            _manager!.Edit!.Edit(editAction);
         }
 
     }

@@ -20,6 +20,15 @@ namespace OpenSage.Tools.AptEditor.Util
                 .Concat(fileSystem.NextFileSystem.FindFiles(matcher));
         }
 
+        public static string NormalizePath(this string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       // is it necessary?
+                       // .ToLowerInvariant()
+                       ;
+        }
+
         public static (Func<Stream>, uint) GetFile2(this FileSystem target, string path, bool isPhysicalFile)
         {
             if (isPhysicalFile)

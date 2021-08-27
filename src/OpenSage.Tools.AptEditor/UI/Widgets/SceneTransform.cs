@@ -7,8 +7,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
     internal class SceneTransform : IWidget
     {
-        public void Draw(AptSceneManager manager)
+        public void Draw(MainFormState scene)
         {
+            var manager = scene.Scene;
             if (ImGui.Begin("Scene transform", ImGuiWindowFlags.AlwaysAutoResize))
             {
                 var scale = manager.CurrentScale;
