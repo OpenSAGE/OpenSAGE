@@ -17,7 +17,7 @@ namespace OpenSage.Tools.AptEditor
         
         static void Main(string[] args)
         {
-
+            
             Platform.Start();
 
             var rootPath = Launcher();

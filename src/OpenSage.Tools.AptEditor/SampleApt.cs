@@ -12,6 +12,16 @@ namespace OpenSage.Tools.AptEditor
 {
     internal static class SampleApt
     {
+        public static AptFile Test1(string path)
+        {
+            var getter = new StandardStreamGetter(path);
+            var file = Create(getter.GetMovieName());
+            file.Write(getter);
+            var file2 = AptFile.Parse(getter);
+            return file2;
+        }
+
+        public static AptFile Create(string name) { return Create(name, new ColorRgba(0, 255, 0, 255)); }
         public static AptFile Create(string name, in ColorRgba color)
         {
             const int width = 100;

@@ -136,16 +136,24 @@ namespace OpenSage.FileFormats.Apt
 
                     //load the corresponding image map
                     using (var datEntry = getter.GetDatStream())
-                        apt.ImageMap = ImageMap.FromFileSystemEntry(datEntry);
+                    using (var datReader = new StreamReader(datEntry))
+                        apt.ImageMap = ImageMap.Parse(datReader);
 
                     //resolve geometries
                     apt.GeometryMap = new Dictionary<uint, Geometry>();
                     foreach (Shape shape in apt.Movie.Characters.FindAll((x) => x is Shape))
                     {
-                        using (var shapeEntry = getter.GetGeometryStream(shape.GeometryId))
+                        try
                         {
-                            var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
-                            apt.GeometryMap[shape.GeometryId] = shapeGeometry;
+                            using (var shapeEntry = getter.GetGeometryStream(shape.GeometryId))
+                            {
+                                var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
+                                apt.GeometryMap[shape.GeometryId] = shapeGeometry;
+                            }
+                        }
+                        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
+                        {
+                            apt.GeometryMap[shape.GeometryId] = null;
                         }
                     }
 
@@ -166,7 +174,19 @@ namespace OpenSage.FileFormats.Apt
                 (w, p) => { Constants.Write(w, p); return -1; },
                 () => getter.GetConstStream(mode)
                 );
-            
+            BinaryIOExtensions.Write(
+                (w, p) => { ImageMap.Write(w); return -1; },
+                () => getter.GetDatStream(mode)
+                );
+            foreach (var shapekvp in GeometryMap)
+            {
+                var id = shapekvp.Key;
+                var shape = shapekvp.Value;
+                BinaryIOExtensions.Write(
+                    (w, p) => { ImageMap.Write(w); return -1; },
+                    () => getter.GetDatStream(mode)
+                    );
+            }
         }
 
         public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)

@@ -9,6 +9,7 @@ namespace OpenSage.FileFormats.Apt
     public sealed class MemoryPool: IDisposable
     {
         private Dictionary<uint, (MemoryPool, uint)> _preMapping;
+        private Dictionary<uint, (MemoryPool, uint)> _preMapping2;
         private Dictionary<uint, uint> _postMapping;
         private MemoryStream _stream;
         private BinaryWriter _writer;
@@ -37,6 +38,7 @@ namespace OpenSage.FileFormats.Apt
         {
             _pre = pre;
             _preMapping = new();
+            _preMapping2 = _pre == null ? new() : _pre._preMapping;
             _postMapping = new();
             _stream = new();
             _writer = new(_stream);
@@ -59,14 +61,16 @@ namespace OpenSage.FileFormats.Apt
         public uint RegisterPreOffset(MemoryPool target, uint offset)
         {
             var ret = (uint) _stream.Position;
-            target._preMapping[offset] = (this, ret);
+            var pm = target == null ? _preMapping2 : target._preMapping;
+            pm[offset] = (this, ret);
             return ret;
         }
 
         public (MemoryPool, uint) RemovePreOffset(MemoryPool target, uint offset)
         {
             var ret = target._preMapping[offset];
-            target._preMapping.Remove(offset);
+            var pm = target == null ? _preMapping2 : target._preMapping;
+            pm.Remove(offset);
             return ret;
         }
 
@@ -122,12 +126,12 @@ namespace OpenSage.FileFormats.Apt
             for (int i = 0; i < length; ++i)
             {
                 var cur_offset = (uint) _stream.Position;
-                _writer.Write((UInt32) 0);
                 var post = _postAutoCreate;
                 post.RegisterPostOffset(cur_offset);
                 var flag = action(i, post._writer, post._postAutoCreate);
                 if (!flag)
                     post.RemovePostOffsetAndSeek(cur_offset);
+                _writer.Write((UInt32) 0);
             }
         }
 
@@ -144,7 +148,7 @@ namespace OpenSage.FileFormats.Apt
             if (fix_block_length == 0) return;
 
             if (offsets == null)
-                offsets = new() { [null] = offset };
+                offsets = new();
             offsets[this] = offset;
 
             // the last pool muse be serialized first
@@ -154,23 +158,37 @@ namespace OpenSage.FileFormats.Apt
             // copy anything from the data chunk to the file
             _stream.Seek(0, SeekOrigin.Begin);
             writer.BaseStream.Seek(offset, SeekOrigin.Begin);
-            _stream.CopyToAsync(writer.BaseStream);
+            _stream.CopyTo(writer.BaseStream);
             _stream.Seek(fix_block_length, SeekOrigin.Begin);
 
             // set all post pointers to correct positions
             if (_post != null)
-                foreach (var kvp in _post._postMapping)
+                foreach (var kvp in _post._postMapping) // this[key] -> _post[val]
                 {
                     writer.BaseStream.Seek(offset + kvp.Key, SeekOrigin.Begin);
                     writer.Write((UInt32) (offset + fix_block_length + kvp.Value));
+                }
+            if (_pre == null)
+                foreach (var kvp in _postMapping)
+                {
+                    writer.BaseStream.Seek(0 + kvp.Key, SeekOrigin.Begin);
+                    writer.Write((UInt32) (offset + 0 + kvp.Value));
                 }
 
             // set all pre pointers
             foreach (var kvp in _preMapping)
             {
-                writer.BaseStream.Seek(offset + kvp.Key, SeekOrigin.Begin);
-                writer.Write((UInt32) (offsets[kvp.Value.Item1] + kvp.Value.Item2));
+                writer.BaseStream.Seek(offsets[kvp.Value.Item1] + kvp.Value.Item2, SeekOrigin.Begin);
+                writer.Write((UInt32) (offset + kvp.Key));
             }
+
+            // set the most out layer's pre pointers
+            if (_pre == null)
+                foreach (var kvp in _preMapping2)
+                {
+                    writer.BaseStream.Seek(offsets[kvp.Value.Item1] + kvp.Value.Item2, SeekOrigin.Begin);
+                    writer.Write((UInt32) (0 + kvp.Key));
+                }
         }
 
     };

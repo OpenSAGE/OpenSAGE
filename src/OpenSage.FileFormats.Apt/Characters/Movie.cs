@@ -48,7 +48,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             if (writeHead)
             {
                 writer.Write(Encoding.ASCII.GetBytes(Constants.AptFileHeader));
-                writer.Write(Encoding.ASCII.GetBytes(Constants.ConstFileHeader));
+                writer.Write(Encoding.ASCII.GetBytes(Constants.OpenSageAptEditorCredits));
                 writer.BaseStream.Seek(Constants.AptFileStartPos, SeekOrigin.Begin);
             }
 
