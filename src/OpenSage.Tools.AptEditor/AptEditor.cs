@@ -50,8 +50,7 @@ namespace OpenSage.Tools.AptEditor
             }
             else
             {
-                // TODO get getter
-                var apt = AptFile.FromPath(rootPath, null);
+                var apt = AptFile.Parse(rootPath);
                 edit = new AptEditInstance(apt);
                 _openFiles[rootPath] = edit;
                 return true;

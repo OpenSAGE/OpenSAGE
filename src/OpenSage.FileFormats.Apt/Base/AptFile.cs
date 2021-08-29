@@ -8,6 +8,86 @@ using OpenSage.FileFormats.Apt.FrameItems;
 
 namespace OpenSage.FileFormats.Apt
 {
+
+    public abstract class AptStreamGetter
+    {
+        public abstract Stream GetAptStream(FileMode mode = FileMode.Open);
+        public abstract Stream GetConstStream(FileMode mode = FileMode.Open);
+        public abstract Stream GetDatStream(FileMode mode = FileMode.Open);
+        public abstract Stream GetXmlStream(FileMode mode = FileMode.Open);
+        public abstract Stream GetImageStream(uint id, FileMode mode = FileMode.Open);
+        public abstract Stream GetGeometryStream(uint id, FileMode mode = FileMode.Open);
+        public abstract string GetMovieName();
+        public abstract string GetRootPath();
+    }
+
+    public class StandardStreamGetter : AptStreamGetter
+    {
+        public string RootPath { get; }
+        public string AptName { get; }
+        public Func<string, FileMode, Stream> Getter { get; }
+        public override string GetMovieName() => AptName;
+        public override string GetRootPath() => RootPath;
+
+        public StandardStreamGetter(string path, string apt, Func<string, FileMode, Stream> getter = null)
+        {
+            RootPath = path;
+            AptName = apt;
+            if (getter == null) getter = File.Open;
+            Getter = getter;
+        }
+
+        public StandardStreamGetter(string path, string apt, Func<string, Stream> getter = null) : this(
+            path,
+            apt,
+            (getter == null ? null :
+            (s, m) => { if (m == FileMode.Open) return getter(s); else throw new NotSupportedException(); }
+            ))
+        { }
+
+        public StandardStreamGetter(string aptPath, Func<string, FileMode, Stream> getter = null) : this(
+            Path.GetDirectoryName(aptPath), 
+            Path.GetFileNameWithoutExtension(aptPath),
+            getter
+            )
+        { }
+
+        public override Stream GetAptStream(FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + ".apt");
+            return Getter(path, mode);
+        }
+
+        public override Stream GetConstStream(FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + ".const");
+            return Getter(path, mode);
+        }
+
+        public override Stream GetDatStream(FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + ".dat");
+            return Getter(path, mode);
+        }
+
+        public override Stream GetGeometryStream(uint id, FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + "_geometry", +id + ".ru");
+            return Getter(path, mode);
+        }
+
+        public override Stream GetImageStream(uint id, FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + "_textures", +id + ".tga");
+            return Getter(path, mode);
+        }
+
+        public override Stream GetXmlStream(FileMode mode = FileMode.Open)
+        {
+            var path = Path.Combine(RootPath, AptName + ".xml");
+            return Getter(path, mode);
+        }
+    }
     public sealed class AptFile
 
     {
@@ -19,81 +99,50 @@ namespace OpenSage.FileFormats.Apt
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
         public Dictionary<string, string> ImportMap { get; private set; }
-        public Func<string, Stream> StreamGetter { get; private set; }
 
-        internal bool IsEmpty = true;
-
-        private AptFile(ConstantData constants, string rootDirectory, string name, Func<string, Stream> getter)
+        private AptFile(ConstantData constants, string movieName, string rootPath)
         {
             Constants = constants;
-            RootDirectory = rootDirectory;
-            MovieName = name;
-            StreamGetter = getter;
+            MovieName = movieName;
+            RootDirectory = rootPath;
         }
 
-        public void CheckImportTree()
+        public static AptFile Parse(string path) { return Parse(new StandardStreamGetter(path)); }
+        public static AptFile Parse(AptStreamGetter getter)
         {
-            foreach (var import in Movie.Imports)
-            {
-                var importPath = Path.Combine(RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                var importEntry = StreamGetter(importPath);
-                if (importEntry == null)
-                    throw new FileNotFoundException("Cannot find imported file", importPath);
-
-                // Some dirty tricks to avoid the above exception
-                var f = FromPath(importPath, StreamGetter);
-                f.CheckImportTree();
-            }
-        }
-
-
-        public static AptFile FromPath(string aptPath, Func<string, Stream> streamGetter)
-        {
-            var aptName = Path.GetFileNameWithoutExtension(aptPath);
-            var rootDirectory = Path.GetDirectoryName(aptPath);
-
-            var streamInput = streamGetter(aptPath);
-            if (streamInput == null)
-                throw new FileNotFoundException("Cannot find file", aptPath);
-            using (var reader = new BinaryReader(streamInput, Encoding.ASCII, true))
+            using (var aptStream = getter.GetAptStream())
+            using (var aptReader = new BinaryReader(aptStream, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
-                var fileFormat = reader.ReadFixedLengthString(8);
+                var fileFormat = aptReader.ReadFixedLengthString(8);
                 if (fileFormat != "Apt Data")
                 {
                     throw new InvalidDataException("Not an Apt file");
                 }
 
                 //load the corresponding const entry
-                var constPath = Path.ChangeExtension(aptPath, ".const");
-                using (var stream = streamGetter(constPath))
+                using (var constStream = getter.GetConstStream())
+                using (var constReader = new BinaryReader(constStream))
                 {
-                    var constFile = ConstantData.FromFileSystemEntry(stream); 
-
-                    // Path.Combine(entryPath, Path.ChangeExtension(import.Movie, ".apt"));
-                    // FileSystem.GetFile()?
+                    var constFile = ConstantData.Parse(constReader);
 
                     // create container & load .apt file
-                    var apt = new AptFile(constFile, rootDirectory, aptName, streamGetter);
+                    var apt = new AptFile(constFile, getter.GetMovieName(), getter.GetRootPath());
                     var entryOffset = constFile.AptDataEntryOffset;
-                    reader.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
+                    aptReader.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
 
                     //proceed loading the characters
-                    apt.Movie = (Movie) Character.Create(reader, apt);
-                    //set first character to itself
-                    apt.Movie.Characters[0] = apt.Movie;
+                    apt.Movie = (Movie) Character.Create(aptReader, apt);
 
                     //load the corresponding image map
-                    var datPath = Path.Combine(rootDirectory, aptName + ".dat");
-                    using (var datEntry = streamGetter(datPath))
+                    using (var datEntry = getter.GetDatStream())
                         apt.ImageMap = ImageMap.FromFileSystemEntry(datEntry);
 
                     //resolve geometries
                     apt.GeometryMap = new Dictionary<uint, Geometry>();
                     foreach (Shape shape in apt.Movie.Characters.FindAll((x) => x is Shape))
                     {
-                        var ruPath = Path.Combine(rootDirectory, aptName + "_geometry", +shape.GeometryId + ".ru");
-                        using (var shapeEntry = streamGetter(ruPath))
+                        using (var shapeEntry = getter.GetGeometryStream(shape.GeometryId))
                         {
                             var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
                             apt.GeometryMap[shape.GeometryId] = shapeGeometry;
@@ -105,15 +154,25 @@ namespace OpenSage.FileFormats.Apt
             }
         }
 
-        public void WriteTo(string path, Func<string, Stream> streamGetter)
+        public void Write(AptStreamGetter getter)
         {
-
+            var mode = FileMode.Create;
+            BinaryIOExtensions.Write(
+                (w, p) => { Movie.Write(w, p, true); return -1; },
+                () => getter.GetAptStream(mode)
+                );
+            Constants.AptDataEntryOffset = Apt.Constants.AptFileStartPos;
+            BinaryIOExtensions.Write(
+                (w, p) => { Constants.Write(w, p); return -1; },
+                () => getter.GetConstStream(mode)
+                );
+            
         }
 
         public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)
         {
             var constData = new ConstantData();
-            var apt = new AptFile(constData, null, name, (_) => null)
+            var apt = new AptFile(constData, name, string.Empty)
             {
                 ImageMap = new ImageMap(),
                 GeometryMap = new Dictionary<uint, Geometry>(),

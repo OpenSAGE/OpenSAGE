@@ -120,6 +120,22 @@ namespace OpenSage.Tools.AptEditor.UI
             _rootDirectory = TargetFileSystem.RootDirectory;
         }
 
+        public void CheckImportTree(AptFile apt)
+        {
+            foreach (var import in apt.Movie.Imports)
+            {
+                var importPath = Path.Combine(apt.RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                var importEntry = TargetFileSystem.GetFile(importPath);
+                if (importEntry == null)
+                    throw new FileNotFoundException("Cannot find imported file", importPath);
+
+                // Some dirty tricks to avoid the above exception
+                var getter = new StandardStreamGetter(importPath, (s, m) => TargetFileSystem.GetFile(s).Open());
+                var f = AptFile.Parse(getter);
+                CheckImportTree(f);
+            }
+        }
+
         public AptFile LoadApt(string path)
         {
             var entry = TargetFileSystem.GetFile(path);
@@ -142,7 +158,7 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 try
                 {
-                    apt.CheckImportTree();
+                    CheckImportTree(apt);
                 }
                 catch (FileNotFoundException loadFailure)
                 {

@@ -6,99 +6,171 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class MemoryPool
+    public sealed class MemoryPool: IDisposable
     {
-        private Dictionary<uint, uint> _fixMapping;
-        private MemoryStream _fixStream;
-        private BinaryWriter _fixWriter;
+        private Dictionary<uint, (MemoryPool, uint)> _preMapping;
+        private Dictionary<uint, uint> _postMapping;
+        private MemoryStream _stream;
+        private BinaryWriter _writer;
 
-        public BinaryWriter Writer => _fixWriter;
+        public BinaryWriter Writer => _writer;
 
-        private MemoryPool _smallerPool = null;
+        private MemoryPool _post = null;
+        private MemoryPool _pre = null;
 
-        private MemoryPool _smallerPoolAutoCreate
+        private MemoryPool _postAutoCreate
         {
             get
             {
-                if (_smallerPool == null)
-                    _smallerPool = new();
-                return _smallerPool;
+                if (_post == null)
+                    _post = new(this);
+                return _post;
             }
         }
 
-        public MemoryPool SmallerPool => _smallerPoolAutoCreate;
+        public MemoryPool Pre => _pre;
+        public MemoryPool Post => _postAutoCreate;
 
-        public MemoryPool() 
+        public MemoryPool() : this(null) { }
+
+        public MemoryPool(MemoryPool pre) 
         {
-            _fixMapping = new();
-            _fixStream = new();
-            _fixWriter = new(_fixStream);
+            _pre = pre;
+            _preMapping = new();
+            _postMapping = new();
+            _stream = new();
+            _writer = new(_stream);
         }
 
-        public uint RegisterFixedOffset(uint offset)
+        public void Dispose()
         {
-            _fixMapping[offset] = (uint) _fixStream.Position;
-            return _fixMapping[offset];
+            if (_post != null)
+                _post.Dispose();
+            _writer.Dispose();
+            _stream.Dispose();
         }
 
-        public uint RemoveFixedOffset(uint offset)
+        /// <summary>
+        /// (this, cur_offset) -> (target, offset)
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public uint RegisterPreOffset(MemoryPool target, uint offset)
         {
-            var ret = _fixMapping[offset];
-            _fixMapping.Remove(offset);
+            var ret = (uint) _stream.Position;
+            target._preMapping[offset] = (this, ret);
             return ret;
         }
 
+        public (MemoryPool, uint) RemovePreOffset(MemoryPool target, uint offset)
+        {
+            var ret = target._preMapping[offset];
+            target._preMapping.Remove(offset);
+            return ret;
+        }
+
+        /// <summary>
+        /// (pre, offset) -> (this, reg_offset)
+        /// reg_offset is assigned to _stream.Position if negative
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="reg_offset"></param>
+        /// <returns></returns>
+        public uint RegisterPostOffset(uint offset, long reg_offset = -1)
+        {
+            if (reg_offset < 0)
+                reg_offset = _stream.Position;
+            _postMapping[offset] = (uint) reg_offset;
+            return _postMapping[offset];
+        }
+
+        public uint RemovePostOffset(uint offset)
+        {
+            var ret = _postMapping[offset];
+            _postMapping.Remove(offset);
+            return ret;
+        }
+
+        public uint RemovePostOffsetAndSeek(uint offset)
+        {
+            var ret = RemovePostOffset(offset);
+            _stream.Seek(ret, SeekOrigin.Begin);
+            return ret;
+        }
 
         public void WriteStringAtOffset(uint offset, string val)
         {
-            RegisterFixedOffset(offset);
-            _fixWriter.WriteNullTerminatedString(val);
+            RegisterPostOffset(offset);
+            _writer.WriteNullTerminatedString(val);
         }
 
         public void WriteArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action)
         {
-            RegisterFixedOffset(offset);
+            RegisterPostOffset(offset);
             for (int i = 0; i < length; ++i)
-                action(i, _fixWriter, _smallerPoolAutoCreate);
+            {
+                var flag = action(i, _writer, _postAutoCreate);
+                // TODO what if flag == false?
+                // The design is that action handles it
+            }
         }
 
         public void WritePointerArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action)
         {
-            RegisterFixedOffset(offset);
+            RegisterPostOffset(offset);
             for (int i = 0; i < length; ++i)
             {
-                var cur_offset = (uint) _fixStream.Position;
-                _fixWriter.Write((UInt32) 0);
-                var sp = _smallerPoolAutoCreate;
-                sp.RegisterFixedOffset(cur_offset);
-                var flag = action(i, sp._fixWriter, sp._smallerPoolAutoCreate);
+                var cur_offset = (uint) _stream.Position;
+                _writer.Write((UInt32) 0);
+                var post = _postAutoCreate;
+                post.RegisterPostOffset(cur_offset);
+                var flag = action(i, post._writer, post._postAutoCreate);
                 if (!flag)
-                    sp._fixStream.Seek(sp.RemoveFixedOffset(cur_offset), SeekOrigin.Begin);
+                    post.RemovePostOffsetAndSeek(cur_offset);
             }
         }
 
-        public void SerializeToFile(BinaryWriter writer, uint offsetFromFileStart)
+        /// <summary>
+        /// STRONGLY NOT RECOMMENDED TO CALL although it is public. 
+        /// Use BinaryIOExtensions.DumpMemoryPool Instead. 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="offset"></param>
+        /// <param name="offsets"></param>
+        public void SerializeToFile(BinaryWriter writer, uint offset = 0, Dictionary<MemoryPool, uint> offsets = null)
         {
-            var fix_block_length = (uint) _fixStream.Position;
+            var fix_block_length = (uint) _stream.Position;
             if (fix_block_length == 0) return;
 
+            if (offsets == null)
+                offsets = new() { [null] = offset };
+            offsets[this] = offset;
+
             // the last pool muse be serialized first
-            if (_smallerPool != null)
-                _smallerPool.SerializeToFile(writer, offsetFromFileStart + fix_block_length);
+            if (_post != null)
+                _post.SerializeToFile(writer, offset + fix_block_length, offsets);
 
             // copy anything from the data chunk to the file
-            _fixStream.Seek(0, SeekOrigin.Begin);
-            writer.BaseStream.Seek(offsetFromFileStart, SeekOrigin.Begin);
-            _fixStream.CopyToAsync(writer.BaseStream);
-            _fixStream.Seek(fix_block_length, SeekOrigin.Begin);
+            _stream.Seek(0, SeekOrigin.Begin);
+            writer.BaseStream.Seek(offset, SeekOrigin.Begin);
+            _stream.CopyToAsync(writer.BaseStream);
+            _stream.Seek(fix_block_length, SeekOrigin.Begin);
 
-            // set all pointers to correct positions
-            if (_smallerPool != null)
-                foreach (var kvp in _smallerPool._fixMapping)
+            // set all post pointers to correct positions
+            if (_post != null)
+                foreach (var kvp in _post._postMapping)
                 {
-                    writer.BaseStream.Seek(offsetFromFileStart + kvp.Key, SeekOrigin.Begin);
-                    writer.Write((UInt32) (offsetFromFileStart + fix_block_length + kvp.Value));
+                    writer.BaseStream.Seek(offset + kvp.Key, SeekOrigin.Begin);
+                    writer.Write((UInt32) (offset + fix_block_length + kvp.Value));
                 }
+
+            // set all pre pointers
+            foreach (var kvp in _preMapping)
+            {
+                writer.BaseStream.Seek(offset + kvp.Key, SeekOrigin.Begin);
+                writer.Write((UInt32) (offsets[kvp.Value.Item1] + kvp.Value.Item2));
+            }
         }
 
     };

@@ -63,16 +63,22 @@ namespace OpenSage.Data
         }
         public static AptFile FromFileSystemEntryRaw(FileSystemEntry entry)
         {
-            Func<string, Stream> getter = (path) =>
+            var aptPath = entry.FilePath;
+
+            Func<string, FileMode, Stream> getter = (path, mode) =>
             {
+                if (mode != FileMode.Open)
+                    throw new InvalidOperationException();
+
                 var targetEntry = entry;
-                if (path != entry.FilePath)
+                if (path != aptPath)
                     targetEntry = entry.FileSystem.GetFile(path);
                 if (targetEntry == null)
                     return null;
                 return targetEntry.Open();
             };
-            return AptFile.FromPath(entry.FilePath, getter);
+            var getterWrapped = new StandardStreamGetter(aptPath, getter);
+            return AptFile.Parse(getterWrapped);
         }
     }
 }

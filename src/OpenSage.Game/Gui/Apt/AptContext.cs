@@ -46,6 +46,7 @@ namespace OpenSage.Gui.Apt
         internal AptContext(ImageMap imageMap, string movieName, AssetStore assetStore) {
             _assetStore = assetStore;
             _imageMap = imageMap;
+            if (movieName == null) movieName = "[unnamed]";
             _movieName = movieName;
         }
 
@@ -62,7 +63,8 @@ namespace OpenSage.Gui.Apt
             {
                 //open the apt file where our character is located
                 var importPath = Path.Combine(AptFile.RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
-                var importFile = AptFile.FromPath(importPath, AptFile.StreamGetter);
+                var importEntry = Window.ContentManager.FileSystem.GetFile(importPath);
+                var importFile = AptFileHelper.FromFileSystemEntry(importEntry);
                 var importContext = new AptContext(Window, importFile, Avm)
                 {
                     Root = Root,

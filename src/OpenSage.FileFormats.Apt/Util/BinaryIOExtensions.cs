@@ -63,14 +63,29 @@ namespace OpenSage.FileFormats.Apt
 
         public static void WriteInstructions(this BinaryWriter writer, InstructionStorage insts, MemoryPool memory)
         {
-            memory.RegisterFixedOffset((uint) writer.BaseStream.Position);
+            memory.RegisterPostOffset((uint) writer.BaseStream.Position);
             writer.Write((UInt32) 0);
-            insts.Write(memory.Writer, memory.SmallerPool);
+            insts.Write(memory.Writer, memory.Post);
         }
 
-        public static void DumpMemoryPool(this BinaryWriter writer, MemoryPool pool)
+        public static void DumpMemoryPool(this BinaryWriter writer, MemoryPool pool, long startOffset = -1)
         {
-            pool.SerializeToFile(writer, 0);
+            uint so = 0;
+            if (startOffset < 0)
+                so = (uint) writer.BaseStream.Position;
+            else
+                so = (uint) startOffset;
+            pool.SerializeToFile(writer, so);
+        }
+
+        public static void Write(Func<BinaryWriter, MemoryPool, long> write, Func<Stream> streamGetter)
+        {
+            using var stream = streamGetter();
+            using var writer = new BinaryWriter(stream);
+            using var pool = new MemoryPool();
+            var offset = write(writer, pool);
+            writer.DumpMemoryPool(pool, offset);
+
         }
     }
 }

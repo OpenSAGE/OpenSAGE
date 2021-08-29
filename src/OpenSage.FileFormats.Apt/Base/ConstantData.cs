@@ -16,9 +16,8 @@ namespace OpenSage.FileFormats.Apt
             Entries = new List<ConstantEntry>();
         }
 
-        public static ConstantData FromFileSystemEntry(Stream stream)
+        public static ConstantData Parse(BinaryReader reader)
         {
-            using var reader = new BinaryReader(stream);
             var data = new ConstantData();
 
             //validate that this is a correct const
@@ -83,8 +82,8 @@ namespace OpenSage.FileFormats.Apt
         }
         public void Write(BinaryWriter writer, MemoryPool memory)
         {
-            writer.Write(Encoding.ASCII.GetBytes(Constants.ConstFileMagic));
-            writer.Write((UInt32) AptDataEntryOffset); // TODO from where???
+            writer.Write(Encoding.ASCII.GetBytes(Constants.ConstFileHeader));
+            writer.Write((UInt32) AptDataEntryOffset); 
             // var ___ = 0 / 0;
             writer.Write((UInt32) Entries.Count);
             writer.Write((UInt32) 32);

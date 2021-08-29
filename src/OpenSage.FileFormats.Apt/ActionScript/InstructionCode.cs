@@ -459,11 +459,11 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                             throw new InvalidOperationException("Unfortunately, we do not support cascaded arrays yet.");
 
                         array_begin = cur_index;
-                        pool.RegisterFixedOffset((uint) writer.BaseStream.Position);
+                        pool.RegisterPostOffset((uint) writer.BaseStream.Position);
                         writer.Write((UInt32) 0);
                         array_read = 0;
                         writer = pool.Writer;
-                        pool = pool.SmallerPool;
+                        pool = pool.Post;
 
                         if (array_size == 0)
                         {
