@@ -15,7 +15,8 @@ namespace OpenSage.FileFormats.Apt
         public abstract Stream GetConstStream(FileMode mode = FileMode.Open);
         public abstract Stream GetDatStream(FileMode mode = FileMode.Open);
         public abstract Stream GetXmlStream(FileMode mode = FileMode.Open);
-        public abstract Stream GetImageStream(uint id, FileMode mode = FileMode.Open);
+        public abstract Stream GetTextureStream(uint id, FileMode mode = FileMode.Open);
+        public abstract Stream GetTextureStream2(uint id, out string path, FileMode mode = FileMode.Open);
         public abstract Stream GetGeometryStream(uint id, FileMode mode = FileMode.Open);
         public abstract string GetMovieName();
         public abstract string GetRootPath();
@@ -37,7 +38,7 @@ namespace OpenSage.FileFormats.Apt
             Getter = getter;
         }
 
-        public StandardStreamGetter(string path, string apt, Func<string, Stream> getter = null) : this(
+        public StandardStreamGetter(string path, string apt, Func<string, Stream> getter) : this(
             path,
             apt,
             (getter == null ? null :
@@ -76,10 +77,17 @@ namespace OpenSage.FileFormats.Apt
             return Getter(path, mode);
         }
 
-        public override Stream GetImageStream(uint id, FileMode mode = FileMode.Open)
+        public override Stream GetTextureStream(uint id, FileMode mode = FileMode.Open)
         {
             var path = Path.Combine(RootPath, AptName + "_textures", +id + ".tga");
             return Getter(path, mode);
+        }
+
+        public override Stream GetTextureStream2(uint id, out string path, FileMode mode = FileMode.Open)
+        {
+            path = $"art\\Textures\\apt_{AptName}_{id}.tga";
+            var path2 = Path.Combine(RootPath, path);
+            return Getter(path2, mode);
         }
 
         public override Stream GetXmlStream(FileMode mode = FileMode.Open)
@@ -146,8 +154,9 @@ namespace OpenSage.FileFormats.Apt
                         try
                         {
                             using (var shapeEntry = getter.GetGeometryStream(shape.GeometryId))
+                            using (var shapeReader = new StreamReader(shapeEntry))
                             {
-                                var shapeGeometry = Geometry.FromFileSystemEntry(apt, shapeEntry);
+                                var shapeGeometry = Geometry.Parse(apt, shapeReader);
                                 apt.GeometryMap[shape.GeometryId] = shapeGeometry;
                             }
                         }

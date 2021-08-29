@@ -202,7 +202,8 @@ namespace OpenSage.Tools.AptEditor.UI
                 if (Edit != null)
                 {
                     var dump = Edit.GetAptDataDump();
-                    var task = dump.WriteTo(new DirectoryInfo(exportPath));
+                    var target = new DirectoryInfo(exportPath);
+                    var task = dump.WriteTo(target);
                     _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }

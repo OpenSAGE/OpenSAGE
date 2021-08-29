@@ -21,6 +21,15 @@ namespace OpenSage.Tools.AptEditor
             return file2;
         }
 
+        public static AptFile Test2(string path)
+        {
+            var getter = new StandardStreamGetter(path);
+            var file = AptFile.Parse(getter);
+            file.Write(getter);
+            var file2 = AptFile.Parse(getter);
+            return file2;
+        }
+
         public static AptFile Create(string name) { return Create(name, new ColorRgba(0, 255, 0, 255)); }
         public static AptFile Create(string name, in ColorRgba color)
         {

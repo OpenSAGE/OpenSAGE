@@ -374,7 +374,8 @@ namespace OpenSage.FileFormats.Apt.ActionScript
             while (cur_index < ParamTypes.Count)
             {
                 var t = ParamTypes[cur_index];
-                var p = Parameters[cur_param_index];
+                var p = cur_param_index >= Parameters.Count ? null : Parameters[cur_param_index];
+                var p_prev = cur_param_index == 0 ? null : Parameters[cur_param_index - 1];
                 ++cur_param_index;
                 switch (t)
                 {
@@ -447,7 +448,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                         break;
 
                     case RawParamType.ArraySize:
-                        array_size = Parameters.Last().Number;
+                        array_size = p_prev.Number;
                         --cur_param_index;
                         ++cur_index;
                         break;

@@ -35,12 +35,6 @@ namespace OpenSage.FileFormats.Apt
             Container = container;
         }
 
-        public static Geometry FromFileSystemEntry(AptFile container, Stream stream)
-        {
-            using var reader = new StreamReader(stream);
-            return Parse(container, reader);
-        }
-
         public static Geometry Parse(AptFile container, TextReader reader)
         {
             var geometry = new Geometry(container);

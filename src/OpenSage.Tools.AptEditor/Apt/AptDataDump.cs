@@ -2,38 +2,31 @@
 using System.Linq;
 using System.IO;
 using OpenSage.FileFormats.Apt;
-using OpenSage.Data;
 using System.Threading.Tasks;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
     public sealed class AptDataDump
     {
+        public AptFile Apt { get; }
         public string Name { get; }
-        public byte[] AptData { get; }
-        public byte[] ConstantData { get; }
-        public byte[] ImageMapData { get; }
         public Dictionary<uint, string> GeometryData { get; }
         // TODO: Use texture instead of FileSystemEntry
-        public FileSystemEntry[] Textures { get; }
+        public int[] Textures { get; }
 
         public AptDataDump(AptFile file)
         {
             // TODO of course
-            /*
+            Apt = file;
             Name = file.MovieName;
-            var aptData = AptDataWriter.Write(file.Movie);
-            AptData = aptData.Data;
-            ConstantData = ConstantDataWriter.Write(aptData.EntryOffset, file.Constants);
-            ImageMapData = ImageMapWriter.Write(file.ImageMap);
+
             GeometryData = file.GeometryMap.ToDictionary(t => t.Key, t => t.Value.RawText);
             
             var textures = file.ImageMap.Mapping.Values
                 .Select(m => m.TextureId)
-                .Distinct()
-                .Select(id => FindTexture(file.ParentDirectory, $"apt_{file.MovieName}_{id}.tga"));
+                .Distinct();
             Textures = textures.ToArray();
-            */
+            
         }
 
         public async Task WriteTo(DirectoryInfo target)
@@ -41,22 +34,24 @@ namespace OpenSage.Tools.AptEditor.Apt
             target.Create();
             // TODO: use a true XML serializer
             using var xml = new StreamWriter(File.Create(Path.Combine(target.FullName, $"{Name}.xml")));
+
+            // head
             await xml.WriteLineAsync("<?xml version='1.0' encoding='utf-8'?>");
             await xml.WriteLineAsync("<AssetDeclaration xmlns=\"uri:ea.com:eala:asset\">");
-            var list = new[]
-            {
-                (AptData, "Apt"),
-                (ConstantData, "Const"),
-                (ImageMapData, "Dat")
-            };
-            foreach (var (data, type) in list)
+
+            var getter = new StandardStreamGetter(target.FullName, Name);
+
+            // apt
+            Apt.Write(getter);
+            var list = new[] { "Apt", "Const", "Dat" };
+            foreach (var type in list)
             {
                 var extension = type.ToLowerInvariant();
                 var fileName = $"{Name}.{extension}";
-                await File.WriteAllBytesAsync(Path.Combine(target.FullName, fileName), data);
                 await xml.WriteLineAsync($"    <Apt{type}Data id=\"{Name}_{extension}\" File=\"{fileName}\" />");
             }
 
+            // geometry
             var geometryDirectory = target.CreateSubdirectory($"{Name}_geometry");
             foreach (var (id, data) in GeometryData)
             {
@@ -65,42 +60,29 @@ namespace OpenSage.Tools.AptEditor.Apt
                 await xml.WriteLineAsync($"    <AptGeometryData id=\"{Name}_{id}\" File=\"{ruName}\" AptID=\"{id}\" />");
             }
 
-            foreach (var texture in Textures)
+            // textures
+            foreach (var texId in Textures)
             {
-                var directory = Path.GetDirectoryName(texture.FilePath);
+                string filePath = $"art\\Textures\\apt_{Name}_{texId}.tga";
+                var directory = Path.GetDirectoryName(filePath);
                 if (directory is string)
-                {
                     target.CreateSubdirectory(directory);
-                }
+
                 using (var memory = new MemoryStream())
                 {
-                    using (var input = texture.Open())
-                    {
+                    using (var input = getter.GetTextureStream2((uint) texId, out var _, FileMode.Create))
                         await input.CopyToAsync(memory);
-                    }
-                    using var output = File.OpenWrite(Path.Combine(target.FullName, texture.FilePath));
+                    using var output = File.OpenWrite(Path.Combine(target.FullName, filePath));
                     memory.Seek(0, SeekOrigin.Begin);
                     await memory.CopyToAsync(output);
                 }
-                var id = Path.GetFileNameWithoutExtension(texture.FilePath);
                 const string options = "OutputFormat=\"A8R8G8B8\" GenerateMipMaps=\"false\" AllowAutomaticResize=\"false\"";
-                await xml.WriteLineAsync($"    <Texture id=\"{id}\" File=\"{texture.FilePath}\" {options} />");
+                await xml.WriteLineAsync($"    <Texture id=\"{texId}\" File=\"{filePath}\" {options} />");
             }
 
             xml.WriteLine("</AssetDeclaration>");
         }
 
-        private static FileSystemEntry FindTexture(FileSystem fileSystem, string name)
-        {
-            foreach (var path in AptEditorDefinition.TexturePathResolver.GetPaths(name, string.Empty))
-            {
-                if (fileSystem.GetFile(path) is FileSystemEntry entry)
-                {
-                    return entry;
-                }
-            }
-            throw new FileNotFoundException("Cannot find texture to export", name);
-        }
     }
 
 }
