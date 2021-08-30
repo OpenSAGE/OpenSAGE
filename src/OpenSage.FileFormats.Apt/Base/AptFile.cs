@@ -2,24 +2,34 @@
 using System.IO;
 using System.Text;
 using System;
+using System.Linq;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.Apt.FrameItems;
+using System.Threading.Tasks;
 
 namespace OpenSage.FileFormats.Apt
 {
+    public enum DataType
+    {
+        Apt,
+        Const,
+        Dat,
+        Xml,
+        Texture,
+        Texture2,
+        Geometry
+    }
 
     public abstract class AptStreamGetter
     {
-        public abstract Stream GetAptStream(FileMode mode = FileMode.Open);
-        public abstract Stream GetConstStream(FileMode mode = FileMode.Open);
-        public abstract Stream GetDatStream(FileMode mode = FileMode.Open);
-        public abstract Stream GetXmlStream(FileMode mode = FileMode.Open);
-        public abstract Stream GetTextureStream(uint id, FileMode mode = FileMode.Open);
-        public abstract Stream GetTextureStream2(uint id, out string path, FileMode mode = FileMode.Open);
-        public abstract Stream GetGeometryStream(uint id, FileMode mode = FileMode.Open);
+        public string GetPath(DataType type, uint id) { return GetPath(type, false, id); }
+        public abstract string GetPath(DataType type, bool addRootPath = false, uint id = 0);
+        public abstract Stream GetStream(DataType type, uint id = 0, FileMode mode = FileMode.Open);
+        public Stream GetStream(DataType type, FileMode mode) { return GetStream(type, 0, mode); }
         public abstract string GetMovieName();
         public abstract string GetRootPath();
+        public abstract IEnumerable<string> EnsureDirectory();
     }
 
     public class StandardStreamGetter : AptStreamGetter
@@ -53,47 +63,60 @@ namespace OpenSage.FileFormats.Apt
             )
         { }
 
-        public override Stream GetAptStream(FileMode mode = FileMode.Open)
+        public override string GetPath(DataType type, bool addRootPath = false, uint id = 0)
         {
-            var path = Path.Combine(RootPath, AptName + ".apt");
+            var path = "";
+            switch (type)
+            {
+                case DataType.Apt:
+                    path = AptName + ".apt";
+                    break;
+                case DataType.Const:
+                    path = AptName + ".const";
+                    break;
+                case DataType.Dat:
+                    path = AptName + ".dat";
+                    break;
+                case DataType.Xml:
+                    path = AptName + ".xml";
+                    break;
+                case DataType.Geometry:
+                    if (id == 0)
+                        throw new ArgumentException();
+                    path = Path.Combine(AptName + "_geometry", +id + ".ru");
+                    break;
+                case DataType.Texture:
+                    if (id == 0)
+                        throw new ArgumentException();
+                    path = Path.Combine(AptName + "_textures", +id + ".tga");
+                    break;
+                case DataType.Texture2:
+                    if (id == 0)
+                        throw new ArgumentException();
+                    path = $"art\\Textures\\apt_{AptName}_{id}.tga";
+                    break;
+            }
+            if (addRootPath)
+                path = Path.Combine(RootPath, path);
+            return path;
+        }
+
+        public override Stream GetStream(DataType type, uint id = 0, FileMode mode = FileMode.Open)
+        {
+            var path = GetPath(type, true, id);
             return Getter(path, mode);
         }
 
-        public override Stream GetConstStream(FileMode mode = FileMode.Open)
+        public override IEnumerable<string> EnsureDirectory()
         {
-            var path = Path.Combine(RootPath, AptName + ".const");
-            return Getter(path, mode);
-        }
-
-        public override Stream GetDatStream(FileMode mode = FileMode.Open)
-        {
-            var path = Path.Combine(RootPath, AptName + ".dat");
-            return Getter(path, mode);
-        }
-
-        public override Stream GetGeometryStream(uint id, FileMode mode = FileMode.Open)
-        {
-            var path = Path.Combine(RootPath, AptName + "_geometry", +id + ".ru");
-            return Getter(path, mode);
-        }
-
-        public override Stream GetTextureStream(uint id, FileMode mode = FileMode.Open)
-        {
-            var path = Path.Combine(RootPath, AptName + "_textures", +id + ".tga");
-            return Getter(path, mode);
-        }
-
-        public override Stream GetTextureStream2(uint id, out string path, FileMode mode = FileMode.Open)
-        {
-            path = $"art\\Textures\\apt_{AptName}_{id}.tga";
-            var path2 = Path.Combine(RootPath, path);
-            return Getter(path2, mode);
-        }
-
-        public override Stream GetXmlStream(FileMode mode = FileMode.Open)
-        {
-            var path = Path.Combine(RootPath, AptName + ".xml");
-            return Getter(path, mode);
+            List<string> ans = new()
+            {
+                RootPath,
+                Path.Combine(RootPath, AptName + "_textures"),
+                Path.Combine(RootPath, AptName + "_geometry"),
+                Path.Combine(RootPath, "art\\Textures"),
+            };
+            return ans;
         }
     }
     public sealed class AptFile
@@ -118,7 +141,7 @@ namespace OpenSage.FileFormats.Apt
         public static AptFile Parse(string path) { return Parse(new StandardStreamGetter(path)); }
         public static AptFile Parse(AptStreamGetter getter)
         {
-            using (var aptStream = getter.GetAptStream())
+            using (var aptStream = getter.GetStream(DataType.Apt))
             using (var aptReader = new BinaryReader(aptStream, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
@@ -129,7 +152,7 @@ namespace OpenSage.FileFormats.Apt
                 }
 
                 //load the corresponding const entry
-                using (var constStream = getter.GetConstStream())
+                using (var constStream = getter.GetStream(DataType.Const))
                 using (var constReader = new BinaryReader(constStream))
                 {
                     var constFile = ConstantData.Parse(constReader);
@@ -143,7 +166,7 @@ namespace OpenSage.FileFormats.Apt
                     apt.Movie = (Movie) Character.Create(aptReader, apt);
 
                     //load the corresponding image map
-                    using (var datEntry = getter.GetDatStream())
+                    using (var datEntry = getter.GetStream(DataType.Dat))
                     using (var datReader = new StreamReader(datEntry))
                         apt.ImageMap = ImageMap.Parse(datReader);
 
@@ -153,7 +176,7 @@ namespace OpenSage.FileFormats.Apt
                     {
                         try
                         {
-                            using (var shapeEntry = getter.GetGeometryStream(shape.GeometryId))
+                            using (var shapeEntry = getter.GetStream(DataType.Geometry, shape.GeometryId))
                             using (var shapeReader = new StreamReader(shapeEntry))
                             {
                                 var shapeGeometry = Geometry.Parse(apt, shapeReader);
@@ -174,28 +197,130 @@ namespace OpenSage.FileFormats.Apt
         public void Write(AptStreamGetter getter)
         {
             var mode = FileMode.Create;
+            foreach (var dir in getter.EnsureDirectory())
+                Directory.CreateDirectory(dir);
+            
             BinaryIOExtensions.Write(
                 (w, p) => { Movie.Write(w, p, true); return -1; },
-                () => getter.GetAptStream(mode)
+                () => getter.GetStream(DataType.Apt, mode)
                 );
             Constants.AptDataEntryOffset = Apt.Constants.AptFileStartPos;
             BinaryIOExtensions.Write(
                 (w, p) => { Constants.Write(w, p); return -1; },
-                () => getter.GetConstStream(mode)
+                () => getter.GetStream(DataType.Const, mode)
                 );
             BinaryIOExtensions.Write(
                 (w, p) => { ImageMap.Write(w); return -1; },
-                () => getter.GetDatStream(mode)
+                () => getter.GetStream(DataType.Dat, mode)
                 );
+
             foreach (var shapekvp in GeometryMap)
             {
                 var id = shapekvp.Key;
-                var shape = shapekvp.Value;
-                BinaryIOExtensions.Write(
-                    (w, p) => { ImageMap.Write(w); return -1; },
-                    () => getter.GetDatStream(mode)
-                    );
+                var shape = shapekvp.Value.RawText;
+                using var g = getter.GetStream(DataType.Geometry, id, mode);
+                using var s = new StreamWriter(g);
+                s.Write(shape);
             }
+        }
+
+        public async Task WriteAsync(AptStreamGetter getter)
+        {
+            var mode = FileMode.Create;
+            foreach (var dir in getter.EnsureDirectory())
+                Directory.CreateDirectory(dir);
+
+            var tasks = new List<Task>();
+
+            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+                (w, p) => { Movie.Write(w, p, true); return -1; },
+                () => getter.GetStream(DataType.Apt, mode)
+                )));
+            Constants.AptDataEntryOffset = Apt.Constants.AptFileStartPos;
+            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+                (w, p) => { Constants.Write(w, p); return -1; },
+                () => getter.GetStream(DataType.Const, mode)
+                )));
+            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+                (w, p) => { ImageMap.Write(w); return -1; },
+                () => getter.GetStream(DataType.Dat, mode)
+                )));
+
+            foreach (var shapekvp in GeometryMap)
+            {
+                var id = shapekvp.Key;
+                var shape = shapekvp.Value.RawText;
+                using var g = getter.GetStream(DataType.Geometry, id, mode);
+                using var s = new StreamWriter(g);
+                tasks.Add(s.WriteAsync(shape));
+            }
+
+            await Task.WhenAll(tasks);
+        }
+
+        public void WriteTextures(AptStreamGetter getter, AptStreamGetter sourceGetter = null)
+        {
+            if (sourceGetter == null)
+                sourceGetter = new StandardStreamGetter(RootDirectory, MovieName);
+            foreach (var texId in ImageMap.Mapping.Values
+                .Select(m => m.TextureId)
+                .Distinct())
+            {
+                var filePath = getter.GetPath(DataType.Texture2, (uint) texId);
+                var directory = Path.GetDirectoryName(filePath);
+                if (directory is string)
+                    Directory.CreateDirectory(directory);
+
+                using (var memory = new MemoryStream())
+                {
+                    using var output = getter.GetStream(DataType.Texture2, (uint) texId, FileMode.Create);
+                    using var input = sourceGetter.GetStream(DataType.Texture2, (uint) texId, FileMode.Create);
+                    input.CopyTo(memory);
+                    memory.Seek(0, SeekOrigin.Begin);
+                    memory.CopyTo(output);
+                }
+            }
+        }
+
+        public void GenerateXml(AptStreamGetter getter)
+        {
+            var Name = getter.GetMovieName();
+            var rootPath = getter.GetRootPath();
+            // TODO: use a true XML serializer
+            using var xml = new StreamWriter(getter.GetStream(DataType.Xml, FileMode.Create));
+
+            // head
+            xml.WriteLine("<?xml version='1.0' encoding='utf-8'?>");
+            xml.WriteLine($"<!--{Apt.Constants.OpenSageAptEditorCredits}-->");
+            xml.WriteLine("<AssetDeclaration xmlns=\"uri:ea.com:eala:asset\">");
+
+            // apt
+            var list = new[] { DataType.Apt, DataType.Const, DataType.Dat };
+            foreach (var type in list)
+            {
+                var extension = type.ToString().ToLowerInvariant();
+                var fileName = getter.GetPath(type);
+                xml.WriteLine($"    <Apt{type}Data id=\"{Name}_{extension}\" File=\"{fileName}\" />");
+            }
+
+            // geometry
+            foreach (var (id, _) in GeometryMap)
+            {
+                var ruName = getter.GetPath(DataType.Geometry, id);
+                xml.WriteLine($"    <AptGeometryData id=\"{Name}_{id}\" File=\"{ruName}\" AptID=\"{id}\" />");
+            }
+
+            // textures
+            foreach (var texId in ImageMap.Mapping.Values
+                .Select(m => m.TextureId)
+                .Distinct())
+            {
+                var filePath = getter.GetPath(DataType.Texture2, (uint) texId);
+                const string options = "OutputFormat=\"A8R8G8B8\" GenerateMipMaps=\"false\" AllowAutomaticResize=\"false\"";
+                xml.WriteLine($"    <Texture id=\"{texId}\" File=\"{filePath}\" {options} />");
+            }
+
+            xml.WriteLine("</AssetDeclaration>");
         }
 
         public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)

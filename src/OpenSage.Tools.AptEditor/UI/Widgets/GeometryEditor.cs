@@ -14,7 +14,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private string _currentInput = string.Empty;
         private string? _lastError;
 
-        public void Draw(MainFormState manager)
+        public void Draw(LogicalMainForm manager)
         {
             if (_utilities?.Manager != manager.Edit)
             {

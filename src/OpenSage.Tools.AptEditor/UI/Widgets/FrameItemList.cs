@@ -19,7 +19,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private int? _newPlaceCharacter;
         private ErrorType? _whyCannotPlaceCharacter;
 
-        public void Draw(MainFormState manager)
+        public void Draw(LogicalMainForm manager)
         {
             var maybeNew = FrameItemUtilities.Reset(manager, _utilities);
             if (maybeNew is null)
@@ -367,7 +367,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
         }
 
-        private void ProcessClipEvents(LogicalPlaceObject placeObject, MainFormState manager)
+        private void ProcessClipEvents(LogicalPlaceObject placeObject, LogicalMainForm manager)
         {
             if (placeObject.ClipEvents == null)
             {

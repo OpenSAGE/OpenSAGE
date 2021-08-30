@@ -2,6 +2,6 @@
 {
     internal interface IWidget
     {
-        void Draw(MainFormState manager);
+        void Draw(LogicalMainForm manager);
     }
 }

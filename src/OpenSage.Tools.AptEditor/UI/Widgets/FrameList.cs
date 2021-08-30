@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Tools.AptEditor.UI;
+using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
@@ -20,7 +20,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             _frameListUtilities = new FrameListUtilities();
         }
 
-        public void Draw(MainFormState scene)
+        public void Draw(LogicalMainForm scene)
         {
             var manager = scene.Scene;
             if (_frameListUtilities.Reset(scene))

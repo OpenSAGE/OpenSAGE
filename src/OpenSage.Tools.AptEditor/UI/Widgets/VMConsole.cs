@@ -70,7 +70,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         Vector4 _unbreakColor = new Vector4(0.1f, 0.1f, 0.1f, 1f);
         string _breakDesc = "*";
 
-        public void CheckEnv(MainFormState manager)
+        public void CheckEnv(LogicalMainForm manager)
         {
             var scene = manager.Scene;
             if (scene.CurrentWindow == null || scene.CurrentItem is null)
@@ -90,7 +90,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
         }
 
-        public void Draw(MainFormState manager)
+        public void Draw(LogicalMainForm manager)
         {
             CheckEnv(manager);
             var cur_ctx = _context == null ? null : _context.Avm.CurrentContext();
@@ -251,7 +251,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         }
 
         internal bool SameLine() { ImGui.SameLine(); return true; }
-        internal void DrawObject(ObjectDescription od, MainFormState manager, int layer = 0)
+        internal void DrawObject(ObjectDescription od, LogicalMainForm manager, int layer = 0)
         {
             if (od == null || od.disp == null) return;
             var id = od.GetHashCode();

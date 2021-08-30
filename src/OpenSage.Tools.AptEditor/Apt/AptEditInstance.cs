@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
+using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
@@ -74,9 +76,15 @@ namespace OpenSage.Tools.AptEditor.Apt
             _undoStack.Push(editAction);
         }
 
-        public AptDataDump GetAptDataDump()
+        public AptDataDump GetAptDataDump(AptStreamGetter? sourceGetter = null)
         {
-            return new AptDataDump(AptFile);
+            return new AptDataDump(AptFile, sourceGetter);
+        }
+
+        public AptDataDump GetAptDataDump(Func<string, FileMode, Stream> get)
+        {
+            var source = new StandardStreamGetter(AptFile.RootDirectory, AptFile.MovieName, get);
+            return new AptDataDump(AptFile, source);
         }
     }
 

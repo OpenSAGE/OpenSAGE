@@ -14,7 +14,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         private string? _newCharacterName = null;
         private bool _isCreatingNewShape = true;
 
-        public void Draw(MainFormState manager)
+        public void Draw(LogicalMainForm manager)
         {
             if (_utilities?.Manager != manager.Edit)
             {
@@ -84,7 +84,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
             }
         }
 
-        private void ListCharacterDescription(MainFormState manager)
+        private void ListCharacterDescription(LogicalMainForm manager)
         {
             var indexColor = new Vector4(0, 1, 1, 1);
             var typeColor = new Vector4(0, 0.8f, 0.2f, 1);

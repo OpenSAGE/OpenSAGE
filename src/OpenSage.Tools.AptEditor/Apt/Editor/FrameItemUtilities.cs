@@ -22,7 +22,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public IReadOnlyList<BackgroundColor> BackgroundColors => _backgroundColors;
 
         private readonly Playable _character;
-        private readonly MainFormState _manager;
+        private readonly LogicalMainForm _manager;
         private readonly Frame _storedFrame;
         private readonly SortedDictionary<int, LogicalPlaceObject?> _placeObjects = new();
         private readonly List<FrameLabel> _frameLabels = new();
@@ -30,7 +30,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         private readonly List<LogicalInitAction> _initActions = new();
         private readonly List<BackgroundColor> _backgroundColors = new();
 
-        private FrameItemUtilities(Playable character, MainFormState manager, Frame currentFrame)
+        private FrameItemUtilities(Playable character, LogicalMainForm manager, Frame currentFrame)
         {
             _character = character;
             _manager = manager;
@@ -64,7 +64,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             }
         }
 
-        public static FrameItemUtilities? Reset(MainFormState manager, FrameItemUtilities? current)
+        public static FrameItemUtilities? Reset(LogicalMainForm manager, FrameItemUtilities? current)
         {
             if (manager.Scene.IsCurrentCharacterImported)
             {

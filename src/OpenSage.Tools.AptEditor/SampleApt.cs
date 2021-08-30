@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
@@ -12,11 +13,11 @@ namespace OpenSage.Tools.AptEditor
 {
     internal static class SampleApt
     {
-        public static AptFile Test1(string path)
+        public static async Task<AptFile> Test1Async(string path)
         {
             var getter = new StandardStreamGetter(path);
             var file = Create(getter.GetMovieName());
-            file.Write(getter);
+            await file.WriteAsync(getter);
             var file2 = AptFile.Parse(getter);
             return file2;
         }

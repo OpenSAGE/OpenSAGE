@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -8,9 +8,9 @@ using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
-using OpenSage.Tools.AptEditor.Apt;
+using OpenSage.Tools.AptEditor.Util;
 
-namespace OpenSage.Tools.AptEditor.UI
+namespace OpenSage.Tools.AptEditor.Apt
 {
     internal class AptSceneInstance
     {
@@ -21,7 +21,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public int MillisecondsPerFrame => (int) (AptFile?.Movie.MillisecondsPerFrame ?? 30);
         
         public AptWindow? CurrentWindow { get; private set; }
-        public WrappedDisplayItem CurrentItem { get; private set; }
+        public WrappedDisplayItem? CurrentItem { get; private set; }
         public Character? CurrentCharacter { get; private set; }
         public bool IsCurrentCharacterImported => CurrentCharacter?.Container != AptFile;
 
@@ -45,6 +45,45 @@ namespace OpenSage.Tools.AptEditor.UI
         {
             ResetAll();
             Game = game;
+        }
+
+        public AptSceneInstance(
+            string rootPath, 
+            Dictionary<string, string>? searchPaths = null,
+            Action<AptSceneInstance>? attachAdditionalRenderers = null,
+            Action<AptSceneInstance>? detachAdditionalRenderers = null
+            )
+        {
+            var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
+            Game = new Game(installation, null, new Configuration { LoadShellMap = false });
+            var scene = new AptSceneInstance(Game);
+            ResetAll();
+
+            // add all paths
+            if (searchPaths != null)
+                foreach (var kvp in searchPaths)
+                {
+                    var orig = kvp.Key;
+                    var mapped = kvp.Value;
+                    var mapping = FileUtilities.GetFilesMappingByDirectory(orig, mapped, out var _, out var __);
+                    Game.ContentManager.FileSystem.LoadFiles(mapping, isPhysicalFile: true, loadArtOnly: false);
+                }
+
+            // TODO multi-thread & file?
+
+            if (attachAdditionalRenderers != null)
+                attachAdditionalRenderers(this);
+            try
+            {
+                Game.ShowMainMenu();
+                Game.Run();
+            }
+            finally
+            {
+                
+                if (detachAdditionalRenderers != null)
+                    detachAdditionalRenderers(this);
+            }
         }
 
         // Apt Loading Operations

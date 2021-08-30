@@ -71,8 +71,11 @@ namespace OpenSage.Tools.AptEditor
             return false;
         }
 
-        public bool Save(AptEditInstance edit)
+        public bool Save(string exportPath, AptEditInstance edit)
         {
+            var dump = edit.GetAptDataDump();
+            var task = dump.WriteTo(exportPath);
+            task.RunSynchronously();
             return false;
         }
 

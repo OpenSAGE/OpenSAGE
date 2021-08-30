@@ -12,10 +12,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public bool Active => Frames != null;
         public Playable? CurrentCharacter { get; private set; }
         public List<Frame>? Frames => CurrentCharacter?.Frames;
-        private MainFormState? _manager;
+        private LogicalMainForm? _manager;
 
         // return true if they are new frames
-        public bool Reset(MainFormState manager)
+        public bool Reset(LogicalMainForm manager)
         {
             _manager ??= manager;
             if (_manager != manager)

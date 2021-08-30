@@ -6,16 +6,20 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using ImGuiNET;
+using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
 using OpenSage.Tools.AptEditor.Apt;
 using OpenSage.Tools.AptEditor.Apt.Editor;
 using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
+using Veldrid;
+using Veldrid.StartupUtilities;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
-    internal class MainFormState
+    internal class LogicalMainForm : IDisposable
     {
+        private AptEditor editor;
         public AptSceneInstance Scene { get; protected set; }
         public AptEditInstance? Edit { get; protected set; }
 
@@ -23,11 +27,22 @@ namespace OpenSage.Tools.AptEditor.UI
         public string? CurrentAptPath { get; protected set; }
         public string CurrentTitle { get; set; }
 
-        public MainFormState(AptSceneInstance scene)
+        public LogicalMainForm(string rootPath)
+        {
+            editor = new AptEditor();
+            editor.AddSearchPath(rootPath);
+        }
+
+        public LogicalMainForm(AptSceneInstance scene)
         {
             Scene = scene;
             CurrentTitle = "Avoiding CS8618";
             ResetAll();
+        }
+
+        public void Dispose()
+        {
+
         }
 
         public void ResetAll()
@@ -45,10 +60,24 @@ namespace OpenSage.Tools.AptEditor.UI
             Edit = new AptEditInstance(apt);
             CurrentAptPath = path;
         }
+
+        public FileSystemEntry FindFile(string name, FileSystem? fileSystem = null)
+        {
+            if (fileSystem == null)
+                fileSystem = Scene.Game.ContentManager.FileSystem;
+            foreach (var path in AptEditorDefinition.TexturePathResolver.GetPaths(name, string.Empty))
+            {
+                if (fileSystem.GetFile(path) is FileSystemEntry entry)
+                {
+                    return entry;
+                }
+            }
+            throw new FileNotFoundException("Cannot find texture to export", name);
+        }
     }
 
 
-    internal sealed class MainForm : MainFormState
+    internal sealed class MainForm : LogicalMainForm
     {
         private readonly List<IWidget> _widgets = new List<IWidget>
         {
@@ -71,7 +100,75 @@ namespace OpenSage.Tools.AptEditor.UI
         private string? _loadAptError;
         private string? _lastSeriousError;
 
-        public MainForm(Game game) : base(new(game))
+        static void GWA(string rootPath)
+        {
+            ImGuiRenderer? imGuiRenderer = null;
+            CommandList? commandList = null;
+            EventHandler? OnClientSizeChanged = null;
+            EventHandler? OnRendering2D = null;
+            void Attach(Game game)
+            {
+                var device = game.GraphicsDevice;
+                var window = game.Window;
+                var mainForm = new MainForm(game);
+
+                var initialContext = ImGui.GetCurrentContext();
+                imGuiRenderer = new ImGuiRenderer(device,
+                                                            game.Panel.OutputDescription,
+                                                            window.ClientBounds.Width,
+                                                            window.ClientBounds.Height);
+                var font = imGuiRenderer.LoadSystemFont("consola.ttf");
+
+                commandList = device.ResourceFactory.CreateCommandList();
+                var ourContext = ImGui.GetCurrentContext();
+                // reset ImGui Context to initial one
+                ImGui.SetCurrentContext(initialContext);
+
+
+                OnClientSizeChanged = (a, b) =>
+                {
+                    imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
+                };
+                OnRendering2D = (a, b) =>
+                {
+                    var previousContext = ImGui.GetCurrentContext();
+                    ImGui.SetCurrentContext(ourContext);
+                    try
+                    {
+                        commandList.Begin();
+                        commandList.SetFramebuffer(game.Panel.Framebuffer);
+                        imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
+                        using (var fontSetter = new ImGuiFontSetter(font))
+                        {
+                            mainForm.Draw();
+                        }
+                        imGuiRenderer.Render(game.GraphicsDevice, commandList);
+                        commandList.End();
+                        device.SubmitCommands(commandList);
+                    }
+                    finally
+                    {
+                        ImGui.SetCurrentContext(previousContext);
+                    }
+                };
+                window.ClientSizeChanged += OnClientSizeChanged;
+                game.RenderCompleted += OnRendering2D;
+            }
+            void Detach(Game game)
+            {
+                var window = game.Window;
+                game.RenderCompleted -= OnRendering2D;
+                window.ClientSizeChanged -= OnClientSizeChanged;
+                imGuiRenderer!.Dispose();
+                commandList!.Dispose();
+            }
+
+            using var editor = new AptEditor();
+            editor.AddSearchPath(rootPath);
+            editor.InitConsole(Attach, Detach);
+        }
+
+        public MainForm(Game game) : base(new AptSceneInstance(game))
         {
             _window = game.Window;
             _aptFileSelector = new(game.ContentManager.FileSystem);
@@ -201,9 +298,10 @@ namespace OpenSage.Tools.AptEditor.UI
             {
                 if (Edit != null)
                 {
-                    var dump = Edit.GetAptDataDump();
-                    var target = new DirectoryInfo(exportPath);
-                    var task = dump.WriteTo(target);
+                    var dump = Edit.GetAptDataDump(
+                        (f, m) => FindFile(f).Open()
+                        );
+                    var task = dump.WriteTo(exportPath);
                     _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }

@@ -14,7 +14,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         };
         int _editingIndex = -1;
 
-        public void Draw(MainFormState manager)
+        public void Draw(LogicalMainForm manager)
         {
             _data = manager.Edit?.AptFile.Constants;
 
