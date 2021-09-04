@@ -4,6 +4,8 @@ using System.Linq;
 using System.IO;
 using System.Collections;
 using OpenSage.Data;
+using OpenSage.FileFormats.Apt;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.Tools.AptEditor.Util
 {
@@ -143,6 +145,122 @@ namespace OpenSage.Tools.AptEditor.Util
             var ret = origPaths.Select(from => Path.Combine(orig, from)).Zip(mappedPaths);
 
             return ret;
+        }
+
+        // apt related
+
+        public static void CheckImportTree(this FileSystem TargetFileSystem, AptFile apt)
+        {
+            foreach (var import in apt.Movie.Imports)
+            {
+                var importPath = Path.Combine(apt.RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
+                var importEntry = TargetFileSystem.GetFile(importPath);
+                if (importEntry == null)
+                    throw new FileNotFoundException("Cannot find imported file", importPath);
+
+                // Some dirty tricks to avoid the above exception
+                var getter = new StandardStreamGetter(importPath, (s, m) => TargetFileSystem.GetFile(s).Open());
+                var f = AptFile.Parse(getter);
+                TargetFileSystem.CheckImportTree(f);
+            }
+        }
+
+        public static AptFile LoadApt(this FileSystem TargetFileSystem, string path)
+        {
+            var entry = TargetFileSystem.GetFile(path);
+            if (entry == null)
+            {
+                throw new FileNotFoundException("Cannot find file", path);
+            }
+
+            TargetFileSystem.AutoLoad(path, loadArtOnly: true); // here it's used to prepare art folder
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
+
+            return aptFile;
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA2200", MessageId = "intentional")]
+        public static void LoadImportTree(this FileSystem TargetFileSystem, AptFile apt)
+        {
+            string? lastFailed = null;
+            while (true)
+            {
+                try
+                {
+                    TargetFileSystem.CheckImportTree(apt);
+                }
+                catch (FileNotFoundException loadFailure)
+                {
+                    if (loadFailure.FileName is string file)
+                    {
+                        if (file != lastFailed)
+                        {
+                            lastFailed = file;
+                            if (TargetFileSystem.AutoLoad(file, loadArtOnly: false))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    throw loadFailure;
+                }
+                break;
+            }
+        }
+
+        public static bool AutoLoad(this FileSystem TargetFileSystem, string requiredAptFile, bool loadArtOnly)
+        {
+            requiredAptFile = FileSystem.NormalizeFilePath(requiredAptFile);
+            var mappedPath = Path.GetDirectoryName(requiredAptFile);
+            var name = Path.GetFileName(requiredAptFile);
+
+            var detectedFromGameFileSystem = TargetFileSystem
+                .FindFiles(entry => Path.GetFileName(entry.FilePath) == name)
+                .Select(entry => entry.FilePath)
+                .ToArray();
+
+            if (!detectedFromGameFileSystem.Any())
+            {
+                return false;
+            }
+
+            void Trace(string sourcePath, string from)
+            {
+                var text = $"Automatically loaded game:{sourcePath}  => game:{mappedPath} for {requiredAptFile}";
+                Console.WriteLine(text + (loadArtOnly ? " (art)" : string.Empty));
+            }
+
+            foreach (var gameFile in detectedFromGameFileSystem)
+            {
+                var sourcePath = Path.GetDirectoryName(gameFile);
+                TargetFileSystem.AutoLoadImpl(sourcePath!, mappedPath, loadArtOnly);
+                Trace(sourcePath!, "game");
+            }
+
+            return true;
+        }
+
+        public static void AutoLoadImpl(this FileSystem TargetFileSystem,
+                                        string sourcePath,
+                                        string? mappedPath,
+                                        bool loadArtOnly)
+        {
+            if (!Path.EndsInDirectorySeparator(sourcePath))
+            {
+                sourcePath += Path.DirectorySeparatorChar;
+            }
+            var paths = TargetFileSystem.FindFiles(_ => true).Select(entry => entry.FilePath);
+
+            var normalizedSourcePath = FileSystem.NormalizeFilePath(sourcePath);
+            var filtered = from path in paths
+                           let normalized = FileSystem.NormalizeFilePath(path)
+                           where normalized.StartsWith(normalizedSourcePath)
+                           let relative = normalized[(normalizedSourcePath.Length)..]
+                           let mapped = mappedPath is null
+                               ? relative
+                               : Path.Combine(mappedPath, relative)
+                           select (path, mapped);
+            TargetFileSystem.LoadFiles(filtered.ToArray(), false, loadArtOnly);
         }
     }
 }

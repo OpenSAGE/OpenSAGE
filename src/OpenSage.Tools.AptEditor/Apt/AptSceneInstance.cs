@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading.Tasks;
 using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
@@ -12,14 +13,64 @@ using OpenSage.Tools.AptEditor.Util;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    internal class AptSceneInstance
+    public class AptSceneInstanceMT: AptSceneInstance
     {
-        public Game Game { get; }
+        public Task TheTask { get; private set; }
+        public bool IsRunning { get; set; }
+
+        private readonly object _lock = new();
+
+        public AptSceneInstanceMT(
+            string rootPath,
+            Dictionary<string, string>? searchPaths = null,
+            Action<Game>? attachAdditionalRenderers = null,
+            Action<Game>? detachAdditionalRenderers = null
+            ) : base()
+        {
+            TheTask = Task.Run(() =>
+            {
+                Game = InitializeGame(rootPath, searchPaths);
+                attachAdditionalRenderers?.Invoke(Game);
+                _detachAdditionalRenderers = detachAdditionalRenderers;
+                Run();
+            });
+        }
+
+        public void Run()
+        {
+            IsRunning = true;
+
+            Game.ShowMainMenu();
+            Game.SetUpdateTimeToCurrent();
+
+            // await Task.Run(() =>
+            // {
+            while (true)
+            {
+                if (IsRunning)
+                    lock (_lock)
+                    {
+                        var success = Game.RunOnce();
+                        if (!success)
+                        {
+                            IsRunning = false;
+                        }
+                    }
+            }
+            // });
+        }
+    }
+
+    public class AptSceneInstance : IDisposable
+    {
+        // public
+
+        public Game Game { get; protected set; }
         public ColorRgbaF DisplayBackgroundColor { get; private set; }
 
         public AptFile? AptFile { get; private set; }
         public int MillisecondsPerFrame => (int) (AptFile?.Movie.MillisecondsPerFrame ?? 30);
-        
+
         public AptWindow? CurrentWindow { get; private set; }
         public WrappedDisplayItem? CurrentItem { get; private set; }
         public Character? CurrentCharacter { get; private set; }
@@ -40,6 +91,17 @@ namespace OpenSage.Tools.AptEditor.Apt
             set => SetTransform((ref ItemTransform t) => t.GeometryRotationScale = new Matrix2x2(value, 0, 0, value));
         }
 
+        // private
+
+        protected AptWindowManager _windows => Game.Scene2D.AptWindowManager;
+        protected Action<Game>? _detachAdditionalRenderers;
+
+        // constructors & destructor
+
+        protected AptSceneInstance()
+        {
+            ResetAll();
+        }
 
         public AptSceneInstance(Game game)
         {
@@ -50,14 +112,32 @@ namespace OpenSage.Tools.AptEditor.Apt
         public AptSceneInstance(
             string rootPath, 
             Dictionary<string, string>? searchPaths = null,
-            Action<AptSceneInstance>? attachAdditionalRenderers = null,
-            Action<AptSceneInstance>? detachAdditionalRenderers = null
+            Action<Game>? attachAdditionalRenderers = null,
+            Action<Game>? detachAdditionalRenderers = null
+            ) : this()
+        {
+            Game = InitializeGame(rootPath, searchPaths);
+
+            attachAdditionalRenderers?.Invoke(Game);
+            _detachAdditionalRenderers = detachAdditionalRenderers;
+
+            Game.ShowMainMenu();
+            Game.SetUpdateTimeToCurrent();
+
+        }
+
+        public void Dispose()
+        {
+            _detachAdditionalRenderers?.Invoke(Game);
+        }
+
+        public Game InitializeGame(
+            string rootPath,
+            Dictionary<string, string>? searchPaths = null
             )
         {
             var installation = new GameInstallation(new AptEditorDefinition(), rootPath);
-            Game = new Game(installation, null, new Configuration { LoadShellMap = false });
-            var scene = new AptSceneInstance(Game);
-            ResetAll();
+            var game = new Game(installation, null, new Configuration { LoadShellMap = false });
 
             // add all paths
             if (searchPaths != null)
@@ -69,24 +149,37 @@ namespace OpenSage.Tools.AptEditor.Apt
                     Game.ContentManager.FileSystem.LoadFiles(mapping, isPhysicalFile: true, loadArtOnly: false);
                 }
 
-            // TODO multi-thread & file?
-
-            if (attachAdditionalRenderers != null)
-                attachAdditionalRenderers(this);
-            try
-            {
-                Game.ShowMainMenu();
-                Game.Run();
-            }
-            finally
-            {
-                
-                if (detachAdditionalRenderers != null)
-                    detachAdditionalRenderers(this);
-            }
+            return game;
         }
 
-        // Apt Loading Operations
+        // game interaction
+
+        public AptWindow CreateBackgroundWindow()
+        {
+            var multiplied = DisplayBackgroundColor.ToVector4() * 255;
+            var color = new ColorRgba((byte) multiplied.X, (byte) multiplied.Y, (byte) multiplied.Z, (byte) multiplied.W);
+            var ret = AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, color);
+            ret.Context.Avm.Pause();
+            ret.Root.Stop();
+            return ret;
+        }
+
+        public void RefreshWindow()
+        {
+            while (_windows.OpenWindowCount > 0)
+                _windows.PopWindow();
+
+            // set background color
+            var bg = CreateBackgroundWindow();
+            _windows.PushWindow(bg);
+
+            if (CurrentWindow != null)
+                _windows.PushWindow(CurrentWindow);
+        }
+
+        // data operations
+
+        
 
         public void ResetAll()
         {
@@ -133,17 +226,6 @@ namespace OpenSage.Tools.AptEditor.Apt
             CurrentItem = null;
             // CurrentActions = null;
 
-            var windows = Game.Scene2D.AptWindowManager;
-            while (windows.OpenWindowCount > 0)
-            {
-                windows.PopWindow();
-            }
-
-            // load new resources
-
-            var multiplied = DisplayBackgroundColor.ToVector4() * 255;
-            var color = new ColorRgba((byte) multiplied.X, (byte) multiplied.Y, (byte) multiplied.Z, (byte) multiplied.W);
-            windows.PushWindow(AptEditorBackgroundSource.CreateBackgroundAptWindow(Game, color));
 
             if (AptFile != null)
             {
@@ -172,10 +254,11 @@ namespace OpenSage.Tools.AptEditor.Apt
                     list.AddItem(default, CurrentItem);
                 }
 
-                windows.PushWindow(CurrentWindow);
                 if (CurrentItem is not null)
                     CurrentItem.PlayToFrameNoActions(0);
             }
+
+            RefreshWindow();
         }
 
         public void SetCharacter(Character character)
@@ -221,6 +304,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         }
 
         private delegate void TransformAction(ref ItemTransform t);
+
         private void SetTransform(TransformAction action)
         {
             if (CurrentWindow == null)
@@ -231,7 +315,7 @@ namespace OpenSage.Tools.AptEditor.Apt
             action(ref CurrentWindow.WindowTransform);
         }
 
-        // VM
+        // debug
 
         public string ExecuteOnce()
         {

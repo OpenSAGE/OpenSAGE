@@ -19,20 +19,12 @@ namespace OpenSage.Tools.AptEditor.UI
 {
     internal class LogicalMainForm : IDisposable
     {
-        private AptEditor editor;
         public AptSceneInstance Scene { get; protected set; }
         public AptEditInstance? Edit { get; protected set; }
 
         public LogicalInstructions? CurrentActions { get; set; }
         public string? CurrentAptPath { get; protected set; }
         public string CurrentTitle { get; set; }
-
-        public LogicalMainForm(string rootPath)
-        {
-            editor = new AptEditor();
-            editor.AddSearchPath(rootPath);
-        }
-
         public LogicalMainForm(AptSceneInstance scene)
         {
             Scene = scene;
@@ -95,83 +87,17 @@ namespace OpenSage.Tools.AptEditor.UI
         private readonly FileListWindow _fileListWindow;
         private readonly List<ImGuiModalPopUp> _popups;
         private readonly GameWindow _window;
+        private readonly FileSystem _fileSystem;
 
         private readonly List<(Task, string)> _tasks = new List<(Task, string)>();
         private string? _loadAptError;
         private string? _lastSeriousError;
 
-        static void GWA(string rootPath)
-        {
-            ImGuiRenderer? imGuiRenderer = null;
-            CommandList? commandList = null;
-            EventHandler? OnClientSizeChanged = null;
-            EventHandler? OnRendering2D = null;
-            void Attach(Game game)
-            {
-                var device = game.GraphicsDevice;
-                var window = game.Window;
-                var mainForm = new MainForm(game);
-
-                var initialContext = ImGui.GetCurrentContext();
-                imGuiRenderer = new ImGuiRenderer(device,
-                                                            game.Panel.OutputDescription,
-                                                            window.ClientBounds.Width,
-                                                            window.ClientBounds.Height);
-                var font = imGuiRenderer.LoadSystemFont("consola.ttf");
-
-                commandList = device.ResourceFactory.CreateCommandList();
-                var ourContext = ImGui.GetCurrentContext();
-                // reset ImGui Context to initial one
-                ImGui.SetCurrentContext(initialContext);
-
-
-                OnClientSizeChanged = (a, b) =>
-                {
-                    imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
-                };
-                OnRendering2D = (a, b) =>
-                {
-                    var previousContext = ImGui.GetCurrentContext();
-                    ImGui.SetCurrentContext(ourContext);
-                    try
-                    {
-                        commandList.Begin();
-                        commandList.SetFramebuffer(game.Panel.Framebuffer);
-                        imGuiRenderer.Update((float) game.RenderTime.DeltaTime.TotalSeconds, window.CurrentInputSnapshot);
-                        using (var fontSetter = new ImGuiFontSetter(font))
-                        {
-                            mainForm.Draw();
-                        }
-                        imGuiRenderer.Render(game.GraphicsDevice, commandList);
-                        commandList.End();
-                        device.SubmitCommands(commandList);
-                    }
-                    finally
-                    {
-                        ImGui.SetCurrentContext(previousContext);
-                    }
-                };
-                window.ClientSizeChanged += OnClientSizeChanged;
-                game.RenderCompleted += OnRendering2D;
-            }
-            void Detach(Game game)
-            {
-                var window = game.Window;
-                game.RenderCompleted -= OnRendering2D;
-                window.ClientSizeChanged -= OnClientSizeChanged;
-                imGuiRenderer!.Dispose();
-                commandList!.Dispose();
-            }
-
-            using var editor = new AptEditor();
-            editor.AddSearchPath(rootPath);
-            editor.InitConsole(Attach, Detach);
-        }
-
         public MainForm(Game game) : base(new AptSceneInstance(game))
         {
             _window = game.Window;
-            _aptFileSelector = new(game.ContentManager.FileSystem);
+            _fileSystem = game.ContentManager.FileSystem;
+            _aptFileSelector = new(_fileSystem);
             _searchPathAdder = new(game);
             _fileListWindow = new(game, _aptFileSelector);
             _fileListWindow.Visible = true;
@@ -190,8 +116,8 @@ namespace OpenSage.Tools.AptEditor.UI
         {
             try
             {
-                var apt = _fileListWindow.LoadApt(path);
-                _fileListWindow.LoadImportTree(apt);
+                var apt = _fileSystem.LoadApt(path);
+                _fileSystem.LoadImportTree(apt);
                 SetApt(path, apt);
             }
             catch (FileNotFoundException loadFailure)

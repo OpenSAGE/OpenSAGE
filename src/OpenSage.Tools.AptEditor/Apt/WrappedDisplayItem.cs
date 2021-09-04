@@ -10,7 +10,7 @@ using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.Apt
 {
-    internal class WrappedDisplayItem : DisplayItem
+    public class WrappedDisplayItem : DisplayItem
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public DisplayItem Item { get; }

@@ -9,6 +9,7 @@ using OpenSage.Tools.AptEditor.Util;
 using Veldrid;
 using Veldrid.StartupUtilities;
 using System.Threading.Tasks;
+using OpenSage.Tools.AptEditor.Apt;
 
 namespace OpenSage.Tools.AptEditor
 {
@@ -178,9 +179,15 @@ namespace OpenSage.Tools.AptEditor
                 commandList!.Dispose();
             }
 
-            using var editor = new AptEditor();
-            editor.AddSearchPath(rootPath);
-            editor.InitConsole(Attach, Detach);
+            // ST
+            using var editor = new AptSceneInstance(rootPath, null, Attach, Detach);
+            while (true)
+                if (!editor.Game.RunOnce())
+                    break;
+
+            // MT
+            // using var editor = new AptSceneInstanceMT(rootPath, null, Attach, Detach);
+            // editor.TheTask.Wait();
         }
 
         static void GameWindowAdapter(string rootPath)

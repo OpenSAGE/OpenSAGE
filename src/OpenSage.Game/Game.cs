@@ -735,39 +735,53 @@ namespace OpenSage
             ShowMainMenu();
         }
 
-        public void Run()
+        public void SetUpdateTimeToCurrent()
         {
             var totalGameTime = MapTime.TotalTime;
             _nextLogicUpdate = totalGameTime;
             _nextScriptingUpdate = totalGameTime;
+        }
+
+        public bool RunOnce()
+        {
+            if (!Window.PumpEvents())
+            {
+                return false;
+            }
+
+            if (DeveloperModeEnabled)
+            {
+                _developerModeView.Tick();
+            }
+            else
+            {
+                Update(Window.MessageQueue);
+
+                Panel.EnsureFrame(Window.ClientBounds);
+
+                Render();
+
+                _textureCopier.Execute(
+                    Panel.Framebuffer.ColorTargets[0].Target,
+                    GraphicsDevice.SwapchainFramebuffer);
+            }
+
+            Window.MessageQueue.Clear();
+
+            GraphicsDevice.SwapBuffers();
+
+            return true;
+        }
+
+        public void Run()
+        {
+            SetUpdateTimeToCurrent();
 
             while (IsRunning)
             {
-                if (!Window.PumpEvents())
-                {
+                var success = RunOnce();
+                if (!success)
                     break;
-                }
-
-                if (DeveloperModeEnabled)
-                {
-                    _developerModeView.Tick();
-                }
-                else
-                {
-                    Update(Window.MessageQueue);
-
-                    Panel.EnsureFrame(Window.ClientBounds);
-
-                    Render();
-
-                    _textureCopier.Execute(
-                        Panel.Framebuffer.ColorTargets[0].Target,
-                        GraphicsDevice.SwapchainFramebuffer);
-                }
-
-                Window.MessageQueue.Clear();
-
-                GraphicsDevice.SwapBuffers();
             }
 
             // TODO: Cleanup resources.
