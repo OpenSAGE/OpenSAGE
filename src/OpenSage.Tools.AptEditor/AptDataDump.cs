@@ -4,7 +4,7 @@ using System.IO;
 using OpenSage.FileFormats.Apt;
 using System.Threading.Tasks;
 
-namespace OpenSage.Tools.AptEditor.Apt
+namespace OpenSage.Tools.AptEditor
 {
     public sealed class AptDataDump
     {

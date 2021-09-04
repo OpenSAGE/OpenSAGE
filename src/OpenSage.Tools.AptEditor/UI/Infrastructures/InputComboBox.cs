@@ -5,7 +5,7 @@ using System.Linq;
 using ImGuiNET;
 using System.IO;
 
-namespace OpenSage.Tools.AptEditor.Util
+namespace OpenSage.Tools.AptEditor.UI
 {
     internal abstract class InputComboBox
     {

@@ -8,7 +8,7 @@ using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 
-namespace OpenSage.Tools.AptEditor.Apt
+namespace OpenSage.Tools.AptEditor
 {
     public class WrappedDisplayItem : DisplayItem
     {

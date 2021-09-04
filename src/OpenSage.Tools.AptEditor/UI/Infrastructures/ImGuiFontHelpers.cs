@@ -3,7 +3,7 @@ using System.IO;
 using ImGuiNET;
 using Veldrid;
 
-namespace OpenSage.Tools.AptEditor.Util
+namespace OpenSage.Tools.AptEditor.UI
 {
     internal static class ImGuiFontHelpers
     {

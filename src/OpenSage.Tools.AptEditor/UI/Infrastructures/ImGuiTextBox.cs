@@ -2,7 +2,7 @@
 using System.Text;
 using ImGuiNET;
 
-namespace OpenSage.Tools.AptEditor.Util
+namespace OpenSage.Tools.AptEditor.UI
 {
     internal class ImGuiTextBox
     {

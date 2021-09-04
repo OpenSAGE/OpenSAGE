@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 
-namespace OpenSage.Tools.AptEditor.Util
+namespace OpenSage.Tools.AptEditor.UI
 {
     internal ref struct ImGuiIDHelper
     {

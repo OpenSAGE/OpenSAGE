@@ -3,9 +3,8 @@ using System.IO;
 using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
-using OpenSage.Tools.AptEditor.Apt.Editor;
 
-namespace OpenSage.Tools.AptEditor.Apt
+namespace OpenSage.Tools.AptEditor
 {
     public sealed class AptEditInstance
     {

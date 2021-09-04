@@ -11,7 +11,7 @@ using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
 using OpenSage.Tools.AptEditor.Util;
 
-namespace OpenSage.Tools.AptEditor.Apt
+namespace OpenSage.Tools.AptEditor
 {
     public class AptSceneInstanceMT: AptSceneInstance
     {
@@ -103,12 +103,6 @@ namespace OpenSage.Tools.AptEditor.Apt
             ResetAll();
         }
 
-        public AptSceneInstance(Game game)
-        {
-            ResetAll();
-            Game = game;
-        }
-
         public AptSceneInstance(
             string rootPath, 
             Dictionary<string, string>? searchPaths = null,
@@ -129,6 +123,7 @@ namespace OpenSage.Tools.AptEditor.Apt
         public void Dispose()
         {
             _detachAdditionalRenderers?.Invoke(Game);
+            Game.Dispose();
         }
 
         public Game InitializeGame(

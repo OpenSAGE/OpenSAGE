@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenSage.FileFormats.Apt;
 
-namespace OpenSage.Tools.AptEditor.Apt.Editor
+namespace OpenSage.Tools.AptEditor
 {
     /// <summary>
     /// An Edit Action which performs edit by calling <see cref="Edit()"/>, 
