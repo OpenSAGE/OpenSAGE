@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,11 +15,13 @@ namespace OpenSage.FileFormats.Big
         private readonly object _lockObject = new object();
 
         private readonly FileStream _stream;
+        private readonly MemoryMappedFile _mmapFile;
 
         private readonly List<BigArchiveEntry> _entries;
         private readonly Dictionary<string, BigArchiveEntry> _entriesDictionary;
 
         internal Stream Stream => _stream;
+        internal MemoryMappedFile MemMap => _mmapFile;
 
         public string FilePath { get; }
 
@@ -51,6 +54,12 @@ namespace OpenSage.FileFormats.Big
             if (mode != BigArchiveMode.Create)
             {
                 Read();
+            }
+
+            // We can use a memmaped file in readmode
+            if (mode == BigArchiveMode.Read)
+            {
+                _mmapFile = MemoryMappedFile.CreateFromFile(_stream, null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, false);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using OpenSage.FileFormats.RefPack;
 
@@ -58,22 +59,19 @@ namespace OpenSage.FileFormats.Big
 
         private Stream OpenInReadMode()
         {
-            var bigStream = new BigArchiveEntryStream(this, Offset);
-
-            // Wrapping BigStream in a BufferedStream significantly improves performance.
-            var bufferedBigStream = new BufferedStream(bigStream);
+            var bigStream = Archive.MemMap.CreateViewStream(Offset, Length, MemoryMappedFileAccess.Read);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.
-            if (RefPackStream.IsProbablyRefPackCompressed(bufferedBigStream))
+            if (RefPackStream.IsProbablyRefPackCompressed(bigStream))
             {
-                var refPackStream = new RefPackStream(bufferedBigStream);
+                var refPackStream = new RefPackStream(bigStream);
 
                 // Wrap RefPackStream in (another) BufferedStream, to improve performance.
                 return new BufferedStream(refPackStream);
             }
 
-            return bufferedBigStream;
+            return bigStream;
         }
 
         private Stream OpenInWriteMode()
