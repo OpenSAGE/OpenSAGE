@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Core;
+using Smx.SharpIO;
 
 namespace OpenSage.FileFormats.Big
 {

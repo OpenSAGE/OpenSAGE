@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using OpenSage.Core;
+using Smx.SharpIO;
 
 namespace OpenSage.FileFormats.Big
 {
@@ -267,7 +267,7 @@ namespace OpenSage.FileFormats.Big
                 int dataStart = headerSize + tableSize;
                 outArchive.SetLength(archiveSize);
 
-                var spanStream = _stream.NewSpanStream();
+                var spanStream = new SpanStream(_stream);
                 using (var writer = new BinaryWriter(outArchive))
                 {
                     WriteHeader(writer, archiveSize, dataStart);

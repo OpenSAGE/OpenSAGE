@@ -13,6 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Smx.SharpIO" Version="1.0.0-alpha" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats.RefPack\OpenSage.FileFormats.RefPack.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
