@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using OpenSage.Core;
 
 namespace OpenSage.FileFormats.Big
 {
@@ -7,15 +8,20 @@ namespace OpenSage.FileFormats.Big
     {
         private readonly BigArchiveEntry _entry;
         private readonly BigArchive _archive;
-        private readonly uint _offset;
+        private readonly uint _baseOffset;
         private bool _write;
+        private readonly Memory<byte> _mem;
+        private readonly SpanStream _spanStream;
 
-        public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
+        public BigArchiveEntryStream(BigArchiveEntry entry, Memory<byte> mem)
         {
             _write = false;
             _entry = entry;
             _archive = entry.Archive;
-            _offset = offset;
+            _baseOffset = entry.Offset;
+
+            _mem = mem;
+            _spanStream = new SpanStream(_mem);
         }
 
         public override void Flush()
@@ -30,16 +36,15 @@ namespace OpenSage.FileFormats.Big
         public override int Read(byte[] buffer, int offset, int count)
         {
             _archive.AcquireLock();
-            int result = 0;
+            int result;
             if (_write == false)
             {
-                _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
                 if (count > (Length - Position))
                 {
                     count = (int) (Length - Position);
                 }
 
-                result = _archive.Stream.Read(buffer, offset, count);
+                result = _spanStream.Read(buffer, offset, count);
                 Position += result;
             }
             else
@@ -71,7 +76,6 @@ namespace OpenSage.FileFormats.Big
                 default:
                     throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
             }
-
             return Position;
         }
 
@@ -110,7 +114,17 @@ namespace OpenSage.FileFormats.Big
 
         public override long Length => _write ? _entry.OutstandingWriteStream.Length : _entry.Length;
 
-        public override long Position { get; set; }
+        private long _position = 0;
+
+        public override long Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                _spanStream.Seek(Position, SeekOrigin.Begin);
+            }
+        }
 
         public override void Close()
         {

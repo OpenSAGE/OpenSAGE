@@ -5,25 +5,45 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using OpenSage.Core;
 
 namespace OpenSage.FileFormats.Big
 {
+    [Endian(Endianness.BigEndian)]
+    public struct BigArchiveHeader
+    {
+        public UInt32 fourCC;
+        public UInt32 archiveSize;
+        public UInt32 numEntries;
+        public UInt32 firstFileOffset;
+    }
+
+    [Endian(Endianness.BigEndian)]
+    public struct BigArchiveEntryHeader
+    {
+        public UInt32 entryOffset;
+        public UInt32 entrySize;
+    }
+
     [DebuggerDisplay("Archive: {FilePath}")]
     public class BigArchive : DisposableBase
     {
+        private const UInt32 FOURCC_BIGF = 0x42494746;
+        private const UInt32 FOURCC_BIG4 = 0x42494734;
+
         private readonly object _lockObject = new object();
 
-        private readonly FileStream _stream;
+        private readonly MFile _stream;
 
         private readonly List<BigArchiveEntry> _entries;
         private readonly Dictionary<string, BigArchiveEntry> _entriesDictionary;
 
-        internal Stream Stream => _stream;
+        internal SpanStream Stream => new SpanStream(_stream.Span.Memory);
 
         public string FilePath { get; }
 
         public BigArchiveMode Mode { get; }
-        public long Size => _stream.Length;
+        public long Size => Stream.Length;
 
         public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 
@@ -41,11 +61,7 @@ namespace OpenSage.FileFormats.Big
             var fileAccess = mode == BigArchiveMode.Read ? FileAccess.Read : FileAccess.ReadWrite;
             var fileShare = mode == BigArchiveMode.Read ? FileShare.Read : FileShare.ReadWrite;
 
-            _stream = AddDisposable(new FileStream(
-                filePath,
-                fileMode,
-                fileAccess,
-                fileShare));
+            _stream = AddDisposable(MFile.Open(filePath));
 
             // Read if the archive already exists
             if (mode != BigArchiveMode.Create)
@@ -66,57 +82,54 @@ namespace OpenSage.FileFormats.Big
 
         private void Read()
         {
-            using (var reader = new BinaryReader(_stream, Encoding.ASCII, true))
+            var reader = Stream;
+
+            //Special case for empty archives/ placeholder archives
+            if (reader.Length < 4)
             {
-                //Special case for empty archives/ placeholder archives
-                if (reader.BaseStream.Length < 4)
+                var a = reader.ReadByte();
+                var b = reader.ReadByte();
+
+                if (a == '?' && b == '?')
                 {
-                    var a = reader.ReadByte();
-                    var b = reader.ReadByte();
-
-                    if (a == '?' && b == '?')
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        throw new InvalidDataException($"Big archive is too small");
-                    }
+                    return;
                 }
-
-                var fourCc = reader.ReadFourCc();
-                switch (fourCc)
+                else
                 {
-                    case "BIGF":
-                        Version = BigArchiveVersion.BigF;
-                        break;
-
-                    case "BIG4":
-                        Version = BigArchiveVersion.Big4;
-                        break;
-
-                    default:
-                        throw new InvalidDataException($"Not a supported BIG format: {fourCc}");
+                    throw new InvalidDataException($"Big archive is too small");
                 }
+            }
 
-                reader.ReadBigEndianUInt32(); // Archive Size
-                var numEntries = reader.ReadBigEndianUInt32();
-                reader.ReadBigEndianUInt32(); // First File Offset
+            var hdr = reader.ReadStruct<BigArchiveHeader>();
+            switch(hdr.fourCC)
+            {
+                case FOURCC_BIGF:
+                    Version = BigArchiveVersion.BigF;
+                    break;
 
-                for (var i = 0; i < numEntries; i++)
-                {
-                    var entryOffset = reader.ReadBigEndianUInt32();
-                    var entrySize = reader.ReadBigEndianUInt32();
-                    var entryName = reader.ReadNullTerminatedString();
+                case FOURCC_BIG4:
+                    Version = BigArchiveVersion.Big4;
+                    break;
 
-                    var entry = new BigArchiveEntry(this, entryName, entryOffset, entrySize);
+                default:
+                    throw new InvalidDataException($"Not a supported BIG format: {hdr.fourCC}");
+            }
 
-                    _entries.Add(entry);
+            for (var i = 0; i < hdr.numEntries; i++)
+            {
+                var entryHdr = reader.ReadStruct<BigArchiveEntryHeader>();
+                var entryName = reader.ReadCString();
 
-                    // Overwrite any previous entries with the same name.
-                    // Yes, at least one .big file has entries with duplicate names.
-                    _entriesDictionary[entryName] = entry;
-                }
+                var entry = new BigArchiveEntry(this,
+                    entryName,
+                    entryHdr.entryOffset,
+                    entryHdr.entrySize);
+
+                _entries.Add(entry);
+
+                // Overwrite any previous entries with the same name.
+                // Yes, at least one .big file has entries with duplicate names.
+                _entriesDictionary[entryName] = entry;
             }
         }
 
@@ -254,6 +267,10 @@ namespace OpenSage.FileFormats.Big
                 int dataStart = headerSize + tableSize;
                 outArchive.SetLength(archiveSize);
 
+#if true
+                throw new NotImplementedException("MFile Write mode");
+#endif
+#if false
                 using (var writer = new BinaryWriter(outArchive))
                 {
                     WriteHeader(writer, archiveSize, dataStart);
@@ -264,6 +281,7 @@ namespace OpenSage.FileFormats.Big
                     outArchive.WriteTo(_stream);
                     _stream.Flush();
                 }
+#endif
 
                 UpdateOffsets();
             }

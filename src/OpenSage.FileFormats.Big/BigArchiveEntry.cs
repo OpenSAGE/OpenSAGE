@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using OpenSage.Core;
 using OpenSage.FileFormats.RefPack;
 
 namespace OpenSage.FileFormats.Big
@@ -21,7 +22,6 @@ namespace OpenSage.FileFormats.Big
         internal MemoryStream OutstandingWriteStream { get; set; }
         internal uint OutstandingOffset { get; set; }
         internal bool CurrentlyOpenForWrite { get; set; }
-
         internal BigArchiveEntry(BigArchive archive, string name, uint offset, uint size)
         {
             Archive = archive;
@@ -58,22 +58,19 @@ namespace OpenSage.FileFormats.Big
 
         private Stream OpenInReadMode()
         {
-            var bigStream = new BigArchiveEntryStream(this, Offset);
+            var mem = this.Archive
+                .Stream.Memory.Slice((int) Offset, (int)Length);
 
-            // Wrapping BigStream in a BufferedStream significantly improves performance.
-            var bufferedBigStream = new BufferedStream(bigStream);
+            var bigStream = new BigArchiveEntryStream(this, mem);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.
-            if (RefPackStream.IsProbablyRefPackCompressed(bufferedBigStream))
+            if (RefPackStream.IsProbablyRefPackCompressed(bigStream))
             {
-                var refPackStream = new RefPackStream(bufferedBigStream);
-
-                // Wrap RefPackStream in (another) BufferedStream, to improve performance.
-                return new BufferedStream(refPackStream);
+                return new RefPackStream(bigStream);
             }
 
-            return bufferedBigStream;
+            return bigStream;
         }
 
         private Stream OpenInWriteMode()
@@ -83,7 +80,9 @@ namespace OpenSage.FileFormats.Big
 
             CurrentlyOpenForWrite = true;
 
-            var bigStream = new BigArchiveEntryStream(this, Offset);
+            // $TODO
+            throw new NotImplementedException("MFile Write Mode");
+            var bigStream = new BigArchiveEntryStream(this, null);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.
@@ -102,7 +101,9 @@ namespace OpenSage.FileFormats.Big
 
             CurrentlyOpenForWrite = true;
 
-            var bigStream = new BigArchiveEntryStream(this, Offset);
+            // $TODO
+            throw new NotImplementedException("MFile Write Mode");
+            var bigStream = new BigArchiveEntryStream(this, null);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.
