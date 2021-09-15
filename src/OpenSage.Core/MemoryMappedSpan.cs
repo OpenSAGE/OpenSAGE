@@ -21,9 +21,9 @@ namespace OpenSage.Core
 		private readonly MemoryMappedViewAccessor acc;
 		private readonly byte* dptr = null;
 
-		public MemoryMappedSpan(MemoryMappedFile mf, int length) {
+		public MemoryMappedSpan(MemoryMappedFile mf, int length, MemoryMappedFileAccess mmapFlags) {
 			this.Length = length;
-			this.acc = mf.CreateViewAccessor(0, length, MemoryMappedFileAccess.Read);
+			this.acc = mf.CreateViewAccessor(0, length, mmapFlags);
 			this.acc.SafeMemoryMappedViewHandle.AcquirePointer(ref dptr);
 		}
 

@@ -24,18 +24,30 @@ namespace OpenSage.Core
 			this.Span = span;
 		}
 
-		public static MFile Open(string filePath) {
-			FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+		public static MFile Open(string filePath, FileMode fileMode, FileAccess fileAccess, FileShare fileShare) {
+			FileStream fs = new FileStream(filePath, fileMode, fileAccess, fileShare);
+
+            MemoryMappedFileAccess mmapFlags = MemoryMappedFileAccess.Read;
+            if (fileAccess.HasFlag(FileAccess.Write))
+            {
+                mmapFlags = MemoryMappedFileAccess.ReadWrite;
+            }
+
 			MemoryMappedFile mmf = MemoryMappedFile.CreateFromFile(
 				fs, null, 0,
-				MemoryMappedFileAccess.Read, HandleInheritability.Inheritable, false
+				mmapFlags, HandleInheritability.Inheritable, false
 			);
-			MemoryMappedSpan<byte> span = new MemoryMappedSpan<byte>(mmf, (int)fs.Length);
+			MemoryMappedSpan<byte> span = new MemoryMappedSpan<byte>(mmf, (int)fs.Length, mmapFlags);
 			return new MFile(span);
 		}
 
 		public void Dispose() {
 			Span.Dispose();
 		}
-	}
+
+        public SpanStream NewSpanStream()
+        {
+            return new SpanStream(Span.Memory);
+        }
+    }
 }

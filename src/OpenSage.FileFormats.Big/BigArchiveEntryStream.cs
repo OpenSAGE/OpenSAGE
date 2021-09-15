@@ -8,7 +8,6 @@ namespace OpenSage.FileFormats.Big
     {
         private readonly BigArchiveEntry _entry;
         private readonly BigArchive _archive;
-        private readonly uint _baseOffset;
         private bool _write;
         private readonly Memory<byte> _mem;
         private readonly SpanStream _spanStream;
@@ -18,7 +17,6 @@ namespace OpenSage.FileFormats.Big
             _write = false;
             _entry = entry;
             _archive = entry.Archive;
-            _baseOffset = entry.Offset;
 
             _mem = mem;
             _spanStream = new SpanStream(_mem);

@@ -61,7 +61,7 @@ namespace OpenSage.FileFormats.Big
             var fileAccess = mode == BigArchiveMode.Read ? FileAccess.Read : FileAccess.ReadWrite;
             var fileShare = mode == BigArchiveMode.Read ? FileShare.Read : FileShare.ReadWrite;
 
-            _stream = AddDisposable(MFile.Open(filePath));
+            _stream = AddDisposable(MFile.Open(filePath, fileMode, fileAccess, fileShare));
 
             // Read if the archive already exists
             if (mode != BigArchiveMode.Create)
@@ -267,21 +267,16 @@ namespace OpenSage.FileFormats.Big
                 int dataStart = headerSize + tableSize;
                 outArchive.SetLength(archiveSize);
 
-#if true
-                throw new NotImplementedException("MFile Write mode");
-#endif
-#if false
+                var spanStream = _stream.NewSpanStream();
                 using (var writer = new BinaryWriter(outArchive))
                 {
                     WriteHeader(writer, archiveSize, dataStart);
                     WriteFileTable(writer, dataStart);
                     WriteFileContent(writer);
-                    _stream.Position = 0;
-                    _stream.SetLength(archiveSize);
-                    outArchive.WriteTo(_stream);
-                    _stream.Flush();
+                    spanStream.Position = 0;
+                    outArchive.WriteTo(spanStream);
+                    spanStream.Flush();
                 }
-#endif
 
                 UpdateOffsets();
             }

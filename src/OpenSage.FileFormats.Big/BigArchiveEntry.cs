@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using OpenSage.Core;
 using OpenSage.FileFormats.RefPack;
 
 namespace OpenSage.FileFormats.Big
@@ -56,11 +55,14 @@ namespace OpenSage.FileFormats.Big
             Archive.DeleteEntry(this);
         }
 
+        private Memory<byte> GetMemorySpan()
+        {
+            return Archive.Stream.Memory.Slice((int) Offset, (int) Length);
+        }
+
         private Stream OpenInReadMode()
         {
-            var mem = this.Archive
-                .Stream.Memory.Slice((int) Offset, (int)Length);
-
+            var mem = GetMemorySpan();
             var bigStream = new BigArchiveEntryStream(this, mem);
 
             // Check for refpack compression header.
@@ -80,9 +82,8 @@ namespace OpenSage.FileFormats.Big
 
             CurrentlyOpenForWrite = true;
 
-            // $TODO
-            throw new NotImplementedException("MFile Write Mode");
-            var bigStream = new BigArchiveEntryStream(this, null);
+            var mem = GetMemorySpan();
+            var bigStream = new BigArchiveEntryStream(this, mem);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.
@@ -101,9 +102,8 @@ namespace OpenSage.FileFormats.Big
 
             CurrentlyOpenForWrite = true;
 
-            // $TODO
-            throw new NotImplementedException("MFile Write Mode");
-            var bigStream = new BigArchiveEntryStream(this, null);
+            var mem = GetMemorySpan();
+            var bigStream = new BigArchiveEntryStream(this, mem);
 
             // Check for refpack compression header.
             // C&C3 started using refpack compression for .big archive entries.

@@ -16,7 +16,7 @@ using System.Text;
 
 namespace OpenSage.Core
 {
-	public partial class SpanStream
+	public class SpanStream : Stream
 	{
 
 		delegate T ReaderDelegate<T>() where T : unmanaged;
@@ -32,12 +32,12 @@ namespace OpenSage.Core
 
 		private int pos;
 
-        public long Position {
+        public override long Position {
 			get => pos;
 			set => pos = (int)value;
 		}
 		public long Remaining => Length - Position;
-		public long Length => Memory.Length;
+		public override long Length => Memory.Length;
 
 		public Memory<byte> Memory { get; private set; }
 		public Span<byte> Span => Memory.Span;
@@ -51,8 +51,9 @@ namespace OpenSage.Core
 			}
 		}
 
-        public bool CanRead { get; set; } = true;
-        public bool CanSeek { get; set; } = true;
+        public override bool CanRead { get; } = true;
+        public override bool CanSeek { get; } = true;
+        public override bool CanWrite { get; } = true;
 
         private void SetDelegates() {
 			if (
@@ -259,7 +260,7 @@ namespace OpenSage.Core
 			return ret;
 		}
 
-        public int Read(byte[] buffer, int offset, int count)
+        public override int Read(byte[] buffer, int offset, int count)
         {
             Memory.Span
                 .Slice((int)Position, count)
@@ -433,7 +434,7 @@ namespace OpenSage.Core
 			}
 		}
 
-		public void Seek(long offset, SeekOrigin origin) {
+		public override long Seek(long offset, SeekOrigin origin) {
 			switch (origin) {
 				case SeekOrigin.Begin:
 					Position = offset;
@@ -445,6 +446,7 @@ namespace OpenSage.Core
 					Position = Length - offset;
 					break;
 			}
+            return Position;
 		}
 
 		public SpanStream SliceHere(int length) {
@@ -488,5 +490,19 @@ namespace OpenSage.Core
 
 		public ulong ReadUInt64() => u64Reader();
 		public void WriteUInt64(UInt64 value) => u64Writer(value);
-	}
+
+        public override void Flush() {}
+
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException("SpanStream is not growable, grow the base stream instead");
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            Span<byte> source = ((Span<byte>)buffer).Slice(offset, count);
+            Span<byte> dest = Memory.Span.Slice((int)Position, count);
+            source.CopyTo(dest);
+        }
+    }
 }
