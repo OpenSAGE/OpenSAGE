@@ -129,7 +129,6 @@ namespace OpenSage.FileFormats.Apt
         public Movie Movie { get; private set; }
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
-        public Dictionary<string, string> ImportMap { get; private set; }
 
         private AptFile(ConstantData constants, string movieName, string rootPath)
         {
@@ -329,8 +328,7 @@ namespace OpenSage.FileFormats.Apt
             var apt = new AptFile(constData, name, string.Empty)
             {
                 ImageMap = new ImageMap(),
-                GeometryMap = new Dictionary<uint, Geometry>(),
-                ImportMap = new Dictionary<string, string>(), 
+                GeometryMap = new Dictionary<uint, Geometry>()
             };
             apt.Movie = Movie.CreateEmpty(apt, width, height, millisecondsPerFrame);
             return apt;
