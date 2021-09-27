@@ -57,6 +57,8 @@ namespace OpenSage.Tools.AptEditor.Util
 
         public string? GetRaw(string field)
         {
+            if (Obj == null)
+                return null;
             var succ = _normalProperties.TryGetValue(field, out var desc);
             if (!succ)
                 return null;
@@ -70,6 +72,8 @@ namespace OpenSage.Tools.AptEditor.Util
 
         public OperationState Get(string field)
         {
+            if (Obj == null)
+                return new(2, "Null Object");
             var succ = _normalProperties.TryGetValue(field, out var desc);
             if (!succ)
                 return new(1, "Invalid field");
@@ -90,6 +94,8 @@ namespace OpenSage.Tools.AptEditor.Util
 
         public OperationState Set(string field, string pval)
         {
+            if (Obj == null)
+                return new(2, "Null Object");
             var succ = _normalProperties.TryGetValue(field, out var desc);
             if (!succ)
                 return new(1, "Invalid field");
@@ -110,7 +116,9 @@ namespace OpenSage.Tools.AptEditor.Util
             DataStorageListAttribute attr,
             TreeNode? parent,
             string? dispName = null,
-            Type? t = null)
+            Type? t = null,
+            Dictionary<object, TreeNode>? record = null
+            )
         {
             _canChangeChildren = true;
             _attr = attr;
@@ -126,11 +134,29 @@ namespace OpenSage.Tools.AptEditor.Util
 
             _children = new();
             foreach (var (dn, o) in objs)
-                _children.Add(new(o, this, dn, t));
+                _children.Add(new(o, this, dn, t, record));
         }
 
-        public TreeNode(object? obj, TreeNode? parent, string? dispName = null, Type? t = null)
+        public TreeNode(
+            object? obj,
+            TreeNode? parent,
+            string? dispName = null,
+            Type? t = null,
+            Dictionary<object, TreeNode>? record = null
+            )
         {
+            if (record == null)
+                record = new();
+            else if (obj != null)
+            {
+                if (record.TryGetValue(obj, out var nobj))
+                {
+                    obj = null;
+                }
+                else
+                    record[obj] = this;
+            }
+
             _canChangeChildren = false;
             _attr = null;
 
@@ -150,7 +176,7 @@ namespace OpenSage.Tools.AptEditor.Util
             {
                 object[] attrs = field.GetCustomAttributes(typeof(DataStorageListAttribute), true);
                 if (attrs.Length > 0)
-                    _listProperties.Add(field.Name, (field, attrs[0] as DataStorageListAttribute)!);
+                    _listProperties.Add(field.Name, (field, (DataStorageListAttribute) attrs[0]));
                 else if (field.PropertyType.GetInterfaces().Contains(typeof(IDataStorage)))
                     _nodeProperties.Add(field.Name, field);
                 else
@@ -160,26 +186,30 @@ namespace OpenSage.Tools.AptEditor.Util
 
             // init subnodes
             foreach (var np in _nodeProperties)
-                _children.Add(new(obj == null ? null : np.Value.GetValue(obj), this, np.Key));
+                _children.Add(new(obj == null ? null : np.Value.GetValue(obj), this, np.Key, np.Value.PropertyType, record));
 
             // init subnode lists
             foreach (var (field, (lp, attr)) in _listProperties)
             {
                 List<(string, object)> l = new();
-                if (lp.PropertyType.IsAssignableFrom(typeof(IEnumerable<object>)))
+                if (lp.PropertyType.GetInterfaces().Where(a => a.Name.StartsWith("IList")).Count() > 0)
                 {
                     var curId = 0;
-                    if (lp.GetValue(obj) != null)
-                        foreach (var elem in (lp.GetValue(obj) as IEnumerable<object>)!)
+                    if (obj != null && lp.GetValue(obj) != null)
+                        foreach (var elem in (IEnumerable<object>) lp.GetValue(obj)!)
                             l.Add(($"{field} #{curId++}", elem));
                 }
-                else if (lp.PropertyType.IsAssignableFrom(typeof(IDictionary<object, object>)))
+                else if (lp.PropertyType.GetInterfaces().Where(a => a.Name.StartsWith("IDictionary")).Count() > 0)
                 {
-                    if (lp.GetValue(obj) != null)
-                        foreach (var elem in (lp.GetValue(obj) as IDictionary<object, object>)!)
-                            l.Add((elem.Key.ToString(), elem.Value)!);
+                    if (obj != null && lp.GetValue(obj) != null)
+                        foreach (var elem in (IEnumerable<object>) lp.GetValue(obj)!)
+                        {
+                            var ek = elem.GetType().GetProperty("Key")!.GetValue(elem);
+                            var ev = elem.GetType().GetProperty("Value")!.GetValue(elem);
+                            l.Add((ek.ToString(), ev)!);
+                        }
                 }
-                var c = new TreeNode(l, attr, this, field, lp.PropertyType.GetGenericArguments().Last());
+                var c = new TreeNode(l, attr, this, field, lp.PropertyType.GetGenericArguments().Last(), record);
                 _children.Add(c);
             }
         }
@@ -494,6 +524,32 @@ namespace OpenSage.Tools.AptEditor.Util
                     $"Edit {field}"
                     ));
             return resRaw;
+        }
+
+        // display
+
+        public void Print()
+        {
+            Stack<(int, string)> q = new();
+            q.Push((1, ""));
+            while (q.Count > 0)
+            {
+                var (nid, nstr) = q.Pop();
+                Console.WriteLine(nstr + $"#{nid} {GetType(nid).Info} {GetDisplayName(nid).Info}");
+
+                var f = GetFields(nid).Info;
+                Console.WriteLine(nstr + " Fields: " + f);
+                var farr = JsonSerializer.Deserialize<List<string>>(f);
+                foreach (var ff in farr)
+                    Console.WriteLine(nstr + $"  {ff}: {Get(nid, ff).Info}");
+
+                var c = GetChildren(nid).Info;
+                Console.WriteLine(nstr + " Children: " + c);
+                var carr = JsonSerializer.Deserialize<List<int>>(c);
+                carr.Reverse();
+                foreach (var cc in carr)
+                    q.Push((cc, nstr + "   "));
+            }
         }
     }
 }

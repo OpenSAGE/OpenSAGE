@@ -35,25 +35,8 @@ namespace OpenSage.Tools.AptEditor
         public static void Test3()
         {
             TreeList tl = new(Create("Gan Si Huang Xu Dong", new ColorRgbaF(0.2f, 0.4f, 0.6f, 0.8f).ToColorRgba()));
-            Queue<(int, string)> q = new();
-            q.Enqueue((1, ""));
-            while (q.Count > 0)
-            {
-                var (nid, nstr) = q.Dequeue();
-                Console.WriteLine(nstr + $"#{nid} {tl.GetType(nid).Info} {tl.GetDisplayName(nid).Info}");
-
-                var f = tl.GetFields(nid).Info;
-                Console.WriteLine(nstr + " Fields: " + f);
-                var farr = JsonSerializer.Deserialize<List<string>>(f);
-                foreach (var ff in farr)
-                    Console.WriteLine(nstr + $"  {ff}: {tl.Get(nid, ff).Info}");
-
-                var c = tl.GetChildren(nid).Info;
-                Console.WriteLine(nstr + " Children: " + c);
-                var carr = JsonSerializer.Deserialize<List<int>>(c);
-                foreach (var cc in carr)
-                    q.Enqueue((cc, nstr + "   "));
-            }
+            tl.Print();
+            int a = 1;
         }
 
         public static AptFile Create(string name) { return Create(name, new ColorRgba(0, 255, 0, 255)); }
