@@ -34,6 +34,11 @@ namespace OpenSage.Tools.AptEditor.Util
         public IEnumerable<TreeNode> Children => _children.AsReadOnly();
         public IEnumerable<string> Fields => _normalProperties.Keys.AsEnumerable();
 
+        public override string ToString()
+        {
+            return $"{DisplayName}(Type: {Type}, Children: {Children.Count()}, Fields: {Fields.Count()})";
+        }
+
         public TreeNode? AddNode()
         {
             return null;
@@ -72,8 +77,17 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var val = desc!.GetValue(Obj);
-                PackedValue pval = new(val.GetType(), JsonSerializer.Serialize(val));
-                return new(0, JsonSerializer.Serialize(pval));
+                PackedValue pval = null;
+                try
+                {
+                    pval = new(val.GetType(), JsonSerializer.Serialize(val));
+                    
+                }
+                catch (JsonException)
+                {
+                    pval = new(val.GetType(), val.ToString());
+                }
+                return new(0, pval.ToString());
             }
         }
 
@@ -140,7 +154,7 @@ namespace OpenSage.Tools.AptEditor.Util
                 object[] attrs = field.GetCustomAttributes(typeof(DataStorageListAttribute), true);
                 if (attrs.Length > 0)
                     _listProperties.Add(field.Name, (field, attrs[0] as DataStorageListAttribute)!);
-                else if (Type.IsAssignableFrom(typeof(IDataStorage)))
+                else if (field.PropertyType.GetInterfaces().Contains(typeof(IDataStorage)))
                     _nodeProperties.Add(field.Name, field);
                 else
                     _normalProperties.Add(field.Name, field);
@@ -408,6 +422,18 @@ namespace OpenSage.Tools.AptEditor.Util
                 return new(-2, "Internal Failure");
         }
 
+        public OperationState GetChildren(int id)
+        {
+            if (IsInvalidID(id))
+                return new(-1, "Invalid node ID");
+            var n = GetNode(id);
+            var resRaw = n!.Children;
+            if (resRaw == null)
+                return new(-2, "Internal Failure");
+            var res = resRaw.Select(n => GetID(n));
+            return new(0, JsonSerializer.Serialize(res));
+        }
+
         public OperationState GetFields(int id)
         {
             if (IsInvalidID(id))
@@ -415,8 +441,19 @@ namespace OpenSage.Tools.AptEditor.Util
             var n = GetNode(id);
             var resRaw = n!.Fields;
             if (resRaw == null)
-                return new(0, "[]");
-            return new(resRaw.Count(), JsonSerializer.Serialize(resRaw));
+                return new(-2, "Internal Failure");
+            return new(0, JsonSerializer.Serialize(resRaw));
+        }
+
+        public OperationState GetType(int id)
+        {
+            if (IsInvalidID(id))
+                return new(-1, "Invalid node ID");
+            var n = GetNode(id);
+            var resRaw = n!.Type;
+            if (resRaw == null)
+                return new(-2, "Internal Failure");
+            return new(0, resRaw.ToString());
         }
 
         public OperationState Get(int id, string field)

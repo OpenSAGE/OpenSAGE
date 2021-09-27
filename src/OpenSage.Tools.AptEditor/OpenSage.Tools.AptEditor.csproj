@@ -27,5 +27,9 @@
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Api\" />
+  </ItemGroup>
+
   
 </Project>

@@ -16,7 +16,16 @@ namespace OpenSage.FileFormats.Apt
         public readonly Func<object, object, string> Remove;
         public readonly Func<object, object, object, string> Overwrite;
 
-        public DataStorageListAttribute(Func<object, string> add, Func<object, object, string> remove, Func<object, object, object, string> overwrite)
+        public DataStorageListAttribute()
+        {
+
+        }
+
+        public DataStorageListAttribute(
+            Func<object, string> add,
+            Func<object, object, string> remove,
+            Func<object, object, object, string> overwrite
+            )
         {
             Add = add;
             Remove = remove;
