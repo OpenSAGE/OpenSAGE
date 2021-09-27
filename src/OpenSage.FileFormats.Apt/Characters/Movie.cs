@@ -10,8 +10,11 @@ namespace OpenSage.FileFormats.Apt.Characters
     public sealed class Movie : Playable
     {
         public uint Unknown;
+        [DataStorageList]
         public List<Character> Characters { get; private set; }
+        [DataStorageList]
         public List<Import> Imports { get; private set; }
+        [DataStorageList]
         public List<Export> Exports { get; private set; }
         public uint ScreenWidth { get; private set; }
         public uint ScreenHeight { get; private set; }

@@ -209,7 +209,7 @@ namespace OpenSage.FileFormats.Apt
                 () => getter.GetStream(DataType.Const, mode)
                 );
             BinaryIOExtensions.Write(
-                (w, p) => { ImageMap.Write(w); return -1; },
+                (w, p) => { ImageMap.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Dat, mode)
                 );
 
@@ -241,7 +241,7 @@ namespace OpenSage.FileFormats.Apt
                 () => getter.GetStream(DataType.Const, mode)
                 )));
             tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
-                (w, p) => { ImageMap.Write(w); return -1; },
+                (w, p) => { ImageMap.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Dat, mode)
                 )));
 

@@ -22,7 +22,7 @@ namespace OpenSage.FileFormats.Apt
         GeometryStyle Type { get; }
     }
 
-    public sealed class Geometry
+    public sealed class Geometry : IDataStorage
     {
         public string RawText { get; private set; }
         public List<IGeometryEntry> Entries { get; private set; }
@@ -270,6 +270,11 @@ namespace OpenSage.FileFormats.Apt
                 }
             }
             return false;
+        }
+
+        public void Write(BinaryWriter writer, MemoryPool pool)
+        {
+            throw new InvalidOperationException();
         }
     }
 
