@@ -40,13 +40,13 @@ namespace OpenSage.Tools.AptEditor
             while (q.Count > 0)
             {
                 var (nid, nstr) = q.Dequeue();
-                Console.WriteLine(nstr + $"#{nid} {tl.GetType(nid).Info}");
+                Console.WriteLine(nstr + $"#{nid} {tl.GetType(nid).Info} {tl.GetDisplayName(nid).Info}");
 
                 var f = tl.GetFields(nid).Info;
                 Console.WriteLine(nstr + " Fields: " + f);
                 var farr = JsonSerializer.Deserialize<List<string>>(f);
                 foreach (var ff in farr)
-                    Console.WriteLine(nstr + $"  {ff}: {tl.Get(nid, ff)}");
+                    Console.WriteLine(nstr + $"  {ff}: {tl.Get(nid, ff).Info}");
 
                 var c = tl.GetChildren(nid).Info;
                 Console.WriteLine(nstr + " Children: " + c);

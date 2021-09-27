@@ -13,7 +13,6 @@ namespace OpenSage.Tools.AptEditor.Util
 {
 
     public record OperationState(int Code, string Info);
-    public record PackedValue(Type Type, string Value);
 
     public class TreeNode
     {
@@ -56,7 +55,7 @@ namespace OpenSage.Tools.AptEditor.Util
 
         // general
 
-        public PackedValue? GetRaw(string field)
+        public string? GetRaw(string field)
         {
             var succ = _normalProperties.TryGetValue(field, out var desc);
             if (!succ)
@@ -64,7 +63,7 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var val = desc!.GetValue(Obj);
-                PackedValue pval = new(val.GetType(), JsonSerializer.Serialize(val));
+                string pval = JsonSerializer.Serialize(val);
                 return pval;
             }
         }
@@ -77,21 +76,19 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var val = desc!.GetValue(Obj);
-                PackedValue pval = null;
                 try
                 {
-                    pval = new(val.GetType(), JsonSerializer.Serialize(val));
+                    return new(0, JsonSerializer.Serialize(val));
                     
                 }
                 catch (JsonException)
                 {
-                    pval = new(val.GetType(), val.ToString());
+                    return new(0, val!.ToString());
                 }
-                return new(0, pval.ToString());
             }
         }
 
-        public OperationState Set(string field, PackedValue pval)
+        public OperationState Set(string field, string pval)
         {
             var succ = _normalProperties.TryGetValue(field, out var desc);
             if (!succ)
@@ -99,10 +96,10 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var ret = Get(field);
-                Type t = pval.Type;
+                Type t = desc!.PropertyType;
                 MethodInfo method = typeof(JsonSerializer).GetMethod("Deserialize") // TODO bug check
                              .MakeGenericMethod(new Type[] { t });
-                var val = method.Invoke(null, new object[] { pval.Value });
+                var val = method.Invoke(null, new object[] { pval });
                 desc!.SetValue(Obj, val);
                 return ret;
             }
@@ -456,6 +453,17 @@ namespace OpenSage.Tools.AptEditor.Util
             return new(0, resRaw.ToString());
         }
 
+        public OperationState GetDisplayName(int id)
+        {
+            if (IsInvalidID(id))
+                return new(-1, "Invalid node ID");
+            var n = GetNode(id);
+            var resRaw = n!.DisplayName;
+            if (resRaw == null)
+                return new(-2, "Internal Failure");
+            return new(0, resRaw);
+        }
+
         public OperationState Get(int id, string field)
         {
             if (IsInvalidID(id))
@@ -467,7 +475,7 @@ namespace OpenSage.Tools.AptEditor.Util
             return resRaw;
         }
 
-        public OperationState Set(int id, string field, PackedValue value)
+        public OperationState Set(int id, string field, string value)
         {
             if (IsInvalidID(id))
                 return new(-1, "Invalid node ID");
