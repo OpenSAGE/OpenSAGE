@@ -216,7 +216,7 @@ namespace OpenSage.Tools.AptEditor.Util
     }
 
 
-    public class TreeList : EditManager
+    public class TreeViewEditor : EditManager
     {
         // bijection & maintenance
 
@@ -226,7 +226,7 @@ namespace OpenSage.Tools.AptEditor.Util
         private Dictionary<int, TreeNode> _mapId2Node;
         private Dictionary<TreeNode, int> _mapNode2Id;
 
-        public TreeList(object obj): base()
+        public TreeViewEditor(object obj): base()
         {
             _base = new TreeNode(obj, null, "[Root]", obj.GetType());
             _newId = 1;

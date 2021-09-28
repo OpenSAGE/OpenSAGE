@@ -48,7 +48,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public void SetApt(string path, AptFile apt)
         {
             Scene.SetApt(apt);
-            var tl = new TreeList(apt);
+            var tl = new TreeViewEditor(apt);
             tl.Print();
             Edit = new AptEditInstance(apt);
             CurrentAptPath = path;

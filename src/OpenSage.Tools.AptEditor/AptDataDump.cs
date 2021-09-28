@@ -32,6 +32,17 @@ namespace OpenSage.Tools.AptEditor
             await Task.WhenAll(tasks);
         }
 
+        public async Task WriteTo(AptStreamGetter getter)
+        {
+            var tasks = new[]
+            {
+                Apt.WriteAsync(getter),
+                Task.Run(() => Apt.GenerateXml(getter)),
+                Task.Run(() => Apt.WriteTextures(getter, SourceGetter!))
+            };
+            await Task.WhenAll(tasks);
+        }
+
     }
 
 }

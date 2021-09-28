@@ -34,7 +34,7 @@ namespace OpenSage.Tools.AptEditor
 
         public static void Test3()
         {
-            TreeList tl = new(Create("Gan Si Huang Xu Dong", new ColorRgbaF(0.2f, 0.4f, 0.6f, 0.8f).ToColorRgba()));
+            TreeViewEditor tl = new(Create("Gan Si Huang Xu Dong", new ColorRgbaF(0.2f, 0.4f, 0.6f, 0.8f).ToColorRgba()));
             tl.Print();
             int a = 1;
         }

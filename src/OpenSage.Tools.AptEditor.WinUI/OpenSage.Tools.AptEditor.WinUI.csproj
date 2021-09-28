@@ -44,6 +44,10 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Widgets\PropertyList.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Update="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -66,6 +70,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Update="Widgets\ElementTree.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Widgets\PropertyList.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Update="Properties\Resources.resx">

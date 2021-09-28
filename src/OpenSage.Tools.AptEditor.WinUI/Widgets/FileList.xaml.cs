@@ -12,25 +12,37 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using AvalonDock.Layout;
+using OpenSage.Tools.AptEditor;
+using OpenSage.Tools.AptEditor.Api;
 
 namespace OpenSage.Tools.AptEditor.WinUI.Widgets
 {
     /// <summary>
     /// ElementList.xaml 的交互逻辑
     /// </summary>
-    public partial class ElementList : DockPanel
+    public partial class FileList : DockPanel
     {
-        public ListBoxItem Selected { get; private set; }
+        public record Item(int Id, string ShortPath, string FullPath);
+        public Item Selected => (Item) List.SelectedItem;
 
-        private void OnSelectionChanged(object sender, EventArgs e)
+
+        public App App { get; set; }
+
+        public string Path { get; set; }
+        public void RefreshList(object sender, TextChangedEventArgs args)
         {
 
         }
 
-        public ElementList()
+        
+        public void OpenNewFile()
+        {
+
+        }
+
+        public FileList()
         {
             InitializeComponent();
-            List.SelectionChanged += OnSelectionChanged;
         }
     }
 }

@@ -6,13 +6,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using OpenSage.Tools.AptEditor;
+using OpenSage.Tools.AptEditor.Api;
 
 namespace OpenSage.Tools.AptEditor.WinUI
 {
     public partial class PathSelector: Window
     {
-        private TextBox tb_path = null;
-        private App _app;
+        private TextBox? _tbPath = null;
+        public App App;
+
         public MainWindow MainWindow { get; private set; }
 
         public void CallDialog(object sender, EventArgs e)
@@ -21,7 +24,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
             {
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
-                    tb_path.Text = dialog.SelectedPath;
+                    _tbPath.Text = dialog.SelectedPath;
             }
         }
 
@@ -30,7 +33,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
             ResizeMode = ResizeMode.NoResize;
             Height = 180;
             Width = 400;
-            _app = app;
+            App = app;
 
             var panel = new DockPanel() { Margin = new Thickness(10) };
             var tb = new TextBlock()
@@ -38,7 +41,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
                 TextWrapping = TextWrapping.WrapWithOverflow,
                 Text = "Start OpenSage Apt Editor by providing a root path.\nIt's recommended that you set it to the RA3SDK_UI_ScreensPack folder so you could load apt files more easily.", 
             };
-            tb_path = new TextBox() { Width = 320, Height = 25, Text = path == null ? "" : path };
+            _tbPath = new TextBox() { Width = 320, Height = 25, Text = path == null ? "" : path };
             var btn_sel = new Button() { Content = "...", Width = 40, Height = 25 };
             var btn_strt = new Button() { Content = "Select Path", Height = 25 };
             btn_sel.Click += CallDialog;
@@ -46,11 +49,11 @@ namespace OpenSage.Tools.AptEditor.WinUI
 
             panel.Children.Add(tb);
             panel.Children.Add(btn_strt);
-            panel.Children.Add(tb_path);
+            panel.Children.Add(_tbPath);
             panel.Children.Add(btn_sel);
             
             DockPanel.SetDock(tb, Dock.Top);
-            DockPanel.SetDock(tb_path, Dock.Left);
+            DockPanel.SetDock(_tbPath, Dock.Left);
             DockPanel.SetDock(btn_sel, Dock.Right);
             DockPanel.SetDock(btn_strt, Dock.Bottom);
             Content = panel;
@@ -59,7 +62,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
 
         public void LaunchProgram(object sender, EventArgs e)
         {
-            MainWindow = new MainWindow(_app);
+            MainWindow = new MainWindow(App);
             MainWindow.Show();
             Close();
         }
@@ -72,6 +75,7 @@ namespace OpenSage.Tools.AptEditor.WinUI
     {
         private string _rootPath = "";
         private PathSelector _pathSelector;
+        public EditorApi Editor;
         public string RootPath
         {
             get { return _rootPath; }
@@ -95,6 +99,8 @@ namespace OpenSage.Tools.AptEditor.WinUI
         {
             LoadConfig();
             ChangeRootPath();
+            // TODO init editor api
+            Editor = new();
         }
     }
 }

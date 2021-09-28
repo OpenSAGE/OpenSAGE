@@ -1,5 +1,6 @@
 ﻿
 <Window x:Class="OpenSage.Tools.AptEditor.WinUI.MainWindow"
+        x:Name="_this"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -77,40 +78,41 @@
                         <avalonDock:LayoutPanel Orientation="Vertical">
                             <avalonDock:LayoutDocumentPane>
                                 
-                                <avalonDock:LayoutDocument Title="Document1">
-                                    <w:Class1/>
+                                <avalonDock:LayoutDocument Title="TreeView">
+                                    <w:ElementTree x:Name="Elements"/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
                                 <!-- ツールウィンドウ -->
-                                <avalonDock:LayoutDocument Title="ToolWindow1">
-                                    <w:Class1/>
+                                <avalonDock:LayoutDocument Title="File Selector">
+                                    <w:FileList x:Name="Files"/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                         </avalonDock:LayoutPanel>
                         <avalonDock:LayoutPanel Orientation="Vertical">
                             <avalonDock:LayoutDocumentPane DockHeight="*" DockWidth="*">
-                                <avalonDock:LayoutDocument Title="Document1">
-                                    <w:ElementList/>
+                                <avalonDock:LayoutDocument Title="Main Editor">
+                                    <w:Class1/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
-                                <!-- ツールウィンドウ -->
-                                <avalonDock:LayoutDocument Title="ToolWindow1">
+                                <avalonDock:LayoutDocument Title="Timeline">
                                     <w:Class1/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                         </avalonDock:LayoutPanel>
                         <avalonDock:LayoutPanel Orientation="Vertical">
                             <avalonDock:LayoutDocumentPane>
-                                <avalonDock:LayoutDocument Title="Document1">
+                                <avalonDock:LayoutDocument Title="VM Console">
+
+                                </avalonDock:LayoutDocument>
+                                <avalonDock:LayoutDocument Title="Help">
 
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
-                                <!-- ツールウィンドウ -->
-                                <avalonDock:LayoutDocument Title="ToolWindow1">
-                                    <w:Class1/>
+                                <avalonDock:LayoutDocument Title="Property Editor">
+                                    <!--w:PropertyList x:Name="Properties"/-->
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                         </avalonDock:LayoutPanel>
