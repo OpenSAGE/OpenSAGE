@@ -25,7 +25,7 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
         public record Item(string Field, string Value, string Type);
         public Item Selected => (Item) List.SelectedItem;
 
-        public App App { get; set; }
+        public App TheApp { get; set; }
 
         public string Path { get; set; }
         public void RefreshList()

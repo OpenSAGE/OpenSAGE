@@ -97,10 +97,16 @@ namespace OpenSage.Tools.AptEditor.WinUI
         
         public App()
         {
-            LoadConfig();
-            ChangeRootPath();
-            // TODO init editor api
             Editor = new();
+            LoadConfig();
+            if (string.IsNullOrWhiteSpace(_rootPath))
+                new PathSelector(this, null, _rootPath).Show();
+            else
+                new MainWindow(this).Show();
+            
+            // ChangeRootPath();
+            // TODO init editor api
+            
         }
     }
 }

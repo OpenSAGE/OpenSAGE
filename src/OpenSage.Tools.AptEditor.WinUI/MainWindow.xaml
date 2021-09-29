@@ -1,15 +1,18 @@
 ﻿
 <Window x:Class="OpenSage.Tools.AptEditor.WinUI.MainWindow"
-        x:Name="_this"
+        x:Name="_win"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OpenSage.Tools.AptEditor.WinUI"
+        xmlns:main="clr-namespace:OpenSage.Tools.AptEditor.WinUI"
         xmlns:w="clr-namespace:OpenSage.Tools.AptEditor.WinUI.Widgets"
         xmlns:avalonDock ="https://github.com/Dirkster99/AvalonDock"
         mc:Ignorable="d"
         Title="OpenSage AptEditor" Height="720" Width="1280">
+    <Window.CommandBindings>
+        <CommandBinding Command="main:Commands.OpenNewFileCmd" Executed="OpenFile" />
+    </Window.CommandBindings>
     <Grid>
 
         <DockPanel
@@ -75,17 +78,18 @@
                                        Height="Auto" >
                 <avalonDock:LayoutRoot>
                     <avalonDock:LayoutPanel Orientation="Horizontal" DockHeight="*" DockWidth="*">
-                        <avalonDock:LayoutPanel Orientation="Vertical">
+                        <avalonDock:LayoutPanel Orientation="Vertical" DockHeight="*" DockWidth="*">
                             <avalonDock:LayoutDocumentPane>
                                 
                                 <avalonDock:LayoutDocument Title="TreeView">
-                                    <w:ElementTree x:Name="Elements"/>
+                                    <w:ElementTree x:Name="Elements"
+                                                   TheApp="{Binding TheApp, ElementName=_win}"/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
-                                <!-- ツールウィンドウ -->
                                 <avalonDock:LayoutDocument Title="File Selector">
-                                    <w:FileList x:Name="Files"/>
+                                    <w:FileList x:Name="Files" 
+                                                TheApp="{Binding TheApp, ElementName=_win}"/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                         </avalonDock:LayoutPanel>
@@ -112,7 +116,7 @@
                             </avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocumentPane DockWidth="150">
                                 <avalonDock:LayoutDocument Title="Property Editor">
-                                    <!--w:PropertyList x:Name="Properties"/-->
+                                    <w:PropertyList x:Name="Properties"/>
                                 </avalonDock:LayoutDocument>
                             </avalonDock:LayoutDocumentPane>
                         </avalonDock:LayoutPanel>

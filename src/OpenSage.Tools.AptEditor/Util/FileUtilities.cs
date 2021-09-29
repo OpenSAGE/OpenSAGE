@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.Tools.AptEditor.Util
 {
-    internal static class FileUtilities
+    public static class FileUtilities
     {
         public static IEnumerable<FileSystemEntry> FindFiles(this FileSystem? fileSystem, Func<FileSystemEntry, bool> matcher)
         {

@@ -16,10 +16,12 @@ namespace OpenSage.Tools.AptEditor.Api
         private int _newId;
         private int _selected;
         private AptStreamGetter? _selectedGetter => _openFiles.TryGetValue(_selected, out var s) ? s.Item1 : null;
-        private TreeViewEditor _selectedInstance => _openFiles.TryGetValue(_selected, out var s) ? s.Item2 : null;
-        private AptFile _selectedFile => _openFiles.TryGetValue(_selected, out var s) ? s.Item3 : null;
+        private TreeViewEditor? _selectedInstance => _openFiles.TryGetValue(_selected, out var s) ? s.Item2 : null;
+        private AptFile? _selectedFile => _openFiles.TryGetValue(_selected, out var s) ? s.Item3 : null;
         private AptSceneInstance? _debugger;
 
+
+        public TreeViewEditor? Selected => _selectedInstance;
 
         // construction
 
@@ -51,7 +53,7 @@ namespace OpenSage.Tools.AptEditor.Api
             }
             catch (Exception e)
             {
-                return new(2, JsonSerializer.Serialize(e));
+                return new(2, e.Message);
             }
         }
 

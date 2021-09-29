@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OpenSage.Tools.AptEditor.WinUI.Widgets"
+        xmlns:main="clr-namespace:OpenSage.Tools.AptEditor.WinUI"
         mc:Ignorable="d" d:DesignWidth="248" d:DesignHeight="179"
         HorizontalAlignment="Stretch" 
                VerticalAlignment="Stretch" 
@@ -12,20 +13,20 @@
     <TreeView Name="Tree" 
               HorizontalContentAlignment="Stretch">
         <TreeView.ItemTemplate>
-            <DataTemplate>
+            <DataTemplate DataType="local:ElementTree.Item">
                 <Grid Margin="0,2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="100" />
-                    </Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding Name}" Foreground="Black"/>
                     <TextBlock Text="{Binding Type}" Foreground="Gray"/>
                     <Grid.InputBindings>
                         <MouseBinding MouseAction="LeftDoubleClick"
-                                      Command="{Binding EditDetails}">
+                                      Command="main:Commands.EditElementInDetailCmd"
+                                      CommandParameter="{Binding Id}"
+                                      >
                         </MouseBinding>
                         <MouseBinding MouseAction="LeftClick"
-                                      Command="{Binding EditProperties}">
+                                      Command="main:Commands.EditElementCmd"
+                                      CommandParameter="{Binding Id}"
+                                      >
                         </MouseBinding>
                     </Grid.InputBindings>
                 </Grid>
