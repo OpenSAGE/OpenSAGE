@@ -47,7 +47,7 @@ namespace OpenSage.Tools.AptEditor.WinUI.Widgets
                 {
                     var (nid, nit) = s.Pop();
                     var ntype = ae.GetType(nid).Info;
-                    var ndn = ae.GetDisplayName(nid).Info;
+                    var ndn = ae.GetFieldName(nid).Info;
 
                     /*
                     var f = ae.GetFields(nid).Info;

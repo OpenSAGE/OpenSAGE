@@ -4,9 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 using OpenSage.FileFormats.Apt;
 
 namespace OpenSage.Tools.AptEditor.Util
@@ -20,7 +17,7 @@ namespace OpenSage.Tools.AptEditor.Util
         public object? Obj { get; }
         public TreeNode? Parent { get; private set; }
 
-        public string DisplayName { get; private set; }
+        public string FieldName { get; private set; }
 
         private SortedDictionary<string, PropertyInfo> _normalProperties;
         private SortedDictionary<string, PropertyInfo> _nodeProperties;
@@ -32,25 +29,48 @@ namespace OpenSage.Tools.AptEditor.Util
 
         public IEnumerable<TreeNode> Children => _children.AsReadOnly();
         public IEnumerable<string> Fields => _normalProperties.Keys.AsEnumerable();
+        public IEnumerable<string> FieldTypes => _normalProperties.Values.Select(x => x.PropertyType.ToString()).AsEnumerable();
 
         public override string ToString()
         {
-            return $"{DisplayName}(Type: {Type}, Children: {Children.Count()}, Fields: {Fields.Count()})";
+            return $"{FieldName}(Type: {Type}, Children: {Children.Count()}, Fields: {Fields.Count()})";
         }
 
-        public TreeNode? AddNode()
+        public TreeNode? AddNode(TreeNode? newNode = null, int index = -1, string? type = null)
         {
-            return null;
+            if (!_canChangeChildren)
+                return null;
+            var attr = _attr!;
+            object nobj;
+            if (newNode == null)
+            {
+                nobj = attr.Add(Obj, index, type);
+                newNode = new(nobj, this, null, Type);
+            }
+            else
+            {
+                nobj = newNode.Obj!;
+                attr.Insert(Obj, nobj, index);
+            }
+            if (index < 0)
+                _children.Add(newNode);
+            else
+                _children.Insert(index, newNode);
+            return newNode;
         }
 
-        public bool RemoveNode(TreeNode n)
+        public int RemoveNode(TreeNode n)
         {
-            return false;
-        }
-
-        public (bool, TreeNode?) OverwriteNode(TreeNode oldNode, TreeNode newNode)
-        {
-            return (false, null);
+            if (!_canChangeChildren)
+                return -1;
+            var attr = _attr!;
+            var index = _children.IndexOf(n);
+            if (index >= 0)
+            {
+                attr.Remove(Obj, index);
+                _children.RemoveAt(index);
+            }
+            return index;
         }
 
         // general
@@ -65,7 +85,7 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var val = desc!.GetValue(Obj);
-                string pval = JsonSerializer.Serialize(val);
+                string pval = SerializeUtilities.Serialize(val);
                 return pval;
             }
         }
@@ -80,15 +100,7 @@ namespace OpenSage.Tools.AptEditor.Util
             else
             {
                 var val = desc!.GetValue(Obj);
-                try
-                {
-                    return new(0, JsonSerializer.Serialize(val));
-                    
-                }
-                catch (JsonException)
-                {
-                    return new(0, val!.ToString());
-                }
+                return new(0, SerializeUtilities.Serialize(val));
             }
         }
 
@@ -103,7 +115,7 @@ namespace OpenSage.Tools.AptEditor.Util
             {
                 var ret = Get(field);
                 Type t = desc!.PropertyType;
-                MethodInfo method = typeof(JsonSerializer).GetMethod("Deserialize") // TODO bug check
+                MethodInfo method = typeof(SerializeUtilities).GetMethod(nameof(SerializeUtilities.Deserialize))! // TODO bug check
                              .MakeGenericMethod(new Type[] { t });
                 var val = method.Invoke(null, new object[] { pval });
                 desc!.SetValue(Obj, val);
@@ -112,7 +124,7 @@ namespace OpenSage.Tools.AptEditor.Util
         }
 
         public TreeNode(
-            IEnumerable<(string, object)> objs,
+            IEnumerable<object> objs,
             DataStorageListAttribute attr,
             TreeNode? parent,
             string? dispName = null,
@@ -126,15 +138,15 @@ namespace OpenSage.Tools.AptEditor.Util
             Obj = null;
             Type = t == null ? typeof(object) : t;
             Parent = parent;
-            DisplayName = string.IsNullOrEmpty(dispName) ? $"Unnamed {Type.Name}" : dispName;
+            FieldName = string.IsNullOrEmpty(dispName) ? $"Unnamed {Type.Name}" : dispName;
 
             _normalProperties = new();
             _nodeProperties = new();
             _listProperties = new();
 
             _children = new();
-            foreach (var (dn, o) in objs)
-                _children.Add(new(o, this, dn, t, record));
+            foreach (var o in objs)
+                _children.Add(new(o, this, dispName, t, record));
         }
 
         public TreeNode(
@@ -163,7 +175,7 @@ namespace OpenSage.Tools.AptEditor.Util
             Obj = obj;
             Type = obj == null ? (t == null ? typeof(object) : t) : obj.GetType();
             Parent = parent;
-            DisplayName = string.IsNullOrEmpty(dispName) ? $"Unnamed {Type.Name}" : dispName;
+            FieldName = string.IsNullOrEmpty(dispName) ? $"Unnamed {Type.Name}" : dispName;
 
             _normalProperties = new();
             _nodeProperties = new();
@@ -191,16 +203,17 @@ namespace OpenSage.Tools.AptEditor.Util
             // init subnode lists
             foreach (var (field, (lp, attr)) in _listProperties)
             {
-                List<(string, object)> l = new();
+                List<object> l = new();
                 if (lp.PropertyType.GetInterfaces().Where(a => a.Name.StartsWith("IList")).Count() > 0)
                 {
                     var curId = 0;
                     if (obj != null && lp.GetValue(obj) != null)
                         foreach (var elem in (IEnumerable<object>) lp.GetValue(obj)!)
-                            l.Add(($"{field} #{curId++}", elem));
+                            l.Add(elem);
                 }
                 else if (lp.PropertyType.GetInterfaces().Where(a => a.Name.StartsWith("IDictionary")).Count() > 0)
                 {
+                    throw new NotImplementedException("Not used in any known structures");
                     if (obj != null && lp.GetValue(obj) != null)
                         foreach (var elem in (IEnumerable<object>) lp.GetValue(obj)!)
                         {
@@ -329,16 +342,18 @@ namespace OpenSage.Tools.AptEditor.Util
         private bool IsInvalidNode(TreeNode? n) { return n == null || !_mapNode2Id.ContainsKey(n); }
         private bool IsInvalidID(int id) { return id < 1 || !_mapId2Node.ContainsKey(id); }
 
-        // operation towards outside
+        // node operations
 
-        public OperationState AddNode(int parentNodeId)
+        public OperationState AddNode(int parentNodeId, string? type = null)
         {
             if (IsInvalidID(parentNodeId))
                 return new(-1, "Invalid parent node ID");
             else
             {
+
+                // try operating
                 var parentNode = GetNode(parentNodeId)!;
-                TreeNode? newNode = parentNode.AddNode();
+                TreeNode? newNode = parentNode.AddNode(type: type);
 
                 if (newNode == null)
                     return new(-2, "Internal Failure");
@@ -354,7 +369,7 @@ namespace OpenSage.Tools.AptEditor.Util
                     PushActionNoEdit(new EditAction(
                         () =>
                         {
-                            parentNode.OverwriteNode(null, newNode);
+                            parentNode.AddNode(newNode);
                             OverwriteRecord(rec);
                         },
                         () =>
@@ -362,7 +377,7 @@ namespace OpenSage.Tools.AptEditor.Util
                             parentNode.RemoveNode(newNode);
                             EraseNode2(newNode);
                         },
-                        $"Add New {parentNode.DisplayName}"
+                        $"Add New {parentNode.FieldName}"
                         ));
 
                     return new(0, $"{{ \"id\": {newId} }}");
@@ -379,8 +394,8 @@ namespace OpenSage.Tools.AptEditor.Util
             var parentNode = node!.Parent;
             if (parentNode == null)
                 return new(-3, "Can not remove the root node");
-            var succ = parentNode.RemoveNode(node);
-            if (succ)
+            var index = parentNode.RemoveNode(node);
+            if (index >= 0)
             {
                 // operate
                 var rec = EraseNode2(node);
@@ -393,55 +408,11 @@ namespace OpenSage.Tools.AptEditor.Util
                     },
                     () =>
                     {
-                        parentNode.OverwriteNode(null, node);
+                        parentNode.AddNode(node, index);
                         OverwriteRecord(rec);
                     },
-                    $"Remove {parentNode.DisplayName}.{node.DisplayName}"
+                    $"Remove {parentNode.FieldName}.{node.FieldName}"
                     ));
-
-                return new(0, "Successful");
-            }
-            else
-                return new(-2, "Internal Failure");
-        }
-
-        public OperationState OverwriteNode(int id, TreeNode newNode)
-        {
-            throw new NotImplementedException();
-            if (IsInvalidID(id))
-                return new(-1, "Invalid node ID");
-            var oldNode = GetNode(id)!;
-            if (oldNode.Type != newNode.Type)
-                return new(-4, "Invalid node type");
-            var parentNode = oldNode!.Parent;
-            if (parentNode == null)
-                return new(-3, "Can not overwrite the root node");
-
-            var (succ, retnNode) = parentNode.OverwriteNode(oldNode, newNode);
-            if (succ)
-            {
-                // operate
-                var recOld = GetNodeRecord(oldNode);
-                EraseNode2(oldNode);
-                AddNode2(newNode);
-                // maintain
-                // TODO
-                var rec = GetNodeRecord(newNode);
-                PushActionNoEdit(new EditAction(
-                        () =>
-                        {
-                            parentNode.OverwriteNode(oldNode, newNode);
-                            EraseNode2(oldNode);
-                            OverwriteRecord(rec);
-                        },
-                        () =>
-                        {
-                            parentNode.RemoveNode(newNode);
-                            EraseNode2(newNode);
-                            OverwriteRecord(recOld);
-                        },
-                        $"Overwrite {parentNode.DisplayName}"
-                        ));
 
                 return new(0, "Successful");
             }
@@ -458,7 +429,7 @@ namespace OpenSage.Tools.AptEditor.Util
             if (resRaw == null)
                 return new(-2, "Internal Failure");
             var res = resRaw.Select(n => GetID(n));
-            return new(0, JsonSerializer.Serialize(res));
+            return new(0, SerializeUtilities.Serialize(res));
         }
 
         public OperationState GetFields(int id)
@@ -466,10 +437,10 @@ namespace OpenSage.Tools.AptEditor.Util
             if (IsInvalidID(id))
                 return new(-1, "Invalid node ID");
             var n = GetNode(id);
-            var resRaw = n!.Fields;
+            List<IEnumerable<string>> resRaw = new() { n!.Fields, n!.FieldTypes };
             if (resRaw == null)
                 return new(-2, "Internal Failure");
-            return new(0, JsonSerializer.Serialize(resRaw));
+            return new(0, SerializeUtilities.Serialize(resRaw));
         }
 
         public OperationState GetType(int id)
@@ -483,12 +454,12 @@ namespace OpenSage.Tools.AptEditor.Util
             return new(0, resRaw.ToString());
         }
 
-        public OperationState GetDisplayName(int id)
+        public OperationState GetFieldName(int id)
         {
             if (IsInvalidID(id))
                 return new(-1, "Invalid node ID");
             var n = GetNode(id);
-            var resRaw = n!.DisplayName;
+            var resRaw = n!.FieldName;
             if (resRaw == null)
                 return new(-2, "Internal Failure");
             return new(0, resRaw);
@@ -526,6 +497,47 @@ namespace OpenSage.Tools.AptEditor.Util
             return resRaw;
         }
 
+        // operations
+
+        public OperationState StartMerging(string desc)
+        {
+            if (ForceMergeActions)
+                return new(1, "Merging already started");
+            ForceMergeActions = true;
+            CustomMergedActionsDescription = desc;
+            return new(0, "Successful");
+        }
+
+        public OperationState EndMerging()
+        {
+            if (!ForceMergeActions)
+                return new(1, "Merging is not started yet");
+            ForceMergeActions = false;
+            return new(0, "Successful");
+        }
+
+        public new OperationState Undo()
+        {
+            if (ForceMergeActions)
+                return new(1, "Please stop merging first");
+            string? desc = GetUndoDescription();
+            if (desc == null)
+                return new(2, "No operation to undo");
+            base.Undo();
+            return new(0, desc);
+        }
+
+        public new OperationState Redo()
+        {
+            if (ForceMergeActions)
+                return new(1, "Please stop merging first");
+            string? desc = GetRedoDescription();
+            if (desc == null)
+                return new(2, "No operation to redo");
+            base.Redo();
+            return new(0, desc);
+        }
+
         // display
 
         public void Print()
@@ -535,17 +547,17 @@ namespace OpenSage.Tools.AptEditor.Util
             while (q.Count > 0)
             {
                 var (nid, nstr) = q.Pop();
-                Console.WriteLine(nstr + $"#{nid} {GetType(nid).Info} {GetDisplayName(nid).Info}");
+                Console.WriteLine(nstr + $"#{nid} {GetType(nid).Info} {GetFieldName(nid).Info}");
 
                 var f = GetFields(nid).Info;
-                Console.WriteLine(nstr + " Fields: " + f);
-                var farr = JsonSerializer.Deserialize<List<string>>(f);
-                foreach (var ff in farr)
-                    Console.WriteLine(nstr + $"  {ff}: {Get(nid, ff).Info}");
+                Console.WriteLine(nstr + " Fields: ");
+                var farr = SerializeUtilities.Deserialize<List<List<string>>>(f)!;
+                for (int i = 0; i < farr[0].Count; ++i)
+                    Console.WriteLine(nstr + $"  {farr[0][i]}: {Get(nid, farr[0][i]).Info} ({farr[1][i]})");
 
                 var c = GetChildren(nid).Info;
                 Console.WriteLine(nstr + " Children: " + c);
-                var carr = JsonSerializer.Deserialize<List<int>>(c);
+                var carr = SerializeUtilities.Deserialize<List<int>>(c)!;
                 carr.Reverse();
                 foreach (var cc in carr)
                     q.Push((cc, nstr + "   "));

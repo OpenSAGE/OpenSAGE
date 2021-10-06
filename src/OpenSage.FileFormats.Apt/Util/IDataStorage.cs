@@ -10,10 +10,7 @@ namespace OpenSage.FileFormats.Apt
     public interface IDataStorage
     {
         public abstract void Write(BinaryWriter writer, MemoryPool pool);
-
-        public string Serialize()
-        {
-            return null;
-        }
     }
+
+
 }

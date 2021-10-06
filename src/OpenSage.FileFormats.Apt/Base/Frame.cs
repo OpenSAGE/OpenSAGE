@@ -7,6 +7,7 @@ namespace OpenSage.FileFormats.Apt
 {
     public sealed class Frame : IDataStorage
     {
+        [DataStorageList(typeof(FrameItem), new[] { typeof(Action), typeof(BackgroundColor), typeof(FrameLabel), typeof(InitAction), typeof(PlaceObject), typeof(RemoveObject) })]
         public List<FrameItem> FrameItems { get; private set; }
 
         public static Frame Parse(BinaryReader reader)

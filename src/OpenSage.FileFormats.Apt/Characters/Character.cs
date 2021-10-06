@@ -23,6 +23,7 @@ namespace OpenSage.FileFormats.Apt.Characters
 
     public abstract class Playable : Character
     {
+        [DataStorageList(typeof(Frame))]
         public List<Frame> Frames { get; protected set; }
     }
 

@@ -11,6 +11,11 @@ namespace OpenSage.Tools.AptEditor.Api
 {
     public class EditorApi : IDisposable
     {
+        public static OperationState StateSuccessful = new(0, "Successful");
+        public static OperationState StateNoFileSelected = new(1, "No file selected");
+
+
+
         private List<string> _paths;
         private Dictionary<int, (AptStreamGetter?, TreeViewEditor, AptFile)> _openFiles;
         private int _newId;
@@ -20,6 +25,7 @@ namespace OpenSage.Tools.AptEditor.Api
         private AptFile? _selectedFile => _openFiles.TryGetValue(_selected, out var s) ? s.Item3 : null;
         private AptSceneInstance? _debugger;
 
+        private bool _isSelected => _openFiles.ContainsKey(_selected);
 
         public TreeViewEditor? Selected => _selectedInstance;
 
@@ -78,7 +84,7 @@ namespace OpenSage.Tools.AptEditor.Api
             if (_openFiles.ContainsKey(id))
             {
                 _selected = id;
-                return new(0, "Successful");
+                return StateSuccessful;
             }
             else
             {
@@ -88,13 +94,13 @@ namespace OpenSage.Tools.AptEditor.Api
 
         public OperationState GetSelected()
         {
-            if (_openFiles.ContainsKey(_selected))
+            if (_isSelected)
             {
                 return new(0, JsonSerializer.Serialize(_selected));
             }
             else
             {
-                return new(1, "No file selected");
+                return StateNoFileSelected;
             }
         }
 
@@ -108,7 +114,7 @@ namespace OpenSage.Tools.AptEditor.Api
 
         public OperationState SaveAs(string? path = null)
         {
-            if (_openFiles.ContainsKey(_selected))
+            if (_isSelected)
             {
                 var g = _selectedGetter;
                 if (!string.IsNullOrEmpty(path))
@@ -119,7 +125,7 @@ namespace OpenSage.Tools.AptEditor.Api
                 {
                     AptDataDump d = new(_selectedFile, _selectedGetter);
                     throw new NotImplementedException("Async Execution");
-                    return new(0, "Successful");
+                    return StateSuccessful;
                 }
                 catch (Exception e)
                 {
@@ -128,26 +134,60 @@ namespace OpenSage.Tools.AptEditor.Api
             }
             else
             {
-                return new(1, "No file selected");
+                return StateNoFileSelected;
             }
         }
 
         public OperationState Close()
         {
-            if (_openFiles.ContainsKey(_selected))
+            if (_isSelected)
             {
                 _selected = 0;
-                return new(0, "Successful");
+                return StateSuccessful;
             }
             else
             {
-                return new(1, "No file selected");
+                return StateNoFileSelected;
             }
         }
 
         // treeview operation
 
+        // operations of operations
 
+        public OperationState Undo() { return _isSelected ? _selectedInstance!.Undo() : StateNoFileSelected; }
+
+        public OperationState Redo() { return _isSelected ? _selectedInstance!.Redo() : StateNoFileSelected; }
+
+        public OperationState StartMerging(string description) { return _isSelected ? _selectedInstance!.StartMerging(description) : StateNoFileSelected; }
+
+        public OperationState EndMerging() { return _isSelected ? _selectedInstance!.EndMerging() : StateNoFileSelected; }
+
+
+        // node operations
+
+        public OperationState AddNode(int parentNodeId) { return _isSelected ? _selectedInstance!.AddNode(parentNodeId) : StateNoFileSelected; }
+
+        public OperationState RemoveNode(int id) { return _isSelected ? _selectedInstance!.RemoveNode(id) : StateNoFileSelected; }
+
+
+        // todo overwrite(cut, copy, paste)
+
+        // node info
+
+        public OperationState GetType(int id) { return _isSelected ? _selectedInstance!.GetType(id) : StateNoFileSelected; }
+
+        public OperationState GetFieldName(int id) { return _isSelected ? _selectedInstance!.GetFieldName(id) : StateNoFileSelected; }
+
+        public OperationState GetFields(int id) { return _isSelected ? _selectedInstance!.GetFields(id) : StateNoFileSelected; }
+
+        public OperationState GetChildren(int id) { return _isSelected ? _selectedInstance!.GetChildren(id) : StateNoFileSelected; }
+
+        // field operations
+
+        public OperationState Get(int id, string field) { return _isSelected ? _selectedInstance!.Get(id, field) : StateNoFileSelected; }
+
+        public OperationState Set(int id, string field, string value) { return _isSelected ? _selectedInstance!.Set(id, field, value) : StateNoFileSelected; }
 
         // debugger operation
 

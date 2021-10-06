@@ -15,6 +15,7 @@ namespace OpenSage.Tools.AptEditor.UI
         static void Main(string[] args)
         {
             // SampleApt.Test1Async("G:\\1\\hkbk.apt"); SampleApt.Test2("G:\\2\\main_mouse.apt");
+            //SampleApt.Test3(); return;
             Platform.Start();
 
             var rootPath = Launcher();

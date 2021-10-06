@@ -25,6 +25,7 @@ namespace OpenSage.FileFormats.Apt
     public sealed class Geometry : IDataStorage
     {
         public string RawText { get; private set; }
+        [DataStorageList(typeof(IGeometryEntry), new[] { typeof(GeometrySolidTriangles), typeof(GeometryLines), typeof(GeometryTexturedTriangles) })]
         public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
         public AptFile Container { get; private set; }
