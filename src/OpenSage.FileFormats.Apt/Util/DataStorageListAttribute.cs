@@ -81,9 +81,9 @@ namespace OpenSage.FileFormats.Apt
         {
             IsReadonly = isReadonly;
             Type = type;
-            ListAdd = typeof(IList<object>).GetMethod(nameof(IList<object>.Add)).MakeGenericMethod(new[] { type });
-            ListInsert = typeof(IList<object>).GetMethod(nameof(IList<object>.Insert)).MakeGenericMethod(new[] { type });
-            ListRemove = typeof(IList<object>).GetMethod(nameof(IList<object>.RemoveAt)).MakeGenericMethod(new[] { type });
+            ListAdd = typeof(ICollection<>).MakeGenericType(new[] { type }).GetMethod(nameof(ICollection<object>.Add));
+            ListInsert = typeof(IList<>).MakeGenericType(new[] { type }).GetMethod(nameof(IList<object>.Insert));
+            ListRemove = typeof(IList<>).MakeGenericType(new[] { type }).GetMethod(nameof(IList<object>.RemoveAt));
             ListGet = typeof(Enumerable).GetMethod(nameof(Enumerable.ElementAt)).MakeGenericMethod(new[] { type });
 
             Dictionary<string, Type> dtemp = new();
