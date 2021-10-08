@@ -126,58 +126,197 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     internal class InstructionBlock
     {
         public SortedDictionary<int, InstructionBase> Items { get; set; }
-        public LogicalTaggedInstruction BranchCondition;
-        public InstructionBlock NextBlockCondition;
-        public InstructionBlock NextBlockDefault;
-        public string Label;
-        public CodeTree Tree = null;
-        // The decompilation depends on the assumption that
-        // ConstantPool() is only executed at most once in one segment.
-        public List<Value> Constants;
-        public Dictionary<int, string> Registers;
 
-        public InstructionBlock(InstructionBlock prev = null) {
+        public LogicalTaggedInstruction? BranchCondition;
+        public InstructionBlock? NextBlockCondition;
+        public InstructionBlock? NextBlockDefault;
+
+        public readonly InstructionBlock? PreviousBlock;
+        public readonly int Hierarchy;
+
+        public string? Label;
+
+        public InstructionBlock(InstructionBlock? prev = null) {
             Items = new();
+            PreviousBlock = prev;
             if (prev != null)
             {
                 prev.NextBlockDefault = this;
-                Constants = prev.Constants;
-                Registers = prev.Registers;
+                Hierarchy = prev.Hierarchy + 1;
             }
+            else
+                Hierarchy = 0;
         }
 
-        public void DecompileToTree()
+        public InstructionBlock(InstructionBlock b, bool copyNext)
         {
-            Tree = new();
-            Tree.Constants = Constants == null ? new() : Constants;
-            Tree.RegNames = Registers == null ? new() : Registers;
-            foreach(var kvp in Items)
+            Items = b.Items;
+            BranchCondition = b.BranchCondition;
+            NextBlockDefault = copyNext ? b.NextBlockDefault : null;
+            NextBlockCondition = b.NextBlockCondition;
+            PreviousBlock = b.PreviousBlock;
+            Hierarchy = b.Hierarchy;
+        }
+    }
+
+    internal class StructurizedInstructionBlock
+    {
+        public InstructionBlock StartBlock;
+        public InstructionBlock? EndBlock;
+        public StructurizedInstructionBlock? Next;
+        public List<StructurizedInstructionBlock> Loops = new();
+        public List<StructurizedInstructionBlock> Cases = new();
+        public int BlockType = 0;
+
+        public static StructurizedInstructionBlock Parse(InstructionBlock root)
+        {
+            StructurizedInstructionBlock? currentSBlock = new() { StartBlock = root };
+
+            // parse loop
+            currentSBlock.ParseLoop();
+
+            // parse case
+            currentSBlock.ParseCase();
+
+            return currentSBlock;
+        }
+
+        public void ParseCase()
+        {
+            var currentSBlock = new StructurizedInstructionBlock() { StartBlock = StartBlock, EndBlock = EndBlock, Next = Next, BlockType = BlockType };
+            var b = StartBlock!;
+
+            while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
             {
-                var inst = kvp.Value;
-                CodeTree.Node node = inst.IsStatement ? new CodeTree.NodeStatement() : new CodeTree.NodeExpression();
-                node.Instruction = inst;
-                node.GetExpressions(Tree);
-                Tree.NodeList.Add(node);
+                // identify if structures
+                if (b.BranchCondition != null &&
+                    (b.BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                     b.BranchCondition!.Type == InstructionType.EA_BranchIfFalse))
+                {
+                    var startBlock = b;
+                    var endBlock = b.NextBlockCondition!;
+                    // find the end block of if structure
+                    while (b.Hierarchy < endBlock.Hierarchy)
+                    {
+                        if (b.BranchCondition != null &&
+                            (b.BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                             b.BranchCondition!.Type == InstructionType.EA_BranchIfFalse))
+                        {
+                            var bn = b.NextBlockCondition!;
+                            if (EndBlock != null && bn.Hierarchy <= EndBlock.Hierarchy && bn.Hierarchy > endBlock.Hierarchy)
+                            {
+                                endBlock = bn;
+                            } // else inner if structure
+                        }
+                        b = b.NextBlockDefault;
+                    }
+                    b = b.PreviousBlock!;
+
+                    // split
+                    currentSBlock!.EndBlock = startBlock.PreviousBlock;
+                    var sb2 = endBlock.NextBlockDefault != null ?
+                        new StructurizedInstructionBlock() { StartBlock = endBlock.NextBlockDefault! } :
+                        null;
+
+                    var sb = new StructurizedInstructionBlock() { StartBlock = startBlock, EndBlock = endBlock, Next = sb2, BlockType = 1 };
+                    currentSBlock.Next = sb;
+                    currentSBlock = sb2;
+                    Cases.Add(sb);
+                    // cascaded parsing
+                    // sb.ParseCase();
+                }
+                b = b.NextBlockDefault;
             }
+
+            if (currentSBlock != null)
+                currentSBlock.EndBlock = EndBlock;
         }
 
-        public string GetCode()
-        {
-            var ans = "";
-            foreach (var node in Tree.NodeList)
-                if (node == null)
-                    ans += "[[null node]];\n";
-                else
-                    ans += node.GetCode(Tree) + ";\n";
-            return ans;
+        public void ParseLoop() {
+
+            var currentSBlock = new StructurizedInstructionBlock() { StartBlock = StartBlock, EndBlock = EndBlock, Next = Next, BlockType = BlockType };
+            
+            Dictionary<int, InstructionBlock> blocks = new();
+            var b = StartBlock;
+            while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
+            {
+                // build dictionary
+                blocks[b.Hierarchy] = b;
+
+                // identify for/while structures
+                if (b.BranchCondition != null &&
+                    b.BranchCondition.Type == InstructionType.BranchAlways &&
+                    b.NextBlockCondition!.Hierarchy != StartBlock.Hierarchy && // be not the block's loop itself
+                    b.NextBlockCondition!.Hierarchy < b.Hierarchy) // could be a loop
+                {
+                    // mark range
+                    int startBlock = b.NextBlockCondition.Hierarchy;
+                    int endBlock = b.Hierarchy;
+                    int outerBlock = -1;
+                    for (int i = startBlock; i <= endBlock; ++i)
+                    {
+                        if (outerBlock == -1 ||
+                            (blocks[i].BranchCondition != null &&
+                             (blocks[i].BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                              blocks[i].BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
+                              blocks[i].BranchCondition!.Type == InstructionType.BranchAlways) &&
+                             blocks[i].NextBlockCondition!.Hierarchy > endBlock))
+                        {
+                            if (outerBlock >= 0 && blocks[i].NextBlockCondition!.Hierarchy != outerBlock)
+                                throw new InvalidOperationException();
+                            else if (blocks[i].NextBlockCondition!.Hierarchy > endBlock)
+                            {
+                                outerBlock = blocks[i].NextBlockCondition!.Hierarchy;
+                                blocks[outerBlock] = blocks[i].NextBlockCondition!;
+                            }
+                        }
+                    }
+                    // split blocks
+                    // TODO theoretically outerBlock should be the same as endBlock + 1
+                    currentSBlock!.EndBlock = blocks[startBlock - 1];
+                    var sb2 = blocks[endBlock].NextBlockDefault != null ?
+                        new StructurizedInstructionBlock() { StartBlock = blocks[endBlock].NextBlockDefault! } :
+                        null;
+
+                    var sb = new StructurizedInstructionBlock() { StartBlock = blocks[startBlock], EndBlock = blocks[endBlock], Next = sb2, BlockType = 2 };
+                    currentSBlock.Next = sb;
+                    currentSBlock = sb2;
+                    Loops.Add(sb);
+                    // cascaded parsing
+                    sb.ParseLoop();
+
+                    // TODO judgement block parsing
+                }
+
+                b = b.NextBlockDefault;
+            }
+
+            if (currentSBlock != null)
+                currentSBlock.EndBlock = EndBlock;
         }
     }
 
     internal class CodeTree
     {
-        public List<Node> NodeList = new();
+        public List<Node> NodeList;
+
+        // The decompilation depends on the assumption that
+        // ConstantPool() is only executed at most once in one segment.
         public List<Value> Constants;
         public Dictionary<int, string> RegNames;
+
+        public CodeTree(IEnumerable<Value>? constants = null, IDictionary<int, string>? regNames = null)
+        {
+            NodeList = new();
+            Constants = new();
+            if (constants != null)
+                Constants.AddRange(constants);
+            if (regNames != null)
+                RegNames = new(regNames);
+            else
+                RegNames = new();
+        }
+
         public bool ToStringInCodingForm(Value v, out string ret)
         {
             ret = null;
@@ -542,6 +681,31 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 throw new NotImplementedException();
             }
         }
+
+        public static CodeTree DecompileToTree(InstructionBlock root, IEnumerable<Value> constants, IDictionary<int, string> regNames)
+        {
+            CodeTree Tree = new(constants, regNames);
+            foreach (var kvp in root.Items)
+            {
+                var inst = kvp.Value;
+                CodeTree.Node node = inst.IsStatement ? new CodeTree.NodeStatement() : new CodeTree.NodeExpression();
+                node.Instruction = inst;
+                node.GetExpressions(Tree);
+                Tree.NodeList.Add(node);
+            }
+            return Tree;
+        }
+
+        public string GetCode()
+        {
+            var ans = "";
+            foreach (var node in NodeList)
+                if (node == null)
+                    ans += "[[null node]];\n";
+                else
+                    ans += node.GetCode(this) + ";\n";
+            return ans;
+        }
     }
 
     internal class LogicalInstructions
@@ -610,10 +774,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             // block division
             BaseBlock = new InstructionBlock();
-            BaseBlock.Constants = Constants;
-            BaseBlock.Registers = RegNames;
             var block_branch_dict = new Dictionary<string, InstructionBlock>();
-            var current_block = BaseBlock;
+            var currentBlock = BaseBlock;
             // first iter: maintain BranchCondition & NextBlockDefault
             foreach (var kvp in Items)
             {
@@ -623,29 +785,37 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 var inst = kvp.Value;
                 if ((inst is LogicalTaggedInstruction lti && lti.TagType == TagType.Label) || inst is Enumerate2)// TODO need some instances to determine how to deal with Enumerate2
                 {
-                    var new_block = new InstructionBlock(current_block);
+                    var new_block = new InstructionBlock(currentBlock);
                     new_block.Items[pos] = inst;
-                    current_block = new_block;
+                    currentBlock = new_block;
                     if (inst is LogicalTaggedInstruction lti2) {
+
                         block_branch_dict[(string) lti2.AdditionalData] = new_block;
+                        var instTemp = lti2;
+                        while (instTemp.InnerAction is LogicalTaggedInstruction lti3)
+                        {
+                            instTemp = lti3;
+                            block_branch_dict[(string) lti3.AdditionalData] = new_block;
+                        }
+                        
                         if (lti2.FinalTagType == TagType.GotoLabel)
                         {
                             var new_new_block = new InstructionBlock(new_block);
                             new_block.BranchCondition = lti2.FinalTaggedInnerAction;
-                            current_block = new_new_block;
+                            currentBlock = new_new_block;
                         }
                     }
                 }
                 else if (inst is LogicalTaggedInstruction lti3 && lti3.TagType == TagType.GotoLabel)
                 {
-                    var new_block = new InstructionBlock(current_block);
-                    current_block.BranchCondition = lti3.FinalTaggedInnerAction;
-                    current_block.Items[pos] = inst;
-                    current_block = new_block;
+                    var new_block = new InstructionBlock(currentBlock);
+                    currentBlock.BranchCondition = lti3.FinalTaggedInnerAction;
+                    currentBlock.Items[pos] = inst;
+                    currentBlock = new_block;
                 }
                 else
                 {
-                    current_block.Items[pos] = inst;
+                    currentBlock.Items[pos] = inst;
                 }
             }
             // second iter: maintain Label
@@ -653,36 +823,43 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             {
                 var lbl = kvp.Key;
                 var blk = kvp.Value;
-                if (blk.Label == null || blk.Label == "")
+                if (string.IsNullOrEmpty(blk.Label))
                     blk.Label = lbl;
                 else
                     blk.Label += $", {lbl}";
             }
             // third iter: maintain NextBlockCondition
-            current_block = BaseBlock;
-            while (current_block != null)
+            currentBlock = BaseBlock;
+            while (currentBlock != null)
             {
-                if (current_block.BranchCondition != null)
-                    if (block_branch_dict.TryGetValue((string) current_block.BranchCondition.AdditionalData, out var blk))
-                        current_block.NextBlockCondition = blk;
+                if (currentBlock.BranchCondition != null)
+                    if (block_branch_dict.TryGetValue((string) currentBlock.BranchCondition.AdditionalData, out var blk))
+                        currentBlock.NextBlockCondition = blk;
                     else
-                        current_block.NextBlockCondition = new InstructionBlock() { Label = current_block.BranchCondition.Tag };
-                current_block = current_block.NextBlockDefault;
+                        currentBlock.NextBlockCondition = new InstructionBlock() { Label = currentBlock.BranchCondition.Tag };
+                currentBlock = currentBlock.NextBlockDefault;
             }
 
             // decompilation
+            // will be eventually removed
             if (consts == null) return;
-            foreach (var a in BaseBlock.Items)
-                System.Console.WriteLine(a);
-            System.Console.WriteLine();
-            current_block = BaseBlock;
-            while (current_block != null)
+
+            // structurize
+            
+
+            currentBlock = BaseBlock;
+            while (currentBlock != null)
             {
-                current_block.DecompileToTree();
-                System.Console.WriteLine(current_block.GetCode());
-                current_block = current_block.NextBlockDefault;
+                foreach (var a in currentBlock.Items)
+                    Console.WriteLine(a);
+                var tree = CodeTree.DecompileToTree(currentBlock, Constants, RegNames);
+                Console.WriteLine(tree.GetCode());
+                currentBlock = currentBlock.NextBlockDefault;
             }
-                
+
+            var p = StructurizedInstructionBlock.Parse(BaseBlock);
+            var gshxd = 1;
+
         }
 
         private int IndexOfNextRealInstruction(int currentIndex)
@@ -810,7 +987,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public override InstructionType Type => InnerInstruction.Type;
         public override void Execute(ActionContext context) => throw new InvalidOperationException();
         public InstructionBase InnerInstruction { get; private set; }
-        public LogicalEndOfFunction EndOfFunction { get; private set; }
+        public LogicalEndOfFunction? EndOfFunction { get; private set; }
 
         public LogicalDefineFunction(InstructionBase instruction)
         {
@@ -835,6 +1012,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             throw new NotImplementedException();
         }
     }
+
+
+    // old ones?
 
     internal sealed class ValueTypePattern
     {
