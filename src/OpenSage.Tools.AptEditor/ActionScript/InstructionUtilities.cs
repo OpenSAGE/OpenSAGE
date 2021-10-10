@@ -21,7 +21,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     internal class LogicalTaggedInstruction : InstructionBase
     {
         public string Tag = "";
-        public object AdditionalData;
+        public object? AdditionalData;
         public TagType TagType;
         public TagType FinalTagType { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalTagType : TagType; } }
         public InstructionBase InnerAction { get; protected set; }
@@ -65,13 +65,18 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
     {
         public LogicalInstructions Instructions { get; private set; }
 
-        public LogicalFunctionContext(InstructionBase instruction, InstructionCollection insts, List<ConstantEntry> consts, int index_offset = 0, List<Value> constpool = null, Dictionary<int, string> regnames = null) : base(instruction, "", TagType.DefineFunction)
+        public LogicalFunctionContext(InstructionBase instruction,
+            InstructionCollection insts,
+            List<ConstantEntry>? constSource,
+            int indexOffset = 0,
+            List<Value>? constPool = null,
+            Dictionary<int, string>? regNames = null) : base(instruction, "", TagType.DefineFunction)
         {   if (instruction is DefineFunction2 df2)
             {
                 var flags = (FunctionPreloadFlags) df2.Parameters[3].ToInteger();
-                regnames = Preload(flags);
+                regNames = Preload(flags);
             }
-            Instructions = new LogicalInstructions(insts, consts, index_offset, constpool, regnames);
+            Instructions = new LogicalInstructions(insts, constSource, indexOffset, constPool, regNames);
             
         }
         public static Dictionary<int, string> Preload(FunctionPreloadFlags flags)
@@ -159,140 +164,245 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         }
     }
 
-    internal class StructurizedInstructionBlock
+    internal class StructurizedBlockChain
     {
+        public enum ChainType
+        {
+            Sequential,
+            Case,
+            Loop
+        }
         public InstructionBlock StartBlock;
         public InstructionBlock? EndBlock;
-        public StructurizedInstructionBlock? Next;
-        public List<StructurizedInstructionBlock> Loops = new();
-        public List<StructurizedInstructionBlock> Cases = new();
-        public int BlockType = 0;
+        public StructurizedBlockChain? SubChainStart;
+        public StructurizedBlockChain? Next;
+        public ChainType Type;
+        public List<StructurizedBlockChain> AdditionalData = new();
 
-        public static StructurizedInstructionBlock Parse(InstructionBlock root)
+        public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null) { StartBlock = start; EndBlock = end; }
+
+        public void PrintRaw(
+            List<Value>? constPool = null,
+            Dictionary<int, string>? regNames = null
+            )
         {
-            StructurizedInstructionBlock? currentSBlock = new() { StartBlock = root };
+            var c = SubChainStart;
+            if (c == null)
+                c = this;
+            while (c != null)
+            {
+                var currentBlock = c.StartBlock;
+                while (currentBlock != null && (c.EndBlock == null || currentBlock.Hierarchy <= c.EndBlock!.Hierarchy))
+                {
+                    //foreach (var a in currentBlock.Items)
+                    //    Console.WriteLine(a.Value);
+                    var tree = CodeTree.DecompileToTree(currentBlock, constPool, regNames);
+                    Console.WriteLine(tree.GetCode());
+                    currentBlock = currentBlock.NextBlockDefault;
+                }
+                c = c.Next;
+            }
+        }
+
+        public void Print(
+            List<Value>? constPool = null,
+            Dictionary<int, string>? regNames = null
+            )
+        {
+            if (Type == ChainType.Case)
+            {
+                Console.WriteLine("If Statement {");
+                AdditionalData[0].PrintRaw(constPool, regNames);
+                Console.WriteLine("} Unbranched {");
+                AdditionalData[1].Print(constPool, regNames);
+                Console.WriteLine("} Branched {");
+                AdditionalData[2].Print(constPool, regNames);
+                Console.WriteLine("}");
+            }
+            else if (Type == ChainType.Loop)
+            {
+                Console.WriteLine("While Statement {");
+                AdditionalData[0].PrintRaw(constPool, regNames);
+                Console.WriteLine("} {");
+                AdditionalData[1].Print(constPool, regNames);
+                Console.WriteLine("}");
+            }
+            else
+            {
+                var c = SubChainStart;
+                if (c == null)
+                    c = this;
+                while (c != null)
+                {
+                    if (c.Type == ChainType.Sequential &&
+                        c.StartBlock.Hierarchy == StartBlock.Hierarchy &&
+                        ((c.EndBlock == null && EndBlock == null) ||
+                         ((c.EndBlock != null && EndBlock != null) && (c.EndBlock.Hierarchy == EndBlock.Hierarchy)) ))
+                        c.PrintRaw(constPool, regNames);
+                    else
+                        c.Print(constPool, regNames);
+                    c = c.Next;
+                }
+            }
+
+        } 
+
+            public static StructurizedBlockChain Parse(InstructionBlock root)
+        {
+            StructurizedBlockChain? currentSBlock = new(root);
 
             // parse loop
             currentSBlock.ParseLoop();
 
-            // parse case
-            currentSBlock.ParseCase();
 
             return currentSBlock;
         }
 
         public void ParseCase()
         {
-            var currentSBlock = new StructurizedInstructionBlock() { StartBlock = StartBlock, EndBlock = EndBlock, Next = Next, BlockType = BlockType };
-            var b = StartBlock!;
+            // ensure all loops in the block is parsed!
+            var currentChain = new StructurizedBlockChain(StartBlock, EndBlock) { Next = Next, Type = ChainType.Sequential };
+            SubChainStart = currentChain;
+            var b = StartBlock;
 
             while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
             {
                 // identify if structures
                 if (b.BranchCondition != null &&
-                    (b.BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                     b.BranchCondition!.Type == InstructionType.EA_BranchIfFalse))
+                    (b.BranchCondition.Type == InstructionType.BranchIfTrue ||
+                     b.BranchCondition.Type == InstructionType.EA_BranchIfFalse))
                 {
                     var startBlock = b;
-                    var endBlock = b.NextBlockCondition!;
-                    // find the end block of if structure
-                    while (b.Hierarchy < endBlock.Hierarchy)
+                    var endBlock = b.NextBlockCondition!.PreviousBlock!; // assume jump when if-statement is not executed
+                    
+                    // find the real end block of if structure
+                    while (b!.Hierarchy < endBlock!.Hierarchy)
                     {
-                        if (b.BranchCondition != null &&
-                            (b.BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                             b.BranchCondition!.Type == InstructionType.EA_BranchIfFalse))
+                        if (b.BranchCondition != null)
                         {
                             var bn = b.NextBlockCondition!;
-                            if (EndBlock != null && bn.Hierarchy <= EndBlock.Hierarchy && bn.Hierarchy > endBlock.Hierarchy)
+                            var bt = b.BranchCondition.Type;
+                            if (bt == InstructionType.BranchAlways && bn.Hierarchy > endBlock.Hierarchy)
                             {
-                                endBlock = bn;
-                            } // else inner if structure
+                                endBlock = bn.PreviousBlock;
+                            }
                         }
                         b = b.NextBlockDefault;
                     }
-                    b = b.PreviousBlock!;
+
+                    List<StructurizedBlockChain> structures = new();
+
+                    StructurizedBlockChain sc = new(startBlock, startBlock);
+                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, startBlock.NextBlockCondition!.PreviousBlock!);
+                    StructurizedBlockChain sf = new(startBlock.NextBlockCondition!, endBlock);
+                    structures.Add(sc);
+                    structures.Add(st);
+                    structures.Add(sf);
+
+                    // cascaded parse
+                    st.ParseCase();
+                    sf.ParseCase();
 
                     // split
-                    currentSBlock!.EndBlock = startBlock.PreviousBlock;
+
                     var sb2 = endBlock.NextBlockDefault != null ?
-                        new StructurizedInstructionBlock() { StartBlock = endBlock.NextBlockDefault! } :
+                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedInstructionBlock() { StartBlock = startBlock, EndBlock = endBlock, Next = sb2, BlockType = 1 };
-                    currentSBlock.Next = sb;
-                    currentSBlock = sb2;
-                    Cases.Add(sb);
-                    // cascaded parsing
-                    // sb.ParseCase();
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = ChainType.Case, AdditionalData = structures };
+
+                    currentChain!.EndBlock = startBlock.PreviousBlock;
+                    currentChain.Next = sb;
+                    currentChain = sb2;
+
                 }
+                
                 b = b.NextBlockDefault;
             }
 
-            if (currentSBlock != null)
-                currentSBlock.EndBlock = EndBlock;
+            if (currentChain != null)
+                currentChain.EndBlock = EndBlock;
         }
 
-        public void ParseLoop() {
-
-            var currentSBlock = new StructurizedInstructionBlock() { StartBlock = StartBlock, EndBlock = EndBlock, Next = Next, BlockType = BlockType };
-            
-            Dictionary<int, InstructionBlock> blocks = new();
-            var b = StartBlock;
-            while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
+        public void ParseLoop()
+        {
+            var b = EndBlock;
+            if (b == null)
             {
-                // build dictionary
-                blocks[b.Hierarchy] = b;
-
+                b = StartBlock;
+                while (b.NextBlockDefault != null)
+                    b = b.NextBlockDefault;
+                EndBlock = b;
+            }
+            var currentChain = new StructurizedBlockChain(StartBlock) { EndBlock = EndBlock, Next = Next, Type = ChainType.Sequential };
+            SubChainStart = currentChain;
+            while (b != null && (b.Hierarchy >= StartBlock.Hierarchy))
+            {
                 // identify for/while structures
                 if (b.BranchCondition != null &&
                     b.BranchCondition.Type == InstructionType.BranchAlways &&
-                    b.NextBlockCondition!.Hierarchy != StartBlock.Hierarchy && // be not the block's loop itself
+                    b.NextBlockCondition!.Hierarchy >= StartBlock.Hierarchy && // be not the block's loop itself
                     b.NextBlockCondition!.Hierarchy < b.Hierarchy) // could be a loop
                 {
                     // mark range
-                    int startBlock = b.NextBlockCondition.Hierarchy;
-                    int endBlock = b.Hierarchy;
-                    int outerBlock = -1;
-                    for (int i = startBlock; i <= endBlock; ++i)
+                    var startBlock = b.NextBlockCondition;
+                    var endBlock = b;
+
+                    InstructionBlock? outerBlock = null;
+                    for (var i = startBlock; i != null && i.Hierarchy <= endBlock.Hierarchy; i = i.NextBlockDefault)
                     {
-                        if (outerBlock == -1 ||
-                            (blocks[i].BranchCondition != null &&
-                             (blocks[i].BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                              blocks[i].BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
-                              blocks[i].BranchCondition!.Type == InstructionType.BranchAlways) &&
-                             blocks[i].NextBlockCondition!.Hierarchy > endBlock))
+                        if (outerBlock == null ||
+                            (i.BranchCondition != null &&
+                             (i.BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                              i.BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
+                              i.BranchCondition!.Type == InstructionType.BranchAlways) &&
+                             i.NextBlockCondition!.Hierarchy > endBlock.Hierarchy))
                         {
-                            if (outerBlock >= 0 && blocks[i].NextBlockCondition!.Hierarchy != outerBlock)
+                            if (outerBlock != null && i.NextBlockCondition!.Hierarchy != outerBlock.Hierarchy)
                                 throw new InvalidOperationException();
-                            else if (blocks[i].NextBlockCondition!.Hierarchy > endBlock)
+                            else if (i.NextBlockCondition!.Hierarchy > endBlock.Hierarchy)
                             {
-                                outerBlock = blocks[i].NextBlockCondition!.Hierarchy;
-                                blocks[outerBlock] = blocks[i].NextBlockCondition!;
+                                outerBlock = i.NextBlockCondition;
                             }
                         }
                     }
+
+                    // TODO outer block sanity check?
+
+                    List<StructurizedBlockChain> structures = new();
+
+                    StructurizedBlockChain sc = new(startBlock, startBlock);
+                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, endBlock);
+                    structures.Add(sc);
+                    structures.Add(st);
+
                     // split blocks
                     // TODO theoretically outerBlock should be the same as endBlock + 1
-                    currentSBlock!.EndBlock = blocks[startBlock - 1];
-                    var sb2 = blocks[endBlock].NextBlockDefault != null ?
-                        new StructurizedInstructionBlock() { StartBlock = blocks[endBlock].NextBlockDefault! } :
+
+                    var sb2 = endBlock.NextBlockDefault != null ?
+                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedInstructionBlock() { StartBlock = blocks[startBlock], EndBlock = blocks[endBlock], Next = sb2, BlockType = 2 };
-                    currentSBlock.Next = sb;
-                    currentSBlock = sb2;
-                    Loops.Add(sb);
+                    if (sb2 != null)
+                        sb2.ParseCase();
+
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = ChainType.Loop, AdditionalData = structures };
+
+                    currentChain!.EndBlock = startBlock.PreviousBlock;
+                    currentChain.Next = sb;
+
                     // cascaded parsing
-                    sb.ParseLoop();
+                    st.ParseLoop();
 
                     // TODO judgement block parsing
+
+                    // update b
+                    b = startBlock;
                 }
 
-                b = b.NextBlockDefault;
+                b = b.PreviousBlock;
             }
-
-            if (currentSBlock != null)
-                currentSBlock.EndBlock = EndBlock;
+            currentChain.ParseCase();
         }
     }
 
@@ -319,7 +429,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
         public bool ToStringInCodingForm(Value v, out string ret)
         {
-            ret = null;
+            ret = string.Empty;
             var ans = true;
             if (v.Type == ValueType.Constant)
                 if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count)
@@ -346,46 +456,52 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     ans = false;
                 }
 
-            if (ret == null) ret = v.ToString();
+            if (string.IsNullOrEmpty(ret))
+                ret = v.ToString();
             return ans;
         }
-        public NodeExpression FindFirstNodeExpression(bool deleteIfPossible = true)
+        public NodeExpression? FindFirstNodeExpression(bool deleteIfPossible = true)
         {
             var ind = NodeList.FindLastIndex(n => n is NodeExpression);
-            NodeExpression val = null;
+            NodeExpression? ret = null;
             if (ind == -1)
-                val = null;
+                ret = null;
             else
             {
                 var node = (NodeExpression) NodeList[ind];
-                var able_to_delete = true; // TODO some special nodes shouldn't be deleted like Enumerate
-                if (able_to_delete && deleteIfPossible)
+                var ableToDelete = true; // TODO some special nodes shouldn't be deleted like Enumerate
+                if (ableToDelete && deleteIfPossible)
                     NodeList.RemoveAt(ind);
-                val = node;
+                ret = node;
             }
-            return val;
+            return ret;
         }
         public NodeArray ReadArray(bool readPair = false, bool ensureCount = true)
         {
-            var flag = FindFirstNodeExpression().GetValue(this, out var countVal);
-            if (!flag)
-                return null;
             NodeArray ans = new();
-            var count = countVal.ToInteger();
-            if (readPair) count *= 2;
-            for (int i = 0; i < count; ++i)
+            var nexp = FindFirstNodeExpression();
+            Value? countVal = null;
+            var flag = nexp == null ? false : nexp.GetValue(this, out countVal);
+            if (flag)
             {
-                var exp = FindFirstNodeExpression();
-                if (exp != null || (exp == null && ensureCount))
-                    ans.Expressions.Add(exp);
+                var count = countVal!.ToInteger();
+                if (readPair) count *= 2;
+                for (int i = 0; i < count; ++i)
+                {
+                    var exp = FindFirstNodeExpression();
+                    if (exp != null || (exp == null && ensureCount))
+                        ans.Expressions.Add(exp);
+                }
             }
             return ans;
         }
         
         public abstract class Node
         {
-            public List<NodeExpression> Expressions = new();
-            public InstructionBase Instruction;
+            public List<NodeExpression?> Expressions = new();
+            public readonly InstructionBase Instruction;
+
+            public Node(InstructionBase inst) { Instruction = inst; }
 
             public virtual string GetCode(CodeTree tree)
             {
@@ -402,7 +518,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         var flag = node.GetValue(tree, out var val);
                         if (flag)
                         {
-                            var flag2 = tree.ToStringInCodingForm(val, out vals[i]);
+                            var flag2 = tree.ToStringInCodingForm(val!, out vals[i]);
                             // Special judge to flexible argument type opcodes
                             if (flag2 && ((
                                     Instruction.Type == InstructionType.Add2 ||
@@ -425,7 +541,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                                     Instruction.Type == InstructionType.EA_PushConstantWord ||
                                     Instruction.Type == InstructionType.Trace
                                 ))) &&
-                                (val.Type == ValueType.String || val.Type == ValueType.Constant))
+                                (val!.Type == ValueType.String || val.Type == ValueType.Constant))
                                 vals[i] = $"\"{vals[i]}\"";
                         }
                         else
@@ -438,7 +554,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     }
 
                 }
-                string ret = null;
+                string ret;
                 try
                 {
                     ret = Instruction.ToString(vals);
@@ -489,16 +605,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         break;
                     case InstructionType.EA_CallNamedFuncPop:
                     case InstructionType.EA_CallNamedFunc:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0]));
+                        Expressions.Add(new NodeValue(instruction));
                         Expressions.Add(tree.ReadArray());
                         break;
                     case InstructionType.EA_CallNamedMethodPop:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0]));
+                        Expressions.Add(new NodeValue(instruction));
                         Expressions.Add(tree.FindFirstNodeExpression());
                         Expressions.Add(tree.ReadArray());
                         break;
                     case InstructionType.EA_CallNamedMethod:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0])); // TODO resolve constant
+                        Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
                         Expressions.Add(tree.FindFirstNodeExpression());
                         Expressions.Add(tree.ReadArray());
                         Expressions.Add(tree.FindFirstNodeExpression());
@@ -509,11 +625,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
                     // type 3: constant resolve needed
                     case InstructionType.EA_GetNamedMember:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0])); // TODO resolve constant
+                        Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
                         Expressions.Add(tree.FindFirstNodeExpression());
                         break;
                     case InstructionType.EA_PushValueOfVar:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0])); // TODO resolve constant; incode form?
+                        Expressions.Add(new NodeValue(instruction)); // TODO resolve constant; incode form?
                         break;
                     case InstructionType.EA_PushGlobalVar:
                     case InstructionType.EA_PushThisVar:
@@ -522,10 +638,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         break; // nothing needed
                     case InstructionType.EA_PushConstantByte:
                     case InstructionType.EA_PushConstantWord:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0], true)); // TODO resolve constant
+                        Expressions.Add(new NodeValue(instruction, true)); // TODO resolve constant
                         break;
                     case InstructionType.EA_PushRegister:
-                        Expressions.Add(new NodeValue(instruction.Parameters[0], true)); // TODO resolve register
+                        Expressions.Add(new NodeValue(instruction, true)); // TODO resolve register
                         break;
 
                     // type 4: variable output count
@@ -561,7 +677,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         }
         public class NodeExpression : Node
         {
-            public virtual bool GetValue(CodeTree tree, out Value ret)
+            public NodeExpression(InstructionBase inst) : base(inst)
+            {
+            }
+
+            public virtual bool GetValue(CodeTree tree, out Value? ret)
             {
                 ret = null;
                 var vals = new Value[Expressions.Count];
@@ -575,7 +695,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         return false;
                     else
                     {
-                        if (val.Type == ValueType.Constant || val.Type == ValueType.Register)
+                        if (val!.Type == ValueType.Constant || val.Type == ValueType.Register)
                         {
                             var flag2 = tree.ToStringInCodingForm(val, out var str);
                             if (!flag2)
@@ -608,10 +728,10 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             public override string GetCode(CodeTree tree)
             {
-                string ret = null;
-                if (GetValue(tree, out var val_))
+                string ret = string.Empty;
+                if (GetValue(tree, out var val))
                 {
-                    tree.ToStringInCodingForm(val_, out ret);
+                    tree.ToStringInCodingForm(val!, out ret);
                 }
                 else // if (Instruction is InstructionMonoPush inst)
                 {
@@ -623,9 +743,9 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public class NodeValue: NodeExpression
         {
             public Value Value;
-            public NodeValue (Value v, bool iss = false)
+            public NodeValue (InstructionBase inst, bool iss = false, Value? v = null) : base(inst)
             {
-                Value = v;
+                Value = v == null ? inst.Parameters[0] : v;
             }
             public override bool GetValue(CodeTree tree, out Value ret)
             {
@@ -636,7 +756,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         }
         public class NodeArray: NodeExpression
         {
-            public override bool GetValue(CodeTree tree, out Value ret)
+            public NodeArray() : base(new InitArray())
+            {
+
+            }
+
+            public override bool GetValue(CodeTree tree, out Value? ret)
             {
                 // Better not use FromArray()
                 ret = null;
@@ -659,37 +784,44 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         vals[i] = node.GetCode(tree);
                     else
                     {
-                        tree.ToStringInCodingForm(val, out vals[i]);
-                        if (val.Type == ValueType.String || val.Type == ValueType.Constant)
+                        tree.ToStringInCodingForm(val!, out vals[i]);
+                        if (val!.Type == ValueType.String || val.Type == ValueType.Constant)
                             vals[i] = $"\"{vals[i]}\"";
             }
                 }
                 return $"{string.Join(", ", vals)}";
             }
         }
-        public class NodeStatement: Node
+        public class NodeStatement : Node
         {
+            public NodeStatement(InstructionBase inst) : base(inst)
+            {
+            }
+
             public override string GetCode(CodeTree tree)
             {
                 return base.GetCode(tree);
             }
         }
-        public class NodeControl: NodeStatement
+        public class NodeControl : NodeStatement
         {
+            public NodeControl(InstructionBase inst) : base(inst)
+            {
+            }
+
             public override string GetCode(CodeTree tree)
             {
                 throw new NotImplementedException();
             }
         }
 
-        public static CodeTree DecompileToTree(InstructionBlock root, IEnumerable<Value> constants, IDictionary<int, string> regNames)
+        public static CodeTree DecompileToTree(InstructionBlock root, IEnumerable<Value>? constants, IDictionary<int, string>? regNames)
         {
             CodeTree Tree = new(constants, regNames);
             foreach (var kvp in root.Items)
             {
                 var inst = kvp.Value;
-                CodeTree.Node node = inst.IsStatement ? new CodeTree.NodeStatement() : new CodeTree.NodeExpression();
-                node.Instruction = inst;
+                Node node = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
                 node.GetExpressions(Tree);
                 Tree.NodeList.Add(node);
             }
@@ -714,19 +846,23 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         public InstructionBlock BaseBlock { get; set; }
         public InstructionCollection Insts { get; private set; }
         public int IndexOffset;
-        public List<Value> Constants;
-        public Dictionary<int, string> RegNames;
+        public List<Value>? ConstPool;
+        public Dictionary<int, string>? RegNames;
 
         // public 
         public LogicalInstructions(InstructionStorage insts) : this(InstructionCollection.Parse(insts)) { }
-        public LogicalInstructions(InstructionCollection insts, List<ConstantEntry> consts = null, int index_offset = 0, List<Value> constpool = null, Dictionary<int, string> regnames = null)
+        public LogicalInstructions(InstructionCollection insts,
+            List<ConstantEntry>? constSource = null,
+            int indexOffset = 0,
+            List<Value>? constPool = null,
+            Dictionary<int, string>? regNames = null)
         {
             Insts = insts;
-            IndexOffset = index_offset;
+            IndexOffset = indexOffset;
             var stream = new InstructionStream(insts.AddEnd());
 
-            Constants = constpool;
-            RegNames = regnames;
+            ConstPool = constPool;
+            RegNames = regNames;
 
             Items = new SortedDictionary<int, InstructionBase>();
             var branch_dict = new Dictionary<string, int>(); // position: label
@@ -736,11 +872,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 var index = stream.Index;
                 var instruction = stream.GetInstruction();
 
-                if (instruction is ConstantPool cp && consts != null)
+                if (instruction is ConstantPool cp && constSource != null)
                 {
-                    ActionContext ac = new ActionContext(null, null, null, 4) { GlobalConstantPool = consts };
+                    ActionContext ac = new ActionContext(null, null, null, 4) { GlobalConstantPool = constSource };
                     ac.ReformConstantPool(cp.Parameters);
-                    Constants = ac.Constants;
+                    ConstPool = ac.Constants;
                 }
                 if (instruction is DefineFunction || instruction is DefineFunction2)
                 {
@@ -751,8 +887,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         instruction.Parameters[4 + nParams * 2].ToInteger();
                     
                     var codes = stream.GetInstructions(size, true, true);
-                    instruction = new LogicalFunctionContext(instruction, codes, consts, IndexOffset + index + 1, Constants, RegNames);
-                    ((LogicalFunctionContext) instruction).Instructions.Constants = Constants;
+                    instruction = new LogicalFunctionContext(instruction, codes, constSource, IndexOffset + index + 1, ConstPool, RegNames);
+                    ((LogicalFunctionContext) instruction).Instructions.ConstPool = ConstPool;
                 }
 
                 else if (instruction is BranchIfTrue || instruction is BranchAlways)
@@ -774,35 +910,33 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
             // block division
             BaseBlock = new InstructionBlock();
-            var block_branch_dict = new Dictionary<string, InstructionBlock>();
+            var mapLabelToBlock = new Dictionary<string, InstructionBlock>();
             var currentBlock = BaseBlock;
             // first iter: maintain BranchCondition & NextBlockDefault
             foreach (var kvp in Items)
             {
-                var new_block_needed = false;
-                Dictionary<int, InstructionBase> new_block_items = null;
                 var pos = kvp.Key;
                 var inst = kvp.Value;
                 if ((inst is LogicalTaggedInstruction lti && lti.TagType == TagType.Label) || inst is Enumerate2)// TODO need some instances to determine how to deal with Enumerate2
                 {
-                    var new_block = new InstructionBlock(currentBlock);
-                    new_block.Items[pos] = inst;
-                    currentBlock = new_block;
+                    var newBlock = new InstructionBlock(currentBlock);
+                    newBlock.Items[pos] = inst;
+                    currentBlock = newBlock;
                     if (inst is LogicalTaggedInstruction lti2) {
 
-                        block_branch_dict[(string) lti2.AdditionalData] = new_block;
+                        mapLabelToBlock[(string) lti2.AdditionalData!] = newBlock;
                         var instTemp = lti2;
                         while (instTemp.InnerAction is LogicalTaggedInstruction lti3)
                         {
                             instTemp = lti3;
-                            block_branch_dict[(string) lti3.AdditionalData] = new_block;
+                            mapLabelToBlock[(string) lti3.AdditionalData!] = newBlock;
                         }
                         
                         if (lti2.FinalTagType == TagType.GotoLabel)
                         {
-                            var new_new_block = new InstructionBlock(new_block);
-                            new_block.BranchCondition = lti2.FinalTaggedInnerAction;
-                            currentBlock = new_new_block;
+                            var newerBlock = new InstructionBlock(newBlock);
+                            newBlock.BranchCondition = lti2.FinalTaggedInnerAction;
+                            currentBlock = newerBlock;
                         }
                     }
                 }
@@ -819,7 +953,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 }
             }
             // second iter: maintain Label
-            foreach (var kvp in block_branch_dict)
+            foreach (var kvp in mapLabelToBlock)
             {
                 var lbl = kvp.Key;
                 var blk = kvp.Value;
@@ -833,31 +967,34 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             while (currentBlock != null)
             {
                 if (currentBlock.BranchCondition != null)
-                    if (block_branch_dict.TryGetValue((string) currentBlock.BranchCondition.AdditionalData, out var blk))
+                    if (mapLabelToBlock.TryGetValue((string) currentBlock.BranchCondition.AdditionalData!, out var blk))
                         currentBlock.NextBlockCondition = blk;
                     else
-                        currentBlock.NextBlockCondition = new InstructionBlock() { Label = currentBlock.BranchCondition.Tag };
+                        throw new InvalidOperationException();
+                        // currentBlock.NextBlockCondition = new InstructionBlock() { Label = currentBlock.BranchCondition.Tag };
                 currentBlock = currentBlock.NextBlockDefault;
             }
 
             // decompilation
             // will be eventually removed
-            if (consts == null) return;
+            if (constSource == null) return;
 
             // structurize
             
-
+            /*
             currentBlock = BaseBlock;
             while (currentBlock != null)
             {
                 foreach (var a in currentBlock.Items)
                     Console.WriteLine(a);
-                var tree = CodeTree.DecompileToTree(currentBlock, Constants, RegNames);
+                var tree = CodeTree.DecompileToTree(currentBlock, ConstPool, RegNames);
                 Console.WriteLine(tree.GetCode());
                 currentBlock = currentBlock.NextBlockDefault;
             }
-
-            var p = StructurizedInstructionBlock.Parse(BaseBlock);
+            */
+            var p = StructurizedBlockChain.Parse(BaseBlock);
+            Console.WriteLine("Gan Si Huang Xu Dong");
+            p.Print(ConstPool, RegNames);
             var gshxd = 1;
 
         }
@@ -1032,39 +1169,39 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal static class InstructionUtility
     {
-        public static IReadOnlyList<string> InstructionNames => _instructionNames;
+        public static IReadOnlyList<string> InstructionNames => InstructionNamesInner.AsReadOnly();
 
-        private static Dictionary<Type, ValueType[]> _fixedInstructionsParameterTypes;
-        private static Dictionary<Type, ValueTypePattern> _nonFixedInstructionsParameterPattern;
-        private static Dictionary<string, Type> _instructionTypes;
-        private static List<string> _instructionNames;
-        private static int _defaultLabelName = 0;
-        private static string _getName => "location_" + (++_defaultLabelName);
+        private static Dictionary<Type, ValueType[]> FixedInstructionsParameterTypes;
+        private static Dictionary<Type, ValueTypePattern> NonFixedInstructionsParameterPattern;
+        private static Dictionary<string, Type> InstructionTypes;
+        private static List<string> InstructionNamesInner;
+        private static int DefaultLabelName = 0;
+        private static string _getName => "location_" + (++DefaultLabelName);
 
         static InstructionUtility()
         {
-            _fixedInstructionsParameterTypes = new Dictionary<Type, ValueType[]>();
-            _nonFixedInstructionsParameterPattern = new Dictionary<Type, ValueTypePattern>();
-            _instructionTypes = new Dictionary<string, Type>();
-            _instructionNames = new List<string>();
+            FixedInstructionsParameterTypes = new Dictionary<Type, ValueType[]>();
+            NonFixedInstructionsParameterPattern = new Dictionary<Type, ValueTypePattern>();
+            InstructionTypes = new Dictionary<string, Type>();
+            InstructionNamesInner = new List<string>();
 
             var fixeds = RetrieveFixedSizeInstructionMetaData();
             foreach (var (name, type, valueTypes) in fixeds)
             {
-                _fixedInstructionsParameterTypes.Add(type, valueTypes);
-                _instructionTypes.Add(name, type);
-                _instructionNames.Add(name);
+                FixedInstructionsParameterTypes.Add(type, valueTypes);
+                InstructionTypes.Add(name, type);
+                InstructionNamesInner.Add(name);
             }
 
             var variables = RetrieveNonFixedSizeInstructionMetaData();
             foreach (var (name, type, pattern) in variables)
             {
-                _nonFixedInstructionsParameterPattern.Add(type, pattern);
-                _instructionTypes.Add(name, type);
-                _instructionNames.Add(name);
+                NonFixedInstructionsParameterPattern.Add(type, pattern);
+                InstructionTypes.Add(name, type);
+                InstructionNamesInner.Add(name);
             }
 
-            _instructionNames.Sort();
+            InstructionNamesInner.Sort();
         }
 
         public static InstructionBase NewLogicalInstruction(Type type, List<Value> parameters,
@@ -1137,7 +1274,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                                               logicalDefineFunction.Parameters.Append(Value.FromInteger(0)).ToList());
             }
 
-            if (_nonFixedInstructionsParameterPattern.TryGetValue(instruction.GetType(), out var pattern))
+            if (NonFixedInstructionsParameterPattern.TryGetValue(instruction.GetType(), out var pattern))
             {
                 var repeatingParametersCount = parameters.Count - (pattern.FirstTypes.Length + pattern.LastTypes.Length);
                 if (repeatingParametersCount < 0)
@@ -1161,7 +1298,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 return true;
             }
 
-            if (_fixedInstructionsParameterTypes.TryGetValue(instruction.GetType(), out var parameterTypes))
+            if (FixedInstructionsParameterTypes.TryGetValue(instruction.GetType(), out var parameterTypes))
             {
                 if (parameters.Count != parameterTypes.Length)
                 {
