@@ -1,21 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
-using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 using Value = OpenSage.Gui.Apt.ActionScript.Value;
+using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor
 {
+    public static class InstUtils
+    {
+        public static string ToStringWithIndent(this object obj, int indent = 0)
+        {
+            var s = new StringBuilder();
+            for (int i = 0; i < indent; ++i)
+                s.Append(" ");
+            s.Append(obj.ToString());
+            return s.ToString();
+        }
+    }
+
     internal enum TagType
     {
         None, 
         Label,
         GotoLabel,
         DefineFunction, 
+    }
+
+    public enum CodeType
+    {
+        Sequential,
+        Case,
+        Loop
     }
 
     internal class LogicalTaggedInstruction : InstructionBase
@@ -166,103 +186,132 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
     internal class StructurizedBlockChain
     {
-        public enum ChainType
-        {
-            Sequential,
-            Case,
-            Loop
-        }
+        
         public InstructionBlock StartBlock;
-        public InstructionBlock? EndBlock;
+        public InstructionBlock EndBlock;
         public StructurizedBlockChain? SubChainStart;
         public StructurizedBlockChain? Next;
-        public ChainType Type;
+        public CodeType Type = CodeType.Sequential;
         public List<StructurizedBlockChain> AdditionalData = new();
+        public bool Empty { get; set; }
 
-        public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null) { StartBlock = start; EndBlock = end; }
+        public override string ToString()
+        {
+            var inf = "\\infty";
+            var emp = "Empty, ";
+            return $"SBC(Type={Type}, {(Empty ? emp : string.Empty)}Range=[{StartBlock.Hierarchy}, {(EndBlock == null ? inf : EndBlock.Hierarchy)}])";
+        }
+
+        
+        public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null)
+        {
+            StartBlock = start;
+            if (end == null)
+            {
+                EnsureEndBlock();
+                if (EndBlock == null)
+                    EndBlock = StartBlock;
+            }
+            else
+                EndBlock = end;
+            
+        }
 
         public void PrintRaw(
             List<Value>? constPool = null,
-            Dictionary<int, string>? regNames = null
+            Dictionary<int, string>? regNames = null,
+            int layer = 0,
+            CodeType type = CodeType.Sequential
             )
         {
-            var c = SubChainStart;
-            if (c == null)
-                c = this;
-            while (c != null)
+            // Console.WriteLine($"RAW {this}");
+            if (Empty)
+                return;
+            var c = this;
+            var currentBlock = c.StartBlock;
+            while (currentBlock != null && (c.EndBlock == null || currentBlock.Hierarchy <= c.EndBlock!.Hierarchy))
             {
-                var currentBlock = c.StartBlock;
-                while (currentBlock != null && (c.EndBlock == null || currentBlock.Hierarchy <= c.EndBlock!.Hierarchy))
-                {
-                    //foreach (var a in currentBlock.Items)
-                    //    Console.WriteLine(a.Value);
-                    var tree = CodeTree.DecompileToTree(currentBlock, constPool, regNames);
-                    Console.WriteLine(tree.GetCode());
-                    currentBlock = currentBlock.NextBlockDefault;
-                }
-                c = c.Next;
+                //foreach (var a in currentBlock.Items)
+                //    Console.WriteLine(a.Value);
+                var tree = CodeTree.DecompileToTree(currentBlock, constPool, regNames);
+                Console.WriteLine(tree.GetCode(layer * 4, type));
+                currentBlock = currentBlock.NextBlockDefault;
             }
+            c = c.Next;
+
         }
 
         public void Print(
             List<Value>? constPool = null,
-            Dictionary<int, string>? regNames = null
+            Dictionary<int, string>? regNames = null,
+            int layer = 0,
+            CodeType type = CodeType.Sequential
             )
         {
-            if (Type == ChainType.Case)
+            // Console.WriteLine(this);
+            if (Type == CodeType.Case)
             {
-                Console.WriteLine("If Statement {");
-                AdditionalData[0].PrintRaw(constPool, regNames);
-                Console.WriteLine("} Unbranched {");
-                AdditionalData[1].Print(constPool, regNames);
-                Console.WriteLine("} Branched {");
-                AdditionalData[2].Print(constPool, regNames);
-                Console.WriteLine("}");
+                //Console.WriteLine("If Statement {".ToStringWithIndent(layer * 4));
+                AdditionalData[0].PrintRaw(constPool, regNames, layer, Type);
+                Console.WriteLine("{".ToStringWithIndent(layer * 4));
+                AdditionalData[1].Print(constPool, regNames, layer + 1);
+                Console.WriteLine("} else {".ToStringWithIndent(layer * 4));
+                AdditionalData[2].Print(constPool, regNames, layer + 1);
+                Console.WriteLine("}".ToStringWithIndent(layer * 4));
             }
-            else if (Type == ChainType.Loop)
+            else if (Type == CodeType.Loop)
             {
-                Console.WriteLine("While Statement {");
-                AdditionalData[0].PrintRaw(constPool, regNames);
-                Console.WriteLine("} {");
-                AdditionalData[1].Print(constPool, regNames);
-                Console.WriteLine("}");
+                // Console.WriteLine("While Statement {".ToStringWithIndent(layer * 4));
+                AdditionalData[0].Print(constPool, regNames, layer, Type);
+                Console.WriteLine("{".ToStringWithIndent(layer * 4));
+                AdditionalData[1].Print(constPool, regNames, layer + 1);
+                Console.WriteLine("}".ToStringWithIndent(layer * 4));
             }
-            else
+            else if (SubChainStart != null)
             {
                 var c = SubChainStart;
-                if (c == null)
-                    c = this;
                 while (c != null)
                 {
-                    if (c.Type == ChainType.Sequential &&
-                        c.StartBlock.Hierarchy == StartBlock.Hierarchy &&
-                        ((c.EndBlock == null && EndBlock == null) ||
-                         ((c.EndBlock != null && EndBlock != null) && (c.EndBlock.Hierarchy == EndBlock.Hierarchy)) ))
-                        c.PrintRaw(constPool, regNames);
-                    else
-                        c.Print(constPool, regNames);
+                    c.Print(constPool, regNames, layer);
                     c = c.Next;
                 }
             }
-
+            else
+                PrintRaw(constPool, regNames, layer, type);
         } 
 
-            public static StructurizedBlockChain Parse(InstructionBlock root)
+        public static StructurizedBlockChain Parse(InstructionBlock root)
         {
-            StructurizedBlockChain? currentSBlock = new(root);
+            StructurizedBlockChain ret = new(root);
 
             // parse loop
-            currentSBlock.ParseLoop();
+            ret.ParseLoop();
+            if (ret.SubChainStart == null)
+            {
+                ret.ParseCase();
+            }
 
 
-            return currentSBlock;
+            return ret;
+        }
+
+        public void EnsureEndBlock()
+        {
+            if (EndBlock == null)
+            {
+                var b = StartBlock;
+                while (b.NextBlockDefault != null)
+                    b = b.NextBlockDefault;
+                EndBlock = b;
+            }
         }
 
         public void ParseCase()
         {
             // ensure all loops in the block is parsed!
-            var currentChain = new StructurizedBlockChain(StartBlock, EndBlock) { Next = Next, Type = ChainType.Sequential };
-            SubChainStart = currentChain;
+            var currentChain = new StructurizedBlockChain(StartBlock, EndBlock) { Next = Next, Type = CodeType.Sequential };
+            var subChainCache = currentChain;
+            var containsCase = false;
             var b = StartBlock;
 
             while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
@@ -272,6 +321,8 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     (b.BranchCondition.Type == InstructionType.BranchIfTrue ||
                      b.BranchCondition.Type == InstructionType.EA_BranchIfFalse))
                 {
+                    containsCase = true;
+
                     var startBlock = b;
                     var endBlock = b.NextBlockCondition!.PreviousBlock!; // assume jump when if-statement is not executed
                     
@@ -309,9 +360,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = ChainType.Case, AdditionalData = structures };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Case, AdditionalData = structures };
 
-                    currentChain!.EndBlock = startBlock.PreviousBlock;
+                    if (startBlock.PreviousBlock == null)
+                        currentChain!.Empty = true;
+                    else
+                        currentChain!.EndBlock = startBlock.PreviousBlock;
                     currentChain.Next = sb;
                     currentChain = sb2;
 
@@ -320,22 +374,19 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 b = b.NextBlockDefault;
             }
 
-            if (currentChain != null)
-                currentChain.EndBlock = EndBlock;
+            if (containsCase)
+            {
+                SubChainStart = subChainCache;
+            }
         }
 
         public void ParseLoop()
         {
             var b = EndBlock;
-            if (b == null)
-            {
-                b = StartBlock;
-                while (b.NextBlockDefault != null)
-                    b = b.NextBlockDefault;
-                EndBlock = b;
-            }
-            var currentChain = new StructurizedBlockChain(StartBlock) { EndBlock = EndBlock, Next = Next, Type = ChainType.Sequential };
-            SubChainStart = currentChain;
+
+            var currentChain = new StructurizedBlockChain(StartBlock) { EndBlock = EndBlock, Next = Next, Type = CodeType.Sequential };
+            var subChainCache = currentChain;
+            var containsLoop = false;
             while (b != null && (b.Hierarchy >= StartBlock.Hierarchy))
             {
                 // identify for/while structures
@@ -344,6 +395,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     b.NextBlockCondition!.Hierarchy >= StartBlock.Hierarchy && // be not the block's loop itself
                     b.NextBlockCondition!.Hierarchy < b.Hierarchy) // could be a loop
                 {
+                    containsLoop = true;
                     // mark range
                     var startBlock = b.NextBlockCondition;
                     var endBlock = b;
@@ -360,7 +412,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                         {
                             if (outerBlock != null && i.NextBlockCondition!.Hierarchy != outerBlock.Hierarchy)
                                 throw new InvalidOperationException();
-                            else if (i.NextBlockCondition!.Hierarchy > endBlock.Hierarchy)
+                            else if (i.NextBlockCondition != null && i.NextBlockCondition.Hierarchy > endBlock.Hierarchy)
                             {
                                 outerBlock = i.NextBlockCondition;
                             }
@@ -386,9 +438,12 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     if (sb2 != null)
                         sb2.ParseCase();
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = ChainType.Loop, AdditionalData = structures };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Loop, AdditionalData = structures };
 
-                    currentChain!.EndBlock = startBlock.PreviousBlock;
+                    if (startBlock.PreviousBlock == null)
+                        currentChain!.Empty = true;
+                    else
+                        currentChain!.EndBlock = startBlock.PreviousBlock;
                     currentChain.Next = sb;
 
                     // cascaded parsing
@@ -402,7 +457,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
                 b = b.PreviousBlock;
             }
-            currentChain.ParseCase();
+            if (containsLoop)
+            {
+                currentChain.ParseCase();
+                SubChainStart = subChainCache;
+            }
         }
     }
 
@@ -414,9 +473,11 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
         // ConstantPool() is only executed at most once in one segment.
         public List<Value> Constants;
         public Dictionary<int, string> RegNames;
+        public CodeType Type { get; private set; }
 
         public CodeTree(IEnumerable<Value>? constants = null, IDictionary<int, string>? regNames = null)
         {
+            Type = CodeType.Sequential;
             NodeList = new();
             Constants = new();
             if (constants != null)
@@ -517,7 +578,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     {
                         var flag = node.GetValue(tree, out var val);
                         if (flag)
-                        {
+                        { // Formatize strings
                             var flag2 = tree.ToStringInCodingForm(val!, out vals[i]);
                             // Special judge to flexible argument type opcodes
                             if (flag2 && ((
@@ -542,7 +603,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                                     Instruction.Type == InstructionType.Trace
                                 ))) &&
                                 (val!.Type == ValueType.String || val.Type == ValueType.Constant))
-                                vals[i] = $"\"{vals[i]}\"";
+                                vals[i] = $"\"{vals[i].Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
                         }
                         else
                         {
@@ -554,14 +615,77 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                     }
 
                 }
-                string ret;
-                try
+                string ret = string.Empty;
+                string tmp = string.Empty;
+                switch (Instruction.Type)
                 {
-                    ret = Instruction.ToString(vals);
-                }
-                catch
-                {
-                    ret = Instruction.ToString2(vals);
+                    case InstructionType.BranchAlways:
+                        if (tree.Type == CodeType.Case)
+                            ret = string.Empty;
+                        else// if (tree.Type == CodeType.Loop)
+                        {
+                            var itmp = Instruction;
+                            if (itmp is LogicalTaggedInstruction itag)
+                                itmp = itag.FinalInnerAction;
+
+                            if (itmp.Parameters[0].ToInteger() > 0)
+                                ret = "break";
+                            else
+                                ret = "continue";
+                        }
+                        /*
+                        else
+                        {
+                            if (Instruction is LogicalTaggedInstruction itag)
+                                tmp = itag.AdditionalData == null ? itag.Tag : (string) itag.AdditionalData;
+                            else
+                                tmp = $"[[{Instruction.Parameters[0]}]]";
+                            ret = $"goto {tmp}; // {Instruction.ToString2(vals)}@";
+                        }
+                        */
+                        break;
+                    case InstructionType.BranchIfTrue:
+                    case InstructionType.EA_BranchIfFalse:
+                        tmp = vals[0];
+                        if (Instruction.Type == InstructionType.BranchIfTrue)
+                            if (tmp.StartsWith("!"))
+                                tmp = tmp.Substring(1);
+                            else
+                                tmp = $"!({tmp})";
+                        if (!(tmp.StartsWith('(') && tmp.EndsWith(')')))
+                            tmp = $"({tmp})";
+
+                        if (tree.Type == CodeType.Case)
+                            ret = $"if {tmp}@";
+                        else if (tree.Type == CodeType.Loop)
+                            ret = $"while {tmp}@";
+                        else
+                            ret = $"goto [[{Instruction.Parameters[0]}]]; // {Instruction.ToString2(vals)}@";
+                        break;
+                    case InstructionType.DefineFunction:
+                    case InstructionType.DefineFunction2:
+                        string name = Instruction.Parameters[0].ToString();
+                        List<string> args = new();
+                        int nrArgs = Instruction.Parameters[1].ToInteger();
+                        for (int i = 0; i < nrArgs; ++i)
+                        {
+                            if (Instruction.Type == InstructionType.DefineFunction2)
+                                args.Add(Instruction.Parameters[4 + i * 2 + 1].ToString());
+                            else
+                                args.Add(Instruction.Parameters[2 + i].ToString());
+                        }
+                        ret = $"{name}{(!string.IsNullOrEmpty(name) ? " = " : "")}function({string.Join(", ", args.ToArray())})";
+                        break;
+                    default:
+                        try
+                        {
+                            ret = Instruction.ToString(vals);
+                        }
+                        catch
+                        {
+                            ret = Instruction.ToString2(vals);
+                        }
+                        break;
                 }
                 return ret;
             }
@@ -572,7 +696,7 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
                 if (Instruction is LogicalTaggedInstruction itag)
                     instruction = itag.FinalInnerAction;
                 // special process and overriding regular process
-                var spec_proc_flag = true;
+                var flagSpecialProc = true;
                 switch (instruction.Type)
                 {
                     // type 1: peek but no pop
@@ -657,16 +781,16 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
 
                     // no hits
                     default:
-                        spec_proc_flag = false;
+                        flagSpecialProc = false;
                         break;
                 }
-                if ((!spec_proc_flag) && instruction is InstructionMonoPush inst)
+                if ((!flagSpecialProc) && instruction is InstructionMonoPush inst)
                 {
                     // TODO string output
                     for (int i = 0; i < inst.StackPop; ++i)
                         Expressions.Add(tree.FindFirstNodeExpression());
                 }
-                else if (!spec_proc_flag) // not implemented instructions
+                else if (!flagSpecialProc) // not implemented instructions
                 {
                     throw new NotImplementedException(instruction.Type.ToString());
                 }
@@ -828,15 +952,40 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor
             return Tree;
         }
 
-        public string GetCode()
+        public string GetCode(int indent = 0, CodeType type = CodeType.Sequential)
         {
-            var ans = "";
+            var tc = Type;
+            Type = type;
+            StringBuilder ans = new();
+            var returnLine = false;
             foreach (var node in NodeList)
-                if (node == null)
-                    ans += "[[null node]];\n";
+            {
+                if (returnLine == false)
+                    returnLine = true;
                 else
-                    ans += node.GetCode(this) + ";\n";
-            return ans;
+                    ans.Append('\n');
+
+                var addDiv = true;
+                var code = "[[null node]]";
+                if (node != null)
+                {
+                    code = node.GetCode(this);
+                }
+
+                if (code.EndsWith("@"))
+                {
+                    code = code.Substring(0, code.Length - 1);
+                    addDiv = false;
+                }
+                if (string.IsNullOrWhiteSpace(code))
+                    returnLine = false;
+                else
+                    ans.Append(code.ToStringWithIndent(indent));
+                if (addDiv)
+                    ans.Append(';');
+            }
+            Type = tc;
+            return ans.ToString();
         }
     }
 
