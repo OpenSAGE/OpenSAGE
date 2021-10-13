@@ -14,6 +14,7 @@ using OpenSage.Tools.AptEditor.UI.Widgets;
 using OpenSage.Tools.AptEditor.Util;
 using Veldrid;
 using Veldrid.StartupUtilities;
+using OpenSage.Tools.AptEditor.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.UI
 {
@@ -22,7 +23,7 @@ namespace OpenSage.Tools.AptEditor.UI
         public AptSceneInstance Scene { get; protected set; }
         public AptEditInstance? Edit { get; protected set; }
 
-        public LogicalInstructions? CurrentActions { get; set; }
+        public InstructionGraph? CurrentActions { get; set; }
         public string? CurrentAptPath { get; protected set; }
         public string CurrentTitle { get; set; }
 
@@ -48,8 +49,8 @@ namespace OpenSage.Tools.AptEditor.UI
         public void SetApt(string path, AptFile apt)
         {
             Scene.SetApt(apt);
-            var tl = new TreeViewEditor(apt);
-            tl.Print();
+            // var tl = new TreeViewEditor(apt);
+            // tl.Print();
             Edit = new AptEditInstance(apt);
             CurrentAptPath = path;
         }

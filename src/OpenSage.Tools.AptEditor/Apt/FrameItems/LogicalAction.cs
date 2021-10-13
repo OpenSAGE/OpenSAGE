@@ -1,13 +1,14 @@
 ﻿using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
+using OpenSage.Tools.AptEditor.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
 {
     internal class LogicalAction
     {
-        public LogicalInstructions Instructions { get; set; }
+        public InstructionGraph Instructions { get; set; }
         public LogicalAction(Action action)
         {
-            Instructions = new LogicalInstructions(action.Instructions);
+            Instructions = new InstructionGraph(action.Instructions);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.FileFormats.Apt.FrameItems;
+using OpenSage.Tools.AptEditor.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
 {
@@ -10,13 +11,13 @@ namespace OpenSage.Tools.AptEditor.Apt.Editor.FrameItems
         public ClipEvent Linked { get; }
         public ClipEventFlags Flags => Linked.Flags;
         public byte KeyCode => Linked.KeyCode;
-        public LogicalInstructions Instructions { get; private set; }
+        public InstructionGraph Instructions { get; private set; }
 
         public LogicalClipEvent(Action<IEditAction> edit, ClipEvent c)
         {
             _edit = edit;
             Linked = c;
-            Instructions = new LogicalInstructions(c.Instructions);
+            Instructions = new InstructionGraph(c.Instructions);
         }
 
         public void SetFlags(ClipEventFlags flags)

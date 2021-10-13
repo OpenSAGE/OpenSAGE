@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using OpenSage.Tools.AptEditor.Apt.Editor;
+using OpenSage.Tools.AptEditor.ActionScript;
 using OpenSage.Tools.AptEditor.Util;
 using OpenSage.FileFormats.Apt;
 

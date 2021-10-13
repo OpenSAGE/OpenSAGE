@@ -5,6 +5,7 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using System.Numerics;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Tools.AptEditor.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
@@ -36,7 +37,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     }
     internal class VMConsole : IWidget
     {
-        LogicalInstructions _instructions = null;
+        InstructionGraph _instructions = null;
         AptContext _context = null;
         ObjectContext _dispobj = null;
         ActionContext _acontext = null;
@@ -194,18 +195,23 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 {
                     var cs = _context.Avm.ListContextStack();
                     var cq = _context.Avm.ListContextQueue();
+                    var flag = false;
                     if (ImGui.ListBox($"E.Cont.[{cs.Length}]", ref selected_cstack, cs, cs.Length))
                     {
                         _acontext = _context.Avm.GetStackContext(selected_cstack);
-                        var str = _acontext.Stream;
-                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions, _context.AptFile.Constants.Entries);
-                        manager.CurrentTitle = $"ActionContext {_acontext}";
+                        flag = true;
                     }
                     if (ImGui.ListBox($"Queue[{cq.Length}]", ref selected_cqueue, cq, cq.Length))
                     {
                         _acontext = _context.Avm.GetQueueContext(selected_cqueue);
-                        var str = _acontext.Stream;
-                        manager.CurrentActions = str == null ? null : new LogicalInstructions(str.Instructions, _context.AptFile.Constants.Entries);
+                        flag = true;
+                    }
+
+                    if (flag)
+                    {
+                        var str = _acontext!.Stream;
+                        var insts = str == null ? null : str.Instructions;
+                        manager.CurrentActions = InstUtils.Graphify(insts, _context.AptFile.Constants.Entries);
                         manager.CurrentTitle = $"ActionContext {_acontext}";
                     }
 
@@ -278,13 +284,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 var dod = od.obj as DefinedFunction;
                 _acontext = dod.GetContext(_context.Avm, null, null);
                 var reg = 
-                manager.CurrentActions = new LogicalInstructions(dod.Instructions, _context.AptFile.Constants.Entries, 0, dod.Constants, LogicalFunctionContext.Preload(dod.Flags));
+                manager.CurrentActions = InstUtils.Graphify(dod.Instructions, _context.AptFile.Constants.Entries, dod.Constants, LogicalFunctionContext.Preload(dod.Flags));
                 manager.CurrentTitle = $"Function {dod}";
             }
                 
             DrawObject(od.sub, manager, layer + 1);
         }
-        internal void DrawCodes(LogicalInstructions insts, int indent = 0)
+        internal void DrawCodes(InstructionGraph insts, int indent = 0)
         {
             foreach (var c in insts.Items)
             {
