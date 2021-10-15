@@ -143,6 +143,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             else // parameters can be stored in both registers and local variables
             {
+                // the following codes follow the instructions in
+                // page 114, swf file format spec v9 (ActionDefineFunction2 section)
+
+                // first load parameters
                 for (var i = 0; i < Parameters.Count; i += 2)
                 {
                     var reg = Parameters[i].ToInteger();
@@ -159,11 +163,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                         context.Params[name] = provided ? args[argIndex] : Value.Undefined();
                     }
                 }
-            }
 
-            if (IsNewVersion)
-            {
-                context.Preload(Flags);
+                // then load variables
+                // overwrite parameters if register is coincidently the same
+                var a = Value.FromObject(new ASArray(args, vm));
+                context.Preload(Flags, a);
             }
 
             return context;

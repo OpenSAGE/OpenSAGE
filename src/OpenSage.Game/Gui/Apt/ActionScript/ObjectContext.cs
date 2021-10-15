@@ -242,7 +242,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         if (localOverride == null)
                         {
                             if (prop_.Configurable)
-                                prop_.Enumerable = val.Enumerable();
+                                prop_.Enumerable = val.IsEnumerable();
                             prop_.Value = val;
                             _properties[name] = prop_;
                         }
@@ -380,6 +380,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
 
+        // judgements
+
         /// <summary>
         ///
         /// this: should be a prototype (has "constructor": function)
@@ -420,14 +422,84 @@ namespace OpenSage.Gui.Apt.ActionScript
             return false;
         }
 
+        // conversion
+
         public override string ToString()
         {
+            // TODO 
             return $"[{GetType().Name}]";
         }
 
-        public Value ToPrimitive()
+        public Value ToStringAS(ActionContext actx = null)
         {
-            return null;
+            var funcStr = "toString";
+            if (HasMember(funcStr))
+            {
+                var v = GetMember(funcStr);
+                if (v != null && v.IsCallable())
+                {
+                    var sret = v.ToFunction().Invoke(actx, this, new Value[] { });
+                    return sret;
+                }
+                else
+                    return null;
+            }
+            else
+                return null;
+        }
+
+        public Value ValueOfAS(ActionContext actx = null)
+        {
+            var funcStr = "valueOf";
+            if (HasMember(funcStr))
+            {
+                var v = GetMember(funcStr);
+                if (v != null && v.IsCallable())
+                {
+                    var sret = v.ToFunction().Invoke(actx, this, new Value[] { });
+                    return sret;
+                }
+                else
+                    return null;
+            }
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hint">0 = none, 1 = string, 2 = number</param>
+        /// <returns></returns>
+        public virtual Value DefaultValue(int hint = 0, ActionContext actx = null)
+        {
+            if (hint == 1)
+            {
+                var ts = ToStringAS(actx);
+                if (Value.IsPrimitive(ts))
+                    return ts;
+                var vo = ValueOfAS(actx);
+                if (Value.IsPrimitive(vo))
+                    return vo;
+                // todo throw exception inside vm?
+                throw new NotImplementedException("TypeError Exception");
+            }
+            else if (hint == 2)
+            {
+                var vo = ValueOfAS(actx);
+                if (Value.IsPrimitive(vo))
+                    return vo;
+                var ts = ToStringAS(actx);
+                if (Value.IsPrimitive(ts))
+                    return ts;
+                // todo throw exception inside vm?
+                throw new NotImplementedException("TypeError Exception");
+            }
+            else
+            {
+                // TODO date object
+                return DefaultValue(2, actx);
+            }
         }
 
         public string ToStringDisp(ActionContext actx)

@@ -67,7 +67,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         public static string ToCodingForm(this string str)
         {
-            return $"\"{str.Replace("\\", "\\\\").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
+            return $"\"{str.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
         }
 
         public static InstructionGraph? Graphify(

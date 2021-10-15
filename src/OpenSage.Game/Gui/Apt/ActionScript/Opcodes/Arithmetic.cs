@@ -41,7 +41,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override Func<Value, Value, Value> Operator =>
             (a, b) =>
-            (a.IsNumericType() && b.IsNumericType()) ?
+            (a.IsNumber() && b.IsNumber()) ?
             Value.FromFloat(b.ToFloat() + a.ToFloat()) :
             Value.FromString(b.ToString() + a.ToString());
         public override InstructionType Type => InstructionType.Add2;

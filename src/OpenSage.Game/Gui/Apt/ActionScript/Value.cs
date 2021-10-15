@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         String,
         Boolean,
         Integer,
-        Short,
+        // Short is removed since never used
         Float,
         Object,
         Undefined,
@@ -24,27 +24,64 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     public class Value
     {
-        public ValueType Type { get; private set; }
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public readonly ValueType Type;
+
+        private readonly string _string;
+        private readonly bool _boolean;
+        private readonly int _number;
+        private readonly double _decimal;
+        private readonly ObjectContext _object;
+        private readonly ActionContext _actx;
 
         public string DisplayString { get; set; }
 
-        private string _string;
-        private bool _boolean;
-        private int _number;
-        private double _decimal;
-        private ObjectContext _object;
-        private ActionContext _actx;
+        private static Value UndefinedValue = new(ValueType.Undefined);
 
-        public bool IsNumericType()
+        private Value(ValueType type,
+            string s = null,
+            bool b = false,
+            int n = 0,
+            double d = 0,
+            ObjectContext o = null,
+            ActionContext a = null)
         {
-            return Type == ValueType.Float || Type == ValueType.Integer;
+            Type = type;
+            _string = s;
+            _boolean = b;
+            _number = n;
+            _decimal = d;
+            _object = o;
+            _actx = a;
         }
 
-        public bool Enumerable()
+        // judgement
+
+        public static bool IsUndefined(Value v) { return v != null && v.Type == ValueType.Undefined; }
+        public static bool IsNull(Value v) { return v == null || (v.Type == ValueType.Object && v._object == null); }
+        public static bool IsNumber(Value v) { return v != null && v.IsNumber(); }
+        public static bool IsString(Value v) { return v != null && v.IsString(); }
+
+        public bool IsUndefined() { return Type == ValueType.Undefined; }
+        public bool IsNull() { return Type == ValueType.Object && _object == null; }
+        public bool IsNumber() { return Type == ValueType.Float || Type == ValueType.Integer; }
+        public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ASString); }
+
+        public static bool IsCallable(Value v) { return v != null && (v._object as Function) != null; }
+        public static bool IsPrimitive(Value v) { return IsNull(v) || v.Type != ValueType.Object; }
+
+        public bool IsCallable() { return IsCallable(this); }
+        public bool IsPrimitive() { return IsPrimitive(this); }
+
+
+        public bool IsEnumerable()
         {
             // TODO try to implement although not necessary
             return false;
         }
+
+        // resolve
 
         public Value ResolveRegister(ActionContext context)
         {
@@ -87,117 +124,72 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _actx.Return ? _actx.ReturnValue : null;
         }
 
-        internal Value ToNumber()
-        {
-            if (IsNumericType())
-                return Type == ValueType.Float ? Value.FromFloat(_decimal) : Value.FromInteger(_number);
-            else
-                return Value.FromInteger(0);
-        }
+        // from
 
         public static Value FromFunction(Function func)
         {
-            var v = new Value();
-            v.Type = ValueType.Object;
-            v._object = func;
-            return v;
+            return new Value(ValueType.Object, o: func);
         }
 
         public static Value FromObject(ObjectContext obj)
         {
-            if (obj != null && obj.IsFunction()) return FromFunction((Function) obj);
-            var v = new Value();
-            v.Type = ValueType.Object;
-            v._object = obj;
-            return v;
+            if (obj != null && obj.IsFunction())
+                return FromFunction((Function) obj);
+            return new Value(ValueType.Object, o: obj);
         }
 
         public static Value FromArray(Value[] array, VM vm)
         {
-            var v = new Value();
-            v.Type = ValueType.Object;
-            v._object = new ASArray(array, vm);
-            return v;
+            return new Value(ValueType.Object, o: new ASArray(array, vm));
         }
 
         public static Value FromRegister(uint num)
         {
-            var v = new Value();
-            v.Type = ValueType.Register;
-            v._number = (int) num;
-            return v;
+            return new Value(ValueType.Register, n: (int) num);
         }
 
         public static Value FromConstant(uint id)
         {
-            var v = new Value();
-            v.Type = ValueType.Constant;
-            v._number = (int) id;
-            return v;
+            return new Value(ValueType.Constant, n: (int) id);
         }
 
         public static Value ReturnValue(ActionContext actx)
         {
-            var v = new Value();
-            v.Type = ValueType.Return;
-            v._actx = actx;
-            return v;
+            return new Value(ValueType.Return, a: actx);
         }
 
         public static Value FromBoolean(bool cond)
         {
-            var v = new Value();
-            v.Type = ValueType.Boolean;
-            v._boolean = cond;
-            return v;
+            return new Value(ValueType.Boolean, b: cond);
         }
 
         public static Value FromString(string str)
         {
-            var v = new Value();
-            v.Type = ValueType.String;
-            v._string = str;
-            return v;
+            return new Value(ValueType.String, s: str);
         }
 
         public static Value FromInteger(int num)
         {
-            var v = new Value();
-            v.Type = ValueType.Integer;
-            v._number = num;
-            return v;
+            return new Value(ValueType.Integer, n: num);
         }
 
         // TODO is it okay?
         public static Value FromUInteger(uint num)
         {
-            var v = new Value();
             if (num > 0x0FFFFFFF)
-            {
-                v.Type = ValueType.Float;
-                v._decimal = (double) num;
-            }
+                return new Value(ValueType.Float, d: (double) num);
             else
-            {
-                v.Type = ValueType.Integer;
-                v._number = (int) num;
-            }
-            return v;
+                return new Value(ValueType.Integer, n: (int) num);
         }
 
         public static Value FromFloat(double num)
         {
-            var v = new Value();
-            v.Type = ValueType.Float;
-            v._decimal = num;
-            return v;
+            return new Value(ValueType.Float, d: num);
         }
 
         public static Value Undefined()
         {
-            var v = new Value();
-            v.Type = ValueType.Undefined;
-            return v;
+            return UndefinedValue;
         }
 
         public static Value FromStorage(ValueStorage s)
@@ -221,13 +213,23 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        // conversion
+
+        // constant & register
+        // Used by AptEditor to get actual id of constant / register
+        public uint GetIDValue()
+        {
+            if (Type != ValueType.Constant && Type != ValueType.Register)
+                throw new InvalidOperationException();
+
+            return (uint) _number;
+        }
 
         public T ToObject<T>() where T : ObjectContext
         {
             if (Type == ValueType.Undefined)
             {
-                logger.Error("Cannot create object from undefined!");
+                Logger.Error("Cannot create object from undefined!");
                 return null;
             }
             if (Type != ValueType.Object)
@@ -240,7 +242,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (Type == ValueType.Undefined)
             {
-                logger.Error("Cannot create object from undefined!");
+                Logger.Error("Cannot create object from undefined!");
                 return null;
             }
 
@@ -255,50 +257,63 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _object;
         }
 
+        // numbers
+
+        internal Value ToNumber()
+        {
+            if (IsNumber())
+                return Type == ValueType.Float ? FromFloat(_decimal) : FromInteger(_number);
+            else
+                return FromInteger(0);
+        }
+
+        public double ToFloat()
+        {
+            switch (Type)
+            {
+                case ValueType.Constant:
+                case ValueType.Register:
+                case ValueType.Integer:
+                    return _number;
+                case ValueType.Float:
+                    return _decimal;
+                case ValueType.Undefined:
+                    return float.NaN;
+                case ValueType.Boolean:
+                    return _boolean ? 1.0 : 0.0;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         // Follow ECMA specification 9.4: https://www.ecma-international.org/ecma-262/5.1/#sec-9.4
-        // TODO optimize if possible
+        // and optimized
         public int ToInteger()
         {
-            if (Type == ValueType.Constant || Type == ValueType.Register)
-                return _number;
-
-            double floatNumber = ToFloat();
-            if (double.IsNaN(floatNumber))
+            switch (Type)
             {
-                return 0;
+                case ValueType.Constant:
+                case ValueType.Register:
+                case ValueType.Integer:
+                    return _number;
+                case ValueType.Float:
+                    double floatNumber = ToFloat();
+                    return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
+                case ValueType.Undefined:
+                    return 0;
+                case ValueType.Boolean:
+                    return _boolean ? 1 : 0;
+                default:
+                    throw new NotImplementedException();
             }
-
-            return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
         }
 
         public uint ToUInteger()
         {
-            double number = ToFloat();
-            if (double.IsNaN(number) || double.IsInfinity(number)) return 0;
-            double posInt = Math.Sign(number) * (int) Math.Abs(number);
-            uint ans = (uint) (posInt % 0x10000000);
-            return ans;
+            return (uint) ToInteger();
         }
 
-        /// Used by AptEditor to get actual id of constant / register
-        public uint GetIDValue()
-        {
-            if (Type != ValueType.Constant && Type != ValueType.Register)
-                throw new InvalidOperationException();
-
-            return (uint) _number;
-        }
-
-        // TODO: implement integer conversion etc.
-        public double ToReal()
-        {
-            if (Type == ValueType.Float) {
-                return _decimal;
-            }
-
-            // TODO
-            throw new NotImplementedException();
-        }
+        // ToReal() migrated to ToFloat()
 
         public bool ToBoolean()
         {
@@ -321,14 +336,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                     var = (_decimal != 0);
                     break;
                 case ValueType.Integer:
-                case ValueType.Short:
                     var = (_number != 0);
                     break;
                 default:
                     throw new InvalidOperationException();
             }
-
-
             return var;
         }
 
@@ -336,7 +348,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (Type == ValueType.Undefined)
             {
-                logger.Error("Undefined Function!");
+                Logger.Error("Undefined Function!");
                 return null;
             }
             if (Type != ValueType.Object || _object is not Function)
@@ -354,7 +366,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return _string;
                 case ValueType.Boolean:
                     return _boolean.ToString();
-                case ValueType.Short:
                 case ValueType.Integer:
                 case ValueType.Constant:
                 case ValueType.Register:
@@ -384,7 +395,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                     result = "boolean";
                     break;
                 case ValueType.Integer:
-                case ValueType.Short:
                 case ValueType.Float:
                     result = "number";
                     break;
@@ -405,6 +415,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             return result;
         }
 
+        // only used in debugging
+
         public string ToStringWithType(ActionContext ctx)
         {
             var ttype = "?";
@@ -422,27 +434,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return $"({ttype}){tstr}";
             }
 
-        // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3
-        public double ToFloat()
-        {
-            switch (Type)
-            {
-                case ValueType.Constant:
-                case ValueType.Register:
-                case ValueType.Short:
-                case ValueType.Integer:
-                    return _number;
-                case ValueType.Float:
-                    return _decimal;
-                case ValueType.Undefined:
-                    return float.NaN;
-                case ValueType.Boolean:
-                    return _boolean ? 1.0 : 0.0;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
+        // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3\
         public TEnum ToEnum<TEnum>() where TEnum : struct
         {
             if (Type != ValueType.Integer)
@@ -451,42 +443,124 @@ namespace OpenSage.Gui.Apt.ActionScript
             return EnumUtility.CastValueAsEnum<int, TEnum>(_number);
         }
 
-        //TODO: According to page 74, ActionEquals2 of SWF7 format specification
-        //http://www.prowiki.org/upload/HelmutLeitner/flash_file_format_specification.pdf
-        //Here an Abstract Equality Comparison Algorithm should be implemented.
-        //(Section 11.9.3, ECMAScript Specification 3)
-        //https://www-archive.mozilla.org/js/language/E262-3.pdf
-        public bool Equals(Value b)
+        // TODO not comprehensive; ActionContext needed
+        public Value ToPrimirive()
         {
-            bool result;
-
-            if (Type != b.Type)
-                return false;
-
             switch (Type)
             {
                 case ValueType.Undefined:
-                    result = true;
-                    break;
-                case ValueType.String:
-                    result = (b._string == _string);
-                    break;
                 case ValueType.Boolean:
-                    result = b._boolean == _boolean;
-                    break;
-                case ValueType.Object:
-                    result = b._object == _object;
-                    break;
                 case ValueType.Integer:
-                    result = b._number == _number;
-                    break;
+                case ValueType.Float:
+                case ValueType.String:
+                    return this;
+                case ValueType.Object:
+                    if (IsNull())
+                        return this;
+                    else
+                        return _object.DefaultValue();
                 default:
                     throw new NotImplementedException();
             }
-
-            return result;
+            
         }
 
+        // equality comparison
+
+        public override bool Equals(object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                return AbstractEquals(this, (Value) obj);
+            }
+        }
+
+        // used by ActionEquals
+        public static bool NaiveEquals(Value a, Value b)
+        {
+            var fa = a.IsNumber() ? a.ToFloat() : 0;
+            var fb = b.IsNumber() ? b.ToFloat() : 0;
+            return fa == fb;
+        }
+
+        public static bool NumberEquals(Value a, Value b)
+        {
+            if (IsNumber(a) && IsNumber(b))
+            {
+                if (double.IsNaN(a._decimal) || double.IsNaN(b._decimal))
+                    return false;
+                else if (a.Type == ValueType.Integer && b.Type == ValueType.Integer)
+                    return a._number == b._number;
+                else
+                {
+                    var fa = a.ToFloat();
+                    var fb = b.ToFloat();
+                    return fa == fb || (Math.Abs(fa) == 0 && Math.Abs(fa) == Math.Abs(fb));
+                }
+            }
+            else
+                return false;
+        }
+
+        // used by ActionEquals2
+        // The Abstract Equality Comparison Follows Section 11.9.3, ECMAScript Specification 3
+        // https://262.ecma-international.org/5.1/#sec-11.9.3
+        // https://www-archive.mozilla.org/js/language/E262-3.pdf
+        public static bool AbstractEquals(Value x, Value y)
+        {
+            if ((IsNull(x) && IsNull(y)) ||
+                (IsNull(x) && IsUndefined(y)) ||
+                (IsNull(y) && IsUndefined(x)))
+                return true;
+            else if (IsNull(x) || IsNull(y))
+                return false; // TODO check
+            else if (x.Type == y.Type)
+            {
+                if (IsUndefined(x))
+                    return true;
+                else if (IsString(x))
+                    return string.Equals(x.ToString(), y.ToString());
+                else if (x.Type == ValueType.Boolean)
+                    return x._boolean ^ y._boolean;
+                else if (x.Type == ValueType.Object)
+                    return x._object == y._object;
+                else if (IsNumber(x))
+                    return NumberEquals(x, y);
+                else
+                    return object.Equals(x, y); // TODO check
+            }
+            else if (IsNumber(x) && IsNumber(y))
+                return NumberEquals(x, y);
+            else
+            {
+                if (IsNumber(x) && IsString(y))
+                    return NumberEquals(x, FromFloat(y.ToFloat()));
+                else if (IsNumber(y) && IsString(x))
+                    return NumberEquals(y, FromFloat(x.ToFloat()));
+                else if (x.Type == ValueType.Boolean)
+                    return AbstractEquals(FromFloat(x.ToFloat()), y);
+                else if (y.Type == ValueType.Boolean)
+                    return AbstractEquals(FromFloat(y.ToFloat()), x);
+                else if ((IsNumber(x) || IsString(x)) && (y.Type == ValueType.Object && !IsNull(y)))
+                    return AbstractEquals(x, y.ToPrimirive());
+                else if ((IsNumber(y) || IsString(y)) && (x.Type == ValueType.Object && !IsNull(x)))
+                    return AbstractEquals(y, x.ToPrimirive());
+                else
+                    return false;
+            }
+        }
+        public bool Equals(Value b)
+        {
+            return AbstractEquals(this, b);
+        }
+
+
+        //TODO: Implement Strict Equality Comparison Algorithm
         public bool StrictEquals(Value b)
         {
             bool result;
@@ -494,7 +568,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != b.Type)
                 return false;
 
-            //TODO: Implement Strict Equality Comparison Algorithm
+            
             switch (Type)
             {
                 case ValueType.Undefined:

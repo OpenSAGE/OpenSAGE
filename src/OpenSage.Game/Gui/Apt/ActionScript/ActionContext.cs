@@ -410,7 +410,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Preload specified variables
         /// </summary>
         /// <param name="flags">the flags</param>
-        public void Preload(FunctionPreloadFlags flags)
+        public void Preload(FunctionPreloadFlags flags, Value args)
         {
             //preloaded variables start at register 1
             int reg = 1;
@@ -424,7 +424,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
             {
-                throw new NotImplementedException();
+                if (args == null)
+                    throw new InvalidOperationException();
+                _registers[reg] = args;
+                _registers[reg].DisplayString = "Preload Arguments";
+                ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
@@ -477,7 +481,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))
             {
-                throw new NotImplementedException();
+                _locals["arguments"] = args;
             }
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))

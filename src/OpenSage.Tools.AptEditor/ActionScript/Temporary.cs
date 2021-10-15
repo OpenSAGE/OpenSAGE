@@ -196,7 +196,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 case ValueType.Constant:
                     return Value.FromConstant(existing.GetIDValue());
                 case ValueType.Float:
-                    return Value.FromFloat((float) existing.ToReal());
+                    return Value.FromFloat((float) existing.ToFloat());
                 case ValueType.Integer:
                     return Value.FromInteger(existing.ToInteger());
                 case ValueType.Register:

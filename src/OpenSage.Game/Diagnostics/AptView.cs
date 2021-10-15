@@ -28,7 +28,6 @@ namespace OpenSage.Diagnostics
                     return value.ToString();
                 case ValueType.Boolean:
                     return value.ToBoolean();
-                case ValueType.Short:
                 case ValueType.Integer:
                     return value.ToInteger();
                 case ValueType.Float:
