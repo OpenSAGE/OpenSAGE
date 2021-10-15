@@ -12,46 +12,352 @@ using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
 namespace OpenSage.Tools.AptEditor.ActionScript
 {
-    public enum CodeType
+
+    public class StatementCollection
     {
-        Sequential,
-        Case,
-        Loop
+        public IEnumerable<NodeStatement> Statements { get; private set; }
+        public IEnumerable<Value> Constants { get; }
+        public IDictionary<int, string> RegNames { get; }
+        public Dictionary<int, Value> Registers { get; }
+        public Dictionary<string, NodeExpression> NodeNames { get; }
+
+        public StatementCollection(NodePool pool) {
+            Statements = pool.PopStatements();
+            Constants = pool.Constants;
+            RegNames = new Dictionary<int, string>(pool.RegNames);
+            Registers = new();
+            NodeNames = new();
+        }
+
+        
+
+        public static string Compile(StatementCollection sc, int dIndent = 4, int startIndent = 0, bool compileSubCollections = true)
+        {
+            StringBuilder ans = new();
+            Stack<StatementCollection> scs = new();
+            var curIndent = startIndent;
+            scs.Push(sc);
+            while (scs.Count > 0)
+            {
+                var scCur = scs.Pop();
+                foreach (var node in scCur.Statements)
+                {
+                    if (node == null)
+                        ans.Append("// null node\n".ToStringWithIndent(curIndent));
+                    else
+                    {
+                        // TODO indent & CSC
+                        node.TryCompile(scCur, curIndent);
+                        if (node.Code == null)
+                            ans.Append("// no compiling result\n".ToStringWithIndent(curIndent));
+                        // TODO control node?
+                        // TODO function?
+                        else
+                            foreach (var code in node.Code)
+                            {
+                                if (string.IsNullOrWhiteSpace(code))
+                                    continue;
+                                if (code.EndsWith("@"))
+                                    ans.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
+                                else
+                                {
+                                    ans.Append(code.ToStringWithIndent(curIndent));
+                                    ans.Append(";");
+                                }
+                                ans.Append("\n");
+                            }
+                    }
+                }
+            }
+            return ans.ToString();
+        }
+
+        public bool GetExpression(Value v, out string ret)
+        {
+            ret = string.Empty;
+            var ans = true;
+            if (v.Type == ValueType.Constant)
+                if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count())
+                {
+                    v = Constants.ElementAt(v.ToInteger());
+                    if (v.Type == ValueType.String)
+                        ret = v.ToString();
+                }
+                else
+                {
+                    ret = $"__const__[{v.ToInteger()}]";
+                    ans = false;
+                }
+
+            if (v.Type == ValueType.Register)
+                if (RegNames != null && RegNames.TryGetValue(v.ToInteger(), out var reg))
+                {
+                    ret = reg;
+                    ans = false;
+                }
+                else
+                {
+                    ret = $"__reg__[{v.ToInteger()}]";
+                    ans = false;
+                }
+
+            if (string.IsNullOrEmpty(ret))
+                ret = v.ToString();
+            return ans;
+        }
+
     }
 
-
     // AST
-    public class CodeTree
+    public class NodePool
     {
-        public List<Node> NodeList;
+        /*
+         * This class is used to change StructurizedBlockChain's to some structure
+         * that has the feature of AST. 
+         * In principle, no calculation should be involved, but enumerate- and array-related 
+         * actions are exceptions.
+         * The following assumptions are used:
+         * - ConstantPool is only executed at most once in one code piece.
+         *   Consequences of violation is unclear yet. 
+         * - Enumerate is only used in for...in statements.
+         *   Consequences of violation is unclear yet. 
+         * 
+         */
 
-        // The decompilation depends on the assumption that
-        // ConstantPool() is only executed at most once in one segment.
-        public List<Value> Constants;
-        public Dictionary<int, string> RegNames;
+        // change through process
+        public List<Node> NodeList { get; }
+
+        // should not be modified
+        public IEnumerable<Value> Constants { get; }
+
+        // change through function
+        public Dictionary<int, string> RegNames { get; }
+
+
+        // will be removed
         public CodeType Type { get; private set; }
 
-        public CodeTree(IEnumerable<Value>? constants = null, IDictionary<int, string>? regNames = null)
+        // brand new pool
+        public NodePool(IEnumerable<Value>? consts = null, IDictionary<int, string>? regNames = null)
         {
             Type = CodeType.Sequential;
             NodeList = new();
-            Constants = new();
-            if (constants != null)
-                Constants.AddRange(constants);
+            Constants = consts == null ? Enumerable.Empty<Value>() : new List<Value>(consts);
             if (regNames != null)
                 RegNames = new(regNames);
             else
                 RegNames = new();
         }
 
+        // subpool of function
+        public NodePool(LogicalFunctionContext defFunc, NodePool parent, IEnumerable<Value>? consts = null)
+        {
+            NodeList = new();
+            if (parent != null)
+            {
+                Constants = parent.Constants;
+                RegNames = new(defFunc.Instructions.RegNames!);
+            }
+            else
+            {
+                Constants = consts == null ? Enumerable.Empty<Value>() : new List<Value>(consts);
+                RegNames = new();
+            }
+        }
+
+        // subpool of control
+        public NodePool(NodePool parent, IEnumerable<Value>? consts = null)
+        {
+            if (parent != null)
+            {
+                NodeList = new(parent.NodeList);
+                Constants = parent.Constants;
+                RegNames = new(parent.RegNames);
+            }
+            else
+            {
+                NodeList = new();
+                Constants = consts == null ? Enumerable.Empty<Value>() : new List<Value>(consts);
+                RegNames = new();
+            }
+        }
+
+        public void PushInstruction(InstructionBase inst)
+        {
+            Node n;
+            if (inst is LogicalFunctionContext fc)
+            {
+                var subpool = new NodePool(fc, this);
+                subpool.PushChain(fc.Chain!);
+                StatementCollection sc = new(subpool);
+                n = fc.IsStatement ? new NodeDefineFunction(fc, sc) : new NodeFunctionBody(fc, sc);
+            }
+            else if (inst.Type == InstructionType.Enumerate || inst.Type == InstructionType.Enumerate2)
+            {
+                var obj = PopExpression();
+                // a null object and the enumerated objects are pushed
+                // but due to the mechanism of this class, only the latter
+                // is needed
+                n = new NodeEnumerate(inst);
+                n.Expressions.Add(obj);
+            }
+            else
+            {
+                n = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
+                n.GetExpressions(this);
+            }
+            NodeList.Add(n);
+        }
+        
+        public NodeExpression? PopExpression(bool deleteIfPossible = true)
+        {
+            var ind = NodeList.FindLastIndex(n => n is NodeExpression);
+            NodeExpression? ret = null;
+            if (ind == -1)
+                ret = null;
+            else
+            {
+                var node = (NodeExpression) NodeList[ind];
+
+                // some special nodes shouldn't be deleted like Enumerate
+                var ableToDelete = true; 
+                if (node.Instruction.Type == InstructionType.Enumerate2 ||
+                    node.Instruction.Type == InstructionType.Enumerate)
+                    ableToDelete = false;
+
+                if (ableToDelete && deleteIfPossible)
+                    NodeList.RemoveAt(ind);
+                ret = node;
+            }
+            return ret;
+        }
+        public NodeArray PopArray(bool readPair = false, bool ensureCount = true)
+        {
+            NodeArray ans = new();
+            var nexp = PopExpression();
+            Value? countVal = null;
+            // another trygetvalue()
+
+            var flag = nexp == null ? false : nexp.TryGetValue(x => InstUtils.ParseValue(x, Constants, null), out countVal);
+            if (flag)
+            {
+                var count = countVal!.ToInteger();
+                if (readPair) count *= 2;
+                for (int i = 0; i < count; ++i)
+                {
+                    var exp = PopExpression();
+                    if (exp != null || (exp == null && ensureCount))
+                        ans.Expressions.Add(exp);
+                }
+            }
+            return ans;
+        }
+
+        public IEnumerable<NodeStatement> PopStatements()
+        {
+            return NodeList.Where(x => x is NodeStatement).Cast<NodeStatement>();
+        }
+
+        
+        public static NodePool PushBlock(InstructionBlock root, IEnumerable<Value>? constants, IDictionary<int, string>? regNames)
+        {
+            NodePool tree = new(constants, regNames);
+            foreach (var kvp in root.Items)
+            {
+                var inst = kvp.Value;
+                tree.PushInstruction(inst);
+            }
+            return tree;
+        }
+
+        public void PushChainRaw(StructurizedBlockChain chain, bool ignoreBranch)
+        {
+            if (chain.Empty)
+                return;
+            var c = chain;
+            var currentBlock = c.StartBlock;
+            while (currentBlock != null && (c.EndBlock == null || currentBlock.Hierarchy <= c.EndBlock!.Hierarchy))
+            {
+                foreach (var (pos, inst) in currentBlock.Items)
+                {
+                    // TODO how to ignore branch?
+                    PushInstruction(inst);
+                }
+
+                currentBlock = currentBlock.NextBlockDefault;
+            }
+            c = c.Next;
+        }
+
+        public void PushChain(
+            StructurizedBlockChain chain, 
+            List<Value>? constPool = null,
+            Dictionary<int, string>? regNames = null,
+            int layer = 0,
+            CodeType type = CodeType.Sequential
+            )
+        {
+            // Console.WriteLine(this);
+            if (chain.Type == CodeType.Case)
+            {
+                //Console.WriteLine("If Statement {".ToStringWithIndent(layer * 4));
+                PushChain(chain.AdditionalData[0]);
+                var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
+                var bexp = PopExpression(true);
+
+                // TODO create node expression
+                NodePool sub1 = new(this);
+                NodePool sub2 = new(this);
+                sub1.PushChain(chain.AdditionalData[1]);
+                sub2.PushChain(chain.AdditionalData[2]);
+                NodeCase n = new(branch!, bexp!, new(sub1), new(sub2));
+                NodeList.Add(n);
+            }
+            else if (chain.Type == CodeType.Loop)
+            {
+                PushChain(chain.AdditionalData[0]);
+                var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
+                var bexp = PopExpression(true);
+                // TODO create node expression
+                // TODO this one needs more than condition!!!
+                NodePool sub1 = new(this);
+                NodePool sub2 = new(this);
+                sub1.PushChain(chain.AdditionalData[0]);
+                sub2.PushChain(chain.AdditionalData[1]);
+                NodeLoop n = new(branch!, bexp!, new(sub1), new(sub2));
+                NodeList.Add(n);
+
+            }
+            else if (chain.SubChainStart != null)
+            {
+                var c = chain.SubChainStart;
+                while (c != null)
+                {
+                    PushChain(c, constPool, regNames, layer);
+                    c = c.Next;
+                }
+            }
+            else
+                PushChainRaw(chain, false);
+        }
+
+        public static NodePool ConvertToAST(StructurizedBlockChain chain, IEnumerable<Value>? constants, IDictionary<int, string>? regNames)
+        {
+            NodePool pool = new(constants, regNames);
+            pool.PushChain(chain);
+            return pool;
+        }
+
+        // TODO use syntax tree method
+        // will be removed sooner or later
         public bool ToStringInCodingForm(Value v, out string ret)
         {
             ret = string.Empty;
             var ans = true;
             if (v.Type == ValueType.Constant)
-                if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count)
+                if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count())
                 {
-                    v = Constants[v.ToInteger()];
+                    v = Constants.ElementAt(v.ToInteger());
                     if (v.Type == ValueType.String)
                         ret = v.ToString();
                 }
@@ -77,55 +383,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 ret = v.ToString();
             return ans;
         }
-        public NodeExpression? FindFirstNodeExpression(bool deleteIfPossible = true)
-        {
-            var ind = NodeList.FindLastIndex(n => n is NodeExpression);
-            NodeExpression? ret = null;
-            if (ind == -1)
-                ret = null;
-            else
-            {
-                var node = (NodeExpression) NodeList[ind];
-                var ableToDelete = true; // TODO some special nodes shouldn't be deleted like Enumerate
-                if (ableToDelete && deleteIfPossible)
-                    NodeList.RemoveAt(ind);
-                ret = node;
-            }
-            return ret;
-        }
-        public NodeArray ReadArray(bool readPair = false, bool ensureCount = true)
-        {
-            NodeArray ans = new();
-            var nexp = FindFirstNodeExpression();
-            Value? countVal = null;
-            var flag = nexp == null ? false : nexp.GetValue(this, out countVal);
-            if (flag)
-            {
-                var count = countVal!.ToInteger();
-                if (readPair) count *= 2;
-                for (int i = 0; i < count; ++i)
-                {
-                    var exp = FindFirstNodeExpression();
-                    if (exp != null || (exp == null && ensureCount))
-                        ans.Expressions.Add(exp);
-                }
-            }
-            return ans;
-        }
-
-        public static CodeTree DecompileToTree(InstructionBlock root, IEnumerable<Value>? constants, IDictionary<int, string>? regNames)
-        {
-            CodeTree Tree = new(constants, regNames);
-            foreach (var kvp in root.Items)
-            {
-                var inst = kvp.Value;
-                Node node = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
-                node.GetExpressions(Tree);
-                Tree.NodeList.Add(node);
-            }
-            return Tree;
-        }
-
         public string GetCode(int indent = 0, CodeType type = CodeType.Sequential)
         {
             var tc = Type;
@@ -141,10 +398,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                 var addDiv = true;
                 var code = "[[null node]]";
-                if (node != null)
-                {
-                    code = node.GetCode(this);
-                }
+
+                code = node.GetCode(this);
 
                 if (code.EndsWith("@"))
                 {
@@ -165,14 +420,259 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
     // Nodes
 
+
     public abstract class Node
     {
-        public List<NodeExpression?> Expressions = new();
+        public readonly List<NodeExpression?> Expressions;
         public readonly InstructionBase Instruction;
+        public IEnumerable<string>? Code { get; protected set; }
 
-        public Node(InstructionBase inst) { Instruction = inst; }
+        protected Node(InstructionBase inst)
+        {
+            Instruction = inst;
+            Expressions = new();
+        }
 
-        public virtual string GetCode(CodeTree tree)
+        public void GetExpressions(NodePool pool)
+        {
+            Expressions.Clear();
+            var instruction = Instruction;
+            if (Instruction is LogicalTaggedInstruction itag)
+                instruction = itag.FinalInnerAction;
+            // special process and overriding regular process
+            var flagSpecialProc = true;
+            switch (instruction.Type)
+            {
+                // type 1: peek but no pop
+                case InstructionType.SetRegister:
+                    Expressions.Add(pool.PopExpression(false));
+                    // TODO resolve register
+                    break;
+                case InstructionType.PushDuplicate:
+                    Expressions.Add(pool.PopExpression(false));
+                    break;
+
+                // type 2: need to read args
+                case InstructionType.InitArray:
+                    Expressions.Add(pool.PopArray());
+                    break;
+                case InstructionType.ImplementsOp:
+                case InstructionType.CallFunction:
+                case InstructionType.EA_CallFuncPop:
+                case InstructionType.NewObject:
+                    Expressions.Add(pool.PopExpression());
+                    Expressions.Add(pool.PopArray());
+                    break;
+                case InstructionType.CallMethod:
+                case InstructionType.EA_CallMethod:
+                case InstructionType.EA_CallMethodPop:
+                case InstructionType.NewMethod:
+                    Expressions.Add(pool.PopExpression());
+                    Expressions.Add(pool.PopExpression());
+                    Expressions.Add(pool.PopArray());
+                    break;
+                case InstructionType.EA_CallNamedFuncPop:
+                case InstructionType.EA_CallNamedFunc:
+                    Expressions.Add(new NodeValue(instruction));
+                    Expressions.Add(pool.PopArray());
+                    break;
+                case InstructionType.EA_CallNamedMethodPop:
+                    Expressions.Add(new NodeValue(instruction));
+                    Expressions.Add(pool.PopExpression());
+                    Expressions.Add(pool.PopArray());
+                    break;
+                case InstructionType.EA_CallNamedMethod:
+                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
+                    Expressions.Add(pool.PopExpression());
+                    Expressions.Add(pool.PopArray());
+                    Expressions.Add(pool.PopExpression());
+                    break;
+                case InstructionType.InitObject:
+                    Expressions.Add(pool.PopArray(true));
+                    break;
+
+                // type 3: constant resolve needed
+                case InstructionType.EA_GetNamedMember:
+                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
+                    Expressions.Add(pool.PopExpression());
+                    break;
+                case InstructionType.EA_PushValueOfVar:
+                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant; incode form?
+                    break;
+                case InstructionType.EA_PushGlobalVar:
+                case InstructionType.EA_PushThisVar:
+                case InstructionType.EA_PushGlobal:
+                case InstructionType.EA_PushThis:
+                    break; // nothing needed
+                case InstructionType.EA_PushConstantByte:
+                case InstructionType.EA_PushConstantWord:
+                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve constant
+                    break;
+                case InstructionType.EA_PushRegister:
+                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve register
+                    break;
+
+                // type 4: variable output count
+                case InstructionType.PushData:
+                    // TODO
+                    break;
+                case InstructionType.Enumerate:
+                    // TODO
+                    break;
+                case InstructionType.Enumerate2:
+                    // TODO
+                    break;
+
+                // no hits
+                default:
+                    flagSpecialProc = false;
+                    break;
+            }
+            if ((!flagSpecialProc) && instruction is InstructionMonoPush inst)
+            {
+                // TODO string output
+                for (int i = 0; i < inst.StackPop; ++i)
+                    Expressions.Add(pool.PopExpression());
+            }
+            else if (!flagSpecialProc) // not implemented instructions
+            {
+                throw new NotImplementedException(instruction.Type.ToString());
+            }
+
+            // filter string
+
+        }
+
+        public virtual void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+        {
+            // get all values
+            var valCode = new string[Expressions.Count];
+            var val = new Value?[Expressions.Count]; // should never be constant or register type
+            for (int i = 0; i < Expressions.Count; ++i)
+            {
+                // get value
+                var ncur = Expressions[i];
+                if (ncur == null)
+                {
+                    valCode[i] = $"__args__[{i}]";
+                    val[i] = null;
+                    continue;
+                }
+                else if (ncur.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var nval))
+                {
+                    valCode[i] = nval!.ToString();
+                    val[i] = nval;
+                }
+                else
+                {
+                    ncur.TryCompile(sta);
+                    valCode[i] = string.Join("; ", ncur.Code == null ? new[] { $"__args__[{i}]" } : ncur.Code.ToArray());
+                    val[i] = null;
+                    // fix precendence
+                    // only needed for compiled codes
+                    if (ncur.Instruction != null && Instruction.Precendence > ncur.Instruction.Precendence)
+                        valCode[i] = $"({valCode[i]})";
+                }
+            }
+
+            // fix string values
+            // case 1: all strings are needed to fix
+            if (Instruction.Type == InstructionType.Add2 ||
+                Instruction.Type == InstructionType.GetURL ||
+                Instruction.Type == InstructionType.GetURL2 ||
+                Instruction.Type == InstructionType.StringConcat ||
+                Instruction.Type == InstructionType.StringEquals)
+            {
+                for (int i = 0; i < Expressions.Count; ++i)
+                {
+                    if (val[i] != null && val[i]!.Type == ValueType.String)
+                        valCode[i] = valCode[i].ToCodingForm();
+                }
+            }
+            // case 2: only the first one
+            else if (Instruction.Type == InstructionType.DefineLocal ||
+                     // Instruction.Type == InstructionType.Var ||
+                     Instruction.Type == InstructionType.ToInteger ||
+                     Instruction.Type == InstructionType.ToString ||
+                     Instruction.Type == InstructionType.SetMember ||
+                     Instruction.Type == InstructionType.SetVariable ||
+                     Instruction.Type == InstructionType.SetProperty ||
+                     Instruction.Type == InstructionType.EA_PushString ||
+                     // Instruction.Type == InstructionType.EA_SetStringMember ||
+                     // Instruction.Type == InstructionType.EA_SetStringVar ||
+                     Instruction.Type == InstructionType.EA_PushConstantByte ||
+                     Instruction.Type == InstructionType.EA_PushConstantWord ||
+                     Instruction.Type == InstructionType.Trace)
+            {
+                if (val[0] != null && val[0]!.Type == ValueType.String)
+                    valCode[0] = valCode[0].ToCodingForm();
+            }
+            // case 3 special handling
+
+            // start compile
+            List<string> code = new();
+            string ret = string.Empty;
+            string tmp = string.Empty;
+            switch (Instruction.Type)
+            {
+                // case 1: branches (break(1); continue(2); non-standatd codes(3))
+                case InstructionType.BranchAlways:
+                case InstructionType.BranchIfTrue:
+                case InstructionType.EA_BranchIfFalse:
+                    if (compileBranches)
+                    {
+                        var itmp = Instruction;
+                        var ttmp = itmp.Type;
+                        var lbl = $"[[{itmp.Parameters[0]}]]";
+                        while (itmp is LogicalTaggedInstruction itag)
+                        {
+                            lbl = string.IsNullOrEmpty(itag.Label) && itag.TagType == TagType.GotoLabel ? lbl : itag.Label;
+                            itmp = itag.InnerAction;
+                        }
+                        if (itmp.Type == InstructionType.BranchAlways)
+                            if (itmp.Parameters[0].ToInteger() > 0)
+                                ret = $"break; // __jmp__({lbl!.ToCodingForm()})@";
+                            else
+                                ret = $"continue; // __jmp__({lbl!.ToCodingForm()})@";
+                        else
+                        {
+                            tmp = valCode[0];
+                            while (tmp.StartsWith("!"))
+                            {
+                                tmp = tmp.Substring(1);
+                                ttmp = ttmp == InstructionType.BranchIfTrue ? InstructionType.EA_BranchIfFalse : InstructionType.BranchIfTrue;
+                                if (tmp.StartsWith('(') && tmp.EndsWith(')'))
+                                    tmp = tmp.Substring(1, tmp.Length - 2);
+                            }
+                            ret = $"__{(ttmp == InstructionType.BranchIfTrue ? "jz" : "jnz")}__({lbl!.ToCodingForm()}, {tmp})";
+                        }
+
+                    }
+                    break;
+                // case 2: value assignment statements
+                // NodeNames should be updated
+                case InstructionType.SetMember: // val[1] is integer: [] else: .
+                    if (val[1] == null || val[1]!.Type == ValueType.Integer)
+                        ret = $"{valCode[2]}[{valCode[1]}] = {valCode[0]}";
+                    else
+                        ret = Instruction.ToString(valCode);
+                    break;
+                // case 3: unhandled cases | handling is not needed
+                default:
+                    try
+                    {
+                        ret = Instruction.ToString(valCode);
+                    }
+                    catch
+                    {
+                        ret = Instruction.ToString2(valCode);
+                    }
+                    break;
+            }
+            code.Add(ret.ToStringWithIndent(indent)!);
+        }
+
+        public virtual string GetCode(NodePool tree)
         {
             var vals = new string[Expressions.Count];
             for (int i = 0; i < Expressions.Count; ++i)
@@ -184,7 +684,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
                 else
                 {
-                    var flag = node.GetValue(tree, out var val);
+                    var flag = node.TryGetValue(tree, out var val);
                     if (flag)
                     { // Formatize strings
                         var flag2 = tree.ToStringInCodingForm(val!, out vals[i]);
@@ -297,153 +797,48 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             }
             return ret;
         }
-        public void GetExpressions(CodeTree tree)
-        {
-            Expressions = new();
-            var instruction = Instruction;
-            if (Instruction is LogicalTaggedInstruction itag)
-                instruction = itag.FinalInnerAction;
-            // special process and overriding regular process
-            var flagSpecialProc = true;
-            switch (instruction.Type)
-            {
-                // type 1: peek but no pop
-                case InstructionType.SetRegister:
-                    Expressions.Add(tree.FindFirstNodeExpression(false));
-                    // TODO resolve register
-                    break;
-                case InstructionType.PushDuplicate:
-                    Expressions.Add(tree.FindFirstNodeExpression(false));
-                    break;
-
-                // type 2: need to read args
-                case InstructionType.InitArray:
-                    Expressions.Add(tree.ReadArray());
-                    break;
-                case InstructionType.ImplementsOp:
-                case InstructionType.CallFunction:
-                case InstructionType.EA_CallFuncPop:
-                case InstructionType.NewObject:
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    Expressions.Add(tree.ReadArray());
-                    break;
-                case InstructionType.CallMethod:
-                case InstructionType.EA_CallMethod:
-                case InstructionType.EA_CallMethodPop:
-                case InstructionType.NewMethod:
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    Expressions.Add(tree.ReadArray());
-                    break;
-                case InstructionType.EA_CallNamedFuncPop:
-                case InstructionType.EA_CallNamedFunc:
-                    Expressions.Add(new NodeValue(instruction));
-                    Expressions.Add(tree.ReadArray());
-                    break;
-                case InstructionType.EA_CallNamedMethodPop:
-                    Expressions.Add(new NodeValue(instruction));
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    Expressions.Add(tree.ReadArray());
-                    break;
-                case InstructionType.EA_CallNamedMethod:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    Expressions.Add(tree.ReadArray());
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    break;
-                case InstructionType.InitObject:
-                    Expressions.Add(tree.ReadArray(true));
-                    break;
-
-                // type 3: constant resolve needed
-                case InstructionType.EA_GetNamedMember:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
-                    Expressions.Add(tree.FindFirstNodeExpression());
-                    break;
-                case InstructionType.EA_PushValueOfVar:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant; incode form?
-                    break;
-                case InstructionType.EA_PushGlobalVar:
-                case InstructionType.EA_PushThisVar:
-                case InstructionType.EA_PushGlobal:
-                case InstructionType.EA_PushThis:
-                    break; // nothing needed
-                case InstructionType.EA_PushConstantByte:
-                case InstructionType.EA_PushConstantWord:
-                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve constant
-                    break;
-                case InstructionType.EA_PushRegister:
-                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve register
-                    break;
-
-                // type 4: variable output count
-                case InstructionType.PushData:
-                    // TODO
-                    break;
-                case InstructionType.Enumerate:
-                    // TODO
-                    break;
-                case InstructionType.Enumerate2:
-                    // TODO
-                    break;
-
-                // no hits
-                default:
-                    flagSpecialProc = false;
-                    break;
-            }
-            if ((!flagSpecialProc) && instruction is InstructionMonoPush inst)
-            {
-                // TODO string output
-                for (int i = 0; i < inst.StackPop; ++i)
-                    Expressions.Add(tree.FindFirstNodeExpression());
-            }
-            else if (!flagSpecialProc) // not implemented instructions
-            {
-                throw new NotImplementedException(instruction.Type.ToString());
-            }
-
-            // filter string
-
-        }
     }
     public class NodeExpression : Node
     {
+        public Value? Value { get; protected set; }
+
         public NodeExpression(InstructionBase inst) : base(inst)
         {
         }
 
-        public virtual bool GetValue(CodeTree tree, out Value? ret)
+        public virtual bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
-            ret = null;
+            Value = ret = null;
             var vals = new Value[Expressions.Count];
             for (int i = 0; i < Expressions.Count; ++i)
             {
                 var node = Expressions[i];
                 if (node == null)
                     return false;
-                var flag = node.GetValue(tree, out var val);
-                if (!flag)
-                    return false;
-                else
+                if (node.TryGetValue(parse, out var val))
                 {
                     if (val!.Type == ValueType.Constant || val.Type == ValueType.Register)
                     {
-                        var flag2 = tree.ToStringInCodingForm(val, out var str);
-                        if (!flag2)
+                        if (parse == null)
                             return false;
                         else
-                            val = Value.FromString(str);
+                        {
+                            val = parse(val);
+                            if (val == null)
+                                return false;
+                        }
                     }
                     vals[i] = val;
                 }
-
+                else
+                    return false;
             }
             try
             {
                 if (Instruction is InstructionMonoPush inst && inst.PushStack)
                 {
                     ret = inst.ExecuteWithArgs2(vals);
+                    Value = ret;
                 }
                 else
                 {
@@ -456,35 +851,52 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 return false;
             }
-            return true;
+            return ret != null;
         }
 
-        public override string GetCode(CodeTree tree)
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
         {
             string ret = string.Empty;
-            if (GetValue(tree, out var val))
+            if (TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val))
             {
-                tree.ToStringInCodingForm(val!, out ret);
+                if (val == null)
+                    ret = "null";
+                else if (val.Type == ValueType.String)
+                    ret = val.ToString().ToCodingForm();
+                else
+                    ret = val.ToString();
+                Code = new List<string>() { ret.ToStringWithIndent(indent)! };
             }
             else // if (Instruction is InstructionMonoPush inst)
             {
-                ret = base.GetCode(tree);
+                base.TryCompile(sta, indent, compileBranches);
             }
-            return ret;
         }
     }
+
+    public class NodeEnumerate : NodeExpression
+    {
+        public NodeEnumerate(InstructionBase inst) : base(inst)
+        {
+
+        }
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+        {
+            Code = new List<string>() { "[[enumerate node]]".ToStringWithIndent(indent)! };
+        }
+    }
+
     public class NodeValue : NodeExpression
     {
-        public Value Value;
         public NodeValue(InstructionBase inst, bool iss = false, Value? v = null) : base(inst)
         {
             Value = v == null ? inst.Parameters[0] : v;
         }
-        public override bool GetValue(CodeTree tree, out Value ret)
+        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
             // Better not use FromArray()
             ret = Value;
-            return true;
+            return ret == null ? false : true;
         }
     }
     public class NodeArray : NodeExpression
@@ -494,14 +906,14 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         }
 
-        public override bool GetValue(CodeTree tree, out Value? ret)
+        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
             // Better not use FromArray()
             ret = null;
             return false;
         }
 
-        public override string GetCode(CodeTree tree)
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
         {
             var vals = new string[Expressions.Count];
             for (int i = 0; i < Expressions.Count; ++i)
@@ -509,40 +921,105 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var node = Expressions[i];
                 if (node == null)
                 {
-                    vals[i] = $"args[{i}]";
+                    vals[i] = $"__args__[{i}]";
                     continue;
                 }
-                var flag = node.GetValue(tree, out var val);
+                var flag = node.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val);
                 if (!flag)
-                    vals[i] = node.GetCode(tree);
+                {
+                    node.TryCompile(sta, 0);
+                    vals[i] = node.Code == null ? $"__args__[{i}]" : string.Join(";", node.Code.ToArray());
+                }
                 else
                 {
-                    tree.ToStringInCodingForm(val!, out vals[i]);
-                    if (val!.Type == ValueType.String || val.Type == ValueType.Constant)
-                        vals[i] = $"\"{vals[i]}\"";
+                    vals[i] = val!.ToString();
+                    if (val!.Type == ValueType.String)
+                        vals[i] = vals[i].ToCodingForm();
                 }
             }
-            return $"{string.Join(", ", vals)}";
+            Code = new List<string> { $"[{string.Join(", ", vals)}]".ToStringWithIndent(indent)! };
         }
     }
+
     public class NodeStatement : Node
     {
-        public NodeStatement(InstructionBase inst) : base(inst)
+        public NodeStatement(InstructionBase inst) : base(inst) { }
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { base.TryCompile(sta, indent, compileBranches); }
+    }
+
+    public abstract class NodeControl : NodeStatement
+    {
+        public NodeControl(InstructionBase inst) : base(inst) { }
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+    }
+
+    public class NodeFunctionBody : NodeExpression
+    {
+        public StatementCollection Body;
+        public NodeFunctionBody(InstructionBase inst, StatementCollection body) : base(inst)
         {
+            Body = body;
         }
 
-        public override string GetCode(CodeTree tree)
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+    }
+
+    public class NodeDefineFunction: NodeControl
+    {
+        public StatementCollection Body;
+        public NodeDefineFunction(InstructionBase inst, StatementCollection body) : base(inst)
         {
-            return base.GetCode(tree);
+            Body = body;
+        }
+
+        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+    }
+
+    public class NodeCase: NodeControl
+    {
+
+        public NodeExpression Condition;
+        public StatementCollection Unbranch;
+        public StatementCollection Branch;
+
+        public NodeCase(
+            InstructionBase inst,
+            NodeExpression condition,
+            StatementCollection unbranch, 
+            StatementCollection branch
+            ) : base(inst)
+        {
+            Condition = condition;
+            Unbranch = unbranch;
+            Branch = branch;
+        }
+
+        public override string GetCode(NodePool tree)
+        {
+            throw new NotImplementedException();
         }
     }
-    public class NodeControl : NodeStatement
+
+    public class NodeLoop : NodeControl
     {
-        public NodeControl(InstructionBase inst) : base(inst)
+
+        public NodeExpression Condition;
+        public StatementCollection Maintain;
+        public StatementCollection Branch;
+
+        public NodeLoop(
+            InstructionBase inst,
+            NodeExpression condition,
+            StatementCollection maintain,
+            StatementCollection branch
+            ) : base(inst)
         {
+            Condition = condition;
+            Maintain = maintain;
+            Branch = branch;
         }
 
-        public override string GetCode(CodeTree tree)
+        public override string GetCode(NodePool tree)
         {
             throw new NotImplementedException();
         }

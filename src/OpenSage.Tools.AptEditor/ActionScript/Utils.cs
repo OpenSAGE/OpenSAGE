@@ -14,8 +14,33 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 {
     public static class InstUtils
     {
-        public static string ToStringWithIndent(this object obj, int indent = 0)
+        public static Value? ParseValue(Value? v, IEnumerable<Value?> consts, IDictionary<int, Value?>? regs)
         {
+            if (v == null)
+                return v;
+            while (v != null && (v.Type == ValueType.Constant || v.Type == ValueType.Register))
+            {
+                if (v.Type == ValueType.Constant)
+                {
+                    v = consts.ElementAt(v.ToInteger());
+                    if (v.Type == ValueType.Constant)
+                        throw new InvalidOperationException();
+                }
+                else
+                {
+                    if (regs != null && regs.TryGetValue(v.ToInteger(), out var v_))
+                        v = v_;
+                    else
+                        break;
+                }
+            }
+            return v;
+        }
+
+        public static string? ToStringWithIndent(this object obj, int indent = 0)
+        {
+            if (indent <= 0)
+                return obj.ToString();
             var s = new StringBuilder();
             for (int i = 0; i < indent; ++i)
                 s.Append(" ");
@@ -23,24 +48,34 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return s.ToString();
         }
 
+        public static string ToCodingForm(this string str)
+        {
+            return $"\"{str.Replace("\\", "\\\\").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
+        }
+
         public static InstructionGraph? Graphify(
-            InstructionCollection? c, 
+            InstructionCollection? ci, 
             List<ConstantEntry>? constSource = null,
             List<Value>? constPool = null,
             Dictionary<int, string>? regNames = null
             )
         {
-            if (c == null)
+            if (ci == null)
                 return null;
 
-            var g = new InstructionGraph(c, constSource, 0, constPool, regNames);
+            var g = new InstructionGraph(ci, constSource, 0, constPool, regNames);
 
             if (constSource == null) return g;
 
             // wtf
-            var p = StructurizedBlockChain.Parse(g.BaseBlock);
+            var c = StructurizedBlockChain.Parse(g.BaseBlock);
             Console.WriteLine("\nGan Si Huang Xu Dong");
-            p.Print(g.ConstPool, g.RegNames);
+            c.Print(g.ConstPool, g.RegNames);
+            // change to:
+            var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
+            var sc = new StatementCollection(p);
+            // var code = some recursive function of sc to print
+            // console.write(code)
 
             return g;
         }

@@ -170,6 +170,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// Pops name. Then set the variable to undefined if name is not already defined.
+    /// </summary>
     public sealed class DefineLocal2 : InstructionMonoPushPop
     {
         public override InstructionType Type => InstructionType.Var;

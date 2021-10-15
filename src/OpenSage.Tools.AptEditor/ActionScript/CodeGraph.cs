@@ -19,12 +19,17 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         DefineFunction, 
     }
 
-
+    public enum CodeType
+    {
+        Sequential,
+        Case,
+        Loop
+    }
     public class LogicalTaggedInstruction : InstructionBase
     {
         public string Tag = "";
-        public object? AdditionalData;
-        public TagType TagType;
+        public string? Label;
+        public readonly TagType TagType;
         public TagType FinalTagType { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalTagType : TagType; } }
         public InstructionBase InnerAction { get; protected set; }
         public InstructionBase FinalInnerAction { get { return InnerAction is LogicalTaggedInstruction l ? l.FinalInnerAction : InnerAction; } }
@@ -67,6 +72,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     {
         public InstructionGraph Instructions { get; private set; }
 
+        public StructurizedBlockChain? Chain { get; set; }
+
         public LogicalFunctionContext(InstructionBase instruction,
             InstructionCollection insts,
             List<ConstantEntry>? constSource,
@@ -76,12 +83,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {   if (instruction is DefineFunction2 df2)
             {
                 var flags = (FunctionPreloadFlags) df2.Parameters[3].ToInteger();
-                regNames = Preload(flags);
+                regNames = Preload(flags, df2);
             }
             Instructions = new InstructionGraph(insts, constSource, indexOffset, constPool, regNames);
             
         }
-        public static Dictionary<int, string> Preload(FunctionPreloadFlags flags)
+        public static Dictionary<int, string> Preload(FunctionPreloadFlags flags, DefineFunction2? inst = null)
         {
             int reg = 1;
             var _registers = new Dictionary<int, string>();
@@ -90,9 +97,20 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 _registers[reg] = "this";
                 ++reg;
             }
-            if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments)) // TODO sanity check
             {
-                throw new NotImplementedException();
+                if (inst == null)
+                    throw new InvalidOperationException();
+                string name = inst.Parameters[0].ToString();
+                int nrArgs = inst.Parameters[1].ToInteger();
+                for (int i = 0; i < nrArgs; ++i)
+                {
+                    if (inst.Type == InstructionType.DefineFunction2)
+                        _registers[reg] = inst.Parameters[4 + i * 2 + 1].ToString();
+                    else
+                        _registers[reg] = inst.Parameters[2 + i].ToString();
+                    ++reg;
+                }
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
@@ -159,14 +177,15 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             // sub graphs & mark items
 
             Items = new SortedDictionary<int, InstructionBase>();
-            var branch_dict = new Dictionary<string, int>(); // position: label
-            var label_number = 0;
+            var mapBranchTagToIndex = new Dictionary<string, int>(); // position: label
+            var labelCount = 0;
             while (!stream.IsFinished())
             {
                 var index = stream.Index;
                 var instruction = stream.GetInstruction();
 
                 // create the constant pool
+                // TODO what if multiple pools are created (especially not in the main path)?
                 if (instruction is ConstantPool cp && constSource != null)
                 {
                     ActionContext ac = new ActionContext(null, null, null, 4) { GlobalConstantPool = constSource };
@@ -193,24 +212,29 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 else if (instruction is BranchIfTrue || instruction is BranchAlways)
                 {
                     var dest = instruction.Parameters[0].ToInteger();
-                    ++label_number;
+                    ++labelCount;
                     var destIndex = stream.GetBranchDestination(dest, index + 1);
                     var tag = destIndex == -1 ? $"[[#{index + 1}+({dest})]]" : $"label_#{destIndex}";
                     if (destIndex == -1)
                     {
                         throw new InvalidOperationException();
-                        branch_dict[tag] = index;
+                        // branch_dict[tag] = index + 1;
                     }
                     else
-                        branch_dict[tag] = destIndex;
-                    instruction = new LogicalTaggedInstruction(instruction, "Goto " + tag, TagType.GotoLabel) { AdditionalData = tag };
+                        mapBranchTagToIndex[tag] = destIndex;
+                    instruction = new LogicalTaggedInstruction(instruction, "goto " + tag, TagType.GotoLabel) { Label = tag };
                 }
 
                 Items.Add(index, instruction);
             }
             // branch destination tag
-            foreach (var kvp in branch_dict)
-                Items[kvp.Value] = new LogicalTaggedInstruction(Items[kvp.Value], kvp.Key, TagType.Label) { AdditionalData = kvp.Key };
+            foreach (var kvp in mapBranchTagToIndex)
+            {
+                var instOrig = Items[kvp.Value];
+                if (instOrig is LogicalTaggedInstruction inst && inst.TagType == TagType.Label)
+                    throw new InvalidOperationException();
+                Items[kvp.Value] = new LogicalTaggedInstruction(instOrig, kvp.Key, TagType.Label) { Label = kvp.Key };
+            }
 
             // block division
             BaseBlock = new InstructionBlock();
@@ -222,29 +246,29 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 var pos = kvp.Key;
                 var inst = kvp.Value;
-                if ((inst is LogicalTaggedInstruction lti && lti.TagType == TagType.Label) || inst is Enumerate2)// TODO need some instances to determine how to deal with Enumerate2
+                if (inst is LogicalTaggedInstruction tinst && tinst.TagType == TagType.Label)
                 {
                     var newBlock = new InstructionBlock(currentBlock);
                     newBlock.Items[pos] = inst;
                     currentBlock = newBlock;
-                    if (inst is LogicalTaggedInstruction lti2)
+
+                    // mark all labels affiliated to this block
+                    mapLabelToBlock[tinst.Label!] = newBlock;
+                    var instTemp = tinst;
+                    while (instTemp.InnerAction is LogicalTaggedInstruction tinst2)
                     {
-
-                        mapLabelToBlock[(string) lti2.AdditionalData!] = newBlock;
-                        var instTemp = lti2;
-                        while (instTemp.InnerAction is LogicalTaggedInstruction lti3)
-                        {
-                            instTemp = lti3;
-                            mapLabelToBlock[(string) lti3.AdditionalData!] = newBlock;
-                        }
-
-                        if (lti2.FinalTagType == TagType.GotoLabel)
-                        {
-                            var newerBlock = new InstructionBlock(newBlock);
-                            newBlock.BranchCondition = lti2.FinalTaggedInnerAction;
-                            currentBlock = newerBlock;
-                        }
+                        instTemp = tinst2;
+                        if (tinst2.TagType == TagType.Label)
+                            mapLabelToBlock[tinst2.Label!] = newBlock;
                     }
+
+                    if (tinst.FinalTagType == TagType.GotoLabel)
+                    {
+                        var newerBlock = new InstructionBlock(newBlock);
+                        newBlock.BranchCondition = tinst.FinalTaggedInnerAction;
+                        currentBlock = newerBlock;
+                    }
+
                 }
                 else if (inst is LogicalTaggedInstruction lti3 && lti3.TagType == TagType.GotoLabel)
                 {
@@ -253,36 +277,40 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     currentBlock.Items[pos] = inst;
                     currentBlock = new_block;
                 }
+                else if (inst is Enumerate2)
+                {
+                    // just do nothing?
+                    currentBlock.Items[pos] = inst;
+                }
                 else
                 {
                     currentBlock.Items[pos] = inst;
                 }
             }
-            // second iter: maintain Label
+
+            // second iter: maintain Labels
             foreach (var kvp in mapLabelToBlock)
             {
                 var lbl = kvp.Key;
                 var blk = kvp.Value;
-                if (string.IsNullOrEmpty(blk.Label))
-                    blk.Label = lbl;
-                else
-                    blk.Label += $", {lbl}";
+                blk.Labels.Add(lbl);
             }
+
             // third iter: maintain NextBlockCondition
             currentBlock = BaseBlock;
             while (currentBlock != null)
             {
                 if (currentBlock.BranchCondition != null)
-                    if (mapLabelToBlock.TryGetValue((string) currentBlock.BranchCondition.AdditionalData!, out var blk))
+                    if (mapLabelToBlock.TryGetValue(currentBlock.BranchCondition.Label!, out var blk))
                         currentBlock.NextBlockCondition = blk;
                     else
                         throw new InvalidOperationException();
-                // currentBlock.NextBlockCondition = new InstructionBlock() { Label = currentBlock.BranchCondition.Tag };
                 currentBlock = currentBlock.NextBlockDefault;
             }
 
         }
 
+        // TODO
         private int IndexOfNextRealInstruction(int currentIndex)
         {
             for (var i = currentIndex + 1; i < Items.Count; ++i)
@@ -299,6 +327,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             throw new IndexOutOfRangeException();
         }
 
+        // TODO
         public InstructionCollection ConvertToRealInstructions()
         {
             // A pretty stupid methodnull
@@ -351,14 +380,26 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     {
         public SortedDictionary<int, InstructionBase> Items { get; set; }
 
-        public LogicalTaggedInstruction? BranchCondition;
-        public InstructionBlock? NextBlockCondition;
-        public InstructionBlock? NextBlockDefault;
+        public LogicalTaggedInstruction? BranchCondition { get; set; }
+        public InstructionBlock? NextBlockCondition { get; set; }
+        public InstructionBlock? NextBlockDefault { get; private set; }
 
         public readonly InstructionBlock? PreviousBlock;
         public readonly int Hierarchy;
 
-        public string? Label;
+        public readonly List<string> Labels = new();
+
+        public bool IsFirstBlock => PreviousBlock == null;
+        public bool IsLastBlock => NextBlockDefault == null;
+
+        public bool HasConditionalBranch => BranchCondition != null &&
+                                            (BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                                             BranchCondition!.Type == InstructionType.EA_BranchIfFalse);
+        public bool HasConstantBranch => BranchCondition != null && BranchCondition.Type == InstructionType.BranchAlways;
+        public bool HasBranch => BranchCondition != null &&
+                                 (BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                                  BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
+                                  BranchCondition!.Type == InstructionType.BranchAlways);
 
         public InstructionBlock(InstructionBlock? prev = null) {
             Items = new();
@@ -432,7 +473,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 //foreach (var a in currentBlock.Items)
                 //    Console.WriteLine(a.Value);
-                var tree = CodeTree.DecompileToTree(currentBlock, constPool, regNames);
+                var tree = NodePool.PushBlock(currentBlock, constPool, regNames);
                 Console.WriteLine(tree.GetCode(layer * 4, type));
                 currentBlock = currentBlock.NextBlockDefault;
             }
@@ -483,7 +524,17 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {
             StructurizedBlockChain ret = new(root);
 
-            // parse loop
+            // parse sub graphs inside defined functions
+            var b = root;
+            while (b != null)
+            {
+                foreach (var (p, i) in b.Items)
+                    if (i is LogicalFunctionContext fc)
+                        fc.Chain = Parse(fc.Instructions.BaseBlock);
+                b = b.NextBlockDefault;
+            }
+
+            // parse control structures
             ret.ParseLoop();
             if (ret.SubChainStart == null)
             {
@@ -516,9 +567,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             while (b != null && (EndBlock == null || b.Hierarchy <= EndBlock.Hierarchy))
             {
                 // identify if structures
-                if (b.BranchCondition != null &&
-                    (b.BranchCondition.Type == InstructionType.BranchIfTrue ||
-                     b.BranchCondition.Type == InstructionType.EA_BranchIfFalse))
+                if (b.HasConditionalBranch)
                 {
                     containsCase = true;
 
@@ -589,10 +638,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             while (b != null && (b.Hierarchy >= StartBlock.Hierarchy))
             {
                 // identify for/while structures
-                if (b.BranchCondition != null &&
-                    b.BranchCondition.Type == InstructionType.BranchAlways &&
+                if (b.HasConstantBranch &&
                     b.NextBlockCondition!.Hierarchy >= StartBlock.Hierarchy && // be not the block's loop itself
-                    b.NextBlockCondition!.Hierarchy < b.Hierarchy) // could be a loop
+                    b.NextBlockCondition!.Hierarchy < b.Hierarchy) // this condition means in a loop
                 {
                     containsLoop = true;
                     // mark range
@@ -600,14 +648,30 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     var endBlock = b;
 
                     InstructionBlock? outerBlock = null;
-                    for (var i = startBlock; i != null && i.Hierarchy <= endBlock.Hierarchy; i = i.NextBlockDefault)
+                    for (var i = startBlock; i != null && i.Hierarchy <= endBlock!.Hierarchy; i = i.NextBlockDefault)
                     {
+                        if (!i.HasBranch)
+                            continue;
+
+                        var branchBlock = i.NextBlockCondition!;
+                        if (branchBlock == null)
+                            throw new InvalidOperationException();
+
+                        if (branchBlock.Hierarchy < startBlock.Hierarchy)
+                            throw new NotImplementedException();
+                        if (branchBlock.Hierarchy > endBlock.Hierarchy)
+                        {
+                            if (outerBlock != null && branchBlock.Hierarchy != outerBlock.Hierarchy)
+                                throw new InvalidOperationException();
+                            else
+                            {
+                                outerBlock = branchBlock;
+                                endBlock = branchBlock.PreviousBlock; // TODO is this right?
+                            }
+                        }
+                        /*
                         if (outerBlock == null ||
-                            (i.BranchCondition != null &&
-                             (i.BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                              i.BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
-                              i.BranchCondition!.Type == InstructionType.BranchAlways) &&
-                             i.NextBlockCondition!.Hierarchy > endBlock.Hierarchy))
+                            (i.HasBranch && i.NextBlockCondition!.Hierarchy > endBlock.Hierarchy))
                         {
                             if (outerBlock != null && i.NextBlockCondition!.Hierarchy != outerBlock.Hierarchy)
                                 throw new InvalidOperationException();
@@ -616,6 +680,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                                 outerBlock = i.NextBlockCondition;
                             }
                         }
+                        */
                     }
 
                     // TODO outer block sanity check?

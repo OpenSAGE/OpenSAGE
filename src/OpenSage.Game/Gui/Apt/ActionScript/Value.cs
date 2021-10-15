@@ -256,10 +256,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         // Follow ECMA specification 9.4: https://www.ecma-international.org/ecma-262/5.1/#sec-9.4
+        // TODO optimize if possible
         public int ToInteger()
         {
-            double floatNumber = ToFloat();
+            if (Type == ValueType.Constant || Type == ValueType.Register)
+                return _number;
 
+            double floatNumber = ToFloat();
             if (double.IsNaN(floatNumber))
             {
                 return 0;
