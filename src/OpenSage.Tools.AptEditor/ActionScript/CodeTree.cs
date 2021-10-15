@@ -31,45 +31,45 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         
 
-        public static string Compile(StatementCollection sc, int dIndent = 4, int startIndent = 0, bool compileSubCollections = true)
+        public StringBuilder Compile(StringBuilder? sb = null, int startIndent = 0, int dIndent = 4, bool compileSubCollections = true, bool ignoreLastBranch = false)
         {
-            StringBuilder ans = new();
-            Stack<StatementCollection> scs = new();
+            sb = sb == null ? new() : sb;
             var curIndent = startIndent;
-            scs.Push(sc);
-            while (scs.Count > 0)
+
+            foreach (var node in Statements)
             {
-                var scCur = scs.Pop();
-                foreach (var node in scCur.Statements)
+                if (node == null)
+                    sb.Append("// null node\n".ToStringWithIndent(curIndent));
+                else
                 {
-                    if (node == null)
-                        ans.Append("// null node\n".ToStringWithIndent(curIndent));
-                    else
+                    // TODO CSC
+                    if (node is NodeControl nc)
                     {
-                        // TODO indent & CSC
-                        node.TryCompile(scCur, curIndent);
-                        if (node.Code == null)
-                            ans.Append("// no compiling result\n".ToStringWithIndent(curIndent));
-                        // TODO control node?
-                        // TODO function?
-                        else
-                            foreach (var code in node.Code)
-                            {
-                                if (string.IsNullOrWhiteSpace(code))
-                                    continue;
-                                if (code.EndsWith("@"))
-                                    ans.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
-                                else
-                                {
-                                    ans.Append(code.ToStringWithIndent(curIndent));
-                                    ans.Append(";");
-                                }
-                                ans.Append("\n");
-                            }
+                        nc.TryCompile2(this, sb, curIndent, dIndent, compileSubCollections);
+                        continue;
                     }
+                    node.TryCompile(this, !ignoreLastBranch || node != Statements.Last());
+                    if (node.Code == null)
+                        sb.Append("// no compiling result\n".ToStringWithIndent(curIndent));
+                    else
+                        
+                        {
+                        var code = node.Code;
+                            if (string.IsNullOrWhiteSpace(code))
+                                continue;
+                            if (code.EndsWith("@"))
+                                sb.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
+                            else
+                            {
+                                sb.Append(code.ToStringWithIndent(curIndent));
+                                sb.Append(";");
+                            }
+                            sb.Append("\n");
+                        }
                 }
             }
-            return ans.ToString();
+
+            return sb;
         }
 
         public bool GetExpression(Value v, out string ret)
@@ -156,7 +156,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             if (parent != null)
             {
                 Constants = parent.Constants;
-                RegNames = new(defFunc.Instructions.RegNames!);
+                RegNames = defFunc.Instructions.RegNames == null ? new() : new(defFunc.Instructions.RegNames!);
             }
             else
             {
@@ -170,7 +170,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {
             if (parent != null)
             {
-                NodeList = new(parent.NodeList);
+                NodeList = new(parent.NodeList.Where(x => x is NodeExpression));
                 Constants = parent.Constants;
                 RegNames = new(parent.RegNames);
             }
@@ -205,6 +205,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 n = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
                 n.GetExpressions(this);
+                // find if there are any functions, if there are functions, wrap n
+                if (n.Expressions.Any(x => x is NodeFunctionBody || x is NodeIncludeFunction))
+                    n = new NodeIncludeFunction(n);
             }
             NodeList.Add(n);
         }
@@ -303,28 +306,32 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 //Console.WriteLine("If Statement {".ToStringWithIndent(layer * 4));
                 PushChain(chain.AdditionalData[0]);
                 var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
-                var bexp = PopExpression(true);
+                var bexp = NodeList.Last();
+                if (bexp != null)
+                    bexp = bexp.Expressions[0];
 
-                // TODO create node expression
+                // create node expression
                 NodePool sub1 = new(this);
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[1]);
                 sub2.PushChain(chain.AdditionalData[2]);
-                NodeCase n = new(branch!, bexp!, new(sub1), new(sub2));
+                NodeCase n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
             }
             else if (chain.Type == CodeType.Loop)
             {
                 PushChain(chain.AdditionalData[0]);
                 var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
-                var bexp = PopExpression(true);
-                // TODO create node expression
-                // TODO this one needs more than condition!!!
+                var bexp = NodeList.Last();
+                if (bexp != null)
+                    bexp = bexp.Expressions[0];
+                // create node expression
+                // this one needs more than condition!!!
                 NodePool sub1 = new(this);
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[0]);
                 sub2.PushChain(chain.AdditionalData[1]);
-                NodeLoop n = new(branch!, bexp!, new(sub1), new(sub2));
+                NodeLoop n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
 
             }
@@ -425,7 +432,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     {
         public readonly List<NodeExpression?> Expressions;
         public readonly InstructionBase Instruction;
-        public IEnumerable<string>? Code { get; protected set; }
+        public string? Code { get; protected set; }
 
         protected Node(InstructionBase inst)
         {
@@ -543,7 +550,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         }
 
-        public virtual void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+        public virtual void TryCompile(StatementCollection sta, bool compileBranches = false)
         {
             // get all values
             var valCode = new string[Expressions.Count];
@@ -566,7 +573,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 else
                 {
                     ncur.TryCompile(sta);
-                    valCode[i] = string.Join("; ", ncur.Code == null ? new[] { $"__args__[{i}]" } : ncur.Code.ToArray());
+                    valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code;
                     val[i] = null;
                     // fix precendence
                     // only needed for compiled codes
@@ -610,7 +617,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             // case 3 special handling
 
             // start compile
-            List<string> code = new();
             string ret = string.Empty;
             string tmp = string.Empty;
             switch (Instruction.Type)
@@ -669,7 +675,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     }
                     break;
             }
-            code.Add(ret.ToStringWithIndent(indent)!);
+            Code = ret;
         }
 
         public virtual string GetCode(NodePool tree)
@@ -684,7 +690,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
                 else
                 {
-                    var flag = node.TryGetValue(tree, out var val);
+                    var flag = node.TryGetValue(x => InstUtils.ParseValue(x, tree.Constants, null), out var val);
                     if (flag)
                     { // Formatize strings
                         var flag2 = tree.ToStringInCodingForm(val!, out vals[i]);
@@ -838,6 +844,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (Instruction is InstructionMonoPush inst && inst.PushStack)
                 {
                     ret = inst.ExecuteWithArgs2(vals);
+                    if (ret!.Type == ValueType.Constant || ret.Type == ValueType.Register)
+                    {
+                        if (parse == null)
+                            return false;
+                        else
+                            ret = parse(ret);
+                    }
                     Value = ret;
                 }
                 else
@@ -854,7 +867,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return ret != null;
         }
 
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false)
         {
             string ret = string.Empty;
             if (TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val))
@@ -865,11 +878,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     ret = val.ToString().ToCodingForm();
                 else
                     ret = val.ToString();
-                Code = new List<string>() { ret.ToStringWithIndent(indent)! };
+                Code = ret;
             }
             else // if (Instruction is InstructionMonoPush inst)
             {
-                base.TryCompile(sta, indent, compileBranches);
+                base.TryCompile(sta, compileBranches);
             }
         }
     }
@@ -880,9 +893,16 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {
 
         }
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+
+        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
-            Code = new List<string>() { "[[enumerate node]]".ToStringWithIndent(indent)! };
+            ret = null;
+            return false;
+        }
+
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false)
+        {
+            Code = "[[enumerate node]]";
         }
     }
 
@@ -913,7 +933,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return false;
         }
 
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false)
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false)
         {
             var vals = new string[Expressions.Count];
             for (int i = 0; i < Expressions.Count; ++i)
@@ -927,7 +947,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var flag = node.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val);
                 if (!flag)
                 {
-                    node.TryCompile(sta, 0);
+                    node.TryCompile(sta, compileBranches);
                     vals[i] = node.Code == null ? $"__args__[{i}]" : string.Join(";", node.Code.ToArray());
                 }
                 else
@@ -937,34 +957,78 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                         vals[i] = vals[i].ToCodingForm();
                 }
             }
-            Code = new List<string> { $"[{string.Join(", ", vals)}]".ToStringWithIndent(indent)! };
+            Code = $"[{string.Join(", ", vals)}]";
         }
     }
 
     public class NodeStatement : Node
     {
         public NodeStatement(InstructionBase inst) : base(inst) { }
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { base.TryCompile(sta, indent, compileBranches); }
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false) { base.TryCompile(sta, compileBranches); }
     }
 
     public abstract class NodeControl : NodeStatement
     {
         public NodeControl(InstructionBase inst) : base(inst) { }
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false) { base.TryCompile(sta, compileBranches); }
+
+        public abstract void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true);
     }
 
     public class NodeFunctionBody : NodeExpression
     {
         public StatementCollection Body;
+        public static readonly string NoIndentMark = "/*@([{@%@)]}@*/";
         public NodeFunctionBody(InstructionBase inst, StatementCollection body) : base(inst)
         {
             Body = body;
         }
 
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false)
+        {
+            StringBuilder sb = new();
+            var (name, args) = InstUtils.GetNameAndArguments(Instruction);
+            var head = $"function({string.Join(", ", args.ToArray())})\n";
+            // sb.Append(NoIndentMark);
+            sb.Append(head);
+            // sb.Append(NoIndentMark);
+            sb.Append("{\n");
+            Body.Compile(sb, 1, 2, true, false);
+            // sb.Append(NoIndentMark);
+            sb.Append("}\n");
+            Code = sb.ToString();
+        } 
     }
 
-    public class NodeDefineFunction: NodeControl
+    public class NodeIncludeFunction : NodeControl
+    { 
+        public readonly Node n;
+        public NodeIncludeFunction(Node body) : base(body.Instruction)
+        {
+            n = body;
+        }
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false) { n.TryCompile(sta, compileBranches); Code = n.Code; } 
+
+        // using brute force ways to do so
+        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        {
+            TryCompile(sta, true);
+            var lines = Code!.Split("\n");
+            for (var i = 0; i < lines.Count(); ++i)
+            {
+                var l = lines[i];
+                if (string.IsNullOrWhiteSpace(l))
+                    continue;
+                var tmpindent = 0;
+                while (l.ElementAt(tmpindent) == ' ')
+                    ++tmpindent;
+                sb.Append(l.Substring(tmpindent).ToStringWithIndent(indent + tmpindent * dIndent));
+                sb.Append("\n");
+            }
+        }
+    }
+
+    public class NodeDefineFunction : NodeControl
     {
         public StatementCollection Body;
         public NodeDefineFunction(InstructionBase inst, StatementCollection body) : base(inst)
@@ -972,7 +1036,17 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             Body = body;
         }
 
-        public override void TryCompile(StatementCollection sta, int indent = 0, bool compileBranches = false) { throw new NotImplementedException(); }
+        public override void TryCompile(StatementCollection sta, bool compileBranches = false) { throw new NotImplementedException(); }
+
+        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        {
+            var (name, args) = InstUtils.GetNameAndArguments(Instruction);
+            var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
+            sb.Append(head.ToStringWithIndent(indent));
+            sb.Append("{\n".ToStringWithIndent(indent));
+            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            sb.Append("}\n".ToStringWithIndent(indent));
+        }
     }
 
     public class NodeCase: NodeControl
@@ -994,9 +1068,36 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             Branch = branch;
         }
 
-        public override string GetCode(NodePool tree)
+        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
         {
-            throw new NotImplementedException();
+            var tmp = "[[null condition]]";
+            if (Condition != null)
+            {
+                Condition.TryCompile(sta, true); // TODO turn the condition to real condition
+                tmp = Condition.Code!;
+            }
+            var ttmp = Instruction.Type;
+            if (ttmp == InstructionType.BranchIfTrue)
+            {
+                if (tmp.StartsWith("!"))
+                {
+                    tmp = tmp.Substring(1);
+                    if (tmp.StartsWith('(') && tmp.EndsWith(')'))
+                        tmp = tmp.Substring(1, tmp.Length - 2);
+                }
+                else
+                {
+                    tmp = $"!({tmp})";
+                }
+            }
+            sb.Append($"if ({tmp})\n".ToStringWithIndent(indent));
+            sb.Append("{\n".ToStringWithIndent(indent));
+            Unbranch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            sb.Append("}\n".ToStringWithIndent(indent));
+            sb.Append("else\n".ToStringWithIndent(indent));
+            sb.Append("{\n".ToStringWithIndent(indent));
+            Branch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            sb.Append("}\n".ToStringWithIndent(indent));
         }
     }
 
@@ -1022,6 +1123,37 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public override string GetCode(NodePool tree)
         {
             throw new NotImplementedException();
+        }
+
+        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        {
+            var tmp = "[[null condition]]";
+            if (Condition != null)
+            {
+                Condition.TryCompile(sta, true); // TODO turn the condition to real condition
+                tmp = Condition.Code!;
+            }
+            var ttmp = Instruction.Type;
+            if (ttmp == InstructionType.BranchIfTrue)
+            {
+                if (tmp.StartsWith("!"))
+                {
+                    tmp = tmp.Substring(1);
+                    if (tmp.StartsWith('(') && tmp.EndsWith(')'))
+                        tmp = tmp.Substring(1, tmp.Length - 2);
+                }
+                else
+                {
+                    tmp = $"!({tmp})";
+                }
+            }
+            sb.Append("{ // loop maintain condition\n".ToStringWithIndent(indent));
+            Maintain.Compile(sb, indent + dIndent, dIndent, compileSubCollections, true);
+            sb.Append("}\n".ToStringWithIndent(indent));
+            sb.Append($"while ({tmp})\n".ToStringWithIndent(indent));
+            sb.Append("{\n".ToStringWithIndent(indent));
+            Branch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            sb.Append("}\n".ToStringWithIndent(indent));
         }
     }
 

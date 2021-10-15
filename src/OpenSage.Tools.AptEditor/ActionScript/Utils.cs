@@ -37,14 +37,31 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return v;
         }
 
+        public static (string, List<string>) GetNameAndArguments(InstructionBase function)
+        {
+            string name = function.Parameters[0].ToString();
+            List<string> args = new();
+            int nrArgs = function.Parameters[1].ToInteger();
+            for (int i = 0; i < nrArgs; ++i)
+            {
+                if (function.Type == InstructionType.DefineFunction2)
+                    args.Add(function.Parameters[4 + i * 2 + 1].ToString());
+                else
+                    args.Add(function.Parameters[2 + i].ToString());
+            }
+            return (name, args);
+        }
         public static string? ToStringWithIndent(this object obj, int indent = 0)
         {
+            string ots = obj.ToString()!;
+            if (ots == null)
+                ots = "null";
             if (indent <= 0)
-                return obj.ToString();
+                return ots;
             var s = new StringBuilder();
             for (int i = 0; i < indent; ++i)
                 s.Append(" ");
-            s.Append(obj.ToString());
+            s.Append(ots);
             return s.ToString();
         }
 
@@ -70,12 +87,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             // wtf
             var c = StructurizedBlockChain.Parse(g.BaseBlock);
             Console.WriteLine("\nGan Si Huang Xu Dong");
-            c.Print(g.ConstPool, g.RegNames);
+            // c.Print(g.ConstPool, g.RegNames);
             // change to:
             var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
             var sc = new StatementCollection(p);
-            // var code = some recursive function of sc to print
-            // console.write(code)
+            var code = sc.Compile();
+            Console.Write(code.ToString());
 
             return g;
         }
