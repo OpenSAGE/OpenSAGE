@@ -72,7 +72,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             int curNr = startFromZero ? -1 : 0;
             if (!add)
                 add = !int.TryParse(s.Substring(u + 1), out curNr);
-            return (add ? s + "_" : s.Substring(u + 1)) + (curNr + 1).ToString();
+            return (add ? s + "_" : s.Substring(0, u + 1)) + (curNr + 1).ToString();
         }
 
         public static string JustifyName(
