@@ -65,6 +65,50 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return s.ToString();
         }
 
+        public static string GetIncrementedName(string s, bool startFromZero = false)
+        {
+            var u = s.LastIndexOf('_');
+            var add = u < 1 || u == s.Length - 1;
+            int curNr = startFromZero ? -1 : 0;
+            if (!add)
+                add = !int.TryParse(s.Substring(u + 1), out curNr);
+            return (add ? s + "_" : s.Substring(u + 1)) + (curNr + 1).ToString();
+        }
+
+        public static string JustifyName(
+            string s,
+            int maxLength = 20,
+            string illegal = " ,./\\()[]+-*^&|%$#@!'\":\t",
+            string split = "{};\n",
+            bool striptUnderscore = true
+            )
+        {
+            foreach (var c in split)
+                s = s.Split(c)[0];
+            foreach (var c in illegal)
+                s = s.Replace(c, '_');
+            for (int i = 0; i < 16; ++i)
+            {
+                var s1 = s.Replace("__", "_");
+                if (s1.Length == s.Length)
+                    break;
+                else
+                    s = s1;
+            }
+            if (striptUnderscore)
+            {
+                if (s.StartsWith('_'))
+                    s = s.Substring(1);
+                if (s.EndsWith('_'))
+                    s = s.Substring(0, s.Length - 1);
+            }
+            if (int.TryParse(s.Substring(0, 1), out var _))
+                s = "num_" + s;
+            if (s.Length > maxLength)
+                s = s.Substring(0, maxLength);
+            return s;
+        }
+
         public static string ToCodingForm(this string str)
         {
             return $"\"{str.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";

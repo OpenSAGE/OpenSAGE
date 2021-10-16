@@ -39,7 +39,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         private static Value UndefinedValue = new(ValueType.Undefined);
 
-        private Value(ValueType type,
+        protected Value(ValueType type,
             string s = null,
             bool b = false,
             int n = 0,
@@ -467,18 +467,17 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // equality comparison
 
-        public override bool Equals(object obj)
+        /// <summary>
+        /// used in dictionary, etc.
+        /// do not use this in the VM
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public bool Equals(Value b)
         {
-            //Check for null and compare run-time types.
-            if ((obj == null) || !GetType().Equals(obj.GetType()))
-            {
-                return false;
-            }
-            else
-            {
-                return AbstractEquals(this, (Value) obj);
-            }
+            return object.ReferenceEquals(this, b);
         }
+
 
         // used by ActionEquals
         public static bool NaiveEquals(Value a, Value b)
@@ -554,11 +553,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return false;
             }
         }
-        public bool Equals(Value b)
-        {
-            return AbstractEquals(this, b);
-        }
-
 
         //TODO: Implement Strict Equality Comparison Algorithm
         public bool StrictEquals(Value b)

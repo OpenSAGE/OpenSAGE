@@ -83,12 +83,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {   if (instruction is DefineFunction2 df2)
             {
                 var flags = (FunctionPreloadFlags) df2.Parameters[3].ToInteger();
-                regNames = Preload(flags, df2);
+                regNames = Preload(flags, df2.Parameters);
             }
             Instructions = new InstructionGraph(insts, constSource, indexOffset, constPool, regNames);
             
         }
-        public static Dictionary<int, string> Preload(FunctionPreloadFlags flags, DefineFunction2? inst = null)
+        public static Dictionary<int, string> Preload(FunctionPreloadFlags flags, IEnumerable<Value> parameters)
         {
             int reg = 1;
             var _registers = new Dictionary<int, string>();
@@ -99,18 +99,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments)) // TODO sanity check
             {
-                if (inst == null)
-                    throw new InvalidOperationException();
-                string name = inst.Parameters[0].ToString();
-                int nrArgs = inst.Parameters[1].ToInteger();
-                for (int i = 0; i < nrArgs; ++i)
-                {
-                    if (inst.Type == InstructionType.DefineFunction2)
-                        _registers[reg] = inst.Parameters[4 + i * 2 + 1].ToString();
-                    else
-                        _registers[reg] = inst.Parameters[2 + i].ToString();
-                    ++reg;
-                }
+                _registers[reg] = "arguments";
+                ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
             {
@@ -136,6 +126,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 _registers[reg] = "extern";
                 ++reg;
+            }
+            int nrArgs = parameters.ElementAt(1).ToInteger();
+            for (int i = 0; i < nrArgs; ++i)
+            {
+                var pname = parameters.ElementAt(4 + i * 2 + 1).ToString();
+                var preg = parameters.ElementAt(4 + i * 2).ToInteger();
+                _registers[preg] = pname;
             }
             return _registers;
         }
@@ -474,7 +471,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 //foreach (var a in currentBlock.Items)
                 //    Console.WriteLine(a.Value);
                 var tree = NodePool.PushBlock(currentBlock, constPool, regNames);
-                Console.WriteLine(tree.GetCode(layer * 4, type));
+                throw new NotImplementedException();
+                // Console.WriteLine(tree.GetCode(layer * 4, type));
                 currentBlock = currentBlock.NextBlockDefault;
             }
             c = c.Next;

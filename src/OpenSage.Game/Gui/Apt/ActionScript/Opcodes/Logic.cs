@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class Equals2 : InstructionDiOperator
     {
         public override Func<Value, Value, Value> Operator =>
-            (a, b) => Value.FromBoolean(a.Equals(b));
+            (a, b) => Value.FromBoolean(Value.AbstractEquals(a, b));
         public override InstructionType Type => InstructionType.Equals2;
         public override int Precendence => 10;
         public override string ToString(string[] p)

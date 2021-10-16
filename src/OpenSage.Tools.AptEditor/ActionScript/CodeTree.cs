@@ -13,13 +13,28 @@ using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 namespace OpenSage.Tools.AptEditor.ActionScript
 {
 
+    public class LogicalValue : Value
+    {
+        public readonly Node N;
+        public LogicalValue(Node n) : base(ValueType.Undefined)
+        {
+            N = n;
+        }
+
+        public override string ToString()
+        {
+            return string.Empty;
+        }
+    }
+
     public class StatementCollection
     {
         public IEnumerable<NodeStatement> Statements { get; private set; }
         public IEnumerable<Value> Constants { get; }
-        public IDictionary<int, string> RegNames { get; }
+        public Dictionary<int, string> RegNames { get; }
         public Dictionary<int, Value> Registers { get; }
-        public Dictionary<string, NodeExpression> NodeNames { get; }
+        public Dictionary<string, Value?> NodeNames { get; }
+        public Dictionary<Value, string> NodeNames2 { get; }
 
         public StatementCollection(NodePool pool) {
             Statements = pool.PopStatements();
@@ -27,10 +42,34 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             RegNames = new Dictionary<int, string>(pool.RegNames);
             Registers = new();
             NodeNames = new();
+            NodeNames2 = new();
+            foreach (var (reg, rname) in RegNames)
+                NodeNames[rname] = null; // don't care overwriting
         }
 
-        
+        // nomination
+        public string NameRegister(int id, string? hint, bool forceOverwrite = false)
+        {
+            if (string.IsNullOrWhiteSpace(hint))
+                hint = $"reg{id}";
+            while ((!forceOverwrite) && NodeNames.ContainsKey(hint))
+                hint = InstUtils.GetIncrementedName(hint);
+            RegNames[id] = hint;
+            if (!NodeNames.ContainsKey(hint))
+                NodeNames[hint] = null;
+            return hint;
+        }
 
+        public string NameVariable(Value val, string name, bool forceOverwrite = false)
+        {
+            while ((!forceOverwrite) && NodeNames.ContainsKey(name))
+                name = InstUtils.GetIncrementedName(name);
+            NodeNames[name] = val;
+            NodeNames2[val] = name;
+            return name;
+        }
+
+        // compilation
         public StringBuilder Compile(StringBuilder? sb = null, int startIndent = 0, int dIndent = 4, bool compileSubCollections = true, bool ignoreLastBranch = false)
         {
             sb = sb == null ? new() : sb;
@@ -43,7 +82,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 else
                 {
                     // TODO CSC
-                    if (node is NodeControl nc)
+                    if (node is NodeControl nc && compileSubCollections)
                     {
                         nc.TryCompile2(this, sb, curIndent, dIndent, compileSubCollections);
                         continue;
@@ -72,38 +111,38 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return sb;
         }
 
-        public bool GetExpression(Value v, out string ret)
+        public string GetExpression(Value v)
         {
-            ret = string.Empty;
-            var ans = true;
+            var ret = string.Empty;
             if (v.Type == ValueType.Constant)
                 if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count())
                 {
                     v = Constants.ElementAt(v.ToInteger());
-                    if (v.Type == ValueType.String)
-                        ret = v.ToString();
                 }
                 else
                 {
                     ret = $"__const__[{v.ToInteger()}]";
-                    ans = false;
                 }
 
             if (v.Type == ValueType.Register)
                 if (RegNames != null && RegNames.TryGetValue(v.ToInteger(), out var reg))
                 {
                     ret = reg;
-                    ans = false;
                 }
                 else
                 {
                     ret = $"__reg__[{v.ToInteger()}]";
-                    ans = false;
                 }
 
             if (string.IsNullOrEmpty(ret))
-                ret = v.ToString();
-            return ans;
+            {
+                if (NodeNames2.TryGetValue(v, out var ret2))
+                    ret = ret2;
+                else
+                    ret = v.ToString();
+            }
+                
+            return ret;
         }
 
     }
@@ -355,74 +394,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return pool;
         }
 
-        // TODO use syntax tree method
-        // will be removed sooner or later
-        public bool ToStringInCodingForm(Value v, out string ret)
-        {
-            ret = string.Empty;
-            var ans = true;
-            if (v.Type == ValueType.Constant)
-                if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count())
-                {
-                    v = Constants.ElementAt(v.ToInteger());
-                    if (v.Type == ValueType.String)
-                        ret = v.ToString();
-                }
-                else
-                {
-                    ret = $"const[{v.ToInteger()}]";
-                    ans = false;
-                }
-
-            if (v.Type == ValueType.Register)
-                if (RegNames != null && RegNames.TryGetValue(v.ToInteger(), out var reg))
-                {
-                    ret = reg;
-                    ans = false;
-                }
-                else
-                {
-                    ret = $"reg[{v.ToInteger()}]";
-                    ans = false;
-                }
-
-            if (string.IsNullOrEmpty(ret))
-                ret = v.ToString();
-            return ans;
-        }
-        public string GetCode(int indent = 0, CodeType type = CodeType.Sequential)
-        {
-            var tc = Type;
-            Type = type;
-            StringBuilder ans = new();
-            var returnLine = false;
-            foreach (var node in NodeList)
-            {
-                if (returnLine == false)
-                    returnLine = true;
-                else
-                    ans.Append('\n');
-
-                var addDiv = true;
-                var code = "[[null node]]";
-
-                code = node.GetCode(this);
-
-                if (code.EndsWith("@"))
-                {
-                    code = code.Substring(0, code.Length - 1);
-                    addDiv = false;
-                }
-                if (string.IsNullOrWhiteSpace(code))
-                    returnLine = false;
-                else
-                    ans.Append(code.ToStringWithIndent(indent));
-                if (addDiv)
-                    ans.Append(';');
-            }
-            Type = tc;
-            return ans.ToString();
-        }
     }
 
     // Nodes
@@ -567,13 +538,18 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
                 else if (ncur.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var nval))
                 {
-                    valCode[i] = nval!.ToString();
+                    valCode[i] = sta.GetExpression(nval!);
                     val[i] = nval;
+                    if (string.IsNullOrEmpty(valCode[i]))
+                    {
+                        ncur.TryCompile(sta);
+                        valCode[i] = string.IsNullOrEmpty(ncur.Code) ? $"__args__[{i}]" : ncur.Code;
+                    }
                 }
                 else
                 {
                     ncur.TryCompile(sta);
-                    valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code;
+                    valCode[i] = string.IsNullOrEmpty(ncur.Code) ? $"__args__[{i}]" : ncur.Code;
                     val[i] = null;
                     // fix precendence
                     // only needed for compiled codes
@@ -656,12 +632,37 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     }
                     break;
                 // case 2: value assignment statements
+                case InstructionType.SetRegister:
+                    var nrReg = Instruction.Parameters[0].ToInteger();
+                    if (val[0] == null)
+                    {
+                        var regSet = sta.RegNames.ContainsKey(nrReg);
+                        var nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
+                        ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case 1@";
+                    }
+                    else if (!sta.NodeNames2.ContainsKey(val[0]!))
+                    {
+                        var regSet = sta.RegNames.ContainsKey(nrReg);
+                        var nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
+                        sta.NameVariable(val[0]!, nReg, true);
+                        ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case 2@";
+                    }
+                    else
+                    {
+                        sta.NameRegister(nrReg, sta.NodeNames2[val[0]!]);
+                        ret = $"// [[register #{nrReg}]] <- {sta.NodeNames2[val[0]!]}@"; // do nothing
+                    }
+                    break;
                 // NodeNames should be updated
                 case InstructionType.SetMember: // val[1] is integer: [] else: .
                     if (val[1] == null || val[1]!.Type == ValueType.Integer)
                         ret = $"{valCode[2]}[{valCode[1]}] = {valCode[0]}";
                     else
                         ret = Instruction.ToString(valCode);
+                    break;
+
+                case InstructionType.SetVariable:
+
                     break;
                 // case 3: unhandled cases | handling is not needed
                 default:
@@ -677,132 +678,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             }
             Code = ret;
         }
-
-        public virtual string GetCode(NodePool tree)
-        {
-            var vals = new string[Expressions.Count];
-            for (int i = 0; i < Expressions.Count; ++i)
-            {
-                var node = Expressions[i];
-                if (node == null)
-                {
-                    vals[i] = $"args[{i}]";
-                }
-                else
-                {
-                    var flag = node.TryGetValue(x => InstUtils.ParseValue(x, tree.Constants, null), out var val);
-                    if (flag)
-                    { // Formatize strings
-                        var flag2 = tree.ToStringInCodingForm(val!, out vals[i]);
-                        // Special judge to flexible argument type opcodes
-                        if (flag2 && ((
-                                Instruction.Type == InstructionType.Add2 ||
-                                Instruction.Type == InstructionType.GetURL ||
-                                Instruction.Type == InstructionType.GetURL2 ||
-                                Instruction.Type == InstructionType.StringConcat ||
-                                Instruction.Type == InstructionType.StringEquals
-                            ) || (i == 0 && (
-                                Instruction.Type == InstructionType.DefineLocal ||
-                                Instruction.Type == InstructionType.Var ||
-                                Instruction.Type == InstructionType.ToInteger ||
-                                Instruction.Type == InstructionType.ToString ||
-                                Instruction.Type == InstructionType.SetMember ||
-                                Instruction.Type == InstructionType.SetVariable ||
-                                Instruction.Type == InstructionType.SetProperty ||
-                                Instruction.Type == InstructionType.EA_PushString ||
-                                Instruction.Type == InstructionType.EA_SetStringMember ||
-                                Instruction.Type == InstructionType.EA_SetStringVar ||
-                                Instruction.Type == InstructionType.EA_PushConstantByte ||
-                                Instruction.Type == InstructionType.EA_PushConstantWord ||
-                                Instruction.Type == InstructionType.Trace
-                            ))) &&
-                            (val!.Type == ValueType.String || val.Type == ValueType.Constant))
-                            vals[i] = $"\"{vals[i].Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
-                    }
-                    else
-                    {
-                        vals[i] = node.GetCode(tree);
-                        // if ins pre higher than v pre, ()
-                        if (node.Instruction != null && Instruction.Precendence > node.Instruction.Precendence)
-                            vals[i] = $"({vals[i]})";
-                    }
-                }
-
-            }
-            string ret = string.Empty;
-            string tmp = string.Empty;
-            switch (Instruction.Type)
-            {
-                case InstructionType.BranchAlways:
-                    if (tree.Type == CodeType.Case)
-                        ret = string.Empty;
-                    else// if (tree.Type == CodeType.Loop)
-                    {
-                        var itmp = Instruction;
-                        if (itmp is LogicalTaggedInstruction itag)
-                            itmp = itag.FinalInnerAction;
-
-                        if (itmp.Parameters[0].ToInteger() > 0)
-                            ret = "break";
-                        else
-                            ret = "continue";
-                    }
-                    /*
-                    else
-                    {
-                        if (Instruction is LogicalTaggedInstruction itag)
-                            tmp = itag.AdditionalData == null ? itag.Tag : (string) itag.AdditionalData;
-                        else
-                            tmp = $"[[{Instruction.Parameters[0]}]]";
-                        ret = $"goto {tmp}; // {Instruction.ToString2(vals)}@";
-                    }
-                    */
-                    break;
-                case InstructionType.BranchIfTrue:
-                case InstructionType.EA_BranchIfFalse:
-                    tmp = vals[0];
-                    if (Instruction.Type == InstructionType.BranchIfTrue)
-                        if (tmp.StartsWith("!"))
-                            tmp = tmp.Substring(1);
-                        else
-                            tmp = $"!({tmp})";
-                    if (!(tmp.StartsWith('(') && tmp.EndsWith(')')))
-                        tmp = $"({tmp})";
-
-                    if (tree.Type == CodeType.Case)
-                        ret = $"if {tmp}@";
-                    else if (tree.Type == CodeType.Loop)
-                        ret = $"while {tmp}@";
-                    else
-                        ret = $"goto [[{Instruction.Parameters[0]}]]; // {Instruction.ToString2(vals)}@";
-                    break;
-                case InstructionType.DefineFunction:
-                case InstructionType.DefineFunction2:
-                    string name = Instruction.Parameters[0].ToString();
-                    List<string> args = new();
-                    int nrArgs = Instruction.Parameters[1].ToInteger();
-                    for (int i = 0; i < nrArgs; ++i)
-                    {
-                        if (Instruction.Type == InstructionType.DefineFunction2)
-                            args.Add(Instruction.Parameters[4 + i * 2 + 1].ToString());
-                        else
-                            args.Add(Instruction.Parameters[2 + i].ToString());
-                    }
-                    ret = $"{name}{(!string.IsNullOrEmpty(name) ? " = " : "")}function({string.Join(", ", args.ToArray())})";
-                    break;
-                default:
-                    try
-                    {
-                        ret = Instruction.ToString(vals);
-                    }
-                    catch
-                    {
-                        ret = Instruction.ToString2(vals);
-                    }
-                    break;
-            }
-            return ret;
-        }
+        
     }
     public class NodeExpression : Node
     {
@@ -916,21 +792,24 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {
             // Better not use FromArray()
             ret = Value;
+            if (parse != null)
+                ret = parse(ret);
             return ret == null ? false : true;
         }
     }
     public class NodeArray : NodeExpression
     {
+        private readonly LogicalValue _v;
         public NodeArray() : base(new InitArray())
         {
-
+            _v = new(this);
         }
 
         public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
             // Better not use FromArray()
-            ret = null;
-            return false;
+            ret = _v;
+            return true;
         }
 
         public override void TryCompile(StatementCollection sta, bool compileBranches = false)
@@ -948,7 +827,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (!flag)
                 {
                     node.TryCompile(sta, compileBranches);
-                    vals[i] = node.Code == null ? $"__args__[{i}]" : string.Join(";", node.Code.ToArray());
+                    vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code;
                 }
                 else
                 {
@@ -979,9 +858,17 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     {
         public StatementCollection Body;
         public static readonly string NoIndentMark = "/*@([{@%@)]}@*/";
+        private readonly LogicalValue _v;
         public NodeFunctionBody(InstructionBase inst, StatementCollection body) : base(inst)
         {
             Body = body;
+            _v = new(this);
+        }
+
+        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
+        {
+            ret = _v;
+            return true;
         }
 
         public override void TryCompile(StatementCollection sta, bool compileBranches = false)
@@ -995,7 +882,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             sb.Append("{\n");
             Body.Compile(sb, 1, 2, true, false);
             // sb.Append(NoIndentMark);
-            sb.Append("}\n");
+            sb.Append("}");
             Code = sb.ToString();
         } 
     }
@@ -1022,6 +909,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var tmpindent = 0;
                 while (l.ElementAt(tmpindent) == ' ')
                     ++tmpindent;
+                if (i == lines.Count() - 1)
+                    if (l.EndsWith("@"))
+                        l = l.Substring(0, l.Length - 1);
+                    else if (!l.EndsWith(";"))
+                        l = l + ";";
                 sb.Append(l.Substring(tmpindent).ToStringWithIndent(indent + tmpindent * dIndent));
                 sb.Append("\n");
             }
@@ -1118,11 +1010,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             Condition = condition;
             Maintain = maintain;
             Branch = branch;
-        }
-
-        public override string GetCode(NodePool tree)
-        {
-            throw new NotImplementedException();
         }
 
         public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
