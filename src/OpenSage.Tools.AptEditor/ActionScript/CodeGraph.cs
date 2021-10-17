@@ -52,6 +52,15 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             Tag = tag;
             TagType = type;
         }
+
+        public IEnumerable<string> GetLabels()
+        {
+            var ans = new List<string>();
+            for (InstructionBase it = this; it != null && it is LogicalTaggedInstruction itl; it = itl.InnerAction)
+                if (itl.TagType == TagType.Label && !string.IsNullOrEmpty(itl.Label))
+                    ans.Add(itl.Label);
+            return ans;
+        }
         public override string GetParameterDesc(ActionContext context)
         {
             return InnerAction.GetParameterDesc(context);
@@ -145,6 +154,57 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         
     }
 
+    public class InstructionBlock
+    {
+        public SortedDictionary<int, InstructionBase> Items { get; set; }
+
+        public LogicalTaggedInstruction? BranchCondition { get; set; }
+        public InstructionBlock? NextBlockCondition { get; set; }
+        public InstructionBlock? NextBlockDefault { get; private set; }
+
+        public readonly InstructionBlock? PreviousBlock;
+        public readonly int Hierarchy;
+
+        public readonly List<string> Labels;
+
+        public bool IsFirstBlock => PreviousBlock == null;
+        public bool IsLastBlock => NextBlockDefault == null;
+
+        public bool HasConditionalBranch => BranchCondition != null &&
+                                            (BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                                             BranchCondition!.Type == InstructionType.EA_BranchIfFalse);
+        public bool HasConstantBranch => BranchCondition != null && BranchCondition.Type == InstructionType.BranchAlways;
+        public bool HasBranch => BranchCondition != null &&
+                                 (BranchCondition!.Type == InstructionType.BranchIfTrue ||
+                                  BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
+                                  BranchCondition!.Type == InstructionType.BranchAlways);
+
+        public InstructionBlock(InstructionBlock? prev = null)
+        {
+            Items = new();
+            Labels = new();
+            PreviousBlock = prev;
+            if (prev != null)
+            {
+                prev.NextBlockDefault = this;
+                Hierarchy = prev.Hierarchy + 1;
+            }
+            else
+                Hierarchy = 0;
+        }
+
+        public InstructionBlock(InstructionBlock b, bool copyNext)
+        {
+            Items = b.Items;
+            Labels = new(b.Labels);
+            BranchCondition = b.BranchCondition;
+            NextBlockDefault = copyNext ? b.NextBlockDefault : null;
+            NextBlockCondition = b.NextBlockCondition;
+            PreviousBlock = b.PreviousBlock;
+            Hierarchy = b.Hierarchy;
+        }
+    }
+
     public class InstructionGraph
     {
         public SortedDictionary<int, InstructionBase> Items { get; set; }
@@ -206,12 +266,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
 
                 // create labels
+                // TODO what if BranchIfFalse
                 else if (instruction is BranchIfTrue || instruction is BranchAlways)
                 {
                     var dest = instruction.Parameters[0].ToInteger();
                     ++labelCount;
                     var destIndex = stream.GetBranchDestination(dest, index + 1);
-                    var tag = destIndex == -1 ? $"[[#{index + 1}+({dest})]]" : $"label_#{destIndex}";
+                    var tag = destIndex == -1 ? $"[[@{IndexOffset}#{index + 1}+({dest})]]" : $"label_#{destIndex + IndexOffset}";
                     if (destIndex == -1)
                     {
                         throw new InvalidOperationException();
@@ -373,54 +434,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         }
     }
 
-    public class InstructionBlock
-    {
-        public SortedDictionary<int, InstructionBase> Items { get; set; }
-
-        public LogicalTaggedInstruction? BranchCondition { get; set; }
-        public InstructionBlock? NextBlockCondition { get; set; }
-        public InstructionBlock? NextBlockDefault { get; private set; }
-
-        public readonly InstructionBlock? PreviousBlock;
-        public readonly int Hierarchy;
-
-        public readonly List<string> Labels = new();
-
-        public bool IsFirstBlock => PreviousBlock == null;
-        public bool IsLastBlock => NextBlockDefault == null;
-
-        public bool HasConditionalBranch => BranchCondition != null &&
-                                            (BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                                             BranchCondition!.Type == InstructionType.EA_BranchIfFalse);
-        public bool HasConstantBranch => BranchCondition != null && BranchCondition.Type == InstructionType.BranchAlways;
-        public bool HasBranch => BranchCondition != null &&
-                                 (BranchCondition!.Type == InstructionType.BranchIfTrue ||
-                                  BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
-                                  BranchCondition!.Type == InstructionType.BranchAlways);
-
-        public InstructionBlock(InstructionBlock? prev = null) {
-            Items = new();
-            PreviousBlock = prev;
-            if (prev != null)
-            {
-                prev.NextBlockDefault = this;
-                Hierarchy = prev.Hierarchy + 1;
-            }
-            else
-                Hierarchy = 0;
-        }
-
-        public InstructionBlock(InstructionBlock b, bool copyNext)
-        {
-            Items = b.Items;
-            BranchCondition = b.BranchCondition;
-            NextBlockDefault = copyNext ? b.NextBlockDefault : null;
-            NextBlockCondition = b.NextBlockCondition;
-            PreviousBlock = b.PreviousBlock;
-            Hierarchy = b.Hierarchy;
-        }
-    }
-
     public class StructurizedBlockChain
     {
         
@@ -439,7 +452,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return $"SBC(Type={Type}, {(Empty ? emp : string.Empty)}Range=[{StartBlock.Hierarchy}, {(EndBlock == null ? inf : EndBlock.Hierarchy)}])";
         }
 
-        
         public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null)
         {
             StartBlock = start;
@@ -453,70 +465,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 EndBlock = end;
             
         }
-
-        public void PrintRaw(
-            List<Value>? constPool = null,
-            Dictionary<int, string>? regNames = null,
-            int layer = 0,
-            CodeType type = CodeType.Sequential
-            )
-        {
-            // Console.WriteLine($"RAW {this}");
-            if (Empty)
-                return;
-            var c = this;
-            var currentBlock = c.StartBlock;
-            while (currentBlock != null && (c.EndBlock == null || currentBlock.Hierarchy <= c.EndBlock!.Hierarchy))
-            {
-                //foreach (var a in currentBlock.Items)
-                //    Console.WriteLine(a.Value);
-                var tree = NodePool.PushBlock(currentBlock, constPool, regNames);
-                throw new NotImplementedException();
-                // Console.WriteLine(tree.GetCode(layer * 4, type));
-                currentBlock = currentBlock.NextBlockDefault;
-            }
-            c = c.Next;
-
-        }
-
-        public void Print(
-            List<Value>? constPool = null,
-            Dictionary<int, string>? regNames = null,
-            int layer = 0,
-            CodeType type = CodeType.Sequential
-            )
-        {
-            // Console.WriteLine(this);
-            if (Type == CodeType.Case)
-            {
-                //Console.WriteLine("If Statement {".ToStringWithIndent(layer * 4));
-                AdditionalData[0].PrintRaw(constPool, regNames, layer, Type);
-                Console.WriteLine("{".ToStringWithIndent(layer * 4));
-                AdditionalData[1].Print(constPool, regNames, layer + 1);
-                Console.WriteLine("} else {".ToStringWithIndent(layer * 4));
-                AdditionalData[2].Print(constPool, regNames, layer + 1);
-                Console.WriteLine("}".ToStringWithIndent(layer * 4));
-            }
-            else if (Type == CodeType.Loop)
-            {
-                // Console.WriteLine("While Statement {".ToStringWithIndent(layer * 4));
-                AdditionalData[0].Print(constPool, regNames, layer, Type);
-                Console.WriteLine("{".ToStringWithIndent(layer * 4));
-                AdditionalData[1].Print(constPool, regNames, layer + 1);
-                Console.WriteLine("}".ToStringWithIndent(layer * 4));
-            }
-            else if (SubChainStart != null)
-            {
-                var c = SubChainStart;
-                while (c != null)
-                {
-                    c.Print(constPool, regNames, layer);
-                    c = c.Next;
-                }
-            }
-            else
-                PrintRaw(constPool, regNames, layer, type);
-        } 
 
         public static StructurizedBlockChain Parse(InstructionBlock root)
         {

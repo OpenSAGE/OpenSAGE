@@ -65,6 +65,43 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return s.ToString();
         }
 
+        public static string AddLabels(this string s, IEnumerable<string> l)
+        {
+            if (l.Count() == 0)
+                return s;
+            var s1 = string.IsNullOrWhiteSpace(s) ? string.Empty : s + "; ";
+            return $"{s1}// {string.Join(", ", l.ToArray())}@";
+        }
+
+        public static string ReverseCondition(string s)
+        {
+            if (s.StartsWith("!"))
+            {
+                s = s.Substring(1);
+                if (s.StartsWith('(') && s.EndsWith(')'))
+                    s = s.Substring(1, s.Length - 2);
+            }
+            else
+            {
+                s = $"!({s})";
+            }
+            return s;
+        }
+
+        public static (string, InstructionType) SimplifyCondition(string s, InstructionType c)
+        {
+            if (c != InstructionType.BranchIfTrue && c != InstructionType.EA_BranchIfFalse)
+                throw new InvalidOperationException();
+            while (s.StartsWith("!"))
+            {
+                s = s.Substring(1);
+                c = c == InstructionType.BranchIfTrue ? InstructionType.EA_BranchIfFalse : InstructionType.BranchIfTrue;
+                if (s.StartsWith('(') && s.EndsWith(')'))
+                    s = s.Substring(1, s.Length - 2);
+            }
+            return (s, c);
+        }
+
         public static string GetIncrementedName(string s, bool startFromZero = false)
         {
             var u = s.LastIndexOf('_');
@@ -83,6 +120,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             bool striptUnderscore = true
             )
         {
+            if (s == "True" || s == "true" || s == "False" || s == "false")
+                return "boolval";
+            else if (s == "null")
+                return "nullval";
+            else if (s == "undefined")
+                return "undefval";
             foreach (var c in split)
                 s = s.Split(c)[0];
             foreach (var c in illegal)

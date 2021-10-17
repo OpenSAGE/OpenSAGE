@@ -178,7 +178,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Value Peek()
         {
             var ret = _stack.Peek();
-            return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
+            return ret.Resolve(this);
         }
 
         public Value Pop()
@@ -189,7 +189,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return Value.Undefined();
             }
             var ret = _stack.Pop();
-            return ret.ResolveReturn().ResolveConstant(this).ResolveRegister(this);
+            return ret.Resolve(this);
         }
 
         public Value[] Pop(uint count)

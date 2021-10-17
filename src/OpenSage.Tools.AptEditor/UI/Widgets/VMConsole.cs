@@ -54,13 +54,13 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         //}
 
         string input_type = "Number";
-        string input_val = "114514";
+        string inputVal = "114514";
         int int_input = 0;
-        string exec_code_ref = "";
-        string last_executed_func = "Initial output";
+        string execCodeRef = "";
+        string lastExecFunc = "Initial output";
 
-        int selected_stack = 0;
-        int selected_reg = 0;
+        int selectedStack = 0;
+        int selectedReg = 0;
         int selected_cstack = 0;
         int selected_cqueue = 0;
 
@@ -109,7 +109,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 // ImGui.SameLine();
                 if (ImGui.Button("Exec1"))
                 {
-                    last_executed_func = manager.Scene.ExecuteOnce();
+                    lastExecFunc = manager.Scene.ExecuteOnce();
                     
                 }
                 if (_context != null)
@@ -134,7 +134,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         }
                         else
                             lef = _context.Avm.ExecuteUntilHalt();
-                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
+                        lastExecFunc = lef == null ? "null" : lef.ToString(_acontext);
                     }
                     ImGui.SameLine();
                     if (ImGui.Button("EUGlob"))
@@ -148,17 +148,17 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                         }
                         else
                             lef = _context.Avm.ExecuteUntilGlobal();
-                        last_executed_func = lef == null ? "null" : lef.ToString(_acontext);
+                        lastExecFunc = lef == null ? "null" : lef.ToString(_acontext);
                     }
                 }
                 
                 ImGui.InputText("Type", ref input_type, 1000);
                 //ImGui.SameLine();
-                ImGui.InputText("Value", ref input_val, 1000);
+                ImGui.InputText("Value", ref inputVal, 1000);
                 //ImGui.SameLine();
                 if (ImGui.Button("Push"))
                 {
-                    throw new System.NotImplementedException(input_val);
+                    throw new System.NotImplementedException(inputVal);
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("Pop"))
@@ -167,26 +167,26 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
                 }
 
                 
-                ImGui.InputTextMultiline("Code", ref exec_code_ref, 114514, new Vector2(300, 200));
+                ImGui.InputTextMultiline("Code", ref execCodeRef, 114514, new Vector2(300, 200));
                 if (ImGui.Button("Exec Code")) {
-                    throw new System.NotImplementedException(exec_code_ref);
+                    throw new System.NotImplementedException(execCodeRef);
                 }
 
                 ImGui.Text("Last Execution:");
-                ImGui.Text(last_executed_func);
+                ImGui.Text(lastExecFunc);
 
                 if (_acontext != null)
                 {
                     var stacks = _acontext.ListStack();
                     var regs = _acontext.ListRegister();
-                    if (ImGui.ListBox($"Regs[{regs.Length}]", ref selected_reg, regs, regs.Length))
+                    if (ImGui.ListBox($"Regs[{regs.Length}]", ref selectedReg, regs, regs.Length))
                     {
-                        var obj = _acontext.GetRegister(selected_reg).ToObject();
+                        var obj = _acontext.GetRegister(selectedReg).ToObject();
                         obj_disp = new ObjectDescription(obj, _acontext);
                     }
-                    if (ImGui.ListBox($"Stack[{stacks.Length}]", ref selected_stack, stacks, stacks.Length))
+                    if (ImGui.ListBox($"Stack[{stacks.Length}]", ref selectedStack, stacks, stacks.Length))
                     {
-                        var obj = _acontext.GetStackElement(selected_stack).ToObject();
+                        var obj = _acontext.GetStackElement(selectedStack).ToObject();
                         obj_disp = new ObjectDescription(obj, _acontext);
                     }
                 }

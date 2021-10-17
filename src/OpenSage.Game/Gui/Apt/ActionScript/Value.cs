@@ -9,13 +9,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 {
     public enum ValueType
     {
-        String,
+        Null, 
+        Undefined, 
+
         Boolean,
         Integer,
-        // Short is removed since never used
         Float,
+
+        String,
         Object,
-        Undefined,
 
         Constant,
         Register,
@@ -37,7 +39,11 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public string DisplayString { get; set; }
 
+        // defined value
         private static Value UndefinedValue = new(ValueType.Undefined);
+        private static Value NullValue = new(ValueType.Null);
+        private static Value FalseValue = new(ValueType.Boolean);
+        private static Value TrueValue = new(ValueType.Boolean, b : true);
 
         protected Value(ValueType type,
             string s = null,
@@ -58,13 +64,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // judgement
 
+        public bool IsSpecialType() { return Type == ValueType.Constant || Type == ValueType.Register || Type == ValueType.Return; }
+
         public static bool IsUndefined(Value v) { return v != null && v.Type == ValueType.Undefined; }
-        public static bool IsNull(Value v) { return v == null || (v.Type == ValueType.Object && v._object == null); }
+        public static bool IsNull(Value v) { return v == null || (v.Type == ValueType.Null); }
         public static bool IsNumber(Value v) { return v != null && v.IsNumber(); }
         public static bool IsString(Value v) { return v != null && v.IsString(); }
 
         public bool IsUndefined() { return Type == ValueType.Undefined; }
-        public bool IsNull() { return Type == ValueType.Object && _object == null; }
+        public bool IsNull() { return Type == ValueType.Null; }
         public bool IsNumber() { return Type == ValueType.Float || Type == ValueType.Integer; }
         public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ASString); }
 
@@ -85,7 +93,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value ResolveRegister(ActionContext context)
         {
-            if (Type != ValueType.Register)
+            if (Type != ValueType.Register || context == null)
                 return this;
 
             var result = this;
@@ -99,7 +107,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public Value ResolveConstant(ActionContext context)
         {
-            if (Type != ValueType.Constant)
+            if (Type != ValueType.Constant || context == null)
                 return this;
 
             var result = this;
@@ -117,12 +125,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _actx.Return ? _actx.ReturnValue : Undefined();
         }
 
-        public Value GetReturnValue()
-        {
-            if (Type != ValueType.Return)
-                return this;
-            return _actx.Return ? _actx.ReturnValue : null;
-        }
+        public Value Resolve(ActionContext context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
 
         // from
 
@@ -135,6 +138,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (obj != null && obj.IsFunction())
                 return FromFunction((Function) obj);
+            else if (obj == null)
+                return Null();
             return new Value(ValueType.Object, o: obj);
         }
 
@@ -160,7 +165,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static Value FromBoolean(bool cond)
         {
-            return new Value(ValueType.Boolean, b: cond);
+            return cond ? TrueValue : FalseValue;
         }
 
         public static Value FromString(string str)
@@ -187,10 +192,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new Value(ValueType.Float, d: num);
         }
 
-        public static Value Undefined()
-        {
-            return UndefinedValue;
-        }
+        public static Value Null() { return NullValue; }
+
+        public static Value Undefined() { return UndefinedValue; }
 
         public static Value FromStorage(ValueStorage s)
         {
@@ -213,7 +217,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
-        // conversion
+        // conversion without AS
+        // conversion with AS
+        // TODO \up
 
         // constant & register
         // Used by AptEditor to get actual id of constant / register
@@ -227,7 +233,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public T ToObject<T>() where T : ObjectContext
         {
-            if (Type == ValueType.Undefined)
+            if (IsUndefined())
             {
                 Logger.Error("Cannot create object from undefined!");
                 return null;
@@ -259,12 +265,33 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // numbers
 
-        internal Value ToNumber()
+        internal Value ToNumber(ActionContext actx = null)
         {
+            if (IsSpecialType())
+            {
+                var r = Resolve(actx);
+                if (r.IsSpecialType()) return FromFloat(double.NaN);
+                else return r.ToNumber(actx);
+            }
+
             if (IsNumber())
-                return Type == ValueType.Float ? FromFloat(_decimal) : FromInteger(_number);
-            else
+                return this;
+            else if (Type == ValueType.Boolean)
+                return _boolean ? FromInteger(1) : FromInteger(0);
+            else if (IsUndefined())
+                return FromFloat(double.NaN);
+            else if (IsNull())
                 return FromInteger(0);
+            else if (IsString())
+                return
+                    int.TryParse(_string, out var i) ? FromInteger(i) :
+                    double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
+            else
+            {
+                var r = _object.DefaultValue(2, actx);
+                if (r.Type == ValueType.Object && !IsNull(r)) return FromFloat(double.NaN);
+                else return r.ToNumber(actx);
+            }
         }
 
         public double ToFloat()
@@ -278,9 +305,20 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Float:
                     return _decimal;
                 case ValueType.Undefined:
-                    return float.NaN;
+                    return double.NaN;
+                case ValueType.Null:
+                    return +0;
                 case ValueType.Boolean:
-                    return _boolean ? 1.0 : 0.0;
+                    return _boolean ? 1 : +0;
+                case ValueType.String:
+                    return double.TryParse(_string, out var f) ? f : double.NaN;
+                case ValueType.Object:
+                    if (IsNull())
+                        return +0;
+                    else if (_object is ASString s)
+                        return double.TryParse(s.ToString(), out var f2) ? f2 : double.NaN;
+                    else
+                        return double.NaN;
                 default:
                     throw new NotImplementedException();
             }
@@ -297,12 +335,21 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Integer:
                     return _number;
                 case ValueType.Float:
-                    double floatNumber = ToFloat();
-                    return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
+                    return Math.Sign(_decimal) * (int) Math.Abs(_decimal);
                 case ValueType.Undefined:
+                case ValueType.Null:
                     return 0;
                 case ValueType.Boolean:
                     return _boolean ? 1 : 0;
+                case ValueType.String:
+                    return int.TryParse(_string, out var f) ? f : 0;
+                case ValueType.Object:
+                    if (IsNull())
+                        return 0;
+                    else if (_object is ASString s)
+                        return int.TryParse(s.ToString(), out var f2) ? f2 : 0;
+                    else
+                        return 0;
                 default:
                     throw new NotImplementedException();
             }
@@ -330,6 +377,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                     var = _boolean;
                     break;
                 case ValueType.Undefined:
+                case ValueType.Null:
                     var = false;
                     break;
                 case ValueType.Float:
@@ -374,6 +422,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return _decimal.ToString();
                 case ValueType.Undefined:
                     return "undefined"; // follows ECMA-262
+                case ValueType.Null:
+                    return "null";
                 case ValueType.Object:
                     return _object == null ? "null" : _object.ToString();
                 case ValueType.Return:
@@ -408,6 +458,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     break;
                 case ValueType.Undefined:
                     result = "undefined";
+                    break;
+                case ValueType.Null:
+                    result = "null";
                     break;
                 default:
                     throw new InvalidOperationException(Type.ToString());
@@ -444,21 +497,19 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         // TODO not comprehensive; ActionContext needed
-        public Value ToPrimirive()
+        public Value ToPrimirive(int hint = 0, ActionContext actx = null)
         {
             switch (Type)
             {
                 case ValueType.Undefined:
+                case ValueType.Null:
                 case ValueType.Boolean:
                 case ValueType.Integer:
                 case ValueType.Float:
                 case ValueType.String:
                     return this;
                 case ValueType.Object:
-                    if (IsNull())
-                        return this;
-                    else
-                        return _object.DefaultValue();
+                    return _object.DefaultValue(hint, actx);
                 default:
                     throw new NotImplementedException();
             }
@@ -510,7 +561,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         // The Abstract Equality Comparison Follows Section 11.9.3, ECMAScript Specification 3
         // https://262.ecma-international.org/5.1/#sec-11.9.3
         // https://www-archive.mozilla.org/js/language/E262-3.pdf
-        public static bool AbstractEquals(Value x, Value y)
+        public static bool AbstractEquals(Value x, Value y, ActionContext actx = null)
         {
             if ((IsNull(x) && IsNull(y)) ||
                 (IsNull(x) && IsUndefined(y)) ||
@@ -546,9 +597,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                 else if (y.Type == ValueType.Boolean)
                     return AbstractEquals(FromFloat(y.ToFloat()), x);
                 else if ((IsNumber(x) || IsString(x)) && (y.Type == ValueType.Object && !IsNull(y)))
-                    return AbstractEquals(x, y.ToPrimirive());
+                    return AbstractEquals(x, y.ToPrimirive(2, actx));
                 else if ((IsNumber(y) || IsString(y)) && (x.Type == ValueType.Object && !IsNull(x)))
-                    return AbstractEquals(y, x.ToPrimirive());
+                    return AbstractEquals(y, x.ToPrimirive(2, actx));
                 else
                     return false;
             }
