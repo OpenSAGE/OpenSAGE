@@ -39,12 +39,6 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public string DisplayString { get; set; }
 
-        // defined value
-        private static Value UndefinedValue = new(ValueType.Undefined);
-        private static Value NullValue = new(ValueType.Null);
-        private static Value FalseValue = new(ValueType.Boolean);
-        private static Value TrueValue = new(ValueType.Boolean, b : true);
-
         protected Value(ValueType type,
             string s = null,
             bool b = false,
@@ -131,6 +125,8 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static Value FromFunction(Function func)
         {
+            if (func == null)
+                return Null();
             return new Value(ValueType.Object, o: func);
         }
 
@@ -165,7 +161,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static Value FromBoolean(bool cond)
         {
-            return cond ? TrueValue : FalseValue;
+            return new Value(ValueType.Boolean, b: cond);
         }
 
         public static Value FromString(string str)
@@ -192,9 +188,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new Value(ValueType.Float, d: num);
         }
 
-        public static Value Null() { return NullValue; }
+        public static Value Null() { return new Value(ValueType.Null); }
 
-        public static Value Undefined() { return UndefinedValue; }
+        public static Value Undefined() { return new Value(ValueType.Undefined); }
 
         public static Value FromStorage(ValueStorage s)
         {
@@ -218,81 +214,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         // conversion without AS
-        // conversion with AS
-        // TODO \up
 
-        // constant & register
-        // Used by AptEditor to get actual id of constant / register
-        public uint GetIDValue()
-        {
-            if (Type != ValueType.Constant && Type != ValueType.Register)
-                throw new InvalidOperationException();
-
-            return (uint) _number;
-        }
-
-        public T ToObject<T>() where T : ObjectContext
-        {
-            if (IsUndefined())
-            {
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-            if (Type != ValueType.Object)
-                throw new InvalidOperationException();
-
-            return (T) _object;
-        }
-
-        public ObjectContext ToObject()
-        {
-            if (Type == ValueType.Undefined)
-            {
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-
-            if (Type == ValueType.String)
-            {
-                return new ASString(this, null);
-            }
-
-            if (Type != ValueType.Object)
-                throw new InvalidOperationException();
-
-            return _object;
-        }
-
-        // numbers
-
-        internal Value ToNumber(ActionContext actx = null)
-        {
-            if (IsSpecialType())
-            {
-                var r = Resolve(actx);
-                if (r.IsSpecialType()) return FromFloat(double.NaN);
-                else return r.ToNumber(actx);
-            }
-
-            if (IsNumber())
-                return this;
-            else if (Type == ValueType.Boolean)
-                return _boolean ? FromInteger(1) : FromInteger(0);
-            else if (IsUndefined())
-                return FromFloat(double.NaN);
-            else if (IsNull())
-                return FromInteger(0);
-            else if (IsString())
-                return
-                    int.TryParse(_string, out var i) ? FromInteger(i) :
-                    double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
-            else
-            {
-                var r = _object.DefaultValue(2, actx);
-                if (r.Type == ValueType.Object && !IsNull(r)) return FromFloat(double.NaN);
-                else return r.ToNumber(actx);
-            }
-        }
 
         public double ToFloat()
         {
@@ -354,6 +276,87 @@ namespace OpenSage.Gui.Apt.ActionScript
                     throw new NotImplementedException();
             }
         }
+
+
+        // conversion with AS
+        // TODO \up
+
+        // constant & register
+        // Used by AptEditor to get actual id of constant / register
+        public uint GetIDValue()
+        {
+            if (Type != ValueType.Constant && Type != ValueType.Register)
+                throw new InvalidOperationException();
+
+            return (uint) _number;
+        }
+
+        public T ToObject<T>() where T : ObjectContext
+        {
+            if (IsUndefined())
+            {
+                Logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+            else if (IsNull())
+                return null;
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+
+            return (T) _object;
+        }
+
+        public ObjectContext ToObject()
+        {
+            if (Type == ValueType.Undefined)
+            {
+                Logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+
+            if (Type == ValueType.String)
+            {
+                return new ASString(this, null);
+            }
+
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+
+            return _object;
+        }
+
+        // numbers
+
+        internal Value ToNumber(ActionContext actx = null)
+        {
+            if (IsSpecialType())
+            {
+                var r = Resolve(actx);
+                if (r.IsSpecialType()) return FromFloat(double.NaN);
+                else return r.ToNumber(actx);
+            }
+
+            if (IsNumber())
+                return this;
+            else if (Type == ValueType.Boolean)
+                return _boolean ? FromInteger(1) : FromInteger(0);
+            else if (IsUndefined())
+                return FromFloat(double.NaN);
+            else if (IsNull())
+                return FromInteger(0);
+            else if (IsString())
+                return
+                    int.TryParse(_string, out var i) ? FromInteger(i) :
+                    double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
+            else
+            {
+                var r = _object.DefaultValue(2, actx);
+                if (r.Type == ValueType.Object && !IsNull(r)) return FromFloat(double.NaN);
+                else return r.ToNumber(actx);
+            }
+        }
+
+        
 
         public uint ToUInteger()
         {

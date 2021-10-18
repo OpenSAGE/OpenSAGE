@@ -434,6 +434,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         }
     }
 
+    public class LogicalChainedBlock : InstructionBlock
+    {
+        // TODO
+    }
+
     public class StructurizedBlockChain
     {
         

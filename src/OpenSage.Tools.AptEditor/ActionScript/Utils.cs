@@ -14,7 +14,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 {
     public static class InstUtils
     {
-        public static Value? ParseValue(Value? v, IEnumerable<Value?> consts, IDictionary<int, Value?>? regs)
+        public static Func<Value?, Value?> ParseValueWrapped(StatementCollection s)
+        {
+            return x => ParseValue(x, s.Constants.ElementAt, x => { var a = s.HasRegisterValue(x, out var b); return (a, b); });
+        }
+
+        public static Value? ParseValue(Value? v, Func<int, Value?> consts, Func<int, (bool, Value?)>? regs)
         {
             if (v == null)
                 return v;
@@ -22,14 +27,20 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             {
                 if (v.Type == ValueType.Constant)
                 {
-                    v = consts.ElementAt(v.ToInteger());
-                    if (v.Type == ValueType.Constant)
+                    v = consts(v.ToInteger());
+                    if (!Value.IsNull(v) && v.Type == ValueType.Constant)
                         throw new InvalidOperationException();
                 }
                 else
                 {
-                    if (regs != null && regs.TryGetValue(v.ToInteger(), out var v_))
-                        v = v_;
+                    if (regs != null)
+                    {
+                        var (hasval, val) = regs(v.ToInteger());
+                        if (hasval)
+                            v = val;
+                        else
+                            break;
+                    }
                     else
                         break;
                 }
@@ -75,6 +86,14 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         public static string ReverseCondition(string s)
         {
+            if (s == "True")
+                return "False";
+            else if (s == "False")
+                return "True";
+            else if (s == "true")
+                return "false";
+            else if (s == "false")
+                return "true";
             if (s.StartsWith("!"))
             {
                 s = s.Substring(1);
@@ -120,12 +139,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             bool striptUnderscore = true
             )
         {
-            if (s == "True" || s == "true" || s == "False" || s == "false")
-                return "boolval";
-            else if (s == "null")
-                return "nullval";
-            else if (s == "undefined")
-                return "undefval";
             foreach (var c in split)
                 s = s.Split(c)[0];
             foreach (var c in illegal)
@@ -145,10 +158,21 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (s.EndsWith('_'))
                     s = s.Substring(0, s.Length - 1);
             }
+
+            s = s.Replace("function", "func").Replace("prototype", "proto");
+
             if (int.TryParse(s.Substring(0, 1), out var _))
                 s = "num_" + s;
             if (s.Length > maxLength)
                 s = s.Substring(0, maxLength);
+
+            if (s == "True" || s == "true" || s == "False" || s == "false")
+                return "boolval";
+            else if (s == "null")
+                return "nullval";
+            else if (s == "undefined")
+                return "undefval";
+
             return s;
         }
 

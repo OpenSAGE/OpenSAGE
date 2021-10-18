@@ -36,6 +36,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public Dictionary<string, Value?> NodeNames { get; }
         public Dictionary<Value, string> NodeNames2 { get; }
 
+        private StatementCollection? _parent;
+
         public StatementCollection(NodePool pool) {
             Nodes = pool.PopNodes();
             Constants = pool.Constants;
@@ -45,9 +47,37 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             NodeNames2 = new();
             foreach (var (reg, rname) in RegNames)
                 NodeNames[rname] = null; // don't care overwriting
+            _parent = null;
         }
 
         // nomination
+
+        public bool HasValueName(Value val, out string? name, out bool canOverwrite)
+        {
+            var ans = NodeNames2.TryGetValue(val, out name);
+            canOverwrite = ans;
+            if (!ans && _parent != null)
+                ans = _parent.HasValueName(val, out name, out var _);
+            return ans;
+        }
+
+        public bool HasRegisterName(int id, out string? name, out bool canOverwrite)
+        {
+            var ans = RegNames.TryGetValue(id, out name);
+            canOverwrite = ans;
+            if (!ans && _parent != null)
+                ans = _parent.HasRegisterName(id, out name, out var _);
+            return ans;
+        }
+
+        public bool HasRegisterValue(int id, out Value? val)
+        {
+            var ans = Registers.TryGetValue(id, out val);
+            if (!ans && _parent != null)
+                ans = _parent.HasRegisterValue(id, out val);
+            return ans;
+        }
+
         public string NameRegister(int id, string? hint, bool forceOverwrite = false)
         {
             if (string.IsNullOrWhiteSpace(hint))
@@ -76,10 +106,19 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public bool IsEmpty() { return Nodes.Count() == 0; } // TODO optimization may be needed
 
         // compilation
-        public StringBuilder Compile(StringBuilder? sb = null, int startIndent = 0, int dIndent = 4, bool compileSubCollections = true, bool ignoreLastBranch = false)
+        public StringBuilder Compile(StringBuilder? sb = null,
+            int startIndent = 0,
+            int dIndent = 4,
+            bool compileSubCollections = true,
+            bool ignoreLastBranch = false,
+            StatementCollection? parent = null)
         {
             sb = sb == null ? new() : sb;
             var curIndent = startIndent;
+
+            var p = _parent;
+            if (parent != null)
+                _parent = parent;
 
             foreach (var node in Nodes)
             {
@@ -115,6 +154,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
             }
 
+            _parent = p;
             return sb;
         }
 
@@ -132,7 +172,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
 
             if (v.Type == ValueType.Register)
-                if (RegNames != null && RegNames.TryGetValue(v.ToInteger(), out var reg))
+                if (HasRegisterName(v.ToInteger(), out var reg, out var _))
                 {
                     ret = reg;
                 }
@@ -172,6 +212,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         // change through process
         public List<Node> NodeList { get; }
+        private Dictionary<Node, int> _special = new();
         public int ParentNodeDivision { get; private set; }
 
         // should not be modified
@@ -221,7 +262,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 NodeList = new(parent.NodeList.Where(x => x is NodeExpression));
                 ParentNodeDivision = NodeList.Count;
                 Constants = parent.Constants;
-                RegNames = new(parent.RegNames);
+                RegNames = new();
             }
             else
             {
@@ -265,7 +306,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             Value? countVal = null;
             // another trygetvalue()
 
-            var flag = nexp == null ? false : nexp.TryGetValue(x => InstUtils.ParseValue(x, Constants, null), out countVal);
+            var flag = nexp == null ? false : nexp.TryGetValue(x => InstUtils.ParseValue(x, Constants.ElementAt, null), out countVal);
             if (flag)
             {
                 var count = countVal!.ToInteger();
@@ -281,11 +322,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         }
         public IEnumerable<NodeStatement> PopStatements()
         {
-            return NodeList.Skip(ParentNodeDivision).Where(x => x is NodeStatement).Cast<NodeStatement>();
+            return NodeList.Skip(ParentNodeDivision).Where(x => x is NodeStatement && !_special.ContainsKey(x)).Cast<NodeStatement>();
         }
         public IEnumerable<Node> PopNodes()
         {
-            return NodeList.Skip(ParentNodeDivision);
+            return NodeList.Skip(ParentNodeDivision).Where(x => !_special.ContainsKey(x));
         }
 
         public void PushInstruction(InstructionBase inst)
@@ -374,6 +415,16 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 sub2.PushChain(chain.AdditionalData[2]);
                 NodeCase n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
+                // add expressions inside the loop
+                // TODO more judgements
+                foreach (var ns2 in sub2.PopNodes())
+                {
+                    if (ns2 is NodeExpression)
+                    {
+                        _special[ns2] = 1;
+                        NodeList.Add(ns2);
+                    }
+                }
             }
             else if (chain.Type == CodeType.Loop)
             {
@@ -393,7 +444,15 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 sub2.PushChain(chain.AdditionalData[1]);
                 NodeLoop n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
-
+                // add expressions inside the loop?
+                foreach (var ns2 in sub2.PopNodes())
+                {
+                    if (ns2 is NodeExpression)
+                    {
+                        _special[ns2] = 1;
+                        NodeList.Add(ns2);
+                    }
+                }
             }
             else if (chain.SubChainStart != null)
             {
@@ -555,7 +614,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     val[i] = null;
                     continue;
                 }
-                else if (ncur.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var nval))
+                else if (ncur.TryGetValue(InstUtils.ParseValueWrapped(sta), out var nval))
                 {
                     valCode[i] = sta.GetExpression(nval!);
                     val[i] = nval;
@@ -647,18 +706,21 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 // case 2: value assignment statements
                 case InstructionType.SetRegister:
                     var nrReg = Instruction.Parameters[0].ToInteger();
-                    if (val[0] == null)
+                    if (val[0] == null || !sta.NodeNames2.ContainsKey(val[0]!))
                     {
-                        var regSet = sta.RegNames.ContainsKey(nrReg);
-                        var nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
-                        ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case 1@";
-                    }
-                    else if (!sta.NodeNames2.ContainsKey(val[0]!))
-                    {
-                        var regSet = sta.RegNames.ContainsKey(nrReg);
-                        var nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
-                        sta.NameVariable(val[0]!, nReg, true);
-                        ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case 2@";
+                        var regSet = sta.HasRegisterName(nrReg, out var nReg, out var co);
+                        var c = (val[0] != null ? 2 : 1) + (co ? 2 : 0);
+                        if (!regSet || co)
+                        {
+                            nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
+                            if (val[0] != null)
+                                sta.NameVariable(val[0]!, nReg, true);
+                            ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case {c}@";
+                        }
+                        else
+                        {
+                            ret = $"{nReg} = {valCode[0]}; // [[register #{nrReg}]], case {c + 4}@";
+                        }
                     }
                     else
                     {
@@ -674,9 +736,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                         ret = Instruction.ToString(valCode);
                     break;
 
-                case InstructionType.SetVariable:
+                //case InstructionType.SetVariable:
 
-                    break;
+                  //  break;
                 // case 3: unhandled cases | handling is not needed
                 default:
                     try
@@ -699,7 +761,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     {
         public Value? Value { get; protected set; }
 
-        private static Dictionary<InstructionType, int> _nie = new();
+        private static Dictionary<InstructionType, int> NIE = new();
 
         public NodeExpression(InstructionBase inst) : base(inst) { }
 
@@ -714,14 +776,14 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     return false;
                 if (node.TryGetValue(parse, out var val))
                 {
-                    if (val!.Type == ValueType.Constant || val.Type == ValueType.Register)
+                    if (val!.IsSpecialType())
                     {
                         if (parse == null)
                             return false;
                         else
                         {
                             val = parse(val);
-                            if (val == null)
+                            if (val == null || val!.IsSpecialType())
                                 return false;
                         }
                     }
@@ -736,7 +798,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (Instruction is InstructionMonoPush inst && inst.PushStack)
                 {
                     // NIE optimization
-                    if (_nie.TryGetValue(Instruction.Type, out var c) && c > 4)
+                    if (NIE.TryGetValue(Instruction.Type, out var c) && c > 4)
                         return false;
                     ret = inst.ExecuteWithArgs2(vals);
                     if (ret!.Type == ValueType.Constant || ret.Type == ValueType.Register)
@@ -757,7 +819,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             }
             catch (NotImplementedException)
             {
-                _nie[Instruction.Type] = _nie.TryGetValue(Instruction.Type, out var c) ? c + 1 : 1;
+                NIE[Instruction.Type] = NIE.TryGetValue(Instruction.Type, out var c) ? c + 1 : 1;
                 return false;
             }
             return ret != null;
@@ -767,7 +829,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         {
             // TODO use sta
             string ret = string.Empty;
-            if (TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val))
+            if (TryGetValue(InstUtils.ParseValueWrapped(sta), out var val))
             {
                 if (val == null)
                     ret = "null";
@@ -844,7 +906,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     vals[i] = $"__args__[{i}]";
                     continue;
                 }
-                var flag = node.TryGetValue(x => InstUtils.ParseValue(x, sta.Constants, sta.Registers!), out var val);
+                var flag = node.TryGetValue(InstUtils.ParseValueWrapped(sta), out var val);
                 if (!flag)
                 {
                     node.TryCompile(sta, compileBranches);
@@ -852,9 +914,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
                 else
                 {
-                    vals[i] = val!.ToString();
-                    if (val!.Type == ValueType.String)
-                        vals[i] = vals[i].ToCodingForm();
+                    vals[i] = sta.GetExpression(val!);
                 }
             }
             Code = string.Join(", ", vals);
@@ -958,7 +1018,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
             sb.Append(head.ToStringWithIndent(indent));
             sb.Append("{\n".ToStringWithIndent(indent));
-            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
             sb.Append("}\n".ToStringWithIndent(indent));
         }
     }
@@ -1060,7 +1120,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var ifBranch = elseIfBranch ? $"if ({tmp})\n" : $"if ({tmp})\n".ToStringWithIndent(indent);
                 sb.Append(ifBranch);
                 sb.Append("{\n".ToStringWithIndent(indent));
-                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
                 sb.Append("}\n".ToStringWithIndent(indent));
                 sb.Append("else ".ToStringWithIndent(indent));
                 nc2!.TryCompile2(sta, sb, indent, dIndent, compileSubCollections, true);
@@ -1070,13 +1130,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var ifBranch2 = elseIfBranch ? $"if ({tmp})\n" : $"if ({tmp})\n".ToStringWithIndent(indent);
                 sb.Append(ifBranch2);
                 sb.Append("{\n".ToStringWithIndent(indent));
-                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
                 sb.Append("}\n".ToStringWithIndent(indent));
                 if (!b2.IsEmpty())
                 {
                     sb.Append("else\n".ToStringWithIndent(indent));
                     sb.Append("{\n".ToStringWithIndent(indent));
-                    b2.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+                    b2.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
                     sb.Append("}\n".ToStringWithIndent(indent));
                 }
             }
@@ -1125,11 +1185,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 }
             }
             sb.Append("{ // loop maintain condition\n".ToStringWithIndent(indent));
-            Maintain.Compile(sb, indent + dIndent, dIndent, compileSubCollections, true);
+            Maintain.Compile(sb, indent + dIndent, dIndent, compileSubCollections, true, sta);
             sb.Append("}\n".ToStringWithIndent(indent));
             sb.Append($"while ({tmp})\n".ToStringWithIndent(indent));
             sb.Append("{\n".ToStringWithIndent(indent));
-            Branch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false);
+            Branch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
             sb.Append("}\n".ToStringWithIndent(indent));
         }
     }
