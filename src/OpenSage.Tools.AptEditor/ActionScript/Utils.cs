@@ -181,6 +181,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             return $"\"{str.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
         }
 
+
         public static InstructionGraph? Graphify(
             InstructionCollection? ci, 
             List<ConstantEntry>? constSource = null,
@@ -196,11 +197,16 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             if (constSource == null) return g;
 
             // wtf
-            var c = StructurizedBlockChain.Parse(g.BaseBlock);
+            
             Console.WriteLine("\nGan Si Huang Xu Dong");
-            // c.Print(g.ConstPool, g.RegNames);
-            // change to:
-            var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
+
+            // var c = StructurizedBlockChain.Parse(g.BaseBlock);
+            // var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
+
+            var c = BlockChainifyUtils.Parse(g.BaseBlock);
+            var p = new NodePool(g.ConstPool, g.RegNames);
+            p.PushBlock(c);
+
             var sc = new StatementCollection(p);
             var code = sc.Compile();
             Console.Write(code.ToString());

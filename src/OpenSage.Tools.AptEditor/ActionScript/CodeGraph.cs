@@ -25,6 +25,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         Case,
         Loop
     }
+
     public class LogicalTaggedInstruction : InstructionBase
     {
         public string Tag = "";
@@ -82,6 +83,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public InstructionGraph Instructions { get; private set; }
 
         public StructurizedBlockChain? Chain { get; set; }
+        public InstructionBlock? Chain2 { get; set; }
 
         public LogicalFunctionContext(InstructionBase instruction,
             InstructionCollection insts,
@@ -179,7 +181,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                                   BranchCondition!.Type == InstructionType.EA_BranchIfFalse ||
                                   BranchCondition!.Type == InstructionType.BranchAlways);
 
-        public InstructionBlock(InstructionBlock? prev = null)
+        public InstructionBlock(InstructionBlock? prev = null, int hierarchy = 0)
         {
             Items = new();
             Labels = new();
@@ -190,19 +192,77 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 Hierarchy = prev.Hierarchy + 1;
             }
             else
-                Hierarchy = 0;
+                Hierarchy = hierarchy > 0 ? hierarchy : 0;
         }
 
-        public InstructionBlock(InstructionBlock b, bool copyNext)
+        private InstructionBlock(int h) { Hierarchy = h; Items = new(); Labels = new(); }
+        public static InstructionBlock H(int h) { return new(h); }
+
+        public override string ToString()
+        {
+            return $"IB({Items.Count} Instructions, Hierarchy={Hierarchy})";
+        }
+
+        public void CopyFrom(InstructionBlock b, bool copyNext)
         {
             Items = b.Items;
-            Labels = new(b.Labels);
+            Labels.AddRange(b.Labels);
             BranchCondition = b.BranchCondition;
             NextBlockDefault = copyNext ? b.NextBlockDefault : null;
             NextBlockCondition = b.NextBlockCondition;
-            PreviousBlock = b.PreviousBlock;
-            Hierarchy = b.Hierarchy;
         }
+
+        public static InstructionBlock? Split(InstructionBlock? start,
+            out InstructionBlock? endNew,
+            InstructionBlock? end = null,
+            bool excludeEnd = false, 
+            IDictionary<int, InstructionBlock>? outBlocks = null, 
+            bool eraseNoRecordBlocks = false)
+        {
+            if (start == null ||
+                (end != null && start.Hierarchy > end.Hierarchy) ||
+                (excludeEnd && end != null && start.Hierarchy == end.Hierarchy))
+            {
+                endNew = null;
+                return null;
+            }
+            InstructionBlock startNew = new(null, start.Hierarchy);
+            startNew.CopyFrom(start, false);
+            var curOld = start.NextBlockDefault;
+            var cur = startNew;
+            endNew = startNew;
+            var h = new Dictionary<int, InstructionBlock> { [start.Hierarchy] = startNew };
+            while (curOld != null && (end == null || (excludeEnd ? curOld.Hierarchy < end.Hierarchy : curOld.Hierarchy <= end.Hierarchy)))
+            {
+                cur = new(cur);
+                cur.CopyFrom(curOld, false);
+                h[curOld.Hierarchy] = cur;
+                curOld = curOld.NextBlockDefault;
+                endNew = cur;
+            }
+            // endNew = cur;
+            cur = startNew;
+            while (cur != null)
+            {
+                if (cur.NextBlockCondition != null)
+                {
+                    if (h.TryGetValue(cur.NextBlockCondition.Hierarchy, out var b1))
+                        cur.NextBlockCondition = b1;
+                    else if (outBlocks != null && outBlocks.TryGetValue(cur.NextBlockCondition.Hierarchy, out var b2))
+                        cur.NextBlockCondition = b2;
+                    else
+                    {
+                        if (eraseNoRecordBlocks)
+                            cur.NextBlockCondition = null;
+                        // throw new InvalidOperationException();
+                    }
+                }
+                cur = cur.NextBlockDefault;
+            }
+
+            return startNew;
+        }
+
     }
 
     public class InstructionGraph
@@ -434,16 +494,223 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         }
     }
 
-    public class LogicalChainedBlock : InstructionBlock
+
+    public class LogicalBlockLoop : InstructionBlock
     {
-        // TODO
+        public InstructionBlock Condition;
+        public InstructionBlock Branch;
+
+        public LogicalBlockLoop(InstructionBlock? prev, int h, InstructionBlock cond, InstructionBlock cb) : base(prev, h)
+        {
+            Condition = cond;
+            Branch = cb;
+        }
+
+        public override string ToString()
+        {
+            return "LL" + base.ToString();
+        }
+    }
+
+    public class LogicalBlockCase : InstructionBlock
+    {
+        public InstructionBlock Condition;
+        public InstructionBlock Unbranch;
+        public InstructionBlock Branch;
+
+        public LogicalBlockCase(InstructionBlock? prev, int h, InstructionBlock cond, InstructionBlock cub, InstructionBlock cb) : base(prev, h)
+        {
+            Condition = cond;
+            Branch = cb;
+            Unbranch = cub;
+        }
+
+        public override string ToString()
+        {
+            return "LC" + base.ToString();
+        }
+    }
+
+    public static class BlockChainifyUtils
+    {
+        public static InstructionBlock ParseLoop(InstructionBlock theEndBlock)
+        {
+            var b = theEndBlock;
+            var ret = b;
+
+            while (b != null)
+            {
+                // identify for/while structures
+                if (b.HasConstantBranch && b.NextBlockCondition != null &&
+                    b.NextBlockCondition!.Hierarchy < b.Hierarchy) // this condition means in a loop
+                {
+                    // mark range
+                    var startBlock = b.NextBlockCondition;
+                    var endBlock = b;
+                    var inBlock = startBlock.PreviousBlock;
+
+                    InstructionBlock? outBlock = null;
+                    for (var i = startBlock; i != null && i.Hierarchy <= endBlock!.Hierarchy; i = i.NextBlockDefault)
+                    {
+                        if (!i.HasBranch)
+                            continue;
+
+                        var branchBlock = i.NextBlockCondition!;
+                        if (branchBlock == null)
+                            throw new InvalidOperationException();
+
+                        if (branchBlock.Hierarchy < startBlock.Hierarchy)
+                            throw new NotImplementedException();
+                        if (branchBlock.Hierarchy > endBlock.Hierarchy)
+                        {
+                            if (outBlock != null && branchBlock.Hierarchy != outBlock.Hierarchy)
+                                throw new InvalidOperationException();
+                            else
+                            {
+                                outBlock = branchBlock;
+                                endBlock = branchBlock.PreviousBlock; // TODO is this right?
+                            }
+                        }
+                        
+                    }
+
+                    // outBlock sanity check?
+                    if (outBlock == null)
+                        outBlock = endBlock!.NextBlockDefault;
+
+                    // split blocks
+                    // inBlock -> bl -> ob -> ...
+                    // TODO this cannot deal with previous block
+
+                    var sb = new InstructionBlock(null, startBlock.Hierarchy);
+                    sb.CopyFrom(startBlock, false);
+                    
+                    LogicalBlockLoop bl = new(inBlock, outBlock != null ? outBlock.Hierarchy - 1 : 0, sb, null);
+                    Dictionary<int, InstructionBlock>? obd = null;
+                    if (outBlock != null)
+                    {
+                        InstructionBlock ob = new(bl);  
+                        ob.CopyFrom(outBlock, true);
+                        obd = new() { [outBlock.Hierarchy] = ob };
+
+                    }
+
+                    var startNew = InstructionBlock.Split(startBlock.NextBlockDefault!, out var endNew, endBlock!, false, obd, true);
+                    startNew = ParseLoop(endNew);
+                    bl.Branch = startNew;
+
+                    // cascaded parsing
+                    
+
+                    // update b
+                    b = startBlock;
+                }
+                if (b.PreviousBlock != null)
+                    ret = b.PreviousBlock;
+                else
+                    ret = b;
+                b = b.PreviousBlock;
+            }
+            return ret;
+        }
+
+
+        public static InstructionBlock ParseCase(InstructionBlock theStartBlock)
+        {
+            // ensure all loops in the block is parsed!
+            var b = theStartBlock;
+            InstructionBlock? bprev = null;
+            var ret = theStartBlock;
+
+            while (b != null)
+            {
+                if (b is LogicalBlockLoop l)
+                {
+                    l.Branch = ParseCase(l.Branch);
+                }
+                // real big issues
+                // identify if structures
+                else if (b.HasConditionalBranch)
+                {
+                    var startBlock = b;
+                    var inBlock = bprev;
+                    var outBlock = startBlock.NextBlockCondition!;
+                    var endHierarchy = outBlock.Hierarchy - 1;
+
+
+                    // find the real end block of if structure
+                    b = startBlock.NextBlockDefault;
+                    while (b != null && b!.Hierarchy <= endHierarchy)
+                    {
+                        if (b.HasConstantBranch)
+                        {
+                            outBlock = b.NextBlockCondition!;
+                            var eh = outBlock.Hierarchy - 1;
+                            endHierarchy = eh > endHierarchy ? eh : endHierarchy;
+                        }
+                        b = b.NextBlockDefault;
+                    }
+
+                    List<StructurizedBlockChain> structures = new();
+
+                    InstructionBlock sc = new(null, startBlock.Hierarchy);
+                    sc.CopyFrom(startBlock, false);
+                    var st = InstructionBlock.Split(startBlock.NextBlockDefault, out var ste, startBlock.NextBlockCondition!.PreviousBlock!);
+                    var sf = InstructionBlock.Split(startBlock.NextBlockCondition, out var sfe, InstructionBlock.H(endHierarchy), false);
+
+                    // cascaded parse
+                    var sta = st;
+
+                    st = ParseCase(st);
+                    sf = ParseCase(sf);
+
+                    // split
+                    // inblock -> bc -> bo -> ....
+
+                    LogicalBlockCase bc = new(inBlock, outBlock != null ? outBlock.Hierarchy - 1 : 0, sc, st, sf);
+                    InstructionBlock bo = new(bc);
+                    if (outBlock != null)
+                        bo.CopyFrom(outBlock, true);
+
+                    b = bc;
+
+                    if (startBlock == theStartBlock)
+                        ret = bc;
+                }
+
+                bprev = b;
+                b = b.NextBlockDefault;
+            }
+            return ret;
+        }
+
+        public static InstructionBlock Parse(InstructionBlock baseBlock)
+        {
+            var startBlock = baseBlock;
+            var endBlock = baseBlock;
+            var b = endBlock;
+            while (b != null)
+            {
+                foreach (var (p, i) in b.Items)
+                    if (i is LogicalFunctionContext fc)
+                        fc.Chain2 = Parse(fc.Instructions.BaseBlock);
+                b = b.NextBlockDefault;
+                if (b != null)
+                    endBlock = b;
+            }
+
+            startBlock = ParseLoop(endBlock);
+            startBlock = ParseCase(startBlock);
+
+            return startBlock;
+        }
     }
 
     public class StructurizedBlockChain
     {
         
         public InstructionBlock StartBlock;
-        public InstructionBlock EndBlock;
+        public InstructionBlock EndBlock; // to be removed
         public StructurizedBlockChain? SubChainStart;
         public StructurizedBlockChain? Next;
         public CodeType Type = CodeType.Sequential;
