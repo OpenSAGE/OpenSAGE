@@ -200,12 +200,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             
             Console.WriteLine("\nGan Si Huang Xu Dong");
 
-            // var c = StructurizedBlockChain.Parse(g.BaseBlock);
-            // var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
+            var c = StructurizedBlockChain.Parse(g.BaseBlock);
+            var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
 
-            var c = BlockChainifyUtils.Parse(g.BaseBlock);
-            var p = new NodePool(g.ConstPool, g.RegNames);
-            p.PushBlock(c);
+            // var c = BlockChainifyUtils.Parse(g.BaseBlock);
+            // var p = new NodePool(g.ConstPool, g.RegNames);
+            // p.PushBlock(c);
 
             var sc = new StatementCollection(p);
             var code = sc.Compile();

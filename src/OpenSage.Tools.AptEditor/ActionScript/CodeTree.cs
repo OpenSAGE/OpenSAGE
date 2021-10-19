@@ -335,10 +335,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             if (inst is LogicalFunctionContext fc)
             {
                 var subpool = new NodePool(fc, this);
-                if (fc.Chain != null)
-                    subpool.PushChain(fc.Chain);
-                else
-                    subpool.PushBlock(fc.Chain2);
+                subpool.PushChain(fc.Chain!);
                 StatementCollection sc = new(subpool);
                 n = fc.IsStatement ? new NodeDefineFunction(fc, sc) : new NodeFunctionBody(fc, sc);
             }
@@ -366,96 +363,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             if (inst is LogicalTaggedInstruction ltag)
                 n.Labels.AddRange(ltag.GetLabels());
             NodeList.Add(n);
-        }
-
-        public void PushBlockRaw(InstructionBlock currentBlock)
-        {
-
-            if (currentBlock.Labels.Count > 0 && currentBlock.Items.Count == 0)
-                // if this NIE is really triggered, consider adding a NodeTag: NodeStatement
-                // yielding Code = "" while receiving no input
-                throw new NotImplementedException();
-            foreach (var (pos, inst) in currentBlock.Items)
-                PushInstruction(inst);
-
-        }
-
-        // TODO clear judgement conditions
-        public void PushBlock(
-            InstructionBlock? block,
-            int hLimit = 0x7fffffff
-            )
-        {
-            if (block == null || block.Hierarchy > hLimit)
-                return;
-            var bn = block.NextBlockDefault;
-            // TODO clear judgement conditions
-            if (block is LogicalBlockCase lc)
-            {
-                PushBlockRaw(lc.Condition);
-                var bexp = NodeList.Last();
-                var branch = bexp.Instruction;
-                if (bexp != null)
-                {
-                    NodeList.RemoveAt(NodeList.Count - 1);
-                    bexp = bexp.Expressions[0];
-                }
-
-                // create node expression
-                NodePool sub1 = new(this);
-                NodePool sub2 = new(this);
-                sub1.PushBlock(lc.Unbranch, lc.GodDamnIt.Item2);
-                sub2.PushBlock(lc.Branch, lc.GodDamnIt.Item3);
-                NodeCase n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
-                NodeList.Add(n);
-                // add expressions inside the loop
-                // TODO more judgements
-                foreach (var ns2 in sub2.PopNodes())
-                {
-                    if (ns2 is NodeExpression)
-                    {
-                        _special[ns2] = 1;
-                        NodeList.Add(ns2);
-                    }
-                }
-            }
-            else if (block is LogicalBlockLoop ll)
-            {
-                PushBlockRaw(ll.Condition);
-                var bexp = NodeList.Last();
-                var branch = bexp.Instruction;
-                if (bexp != null)
-                {
-                    NodeList.RemoveAt(NodeList.Count - 1);
-                    bexp = bexp.Expressions[0];
-                }
-                // create node expression
-                // this one needs more than condition!!!
-                NodePool sub1 = new(this);
-                NodePool sub2 = new(this);
-                sub1.PushBlockRaw(ll.Condition);
-                sub2.PushBlock(ll.Branch);
-                NodeLoop n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
-                NodeList.Add(n);
-                // add expressions inside the loop?
-                foreach (var ns2 in sub2.PopNodes())
-                {
-                    if (ns2 is NodeExpression)
-                    {
-                        _special[ns2] = 1;
-                        NodeList.Add(ns2);
-                    }
-                }
-            }
-            else
-            {
-                if (block != null)
-                    PushBlockRaw(block);
-                // a temporary solution to the BranchAlways codes.
-                if (block.HasConstantBranch && block.BranchCondition!.Parameters[0].ToInteger() >= 0)
-                    bn = block.NextBlockCondition;
-            }
-            PushBlock(bn, hLimit);
         }
 
         public void PushChainRaw(StructurizedBlockChain chain, bool ignoreBranch)
