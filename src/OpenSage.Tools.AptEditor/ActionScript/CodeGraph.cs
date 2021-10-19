@@ -226,15 +226,26 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 endNew = null;
                 return null;
             }
+
             InstructionBlock startNew = new(null, start.Hierarchy);
+            if (start is LogicalBlockCase coc2)
+                startNew = new LogicalBlockCase(null, start.Hierarchy, coc2.Condition, coc2.Unbranch, coc2.Branch);
+            else if (start is LogicalBlockLoop col2)
+                startNew = new LogicalBlockLoop(null, start.Hierarchy, col2.Condition, col2.Branch);
             startNew.CopyFrom(start, false);
             var curOld = start.NextBlockDefault;
+
             var cur = startNew;
             endNew = startNew;
             var h = new Dictionary<int, InstructionBlock> { [start.Hierarchy] = startNew };
             while (curOld != null && (end == null || (excludeEnd ? curOld.Hierarchy < end.Hierarchy : curOld.Hierarchy <= end.Hierarchy)))
             {
-                cur = new(cur);
+                if (curOld is LogicalBlockCase coc)
+                    cur = new LogicalBlockCase(cur, cur.Hierarchy + 1, coc.Condition, coc.Unbranch, coc.Branch);
+                else if (curOld is LogicalBlockLoop col)
+                    cur = new LogicalBlockLoop(cur, cur.Hierarchy + 1, col.Condition, col.Branch);
+                else
+                    cur = new(cur);
                 cur.CopyFrom(curOld, false);
                 h[curOld.Hierarchy] = cur;
                 curOld = curOld.NextBlockDefault;
@@ -254,6 +265,12 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     {
                         if (eraseNoRecordBlocks)
                             cur.NextBlockCondition = null;
+                        else
+                        {
+                            // cur.NextBlockCondition = Split(cur.NextBlockCondition, out var _, end);
+                            // if (cur.NextBlockCondition == null)
+                            //     cur.NextBlockCondition = Split(cur.NextBlockCondition, out var _, null);
+                        }
                         // throw new InvalidOperationException();
                     }
                 }
@@ -517,6 +534,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public InstructionBlock Condition;
         public InstructionBlock Unbranch;
         public InstructionBlock Branch;
+        public (int, int, int) GodDamnIt = (0x7fffffff, 0x7fffffff, 0x7ffffff);
 
         public LogicalBlockCase(InstructionBlock? prev, int h, InstructionBlock cond, InstructionBlock cub, InstructionBlock cb) : base(prev, h)
         {
@@ -627,27 +645,33 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (b is LogicalBlockLoop l)
                 {
                     l.Branch = ParseCase(l.Branch);
+                    bprev = b;
+                    b = b.NextBlockDefault;
                 }
                 // real big issues
                 // identify if structures
-                else if (b.HasConditionalBranch)
+                else if (b.HasConditionalBranch && b.NextBlockCondition != null)
                 {
                     var startBlock = b;
                     var inBlock = bprev;
                     var outBlock = startBlock.NextBlockCondition!;
-                    var endHierarchy = outBlock.Hierarchy - 1;
+                    var endHierarchy = outBlock == null ? 0x7fffffff : outBlock.Hierarchy - 1;
 
 
                     // find the real end block of if structure
                     b = startBlock.NextBlockDefault;
-                    while (b != null && b!.Hierarchy <= endHierarchy)
+                    while (b != null && b!.Hierarchy < startBlock.NextBlockCondition!.Hierarchy)
                     {
                         if (b.HasConstantBranch)
                         {
-                            outBlock = b.NextBlockCondition!;
-                            var eh = outBlock.Hierarchy - 1;
-                            endHierarchy = eh > endHierarchy ? eh : endHierarchy;
+                            var eh = b.NextBlockCondition == null ? 0x7fffffff : b.NextBlockCondition!.Hierarchy - 1;
+                            if (eh > endHierarchy)
+                            {
+                                outBlock = b.NextBlockCondition!;
+                                endHierarchy = eh;
+                            }
                         }
+                        bprev = b;
                         b = b.NextBlockDefault;
                     }
 
@@ -659,27 +683,38 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     var sf = InstructionBlock.Split(startBlock.NextBlockCondition, out var sfe, InstructionBlock.H(endHierarchy), false);
 
                     // cascaded parse
-                    var sta = st;
 
-                    st = ParseCase(st);
-                    sf = ParseCase(sf);
+                    var st2 = ParseCase(st);
+                    var sf2 = ParseCase(sf);
+
+                    // st = InstructionBlock.Split(st2, out var ste2, startBlock.NextBlockCondition!.PreviousBlock!);
+                    // sf = InstructionBlock.Split(sf2, out var sfe2, InstructionBlock.H(endHierarchy), false);
 
                     // split
                     // inblock -> bc -> bo -> ....
 
-                    LogicalBlockCase bc = new(inBlock, outBlock != null ? outBlock.Hierarchy - 1 : 0, sc, st, sf);
+                    LogicalBlockCase bc = new(inBlock, startBlock != null ? startBlock.Hierarchy : 0, sc, st2, sf2);
+                    bc.GodDamnIt = (0, startBlock.NextBlockCondition!.PreviousBlock!.Hierarchy, endHierarchy); // too lazy to add comments just GOD DAMN IT
                     InstructionBlock bo = new(bc);
                     if (outBlock != null)
+                    {
+                        if (outBlock is LogicalBlockLoop ol)
+                            bo = new LogicalBlockLoop(bc, bc.Hierarchy + 1, ol.Condition, ol.Branch);
+                        else if (outBlock is LogicalBlockCase oc)
+                            bo = new LogicalBlockCase(bc, bc.Hierarchy + 1, oc.Condition, oc.Unbranch, oc.Branch);
                         bo.CopyFrom(outBlock, true);
+                    }
 
                     b = bc;
 
                     if (startBlock == theStartBlock)
                         ret = bc;
                 }
-
-                bprev = b;
-                b = b.NextBlockDefault;
+                else
+                {
+                    bprev = b;
+                    b = b.NextBlockDefault;
+                }
             }
             return ret;
         }

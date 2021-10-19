@@ -382,10 +382,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         // TODO clear judgement conditions
         public void PushBlock(
-            InstructionBlock? block
+            InstructionBlock? block,
+            int hLimit = 0x7fffffff
             )
         {
-            if (block == null)
+            if (block == null || block.Hierarchy > hLimit)
                 return;
             var bn = block.NextBlockDefault;
             // TODO clear judgement conditions
@@ -403,8 +404,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 // create node expression
                 NodePool sub1 = new(this);
                 NodePool sub2 = new(this);
-                sub1.PushBlock(lc.Unbranch);
-                sub2.PushBlock(lc.Branch);
+                sub1.PushBlock(lc.Unbranch, lc.GodDamnIt.Item2);
+                sub2.PushBlock(lc.Branch, lc.GodDamnIt.Item3);
                 NodeCase n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
                 // add expressions inside the loop
@@ -454,7 +455,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 if (block.HasConstantBranch && block.BranchCondition!.Parameters[0].ToInteger() >= 0)
                     bn = block.NextBlockCondition;
             }
-            PushBlock(bn);
+            PushBlock(bn, hLimit);
         }
 
         public void PushChainRaw(StructurizedBlockChain chain, bool ignoreBranch)
