@@ -595,6 +595,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                     // update b
                     b = endBlock;
+
+                    // update b
+                    b = b.NextBlockDefault;
                 }
                 // b is the start of a case structure
                 else if (b.HasConditionalBranch)
@@ -646,9 +649,21 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     currentChain.Next = sb;
                     currentChain = sb2;
 
+                    // update b
+                    b = b.NextBlockDefault;
+
                 }
-                // update b
-                b = b.NextBlockDefault;
+                else
+                {
+                    // halt parsing if jumping out
+                    if (b.HasConstantBranch &&
+                    b.BranchCondition!.Parameters[0].ToInteger() >= 0 &&
+                    (b.NextBlockDefault == null || b.NextBlockCondition!.Hierarchy > b.NextBlockDefault.Hierarchy))
+                        b = b.NextBlockCondition;
+                    else
+                        b = b.NextBlockDefault;
+                }
+                
             }
             if (parsed)
             {

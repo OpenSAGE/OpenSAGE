@@ -380,7 +380,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 foreach (var (pos, inst) in currentBlock.Items)
                     PushInstruction(inst);
                 // a temporary solution to the BranchAlways codes.
-                if (currentBlock.HasConstantBranch && currentBlock.BranchCondition!.Parameters[0].ToInteger() >= 0)
+                if (currentBlock.HasConstantBranch &&
+                    currentBlock.BranchCondition!.Parameters[0].ToInteger() >= 0 &&
+                    (currentBlock.NextBlockDefault == null || currentBlock.NextBlockCondition!.Hierarchy > currentBlock.NextBlockDefault.Hierarchy))
                     currentBlock = currentBlock.NextBlockCondition;
                 else
                     currentBlock = currentBlock.NextBlockDefault;
@@ -389,11 +391,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
         // TODO clear judgement conditions
         public void PushChain(
-            StructurizedBlockChain chain, 
-            List<Value>? constPool = null,
-            Dictionary<int, string>? regNames = null,
-            int layer = 0,
-            CodeType type = CodeType.Sequential
+            StructurizedBlockChain chain
             )
         {
             // TODO clear judgement conditions
@@ -459,7 +457,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 var c = chain.SubChainStart;
                 while (c != null)
                 {
-                    PushChain(c, constPool, regNames, layer);
+                    PushChain(c); // bug
                     c = c.Next;
                 }
             }
