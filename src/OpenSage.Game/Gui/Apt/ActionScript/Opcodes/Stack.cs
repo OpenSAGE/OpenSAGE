@@ -14,7 +14,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PopStack => true;
         public override InstructionType Type => InstructionType.Pop;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Pop();
         }
@@ -51,7 +51,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushThisVar;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Value.FromObject(context.This));
         }
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushValueOfVar;
         public override uint Size => 1;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var id = Parameters[0].ToInteger();
             var str = context.Constants[id].ToString();
@@ -101,7 +101,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.PushData;
         public override uint Size => 8;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             // The first parameter is constant count, omit it
             foreach (var constant in Parameters.Skip(1))
@@ -119,7 +119,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PopStack => true;
         public override InstructionType Type => InstructionType.EA_ZeroVar;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             // TODO: check if this is correct
             var name = context.Pop();
@@ -140,7 +140,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushGlobalVar;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Value.FromObject(context.Apt.Avm.GlobalObject));
         }
@@ -158,7 +158,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.PushDuplicate;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var val = context.Peek();
             context.Push(val);
@@ -191,7 +191,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushConstantByte;
         public override uint Size => 1;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var id = Parameters[0].ToInteger();
             context.Push(context.Constants[id]);
@@ -292,7 +292,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushRegister;
         public override uint Size => 1;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Parameters[0].ResolveRegister(context));
         }
@@ -312,7 +312,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushConstantWord;
         public override uint Size => 2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var id = Parameters[0].ToInteger();
             context.Push(context.Constants[id]);

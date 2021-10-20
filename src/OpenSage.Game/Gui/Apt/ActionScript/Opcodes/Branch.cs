@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 4;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var cond = context.Pop().ToBoolean();
 
@@ -29,7 +29,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.BranchAlways;
         public override uint Size => 4;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Stream.Branch(Parameters[0].ToInteger());
         }

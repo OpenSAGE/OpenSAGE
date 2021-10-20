@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Play;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var thisVar = (StageObject) context.This;
             if (thisVar.Item is SpriteItem si)
@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Stop;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var thisVar = (StageObject) context.This;
             if (thisVar.Item is SpriteItem si)
@@ -54,7 +54,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.GotoFrame;
         public override uint Size => 4;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var frame = Parameters[0].ToInteger();
             var thisVar = (StageObject) context.This;
@@ -78,7 +78,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 4;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             bool play = Convert.ToBoolean(Parameters[0].ToInteger() & 0x01);
             var frame = context.Pop();
@@ -119,7 +119,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.GotoLabel;
         public override uint Size => 4;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var label = Parameters[0].ToString();
 
@@ -138,7 +138,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.NextFrame;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var thisVar = (StageObject) context.This;
             if (thisVar.Item is SpriteItem si)

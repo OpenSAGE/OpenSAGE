@@ -9,7 +9,7 @@ namespace OpenSage.Gui.Apt.ActionScript
     public static class UrlHandler
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ActionContext context, string url, string target)
+        public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ExecutionContext context, string url, string target)
         {
             logger.Debug($"[URL] URL: {url} Target: {target}");
 

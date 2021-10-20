@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
     public static class Builtin
     {
         public static readonly Dictionary<string, Type> BuiltinClasses;
-        public static readonly Dictionary<string, Func<ActionContext, ObjectContext, Value[], Value>> BuiltinFunctions;
+        public static readonly Dictionary<string, Func<ExecutionContext, ASObject, Value[], Value>> BuiltinFunctions;
         public static Dictionary<string, Func<VM, Property>> BuiltinVariables;
         public static DateTime InitTimeStamp { get; } = DateTime.Now;
 
@@ -21,8 +21,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             // list of builtin objects and their corresponding constructors
             BuiltinClasses = new Dictionary<string, Type>()
             {
-                ["Object"] = typeof(ObjectContext),
-                ["Function"] = typeof(Function),
+                ["Object"] = typeof(ASObject),
+                ["Function"] = typeof(ASFunction),
                 ["Array"] = typeof(ASArray),
                 ["Color"] = typeof(ASColor),
                 ["String"] = typeof(ASString),
@@ -31,7 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             };
 
             // list of builtin functions
-            BuiltinFunctions = new Dictionary<string, Func<ActionContext, ObjectContext, Value[], Value>>()
+            BuiltinFunctions = new Dictionary<string, Func<ExecutionContext, ASObject, Value[], Value>>()
             {
                 // Global constructors / functions
                 ["Boolean"] = (actx, ctx, args) => Value.FromBoolean(args[0].ToBoolean()),
@@ -74,7 +74,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return result;
         }
 
-        public static Value SetInterval(ActionContext context, ObjectContext ctx, Value[] args)
+        public static Value SetInterval(ExecutionContext context, ASObject ctx, Value[] args)
         {
             var vm = context.Apt.Avm;
             var name = context.Pop().ToString();
@@ -85,7 +85,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return null;
         }
 
-        public static Value ClearInterval(ActionContext context, ObjectContext ctx, Value[] args)
+        public static Value ClearInterval(ExecutionContext context, ASObject ctx, Value[] args)
         {
             var vm = context.Apt.Avm;
             var name = args[0].ToString();
@@ -96,7 +96,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return null;
         }
 
-        public static void ASSetPropFlags(ObjectContext obj, Value properties, int setFlags, int clearFlags)
+        public static void ASSetPropFlags(ASObject obj, Value properties, int setFlags, int clearFlags)
         {
             if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ASString))
             {

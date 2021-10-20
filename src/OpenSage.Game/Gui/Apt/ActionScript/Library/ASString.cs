@@ -3,7 +3,7 @@ using System;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    class ASString : ObjectContext
+    class ASString : ASObject
     {
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {

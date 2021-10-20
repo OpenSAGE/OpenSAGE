@@ -33,7 +33,7 @@ namespace OpenSage.Diagnostics
                 case ValueType.Float:
                     return value.ToFloat();
                 case ValueType.Object:
-                    if (value.ToObject() is Function)
+                    if (value.ToObject() is ASFunction)
                         return "[FUNCTION]";
                     else if (value.ToObject() is ASArray)
                         return "[ARRAY]";

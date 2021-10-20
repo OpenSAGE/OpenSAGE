@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.End;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Halt = true;
         }
@@ -26,12 +26,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.ConstantPool;
         public override uint Size => 8;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.ReformConstantPool(Parameters);
         }
 
-        public override string GetParameterDesc(ActionContext context)
+        public override string GetParameterDesc(ExecutionContext context)
         {
             if (Parameters.Count <= 6)
                 return $"{Parameters.Count - 1} Constants: {string.Join(", ", Parameters.Skip(1).Select((x)=>x.ToString()).ToArray())}";
@@ -69,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.SetRegister;
         public override uint Size => 4;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             //get the value from the stack
             var val = context.Peek();
@@ -92,7 +92,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.InitArray;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var nArgs = context.Pop().ToInteger();
             var args = context.Pop((uint) nArgs);
@@ -116,7 +116,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Delete;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var property = context.Pop().ToString();
             var target = context.GetTarget(context.Pop().ToString());
@@ -137,7 +137,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Delete2;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var property = context.Pop().ToString();
             context.DeleteValueOnChain(property);
@@ -157,7 +157,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.DefineLocal;
         public override uint StackPop => 2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var value = context.Pop();
             var varName = context.Pop().ToString();
@@ -178,7 +178,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Var;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var varName = context.Pop().ToString();
             if (context.HasValueOnLocal(varName))
@@ -231,7 +231,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Enumerate2;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var obj = context.Pop().ToObject();
             context.Push(Value.FromObject(null));
@@ -250,7 +250,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override bool PushStack => true;
         public override bool PopStack => true;
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Operator(context.Pop()));
         }
@@ -270,7 +270,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.ImplementsOp;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             // throw new NotImplementedException(context.DumpStack());
             var cst = context.Pop().ToFunction();
@@ -288,7 +288,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 var obj = objv.ToObject();
                 var cst = cstv.ToFunction();
-                ObjectContext val = obj.InstanceOf(cst) ? obj : null;
+                ASObject val = obj.InstanceOf(cst) ? obj : null;
                 return Value.FromObject(val);
             };
         public override InstructionType Type => InstructionType.CastOp;
@@ -303,7 +303,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class GetTime: InstructionMonoPushPop
     {
         public override bool PushStack => true;
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Builtin.GetTimer());
         }

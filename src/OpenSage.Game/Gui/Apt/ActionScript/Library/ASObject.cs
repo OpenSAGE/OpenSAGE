@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Configurable = c,
             };
         }
-        public static NamedAccessoryProperty A(Func<ObjectContext, Value> g, Action<ObjectContext, Value> s, bool e, bool c)
+        public static NamedAccessoryProperty A(Func<ASObject, Value> g, Action<ASObject, Value> s, bool e, bool c)
         {
             return new NamedAccessoryProperty()
             {
@@ -35,7 +35,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             };
         }
 
-        public virtual string ToString(ActionContext actx)
+        public virtual string ToString(ExecutionContext actx)
         {
             return base.ToString();
         }
@@ -43,38 +43,38 @@ namespace OpenSage.Gui.Apt.ActionScript
     public class NamedDataProperty: Property
     {
         public Value Value { get; set; }
-        public override string ToString(ActionContext actx)
+        public override string ToString(ExecutionContext actx)
         {
             return Value.ToStringWithType(actx);
         }
     }
     public class NamedAccessoryProperty: Property
     {
-        public Func<ObjectContext, Value> Get { get; set; }
-        public Action<ObjectContext, Value> Set { get; set; }
+        public Func<ASObject, Value> Get { get; set; }
+        public Action<ASObject, Value> Set { get; set; }
 
-        public override string ToString(ActionContext actx)
+        public override string ToString(ExecutionContext actx)
         {
             return $"NAP(Get: {Get}, Set: {Set})";
         }
     }
 
-    public class ObjectContext
+    public class ASObject
     {
 
         protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ObjectContext __proto__
+        public ASObject __proto__
         {
             get { return GetMember("__proto__").ToObject(); }
             set { SetMember("__proto__", Value.FromObject(value)); }
         }
-        public ObjectContext prototype
+        public ASObject prototype
         {
             get { return GetMember("prototype").ToObject(); }
             set { SetMember("prototype", Value.FromObject(value)); }
         }
-        public Function constructor
+        public ASFunction constructor
         {
             get { return GetMember("constructor").ToFunction(); }
             set { SetMember("constructor", Value.FromFunction(value)); }
@@ -89,7 +89,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // internal properties
 
-        public ObjectContext PrototypeInternal { get; protected set; }
+        public ASObject PrototypeInternal { get; protected set; }
         public string Class;
         public bool Extensible;
 
@@ -111,8 +111,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             ["addProperty"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
                      string name = args.Length > 0 ? args[0].ToString() : null;
-                     Function getter = args.Length > 1 ? args[1].ToFunction() : null;
-                     Function setter = args.Length > 2 ? args[2].ToFunction() : null;
+                     ASFunction getter = args.Length > 1 ? args[1].ToFunction() : null;
+                     ASFunction setter = args.Length > 2 ? args[2].ToFunction() : null;
                      tv.AddProperty(actx, name, getter, setter);
                      return null;
                  }
@@ -154,7 +154,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// equivalent to [[Construct]]
         /// </summary>
-        public ObjectContext(VM vm, string prototype_indicator)
+        public ASObject(VM vm, string prototype_indicator)
         {
             //Actionscript variables are not case sensitive!
             _properties = new Dictionary<string, Property>(StringComparer.OrdinalIgnoreCase);
@@ -168,18 +168,18 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// this ActionScript object is not bound bound to an item, e.g. for global object
         /// </summary>
-        public ObjectContext(VM vm) : this(vm, "Object") { } // Do not simplify it due to the reflection
+        public ASObject(VM vm) : this(vm, "Object") { } // Do not simplify it due to the reflection
 
         public Dictionary<string, Property>.KeyCollection GetAllProperties() { return _properties.Keys; }
 
-        public virtual void AddProperty(ActionContext context, string name, Function getter, Function setter)
+        public virtual void AddProperty(ExecutionContext context, string name, ASFunction getter, ASFunction setter)
         {
-            Func<ObjectContext, Value> fget = getter == null ? null : (tv) =>
+            Func<ASObject, Value> fget = getter == null ? null : (tv) =>
             {
                 var val = getter.Invoke(context, tv, new Value[0]);
                 return val;
             };
-            Action<ObjectContext, Value> fset = setter == null ? null : (tv, val) =>
+            Action<ASObject, Value> fset = setter == null ? null : (tv, val) =>
             {
                 setter.Invoke(context, tv, new Value[1] { val });
             };
@@ -210,7 +210,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (chid) prop.Enumerable = true;
         }
 
-        public virtual Value GetOwnMember(string name, ObjectContext localOverride = null)
+        public virtual Value GetOwnMember(string name, ASObject localOverride = null)
         {
             Value ans = Value.Undefined();
             if (_properties.TryGetValue(name, out var prop))
@@ -229,7 +229,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public virtual void SetOwnMember(string name, Value val, ObjectContext localOverride = null)
+        public virtual void SetOwnMember(string name, Value val, ASObject localOverride = null)
         {
             if (val == null)
                 val = Value.FromObject(null);
@@ -389,7 +389,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="theClass"></param>
         /// <returns></returns>
-        public bool IsPrototypeOf(ObjectContext theClass)
+        public bool IsPrototypeOf(ASObject theClass)
         {
             var ans = false;
             var proto = theClass.PrototypeInternal;
@@ -405,11 +405,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public bool IsFunction() { return this is Function; }
+        public bool IsFunction() { return this is ASFunction; }
         public bool IsConstructor() { return IsFunction() && prototype.IsPrototype(); }
         public bool IsPrototype() { return constructor != null && constructor.IsFunction(); }
 
-        public bool InstanceOf(ObjectContext cst) // TODO Not complete
+        public bool InstanceOf(ASObject cst) // TODO Not complete
         {
             if (!cst.IsFunction()) return false; // not even a constructor
             var tproto = __proto__;
@@ -430,7 +430,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return $"[{GetType().Name}]";
         }
 
-        public Value ToStringAS(ActionContext actx = null)
+        public Value ToStringAS(ExecutionContext actx = null)
         {
             var funcStr = "toString";
             if (HasMember(funcStr))
@@ -448,7 +448,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return null;
         }
 
-        public Value ValueOfAS(ActionContext actx = null)
+        public Value ValueOfAS(ExecutionContext actx = null)
         {
             var funcStr = "valueOf";
             if (HasMember(funcStr))
@@ -471,7 +471,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="hint">0 = none, 1 = string, 2 = number</param>
         /// <returns></returns>
-        public virtual Value DefaultValue(int hint = 0, ActionContext actx = null)
+        public virtual Value DefaultValue(int hint = 0, ExecutionContext actx = null)
         {
             if (hint == 1)
             {
@@ -502,7 +502,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
-        public string ToStringDisp(ActionContext actx)
+        public string ToStringDisp(ExecutionContext actx)
         {
             string ans = "{\n";
             foreach (string s in _properties.Keys)
@@ -514,7 +514,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public (string[], string[]) ToListDisp(ActionContext actx)
+        public (string[], string[]) ToListDisp(ExecutionContext actx)
         {
             var ans1 = new string[_properties.Keys.Count];
             var ans2 = GetAllProperties().ToArray();

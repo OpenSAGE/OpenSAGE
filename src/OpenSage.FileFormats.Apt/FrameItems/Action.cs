@@ -8,7 +8,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
     {
         public InstructionStorage Instructions { get; private set; }
 
-        public static Action Parse(BinaryReader reader)
+        public static new Action Parse(BinaryReader reader)
         {
             var action = new Action();
             var instructionsPosition = reader.ReadUInt32();

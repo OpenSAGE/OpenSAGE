@@ -2,7 +2,7 @@
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    public sealed class ExternObject : ObjectContext
+    public sealed class ExternObject : ASObject
     {
         private VM _vm;
 

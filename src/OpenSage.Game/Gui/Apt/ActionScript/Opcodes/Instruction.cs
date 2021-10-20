@@ -20,12 +20,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual bool IsStatement => true;
         public virtual int Precendence => IsStatement ? 114-514-1919-810 : 18; // Just a meme, as long as it is a negative number it is okay
 
-        public abstract void Execute(ActionContext context);
+        public abstract void Execute(ExecutionContext context);
         public override string ToString()
         {
-            return ToString((ActionContext) null);
+            return ToString((ExecutionContext) null);
         }
-        public virtual string GetParameterDesc(ActionContext context)
+        public virtual string GetParameterDesc(ExecutionContext context)
         {
             if (Parameters == null) return "";
             string[] pv;// = { };
@@ -33,7 +33,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             pv = param_val.Select(x => x.ToStringWithType(context)).ToArray();
             return string.Join(", ", pv);
         }
-        public virtual string ToString(ActionContext context)
+        public virtual string ToString(ExecutionContext context)
         {
             return $"{Type}({GetParameterDesc(context)})";//: {Size}";
         }
@@ -52,7 +52,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual uint StackPop => 0;
         public override bool IsStatement => StackPush == 0;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var push = ExecuteWithArgs(context.Pop(StackPop));
             if ((push == null && StackPush > 0) || StackPush != push.Length)
@@ -69,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 0;
         public virtual bool PushStack => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var push = ExecuteWithArgs2(context.Pop(StackPop));
             if ((push == null && PushStack) || (push != null && !PushStack))
@@ -97,7 +97,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => PopStack ? 1u : 0u;
         public virtual bool PopStack => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var push = ExecuteWithArgs2(PopStack ? context.Pop() : null);
             if ((push == null && PushStack) || (push != null && !PushStack))
@@ -132,7 +132,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public InstructionPushValue(Value v) : base() { Parameters = new List<Value> { v }; }
         public virtual Value ValueToPush => Parameters[0];
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(ValueToPush);
         }
@@ -148,7 +148,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PopStack => true;
         public virtual Func<Value, Value> Operator => throw new NotImplementedException();
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Push(Operator(context.Pop()));
         }
@@ -164,7 +164,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 2;
         public virtual Func<Value, Value, Value> Operator => throw new NotImplementedException();
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var a = context.Pop();
             var b = context.Pop();
@@ -190,7 +190,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             set => throw new NotImplementedException();
         }
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             throw new NotImplementedException();
         }

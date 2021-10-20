@@ -7,13 +7,13 @@ using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    public sealed class ActionContext
+    public sealed class ExecutionContext
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ObjectContext This { get; private set; }
-        public ObjectContext Global { get; private set; }
-        public ActionContext Outer { get; private set; } 
+        public ASObject This { get; private set; }
+        public ASObject Global { get; private set; }
+        public ExecutionContext Outer { get; private set; } 
         public AptContext Apt { get; set; }
         public InstructionStream Stream { get; set; }
         public int RegisterCount { get; private set; }
@@ -30,7 +30,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private Stack<InstructionBase> _immiexec;
         private Value[] _registers { get; set; }
 
-        public ActionContext(ObjectContext globalVar, ObjectContext thisVar, ActionContext outerVar, int numRegisters = 0)
+        public ExecutionContext(ASObject globalVar, ASObject thisVar, ExecutionContext outerVar, int numRegisters = 0)
         {
             // assignments
             Global = globalVar;
@@ -364,7 +364,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return Value.FromObject(This);
 
             //depending on wether or not this is a relative path or not
-            ObjectContext obj = target.First() == '/' ? Apt.Root.ScriptObject : This;
+            ASObject obj = target.First() == '/' ? Apt.Root.ScriptObject : This;
 
             foreach (var part in target.Split('/'))
             {

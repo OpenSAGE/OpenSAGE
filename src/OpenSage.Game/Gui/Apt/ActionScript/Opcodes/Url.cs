@@ -10,7 +10,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.GetURL;
         public override uint Size => 8;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var url = Parameters[0].ToString();
             var target = Parameters[1].ToString();
@@ -31,7 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 2;
         public override InstructionType Type => InstructionType.GetURL2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var target = context.Pop();
             var url = context.Pop().ToString();

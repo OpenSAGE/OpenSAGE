@@ -6,7 +6,7 @@ using OpenSage.FileFormats.Apt.Characters;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    public class StageObject: ObjectContext
+    public class StageObject: ASObject
     {
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {
@@ -268,7 +268,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public MovieClip(VM vm) : this(null, vm) { }
         public MovieClip(SpriteItem item, VM vm = null) : base(item, vm, "MovieClip") { }
 
-        public void GotoAndPlay(ActionContext actx, Value[] args)
+        public void GotoAndPlay(ExecutionContext actx, Value[] args)
         {
             if (Item is SpriteItem si)
             {
@@ -334,7 +334,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             }
         }
 
-        public void LoadMovie(ActionContext context, Value[] args)
+        public void LoadMovie(ExecutionContext context, Value[] args)
         {
             var url = Path.ChangeExtension(args[0].ToString(), ".apt");
             var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
@@ -342,7 +342,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             context.Apt.Window.Manager.QueryPush(window);
         }
 
-        public MovieClip AttachMovie(ActionContext context, Value[] args)
+        public MovieClip AttachMovie(ExecutionContext context, Value[] args)
         {
             var url = Path.ChangeExtension(args[0].ToString(), ".apt");
             var name = args[1].ToString();

@@ -17,7 +17,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class LogicalDestination : InstructionBase
     {
         public override InstructionType Type => throw new InvalidOperationException();
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override void Execute(ExecutionContext context) => throw new InvalidOperationException();
         public string Name { get; set; }
         public LogicalBranch LogicalBranch { get; private set; }
 
@@ -27,7 +27,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             LogicalBranch = logicalBranch;
             Name = labelName;
         }
-        public override string ToString(ActionContext context) { return ToString(); }
+        public override string ToString(ExecutionContext context) { return ToString(); }
         public override string ToString()
         {
             return "LogicalDestination";
@@ -37,7 +37,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class LogicalEndOfFunction : InstructionBase
     {
         public override InstructionType Type => throw new InvalidOperationException();
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override void Execute(ExecutionContext context) => throw new InvalidOperationException();
         public override List<Value> Parameters => throw new NotImplementedException();
         public LogicalDefineFunction LogicalDefineFunction { get; private set; }
 
@@ -47,7 +47,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
             LogicalDefineFunction = logicalDefineFunction;
         }
 
-        public override string ToString(ActionContext context) { return ToString(); }
+        public override string ToString(ExecutionContext context) { return ToString(); }
         public override string ToString()
         {
             return "LogicalEndOfFunction";
@@ -57,7 +57,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class LogicalBranch : InstructionBase
     {
         public override InstructionType Type => InnerInstruction.Type;
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override void Execute(ExecutionContext context) => throw new InvalidOperationException();
         public InstructionBase InnerInstruction { get; private set; }
         public LogicalDestination Destination { get; private set; }
 
@@ -72,7 +72,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class LogicalDefineFunction : InstructionBase
     {
         public override InstructionType Type => InnerInstruction.Type;
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override void Execute(ExecutionContext context) => throw new InvalidOperationException();
         public InstructionBase InnerInstruction { get; private set; }
         public LogicalEndOfFunction? EndOfFunction { get; private set; }
 

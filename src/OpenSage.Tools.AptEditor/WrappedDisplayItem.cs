@@ -16,7 +16,7 @@ namespace OpenSage.Tools.AptEditor
         public DisplayItem Item { get; }
         public new AptContext Context => Item.Context;
         public new Character Character => Item.Character;
-        public new ObjectContext ScriptObject => Item.ScriptObject;
+        public new ASObject ScriptObject => Item.ScriptObject;
         public WrappedDisplayItem(Character character, AptContext context, SpriteItem parent)
         {
             Visible = true;

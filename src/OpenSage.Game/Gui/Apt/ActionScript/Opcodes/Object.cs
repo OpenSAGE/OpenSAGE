@@ -17,7 +17,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PushStack => true;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var id = Parameters[0].ToInteger();
             var member = context.Constants[id].ToString();
@@ -50,7 +50,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.SetMember;
         public override uint StackPop => 3;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             //pop the value
             var valueVal = context.Pop();
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 4;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var str = Parameters[0].ToString();
 
@@ -108,7 +108,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 4;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var name = context.Pop().ToString();
             context.This.SetMember(name, Parameters[0]);
@@ -129,7 +129,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PopStack => true;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             //pop the value
             var variableName = context.Pop().ToString();
@@ -151,7 +151,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.SetVariable;
         public override uint StackPop => 2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var valueVal = context.Pop();
             var memberName = context.Pop().ToString();
@@ -173,7 +173,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 2;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var member = context.Pop();
             var obj = context.Pop().ToObject();
@@ -197,7 +197,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 2;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var property = context.Pop().ToEnum<PropertyType>();
             var target = context.GetTarget(context.Pop().ToString());
@@ -220,7 +220,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.SetProperty;
         public override uint StackPop => 3;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var value = context.Pop();
             var property = context.Pop().ToEnum<PropertyType>();
@@ -243,7 +243,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.CloneSprite;
         public override uint StackPop => 3;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var depth = context.Pop();
             var target = context.Pop();
@@ -260,7 +260,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.RemoveSprite;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var target = context.Pop();
             throw new NotImplementedException();
@@ -277,7 +277,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override bool PopStack => true;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             //pop the member name
             var memberVal = Parameters[0];
@@ -302,7 +302,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 4;
         public override uint StackPop => 2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var memberVal = context.Pop().ToString();
             var objectVal = context.Pop().ToObject();
@@ -324,7 +324,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.NewObject;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var name = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
@@ -347,7 +347,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.NewMethod;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var nameVal = context.Pop();
             var name = nameVal.ToString();
@@ -374,10 +374,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.InitObject;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var nArgs = context.Pop().ToInteger();
-            var obj = new ObjectContext(context.Apt.Avm);
+            var obj = new ASObject(context.Apt.Avm);
             for (int i = 0; i < nArgs; ++i)
             {
                 var vi = context.Pop();
@@ -416,13 +416,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Extends;
         public override uint StackPop => 2;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             // TODO This will override functions in the old prototype of cls.
             // I followed the document, but don't know if will cause issues.
             var sup = context.Pop().ToFunction();
             var cls = context.Pop().ToFunction();
-            var obj = new ObjectContext(context.Apt.Avm);
+            var obj = new ASObject(context.Apt.Avm);
             obj.__proto__ = sup.prototype;
             obj.constructor = sup;
             cls.prototype = obj;
@@ -443,7 +443,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint StackPop => 2;
         public override bool PushStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var constr = context.Pop().ToFunction();
             var obj = context.Pop().ToObject();

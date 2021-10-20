@@ -11,9 +11,9 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
     internal class ObjectDescription
     {
-        public ObjectContext obj;
-        public ObjectContext tv;
-        public ActionContext actx;
+        public ASObject obj;
+        public ASObject tv;
+        public ExecutionContext actx;
         public string[] disp;
         public string[] val;
         public string addr;
@@ -21,7 +21,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
         public ObjectDescription sub;
         public int elem_sel;
 
-        public ObjectDescription(ObjectContext obj, ActionContext actx = null)
+        public ObjectDescription(ASObject obj, ExecutionContext actx = null)
         {
             this.obj = obj;
             tv = obj;
@@ -39,8 +39,8 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
     {
         InstructionGraph _instructions = null;
         AptContext _context = null;
-        ObjectContext _dispobj = null;
-        ActionContext _acontext = null;
+        ASObject _dispobj = null;
+        ExecutionContext _acontext = null;
         InputComboBox _editBox = new AutoSuggestionBox
         {
             Suggestions = InstructionUtility.InstructionNames

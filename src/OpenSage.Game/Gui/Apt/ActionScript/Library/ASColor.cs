@@ -5,7 +5,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
-    internal sealed class ASColor : ObjectContext
+    internal sealed class ASColor : ASObject
     {
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
         {

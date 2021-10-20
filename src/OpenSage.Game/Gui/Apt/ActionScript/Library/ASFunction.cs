@@ -27,7 +27,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public string Parameter;
     }
 
-    public abstract class Function: ObjectContext
+    public abstract class ASFunction: ASObject
     {
 
         public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
@@ -40,10 +40,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                  }, avm)), true, false, false),
             // methods
             ["apply"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => { ((Function) tv).Apply(vm, tv, args); return null; }
+                 (vm, tv, args) => { ((ASFunction) tv).Apply(vm, tv, args); return null; }
                  , avm)), true, false, false),
             ["call"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => { return ((Function) tv).Call(vm, tv, args); }
+                 (vm, tv, args) => { return ((ASFunction) tv).Call(vm, tv, args); }
                  , avm)), true, false, false),
         };
 
@@ -53,27 +53,27 @@ namespace OpenSage.Gui.Apt.ActionScript
         };
 
 
-        public Function() : this(null)
+        public ASFunction() : this(null)
         {
         }
 
-        public Function(VM vm): base(vm, "Function")
+        public ASFunction(VM vm): base(vm, "Function")
         {
-            var prt = new ObjectContext(vm);
+            var prt = new ASObject(vm);
             prt.constructor = this;
             prototype = prt;
         }
 
-        public abstract Value Invoke(ActionContext context, ObjectContext thisVar, Value[] args);
+        public abstract Value Invoke(ExecutionContext context, ASObject thisVar, Value[] args);
 
-        public void Apply(ActionContext context, ObjectContext thisVar, Value[] args)
+        public void Apply(ExecutionContext context, ASObject thisVar, Value[] args)
         {
             var thisVar_ = args.Length > 0 ? args[0] : Value.Undefined();
             var args_ = args.Length > 1 ? ((ASArray)args[1].ToObject()).GetValues() : new Value[0];
             Invoke(context, thisVar_.ToObject(), args_);
         }
 
-        public Value Call(ActionContext context, ObjectContext thisVar, Value[] args)
+        public Value Call(ExecutionContext context, ASObject thisVar, Value[] args)
         {
             var thisVar_ = Value.Undefined();
             var args_ = new Value[args.Length > 0 ? args.Length - 1 : 0];
@@ -86,26 +86,26 @@ namespace OpenSage.Gui.Apt.ActionScript
 
     }
 
-    public class NativeFunction: Function
+    public class NativeFunction: ASFunction
     {
-        public Func<ActionContext, ObjectContext, Value[], Value> F { get; private set; }
+        public Func<ExecutionContext, ASObject, Value[], Value> F { get; private set; }
 
         public NativeFunction(VM vm) : this(null, vm) { }
 
-        public NativeFunction(Func<ActionContext, ObjectContext, Value[], Value> f, VM vm) : base(vm)
+        public NativeFunction(Func<ExecutionContext, ASObject, Value[], Value> f, VM vm) : base(vm)
         {
             F = f;
         }
 
-        public NativeFunction(ObjectContext pti) : base(null)
+        public NativeFunction(ASObject pti) : base(null)
         {
             PrototypeInternal = pti;
         }
 
-        public override Value Invoke (ActionContext context, ObjectContext thisVar, Value[] args) { return F(context, thisVar, args); }
+        public override Value Invoke (ExecutionContext context, ASObject thisVar, Value[] args) { return F(context, thisVar, args); }
     }
 
-    public class DefinedFunction: Function
+    public class DefinedFunction: ASFunction
     {
         public DefinedFunction(VM vm): base(vm) { }
 
@@ -113,11 +113,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         public List<Value> Parameters { get; set; }
         public int NumberRegisters { get; set; }
         public List<Value> Constants { get; set; }
-        public ActionContext DefinedContext { get; set; }
+        public ExecutionContext DefinedContext { get; set; }
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
 
-        public override Value Invoke(ActionContext context, ObjectContext thisVar, Value[] args)
+        public override Value Invoke(ExecutionContext context, ASObject thisVar, Value[] args)
         {
             var vm = context.Apt.Avm;
             var acontext = GetContext(vm, args, thisVar);
@@ -125,7 +125,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return Value.ReturnValue(acontext);
         }
 
-        public ActionContext GetContext(VM vm, Value[] args, ObjectContext thisVar)
+        public ExecutionContext GetContext(VM vm, Value[] args, ASObject thisVar)
         {
             var context = vm.GetActionContext(DefinedContext, thisVar, NumberRegisters, Constants, Instructions);
 

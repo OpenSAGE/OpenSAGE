@@ -10,7 +10,7 @@ namespace OpenSage.Mods.Bfme.Gui
     static class AptMainMenu
     {
         // Called after the initialization has been performed
-        public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnInitialized(string param, ExecutionContext context, AptWindow window, Game game)
         {
             // Set a custom render callback
             var logoTexture = game.GetMappedImage("LogoWithShadow").Texture.Value;
@@ -23,60 +23,60 @@ namespace OpenSage.Mods.Bfme.Gui
         }
 
         // Close the game
-        public static void ExitGame(string param, ActionContext context, AptWindow window, Game game)
+        public static void ExitGame(string param, ExecutionContext context, AptWindow window, Game game)
         {
             game.Window.Close();
         }
 
-        public static void StopGameMovie(string param, ActionContext context, AptWindow window, Game game)
+        public static void StopGameMovie(string param, ExecutionContext context, AptWindow window, Game game)
         {
 
         }
 
-        public static void ResetResolution(string param, ActionContext context, AptWindow window, Game game)
+        public static void ResetResolution(string param, ExecutionContext context, AptWindow window, Game game)
         {
             // Probably used for debug purposes
         }
 
-        public static void CreateAHero(string param, ActionContext context, AptWindow window, Game game)
+        public static void CreateAHero(string param, ExecutionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("CreateAHero.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void Options(string param, ActionContext context, AptWindow window, Game game)
+        public static void Options(string param, ExecutionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Options.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void Skirmish(string param, ActionContext context, AptWindow window, Game game)
+        public static void Skirmish(string param, ExecutionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("Skirmish.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void LAN(string param, ActionContext context, AptWindow window, Game game)
+        public static void LAN(string param, ExecutionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("LanOpenPlay.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void Credits(string param, ActionContext context, AptWindow window, Game game)
+        public static void Credits(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
 
-        public static void OnTutorial(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnTutorial(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
 
-        public static void MultiplayerButtonPressed(string param, ActionContext context, AptWindow window, Game game)
+        public static void MultiplayerButtonPressed(string param, ExecutionContext context, AptWindow window, Game game)
         {
             var aptWindow = game.LoadAptWindow("MPGameSetup.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void BattleSchool(string param, ActionContext context, AptWindow window, Game game)
+        public static void BattleSchool(string param, ExecutionContext context, AptWindow window, Game game)
         {
 
         }

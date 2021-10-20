@@ -41,7 +41,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public override bool IsStatement => InnerAction.IsStatement;
         public override int Precendence => InnerAction.Precendence;
 
-        public override void Execute(ActionContext context) => throw new InvalidOperationException();
+        public override void Execute(ExecutionContext context) => throw new InvalidOperationException();
         public override bool Breakpoint
         {
             get { return InnerAction.Breakpoint; }
@@ -62,11 +62,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     ans.Add(itl.Label);
             return ans;
         }
-        public override string GetParameterDesc(ActionContext context)
+        public override string GetParameterDesc(ExecutionContext context)
         {
             return InnerAction.GetParameterDesc(context);
         }
-        public override string ToString(ActionContext context)
+        public override string ToString(ExecutionContext context)
         {
             if (Tag == null || Tag == "") return InnerAction.ToString(context);
 
@@ -253,7 +253,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 // TODO what if multiple pools are created (especially not in the main path)?
                 if (instruction is ConstantPool cp && constSource != null)
                 {
-                    ActionContext ac = new ActionContext(null, null, null, 4) { GlobalConstantPool = constSource };
+                    ExecutionContext ac = new ExecutionContext(null, null, null, 4) { GlobalConstantPool = constSource };
                     ac.ReformConstantPool(cp.Parameters);
                     ConstPool = ac.Constants;
                 }

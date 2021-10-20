@@ -123,7 +123,7 @@ namespace OpenSage.Tools.AptEditor.Api
                     return new(3, "Path unassigned");
                 try
                 {
-                    AptDataDump d = new(_selectedFile, _selectedGetter);
+                    AptDataDump d = new(_selectedFile!, _selectedGetter);
                     throw new NotImplementedException("Async Execution");
                     return StateSuccessful;
                 }
@@ -193,6 +193,7 @@ namespace OpenSage.Tools.AptEditor.Api
 
         public OperationState InitDebugger()
         {
+            _debugger = new(""); // TODO
             return null;
         }
 

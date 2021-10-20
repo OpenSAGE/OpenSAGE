@@ -8,15 +8,15 @@ namespace OpenSage.Mods.Bfme2.Gui
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void OnSubMenuLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnSubMenuLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
 
-        public static void OnButtonFrameLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnButtonFrameLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
 
-        public static void OnToggleFlashLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnToggleFlashLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
     }

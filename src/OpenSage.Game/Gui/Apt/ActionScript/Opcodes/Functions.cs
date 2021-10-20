@@ -10,7 +10,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static Value[] GetArgumentsFromStack(ActionContext context)
+        public static Value[] GetArgumentsFromStack(ExecutionContext context)
         {
             var argCount = context.Pop().ToInteger();
 
@@ -25,7 +25,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         // TODO this function is no longer safe. try to use the new model.
         // TODO try to fix compatibility
-        public static Value ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+        public static Value ExecuteFunction(Value funcVal, Value[] args, ASObject scope, VM vm)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
@@ -40,11 +40,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return Value.Undefined();
         }
 
-        public static Value StartExecutingFunction(string funcName, Value[] args, ActionContext context, ObjectContext thisVar = null)
+        public static Value StartExecutingFunction(string funcName, Value[] args, ExecutionContext context, ASObject thisVar = null)
         {
             return StartExecutingFunction(context.GetValueOnChain(funcName), args, context, thisVar);
         }
-        public static Value StartExecutingFunction(Value funcVal, Value[] args, ActionContext context, ObjectContext thisVar = null)
+        public static Value StartExecutingFunction(Value funcVal, Value[] args, ExecutionContext context, ASObject thisVar = null)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 24;
         public override bool PushStack => Parameters[0].ToString().Length == 0;
 
-        public override string GetParameterDesc(ActionContext context)
+        public override string GetParameterDesc(ExecutionContext context)
         {
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
@@ -79,7 +79,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return $"\"{name}\", {nParams} Params, {size} Bytes of Code";
         }
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
@@ -132,7 +132,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 28;
         public override bool PushStack => Parameters[0].ToString().Length == 0;
 
-        public override string GetParameterDesc(ActionContext context)
+        public override string GetParameterDesc(ExecutionContext context)
         {
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
@@ -142,7 +142,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             return $"\"{name}\", {nParams} Params, {nRegisters} Regs, {size} Bytes of Code, Flags: {flags}";
         }
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
@@ -199,7 +199,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.Return;
         public override bool PopStack => true;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             context.Return = true;
             context.Halt = true;
@@ -218,7 +218,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public DealWithReturnValue(Value v) : base() { Parameters = new List<Value> { v }; }
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             // TODO what on earth does the document mean?
             // original implementation
@@ -236,11 +236,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
 
-        private Action<ActionContext> _action;
+        private Action<ExecutionContext> _action;
 
-        public ExecNativeCode(Action<ActionContext> a) : base() { _action = a; }
+        public ExecNativeCode(Action<ExecutionContext> a) : base() { _action = a; }
 
-        public override void Execute(ActionContext context) { _action(context); }
+        public override void Execute(ExecutionContext context) { _action(context); }
     }
 
     /// <summary>
@@ -251,7 +251,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.CallMethod;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcNameVal = context.Pop();
             var funcName = funcNameVal.ToString();
@@ -304,7 +304,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 1;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
             var obj = context.Pop().ToObject();
@@ -328,7 +328,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 1;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
@@ -351,7 +351,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 1;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
@@ -374,7 +374,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 0;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);
@@ -396,7 +396,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override uint Size => 0;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             throw new NotImplementedException();
         }
@@ -411,7 +411,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_CallNamedMethod;
         public override uint Size => 1;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var id = Parameters[0].ToInteger();
             var funcName = context.Constants[id].ToString();
@@ -444,7 +444,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_CallFuncPop;
         public override bool IsStatement => false;
 
-        public override void Execute(ActionContext context)
+        public override void Execute(ExecutionContext context)
         {
             var funcName = context.Pop().ToString();
             var args = FunctionCommon.GetArgumentsFromStack(context);

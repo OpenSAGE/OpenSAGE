@@ -116,7 +116,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             Assert.True(afterInstructions == magic);
 
             var vm = new VM();
-            var context = new ObjectContext(vm);
+            var context = new ASObject(vm);
 
             vm.EnqueueContext(collection, null, context, "Parsing Test");
             vm.ExecuteUntilHalt();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OpenSage.FileFormats.Apt.ActionScript
@@ -38,13 +39,13 @@ namespace OpenSage.FileFormats.Apt.ActionScript
     }
     public enum RawValueType
     {
-        String,
-        Boolean,
-        Integer,
-        Float,
+        String = 0,
+        Boolean = 1,
+        Integer = 2,
+        Float = 3,
 
-        Constant,
-        Register,
+        Constant = 4,
+        Register = 5,
     }
 
     public class ValueStorage
@@ -55,6 +56,69 @@ namespace OpenSage.FileFormats.Apt.ActionScript
         public bool Boolean { get; private set; }
         public int Number { get; private set; }
         public double Decimal { get; private set; }
+
+        public override string ToString()
+        {
+            string ans = string.Empty;
+            switch (Type) {
+                case RawValueType.String:
+                    ans = JsonSerializer.Serialize(String);
+                    break;
+                case RawValueType.Boolean:
+                    ans = Boolean ? "true" : "false";
+                    break;
+                case RawValueType.Integer:
+                case RawValueType.Constant:
+                case RawValueType.Register:
+                    ans = Number.ToString();
+                    break;
+                case RawValueType.Float:
+                    ans = Decimal.ToString();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return $"({(int) Type};{ans})";
+        }
+
+        public static ValueStorage Parse(string str)
+        {
+            if (!str.StartsWith('(') || !str.EndsWith(')') || str.IndexOf(';') < 0)
+                throw new InvalidOperationException();
+            var c1 = str.IndexOf(';');
+            if (!int.TryParse(str.Substring(1, c1 - 1), out var tint))
+                throw new InvalidOperationException();
+            var t = (RawValueType) tint;
+            var ans = new ValueStorage() { Type = t };
+            var content = str.Substring(c1 + 1, str.Length - 2 - c1);
+            switch (t)
+            {
+                case RawValueType.String:
+                    ans.String = JsonSerializer.Deserialize<string>(content);
+                    break;
+                case RawValueType.Boolean:
+                    ans.Boolean = content.StartsWith("true");
+                    break;
+                case RawValueType.Integer:
+                case RawValueType.Constant:
+                case RawValueType.Register:
+                    if (!int.TryParse(content, out var n))
+                        throw new InvalidOperationException();
+                    else
+                        ans.Number = n;
+                    break;
+                case RawValueType.Float:
+                    if (!double.TryParse(content, out var d))
+                        throw new InvalidOperationException();
+                    else
+                        ans.Decimal = d;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return ans;
+        }
+
         public static ValueStorage FromRegister(uint num)
         {
             var v = new ValueStorage();

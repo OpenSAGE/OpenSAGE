@@ -34,8 +34,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         private readonly bool _boolean;
         private readonly int _number;
         private readonly double _decimal;
-        private readonly ObjectContext _object;
-        private readonly ActionContext _actx;
+        private readonly ASObject _object;
+        private readonly ExecutionContext _actx;
 
         public string DisplayString { get; set; }
 
@@ -44,8 +44,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             bool b = false,
             int n = 0,
             double d = 0,
-            ObjectContext o = null,
-            ActionContext a = null)
+            ASObject o = null,
+            ExecutionContext a = null)
         {
             Type = type;
             _string = s;
@@ -70,7 +70,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public bool IsNumber() { return Type == ValueType.Float || Type == ValueType.Integer; }
         public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ASString); }
 
-        public static bool IsCallable(Value v) { return v != null && (v._object as Function) != null; }
+        public static bool IsCallable(Value v) { return v != null && (v._object as ASFunction) != null; }
         public static bool IsPrimitive(Value v) { return IsNull(v) || v.Type != ValueType.Object; }
 
         public bool IsCallable() { return IsCallable(this); }
@@ -85,7 +85,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // resolve
 
-        public Value ResolveRegister(ActionContext context)
+        public Value ResolveRegister(ExecutionContext context)
         {
             if (Type != ValueType.Register || context == null)
                 return this;
@@ -99,7 +99,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return result;
         }
 
-        public Value ResolveConstant(ActionContext context)
+        public Value ResolveConstant(ExecutionContext context)
         {
             if (Type != ValueType.Constant || context == null)
                 return this;
@@ -119,21 +119,21 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _actx.Return ? _actx.ReturnValue : Undefined();
         }
 
-        public Value Resolve(ActionContext context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
+        public Value Resolve(ExecutionContext context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
 
         // from
 
-        public static Value FromFunction(Function func)
+        public static Value FromFunction(ASFunction func)
         {
             if (func == null)
                 return Null();
             return new Value(ValueType.Object, o: func);
         }
 
-        public static Value FromObject(ObjectContext obj)
+        public static Value FromObject(ASObject obj)
         {
             if (obj != null && obj.IsFunction())
-                return FromFunction((Function) obj);
+                return FromFunction((ASFunction) obj);
             else if (obj == null)
                 return Null();
             return new Value(ValueType.Object, o: obj);
@@ -154,7 +154,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new Value(ValueType.Constant, n: (int) id);
         }
 
-        public static Value ReturnValue(ActionContext actx)
+        public static Value ReturnValue(ExecutionContext actx)
         {
             return new Value(ValueType.Return, a: actx);
         }
@@ -291,7 +291,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return (uint) _number;
         }
 
-        public T ToObject<T>() where T : ObjectContext
+        public T ToObject<T>() where T : ASObject
         {
             if (IsUndefined())
             {
@@ -306,7 +306,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return (T) _object;
         }
 
-        public ObjectContext ToObject()
+        public ASObject ToObject()
         {
             if (Type == ValueType.Undefined)
             {
@@ -327,7 +327,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // numbers
 
-        internal Value ToNumber(ActionContext actx = null)
+        internal Value ToNumber(ExecutionContext actx = null)
         {
             if (IsSpecialType())
             {
@@ -395,17 +395,17 @@ namespace OpenSage.Gui.Apt.ActionScript
             return var;
         }
 
-        public Function ToFunction()
+        public ASFunction ToFunction()
         {
             if (Type == ValueType.Undefined)
             {
                 Logger.Error("Undefined Function!");
                 return null;
             }
-            if (Type != ValueType.Object || _object is not Function)
+            if (Type != ValueType.Object || _object is not ASFunction)
                 throw new InvalidOperationException();
 
-            return (Function) _object;
+            return (ASFunction) _object;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -454,7 +454,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Object:
                     if (_object is MovieClip)
                         result = "movieclip";
-                    else if (_object is Function)
+                    else if (_object is ASFunction)
                         result = "function";
                     else
                         result = "object";
@@ -473,7 +473,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // only used in debugging
 
-        public string ToStringWithType(ActionContext ctx)
+        public string ToStringWithType(ExecutionContext ctx)
         {
             var ttype = "?";
             try { ttype = this.Type.ToString().Substring(0, 3); }
@@ -500,7 +500,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         // TODO not comprehensive; ActionContext needed
-        public Value ToPrimirive(int hint = 0, ActionContext actx = null)
+        public Value ToPrimirive(int hint = 0, ExecutionContext actx = null)
         {
             switch (Type)
             {
@@ -564,7 +564,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         // The Abstract Equality Comparison Follows Section 11.9.3, ECMAScript Specification 3
         // https://262.ecma-international.org/5.1/#sec-11.9.3
         // https://www-archive.mozilla.org/js/language/E262-3.pdf
-        public static bool AbstractEquals(Value x, Value y, ActionContext actx = null)
+        public static bool AbstractEquals(Value x, Value y, ExecutionContext actx = null)
         {
             if ((IsNull(x) && IsNull(y)) ||
                 (IsNull(x) && IsUndefined(y)) ||

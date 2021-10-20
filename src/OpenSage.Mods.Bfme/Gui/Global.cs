@@ -8,37 +8,37 @@ namespace OpenSage.Mods.Bfme.Gui
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void OnAptInGameSpellBookLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnAptInGameSpellBookLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
             logger.Info("InGame spellbook loaded!");
         }
 
-        public static void OnAptInGameSideCommandBarLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnAptInGameSideCommandBarLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
             logger.Info("InGame commandbar loaded!");
         }
 
-        public static void OnAptInGameSideCommandBarButtonFrameLoaded(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnAptInGameSideCommandBarButtonFrameLoaded(string param, ExecutionContext context, AptWindow window, Game game)
         {
             AptPalantir.SideButtonsInitialized++;
         }
 
-        public static void OnAptInGameSideCommandBarFadeOutComplete(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnAptInGameSideCommandBarFadeOutComplete(string param, ExecutionContext context, AptWindow window, Game game)
         {
             logger.Info($"InGame sidecommandbar fadeout");
         }
 
-        public static void OnAptInGameSideCommandBarFadeInComplete(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnAptInGameSideCommandBarFadeInComplete(string param, ExecutionContext context, AptWindow window, Game game)
         {
             logger.Info("InGame commandbar fadein complete!");
         }
 
-        public static void SetBackground(string param, ActionContext context, AptWindow window, Game game)
+        public static void SetBackground(string param, ExecutionContext context, AptWindow window, Game game)
         {
 
         }
 
-        public static void PlaySound(string param, ActionContext context, AptWindow window, Game game)
+        public static void PlaySound(string param, ExecutionContext context, AptWindow window, Game game)
         {
             game.Audio.PlayAudioEvent(param);
         }

@@ -39,7 +39,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return new InstructionCollection(_inst);
         }
 
-        public static InstructionCollection Native(Action<ActionContext> act)
+        public static InstructionCollection Native(Action<ExecutionContext> act)
         {
             var inst = new ExecNativeCode(act);
             var insts = new SortedList<int, InstructionBase> { [0] = inst, };

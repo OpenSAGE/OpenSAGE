@@ -19,22 +19,22 @@ namespace OpenSage.Gui.Apt.ActionScript
         private TimeInterval _lastTick;
         private DateTime _pauseTick;
         private bool _paused;
-        private Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>> _intervals;
+        private Dictionary<string, ValueTuple<TimeInterval, int, ASFunction, ASObject, Value[]>> _intervals;
 
-        private Stack<ActionContext> _callStack;
-        private Queue<ActionContext> _execQueue;
+        private Stack<ExecutionContext> _callStack;
+        private Queue<ExecutionContext> _execQueue;
 
-        public ObjectContext GlobalObject { get; }
-        public ActionContext GlobalContext { get; }
-        public ObjectContext ExternObject { get; }
+        public ASObject GlobalObject { get; }
+        public ExecutionContext GlobalContext { get; }
+        public ASObject ExternObject { get; }
         
-        public Dictionary<string, ObjectContext> Prototypes { get; private set; }
-        public Dictionary<ObjectContext, Type> PrototypesInverse { get; private set; }
+        public Dictionary<string, ASObject> Prototypes { get; private set; }
+        public Dictionary<ASObject, Type> PrototypesInverse { get; private set; }
 
-        public ObjectContext GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
+        public ASObject GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
 
         // Delegate to call a function inside the engine
-        public delegate void HandleCommand(ActionContext context, string command, string param);
+        public delegate void HandleCommand(ExecutionContext context, string command, string param);
         public HandleCommand CommandHandler;
 
         // Delegate to retrieve an internal variable from the engine
@@ -55,7 +55,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public void RegisterClass(string className, Type classType)
         {
             var cst_param = new VM[] { this };
-            var newProto = (ObjectContext) Activator.CreateInstance(classType, cst_param);
+            var newProto = (ASObject) Activator.CreateInstance(classType, cst_param);
             var props = (Dictionary<string, Func<VM, Property>>) classType.GetField("PropertiesDefined").GetValue(null);
             var stats = (Dictionary<string, Func<VM, Property>>) classType.GetField("StaticPropertiesDefined").GetValue(null);
             foreach (var p in props)
@@ -70,48 +70,48 @@ namespace OpenSage.Gui.Apt.ActionScript
             PrototypesInverse[newProto] = classType;
         }
 
-        public ObjectContext ConstructClass(Function cst_func)
+        public ASObject ConstructClass(ASFunction cstFunc)
         {
-            var proto = cst_func.prototype;
+            var proto = cstFunc.prototype;
             while (proto != null)
             {
                 if (PrototypesInverse.ContainsKey(proto)) break;
                 proto = proto.__proto__;
             }
-            var cst_param = new VM[] { this };
-            var ret = (ObjectContext) Activator.CreateInstance(PrototypesInverse[proto], cst_param);
-            ret.__proto__ = cst_func.prototype;
+            var paramsOfCst = new VM[] { this };
+            var ret = (ASObject) Activator.CreateInstance(PrototypesInverse[proto], paramsOfCst);
+            ret.__proto__ = cstFunc.prototype;
             return ret;
         }
 
         public VM(AptContext apt = null)
         {
-            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
+            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, ASFunction, ASObject, Value[]>>();
             _paused = false;
 
-            _callStack = new Stack<ActionContext>();
-            _execQueue = new Queue<ActionContext>();
+            _callStack = new Stack<ExecutionContext>();
+            _execQueue = new Queue<ExecutionContext>();
 
             // initialize prototypes and constructors of Object and Function class
-            Prototypes = new Dictionary<string, ObjectContext>() { ["Object"] = new ObjectContext(null) };
-            var obj_proto = Prototypes["Object"];
-            var func_proto = new NativeFunction(obj_proto); // Set the PrototypeInternal property
-            Prototypes["Function"] = func_proto;
-            PrototypesInverse = new Dictionary<ObjectContext, Type>() { [obj_proto] = typeof(ObjectContext), [func_proto] = typeof(DefinedFunction), };
+            Prototypes = new Dictionary<string, ASObject>() { ["Object"] = new ASObject(null) };
+            var objProto = Prototypes["Object"];
+            var funcProto = new NativeFunction(objProto); // Set the PrototypeInternal property
+            Prototypes["Function"] = funcProto;
+            PrototypesInverse = new Dictionary<ASObject, Type>() { [objProto] = typeof(ASObject), [funcProto] = typeof(DefinedFunction), };
 
-            foreach (var p in ObjectContext.PropertiesDefined)
-                obj_proto.SetOwnProperty(p.Key, p.Value(this));
-            foreach (var p in Function.PropertiesDefined)
-                func_proto.SetOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ASObject.PropertiesDefined)
+                objProto.SetOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ASFunction.PropertiesDefined)
+                funcProto.SetOwnProperty(p.Key, p.Value(this));
 
-            var obj_cst = obj_proto.constructor;
-            var func_cst = func_proto.constructor;
-            obj_cst.prototype = obj_proto;
-            func_cst.prototype = func_proto;
+            var obj_cst = objProto.constructor;
+            var func_cst = funcProto.constructor;
+            obj_cst.prototype = objProto;
+            func_cst.prototype = funcProto;
 
-            foreach (var p in ObjectContext.StaticPropertiesDefined)
+            foreach (var p in ASObject.StaticPropertiesDefined)
                 obj_cst.SetOwnProperty(p.Key, p.Value(this));
-            foreach (var p in Function.StaticPropertiesDefined)
+            foreach (var p in ASFunction.StaticPropertiesDefined)
                 func_cst.SetOwnProperty(p.Key, p.Value(this));
 
             // initialize built-in classes
@@ -123,8 +123,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             // initialize global vars and methods
-            GlobalObject = new ObjectContext(this); // TODO replace it to Stage
-            GlobalContext = new ActionContext(GlobalObject, GlobalObject, null, 4) { Apt = apt, DisplayName = "GlobalContext", };
+            GlobalObject = new ASObject(this); // TODO replace it to Stage
+            GlobalContext = new ExecutionContext(GlobalObject, GlobalObject, null, 4) { Apt = apt, DisplayName = "GlobalContext", };
             ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
 
@@ -145,12 +145,12 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // interval & debug operations
 
-        public void CreateInterval(string name, int duration, Function func, ObjectContext ctx, Value[] args)
+        public void CreateInterval(string name, int duration, ASFunction func, ASObject context, Value[] args)
         {
             _intervals[name] = (_lastTick,
                                 duration, // milliseconds
                                 func,
-                                ctx,
+                                context,
                                 args
                                 );
         }
@@ -199,15 +199,15 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         // stack & queue operations
 
-        public void PushContext(ActionContext context) { _callStack.Push(context); }
-        public ActionContext PopContext()
+        public void PushContext(ExecutionContext context) { _callStack.Push(context); }
+        public ExecutionContext PopContext()
         {
             if (IsCurrentContextGlobal())
                 throw new InvalidOperationException("Gloabl execution context is not possible to pop.");
             else
                 return _callStack.Pop();
         }
-        public ActionContext CurrentContext() { return _callStack.Peek(); }
+        public ExecutionContext CurrentContext() { return _callStack.Peek(); }
         public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
 
         public string DumpContextStack()
@@ -227,11 +227,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public ActionContext GetStackContext(int index) { return _callStack.ElementAt(index); }
+        public ExecutionContext GetStackContext(int index) { return _callStack.ElementAt(index); }
 
-        public void EnqueueContext(ActionContext context) { _execQueue.Enqueue(context); }
-        public ActionContext DequeueContext() { return _execQueue.Dequeue(); }
-        public ActionContext CurrentContextInQueue() { return _execQueue.Peek(); }
+        public void EnqueueContext(ExecutionContext context) { _execQueue.Enqueue(context); }
+        public ExecutionContext DequeueContext() { return _execQueue.Dequeue(); }
+        public ExecutionContext CurrentContextInQueue() { return _execQueue.Peek(); }
         public bool HasContextInQueue() { return _execQueue.Count > 0; }
 
         public string DumpContextQueue()
@@ -251,14 +251,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public ActionContext GetQueueContext(int index) { return _execQueue.ElementAt(index); }
-        public void EnqueueContext(Function f, ObjectContext thisVar, Value[] args, string name = null)
+        public ExecutionContext GetQueueContext(int index) { return _execQueue.ElementAt(index); }
+        public void EnqueueContext(ASFunction f, ASObject thisVar, Value[] args, string name = null)
         {
             if (f is DefinedFunction fd)
                 EnqueueContext(fd.GetContext(this, args, thisVar));
             else
             {
-                Action<ActionContext> f1 = (_) => f.Invoke(GlobalContext, thisVar, args);
+                Action<ExecutionContext> f1 = (_) => f.Invoke(GlobalContext, thisVar, args);
                 EnqueueContext(GetActionContext(GlobalContext, thisVar, 4, null, InstructionCollection.Native(f1), name));
             }
         }
@@ -267,17 +267,17 @@ namespace OpenSage.Gui.Apt.ActionScript
             var context = GetActionContext(item.Context, item.ScriptObject, 4, item.Constants, insts, name);
             EnqueueContext(context);
         }
-        public void EnqueueContext(InstructionCollection insts, AptContext apt, ObjectContext thisVar = null, string name = null)
+        public void EnqueueContext(InstructionCollection insts, AptContext apt, ASObject thisVar = null, string name = null)
         {
             var context = GetActionContext(apt, thisVar, 4, apt.Constants.Entries, insts, name);
             EnqueueContext(context);
         }
 
         // context, execution & debug
-        public ActionContext GetActionContext(ActionContext outerVar, ObjectContext thisVar, int numRegisters, List<Value> consts, InstructionCollection code, string name = null)
+        public ExecutionContext GetActionContext(ExecutionContext outerVar, ASObject thisVar, int numRegisters, List<Value> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
-            var context = new ActionContext(GlobalObject, thisVar, outerVar, numRegisters)
+            var context = new ExecutionContext(GlobalObject, thisVar, outerVar, numRegisters)
             {
                 Apt = outerVar.Apt,
                 GlobalConstantPool = outerVar.Apt.Constants.Entries,
@@ -290,10 +290,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             return context;
         }
 
-        public ActionContext GetActionContext(AptContext apt, ObjectContext thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code, string name = null)
+        public ExecutionContext GetActionContext(AptContext apt, ASObject thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
-            var context = new ActionContext(GlobalObject, thisVar, GlobalContext, numRegisters)
+            var context = new ExecutionContext(GlobalObject, thisVar, GlobalContext, numRegisters)
             {
                 Apt = apt,
                 GlobalConstantPool = consts,
@@ -388,7 +388,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ans;
         }
 
-        public Value Execute(Function func, Value[] args, ObjectContext thisVar)
+        public Value Execute(ASFunction func, Value[] args, ASObject thisVar)
         {
             var ret = func.Invoke(CurrentContext(), thisVar, args);
             if (func is DefinedFunction)
@@ -396,7 +396,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return ret.ResolveReturn();
         }
 
-        public void Handle(ActionContext context, string url, string target)
+        public void Handle(ExecutionContext context, string url, string target)
         {
             UrlHandler.Handle(CommandHandler, MovieHandler, context, url, target);
         }

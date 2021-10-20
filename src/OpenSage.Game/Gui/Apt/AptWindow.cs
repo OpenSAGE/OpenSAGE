@@ -179,7 +179,7 @@ namespace OpenSage.Gui.Apt
             _renderingContext.PopTransform();
         }
 
-        internal void HandleCommand(ActionContext context, string cmd, string param)
+        internal void HandleCommand(ExecutionContext context, string cmd, string param)
         {
             _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
         }
@@ -215,6 +215,6 @@ namespace OpenSage.Gui.Apt
             return aptFile;
         }
 
-        public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);
+        public delegate void ActionscriptCallback(string param, ExecutionContext context, AptWindow window, Game game);
     }
 }

@@ -353,7 +353,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 n = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
                 n.GetExpressions(this);
                 // find if there are any functions, if there are functions, wrap n
-                if (n.Expressions.Any(x => x is NodeFunctionBody || x is NodeIncludeFunction))
+                if (n.Expressions.Any(x => x is NodeFunctionBody))
                     n = new NodeIncludeFunction(n);
             }
             // maintain labels
@@ -1024,13 +1024,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class NodeCase: NodeControl
     {
 
-        public NodeExpression Condition;
+        public NodeExpression? Condition;
         public StatementCollection Unbranch;
         public StatementCollection Branch;
 
         public NodeCase(
             InstructionBase inst,
-            NodeExpression condition,
+            NodeExpression? condition,
             StatementCollection unbranch, 
             StatementCollection branch
             ) : base(inst)
@@ -1144,13 +1144,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
     public class NodeLoop : NodeControl
     {
 
-        public NodeExpression Condition;
+        public NodeExpression? Condition;
         public StatementCollection Maintain;
         public StatementCollection Branch;
 
         public NodeLoop(
             InstructionBase inst,
-            NodeExpression condition,
+            NodeExpression? condition,
             StatementCollection maintain,
             StatementCollection branch
             ) : base(inst)

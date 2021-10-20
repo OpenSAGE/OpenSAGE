@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using OpenSage.FileFormats;
+using System.Text.Json;
 
 namespace OpenSage.FileFormats.Apt.ActionScript
 {
@@ -217,11 +218,31 @@ namespace OpenSage.FileFormats.Apt.ActionScript
         public List<ValueStorage> Parameters { get; private set; }
         public InstructionParseHelper Helper;
 
-        public InstructionCode(InstructionType type, List<RawParamType> types, InstructionParseHelper helper)
+        public InstructionCode(InstructionType type, List<RawParamType> types = null)
         {
             Type = type;
             ParamTypes = types;
-            Helper = helper;
+        }
+
+        public string Serialize()
+        {
+            List<string> s = new() { ((int) Type).ToString() };
+            foreach (var val in Parameters)
+                s.Append(val.ToString());
+            return JsonSerializer.Serialize(s);
+        }
+
+        public static InstructionCode Deserialize(string str)
+        {
+            var s = JsonSerializer.Deserialize<List<string>>(str);
+            var p = (InstructionType) int.Parse(s[0]);
+            // what about types?
+            // just form a dict.
+            var ans = new InstructionCode(p, InstructionStorage.GetParamSequence(p));
+            ans.Parameters = new();
+            for (int i = 1; i < s.Count; ++i)
+                ans.Parameters[i - 1] = ValueStorage.Parse(s[i]);
+            return ans;
         }
 
         public void Parse(BinaryReader reader)
