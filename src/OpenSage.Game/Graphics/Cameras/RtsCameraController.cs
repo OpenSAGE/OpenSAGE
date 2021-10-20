@@ -166,18 +166,13 @@ namespace OpenSage.Graphics.Cameras
             else
             {
                 // tested in Zero Hour - rotation always takes precedence, and all panning is halted when rotating.
-                float forwards, right;
-                if (inputState.RightMouseDown)
-                {
-                    forwards = -inputState.DeltaY;
-                    right = inputState.DeltaX;
-                }
-                else
-                {
-                    forwards = GetKeyMovement(inputState, Key.W, Key.S);
-                    right = GetKeyMovement(inputState, Key.D, Key.A);
-                }
+                float forwards = GetKeyMovement(inputState, Key.W, Key.S);
+                float right = GetKeyMovement(inputState, Key.D, Key.A);
+
                 PanCamera(forwards, right);
+
+                float rotationValue = GetKeyMovement(inputState, Key.Q, Key.E);
+                KeyRotateCamera(rotationValue / 60);
             }
 
             ZoomCamera(-inputState.ScrollWheelValue);
@@ -274,6 +269,14 @@ namespace OpenSage.Graphics.Cameras
         private void ZoomCamera(float deltaY)
         {
             Zoom = _zoom + deltaY * ZoomSpeed;
+        }
+
+        private void KeyRotateCamera(float rotationValue)
+        {
+            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
+            yaw -= rotationValue;
+            _lookDirection.X = MathF.Cos(yaw);
+            _lookDirection.Y = MathF.Sin(yaw);
         }
 
         private void PanCamera(float forwards, float right)
