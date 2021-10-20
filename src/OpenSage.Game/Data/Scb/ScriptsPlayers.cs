@@ -35,11 +35,20 @@ namespace OpenSage.Data.Scb
                     }
                 }
 
-                var scriptPlayers = new ScriptsPlayer[numPlayers];
-                for (var i = 0; i < scriptPlayers.Length; i++)
+                if (numPlayers == 5)
                 {
+                    // numPlayers = 4;
+                }
+
+                var scriptPlayers = new ScriptsPlayer[numPlayers];
+                long lastPosition = reader.BaseStream.Position;
+                for (var i = 0; i < numPlayers; i++)
+                {
+                    lastPosition = reader.BaseStream.Position;
                     scriptPlayers[i] = ScriptsPlayer.Parse(reader, context, hasPlayerProperties);
                 }
+
+                reader.BaseStream.Position = lastPosition;
 
                 return new ScriptsPlayers
                 {

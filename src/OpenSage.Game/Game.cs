@@ -856,7 +856,7 @@ namespace OpenSage
                 Restart?.Invoke();
             }
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Comma))
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.W))
             {
                 var rtsCam = Scene3D.CameraController as RtsCameraController;
                 rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;

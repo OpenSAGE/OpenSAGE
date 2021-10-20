@@ -45,7 +45,7 @@ namespace OpenSage.Logic
                     }
                     break;
 
-                case InputMessageType.MouseLeftButtonDown:
+                case InputMessageType.MouseRightButtonDown:
                     if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
                         if (_orderGeneratorSystem.TryActivate(_keyModifiers))
@@ -59,7 +59,7 @@ namespace OpenSage.Logic
                     _dragEndPosition = _mousePosition;
                     return InputMessageResult.Handled;
 
-                case InputMessageType.MouseLeftButtonUp:
+                case InputMessageType.MouseRightButtonUp:
                     if (_isDragging)
                     {
                         _orderGeneratorSystem.TryActivate(_keyModifiers);
@@ -68,7 +68,7 @@ namespace OpenSage.Logic
                     }
                     break;
 
-                case InputMessageType.MouseRightButtonDown:
+                case InputMessageType.MouseLeftButtonDown:
                     // TODO: is this desirable if we don't actually deselect the unit, but simply pan the camera?
                     _orderGeneratorSystem.CancelOrderGenerator();
                     break;

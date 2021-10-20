@@ -257,7 +257,7 @@ namespace OpenSage.Audio
 
             _currentTrackName = musicTrack.Name;
             _currentTrack = GetStream(musicTrack.File.Value.Entry);
-            _currentTrack.Volume = (float) musicTrack.Volume;
+            _currentTrack.Volume = 0f;// (float) musicTrack.Volume;
             _currentTrack.Play();
         }
 

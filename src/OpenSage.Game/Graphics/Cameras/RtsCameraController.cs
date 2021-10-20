@@ -174,8 +174,8 @@ namespace OpenSage.Graphics.Cameras
                 }
                 else
                 {
-                    forwards = GetKeyMovement(inputState, Key.Up, Key.Down);
-                    right = GetKeyMovement(inputState, Key.Right, Key.Left);
+                    forwards = GetKeyMovement(inputState, Key.W, Key.S);
+                    right = GetKeyMovement(inputState, Key.D, Key.A);
                 }
                 PanCamera(forwards, right);
             }
