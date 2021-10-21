@@ -45,7 +45,6 @@ namespace OpenSage.Logic
                         _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
                     }
                     break;
-                    // TODO_RTM Handle left as right mouse button when placing building
                 case InputMessageType.MouseRightButtonDown:
                     if (_orderGeneratorSystem.ActiveGenerator is ConstructBuildingOrderGenerator)
                     {
