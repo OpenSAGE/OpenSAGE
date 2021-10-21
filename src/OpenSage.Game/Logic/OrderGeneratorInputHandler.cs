@@ -1,4 +1,5 @@
 ﻿using OpenSage.Input;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
@@ -44,9 +45,14 @@ namespace OpenSage.Logic
                         _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
                     }
                     break;
-
+                    // TODO_RTM Handle left as right mouse button when placing building
                 case InputMessageType.MouseRightButtonDown:
-                    if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
+                    if (_orderGeneratorSystem.ActiveGenerator is ConstructBuildingOrderGenerator)
+                    {
+                        _orderGeneratorSystem.CancelOrderGenerator();
+                        break;
+                    }
+                    else if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
                         if (_orderGeneratorSystem.TryActivate(_keyModifiers))
                         {
@@ -70,7 +76,14 @@ namespace OpenSage.Logic
 
                 case InputMessageType.MouseLeftButtonDown:
                     // TODO: is this desirable if we don't actually deselect the unit, but simply pan the camera?
-                    _orderGeneratorSystem.CancelOrderGenerator();
+                    if (_orderGeneratorSystem.ActiveGenerator is ConstructBuildingOrderGenerator)
+                    {
+                        _orderGeneratorSystem.TryActivate(_keyModifiers);
+                    }
+                    else
+                    {
+                        _orderGeneratorSystem.CancelOrderGenerator();
+                    }
                     break;
 
                 case InputMessageType.KeyDown:
