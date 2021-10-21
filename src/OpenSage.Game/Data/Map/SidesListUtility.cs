@@ -98,7 +98,7 @@ namespace OpenSage.Data.Map
             // TODO: There might be more than one civilian player.
             mapPlayers.Add(originalMapPlayers.FirstOrDefault(x => (string)x.Properties["playerFaction"].Value == "FactionCivilian"));
 
-            //var hasAIPlayer = false;
+            var hasAIPlayer = false;
             for (var i = 0; i < playerSettings.Length; i++)
             {
                 var playerSetting = playerSettings[i];
@@ -111,10 +111,10 @@ namespace OpenSage.Data.Map
                     ? $"player{i}"
                     : $"{factionPlayer.Properties["playerName"].Value}{i}";
 
-                //if (!isHuman)
-                //{
-                //    hasAIPlayer = true;
-                //}
+                if (!isHuman)
+                {
+                    hasAIPlayer = true;
+                }
 
                 var playerProperties = new AssetPropertyCollection();
                 playerProperties.AddAsciiString("playerFaction", (string) factionPlayer.Properties["playerFaction"].Value);

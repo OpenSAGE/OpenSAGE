@@ -171,7 +171,7 @@ namespace OpenSage.Graphics.Cameras
 
                 PanCamera(forwards, right);
 
-                float rotationValue = GetKeyMovement(inputState, Key.Q, Key.E);
+                float rotationValue = GetKeyMovement(inputState, Key.E, Key.Q);
                 KeyRotateCamera(rotationValue / 60);
             }
 
