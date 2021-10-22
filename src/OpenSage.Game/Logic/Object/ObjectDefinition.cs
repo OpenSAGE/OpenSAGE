@@ -445,7 +445,8 @@ namespace OpenSage.Logic.Object
 
             if (!removed)
             {
-                throw new InvalidOperationException($"Could not remove module '{tag}' because it could not be found");
+                //TODO: figure out if this is really an error
+                //throw new InvalidOperationException($"Could not remove module '{tag}' because it could not be found");
             }
         }
 
@@ -891,7 +892,8 @@ namespace OpenSage.Logic.Object
 
         private void AddLocomotorSet(LocomotorSetTemplate locomotorSetTemplate)
         {
-            LocomotorSets.Add(locomotorSetTemplate.Condition, locomotorSetTemplate);
+            // Overwrite any existing locomotor sets for that condition
+            LocomotorSets[locomotorSetTemplate.Condition] = locomotorSetTemplate;
         }
 
         public BitArray<ObjectKinds> KindOf { get; private set; }
