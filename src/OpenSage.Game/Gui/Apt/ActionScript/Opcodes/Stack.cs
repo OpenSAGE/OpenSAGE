@@ -128,7 +128,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 3;
         public override string ToString(string[] p)
         {
-            return $"{p[0]} = 0";
+            return $"this.{p[0]} = 0";
         }
     }
 

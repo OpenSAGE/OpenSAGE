@@ -134,7 +134,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
         public static string JustifyName(
             string s,
             int maxLength = 20,
-            string illegal = " ,./\\()[]+-*^&|%$#@!'\":\t",
+            string illegal = " ,./\\()[]<>`~+-*^=&|%$#@!'\":\t",
             string split = "{};\n",
             bool striptUnderscore = true
             )

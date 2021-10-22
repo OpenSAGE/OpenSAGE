@@ -68,6 +68,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.SetRegister;
         public override uint Size => 4;
+        public override bool IsStatement => true;
 
         public override void Execute(ExecutionContext context)
         {

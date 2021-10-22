@@ -139,9 +139,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     {
                         var code = node.Code.AddLabels(node.Labels);
                         if (node is NodeExpression)
-                            code = $"/*Exp:{node.Instruction.Type}*/ " + code;
+                        { 
+                            if (node.Instruction.Type == InstructionType.PushData || node.Instruction.Type.ToString().StartsWith("EA_Push"))
+                                code = $"// __push__({code})@";
+                        }
                         if (string.IsNullOrWhiteSpace(code))
                             continue;
+                        code = code.Replace("@; //", ",");
                         if (code.EndsWith("@"))
                             sb.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
                         else
@@ -510,7 +514,6 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 // type 1: peek but no pop
                 case InstructionType.SetRegister:
                     Expressions.Add(pool.PopExpression(false));
-                    // TODO resolve register
                     break;
                 case InstructionType.PushDuplicate:
                     Expressions.Add(pool.PopExpression(false));
@@ -518,9 +521,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                 // type 2: need to read args
                 case InstructionType.InitArray:
-                    // Expressions.Add(pool.PopArray());
-                    // break;
-                    throw new InvalidOperationException();
+                    Expressions.Add(pool.PopArray());
+                    break;
                 case InstructionType.ImplementsOp:
                 case InstructionType.CallFunction:
                 case InstructionType.EA_CallFuncPop:
@@ -547,7 +549,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     Expressions.Add(pool.PopArray());
                     break;
                 case InstructionType.EA_CallNamedMethod:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
+                    Expressions.Add(new NodeValue(instruction)); 
                     Expressions.Add(pool.PopExpression());
                     Expressions.Add(pool.PopArray());
                     Expressions.Add(pool.PopExpression());
@@ -558,11 +560,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                 // type 3: constant resolve needed
                 case InstructionType.EA_GetNamedMember:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant
+                    Expressions.Add(new NodeValue(instruction)); 
                     Expressions.Add(pool.PopExpression());
                     break;
                 case InstructionType.EA_PushValueOfVar:
-                    Expressions.Add(new NodeValue(instruction)); // TODO resolve constant; incode form?
+                    Expressions.Add(new NodeValue(instruction)); 
                     break;
                 case InstructionType.EA_PushGlobalVar:
                 case InstructionType.EA_PushThisVar:
@@ -571,10 +573,10 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     break; // nothing needed
                 case InstructionType.EA_PushConstantByte:
                 case InstructionType.EA_PushConstantWord:
-                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve constant
+                    Expressions.Add(new NodeValue(instruction)); 
                     break;
                 case InstructionType.EA_PushRegister:
-                    Expressions.Add(new NodeValue(instruction, true)); // TODO resolve register
+                    Expressions.Add(new NodeValue(instruction)); 
                     break;
 
                 // type 4: variable output count
@@ -620,15 +622,15 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     val[i] = null;
                     continue;
                 }
-                else if (ncur.TryGetValue(InstUtils.ParseValueWrapped(sta), out var nval))
+                else if (ncur.TryGetValue(InstUtils.ParseValueWrapped(sta), out var nval) && !(nval is LogicalValue))
                 {
                     valCode[i] = sta.GetExpression(nval!);
                     val[i] = nval;
-                    if (string.IsNullOrEmpty(valCode[i]))
-                    {
-                        ncur.TryCompile(sta);
-                        valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code; // do not care empty string
-                    }
+                    // if (string.IsNullOrEmpty(valCode[i]))
+                    // {
+                    //     ncur.TryCompile(sta);
+                    //     valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code; // do not care empty string
+                    // }
                 }
                 else
                 {
@@ -744,8 +746,19 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                 //case InstructionType.SetVariable:
 
-                  //  break;
-                // case 3: unhandled cases | handling is not needed
+                //  break;
+                // case 3: omitted cases
+                case InstructionType.Pop:
+                    ret = $"// __pop__({valCode[0]})@";
+                    break;
+                case InstructionType.End:
+                    ret = "// __end__()@";
+                    break;
+                case InstructionType.PushDuplicate:
+                    ret = valCode[0];
+                    break;
+
+                // case 0: unhandled cases | handling is not needed
                 default:
                     try
                     {
@@ -873,7 +886,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
     public class NodeValue : NodeExpression
     {
-        public NodeValue(InstructionBase inst, bool iss = false, Value? v = null) : base(inst)
+        public NodeValue(InstructionBase inst, Value? v = null) : base(inst)
         {
             Value = v == null ? inst.Parameters[0] : v;
         }
@@ -913,7 +926,7 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     continue;
                 }
                 var flag = node.TryGetValue(InstUtils.ParseValueWrapped(sta), out var val);
-                if (!flag)
+                if (!flag || val is LogicalValue)
                 {
                     node.TryCompile(sta, compileBranches);
                     vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code;
@@ -921,11 +934,11 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 else
                 {
                     vals[i] = sta.GetExpression(val!);
-                    if (string.IsNullOrEmpty(vals[i]))
-                    {
-                        node.TryCompile(sta);
-                        vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code; // do not care empty string
-                    }
+                    //if (string.IsNullOrEmpty(vals[i]))
+                    //{
+                    //    node.TryCompile(sta);
+                    //    vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code; // do not care empty string
+                    //}
                 }
                 if (node is NodeArray)
                 {
