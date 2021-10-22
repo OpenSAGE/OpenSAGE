@@ -159,7 +159,8 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                     s = s.Substring(0, s.Length - 1);
             }
 
-            s = s.Replace("function", "func").Replace("prototype", "proto");
+            s = s.Replace("function", "func").Replace("prototype", "proto").Replace("system", "sys").Replace("object", "obj").Replace("variable", "var").Replace("initialize", "init");
+            s = s.Replace("Function", "Func").Replace("Prototype", "Proto").Replace("System", "Sys").Replace("Object", "Obj").Replace("Variable", "Var").Replace("Initialize", "Init");
 
             if (int.TryParse(s.Substring(0, 1), out var _))
                 s = "num_" + s;

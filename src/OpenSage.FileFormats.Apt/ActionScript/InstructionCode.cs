@@ -236,8 +236,6 @@ namespace OpenSage.FileFormats.Apt.ActionScript
         {
             var s = JsonSerializer.Deserialize<List<string>>(str);
             var p = (InstructionType) int.Parse(s[0]);
-            // what about types?
-            // just form a dict.
             var ans = new InstructionCode(p, InstructionStorage.GetParamSequence(p));
             ans.Parameters = new();
             for (int i = 1; i < s.Count; ++i)

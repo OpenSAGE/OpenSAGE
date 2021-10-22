@@ -81,7 +81,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override int Precendence => 3;
         public override string ToString(string[] p)
         {
-            return $"reg[{Parameters[0]}] = {p[0]}";
+            return $"__reg__[{Parameters[0]}] = {p[0]}";
         }
     }
 

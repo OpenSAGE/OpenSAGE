@@ -348,6 +348,13 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 n = new NodeEnumerate(inst);
                 n.Expressions.Add(obj);
             }
+            else if (inst.Type == InstructionType.InitArray)
+            {
+                var arr = PopArray(false, true);
+                n = arr;
+                if (n.Expressions.Any(x => x is NodeFunctionBody))
+                    n = new NodeIncludeFunction(n);
+            }
             else
             {
                 n = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
@@ -511,8 +518,9 @@ namespace OpenSage.Tools.AptEditor.ActionScript
 
                 // type 2: need to read args
                 case InstructionType.InitArray:
-                    Expressions.Add(pool.PopArray());
-                    break;
+                    // Expressions.Add(pool.PopArray());
+                    // break;
+                    throw new InvalidOperationException();
                 case InstructionType.ImplementsOp:
                 case InstructionType.CallFunction:
                 case InstructionType.EA_CallFuncPop:
@@ -913,6 +921,15 @@ namespace OpenSage.Tools.AptEditor.ActionScript
                 else
                 {
                     vals[i] = sta.GetExpression(val!);
+                    if (string.IsNullOrEmpty(vals[i]))
+                    {
+                        node.TryCompile(sta);
+                        vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code; // do not care empty string
+                    }
+                }
+                if (node is NodeArray)
+                {
+                    vals[i] = $"[{vals[i]}]";
                 }
             }
             Code = string.Join(", ", vals);
