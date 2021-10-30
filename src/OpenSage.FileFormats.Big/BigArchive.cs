@@ -267,13 +267,13 @@ namespace OpenSage.FileFormats.Big
                 int dataStart = headerSize + tableSize;
                 outArchive.SetLength(archiveSize);
 
-                var spanStream = new SpanStream(_stream);
                 using (var writer = new BinaryWriter(outArchive))
                 {
                     WriteHeader(writer, archiveSize, dataStart);
                     WriteFileTable(writer, dataStart);
                     WriteFileContent(writer);
-                    spanStream.Position = 0;
+                    _stream.SetLength(archiveSize);
+                    var spanStream = new SpanStream(_stream);
                     outArchive.WriteTo(spanStream);
                     spanStream.Flush();
                 }
