@@ -71,6 +71,24 @@ namespace OpenSage.Mathematics
                    M43 == other.M43;
         }
 
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(M11);
+            hashCode.Add(M12);
+            hashCode.Add(M13);
+            hashCode.Add(M21);
+            hashCode.Add(M22);
+            hashCode.Add(M23);
+            hashCode.Add(M31);
+            hashCode.Add(M32);
+            hashCode.Add(M33);
+            hashCode.Add(M41);
+            hashCode.Add(M42);
+            hashCode.Add(M43);
+            return hashCode.ToHashCode();
+        }
+
         public Matrix4x4 ToMatrix4x4()
         {
             return new Matrix4x4(
