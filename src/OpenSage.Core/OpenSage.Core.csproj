@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
-    <PackageReference Include="NLog.Config" Version="4.7.12" />
+    <PackageReference Include="NLog" Version="4.7.12" />
   </ItemGroup>
 
   <ItemGroup>
