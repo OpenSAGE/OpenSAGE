@@ -1,8 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Platforms>AnyCPU</Platforms>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />

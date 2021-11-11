@@ -31,7 +31,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.202
+        dotnet-version: 6.0.100
 
     - name: Test
       run: dotnet test src --configuration Release --filter Category!=Interactive --collect:"XPlat Code Coverage"

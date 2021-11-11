@@ -33,7 +33,7 @@ namespace OpenSage.Tests.Content
                 {
                     _testOutputHelper.WriteLine($"Loading {map.FilePath}...");
 
-                    game.AssetStore.PushScope();
+                    //game.AssetStore.PushScope();
 
                     throw new System.NotImplementedException();
 
@@ -43,7 +43,7 @@ namespace OpenSage.Tests.Content
                     //    Assert.NotNull(scene);
                     //}
 
-                    game.AssetStore.PopScope();
+                    //game.AssetStore.PopScope();
                 }
             }
 
