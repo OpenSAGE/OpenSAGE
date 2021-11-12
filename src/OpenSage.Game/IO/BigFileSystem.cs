@@ -41,9 +41,9 @@ namespace OpenSage.IO
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern,
-            bool includeSubdirectories)
+            SearchOption searchOption)
         {
-            // TODO: Implement searchPattern.
+            var search = new SearchPattern(searchPattern);
 
             var directoryParts = directoryPath.Split(Path.DirectorySeparatorChar);
 
@@ -56,23 +56,29 @@ namespace OpenSage.IO
                 }
             }
 
-            return GetFilesInDirectory(bigDirectory, includeSubdirectories);
+            return GetFilesInDirectory(bigDirectory, search, searchOption);
         }
 
         private IEnumerable<FileSystemEntry> GetFilesInDirectory(
             BigDirectory bigDirectory,
-            bool includeSubdirectories)
+            SearchPattern searchPattern,
+            SearchOption searchOption)
         {
             foreach (var file in bigDirectory.Files.Values)
             {
+                if (!searchPattern.Match(file.FullName))
+                {
+                    continue;
+                }
+
                 yield return CreateFileSystemEntry(file);
             }
 
-            if (includeSubdirectories)
+            if (searchOption != SearchOption.AllDirectories)
             {
                 foreach (var directory in bigDirectory.Directories.Values)
                 {
-                    foreach (var file in GetFilesInDirectory(directory, includeSubdirectories))
+                    foreach (var file in GetFilesInDirectory(directory, searchPattern, searchOption))
                     {
                         yield return file;
                     }

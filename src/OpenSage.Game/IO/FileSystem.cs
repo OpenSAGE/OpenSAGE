@@ -17,6 +17,6 @@ namespace OpenSage.IO
         public abstract IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern = "*",
-            bool includeSubdirectories = false);
+            SearchOption searchOption = SearchOption.TopDirectoryOnly);
     }
 }

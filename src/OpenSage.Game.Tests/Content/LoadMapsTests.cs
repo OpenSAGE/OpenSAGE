@@ -29,7 +29,6 @@ namespace OpenSage.Tests.Content
             {
                 var maps = game.ContentManager.FileSystem
                     .GetFilesInDirectory("maps", "*.map")
-                    .Where(x => x.FilePath.EndsWith(".map"))
                     .ToList();
 
                 foreach (var map in maps)

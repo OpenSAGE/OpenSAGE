@@ -137,7 +137,7 @@ namespace OpenSage.Content
         // TODO: Move these methods to somewhere else (SubsystemLoader?)
         internal void LoadIniFiles(string folder)
         {
-            foreach (var iniFile in FileSystem.GetFilesInDirectory(folder))
+            foreach (var iniFile in FileSystem.GetFilesInDirectory(folder, "*.ini"))
             {
                 LoadIniFile(iniFile);
             }
@@ -152,11 +152,6 @@ namespace OpenSage.Content
         {
             using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
             {
-                if (!entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
-                {
-                    return;
-                }
-
                 var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext, LocaleSpecificEncoding);
                 parser.ParseFile();
             }
