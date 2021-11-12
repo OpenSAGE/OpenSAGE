@@ -348,7 +348,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                 var reader = helper.GetReader();
                 while (helper.CanParse(instructions))
                 {
-                    //now reader the instructions
+                    //now read the instructions
                     var instructionPosition = helper.CurrentPosition;
                     var type = reader.ReadByteAsEnum<InstructionType>();
                     var requireAlignment = InstructionAlignment.IsAligned(type);
@@ -358,11 +358,10 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                         reader.Align(4);
                     }
 
-                    InstructionCode instruction = null;
-                    var parameters = new List<ValueStorage>();
+                    
                     var paramSequence = GetParamSequence(type);
 
-                    instruction = new InstructionCode(type, paramSequence);
+                    var instruction = new InstructionCode(type, paramSequence);
                     instruction.Parse(reader);
                     instructions.Add(instructionPosition, instruction);
                 }

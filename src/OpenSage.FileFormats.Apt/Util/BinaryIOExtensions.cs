@@ -61,13 +61,29 @@ namespace OpenSage.FileFormats.Apt
             writer.WriteArrayAtOffsetWithSize(array.Count, (i, w, p) => array[i].Write(w, p), memory, ptr);
         }
 
+
         public static void WriteInstructions(this BinaryWriter writer, InstructionStorage insts, MemoryPool memory)
         {
-            memory.RegisterPostOffset((uint) writer.BaseStream.Position);
+            // memory.RegisterPostOffset((uint) writer.BaseStream.Position);
+            // writer.Write((UInt32) 0);
+            // insts.Write(memory.Writer, memory.Post);
+
+            memory.RegisterGlobalAlignObject((uint) writer.BaseStream.Position, (w, p) => {
+                w.Seek((4 - (int) (w.BaseStream.Position % 4)) % 4, SeekOrigin.Current);
+                uint ret1 = (uint) w.BaseStream.Position;
+                insts.Write(w, p);
+                uint ret2 = (uint) w.BaseStream.Position;
+                return (ret1, ret2);
+            });
             writer.Write((UInt32) 0);
-            insts.Write(memory.Writer, memory.Post);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="pool"></param>
+        /// <param name="startOffset">the offset when data inside the pool starts.</param>
         public static void DumpMemoryPool(this BinaryWriter writer, MemoryPool pool, long startOffset = -1)
         {
             uint so = 0;
@@ -75,7 +91,22 @@ namespace OpenSage.FileFormats.Apt
                 so = (uint) writer.BaseStream.Position;
             else
                 so = (uint) startOffset;
-            pool.SerializeToFile(writer, so);
+
+            var aligns = pool.SerializeAndGatherAlignment(writer, so);
+            if (aligns.Count == 0)
+                return;
+            
+            var newPool = new MemoryPool();
+            var curPos = writer.BaseStream.Length;
+            foreach (var (pointerPos, writerFunc) in aligns)
+            {
+                writer.Seek((int) curPos, SeekOrigin.Begin);
+                var (startPos, endPos) = writerFunc(writer, newPool);
+                writer.Seek((int) pointerPos, SeekOrigin.Begin);
+                writer.Write((UInt32) startPos);
+                curPos = endPos;
+            }
+            DumpMemoryPool(writer, newPool, curPos);
         }
 
         public static void Write(Func<BinaryWriter, MemoryPool, long> write, Func<Stream> streamGetter)

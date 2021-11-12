@@ -20,7 +20,15 @@ namespace OpenSage.Tools.AptEditor
             SourceGetter = source;
         }
 
-        public async Task WriteTo(string exportPath)
+        public void WriteTo(string exportPath)
+        {
+            var getter = new StandardStreamGetter(exportPath, Name);
+            Apt.Write(getter);
+            Apt.GenerateXml(getter);
+            Apt.WriteTextures(getter, SourceGetter!);
+        }
+
+        public async Task WriteToAsync(string exportPath)
         {
             var getter = new StandardStreamGetter(exportPath, Name);
             var tasks = new[]
@@ -32,7 +40,7 @@ namespace OpenSage.Tools.AptEditor
             await Task.WhenAll(tasks);
         }
 
-        public async Task WriteTo(AptStreamGetter getter)
+        public async Task WriteToAsync(AptStreamGetter getter)
         {
             var tasks = new[]
             {

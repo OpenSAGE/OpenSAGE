@@ -296,7 +296,8 @@ namespace OpenSage.Tools.AptEditor.UI
                     var dump = Edit.GetAptDataDump(
                         (f, m) => FindFile(f).Open()
                         );
-                    var task = dump.WriteTo(exportPath);
+                    // dump.WriteTo(exportPath);
+                    var task = dump.WriteToAsync(exportPath);
                     _tasks.Add((task, $"Exporting apt to {exportPath}"));
                 }
             }
