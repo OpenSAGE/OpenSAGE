@@ -38,7 +38,7 @@ namespace OpenSage.Tests.Data
                     new DiskFileSystem(rootDirectory),
                     new BigFileSystem(rootDirectory));
 
-                foreach (var file in fileSystem.GetFilesInDirectory("", $"*.{fileExtension}", SearchOption.AllDirectories))
+                foreach (var file in fileSystem.GetFilesInDirectory("", $"*{fileExtension}", SearchOption.AllDirectories))
                 {
                     output.WriteLine($"Reading file {file.FilePath}.");
 
@@ -71,7 +71,7 @@ namespace OpenSage.Tests.Data
             {
                 using (var game = new Game(installation, null))
                 {
-                    foreach (var file in game.ContentManager.FileSystem.GetFilesInDirectory("", $".{fileExtension}", SearchOption.AllDirectories))
+                    foreach (var file in game.ContentManager.FileSystem.GetFilesInDirectory("", $"*{fileExtension}", SearchOption.AllDirectories))
                     {
                         output.WriteLine($"Reading file {file.FilePath}.");
 
