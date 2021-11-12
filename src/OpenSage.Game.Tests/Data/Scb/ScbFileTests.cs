@@ -14,7 +14,6 @@ namespace OpenSage.Tests.Data.Scb
             _output = output;
         }
 
-        //[Fact(Skip = "Can't parse all versions of .scb files. Not important at the moment.")]
         [Fact]
         public void CanRoundtripScbFiles()
         {
