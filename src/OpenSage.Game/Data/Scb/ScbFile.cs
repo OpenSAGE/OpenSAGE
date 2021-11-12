@@ -13,6 +13,7 @@ namespace OpenSage.Data.Scb
         public ScriptsPlayers ScriptsPlayers { get; private set; }
         public ObjectsList ObjectsList { get; private set; }
         public PolygonTriggers PolygonTriggers { get; private set; }
+        public TriggerAreas TriggerAreas { get; private set; }
         public ScriptTeams Teams { get; private set; }
         public WaypointsList WaypointsList { get; private set; }
 
@@ -61,6 +62,10 @@ namespace OpenSage.Data.Scb
 
                     case PolygonTriggers.AssetName:
                         result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
+                        break;
+
+                    case TriggerAreas.AssetName:
+                        result.TriggerAreas = TriggerAreas.Parse(reader, context);
                         break;
 
                     case ScriptTeams.AssetName:
@@ -135,8 +140,17 @@ namespace OpenSage.Data.Scb
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
             ObjectsList.WriteTo(writer, assetNames);
 
-            writer.Write(assetNames.GetOrCreateAssetIndex(PolygonTriggers.AssetName));
-            PolygonTriggers.WriteTo(writer);
+            if (PolygonTriggers != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(PolygonTriggers.AssetName));
+                PolygonTriggers.WriteTo(writer);
+            }
+
+            if (TriggerAreas != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(TriggerAreas.AssetName));
+                TriggerAreas.WriteTo(writer);
+            }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ScriptTeams.AssetName));
             Teams.WriteTo(writer, assetNames);
