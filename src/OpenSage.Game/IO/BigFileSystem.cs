@@ -45,14 +45,17 @@ namespace OpenSage.IO
         {
             var search = new SearchPattern(searchPattern);
 
-            var directoryParts = directoryPath.Split(Path.DirectorySeparatorChar);
-
             var bigDirectory = _rootDirectory;
-            for (var i = 0; i < directoryParts.Length; i++)
+
+            if (directoryPath != "")
             {
-                if (!bigDirectory.Directories.TryGetValue(directoryParts[i], out bigDirectory))
+                var directoryParts = directoryPath.Split(Path.DirectorySeparatorChar);
+                for (var i = 0; i < directoryParts.Length; i++)
                 {
-                    return Enumerable.Empty<FileSystemEntry>();
+                    if (!bigDirectory.Directories.TryGetValue(directoryParts[i], out bigDirectory))
+                    {
+                        return Enumerable.Empty<FileSystemEntry>();
+                    }
                 }
             }
 
@@ -74,7 +77,7 @@ namespace OpenSage.IO
                 yield return CreateFileSystemEntry(file);
             }
 
-            if (searchOption != SearchOption.AllDirectories)
+            if (searchOption == SearchOption.AllDirectories)
             {
                 foreach (var directory in bigDirectory.Directories.Values)
                 {
