@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace OpenSage.IO
@@ -27,7 +28,7 @@ namespace OpenSage.IO
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern,
-            bool includeSubdirectories)
+            SearchOption searchOption)
         {
             if (!TryGetRelativePath(directoryPath, out var relativePath))
             {
@@ -37,7 +38,7 @@ namespace OpenSage.IO
             return _targetFileSystem.GetFilesInDirectory(
                 relativePath,
                 searchPattern,
-                includeSubdirectories);
+                searchOption);
         }
 
         private bool TryGetRelativePath(string path, out string relativePath)

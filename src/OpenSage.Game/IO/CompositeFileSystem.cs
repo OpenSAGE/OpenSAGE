@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.IO
 {
@@ -33,12 +34,21 @@ namespace OpenSage.IO
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern,
-            bool includeSubdirectories)
+            SearchOption searchOption)
         {
+            var paths = new HashSet<string>();
+
             foreach (var fileSystem in _fileSystems)
             {
-                foreach (var fileSystemEntry in fileSystem.GetFilesInDirectory(directoryPath, searchPattern, includeSubdirectories))
+                foreach (var fileSystemEntry in fileSystem.GetFilesInDirectory(directoryPath, searchPattern, searchOption))
                 {
+                    if (paths.Contains(fileSystemEntry.FilePath))
+                    {
+                        continue;
+                    }
+
+                    paths.Add(fileSystemEntry.FilePath);
+
                     yield return fileSystemEntry;
                 }
             }

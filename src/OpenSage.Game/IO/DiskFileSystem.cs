@@ -15,7 +15,7 @@ namespace OpenSage.IO
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern,
-            bool includeSubdirectories)
+            SearchOption searchOption)
         {
             var childDirectory = Path.Combine(RootDirectory, directoryPath);
 
@@ -27,7 +27,7 @@ namespace OpenSage.IO
 
             var enumerationOptions = new EnumerationOptions
             {
-                RecurseSubdirectories = includeSubdirectories,
+                RecurseSubdirectories = searchOption == SearchOption.AllDirectories,
                 MatchCasing = MatchCasing.CaseInsensitive,
             };
 
@@ -59,7 +59,7 @@ namespace OpenSage.IO
 
             return new FileSystemEntry(
                 this,
-                fullPath,
+                relativePath,
                 (uint) fileInfo.Length,
                 () => File.OpenRead(fullPath));
         }

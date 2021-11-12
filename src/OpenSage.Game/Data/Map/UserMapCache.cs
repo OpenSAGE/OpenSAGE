@@ -105,7 +105,7 @@ namespace OpenSage.Data.Map
             return _contentManager.UserDataFileSystem.GetFilesInDirectory(
                 "Maps",
                 "*.map",
-                true);
+                SearchOption.AllDirectories);
         }
 
         private MapCache BuildMapCache(FileSystemEntry fileSystemEntry, FileInfo fileInfo, AssetStore assetStore)

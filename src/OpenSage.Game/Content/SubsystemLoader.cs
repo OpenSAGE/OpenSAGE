@@ -424,7 +424,7 @@ namespace OpenSage.Content
                             break;
                         case InitPath folder:
                             // TODO: Validate that exclusions work.
-                            var entries = _fileSystem.GetFilesInDirectory(folder.Value).WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
+                            var entries = _fileSystem.GetFilesInDirectory(folder.Value, "*.ini").WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
                             foreach (var file in entries)
                             {
                                 yield return file;
