@@ -77,7 +77,7 @@ namespace OpenSage.IO
 
             int startIndex = 0;
             int nextIndex;
-            StringBuilder? builder = null;
+            StringBuilder builder = null;
             while ((nextIndex = searchPattern.IndexOfAny(SpecialChars, startIndex)) >= 0)
             {
                 if (builder is null)
