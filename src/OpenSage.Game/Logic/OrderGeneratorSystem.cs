@@ -100,12 +100,12 @@ namespace OpenSage.Logic
             var cursor = ActiveGenerator.GetCursor(keyModifiers);
             if (cursor != null)
             {
-                Game.Window.IsMouseVisible = true;
+                Game.Cursors.IsCursorVisible = true;
                 Game.Cursors.SetCursor(cursor, time);
             }
             else
             {
-                Game.Window.IsMouseVisible = false;
+                Game.Cursors.IsCursorVisible = false;
             }
         }
 

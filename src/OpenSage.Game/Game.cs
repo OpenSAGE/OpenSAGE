@@ -52,10 +52,6 @@ namespace OpenSage
         private readonly FileSystem _fileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
-        private readonly DeveloperModeView _developerModeView;
-
-        private readonly TextureCopier _textureCopier;
-
         internal readonly CursorManager Cursors;
 
         internal GraphicsLoadContext GraphicsLoadContext { get; }
@@ -112,7 +108,7 @@ namespace OpenSage
         /// Is the game running?
         /// This is only false when the game is shutting down.
         /// </summary>
-        public bool IsRunning { get; }
+        public bool IsRunning { get; private set; }
 
         public Action Restart { get; set; }
 
@@ -337,8 +333,6 @@ namespace OpenSage
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), UserDataLeafName)
             : null;
 
-        public GameWindow Window { get; }
-
         public GamePanel Panel { get; }
 
         public Viewport Viewport { get; private set; }
@@ -378,21 +372,18 @@ namespace OpenSage
             }
         }
 
-        public bool DeveloperModeEnabled { get; set; }
-
         public Texture LauncherImage { get; }
 
-        public Game(
-            GameInstallation installation,
-            GraphicsBackend? preferredBackend) :
-            this(installation, preferredBackend, new Configuration())
+        public Game(GameInstallation installation)
+            : this(installation, null, new Configuration(), null)
         {
         }
 
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            Configuration config)
+            Configuration config,
+            GameWindow window)
         {
             using (GameTrace.TraceDurationEvent("Game()"))
             {
@@ -407,13 +398,44 @@ namespace OpenSage
 
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
-                Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
-                                                        100, 100, 1024, 768, preferredBackend, Configuration.UseFullscreen));
-                GraphicsDevice = Window.GraphicsDevice;
+                GraphicsDevice = AddDisposable(GraphicsDeviceUtility.CreateGraphicsDevice(preferredBackend, window));
 
                 Panel = AddDisposable(new GamePanel(GraphicsDevice));
 
                 InputMessageBuffer = new InputMessageBuffer();
+
+                InputMessageBuffer.Handlers.Add(
+                    new CallbackMessageHandler(
+                        HandlingPriority.Engine,
+                        message =>
+                        {
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F9)
+                            {
+                                ToggleLogicRunning();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (!IsLogicRunning && message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F10)
+                            {
+                                Step();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Pause)
+                            {
+                                Restart?.Invoke();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Comma)
+                            {
+                                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
+                                return InputMessageResult.Handled;
+                            }
+
+                            return InputMessageResult.NotHandled;
+                        }));
 
                 Definition = installation.Game;
 
@@ -473,8 +495,6 @@ namespace OpenSage
                     new UserMapCache(ContentManager).Initialize(AssetStore);
                 }
 
-                _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
-
                 GameSystems = new List<GameSystem>();
 
                 Audio = AddDisposable(new AudioSystem(this));
@@ -498,10 +518,8 @@ namespace OpenSage
 
                 GameSystems.ForEach(gs => gs.Initialize());
 
-                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
+                Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager, window));
                 Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
-
-                _developerModeView = AddDisposable(new DeveloperModeView(this));
 
                 LauncherImage = LoadLauncherImage();
 
@@ -736,51 +754,17 @@ namespace OpenSage
             ShowMainMenu();
         }
 
-        public void Run()
+        public void StartRun()
         {
             var totalGameTime = MapTime.TotalTime;
             _nextLogicUpdate = totalGameTime;
             _nextScriptingUpdate = totalGameTime;
-
-            while (IsRunning)
-            {
-                if (!Window.PumpEvents())
-                {
-                    break;
-                }
-
-                if (DeveloperModeEnabled)
-                {
-                    _developerModeView.Tick();
-                }
-                else
-                {
-                    Update(Window.MessageQueue);
-
-                    Panel.EnsureFrame(Window.ClientBounds);
-
-                    Render();
-
-                    _textureCopier.Execute(
-                        Panel.Framebuffer.ColorTargets[0].Target,
-                        GraphicsDevice.SwapchainFramebuffer);
-                }
-
-                Window.MessageQueue.Clear();
-
-                GraphicsDevice.SwapBuffers();
-            }
-
-            // TODO: Cleanup resources.
         }
 
         public void Update(IEnumerable<InputMessage> messages)
         {
             // Update timers, input and UI state
             LocalLogicTick(messages);
-
-            // Check global hotkeys
-            CheckGlobalHotkeys();
 
             var totalGameTime = MapTime.TotalTime;
 
@@ -835,40 +819,6 @@ namespace OpenSage
             Cursors.Update(RenderTime);
         }
 
-        private void CheckGlobalHotkeys()
-        {
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F9))
-            {
-                ToggleLogicRunning();
-            }
-
-            if (!IsLogicRunning && Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F10))
-            {
-                Step();
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F11))
-            {
-                DeveloperModeEnabled = !DeveloperModeEnabled;
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Pause))
-            {
-                Restart?.Invoke();
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Comma))
-            {
-                var rtsCam = Scene3D.CameraController as RtsCameraController;
-                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
-            {
-                Window.Fullscreen = !Window.Fullscreen;
-            }
-        }
-
         internal void LogicTick(ulong frame)
         {
             NetworkMessageBuffer?.Tick();
@@ -898,7 +848,7 @@ namespace OpenSage
             _isStepping = true;
         }
 
-        internal void Render()
+        public void Render()
         {
             Graphics.Draw(RenderTime);
             RenderCompleted?.Invoke(this, EventArgs.Empty);
@@ -958,6 +908,12 @@ namespace OpenSage
 
         // TODO: Remove this.
         public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
+
+        public void Exit()
+        {
+            // TODO: Ensure we've cleaned up all resources.
+            IsRunning = false;
+        }
     }
 
     internal enum GameType

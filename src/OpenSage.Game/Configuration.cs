@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace OpenSage
+﻿namespace OpenSage
 {
     // TODO: Should this be immutable?
     // TODO: Should there be a way of merging Configuration instances?
@@ -12,7 +10,6 @@ namespace OpenSage
     {
         public bool LoadShellMap { get; set; } = true;
         public bool UseRenderDoc { get; set; } = false;
-        public bool UseFullscreen { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether to use a unique port for each client in a multiplayer game.
