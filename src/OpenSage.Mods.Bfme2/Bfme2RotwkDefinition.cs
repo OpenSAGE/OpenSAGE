@@ -5,6 +5,7 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using System.IO;
 
 namespace OpenSage.Mods.Bfme2
 {
@@ -34,6 +35,10 @@ namespace OpenSage.Mods.Bfme2
         public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
+
+        public string GetLocalizedStringsPath(string language) => language == "German"
+            ? "lotr"
+            : Path.Combine("data", "lotr");
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {

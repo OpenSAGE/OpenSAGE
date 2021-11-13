@@ -29,6 +29,8 @@ namespace OpenSage
 
         uint ScriptingTicksPerSecond { get; }
 
+        string GetLocalizedStringsPath(string language);
+
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
 
         bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
 using OpenSage.Content.Translation;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics;
+using OpenSage.IO;
 using OpenSage.Logic.Object;
 using OpenSage.Utilities;
 using Veldrid;
@@ -21,9 +21,7 @@ namespace OpenSage.Content
         public SageGame SageGame { get; }
 
         public FileSystem FileSystem { get; }
-        public FileSystem UserDataFileSystem { get; internal set; }
-        public FileSystem UserAppDataFileSystem { get; internal set; }
-        public FileSystem UserMapsFileSystem => SageGame < SageGame.Cnc3 ? UserDataFileSystem : UserAppDataFileSystem;
+        public DiskFileSystem UserDataFileSystem { get; internal set; }
 
         public IniDataContext IniDataContext { get; }
 
@@ -51,10 +49,10 @@ namespace OpenSage.Content
 
                 SageGame = sageGame;
 
-                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem);
 
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, sageGame);
+                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, game.Definition);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
 
                 void OnLanguageChanged(object sender, EventArgs e)
@@ -139,7 +137,7 @@ namespace OpenSage.Content
         // TODO: Move these methods to somewhere else (SubsystemLoader?)
         internal void LoadIniFiles(string folder)
         {
-            foreach (var iniFile in FileSystem.GetFiles(folder))
+            foreach (var iniFile in FileSystem.GetFilesInDirectory(folder, "*.ini"))
             {
                 LoadIniFile(iniFile);
             }
@@ -154,11 +152,6 @@ namespace OpenSage.Content
         {
             using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
             {
-                if (!entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
-                {
-                    return;
-                }
-
                 var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext, LocaleSpecificEncoding);
                 parser.ParseFile();
             }
@@ -166,9 +159,9 @@ namespace OpenSage.Content
 
         internal FileSystemEntry GetMapEntry(string mapPath)
         {
-            if (UserMapsFileSystem is not null)
+            if (UserDataFileSystem is not null)
             {
-                var mapEntry = UserMapsFileSystem.GetFile(mapPath);
+                var mapEntry = UserDataFileSystem.GetFile(mapPath);
                 if (mapEntry is not null)
                 {
                     return mapEntry;

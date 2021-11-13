@@ -28,8 +28,7 @@ namespace OpenSage
 
             if (mapPath != null)
             {
-                mapPath = FileSystem.NormalizeFilePath(mapPath);
-                var basePath = Path.GetDirectoryName(mapPath) + "/" + Path.GetFileNameWithoutExtension(mapPath);
+                var basePath = Path.Combine(Path.GetDirectoryName(mapPath), Path.GetFileNameWithoutExtension(mapPath));
 
                 // Minimap images drawn by an artist
                 var mapArtPath = basePath + "_art.tga";

@@ -22,15 +22,14 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
+using OpenSage.IO;
 using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
-using Player = OpenSage.Logic.Player;
 
 namespace OpenSage
 {
@@ -51,8 +50,6 @@ namespace OpenSage
         private readonly double _scriptingUpdateInterval;
 
         private readonly FileSystem _fileSystem;
-        private readonly FileSystem _userDataFileSystem;
-        private readonly FileSystem _userAppDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly DeveloperModeView _developerModeView;
@@ -141,7 +138,7 @@ namespace OpenSage
         {
             var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
-            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", _userDataFileSystem?.RootDirectory);
+            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", ContentManager.UserDataFileSystem?.RootDirectory);
             mapFilename = FileSystem.NormalizeFilePath(mapFilename);
             var mapName = mapFilename.Substring(mapFilename.LastIndexOf(Path.DirectorySeparatorChar));
 
@@ -437,7 +434,7 @@ namespace OpenSage
                 AssetStore = new AssetStore(
                     SageGame,
                     _fileSystem,
-                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
+                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem),
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
@@ -458,16 +455,20 @@ namespace OpenSage
                 // the UserDataFolder before then.
                 if (UserDataFolder is not null && Directory.Exists(UserDataFolder))
                 {
-                    _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
-                    ContentManager.UserDataFileSystem = _userDataFileSystem;
+                    ContentManager.UserDataFileSystem = AddDisposable(new DiskFileSystem(UserDataFolder));
                 }
-                if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
-                {
-                    var pathMapping = new Dictionary<string, string> { ["Maps"] = "data/maps/internal" };
-                    _userAppDataFileSystem = AddDisposable(new FileSystem(UserAppDataFolder, null, pathMapping));
-                    ContentManager.UserAppDataFileSystem = _userAppDataFileSystem;
-                }
-                if (ContentManager.UserMapsFileSystem is not null)
+                // TODO
+                //if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
+                //{
+                //    var userDataFileSystem = ContentManager.UserDataFileSystem ?? AddDisposable(new DiskFileSystem(UserAppDataFolder));
+
+                //    ContentManager.UserDataFileSystem = AddDisposable(new CompositeFileSystem(
+                //        userDataFileSystem,
+                //        new VirtualFileSystem(
+                //            @"data\\maps\\internal",
+                //            new DiskFileSystem(UserAppDataFolder))));
+                //}
+                if (ContentManager.UserDataFileSystem is not null)
                 {
                     new UserMapCache(ContentManager).Initialize(AssetStore);
                 }

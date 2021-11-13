@@ -186,9 +186,7 @@ namespace OpenSage.Graphics.Shaders
 
         private static string GetShaderHash(byte[] shaderBytes)
         {
-            using var sha1 = new SHA1Managed();
-
-            var hash = sha1.ComputeHash(shaderBytes);
+            var hash = SHA1.HashData(shaderBytes);
 
             var sb = new StringBuilder(hash.Length * 2);
             foreach (var b in hash)

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;ubuntu-x64</RuntimeIdentifiers>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <ApplicationManifest>Resources\app.manifest</ApplicationManifest>

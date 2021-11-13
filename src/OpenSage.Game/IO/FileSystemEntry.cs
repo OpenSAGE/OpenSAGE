@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data
+namespace OpenSage.IO
 {
     public sealed class FileSystemEntry
     {
@@ -10,8 +10,6 @@ namespace OpenSage.Data
         public FileSystem FileSystem { get; }
         public string FilePath { get; }
         public uint Length { get; }
-
-        public string FullFilePath => Path.Combine(FileSystem.RootDirectory, FilePath);
 
         public FileSystemEntry(FileSystem fileSystem, string filePath, uint length, Func<Stream> open)
         {

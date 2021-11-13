@@ -1,7 +1,7 @@
 ﻿using System;
-using OpenSage.Data;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Animation;
+using OpenSage.IO;
 
 namespace OpenSage.Content.Loaders
 {

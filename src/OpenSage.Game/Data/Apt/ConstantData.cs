@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 
 namespace OpenSage.Data.Apt
 {

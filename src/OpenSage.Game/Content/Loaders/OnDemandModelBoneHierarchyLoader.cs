@@ -1,6 +1,6 @@
-﻿using OpenSage.Data;
-using OpenSage.FileFormats.W3d;
+﻿using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
+using OpenSage.IO;
 
 namespace OpenSage.Content.Loaders
 {

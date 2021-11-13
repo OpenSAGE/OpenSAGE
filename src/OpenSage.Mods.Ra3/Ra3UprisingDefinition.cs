@@ -4,6 +4,7 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using System.IO;
 
 namespace OpenSage.Mods.Ra3
 {
@@ -30,6 +31,9 @@ namespace OpenSage.Mods.Ra3
         public ICommandListOverlaySource CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
+
+        // there is a data/gamestrings_temp.csf in Uprising
+        public string GetLocalizedStringsPath(string language) => Path.Combine("data", "gamestrings");
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy() => OnDemandAssetLoadStrategy.None;
 

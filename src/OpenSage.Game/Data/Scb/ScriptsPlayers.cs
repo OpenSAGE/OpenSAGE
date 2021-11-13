@@ -35,20 +35,15 @@ namespace OpenSage.Data.Scb
                     }
                 }
 
-                if (numPlayers == 5)
-                {
-                    // numPlayers = 4;
-                }
+                var actualNumPlayers = (version < 2)
+                    ? numPlayers - 1
+                    : numPlayers;
 
-                var scriptPlayers = new ScriptsPlayer[numPlayers];
-                long lastPosition = reader.BaseStream.Position;
-                for (var i = 0; i < numPlayers; i++)
+                var scriptPlayers = new ScriptsPlayer[actualNumPlayers];
+                for (var i = 0; i < scriptPlayers.Length; i++)
                 {
-                    lastPosition = reader.BaseStream.Position;
                     scriptPlayers[i] = ScriptsPlayer.Parse(reader, context, hasPlayerProperties);
                 }
-
-                reader.BaseStream.Position = lastPosition;
 
                 return new ScriptsPlayers
                 {
@@ -68,7 +63,7 @@ namespace OpenSage.Data.Scb
                     writer.WriteBooleanUInt32(HasPlayerProperties);
                 }
 
-                writer.Write((uint) Players.Length + 1);
+                writer.Write((uint) ((Version < 2) ? Players.Length + 1 : Players.Length));
 
                 if (Version < 2)
                 {

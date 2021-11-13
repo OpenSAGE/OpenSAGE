@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data;
-using OpenSage.Data.Ini;
+using OpenSage.IO;
 using OpenSage.Mods.BuiltIn;
 using Xunit.Abstractions;
 
@@ -34,21 +34,17 @@ namespace OpenSage.Tests.Data
 
             foreach (var rootDirectory in rootDirectories)
             {
-                using (var fileSystem = new FileSystem(rootDirectory))
+                using var fileSystem = new CompositeFileSystem(
+                    new DiskFileSystem(rootDirectory),
+                    new BigFileSystem(rootDirectory));
+
+                foreach (var file in fileSystem.GetFilesInDirectory("", $"*{fileExtension}", SearchOption.AllDirectories))
                 {
-                    foreach (var file in fileSystem.Files)
-                    {
-                        if (Path.GetExtension(file.FilePath).ToLowerInvariant() != fileExtension)
-                        {
-                            continue;
-                        }
+                    output.WriteLine($"Reading file {file.FilePath}.");
 
-                        output.WriteLine($"Reading file {file.FilePath}.");
+                    processFileCallback(file);
 
-                        processFileCallback(file);
-
-                        foundAtLeastOneFile = true;
-                    }
+                    foundAtLeastOneFile = true;
                 }
             }
 
@@ -75,13 +71,8 @@ namespace OpenSage.Tests.Data
             {
                 using (var game = new Game(installation, null))
                 {
-                    foreach (var file in game.ContentManager.FileSystem.Files)
+                    foreach (var file in game.ContentManager.FileSystem.GetFilesInDirectory("", $"*{fileExtension}", SearchOption.AllDirectories))
                     {
-                        if (Path.GetExtension(file.FilePath).ToLowerInvariant() != fileExtension)
-                        {
-                            continue;
-                        }
-
                         output.WriteLine($"Reading file {file.FilePath}.");
 
                         processFileCallback(game, file);
