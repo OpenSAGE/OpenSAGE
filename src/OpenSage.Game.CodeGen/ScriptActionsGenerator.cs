@@ -18,7 +18,7 @@ namespace OpenSage.Game.CodeGen
             sb.AppendLine("    {");
             sb.AppendLine("        private static void ExecuteImpl(ScriptExecutionContext context, ScriptAction action, ScriptActionType actionType)");
             sb.AppendLine("        {");
-            sb.AppendLine("            var game = context.Scene.Game.SageGame;");
+            sb.AppendLine("            var game = context.Game.SageGame;");
             sb.AppendLine();
             sb.AppendLine("            switch (actionType)");
             sb.AppendLine("            {");

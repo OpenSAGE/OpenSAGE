@@ -19,7 +19,7 @@ namespace OpenSage.Input.Cursors
         private int _currentFrame;
         private TimeSpan _nextFrameTime;
 
-        public unsafe Cursor(FileSystemEntry entry, GameWindow window)
+        public unsafe Cursor(FileSystemEntry entry, float windowScale)
         {
             var cursorFile = CursorFile.FromFileSystemEntry(entry);
 
@@ -27,8 +27,6 @@ namespace OpenSage.Input.Cursors
 
             _surfaces = new Sdl2Interop.SDL_Surface[cursorFile.Images.Length];
             _cursors = new Sdl2Interop.SDL_Cursor[cursorFile.Images.Length];
-
-            var windowScale = window.WindowScale;
 
             for (var i = 0; i < cursorFile.Images.Length; i++)
             {
@@ -38,7 +36,7 @@ namespace OpenSage.Input.Cursors
                 var height = (int) image.Height;
 
                 Sdl2Interop.SDL_Surface surface;
-                if (windowScale == 1.0f )
+                if (windowScale == 1.0f)
                 {
                     fixed (byte* pixelsPtr = image.PixelsBgra)
                     {

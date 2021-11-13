@@ -6,6 +6,8 @@ using CommandLine;
 using NLog.Targets;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
+using OpenSage.Graphics;
+using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
@@ -133,7 +135,6 @@ namespace OpenSage.Launcher
             // TODO: Set window icon.
             var config = new Configuration()
             {
-                UseFullscreen = opts.Fullscreen,
                 UseRenderDoc = opts.RenderDoc,
                 LoadShellMap = !opts.NoShellmap,
                 UseUniquePorts = opts.UseUniquePorts
@@ -143,15 +144,18 @@ namespace OpenSage.Launcher
 
             logger.Debug($"Have configuration");
 
-            using (var game = new Game(installation, opts.Renderer, config))
+            using (var window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen))
+            using (var game = new Game(installation, opts.Renderer, config, window))
+            using (var textureCopier = new TextureCopier(game, window.Swapchain.Framebuffer.OutputDescription))
+            using (var developerModeView = new DeveloperModeView(game, window))
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
-                game.DeveloperModeEnabled = opts.DeveloperMode;
+                var developerModeEnabled = opts.DeveloperMode;
 
                 if (opts.DeveloperMode)
                 {
-                    game.Window.Maximized = true;
+                    window.Maximized = true;
                 }
 
                 if (opts.ReplayFile != null)
@@ -208,9 +212,58 @@ namespace OpenSage.Launcher
                     game.ShowMainMenu();
                 }
 
+                game.InputMessageBuffer.Handlers.Add(
+                    new CallbackMessageHandler(
+                        HandlingPriority.Window,
+                        message =>
+                        {
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Enter && (message.Value.Modifiers & ModifierKeys.Alt) != 0)
+                            {
+                                window.Fullscreen = !window.Fullscreen;
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F11)
+                            {
+                                developerModeEnabled = !developerModeEnabled;
+                                return InputMessageResult.Handled;
+                            }
+
+                            return InputMessageResult.NotHandled;
+                        }));
+
                 logger.Debug("Starting game");
 
-                game.Run();
+                game.StartRun();
+
+                while (game.IsRunning)
+                {
+                    if (!window.PumpEvents())
+                    {
+                        break;
+                    }
+
+                    if (developerModeEnabled)
+                    {
+                        developerModeView.Tick();
+                    }
+                    else
+                    {
+                        game.Update(window.MessageQueue);
+
+                        game.Panel.EnsureFrame(window.ClientBounds);
+
+                        game.Render();
+
+                        textureCopier.Execute(
+                            game.Panel.Framebuffer.ColorTargets[0].Target,
+                            window.Swapchain.Framebuffer);
+                    }
+
+                    window.MessageQueue.Clear();
+
+                    game.GraphicsDevice.SwapBuffers(window.Swapchain);
+                }
             }
 
             if (traceEnabled)

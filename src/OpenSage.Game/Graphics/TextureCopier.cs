@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics
 {
-    internal sealed class TextureCopier : DisposableBase
+    public sealed class TextureCopier : DisposableBase
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly CommandList _commandList;

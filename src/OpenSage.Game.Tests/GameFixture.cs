@@ -2,7 +2,6 @@
 using OpenSage.Data;
 using OpenSage.Mods.Generals;
 using OpenSage.Tests.Data;
-using Veldrid;
 
 namespace OpenSage.Tests
 {
@@ -17,7 +16,7 @@ namespace OpenSage.Tests
 
             Platform.Start();
 
-            Game = new Game(installation, GraphicsBackend.Direct3D11);
+            Game = new Game(installation);
         }
 
         public void Dispose()

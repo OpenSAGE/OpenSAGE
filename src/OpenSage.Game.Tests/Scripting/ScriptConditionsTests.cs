@@ -12,7 +12,7 @@ namespace OpenSage.Tests.Scripting
             _fixture = fixture;
         }
 
-        [Theory(Skip = "Only works locally")]
+        [Theory]
         [InlineData(ScriptingComparison.EqualTo, 5, true)]
         [InlineData(ScriptingComparison.EqualTo, 4, false)]
         [InlineData(ScriptingComparison.NotEqual, 5, false)]
