@@ -11,13 +11,8 @@ namespace OpenSage.FileFormats.Apt
 {
     public static class BinaryIOExtensions
     {
+        // array related
 
-        public static void WriteStringAtOffset(this BinaryWriter writer, string value, MemoryPool memory)
-        {
-            var cur_offset = (uint) writer.BaseStream.Position;
-            writer.Write((UInt32) 0); // keep space of the address
-            memory.WriteStringAtOffset(cur_offset, value);
-        }
         /// <summary>
         /// Write an array (by giving the writing action and the size) to a stream.
         /// if an element is null, action should return false.
@@ -26,56 +21,88 @@ namespace OpenSage.FileFormats.Apt
         /// <param name="writer"></param>
         /// <param name="size"></param>
         /// <param name="action"></param>
-        /// <param name="memory"></param>
+        /// <param name="post"></param>
         /// <param name="ptr"></param>
-        public static void WriteArrayAtOffset(this BinaryWriter writer, int size, Func<int, BinaryWriter, MemoryPool, bool> action, MemoryPool memory, bool ptr = false)
+        public static void WriteArrayAtOffset(this BinaryWriter writer, int size, Func<int, BinaryWriter, MemoryPool, bool> action, MemoryPool post, bool ptr = false, uint align = 4)
         {
-            var cur_offset = (UInt32) writer.BaseStream.Position;
+            var curOffset = (UInt32) writer.BaseStream.Position;
             writer.Write((UInt32) 0);
             if (ptr)
-                memory.WritePointerArrayAtOffset(cur_offset, size, action);
+                post.WritePointerArrayAtOffset(curOffset, size, action, align);
             else
-                memory.WriteArrayAtOffset(cur_offset, size, action);
+                post.WriteArrayAtOffset(curOffset, size, action, align);
         }
-        public static void WriteArrayAtOffset(this BinaryWriter writer, int size, Action<int, BinaryWriter, MemoryPool> action, MemoryPool memory, bool ptr = false)
+        public static void WriteArrayAtOffset(this BinaryWriter writer, int size, Action<int, BinaryWriter, MemoryPool> action, MemoryPool memory, bool ptr = false, uint align = 4)
         {
-            writer.WriteArrayAtOffset(size, (i, w, p) => { action(i, w, p); return true; }, memory, ptr);
+            writer.WriteArrayAtOffset(size, (i, w, p) => { action(i, w, p); return true; }, memory, ptr, align);
         }
-        public static void WriteArrayAtOffsetWithSize(this BinaryWriter writer, int size, Func<int, BinaryWriter, MemoryPool, bool> action, MemoryPool memory, bool ptr = false)
-        {
-            writer.Write((UInt32) size);
-            writer.WriteArrayAtOffset(size, action, memory, ptr);
-        }
-        public static void WriteArrayAtOffsetWithSize(this BinaryWriter writer, int size, Action<int, BinaryWriter, MemoryPool> action, MemoryPool memory, bool ptr = false)
+        public static void WriteArrayAtOffsetWithSize(this BinaryWriter writer, int size, Func<int, BinaryWriter, MemoryPool, bool> action, MemoryPool memory, bool ptr = false, uint align = 4)
         {
             writer.Write((UInt32) size);
-            writer.WriteArrayAtOffset(size, action, memory, ptr);
+            writer.WriteArrayAtOffset(size, action, memory, ptr, align);
+        }
+        public static void WriteArrayAtOffsetWithSize(this BinaryWriter writer, int size, Action<int, BinaryWriter, MemoryPool> action, MemoryPool memory, bool ptr = false, uint align = 4)
+        {
+            writer.Write((UInt32) size);
+            writer.WriteArrayAtOffset(size, action, memory, ptr, align);
         }
 
-        public static void WriteArrayAtOffset<T>(this BinaryWriter writer, IList<T> array, MemoryPool memory, bool ptr = false) where T : IDataStorage
+        public static void WriteArrayAtOffset<T>(this BinaryWriter writer, IList<T> array, MemoryPool memory, bool ptr = false, uint align = 4) where T : IDataStorage
         {
-            writer.WriteArrayAtOffset(array.Count, (i, w, p) => array[i].Write(w, p), memory, ptr);
+            writer.WriteArrayAtOffset(array.Count, (i, w, p) => array[i].Write(w, p), memory, ptr, align);
         }
-        public static void WriteArrayAtOffsetWithSize<T>(this BinaryWriter writer, IList<T> array, MemoryPool memory, bool ptr = false) where T : IDataStorage
+        public static void WriteArrayAtOffsetWithSize<T>(this BinaryWriter writer, IList<T> array, MemoryPool memory, bool ptr = false, uint align = 4) where T : IDataStorage
         {
-            writer.WriteArrayAtOffsetWithSize(array.Count, (i, w, p) => array[i].Write(w, p), memory, ptr);
+            writer.WriteArrayAtOffsetWithSize(array.Count, (i, w, p) => array[i].Write(w, p), memory, ptr, align);
         }
 
+        // alignment related
+
+        public static long AlignBy(this long curPos, uint c)
+        {
+            var a = c - (curPos % c);
+            return curPos + (a >= c ? 0 : a);
+        }
+        public static uint AlignBy(this uint curPos, uint c)
+        {
+            var a = c - (curPos % c);
+            return curPos + (a >= c ? 0 : a);
+        }
+
+        public static uint Align(this BinaryWriter writer, uint c, MemoryPool postPool = null)
+        {
+            uint a = c - (uint) (writer.BaseStream.Position % c);
+            a = a >= c ? 0 : a;
+            if (a > 0x7fffffff)
+            {
+                writer.Seek(0x7fffffff, SeekOrigin.Current);
+                writer.Seek((int) (a - 0x7fffffff), SeekOrigin.Current);
+            }
+            else
+                writer.Seek((int) a, SeekOrigin.Current);
+            if (postPool != null)
+                postPool.AlignPre(c);
+            return a;
+        }
+
+        // others
 
         public static void WriteInstructions(this BinaryWriter writer, InstructionStorage insts, MemoryPool memory)
         {
-            // memory.RegisterPostOffset((uint) writer.BaseStream.Position);
-            // writer.Write((UInt32) 0);
-            // insts.Write(memory.Writer, memory.Post);
-
-            memory.RegisterGlobalAlignObject((uint) writer.BaseStream.Position, (w, p) => {
-                w.Seek((4 - (int) (w.BaseStream.Position % 4)) % 4, SeekOrigin.Current);
-                uint ret1 = (uint) w.BaseStream.Position;
-                insts.Write(w, p);
-                uint ret2 = (uint) w.BaseStream.Position;
+            memory.RegisterPostOffset((uint) writer.BaseStream.Position, align: Constants.IntPtrSize);
+            writer.Write((UInt32) 0);
+            insts.Write(memory.Writer, memory.Post);
+            /*
+            memory.RegisterGlobalAlignObject((uint) writer.BaseStream.Position, (curWriter, postPool) =>
+            {
+                curWriter.Align(Constants.IntPtrSize, postPool: postPool);
+                uint ret1 = (uint) curWriter.BaseStream.Position;
+                insts.Write(curWriter, postPool);
+                uint ret2 = (uint) curWriter.BaseStream.Position;
                 return (ret1, ret2);
             });
-            writer.Write((UInt32) 0);
+            writer.Write((UInt32) 0); // int pointer
+            */
         }
 
         /// <summary>
@@ -107,6 +134,13 @@ namespace OpenSage.FileFormats.Apt
                 curPos = endPos;
             }
             DumpMemoryPool(writer, newPool, curPos);
+        }
+
+        public static void WriteStringAtOffset(this BinaryWriter writer, string value, MemoryPool memory)
+        {
+            var cur_offset = (uint) writer.BaseStream.Position;
+            writer.Write((UInt32) 0); // keep space of the address
+            memory.WriteStringAtOffset(cur_offset, value);
         }
 
         public static void Write(Func<BinaryWriter, MemoryPool, long> write, Func<Stream> streamGetter)

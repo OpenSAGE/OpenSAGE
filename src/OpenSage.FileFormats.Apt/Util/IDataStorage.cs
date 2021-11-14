@@ -9,6 +9,7 @@ namespace OpenSage.FileFormats.Apt
 {
     public interface IDataStorage
     {
+        // DO NOT ALIGN A STORAGE ITSELF INSIDE THIS FUNCTION!
         public abstract void Write(BinaryWriter writer, MemoryPool pool);
     }
 

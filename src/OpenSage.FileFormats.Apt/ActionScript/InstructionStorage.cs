@@ -346,6 +346,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
             using (var helper = new InstructionParseHelper(input, instructionsPosition))
             {
                 var reader = helper.GetReader();
+                Console.WriteLine($"{helper.CurrentPosition} {helper.CurrentPosition % 4}");
                 while (helper.CanParse(instructions))
                 {
                     //now read the instructions
@@ -355,7 +356,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
 
                     if (requireAlignment)
                     {
-                        reader.Align(4);
+                        reader.Align(Constants.IntPtrSize);
                     }
 
                     
@@ -372,6 +373,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
 
         public void Write(BinaryWriter writer, MemoryPool memory)
         {
+            // assume the writer is already aligned!
             foreach (var kvp in _instructions)
             {
                 var instruction = kvp.Value;
@@ -380,8 +382,9 @@ namespace OpenSage.FileFormats.Apt.ActionScript
 
                 writer.Write((Byte) instruction.Type);
                 if (InstructionAlignment.IsAligned(instruction.Type))
-                    while (writer.BaseStream.Position % Constants.IntPtrSize != 0)
-                        writer.Write((Byte) 0);
+                    writer.Align(Constants.IntPtrSize);
+                    // while (writer.BaseStream.Position % Constants.IntPtrSize != 0)
+                    //     writer.Write((Byte) 0);
                     
                 instruction.Write(writer, memory);
             }

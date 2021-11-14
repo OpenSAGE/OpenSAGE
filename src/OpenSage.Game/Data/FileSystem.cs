@@ -115,8 +115,9 @@ namespace OpenSage.Data
         {
             return filePath
                 .Replace('/', Path.DirectorySeparatorChar)
-                .Replace('\\', Path.DirectorySeparatorChar)
-                .ToLowerInvariant();
+                .Replace('\\', Path.DirectorySeparatorChar);
+                // Do not do this, will cause unexpected bugs
+                // .ToLowerInvariant();
         }
 
         public FileSystemEntry GetFile(string filePath)

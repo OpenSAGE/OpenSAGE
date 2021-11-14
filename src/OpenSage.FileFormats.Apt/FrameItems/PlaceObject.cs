@@ -161,9 +161,11 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             writer.Write((Int32) ClipDepth);
 
             if (Flags.HasFlag(PlaceObjectFlags.HasClipAction))
-                writer.WriteArrayAtOffsetWithSize(ClipEvents, memory);
-            else
-                writer.Write((UInt32) 0);
+            {
+                var poaOffset = memory.RegisterPostOffset((uint) writer.BaseStream.Position, align: Constants.IntPtrSize);
+                memory.Writer.WriteArrayAtOffsetWithSize(ClipEvents, memory.Post);
+            }
+            writer.Write((UInt32) 0);
         }
 
         public static PlaceObject Create(int depth)

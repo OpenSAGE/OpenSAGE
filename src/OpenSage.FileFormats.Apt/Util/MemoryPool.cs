@@ -17,6 +17,8 @@ namespace OpenSage.FileFormats.Apt
         private MemoryStream _stream;
         private BinaryWriter _writer;
 
+        public uint Alignment { get; private set; }
+
         public BinaryWriter Writer => _writer;
 
         private MemoryPool _post = null; 
@@ -45,7 +47,8 @@ namespace OpenSage.FileFormats.Apt
             _globalAlign = new();
             _postMapping = new();
             _stream = new();
-            _writer = new(_stream);
+            _writer = new(_stream); // direct alignment is not recommended
+            Alignment = 1;
         }
 
         public void Dispose()
@@ -56,14 +59,54 @@ namespace OpenSage.FileFormats.Apt
             _stream.Dispose();
         }
 
+        static int GCD(int a, int b)
+        {
+            if (a < b)
+            {
+                a = a + b;
+                b = a - b;
+                a = a - b;
+            }
+            return (a % b == 0) ? b : GCD(a % b, b);
+        }
+
+        static int GCM(int a, int b)
+        {
+            return a * b / GCD(a, b);
+        }
+
+        public bool Align(uint c)
+        {
+            var ans = c > 0;
+            if (ans)
+                Alignment = (uint) GCM((int) Alignment, (int) c);
+            _writer.Align(c);
+            return ans;
+        }
+
+        public bool Align(int c)
+        {
+            var ans = c > 0;
+            if (ans)
+                Alignment = (uint) GCM((int) Alignment, c);
+            _writer.Align((uint) c);
+            return ans;
+        }
+
+        public bool AlignPre(uint c) { return _pre == null ? false : _pre.Align(c); }
+        public bool AlignPost(uint c) { return _postAutoCreate.Align(c); }
+        public bool AlignPre(int c) { return _pre == null ? false : _pre.Align(c); }
+        public bool AlignPost(int c) { return _postAutoCreate.Align(c); }
+
         /// <summary>
         /// (this, cur_offset) -> (target, offset)
         /// </summary>
         /// <param name="target"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public uint RegisterPreOffset(MemoryPool target, uint offset)
+        public uint RegisterPreOffset(MemoryPool target, uint offset, uint align = 1)
         {
+            Align(align);
             var ret = (uint) _stream.Position;
             var pm = target == null ? _preMapping2 : target._preMapping;
             pm[offset] = (this, ret);
@@ -85,8 +128,9 @@ namespace OpenSage.FileFormats.Apt
         /// </summary>
         /// <param name="objWrite"></param>
         /// <returns></returns>
-        public uint RegisterGlobalAlignObject(uint offset, AlignedObjectWriter objWrite)
+        public uint RegisterGlobalAlignObject(uint offset, AlignedObjectWriter objWrite, uint align = 1)
         {
+            Align(align);
             var ret = (uint) _stream.Position;
             _globalAlign[offset] = objWrite;
             return ret;
@@ -97,13 +141,16 @@ namespace OpenSage.FileFormats.Apt
         /// reg_offset is assigned to _stream.Position if negative
         /// </summary>
         /// <param name="offset"></param>
-        /// <param name="reg_offset"></param>
+        /// <param name="regOffset"></param>
         /// <returns></returns>
-        public uint RegisterPostOffset(uint offset, long reg_offset = -1)
+        public uint RegisterPostOffset(uint offset, long regOffset = -1, uint align = 1)
         {
-            if (reg_offset < 0)
-                reg_offset = _stream.Position;
-            _postMapping[offset] = (uint) reg_offset;
+            Align(align);
+            if (regOffset < 0)
+                regOffset = _stream.Position;
+            else
+                regOffset = regOffset.AlignBy(align);
+            _postMapping[offset] = (uint) regOffset;
             return _postMapping[offset];
         }
 
@@ -128,28 +175,30 @@ namespace OpenSage.FileFormats.Apt
             _writer.WriteNullTerminatedString(val);
         }
 
-        public void WriteArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action)
+        public void WriteArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action, uint align = 4)
         {
+            Align(align);
             RegisterPostOffset(offset);
             for (int i = 0; i < length; ++i)
             {
                 var flag = action(i, _writer, _postAutoCreate);
-                // TODO what if flag == false?
+                // if flag == false:
                 // The design is that action handles it
             }
         }
 
-        public void WritePointerArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action)
+        public void WritePointerArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action, uint align = 4)
         {
+            Align(Constants.IntPtrSize); // since the pointers are 4 bytes long
             RegisterPostOffset(offset);
             for (int i = 0; i < length; ++i)
             {
-                var cur_offset = (uint) _stream.Position;
+                var curOffset = (uint) _stream.Position;
                 var post = _postAutoCreate;
-                post.RegisterPostOffset(cur_offset);
+                post.RegisterPostOffset(curOffset, align : align);
                 var flag = action(i, post._writer, post._postAutoCreate);
                 if (!flag)
-                    post.RemovePostOffsetAndSeek(cur_offset);
+                    post.RemovePostOffsetAndSeek(curOffset);
                 _writer.Write((UInt32) 0);
             }
         }
@@ -165,52 +214,57 @@ namespace OpenSage.FileFormats.Apt
         /// <returns></returns>
         public Dictionary<uint, AlignedObjectWriter> SerializeAndGatherAlignment(
             BinaryWriter writer,
-            uint offset = 0,
+            uint offsetRaw = 0,
             Dictionary<MemoryPool, uint> offsets = null,
             Dictionary<uint, AlignedObjectWriter> align = null
             )
         {
+            // align offset
+            var offsetAligned = offsetRaw.AlignBy(Alignment);
+            Console.WriteLine($"{Alignment}, {offsetRaw}, {offsetRaw % Alignment}, {offsetAligned}, {offsetAligned % Alignment}");
+
             // init align
             if (align == null)
                 align = new();
 
-            var fix_block_length = (uint) _stream.Position;
-            if (fix_block_length == 0) return align;
+            var curBlockLength = (uint) _stream.Length;
+            if (curBlockLength == 0) return align;
+            var curBlockLengthAligned = (offsetAligned + curBlockLength).AlignBy(_post != null ? _post.Alignment : 1);
 
             // init offset
             if (offsets == null)
                 offsets = new();
-            offsets[this] = offset;
+            offsets[this] = offsetAligned;
 
             // the last pool muse be serialized first
             if (_post != null)
-                _post.SerializeAndGatherAlignment(writer, offset + fix_block_length, offsets, align);
+                _post.SerializeAndGatherAlignment(writer, offsetAligned + curBlockLength, offsets, align);
 
             // copy anything from the data chunk to the file
             _stream.Seek(0, SeekOrigin.Begin);
-            writer.BaseStream.Seek(offset, SeekOrigin.Begin);
+            writer.BaseStream.Seek(offsetAligned, SeekOrigin.Begin);
             _stream.CopyTo(writer.BaseStream);
-            _stream.Seek(fix_block_length, SeekOrigin.Begin);
+            _stream.Seek(curBlockLength, SeekOrigin.Begin);
 
             // set all post pointers to correct positions
             if (_post != null)
                 foreach (var kvp in _post._postMapping) // this[key] -> _post[val]
                 {
-                    writer.BaseStream.Seek(offset + kvp.Key, SeekOrigin.Begin);
-                    writer.Write((UInt32) (offset + fix_block_length + kvp.Value));
+                    writer.BaseStream.Seek(offsetAligned + kvp.Key, SeekOrigin.Begin);
+                    writer.Write((UInt32) (curBlockLengthAligned + kvp.Value));
                 }
             if (_pre == null)
                 foreach (var kvp in _postMapping)
                 {
                     writer.BaseStream.Seek(0 + kvp.Key, SeekOrigin.Begin);
-                    writer.Write((UInt32) (offset + 0 + kvp.Value));
+                    writer.Write((UInt32) (offsetAligned + 0 + kvp.Value));
                 }
 
             // set all pre pointers (from pre to post)
             foreach (var kvp in _preMapping)
             {
                 writer.BaseStream.Seek(offsets[kvp.Value.Item1] + kvp.Value.Item2, SeekOrigin.Begin);
-                writer.Write((UInt32) (offset + kvp.Key));
+                writer.Write((UInt32) (offsetAligned + kvp.Key));
             }
 
             // set the most out layer's pre pointers
@@ -225,7 +279,7 @@ namespace OpenSage.FileFormats.Apt
             if (_post != null)
                 foreach (var kvp in _post._globalAlign)
                 {
-                    align[offset + kvp.Key] = kvp.Value;
+                    align[offsetAligned + kvp.Key] = kvp.Value;
                 }
             if (_pre == null)
                 foreach (var kvp in _globalAlign)

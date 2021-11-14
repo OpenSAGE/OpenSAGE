@@ -10,7 +10,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
         public uint Sprite { get; private set; }
         public InstructionStorage Instructions { get; private set; }
 
-        public static InitAction Parse(BinaryReader reader)
+        public static new InitAction Parse(BinaryReader reader)
         {
             var action = new InitAction();
             action.Sprite = reader.ReadUInt32();
