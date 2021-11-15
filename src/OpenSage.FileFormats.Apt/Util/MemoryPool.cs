@@ -59,6 +59,8 @@ namespace OpenSage.FileFormats.Apt
             _stream.Dispose();
         }
 
+        static Dictionary<(int, int), int> GcdRec = new();
+        static Dictionary<(int, int), int> GcmRec = new();
         static int GCD(int a, int b)
         {
             if (a < b)
@@ -67,12 +69,20 @@ namespace OpenSage.FileFormats.Apt
                 b = a - b;
                 a = a - b;
             }
-            return (a % b == 0) ? b : GCD(a % b, b);
+            if (GcdRec.TryGetValue((a, b), out var c))
+                return c;
+            var ans = (a % b == 0) ? b : GCD(a % b, b);
+            GcdRec[(a, b)] = ans;
+            return ans;
         }
 
         static int GCM(int a, int b)
         {
-            return a * b / GCD(a, b);
+            if (GcmRec.TryGetValue((a, b), out var c))
+                return c;
+            var ans = a * b / GCD(a, b);
+            GcmRec[(a, b)] = ans;
+            return ans;
         }
 
         public bool Align(uint c)

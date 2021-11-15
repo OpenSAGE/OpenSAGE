@@ -19,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public override string ToString(string[] p)
         {
-            return $"getURL(\"{Parameters[0]}\", \"{Parameters[1]}\"); // ActionGetUrl@";
+            return $"getUrl(\"{Parameters[0]}\", \"{Parameters[1]}\")";
         }
     }
 
@@ -40,7 +40,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
         public override string ToString(string[] p)
         {
-            return $"getURL({p[1]}, {p[0]}) // ActionGetUrl2@";
+            return $"loadVariables({p[1]}, {p[0]})";
         }
     }
 }

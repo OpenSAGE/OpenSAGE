@@ -337,6 +337,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         public void LoadMovie(ExecutionContext context, Value[] args)
         {
             var url = Path.ChangeExtension(args[0].ToString(), ".apt");
+            // TODO Change to MovieHandler
             var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
 
             context.Apt.Window.Manager.QueryPush(window);
