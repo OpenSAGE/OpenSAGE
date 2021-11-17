@@ -137,6 +137,35 @@ namespace OpenSage.Data.Map
             }
         }
 
+        public bool IsPointInside(in Vector3 point)
+        {
+            var point2D = new Point2D((int)point.X, (int)point.Y);
+
+            // Coarse test so we can early-out.
+            if (!Bounds.Contains(point2D))
+            {
+                return false;
+            }
+
+            // Algorithm from here - "PNPOLY - Point Inclusion in Polygon Test"
+            // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+            var inside = false;
+            int i, j;
+            for (i = 0, j = Points.Length - 1; i < Points.Length; j = i++)
+            {
+                ref readonly var lastPoint = ref Points[j];
+                ref readonly var thisPoint = ref Points[i];
+
+                if (((thisPoint.Y > point2D.Y) != (lastPoint.Y > point2D.Y)) &&
+                    (point2D.X < (lastPoint.X - thisPoint.X) * (point2D.Y - thisPoint.Y) / (lastPoint.Y - thisPoint.Y) + thisPoint.X))
+                {
+                    inside = !inside;
+                }
+            }
+
+            return inside;
+        }
+
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);

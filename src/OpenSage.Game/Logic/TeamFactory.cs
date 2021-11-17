@@ -22,7 +22,7 @@ namespace OpenSage.Logic
             _lastTeamId = 0;
         }
 
-        public void Initialize(Data.Map.Team[] mapTeams, IReadOnlyList<Player> players)
+        public void Initialize(Data.Map.Team[] mapTeams, PlayerManager players)
         {
             _teamTemplates.Clear();
             _teamTemplatesById.Clear();
@@ -33,7 +33,7 @@ namespace OpenSage.Logic
                 var name = mapTeam.Properties["teamName"].Value as string;
 
                 var ownerName = mapTeam.Properties["teamOwner"].Value as string;
-                var owner = players.FirstOrDefault(player => player.Name == ownerName);
+                var owner = players.GetPlayerByName(ownerName);
 
                 var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
 
@@ -104,7 +104,7 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(SaveFileReader reader, PlayerManager players)
         {
             reader.ReadVersion(1);
 
@@ -120,7 +120,7 @@ namespace OpenSage.Logic
             {
                 var id = reader.ReadUInt32();
                 var teamTemplate = _teamTemplatesById[id];
-                teamTemplate.Load(reader);
+                teamTemplate.Load(reader, players);
             }
         }
     }

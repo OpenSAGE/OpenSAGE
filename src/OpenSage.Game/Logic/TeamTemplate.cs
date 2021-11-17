@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
@@ -17,7 +16,7 @@ namespace OpenSage.Logic
 
         public readonly uint ID;
         public readonly string Name;
-        public readonly Player Owner;
+        public Player Owner { get; private set; }
         public readonly bool IsSingleton;
 
         public TeamTemplate(TeamFactory teamFactory, uint id, string name, Player owner, bool isSingleton)
@@ -51,15 +50,13 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(SaveFileReader reader, PlayerManager players)
         {
             reader.ReadVersion(2);
 
-            var playerId = reader.ReadUInt32();
-            if (playerId != Owner.Id)
-            {
-                throw new InvalidDataException();
-            }
+            // This will be the same as the existing Owner, unless control of this team has been transferred.
+            var ownerPlayerId = reader.ReadUInt32();
+            Owner = players.GetPlayerByIndex(ownerPlayerId);
 
             _attackPriorityName = reader.ReadAsciiString();
 

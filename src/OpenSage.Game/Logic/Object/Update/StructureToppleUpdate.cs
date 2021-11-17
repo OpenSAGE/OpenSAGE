@@ -1,8 +1,61 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class StructureToppleUpdate : UpdateModule
+    {
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            for (var i = 0; i < 20; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var unknownFloat = reader.ReadSingle();
+
+            for (var i = 0; i < 8; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+
+            var unknownInt1 = reader.ReadInt32();
+            if (unknownInt1 != -1)
+            {
+                throw new InvalidDataException();
+            }
+
+            for (var i = 0; i < 12; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
+    }
+
     public sealed class StructureToppleUpdateModuleData : UpdateModuleData
     {
         internal static StructureToppleUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -45,6 +98,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int ForceToppleAngle { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new StructureToppleUpdate();
+        }
     }
 
     public struct StructureToppleAngleFX

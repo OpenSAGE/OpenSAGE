@@ -117,7 +117,7 @@ namespace OpenSage
             PlayerManager.OnNewGame(mapPlayers, game, gameType);
 
             TeamFactory = new TeamFactory();
-            TeamFactory.Initialize(mapTeams, PlayerManager.Players);
+            TeamFactory.Initialize(mapTeams, PlayerManager);
 
             Audio = game.Audio;
             AssetLoadContext = game.AssetStore.LoadContext;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -415,11 +415,7 @@ namespace OpenSage.Logic.Object
                         throw new InvalidDataException();
                     }
 
-                    var unknown3 = reader.ReadUInt32();
-                    if (unknown3 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
+                    var unknown3 = reader.ReadSingle();
                 }
             }
 
