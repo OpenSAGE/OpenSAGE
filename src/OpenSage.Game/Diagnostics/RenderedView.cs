@@ -72,7 +72,7 @@ namespace OpenSage.Diagnostics
             var inputMessages = isMouseInRenderedView
                 ? ImGuiUtility.TranslateInputMessages(
                     new Mathematics.Rectangle((int) cursorScreenPos.X, (int) cursorScreenPos.Y, (int) currentSize.X, (int) currentSize.Y),
-                    _context.Game.Window.MessageQueue)
+                    _context.Window.MessageQueue)
                 : Array.Empty<InputMessage>();
 
             _inputMessageBuffer.PumpEvents(inputMessages);

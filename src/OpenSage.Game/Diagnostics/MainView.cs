@@ -217,10 +217,10 @@ namespace OpenSage.Diagnostics
                     {
                         _context.Game.GraphicsDevice.SyncToVerticalBlank = isVSyncEnabled;
                     }
-                    var isFullscreen = _context.Game.Window.Fullscreen;
+                    var isFullscreen = _context.Window.Fullscreen;
                     if (ImGui.MenuItem("Fullscreen", "Alt+Enter", ref isFullscreen, true))
                     {
-                        _context.Game.Window.Fullscreen = isFullscreen;
+                        _context.Window.Fullscreen = isFullscreen;
                     }
                     ImGui.EndMenu();
                 }
@@ -313,7 +313,7 @@ namespace OpenSage.Diagnostics
 
                 const int launcherImagePadding = 10;
                 ImGui.SetNextWindowPos(new Vector2(
-                    _context.Game.Window.ClientBounds.Width - launcherImageSize.Width - launcherImagePadding,
+                    _context.Window.ClientBounds.Width - launcherImageSize.Width - launcherImagePadding,
                     menuBarHeight + launcherImagePadding));
 
                 ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);

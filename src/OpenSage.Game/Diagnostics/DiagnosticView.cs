@@ -10,6 +10,7 @@ namespace OpenSage.Diagnostics
 
         protected DiagnosticViewContext Context { get; }
         protected Game Game { get; }
+        protected GameWindow Window { get; }
         protected ImGuiRenderer ImGuiRenderer { get; }
 
         public string Name => $"DiagnosticView {DisplayName}";
@@ -28,6 +29,7 @@ namespace OpenSage.Diagnostics
         {
             Context = context;
             Game = context.Game;
+            Window = context.Window;
             ImGuiRenderer = context.ImGuiRenderer;
         }
 

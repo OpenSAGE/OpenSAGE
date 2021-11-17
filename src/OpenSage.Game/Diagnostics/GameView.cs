@@ -38,7 +38,7 @@ namespace OpenSage.Diagnostics
                     (int) availableSize.Y));
 
             var inputMessages = isGameViewFocused
-                ? ImGuiUtility.TranslateInputMessages(Game.Panel.Frame, Game.Window.MessageQueue)
+                ? ImGuiUtility.TranslateInputMessages(Game.Panel.Frame, Window.MessageQueue)
                 : Array.Empty<InputMessage>();
 
             Game.Update(inputMessages);

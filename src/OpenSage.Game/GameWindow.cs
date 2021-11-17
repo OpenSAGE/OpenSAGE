@@ -25,7 +25,7 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public GraphicsDevice GraphicsDevice { get; }
+        public Swapchain Swapchain { get; private set; }
 
         public Rectangle ClientBounds
         {
@@ -36,7 +36,7 @@ namespace OpenSage
             }
         }
 
-        public bool IsMouseVisible
+        public bool IsCursorVisible
         {
             get => _window.CursorVisible;
             set => _window.CursorVisible = value;
@@ -60,22 +60,8 @@ namespace OpenSage
             set { _window.WindowState = value ? WindowState.Maximized : WindowState.Normal; }
         }
 
-        internal GameWindow(string title, int x, int y, int width, int height,
-                            GraphicsBackend? preferredBackend, bool fullscreen)
+        public GameWindow(string title, int x, int y, int width, int height, bool fullscreen)
         {
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
-
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, null, true, ResourceBindingModel.Improved)
-            {
-                SwapchainSrgbFormat = false,
-                PreferStandardClipSpaceYDirection = true,
-                PreferDepthRangeZeroToOne = true
-            };
-
             var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
 
             // Get display scale for primary monitor.
@@ -91,16 +77,7 @@ namespace OpenSage
                 windowState,
                 title);
 
-            var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();
-
-            VeldridStartup.CreateWindowAndGraphicsDevice(
-                windowCreateInfo,
-                graphicsDeviceOptions,
-                backend,
-                out _window,
-                out var graphicsDevice);
-
-            GraphicsDevice = AddDisposable(graphicsDevice);
+            _window = VeldridStartup.CreateWindow(ref windowCreateInfo);
 
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;
@@ -115,6 +92,13 @@ namespace OpenSage
             _window.Closing += HandleClosing;
         }
 
+        public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options, GraphicsBackend backend)
+        {
+            var graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, backend);
+            Swapchain = graphicsDevice.MainSwapchain;
+            return graphicsDevice;
+        }
+
         private void HandleClosing()
         {
             _closing = true;
@@ -122,7 +106,7 @@ namespace OpenSage
 
         private void HandleResized()
         {
-            GraphicsDevice.ResizeMainWindow(
+            Swapchain.Resize(
                 (uint) _window.Bounds.Width,
                 (uint) _window.Bounds.Height);
 
@@ -231,8 +215,6 @@ namespace OpenSage
         {
             // TODO: This isn't right.
             _window.Close();
-
-            GraphicsDevice.WaitForIdle();
 
             base.Dispose(disposeManagedResources);
         }

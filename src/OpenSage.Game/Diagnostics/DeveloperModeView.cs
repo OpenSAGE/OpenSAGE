@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Diagnostics.Util;
+using OpenSage.Input;
 using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
-    internal sealed class DeveloperModeView : DisposableBase
+    public sealed class DeveloperModeView : DisposableBase
     {
         private readonly Game _game;
+        private readonly GameWindow _window;
         private readonly ImGuiRenderer _imGuiRenderer;
 
         private readonly CommandList _commandList;
@@ -19,15 +20,14 @@ namespace OpenSage.Diagnostics
 
         private readonly MainView _mainView;
 
-        public DeveloperModeView(Game game)
+        public DeveloperModeView(Game game, GameWindow window)
         {
             _game = game;
-
-            var window = game.Window;
+            _window = window;
 
             _imGuiRenderer = AddDisposable(new ImGuiRenderer(
-                window.GraphicsDevice,
-                window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription,
+                game.GraphicsDevice,
+                game.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription,
                 window.ClientBounds.Width,
                 window.ClientBounds.Height));
 
@@ -40,9 +40,26 @@ namespace OpenSage.Diagnostics
 
             AddDisposeAction(() => window.ClientSizeChanged -= OnWindowSizeChanged);
 
-            _commandList = AddDisposable(window.GraphicsDevice.ResourceFactory.CreateCommandList());
+            var inputMessageHandler = new CallbackMessageHandler(
+                HandlingPriority.Window,
+                message =>
+                {
+                    if (_isGameViewFocused && message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Escape)
+                    {
+                        _isGameViewFocused = false;
+                        return InputMessageResult.Handled;
+                    }
 
-            _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, _imGuiRenderer)));
+                    return InputMessageResult.NotHandled;
+                });
+
+            game.InputMessageBuffer.Handlers.Add(inputMessageHandler);
+
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(inputMessageHandler));
+
+            _commandList = AddDisposable(game.GraphicsDevice.ResourceFactory.CreateCommandList());
+
+            _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, window, _imGuiRenderer)));
             ImGuiUtility.SetupDocking();
         }
 
@@ -50,21 +67,13 @@ namespace OpenSage.Diagnostics
         {
             _commandList.Begin();
 
-            _commandList.SetFramebuffer(_game.GraphicsDevice.MainSwapchain.Framebuffer);
+            _commandList.SetFramebuffer(_window.Swapchain.Framebuffer);
 
             _commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
-            if (_isGameViewFocused)
-            {
-                if (_game.Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Escape))
-                {
-                    _isGameViewFocused = false;
-                }
-            }
-
             var inputSnapshot = _isGameViewFocused
                 ? _emptyInputSnapshot
-                : _game.Window.CurrentInputSnapshot;
+                : _window.CurrentInputSnapshot;
 
             _imGuiRenderer.Update(
                 (float) _game.RenderTime.DeltaTime.TotalSeconds,

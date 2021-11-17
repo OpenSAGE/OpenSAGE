@@ -25,7 +25,7 @@ namespace OpenSage.Tests.Content
 
             Platform.Start();
 
-            using (var game = new Game(installation, GraphicsBackend.Direct3D11))
+            using (var game = new Game(installation))
             {
                 var maps = game.ContentManager.FileSystem
                     .GetFilesInDirectory("maps", "*.map")
