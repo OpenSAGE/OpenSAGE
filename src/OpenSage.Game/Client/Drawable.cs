@@ -300,7 +300,7 @@ namespace OpenSage.Client
             for (var i = 0; i < 5; i++)
             {
                 var unknownInt = reader.ReadUInt32();
-                if (unknownInt != 0)
+                if (unknownInt != 0 && unknownInt != 1)
                 {
                     throw new InvalidDataException();
                 }
@@ -365,9 +365,22 @@ namespace OpenSage.Client
             }
 
             var unknownBool1 = reader.ReadBoolean();
+
             if (unknownBool1)
             {
-                throw new InvalidDataException();
+                var animation2DName = reader.ReadAsciiString();
+
+                var unknown = reader.ReadUInt32();
+                if (unknown != 0)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var animation2DName2 = reader.ReadAsciiString();
+                if (animation2DName2 != animation2DName)
+                {
+                    throw new InvalidDataException();
+                }
             }
 
             var unknownBool2 = reader.ReadBoolean();
@@ -404,6 +417,7 @@ namespace OpenSage.Client
     {
         HordeInfantry = 1,
         HordeVehicle = 3,
+        Crate = 5,
         None = 6,
     }
 }

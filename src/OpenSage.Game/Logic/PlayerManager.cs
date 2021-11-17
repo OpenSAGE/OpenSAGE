@@ -68,6 +68,11 @@ namespace OpenSage.Logic
             return _players.Find(x => x.Name == name);
         }
 
+        public Player GetPlayerByIndex(uint index)
+        {
+            return _players[(int)index];
+        }
+
         public int GetPlayerIndex(Player player)
         {
             return _players.IndexOf(player);

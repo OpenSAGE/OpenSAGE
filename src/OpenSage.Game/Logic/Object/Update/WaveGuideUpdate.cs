@@ -1,7 +1,34 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class WaveGuideUpdate : UpdateModule
+    {
+        // TODO
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            for (var i = 0; i < 920; i++)
+            {
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02, 
     /// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the 
@@ -46,5 +73,10 @@ namespace OpenSage.Logic.Object
         public string BridgeParticle { get; private set; }
         public float BridgeParticleAngleFudge { get; private set; }
         public string LoopingSound { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new WaveGuideUpdate();
+        }
     }
 }

@@ -1057,7 +1057,9 @@ namespace OpenSage.Logic.Object
             var transform = reader.ReadMatrix4x3();
             SetTransformMatrix(transform.ToMatrix4x4());
 
-            reader.__Skip(12);
+            var unknownInt1 = reader.ReadUInt32(); // Maybe team ID?
+            var unknownInt2 = reader.ReadUInt32(); // Looks like an object ID
+            var unknownInt3 = reader.ReadUInt32();
 
             var drawableID = reader.ReadUInt32();
 

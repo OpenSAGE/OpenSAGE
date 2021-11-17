@@ -94,7 +94,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_TeamFactory":
-                        game.Scene3D.TeamFactory.Load(reader);
+                        game.Scene3D.TeamFactory.Load(reader, game.Scene3D.PlayerManager);
                         break;
 
                     case "CHUNK_Players":

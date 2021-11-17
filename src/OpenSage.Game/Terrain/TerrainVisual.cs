@@ -13,7 +13,22 @@ namespace OpenSage.Terrain
             var unknownBool1 = reader.ReadBoolean();
             if (unknownBool1)
             {
-                throw new InvalidDataException();
+                reader.ReadVersion(1);
+
+                // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
+                var gridCellsX = reader.ReadInt32();
+                var gridCellsY = reader.ReadInt32();
+
+                // Don't know why, but this gives the correct length for this array.
+                var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
+                for (var i = 0; i < dataCount; i++)
+                {
+                    var unknown3 = reader.ReadByte();
+                    if (unknown3 != 0)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
             }
 
             var area = reader.ReadUInt32();

@@ -221,6 +221,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("WEAPONSET_HERO")]
         WeaponSetHero,
 
+        [IniEnum("WEAPONSET_VETERAN")]
+        WeaponSetVeteran,
+
+        [IniEnum("WEAPONSET_ELITE")]
+        WeaponSetElite,
+
         [IniEnum("RIDERS_ATTACKING"), AddedIn(SageGame.CncGeneralsZeroHour)]
         RidersAttacking,
 

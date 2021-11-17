@@ -6,6 +6,8 @@ namespace OpenSage.Logic
 {
     public sealed class Team
     {
+        private bool _enteredOrExitedPolygonTrigger;
+        private bool _isAlive;
         private uint _numDestroyedSomething;
 
         public readonly TeamTemplate Template;
@@ -38,20 +40,18 @@ namespace OpenSage.Logic
                 ObjectIds.Add(reader.ReadObjectID());
             }
 
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < 1; i++)
             {
-                var unknown1 = reader.ReadBoolean();
-                if (unknown1 != false)
+                var unknownByte = reader.ReadByte();
+                if (unknownByte != 0)
                 {
                     throw new InvalidDataException();
                 }
             }
 
-            var unknown2 = reader.ReadBoolean();
-            if (unknown2 != true)
-            {
-                //throw new InvalidDataException();
-            }
+            _enteredOrExitedPolygonTrigger = reader.ReadBoolean();
+
+            _isAlive = reader.ReadBoolean();
 
             for (var i = 0; i < 5; i++)
             {

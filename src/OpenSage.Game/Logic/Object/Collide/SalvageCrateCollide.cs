@@ -1,8 +1,24 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.IO;
+using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class SalvageCrateCollide : CrateCollide
+    {
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 1)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+        }
+    }
+
     public sealed class SalvageCrateCollideModuleData : CrateCollideModuleData
     {
         internal static SalvageCrateCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -61,5 +77,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool AllowAIPickup { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SalvageCrateCollide();
+        }
     }
 }

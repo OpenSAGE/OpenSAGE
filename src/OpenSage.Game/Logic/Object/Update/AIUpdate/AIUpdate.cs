@@ -279,7 +279,7 @@ namespace OpenSage.Logic.Object
             var unknownFloat1 = reader.ReadSingle();
             if (unknownFloat1 != 999999)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknownInt15 = reader.ReadUInt32(); // 2
@@ -350,7 +350,7 @@ namespace OpenSage.Logic.Object
                 : null;
 
             var unknownInt29 = reader.ReadUInt32();
-            if (unknownInt29 != 0 && unknownInt29 != uint.MaxValue)
+            if (unknownInt29 != 0 && unknownInt29 != 3 && unknownInt29 != uint.MaxValue)
             {
                 throw new InvalidDataException();
             }
@@ -380,7 +380,7 @@ namespace OpenSage.Logic.Object
             var unknownInt32 = reader.ReadInt32(); // -1, 258
 
             var unknownInt33 = reader.ReadInt32();
-            if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2)
+            if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2 && unknownInt33 != -2)
             {
                 throw new InvalidDataException();
             }
