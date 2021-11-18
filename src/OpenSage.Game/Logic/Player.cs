@@ -562,12 +562,17 @@ namespace OpenSage.Logic
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
-            if (side.StartsWith("FactionChina", System.StringComparison.InvariantCultureIgnoreCase))
+            if (side.StartsWith("FactionAmerica", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                // TODO: Probably not right.
+                side = "FactionAmerica";
+            }
+            else if (side.StartsWith("FactionChina", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 // TODO: Probably not right.
                 side = "FactionChina";
             }
-            if (side.StartsWith("FactionGLA", System.StringComparison.InvariantCultureIgnoreCase))
+            else if (side.StartsWith("FactionGLA", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 // TODO: Probably not right.
                 side = "FactionGLA";
