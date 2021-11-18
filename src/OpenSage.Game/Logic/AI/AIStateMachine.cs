@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI
@@ -8,7 +7,7 @@ namespace OpenSage.Logic.AI
     {
         public AIStateMachine()
         {
-            AddState(0, new AIState0());
+            AddState(0, new AIStateIdle());
             AddState(1, new AIState1());
             AddState(3, new AIState3());
             AddState(5, new AIState5());
@@ -26,17 +25,6 @@ namespace OpenSage.Logic.AI
             reader.ReadVersion(1);
 
             base.Load(reader);
-        }
-    }
-
-    internal sealed class AIState0 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownShort1 = reader.ReadUInt16();
-            var unknownShort2 = reader.ReadUInt16();
         }
     }
 
@@ -335,7 +323,7 @@ namespace OpenSage.Logic.AI
     {
         public AIState32StateMachine()
         {
-            AddState(0, new AIState0());
+            AddState(0, new AIStateIdle());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -343,51 +331,6 @@ namespace OpenSage.Logic.AI
             reader.ReadVersion(1);
 
             base.Load(reader);
-        }
-    }
-
-    internal abstract class State
-    {
-        internal abstract void Load(SaveFileReader reader);
-    }
-
-    internal abstract class StateMachineBase
-    {
-        private readonly Dictionary<int, State> _states;
-        private State _currentState;
-
-        protected StateMachineBase()
-        {
-            _states = new Dictionary<int, State>();
-        }
-
-        public void AddState(int id, State state)
-        {
-            _states.Add(id, state);
-        }
-
-        internal virtual void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var frameSomething2 = reader.ReadUInt32();
-            var unknownInt4 = reader.ReadUInt32();
-
-            var currentStateID = reader.ReadUInt32();
-            _currentState = _states[(int)currentStateID];
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
-
-            _currentState.Load(reader);
-
-            var unknownInt9 = reader.ReadUInt32();
-            var positionSomething3 = reader.ReadVector3();
-            var unknownBool4 = reader.ReadBoolean();
-            var unknownBool5 = reader.ReadBoolean();
         }
     }
 }
