@@ -892,6 +892,11 @@ namespace OpenSage.Logic.Object
 
         private void AddLocomotorSet(LocomotorSetTemplate locomotorSetTemplate)
         {
+            if (locomotorSetTemplate.Locomotors.Length == 0)
+            {
+                return;
+            }
+
             // Overwrite any existing locomotor sets for that condition
             LocomotorSets[locomotorSetTemplate.Condition] = locomotorSetTemplate;
         }

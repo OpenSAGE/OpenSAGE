@@ -23,6 +23,8 @@ namespace OpenSage.Logic
         {
             _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToList();
 
+            LocalPlayer = null;
+
             foreach (var player in _players)
             {
                 if (player.IsHuman)
@@ -30,6 +32,12 @@ namespace OpenSage.Logic
                     LocalPlayer = player;
                     break;
                 }
+            }
+
+            if (LocalPlayer == null && _players.Count > 2)
+            {
+                // TODO: Probably not the right way to do it.
+                LocalPlayer = _players[2];
             }
 
             // TODO: Setup player relationships.
