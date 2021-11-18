@@ -7,7 +7,7 @@ namespace OpenSage.Logic.AI
     {
         public AIStateMachine()
         {
-            AddState(0, new AIStateIdle());
+            AddState(0, new IdleAIState());
             AddState(1, new AIState1());
             AddState(3, new AIState3());
             AddState(5, new AIState5());
@@ -18,6 +18,7 @@ namespace OpenSage.Logic.AI
             AddState(16, new AIState16());
             AddState(18, new AIState18());
             AddState(32, new AIState32());
+            AddState(40, new WanderAIState());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -323,7 +324,7 @@ namespace OpenSage.Logic.AI
     {
         public AIState32StateMachine()
         {
-            AddState(0, new AIStateIdle());
+            AddState(0, new IdleAIState());
         }
 
         internal override void Load(SaveFileReader reader)
