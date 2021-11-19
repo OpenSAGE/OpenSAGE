@@ -43,7 +43,8 @@ namespace OpenSage.Logic.AI.AIStates
             }
 
             var unknownInt2 = reader.ReadUInt32();
-            var unknownPos = reader.ReadVector3();
+
+            var guardPosition = reader.ReadVector3();
 
             var polygonTriggerName = reader.ReadAsciiString();
         }
