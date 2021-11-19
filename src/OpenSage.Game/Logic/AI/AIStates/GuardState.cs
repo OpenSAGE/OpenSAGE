@@ -36,17 +36,17 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadUInt32();
-            if (unknownInt1 != 0)
+            var guardObjectId = reader.ReadObjectID();
+
+            var unknownInt2 = reader.ReadUInt32();
+            if (unknownInt2 != 0)
             {
                 throw new InvalidDataException();
             }
 
-            var unknownInt2 = reader.ReadUInt32();
-
             var guardPosition = reader.ReadVector3();
 
-            var polygonTriggerName = reader.ReadAsciiString();
+            var guardPolygonTriggerName = reader.ReadAsciiString();
         }
 
         private sealed class GuardIdleState : State
