@@ -3,7 +3,7 @@ using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class IdleAIState : State
+    internal sealed class IdleState : State
     {
         internal override void Load(SaveFileReader reader)
         {

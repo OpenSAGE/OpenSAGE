@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal class MoveTowardsAIState : State
+    internal class MoveTowardsState : State
     {
         internal override void Load(SaveFileReader reader)
         {

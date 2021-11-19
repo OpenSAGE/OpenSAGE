@@ -3,11 +3,11 @@ using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class GuardAIState : State
+    internal sealed class GuardState : State
     {
         private readonly GuardAIStateMachine _stateMachine;
 
-        public GuardAIState()
+        public GuardState()
         {
             _stateMachine = new GuardAIStateMachine();
         }
@@ -26,8 +26,8 @@ namespace OpenSage.Logic.AI.AIStates
     {
         public GuardAIStateMachine()
         {
-            AddState(5001, new GuardIdleAIState());
-            AddState(5003, new GuardMoveAIState());
+            AddState(5001, new GuardIdleState());
+            AddState(5003, new GuardMoveState());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -48,7 +48,7 @@ namespace OpenSage.Logic.AI.AIStates
             var polygonTriggerName = reader.ReadAsciiString();
         }
 
-        private sealed class GuardIdleAIState : State
+        private sealed class GuardIdleState : State
         {
             internal override void Load(SaveFileReader reader)
             {
@@ -58,7 +58,7 @@ namespace OpenSage.Logic.AI.AIStates
             }
         }
 
-        private sealed class GuardMoveAIState : State
+        private sealed class GuardMoveState : State
         {
             internal override void Load(SaveFileReader reader)
             {
