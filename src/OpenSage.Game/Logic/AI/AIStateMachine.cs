@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI
             AddState(9, new AIState11());
             AddState(11, new AIState11());
             AddState(14, new AIState14());
-            AddState(16, new AIState16());
+            AddState(16, new GuardAIState());
             AddState(18, new AIState18());
             AddState(32, new AIState32());
             AddState(33, new FaceAIState(FaceAIStateType.FaceNamed));
@@ -213,65 +213,6 @@ namespace OpenSage.Logic.AI
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
-        }
-    }
-
-    internal sealed class AIState16 : State
-    {
-        private readonly AIState16StateMachine _stateMachine;
-
-        public AIState16()
-        {
-            _stateMachine = new AIState16StateMachine();
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownBool1 = reader.ReadBoolean();
-
-            _stateMachine.Load(reader);
-        }
-    }
-
-    internal sealed class AIState16StateMachine : StateMachineBase
-    {
-        public AIState16StateMachine()
-        {
-            AddState(5001, new AIState16StateMachineState5001());
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(2);
-
-            base.Load(reader);
-
-            var unknownInt1 = reader.ReadUInt32();
-            if (unknownInt1 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownPos = reader.ReadVector3();
-
-            var unknownByte = reader.ReadByte();
-            if (unknownByte != 0)
-            {
-                throw new InvalidDataException();
-            }
-        }
-    }
-
-    internal sealed class AIState16StateMachineState5001 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownInt1 = reader.ReadUInt32();
         }
     }
 

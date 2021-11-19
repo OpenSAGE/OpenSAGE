@@ -295,7 +295,7 @@ namespace OpenSage.Logic.Object
             var unknownBool11 = reader.ReadBooleanChecked();
             var unknownInt22 = reader.ReadBooleanChecked(); // 0
             var unknownInt22_2 = reader.ReadBooleanChecked(); // 0
-            var unknownInt22_3 = reader.ReadBooleanChecked(); // 0
+            var guardAreaPolygonTriggerName = reader.ReadBytePrefixedAsciiString();
             var attackPriorityName = reader.ReadBytePrefixedAsciiString();
             var unknownInt23 = reader.ReadUInt32(); // 0
             var unknownBool12 = reader.ReadBooleanChecked();
