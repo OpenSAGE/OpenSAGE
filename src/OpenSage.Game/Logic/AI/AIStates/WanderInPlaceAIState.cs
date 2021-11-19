@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using OpenSage.Data.Sav;
 
-namespace OpenSage.Logic.AI
+namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class WanderAIState : AIState1
+    internal sealed class WanderInPlaceAIState : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {

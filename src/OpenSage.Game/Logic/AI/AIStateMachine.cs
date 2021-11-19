@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Sav;
+using OpenSage.Logic.AI.AIStates;
 
 namespace OpenSage.Logic.AI
 {
@@ -8,7 +9,7 @@ namespace OpenSage.Logic.AI
         public AIStateMachine()
         {
             AddState(0, new IdleAIState());
-            AddState(1, new AIState1());
+            AddState(1, new MoveTowardsAIState());
             AddState(3, new AIState3());
             AddState(5, new AIState5());
             AddState(6, new AIState6());
@@ -18,7 +19,7 @@ namespace OpenSage.Logic.AI
             AddState(16, new AIState16());
             AddState(18, new AIState18());
             AddState(32, new AIState32());
-            AddState(40, new WanderAIState());
+            AddState(40, new WanderInPlaceAIState());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -29,23 +30,7 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal class AIState1 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var positionSomething = reader.ReadVector3();
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
-            var positionSomething2 = reader.ReadVector3();
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownInt3 = reader.ReadUInt32();
-            var unknownBool2 = reader.ReadBoolean();
-        }
-    }
-
-    internal class AIState3 : AIState1
+    internal class AIState3 : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -63,7 +48,7 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState5 : AIState1
+    internal sealed class AIState5 : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -75,7 +60,7 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState6 : AIState1
+    internal sealed class AIState6 : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -126,7 +111,7 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState11StateMachineState1 : AIState1
+    internal sealed class AIState11StateMachineState1 : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -203,7 +188,7 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState14StateMachineState0 : AIState1
+    internal sealed class AIState14StateMachineState0 : MoveTowardsAIState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -213,11 +198,11 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState14StateMachineState3 : AIState1
+    internal sealed class AIState14StateMachineState3 : MoveTowardsAIState
     {
     }
 
-    internal sealed class AIState14StateMachineState4 : AIState1
+    internal sealed class AIState14StateMachineState4 : MoveTowardsAIState
     {
     }
 
