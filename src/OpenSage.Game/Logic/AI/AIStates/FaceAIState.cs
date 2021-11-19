@@ -5,6 +5,13 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class FaceAIState : State
     {
+        private readonly FaceAIStateType _type;
+
+        public FaceAIState(FaceAIStateType type)
+        {
+            _type = type;
+        }
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
@@ -15,5 +22,11 @@ namespace OpenSage.Logic.AI.AIStates
                 throw new InvalidDataException();
             }
         }
+    }
+
+    internal enum FaceAIStateType
+    {
+        FaceNamed,
+        FaceWaypoint,
     }
 }
