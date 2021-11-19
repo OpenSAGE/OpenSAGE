@@ -3,13 +3,13 @@ using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class FaceAIState : State
+    internal sealed class FaceState : State
     {
-        private readonly FaceAIStateType _type;
+        private readonly FaceTargetType _targetType;
 
-        public FaceAIState(FaceAIStateType type)
+        public FaceState(FaceTargetType targetType)
         {
-            _type = type;
+            _targetType = targetType;
         }
 
         internal override void Load(SaveFileReader reader)
@@ -24,7 +24,7 @@ namespace OpenSage.Logic.AI.AIStates
         }
     }
 
-    internal enum FaceAIStateType
+    internal enum FaceTargetType
     {
         FaceNamed,
         FaceWaypoint,

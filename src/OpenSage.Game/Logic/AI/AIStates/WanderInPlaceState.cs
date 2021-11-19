@@ -3,7 +3,7 @@ using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class WanderInPlaceAIState : MoveTowardsAIState
+    internal sealed class WanderInPlaceState : MoveTowardsState
     {
         internal override void Load(SaveFileReader reader)
         {
