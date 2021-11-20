@@ -17,6 +17,7 @@ namespace OpenSage.Logic.AI
             AddState(11, new AttackState());
             AddState(13, new DeadState());
             AddState(14, new AIState14());
+            AddState(15, new EnterContainerState());
             AddState(16, new GuardState());
             AddState(17, new HuntState());
             AddState(18, new AIState18());
@@ -25,6 +26,7 @@ namespace OpenSage.Logic.AI
             AddState(32, new AIState32());
             AddState(33, new FaceState(FaceTargetType.FaceNamed));
             AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
+            AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
         }
 
