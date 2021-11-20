@@ -5,11 +5,11 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackAreaState : State
     {
-        private readonly AttackAreaAIStateMachine _stateMachine;
+        private readonly AttackAreaStateMachine _stateMachine;
 
         public AttackAreaState()
         {
-            _stateMachine = new AttackAreaAIStateMachine();
+            _stateMachine = new AttackAreaStateMachine();
         }
 
         internal override void Load(SaveFileReader reader)
@@ -28,9 +28,9 @@ namespace OpenSage.Logic.AI.AIStates
         }
     }
 
-    internal sealed class AttackAreaAIStateMachine : StateMachineBase
+    internal sealed class AttackAreaStateMachine : StateMachineBase
     {
-        public AttackAreaAIStateMachine()
+        public AttackAreaStateMachine()
         {
             AddState(0, new IdleState());
             AddState(10, new AttackState());

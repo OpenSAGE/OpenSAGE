@@ -5,11 +5,11 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class GuardState : State
     {
-        private readonly GuardAIStateMachine _stateMachine;
+        private readonly GuardStateMachine _stateMachine;
 
         public GuardState()
         {
-            _stateMachine = new GuardAIStateMachine();
+            _stateMachine = new GuardStateMachine();
         }
 
         internal override void Load(SaveFileReader reader)
@@ -22,9 +22,9 @@ namespace OpenSage.Logic.AI.AIStates
         }
     }
 
-    internal sealed class GuardAIStateMachine : StateMachineBase
+    internal sealed class GuardStateMachine : StateMachineBase
     {
-        public GuardAIStateMachine()
+        public GuardStateMachine()
         {
             AddState(5001, new GuardIdleState());
             AddState(5003, new GuardMoveState());
