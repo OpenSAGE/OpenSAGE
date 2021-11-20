@@ -27,7 +27,7 @@ namespace OpenSage.Logic.AI.AIStates
         public AttackAIStateMachine()
         {
             AddState(1, new AttackMoveTowardsTargetState());
-            AddState(2, new AIState11StateMachineState2());
+            AddState(2, new AttackAimWeaponState());
             AddState(3, new AttackFireWeaponState());
         }
 
@@ -55,7 +55,7 @@ namespace OpenSage.Logic.AI.AIStates
             }
         }
 
-        private sealed class AIState11StateMachineState2 : State
+        private sealed class AttackAimWeaponState : State
         {
             internal override void Load(SaveFileReader reader)
             {

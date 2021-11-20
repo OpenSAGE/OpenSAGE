@@ -13,11 +13,13 @@ namespace OpenSage.Logic.AI
             AddState(5, new AIState5());
             AddState(6, new AIState6());
             AddState(9, new AttackState());
+            AddState(10, new AttackState());
             AddState(11, new AttackState());
             AddState(13, new DeadState());
             AddState(14, new AIState14());
             AddState(16, new GuardState());
             AddState(18, new AIState18());
+            AddState(20, new AttackTeamState());
             AddState(28, new AttackAreaState());
             AddState(32, new AIState32());
             AddState(33, new FaceState(FaceTargetType.FaceNamed));

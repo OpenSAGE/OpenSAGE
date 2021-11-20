@@ -262,7 +262,21 @@ namespace OpenSage.Logic.Object
             }
 
             var waypointName = reader.ReadBytePrefixedAsciiString();
-            var unknownBool7 = reader.ReadBooleanChecked();
+
+            var hasTargetTeam = reader.ReadBooleanChecked();
+            if (hasTargetTeam)
+            {
+                if (reader.ReadVersion() != 1)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var numTeamObjects = reader.ReadUInt16();
+                for (var i = 0; i < numTeamObjects; i++)
+                {
+                    var teamObjectId = reader.ReadUInt32();
+                }
+            }
 
             var unknownInt11 = reader.ReadUInt32();
             if (unknownInt11 != 999999)
