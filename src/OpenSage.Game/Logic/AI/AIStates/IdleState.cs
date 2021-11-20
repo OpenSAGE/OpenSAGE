@@ -12,7 +12,7 @@ namespace OpenSage.Logic.AI.AIStates
             var unknownShort1 = reader.ReadUInt16();
 
             var unknownShort2 = reader.ReadUInt16();
-            if (unknownShort2 != 1)
+            if (unknownShort2 != 1 && unknownShort2 != 0)
             {
                 throw new InvalidDataException();
             }
