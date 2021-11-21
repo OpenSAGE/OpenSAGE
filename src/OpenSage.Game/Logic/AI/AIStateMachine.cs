@@ -23,6 +23,7 @@ namespace OpenSage.Logic.AI
             AddState(16, new GuardState());
             AddState(17, new HuntState());
             AddState(18, new WanderState());
+            AddState(19, new PanicState());
             AddState(20, new AttackTeamState());
             AddState(28, new AttackAreaState());
             AddState(32, new AIState32());
