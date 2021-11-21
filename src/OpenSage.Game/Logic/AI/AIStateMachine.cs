@@ -22,7 +22,7 @@ namespace OpenSage.Logic.AI
             AddState(15, new EnterContainerState());
             AddState(16, new GuardState());
             AddState(17, new HuntState());
-            AddState(18, new AIState18());
+            AddState(18, new WanderState());
             AddState(20, new AttackTeamState());
             AddState(28, new AttackAreaState());
             AddState(32, new AIState32());
@@ -118,25 +118,6 @@ namespace OpenSage.Logic.AI
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
-        }
-    }
-
-    internal sealed class AIState18 : FollowWaypointsState
-    {
-        public AIState18()
-            : base(false)
-        {
-
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var unknownInt0 = reader.ReadUInt32();
-            var unknownInt1 = reader.ReadUInt32();
         }
     }
 
