@@ -9,7 +9,8 @@ namespace OpenSage.Logic.AI
         {
             AddState(0, new IdleState());
             AddState(1, new MoveTowardsState());
-            AddState(3, new AIState3());
+            AddState(2, new FollowWaypointsState(true));
+            AddState(3, new FollowWaypointsState(false));
             AddState(4, new FollowWaypointsExactState(true));
             AddState(5, new FollowWaypointsExactState(false));
             AddState(6, new AIState6());
@@ -36,24 +37,6 @@ namespace OpenSage.Logic.AI
             reader.ReadVersion(1);
 
             base.Load(reader);
-        }
-    }
-
-    internal class AIState3 : MoveTowardsState
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var unknownInt0 = reader.ReadUInt32();
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownInt3 = reader.ReadUInt32();
-            var waypointIdMaybe = reader.ReadUInt32();
-            var waypointId2Maybe = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
         }
     }
 
@@ -138,8 +121,14 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState18 : AIState3
+    internal sealed class AIState18 : FollowWaypointsState
     {
+        public AIState18()
+            : base(false)
+        {
+
+        }
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
@@ -151,11 +140,12 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class AIState32 : AIState3
+    internal sealed class AIState32 : FollowWaypointsState
     {
         private readonly AIState32StateMachine _stateMachine;
 
         public AIState32()
+            : base(false)
         {
             _stateMachine = new AIState32StateMachine();
         }
