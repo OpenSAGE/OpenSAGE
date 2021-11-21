@@ -10,7 +10,8 @@ namespace OpenSage.Logic.AI
             AddState(0, new IdleState());
             AddState(1, new MoveTowardsState());
             AddState(3, new AIState3());
-            AddState(5, new AIState5());
+            AddState(4, new FollowWaypointsExactState(true));
+            AddState(5, new FollowWaypointsExactState(false));
             AddState(6, new AIState6());
             AddState(9, new AttackState());
             AddState(10, new AttackState());
@@ -53,18 +54,6 @@ namespace OpenSage.Logic.AI
             var waypointIdMaybe = reader.ReadUInt32();
             var waypointId2Maybe = reader.ReadUInt32();
             var unknownBool1 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState5 : MoveTowardsState
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var waypointIdMaybe = reader.ReadUInt32();
         }
     }
 
