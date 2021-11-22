@@ -99,12 +99,12 @@ namespace OpenSage
             return graphicsDevice;
         }
 
-        private void HandleClosing()
+        public void HandleClosing()
         {
             _closing = true;
         }
 
-        private void HandleResized()
+        public void HandleResized()
         {
             Swapchain.Resize(
                 (uint) _window.Bounds.Width,
@@ -113,19 +113,19 @@ namespace OpenSage
             RaiseClientSizeChanged();
         }
 
-        private void HandleKeyDown(KeyEvent evt)
+        public void HandleKeyDown(KeyEvent evt)
         {
             var message = InputMessage.CreateKeyDown(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
-        private void HandleKeyUp(KeyEvent evt)
+        public void HandleKeyUp(KeyEvent evt)
         {
             var message = InputMessage.CreateKeyUp(evt.Key, evt.Modifiers);
             MessageQueue.Enqueue(message);
         }
 
-        private void HandleMouseDown(MouseEvent evt)
+        public void HandleMouseDown(MouseEvent evt)
         {
             InputMessageType? getMessageType()
             {
@@ -152,7 +152,7 @@ namespace OpenSage
             MessageQueue.Enqueue(message);
         }
 
-        private void HandleMouseUp(MouseEvent evt)
+        public void HandleMouseUp(MouseEvent evt)
         {
             InputMessageType? getMessageType()
             {
@@ -179,7 +179,7 @@ namespace OpenSage
             MessageQueue.Enqueue(message);
         }
 
-        private void HandleMouseMove(MouseMoveEventArgs args)
+        public void HandleMouseMove(MouseMoveEventArgs args)
         {
             _lastMouseX = args.State.X;
             _lastMouseY = args.State.Y;
@@ -188,7 +188,7 @@ namespace OpenSage
             MessageQueue.Enqueue(message);
         }
 
-        private void HandleMouseWheel(MouseWheelEventArgs args)
+        public void HandleMouseWheel(MouseWheelEventArgs args)
         {
             var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100));
             MessageQueue.Enqueue(message);
