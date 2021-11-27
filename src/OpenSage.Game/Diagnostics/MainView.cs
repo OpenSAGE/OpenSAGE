@@ -29,8 +29,8 @@ namespace OpenSage.Diagnostics
 
             _maps = _context.Game.AssetStore.MapCaches
                 .Where(m => _context.Game.ContentManager.GetMapEntry(m.Name) != null)
-                .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
-                .OrderBy(m => m.mapName)
+                .Select(m => (mapCache: m, mapName: m.IsOfficial ? m.GetNameKey().Translate() : m.Name))
+                .OrderBy(m => m.mapCache.IsOfficial ? 0 : 1).ThenBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
             if (_maps.FirstOrDefault() is KeyValuePair<MapCache, string> kv)
             {
