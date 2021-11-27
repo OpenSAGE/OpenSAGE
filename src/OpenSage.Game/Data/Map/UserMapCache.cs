@@ -59,7 +59,7 @@ namespace OpenSage.Data.Map
 
                     // TODO: Should we check the CRC here as well?
                     // If yes, which implementation should we use?
-                    if (fileInfo.LastWriteTime != timestamp &&
+                    if (fileInfo.LastWriteTime != timestamp ||
                         fileInfo.Length != mapCache.FileSize)
                     {
                         // existing map modified
