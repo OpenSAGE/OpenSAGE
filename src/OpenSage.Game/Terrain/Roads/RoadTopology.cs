@@ -142,6 +142,8 @@ namespace OpenSage.Terrain.Roads
         {
             Position = position;
         }
+
+        public override string ToString() => Position.ToString();
     }
 
     internal sealed class RoadTopologyEdge
@@ -199,5 +201,7 @@ namespace OpenSage.Terrain.Roads
                 EndType &= ~RoadType.TightCurve;
             }
         }
+
+        public override string ToString() => $"{Template.Name}: {Start} -> {End}";
     }
 }
