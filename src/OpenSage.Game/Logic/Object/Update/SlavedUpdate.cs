@@ -37,6 +37,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (Master == null)
+            {
+                // TODO: Should this ever be null?
+                return;
+            }
+
             var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
             var masterHealthPercent = Master.HealthPercentage;
 
