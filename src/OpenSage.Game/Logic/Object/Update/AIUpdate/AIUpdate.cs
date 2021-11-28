@@ -255,12 +255,6 @@ namespace OpenSage.Logic.Object
 
             _stateMachine.Load(new Data.Sav.SaveFileReader(reader));
 
-            var numPositionsSomething = reader.ReadUInt32();
-            for (var i = 0; i < numPositionsSomething; i++)
-            {
-                var positionSomething = reader.ReadVector3();
-            }
-
             var waypointName = reader.ReadBytePrefixedAsciiString();
 
             var hasTargetTeam = reader.ReadBooleanChecked();
@@ -281,7 +275,8 @@ namespace OpenSage.Logic.Object
             var unknownInt11 = reader.ReadUInt32();
             if (unknownInt11 != 999999)
             {
-                throw new InvalidDataException();
+                var state = _stateMachine.GetState(unknownInt11);
+                state.Load(new Data.Sav.SaveFileReader(reader));
             }
 
             var unknownInt12 = reader.ReadUInt32();

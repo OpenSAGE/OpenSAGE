@@ -98,7 +98,7 @@ namespace OpenSage.Graphics
                 pipeline, // TODO
                 materialResourceSet));
 
-            BoundingBox = w3xMesh.BoundingBox;
+            _boundingBox = w3xMesh.BoundingBox;
 
             _shaderSet = shaderResources.ShaderSet;
 

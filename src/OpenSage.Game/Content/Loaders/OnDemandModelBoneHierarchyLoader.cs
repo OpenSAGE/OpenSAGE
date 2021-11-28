@@ -32,7 +32,7 @@ namespace OpenSage.Content.Loaders
             {
                 hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
             }
-            var w3dHierarchy = hierarchyFile.GetHierarchy();
+            var w3dHierarchy = hierarchyFile.Hierarchy;
             return w3dHierarchy != null
                 ? new ModelBoneHierarchy(w3dHierarchy)
                 : ModelBoneHierarchy.CreateDefault();

@@ -101,6 +101,8 @@ namespace OpenSage
 
         public GameObject BuildPreviewObject;
 
+        public readonly PartitionCellManager PartitionCellManager;
+
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -283,6 +285,8 @@ namespace OpenSage
             Game = game;
 
             PlayerManager = new PlayerManager();
+
+            PartitionCellManager = new PartitionCellManager(game);
 
             Camera = new Camera(getViewport);
 

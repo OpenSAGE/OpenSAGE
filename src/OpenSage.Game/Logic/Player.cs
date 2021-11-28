@@ -649,45 +649,19 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             var unknownCount = reader.ReadUInt16();
+            var unknownThings = new AIPlayerUnknownThing[unknownCount];
             for (var i = 0; i < unknownCount; i++)
             {
-                reader.ReadVersion(1);
-
-                var unknownInt3 = reader.ReadUInt16();
-                if (unknownInt3 != 1)
-                {
-                    throw new InvalidDataException();
-                }
-
-                reader.ReadBoolean();
-
-                var objectName = reader.ReadAsciiString();
-
-                var objectId = reader.ReadObjectID();
-
-                var unknownInt1 = reader.ReadUInt32(); // 0
-                var unknownInt2 = reader.ReadUInt32(); // 1
-
-                var unknownBool5 = reader.ReadBoolean();
-                var unknownBool6 = reader.ReadBoolean();
-                var unknownBool7 = reader.ReadBoolean();
-
-                var unknownInt2_1 = reader.ReadUInt32(); // 11
-
-                for (var j = 0; j < 11; j++)
-                {
-                    var unknownByte = reader.ReadByte();
-                    if (unknownByte != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
+                unknownThings[i] = new AIPlayerUnknownThing();
+                unknownThings[i].Load(reader);
             }
 
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 0)
+            var unknownCount2 = reader.ReadUInt16();
+            var unknownThings2 = new AIPlayerUnknownThing[unknownCount2];
+            for (var i = 0; i < unknownCount2; i++)
             {
-                throw new InvalidDataException();
+                unknownThings2[i] = new AIPlayerUnknownThing();
+                unknownThings2[i].Load(reader);
             }
 
             var playerId = reader.ReadUInt32();
@@ -720,7 +694,7 @@ namespace OpenSage.Logic
             var unknown5 = reader.ReadUInt32();
             if (unknown5 != 0 && unknown5 != 50)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknown6 = reader.ReadUInt32();
@@ -734,7 +708,7 @@ namespace OpenSage.Logic
             var unknown8 = reader.ReadUInt32();
             if (unknown8 != 0 && unknown8 != 1)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
             var unknown9 = reader.ReadUInt32();
@@ -762,6 +736,54 @@ namespace OpenSage.Logic
                 }
             }
         }
+
+        private sealed class AIPlayerUnknownThing
+        {
+            internal void Load(SaveFileReader reader)
+            {
+                reader.ReadVersion(1);
+
+                var count = reader.ReadUInt16();
+                for (var i = 0; i < count; i++)
+                {
+                    var otherThing = new AIPlayerUnknownOtherThing();
+                    otherThing.Load(reader);
+                }
+
+                var unknownBool7 = reader.ReadBoolean();
+
+                var unknownInt2_1 = reader.ReadUInt32(); // 11
+
+                var unknownInt4 = reader.ReadUInt32();
+
+                for (var j = 0; j < 7; j++)
+                {
+                    var unknownByte = reader.ReadByte();
+                    if (unknownByte != 0)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+            }
+        }
+
+        private sealed class AIPlayerUnknownOtherThing
+        {
+            internal void Load(SaveFileReader reader)
+            {
+                reader.ReadVersion(1);
+
+                var objectName = reader.ReadAsciiString();
+
+                var objectId = reader.ReadObjectID();
+
+                var unknownInt1 = reader.ReadUInt32(); // 0
+                var unknownInt2 = reader.ReadUInt32(); // 1
+
+                var unknownBool5 = reader.ReadBoolean();
+                var unknownBool6 = reader.ReadBoolean();
+            }
+        }
     }
 
     public sealed class SkirmishAIPlayer : AIPlayer
@@ -778,7 +800,13 @@ namespace OpenSage.Logic
 
             base.Load(reader);
 
-            for (var i = 0; i < 32; i++)
+            var unknownInt1 = reader.ReadInt32();
+            var unknownInt2 = reader.ReadInt32();
+
+            var unknownFloat1 = reader.ReadSingle();
+            var unknownFloat2 = reader.ReadSingle();
+
+            for (var i = 0; i < 16; i++)
             {
                 var unknownByte = reader.ReadByte();
                 if (unknownByte != 0)

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using OpenSage.Client;
-using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.IO;
 using OpenSage.Logic;
@@ -56,7 +55,6 @@ namespace OpenSage.Data.Sav
             CampaignManager campaignManager = null;
             var terrainLogic = new TerrainLogic();
             var terrainVisual = new TerrainVisual();
-            var partitionCellManager = new PartitionCellManager(game);
             var ghostObjectManager = new GhostObjectManager();
 
             while (true)
@@ -86,7 +84,7 @@ namespace OpenSage.Data.Sav
 
                     case "CHUNK_GameStateMap":
                         GameStateMap.Load(reader, game);
-                        partitionCellManager.OnNewGame();
+                        game.Scene3D.PartitionCellManager.OnNewGame();
                         break;
 
                     case "CHUNK_TerrainLogic":
@@ -136,7 +134,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_Partition":
-                        partitionCellManager.Load(reader);
+                        game.Scene3D.PartitionCellManager.Load(reader);
                         break;
 
                     case "CHUNK_TerrainVisual":

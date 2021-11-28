@@ -11,11 +11,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             var unknownShort1 = reader.ReadUInt16();
 
-            var unknownShort2 = reader.ReadUInt16();
-            if (unknownShort2 != 1 && unknownShort2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool2 = reader.ReadBoolean();
         }
     }
 }

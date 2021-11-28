@@ -64,6 +64,7 @@ namespace OpenSage.Diagnostics
             AddView(new InspectorView(context));
             AddView(new PreviewView(context));
             AddView(new CameraView(context));
+            AddView(new PartitionView(context));
         }
 
         private void DrawTimingControls()

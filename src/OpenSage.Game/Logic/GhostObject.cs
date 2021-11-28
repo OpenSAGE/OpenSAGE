@@ -101,13 +101,13 @@ namespace OpenSage.Logic
                         var meshBool = reader.ReadBoolean();
                         var meshTransform = reader.ReadMatrix4x3Transposed();
 
-                        if (meshName != model.SubObjects[k].Name)
+                        if (meshName != model.SubObjects[k].FullName)
                         {
                             throw new InvalidDataException();
                         }
 
                         // TODO: meshTransform is actually absolute, not relative.
-                        modelInstance.RelativeBoneTransforms[k] = meshTransform.ToMatrix4x4();
+                        modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
                     }
                 }
             }

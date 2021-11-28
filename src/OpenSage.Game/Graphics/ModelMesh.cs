@@ -19,7 +19,7 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed partial class ModelMesh : BaseAsset
+    public sealed partial class ModelMesh : ModelRenderObject
     {
         private readonly ShaderSet _shaderSet;
         private ShaderSet _depthShaderSet;
@@ -36,13 +36,15 @@ namespace OpenSage.Graphics
         internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
         internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
 
-        public readonly AxisAlignedBoundingBox BoundingBox;
+        private readonly AxisAlignedBoundingBox _boundingBox;
+
+        public override ref readonly AxisAlignedBoundingBox BoundingBox => ref _boundingBox;
 
         public readonly List<ModelMeshPart> MeshParts;
 
         public readonly bool Skinned;
 
-        public readonly bool Hidden;
+        public override bool Hidden { get; }
         public readonly bool CameraOriented;
 
         private void PostInitialize(AssetLoadContext loadContext)
@@ -85,7 +87,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        internal void BuildRenderList(
+        internal override void BuildRenderList(
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
@@ -112,7 +114,7 @@ namespace OpenSage.Graphics
                 renderItemConstantsPS);
         }
 
-        internal void BuildRenderListWithWorldMatrix(
+        internal override void BuildRenderListWithWorldMatrix(
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
