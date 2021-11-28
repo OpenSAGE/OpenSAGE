@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
@@ -114,6 +116,47 @@ namespace OpenSage.Logic
         //     cell++
         //   }
         // }
+
+        internal void DrawDiagnostic()
+        {
+            var p = ImGui.GetCursorScreenPos();
+
+            var availableSize = ImGui.GetContentRegionAvail();
+            var cellSize = availableSize / new Vector2(_numCellsX, _numCellsY);
+
+            for (var y = 0; y < _numCellsY; y++)
+            {
+                for (var x = 0; x < _numCellsX; x++)
+                {
+                    var cell = _cells[((_numCellsY - 1 - y) * _numCellsX) + x];
+                    var value = cell.Values[2];
+
+                    uint cellColor;
+                    if (value.State < 0)
+                    {
+                        //c = (char) ((-value.State) + '0');
+                        cellColor = 0xFFFF00FF;
+                    }
+                    else if (value.State == 0)
+                    {
+                        cellColor = 0xFF0000FF;
+                    }
+                    else if (value.State == 1)
+                    {
+                        cellColor = 0xFF00FFFF;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    ImGui.GetWindowDrawList().AddRectFilled(
+                        p + new Vector2(cellSize.X * x, cellSize.Y * y),
+                        p + new Vector2(cellSize.X * x, cellSize.Y * y) + cellSize,
+                        cellColor);
+                }
+            }
+        }
     }
 
     public sealed class PartitionCell

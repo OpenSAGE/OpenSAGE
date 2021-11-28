@@ -674,11 +674,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadBoolean(); // IsOneShot
 
             if (reader.ReadEnum<ParticleSystemShader>() != Template.Shader)
             {

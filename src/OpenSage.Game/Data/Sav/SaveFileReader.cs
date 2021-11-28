@@ -181,7 +181,6 @@ namespace OpenSage.Data.Sav
             if (_binaryReader.BaseStream.Position != segment.End)
             {
                 Console.WriteLine("Skipped segment in .sav file");
-
                 _binaryReader.BaseStream.Position = segment.End;
 
                 //throw new InvalidDataException();

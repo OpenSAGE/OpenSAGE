@@ -43,8 +43,8 @@ namespace OpenSage.Content.Loaders
                 w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
             }
 
-            var w3dHLod = w3dFile.GetHLod();
-            var w3dHierarchy = w3dFile.GetHierarchy();
+            var w3dHLod = w3dFile.HLod;
+            var w3dHierarchy = w3dFile.Hierarchy;
             ModelBoneHierarchy boneHierarchy;
             if (w3dHierarchy != null)
             {
@@ -73,8 +73,7 @@ namespace OpenSage.Content.Loaders
         {
             //BoundingSphere boundingSphere = default(BoundingSphere);
 
-            var w3dMeshes = w3dFile.GetMeshes();
-            var w3dHLod = w3dFile.GetHLod();
+            var w3dHLod = w3dFile.HLod;
 
             var subObjects = new List<ModelSubObject>();
 
@@ -82,16 +81,12 @@ namespace OpenSage.Content.Loaders
             {
                 foreach (var w3dSubObject in w3dHLod.Lods[0].SubObjects)
                 {
-                    // TODO: Collision boxes
-                    var w3dMesh = w3dMeshes.FirstOrDefault(x => x.Header.ContainerName + "." + x.Header.MeshName == w3dSubObject.Name);
-                    if (w3dMesh == null)
+                    if (!w3dFile.RenderableObjectsByName.TryGetValue(w3dSubObject.Name, out var w3dRenderableObject))
                     {
                         continue;
                     }
-
+                    
                     var bone = boneHierarchy.Bones[(int) w3dSubObject.BoneIndex];
-
-                    var mesh = new ModelMesh(w3dMesh, context);
 
                     //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -99,35 +94,56 @@ namespace OpenSage.Content.Loaders
                     //    ? meshBoundingSphere
                     //    : BoundingSphere.CreateMerged(boundingSphere, meshBoundingSphere);
 
-                    subObjects.Add(new ModelSubObject(w3dSubObject.Name, bone, mesh));
+                    subObjects.Add(
+                        CreateSubObject(
+                            w3dSubObject.Name,
+                            w3dRenderableObject,
+                            bone,
+                            context));
                 }
             }
-            else if (w3dMeshes.Count > 0)
+            else if (w3dFile.RenderableObjects.Count > 0)
             {
                 // Simple models can have only one mesh with no HLod chunk.
-                if (w3dMeshes.Count != 1)
+                if (w3dFile.RenderableObjects.Count != 1)
                 {
                     throw new InvalidOperationException();
                 }
 
-                var w3dMesh = w3dMeshes[0];
+                var w3dRenderableObjectPair = w3dFile.RenderableObjectsByName.First();
 
-                var mesh = new ModelMesh(w3dMesh, context);
-
-                subObjects.Add(new ModelSubObject(
-                    w3dMesh.Header.MeshName,
-                    boneHierarchy.Bones[0],
-                    mesh));
+                subObjects.Add(
+                    CreateSubObject(
+                        w3dRenderableObjectPair.Key,
+                        w3dRenderableObjectPair.Value,
+                        boneHierarchy.Bones[0],
+                        context));
             }
             else
             {
-                // TODO: Some .w3d files contain a single W3D_BOX.
+                
             }
 
             return new Model(
                 Path.GetFileNameWithoutExtension(w3dFile.FilePath),
                 boneHierarchy,
                 subObjects.ToArray());
+        }
+
+        private static ModelSubObject CreateSubObject(
+            string fullName,
+            W3dChunk w3dRenderableObject,
+            ModelBone bone,
+            AssetLoadContext context)
+        {
+            return w3dRenderableObject switch
+            {
+                W3dMesh w3dMesh => new ModelSubObject(fullName, w3dMesh.Header.MeshName, bone, new ModelMesh(w3dMesh, context)),
+
+                W3dBox w3dBox => new ModelSubObject(fullName, bone, new ModelBox(w3dBox, context)),
+
+                _ => throw new ArgumentOutOfRangeException(nameof(w3dRenderableObject)),
+            };
         }
     }
 }

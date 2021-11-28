@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Object.Production;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ParkingPlaceBehaviour : BehaviorModule, IProductionExit
+    public sealed class ParkingPlaceBehaviour : UpdateModule, IProductionExit
     {
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;
@@ -222,6 +224,19 @@ namespace OpenSage.Logic.Object
 
         private int SlotToHangar(int slot) => slot / 2 + 1;
         private int SlotToRunway(int slot) => slot % 2 + 1;
+
+        internal override void Load(BinaryReader reader)
+        {
+            var version = reader.ReadVersion();
+            if (version != 3)
+            {
+                throw new InvalidDataException();
+            }
+
+            base.Load(reader);
+
+            // TODO
+        }
     }
 
     /// <summary>

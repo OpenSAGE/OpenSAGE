@@ -398,33 +398,29 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < 3; i++)
             {
                 var unknownCount = reader.ReadByte();
                 for (var j = 0; j < unknownCount; j++)
                 {
                     var unknown1 = reader.ReadUInt32();
-                    if (unknown1 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
 
-                    var unknown2 = reader.ReadUInt32();
-                    if (unknown2 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-
+                    var unknown2 = reader.ReadSingle();
                     var unknown3 = reader.ReadSingle();
                 }
             }
 
             var unknownBool1 = reader.ReadBooleanChecked();
-            var unknownBool2 = reader.ReadBooleanChecked();
-
-            if (unknownBool1 || unknownBool2)
+            if (unknownBool1)
             {
                 throw new InvalidDataException();
+            }
+
+            var unknownBool2 = reader.ReadBooleanChecked();
+            if (unknownBool2)
+            {
+                var unknownInt = reader.ReadInt32();
+                var unknownFloat = reader.ReadSingle();
             }
         }
     }

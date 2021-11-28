@@ -41,8 +41,6 @@ namespace OpenSage.Graphics
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegates;
         internal readonly BeforeRenderDelegate[][] BeforeRenderDelegatesDepth;
 
-        private readonly bool _hasSkinnedMeshes;
-
         private readonly Matrix4x4[] _skinningBones;
 
         private readonly DeviceBuffer _skinningBuffer;
@@ -79,10 +77,8 @@ namespace OpenSage.Graphics
                 BoneFrameVisibilities[i] = true;
             }
 
-            _hasSkinnedMeshes = model.SubObjects.Any(x => x.RenderObject.Skinned);
-
             DeviceBuffer skinningBuffer;
-            if (_hasSkinnedMeshes)
+            if (model.HasSkinnedMeshes)
             {
                 _skinningBuffer = skinningBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
@@ -107,7 +103,12 @@ namespace OpenSage.Graphics
 
             for (var i = 0; i < model.SubObjects.Length; i++)
             {
-                var mesh = model.SubObjects[i].RenderObject;
+                var renderObject = model.SubObjects[i].RenderObject;
+
+                if (!(renderObject is ModelMesh mesh))
+                {
+                    continue;
+                }
 
                 BeforeRenderDelegates[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
                 BeforeRenderDelegatesDepth[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
@@ -177,7 +178,7 @@ namespace OpenSage.Graphics
                 modelBoneInstance.ResetDirty();
             }
 
-            if (!_hasSkinnedMeshes)
+            if (!Model.HasSkinnedMeshes)
             {
                 return;
             }
@@ -211,7 +212,7 @@ namespace OpenSage.Graphics
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
-                var name = subObject.Name.Split('.').Last();
+                var name = subObject.Name;
 
                 if ((subObject.RenderObject.Hidden && !(shownSubObjects?.ContainsKey(name) ?? false))
                     || (hiddenSubObjects?.ContainsKey(name) ?? false))

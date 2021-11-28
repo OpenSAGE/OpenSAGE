@@ -26,6 +26,7 @@ namespace OpenSage.Logic.AI.AIStates
     {
         public AttackStateMachine()
         {
+            AddState(0, new AttackMoveTowardsTargetState());
             AddState(1, new AttackMoveTowardsTargetState());
             AddState(2, new AttackAimWeaponState());
             AddState(3, new AttackFireWeaponState());

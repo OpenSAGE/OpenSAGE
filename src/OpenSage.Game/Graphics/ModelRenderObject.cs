@@ -1,0 +1,37 @@
+﻿using System.Numerics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
+
+namespace OpenSage.Graphics
+{
+    public abstract class ModelRenderObject : BaseAsset
+    {
+        public abstract ref readonly AxisAlignedBoundingBox BoundingBox { get; }
+
+        public abstract bool Hidden { get; }
+
+        internal abstract void BuildRenderList(
+            RenderList renderList,
+            Camera camera,
+            ModelInstance modelInstance,
+            BeforeRenderDelegate[] beforeRender,
+            BeforeRenderDelegate[] beforeRenderDepth,
+            ModelBone parentBone,
+            in Matrix4x4 modelTransform,
+            bool castsShadow,
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS);
+
+        internal abstract void BuildRenderListWithWorldMatrix(
+            RenderList renderList,
+            Camera camera,
+            ModelInstance modelInstance,
+            BeforeRenderDelegate[] beforeRender,
+            BeforeRenderDelegate[] beforeRenderDepth,
+            ModelBone parentBone,
+            in Matrix4x4 meshWorldMatrix,
+            bool castsShadow,
+            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null);
+    }
+}

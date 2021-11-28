@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal class EnterContainerState : MoveTowardsState
+    internal sealed class FollowPathState : MoveTowardsState
     {
         internal override void Load(SaveFileReader reader)
         {
@@ -10,7 +10,9 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var containerObjectId = reader.ReadObjectID();
+            var unknown1 = reader.ReadUInt32();
+            var unknown2 = reader.ReadBoolean();
+            var unknown3 = reader.ReadBoolean();
         }
     }
 }

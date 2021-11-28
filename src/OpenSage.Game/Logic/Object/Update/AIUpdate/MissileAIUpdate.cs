@@ -101,10 +101,6 @@ namespace OpenSage.Logic.Object
             var objectIdSomething = reader.ReadUInt32();
 
             var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1 != true)
-            {
-                throw new InvalidDataException();
-            }
 
             var frameSomething2 = reader.ReadUInt32();
 

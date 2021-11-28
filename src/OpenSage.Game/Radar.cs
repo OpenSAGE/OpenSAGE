@@ -116,6 +116,11 @@ namespace OpenSage
         {
             // TODO: Don't draw minimap if player doesn't have radar.
 
+            if (_miniMapTexture == null)
+            {
+                return;
+            }
+
             var fittedRectangle = RectangleF.CalculateRectangleFittingAspectRatio(
                 new RectangleF(0, 0, _miniMapTexture.Width, _miniMapTexture.Height),
                 new SizeF(_miniMapTexture.Width, _miniMapTexture.Height),

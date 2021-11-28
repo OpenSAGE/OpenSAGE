@@ -320,26 +320,19 @@ namespace OpenSage.Client
             var unknownInt4 = reader.ReadUInt32();
             if (unknownInt4 != 0)
             {
-                throw new InvalidDataException();
+                //throw new InvalidDataException();
             }
 
-            var unknownInt5 = reader.ReadUInt32();
-            if (unknownInt5 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt6 = reader.ReadUInt32();
+            var flashFrameCount = reader.ReadUInt32();
+            var flashColor = reader.ReadColorRgba();
 
             var unknownBool5 = reader.ReadBoolean();
+            var unknownBool7 = reader.ReadBoolean();
 
-            for (var i = 0; i < 5; i++)
+            var unknownInt7 = reader.ReadUInt32();
+            if (unknownInt7 != 0)
             {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                throw new InvalidDataException();
             }
 
             var unknownBool6 = reader.ReadBoolean();

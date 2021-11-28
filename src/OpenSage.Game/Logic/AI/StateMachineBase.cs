@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Sav;
 
@@ -6,17 +7,27 @@ namespace OpenSage.Logic.AI
 {
     internal abstract class StateMachineBase
     {
-        private readonly Dictionary<int, State> _states;
+        private readonly Dictionary<uint, State> _states;
         private State _currentState;
 
         protected StateMachineBase()
         {
-            _states = new Dictionary<int, State>();
+            _states = new Dictionary<uint, State>();
         }
 
-        public void AddState(int id, State state)
+        public void AddState(uint id, State state)
         {
             _states.Add(id, state);
+        }
+
+        public State GetState(uint id)
+        {
+            if (_states.TryGetValue(id, out var result))
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
         }
 
         internal virtual void Load(SaveFileReader reader)
@@ -27,7 +38,7 @@ namespace OpenSage.Logic.AI
             var unknownInt4 = reader.ReadUInt32();
 
             var currentStateID = reader.ReadUInt32();
-            _currentState = _states[(int)currentStateID];
+            _currentState = GetState(currentStateID);
 
             var unknownBool1 = reader.ReadBoolean();
             if (unknownBool1)

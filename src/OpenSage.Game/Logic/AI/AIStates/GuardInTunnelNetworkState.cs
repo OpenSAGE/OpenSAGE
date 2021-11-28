@@ -3,32 +3,35 @@ using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
 {
-    internal sealed class GuardState : State
+    internal sealed class GuardInTunnelNetworkState : State
     {
-        private readonly GuardStateMachine _stateMachine;
+        private readonly GuardInTunnelNetworkStateMachine _stateMachine;
 
-        public GuardState()
+        public GuardInTunnelNetworkState()
         {
-            _stateMachine = new GuardStateMachine();
+            _stateMachine = new GuardInTunnelNetworkStateMachine();
         }
 
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool = reader.ReadBoolean();
+            if (!unknownBool)
+            {
+                throw new InvalidDataException();
+            }
 
             _stateMachine.Load(reader);
         }
     }
 
-    internal sealed class GuardStateMachine : StateMachineBase
+    internal sealed class GuardInTunnelNetworkStateMachine : StateMachineBase
     {
-        public GuardStateMachine()
+        public GuardInTunnelNetworkStateMachine()
         {
-            AddState(5001, new GuardIdleState());
-            AddState(5002, new GuardUnknown5002State());
-            AddState(5003, new GuardMoveState());
+            AddState(5001, new GuardInTunnelNetworkIdleState());
+            AddState(5003, new GuardInTunnelNetworkEnterTunnelState());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -39,14 +42,10 @@ namespace OpenSage.Logic.AI.AIStates
 
             var guardObjectId = reader.ReadObjectID();
 
-            var guardObjectId2 = reader.ReadObjectID();
-
             var guardPosition = reader.ReadVector3();
-
-            var guardPolygonTriggerName = reader.ReadAsciiString();
         }
 
-        private sealed class GuardIdleState : State
+        private sealed class GuardInTunnelNetworkIdleState : State
         {
             internal override void Load(SaveFileReader reader)
             {
@@ -56,19 +55,13 @@ namespace OpenSage.Logic.AI.AIStates
             }
         }
 
-        private sealed class GuardUnknown5002State : State
+        private sealed class GuardInTunnelNetworkEnterTunnelState : EnterContainerState
         {
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
-            }
-        }
 
-        private sealed class GuardMoveState : State
-        {
-            internal override void Load(SaveFileReader reader)
-            {
-                reader.ReadVersion(1);
+                base.Load(reader);
 
                 var unknownInt1 = reader.ReadUInt32();
             }

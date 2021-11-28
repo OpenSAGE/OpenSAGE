@@ -19,6 +19,12 @@ namespace OpenSage.Data.Sav
             var mapPathInSaveFolder = Path.Combine(
                 game.ContentManager.UserDataFileSystem.RootDirectory,
                 mapPath1);
+            var saveFolder = Path.GetDirectoryName(mapPathInSaveFolder);
+            if (!Directory.Exists(saveFolder))
+            {
+                Directory.CreateDirectory(saveFolder);
+            }
+
             using (var mapOutputStream = File.OpenWrite(mapPathInSaveFolder))
             {
                 reader.ReadBytesIntoStream(mapOutputStream, (int)mapSize);
@@ -35,6 +41,8 @@ namespace OpenSage.Data.Sav
                 game.SkirmishManager.Settings.Load(reader);
 
                 game.SkirmishManager.Settings.MapName = mapPath1;
+
+                game.SkirmishManager.HandleStartButtonClickAsync().Wait();
 
                 game.SkirmishManager.StartGame();
             }
