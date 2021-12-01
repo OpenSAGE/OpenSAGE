@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -9,17 +7,13 @@ namespace OpenSage.Logic.Object
     {
         private bool _rodsExtended;
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            _rodsExtended = reader.ReadBooleanChecked();
+            _rodsExtended = reader.ReadBoolean();
         }
     }
 

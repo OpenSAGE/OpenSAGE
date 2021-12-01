@@ -30,7 +30,7 @@ namespace OpenSage.Client
                 var objectDefinitionId = reader.ReadUInt16();
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
-                reader.BeginSegment();
+                reader.BeginSegment(objectDefinition.Name);
 
                 var objectID = reader.ReadUInt32();
                 var gameObject = _gameLogic.GetObjectById(objectID);

@@ -21,7 +21,7 @@ namespace OpenSage.Data.Sav
                 {
                     var chunkName = reader.ReadAsciiString();
 
-                    reader.BeginSegment();
+                    reader.BeginSegment(chunkName);
 
                     if (chunkName == "CHUNK_GameState")
                     {
@@ -69,7 +69,7 @@ namespace OpenSage.Data.Sav
                     break;
                 }
 
-                reader.BeginSegment();
+                reader.BeginSegment(chunkName);
 
                 switch (chunkName)
                 {

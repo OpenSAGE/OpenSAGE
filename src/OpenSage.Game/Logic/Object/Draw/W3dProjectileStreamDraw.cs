@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -47,13 +45,9 @@ namespace OpenSage.Logic.Object
             // TODO
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
         }

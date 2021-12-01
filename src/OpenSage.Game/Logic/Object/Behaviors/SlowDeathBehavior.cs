@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -131,17 +129,13 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBytes(12);
+            reader.__Skip(12);
 
             var unknown2 = reader.ReadSingle();
 

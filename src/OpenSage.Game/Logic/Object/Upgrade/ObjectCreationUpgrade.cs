@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -36,13 +34,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
         }

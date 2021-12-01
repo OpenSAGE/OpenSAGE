@@ -1116,11 +1116,11 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < numModules; i++)
             {
                 var moduleTag = reader.ReadAsciiString();
-
-                reader.BeginSegment();
-
                 var module = GetModuleByTag(moduleTag);
-                module.Load(reader.Inner);
+
+                reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
+
+                module.Load(reader);
 
                 reader.EndSegment();
             }

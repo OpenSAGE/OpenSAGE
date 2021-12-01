@@ -1,23 +1,16 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers
 {
     internal sealed class ObjectFiringTrackerHelper : UpdateModule
     {
         // TODO
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown = reader.ReadBytes(12);
+            reader.__Skip(12);
         }
     }
 }

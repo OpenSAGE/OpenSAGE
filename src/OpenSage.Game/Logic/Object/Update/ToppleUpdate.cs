@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
-using System.Text;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -113,39 +109,35 @@ namespace OpenSage.Logic.Object
             context.GameObject.Kill(DeathType.Toppled, context.Time);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadByte();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
             _toppleSpeed = reader.ReadSingle();
             _toppleAcceleration = reader.ReadSingle();
             _toppleDirection = reader.ReadVector3();
-            _toppleState = reader.ReadUInt32AsEnum<ToppleState>();
+            _toppleState = reader.ReadEnum<ToppleState>();
             _toppleAngle = reader.ReadSingle();
             var unknownFloat6 = reader.ReadSingle();
 
             var unknownUint4 = reader.ReadUInt32();
             if (unknownUint4 != 0)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownUint5 = reader.ReadUInt32();
             if (unknownUint5 != 0)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownBool6 = reader.ReadBooleanChecked();
+            var unknownBool6 = reader.ReadBoolean();
             if (unknownBool6)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             _stumpId = reader.ReadUInt32();

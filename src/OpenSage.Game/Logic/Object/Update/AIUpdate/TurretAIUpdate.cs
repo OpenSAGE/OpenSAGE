@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -194,15 +193,11 @@ namespace OpenSage.Logic.Object
             //return false;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(2);
 
-            var unknownBool1 = reader.ReadBooleanChecked();
+            var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)
             {
                 throw new InvalidDataException();
@@ -220,7 +215,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < 7; i++)
             {
-                var unknownBool2 = reader.ReadBooleanChecked();
+                var unknownBool2 = reader.ReadBoolean();
             }
 
             var frameSomething = reader.ReadUInt32();

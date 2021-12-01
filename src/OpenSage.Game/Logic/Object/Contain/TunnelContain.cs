@@ -3,6 +3,19 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class TunnelContain : OpenContainModule
+    {
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknown1 = reader.ReadBoolean();
+            var unknown2 = reader.ReadBoolean();
+        }
+    }
+
     /// <summary>
     /// Tunnel contain limit is special case global logic defined by 
     /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of 
@@ -51,5 +64,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool AllowOwnPlayerInsideOverride { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new TunnelContain();
+        }
     }
 }

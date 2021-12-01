@@ -13,7 +13,7 @@ namespace OpenSage.Data.Sav
             var mapPath2 = reader.ReadAsciiString();
             var gameType = reader.ReadEnum<GameType>();
 
-            var mapSize = reader.BeginSegment();
+            var mapSize = reader.BeginSegment("EmbeddedMap");
 
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(

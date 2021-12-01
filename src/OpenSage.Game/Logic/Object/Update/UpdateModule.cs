@@ -1,22 +1,17 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object
 {
     public abstract class UpdateModule : BehaviorModule
     {
-        internal override void Load(BinaryReader reader)
+        private int _frameSomething;
+
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
             // Maybe some kind of frame timer? But sometimes it's -2.
-            var unknownInt1 = reader.ReadInt32();
+            _frameSomething = reader.ReadInt32();
         }
     }
 

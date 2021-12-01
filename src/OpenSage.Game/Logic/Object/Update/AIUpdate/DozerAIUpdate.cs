@@ -1,6 +1,5 @@
-﻿using System.IO;
+﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -12,17 +11,55 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            // Following is same as WorkerAIUpdate.Load
+
+            var unknown1 = reader.ReadInt32();
+            if (unknown1 != 3)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < 24; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var stateMachine = new WorkerAIUpdateStateMachine1();
+            stateMachine.Load(reader);
+
+            var unknown2 = reader.ReadInt32();
+            if (unknown2 != -1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown3 = reader.ReadInt32();
+            if (unknown3 != 3)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < 9; i++)
+            {
+                var unknown4 = reader.ReadBoolean();
+                var unknownPos = reader.ReadVector3();
+                if (unknown4 && unknownPos != Vector3.Zero)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown5 = reader.ReadInt32();
         }
     }
 

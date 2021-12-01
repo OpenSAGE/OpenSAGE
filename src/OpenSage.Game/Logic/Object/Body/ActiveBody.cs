@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using FixedMath.NET;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
-using FixedMath.NET;
 
 namespace OpenSage.Logic.Object
 {
@@ -72,21 +71,11 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
-
-            var unknownFloat = reader.ReadSingle();
-            if (unknownFloat != 1.0f)
-            {
-                throw new InvalidDataException();
-            }
 
             var currentHealth1 = reader.ReadSingle(); // These two values
             var currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
@@ -98,7 +87,78 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var unknown = reader.ReadBytes(61);
+            var unknown1 = reader.ReadUInt32();
+
+            var frameSomething2 = reader.ReadUInt32();
+
+            var unknown3 = reader.ReadUInt32(); // DamageType?
+
+            {
+                reader.ReadVersion(1);
+
+                {
+                    reader.ReadVersion(1);
+
+                    var objectID = reader.ReadObjectID();
+
+                    var unknown5 = reader.ReadUInt16();
+
+                    var unknown6 = reader.ReadUInt32();
+
+                    var unknown7 = reader.ReadUInt32();
+
+                    var unknown8 = reader.ReadSingle();
+                }
+
+                {
+                    reader.ReadVersion(1);
+
+                    var unknown4 = reader.ReadSingle();
+                    var unknown5 = reader.ReadSingle();
+
+                    var unknown6 = reader.ReadBoolean();
+                    if (unknown6)
+                    {
+                        throw new InvalidStateException();
+                    }
+                }
+            }
+
+            var frameSomething = reader.ReadUInt32();
+
+            var unknown10 = reader.ReadUInt32();
+            if (unknown10 != 0xFFFFFFFF)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool1 = reader.ReadBoolean();
+            if (unknownBool1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool2 = reader.ReadBoolean();
+            if (unknownBool2)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool3 = reader.ReadBoolean();
+
+            var unknownBool4 = reader.ReadBoolean();
+            if (unknownBool4)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown12 = reader.ReadUInt16();
+            if (unknown12 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();
         }
     }
 

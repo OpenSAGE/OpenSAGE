@@ -1,22 +1,37 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class GenerateMinefieldBehavior : UpdateModule
+    public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModule
     {
-        internal override void Load(BinaryReader reader)
+        private readonly UpgradeLogic _upgradeLogic;
+
+        internal GenerateMinefieldBehavior(GenerateMinefieldBehaviorModuleData moduleData)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
+        }
+
+        void IUpgradeableModule.OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            // TODO
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            _upgradeLogic.Load(reader);
+
+            for (var i = 0; i < 14; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
         }
     }
 
@@ -24,22 +39,24 @@ namespace OpenSage.Logic.Object
     {
         internal static GenerateMinefieldBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<GenerateMinefieldBehaviorModuleData> FieldParseTable = new IniParseTable<GenerateMinefieldBehaviorModuleData>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "MineName", (parser, x) => x.MineName = parser.ParseAssetReference() },
-            { "DistanceAroundObject", (parser, x) => x.DistanceAroundObject = parser.ParseInteger() },
-            { "GenerateOnlyOnDeath", (parser, x) => x.GenerateOnlyOnDeath = parser.ParseBoolean() },
-            { "SmartBorder", (parser, x) => x.SmartBorder = parser.ParseBoolean() },
-            { "SmartBorderSkipInterior", (parser, x) => x.SmartBorderSkipInterior = parser.ParseBoolean() },
-            { "AlwaysCircular", (parser, x) => x.AlwaysCircular = parser.ParseBoolean() },
-            { "GenerationFX", (parser, x) => x.GenerationFX = parser.ParseAssetReference() },
-            { "Upgradable", (parser, x) => x.Upgradable = parser.ParseBoolean() },
-            { "UpgradedTriggeredBy", (parser, x) => x.UpgradedTriggeredBy = parser.ParseAssetReference() },
-            { "UpgradedMineName", (parser, x) => x.UpgradedMineName = parser.ParseAssetReference() },
-        };
+        private static readonly IniParseTable<GenerateMinefieldBehaviorModuleData> FieldParseTable =
+            new IniParseTableChild<GenerateMinefieldBehaviorModuleData, UpgradeLogicData>(x => x.UpgradeData, UpgradeLogicData.FieldParseTable)
+            .Concat(new IniParseTable<GenerateMinefieldBehaviorModuleData>
+            {
+                { "MineName", (parser, x) => x.MineName = parser.ParseAssetReference() },
+                { "DistanceAroundObject", (parser, x) => x.DistanceAroundObject = parser.ParseInteger() },
+                { "GenerateOnlyOnDeath", (parser, x) => x.GenerateOnlyOnDeath = parser.ParseBoolean() },
+                { "SmartBorder", (parser, x) => x.SmartBorder = parser.ParseBoolean() },
+                { "SmartBorderSkipInterior", (parser, x) => x.SmartBorderSkipInterior = parser.ParseBoolean() },
+                { "AlwaysCircular", (parser, x) => x.AlwaysCircular = parser.ParseBoolean() },
+                { "GenerationFX", (parser, x) => x.GenerationFX = parser.ParseAssetReference() },
+                { "Upgradable", (parser, x) => x.Upgradable = parser.ParseBoolean() },
+                { "UpgradedTriggeredBy", (parser, x) => x.UpgradedTriggeredBy = parser.ParseAssetReference() },
+                { "UpgradedMineName", (parser, x) => x.UpgradedMineName = parser.ParseAssetReference() },
+            });
 
-        public string TriggeredBy { get; private set; }
+        public UpgradeLogicData UpgradeData { get; } = new();
+
         public string MineName { get; private set; }
         public int DistanceAroundObject { get; private set; }
         public bool GenerateOnlyOnDeath { get; private set; }
@@ -59,7 +76,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new GenerateMinefieldBehavior();
+            return new GenerateMinefieldBehavior(this);
         }
     }
 }

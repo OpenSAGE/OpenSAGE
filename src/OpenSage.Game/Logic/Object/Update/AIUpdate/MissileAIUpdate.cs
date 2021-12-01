@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
@@ -74,13 +72,9 @@ namespace OpenSage.Logic.Object
             base.Update(context);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 4)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(4);
 
             base.Load(reader);
 
@@ -93,7 +87,7 @@ namespace OpenSage.Logic.Object
             var unknownInt1 = reader.ReadInt32();
             if (unknownInt1 != int.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var launcherObjectId = reader.ReadUInt32();
@@ -109,13 +103,13 @@ namespace OpenSage.Logic.Object
             var unknownFloat2 = reader.ReadSingle();
             if (unknownFloat2 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var weaponTemplateName = reader.ReadBytePrefixedAsciiString();
+            var weaponTemplateName = reader.ReadAsciiString();
             var weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
-            var exhaustParticleSystemTemplateName = reader.ReadBytePrefixedAsciiString();
+            var exhaustParticleSystemTemplateName = reader.ReadAsciiString();
             var exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
             var unknownBool2 = reader.ReadBoolean();

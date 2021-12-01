@@ -21,7 +21,13 @@ namespace OpenSage.Logic
 
             if (version >= 5)
             {
-                reader.__Skip(5);
+                var unknownBool = reader.ReadBoolean();
+                if (unknownBool)
+                {
+
+                }
+
+                reader.__Skip(4);
             }
         }
     }

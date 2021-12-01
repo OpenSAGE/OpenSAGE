@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -75,17 +73,71 @@ namespace OpenSage.Logic.Object
             // TODO: respawn killed/dead units
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(2);
 
             base.Load(reader);
 
-            // TODO
+            var unknownBool1 = reader.ReadBoolean();
+
+            var templateName = reader.ReadAsciiString();
+
+            var unknownInt1 = reader.ReadInt32();
+            if (unknownInt1 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownInt2 = reader.ReadInt32();
+
+            var unknownInt3 = reader.ReadInt32();
+            if (unknownInt3 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool2 = reader.ReadBoolean();
+            if (!unknownBool2)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownInt4 = reader.ReadUInt16();
+            if (unknownInt4 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool3 = reader.ReadBoolean();
+            if (!unknownBool3)
+            {
+                throw new InvalidStateException();
+            }
+
+            var objectCount = reader.ReadUInt16();
+            for (var i = 0; i < objectCount; i++)
+            {
+                var objectId = reader.ReadObjectID();
+            }
+
+            var unknownInt5 = reader.ReadUInt16();
+            if (unknownInt5 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownInt6 = reader.ReadInt32();
+            if (unknownInt6 != objectCount)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownInt7 = reader.ReadInt32();
+            if (unknownInt7 != 0)
+            {
+                throw new InvalidStateException();
+            }
         }
     }
 

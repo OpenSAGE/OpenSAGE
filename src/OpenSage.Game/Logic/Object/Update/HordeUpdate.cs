@@ -1,22 +1,22 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class HordeUpdate : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            var unknownBool1 = reader.ReadBoolean();
+
+            var unknownBool2 = reader.ReadBoolean();
+            if (unknownBool2)
+            {
+                throw new InvalidStateException();
+            }
         }
     }
 

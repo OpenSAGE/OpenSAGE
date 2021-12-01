@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -97,24 +95,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBytes(12);
+            reader.__Skip(12);
 
             for (var i = 0; i < 7; i++)
             {
                 var unknown2 = reader.ReadSingle();
             }
 
-            var weaponThatFiredThis = reader.ReadBytePrefixedAsciiString();
+            var weaponThatFiredThis = reader.ReadAsciiString();
 
             var unknown3 = reader.ReadUInt32();
         }

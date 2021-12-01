@@ -1,19 +1,13 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Gui.InGame;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class DynamicShroudClearingRangeUpdate : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 

@@ -15,6 +15,16 @@ namespace OpenSage.Logic.Object
         Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknownPos = reader.ReadVector3();
+            var unknownBool = reader.ReadBoolean();
+        }
     }
 
     public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData

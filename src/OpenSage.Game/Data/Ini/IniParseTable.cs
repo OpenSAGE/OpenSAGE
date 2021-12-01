@@ -43,6 +43,54 @@ namespace OpenSage.Data.Ini
         }
     }
 
+    internal sealed class IniParseTableChild<T, TChild> : Dictionary<string, ParseFieldCallback<TChild>>, IIniFieldParserProvider<T>
+    {
+        private readonly Func<T, TChild> _getChild;
+
+        public IniParseTableChild(Func<T, TChild> getChild, IDictionary<string, ParseFieldCallback<TChild>> childDictionary)
+            : base(childDictionary)
+        {
+            _getChild = getChild;
+        }
+
+        public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
+            where T2 : T
+        {
+            var result = new IniParseTable<T2>(this.ToDictionary(
+                x => x.Key,
+                x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
+
+            foreach (var kvp in otherTable)
+            {
+                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
+            }
+
+            return result;
+        }
+
+        private ParseFieldCallback<T> GetFieldParser(ParseFieldCallback<TChild> childFieldParser)
+        {
+            // TODO: Don't allocate this every time.
+            return (parser, x) =>
+            {
+                var childObject = _getChild(x);
+                childFieldParser(parser, childObject);
+            };
+        }
+
+        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        {
+            if (TryGetValue(fieldName, out var childFieldParser))
+            {
+                fieldParser = GetFieldParser(childFieldParser);
+                return true;
+            }
+
+            fieldParser = null;
+            return false;
+        }
+    }
+
     internal sealed class IniArbitraryFieldParserProvider<T> : IIniFieldParserProvider<T>
     {
         private readonly Action<T, string> _parseFieldCallback;

@@ -90,17 +90,13 @@ namespace OpenSage.Logic.Object
             ImGui.DragFloat3("Velocity", ref _velocity);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(2);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBytes(52);
+            reader.__Skip(52);
 
             var unknown2 = reader.ReadUInt32();
 
@@ -108,7 +104,7 @@ namespace OpenSage.Logic.Object
 
             var unknown4 = reader.ReadSingle();
 
-            var unknown5 = reader.ReadBytes(20);
+            reader.__Skip(20);
 
             var unknown6 = reader.ReadSingle();
         }
