@@ -1,24 +1,30 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FireWeaponWhenDeadBehavior : BehaviorModule
+    public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule
     {
-        internal override void Load(BinaryReader reader)
+        private readonly UpgradeLogic _upgradeLogic;
+
+        internal FireWeaponWhenDeadBehavior(FireWeaponWhenDeadBehaviorModuleData moduleData)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
+        }
+
+        void IUpgradeableModule.OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            // TODO
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            _upgradeLogic.Load(reader);
         }
     }
 
@@ -50,7 +56,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new FireWeaponWhenDeadBehavior();
+            return new FireWeaponWhenDeadBehavior(this);
         }
     }
 }

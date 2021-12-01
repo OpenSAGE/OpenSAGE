@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
 
@@ -240,30 +239,23 @@ namespace OpenSage.Logic.Object
             // TODO: Locomotor?
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 4)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(4);
 
             base.Load(reader);
 
             var unknownInt1 = reader.ReadUInt32();
             var unknownInt2 = reader.ReadUInt32();
 
-            _stateMachine.Load(new Data.Sav.SaveFileReader(reader));
+            _stateMachine.Load(reader);
 
-            var waypointName = reader.ReadBytePrefixedAsciiString();
+            var waypointName = reader.ReadAsciiString();
 
-            var hasTargetTeam = reader.ReadBooleanChecked();
+            var hasTargetTeam = reader.ReadBoolean();
             if (hasTargetTeam)
             {
-                if (reader.ReadVersion() != 1)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.ReadVersion(1);
 
                 var numTeamObjects = reader.ReadUInt16();
                 for (var i = 0; i < numTeamObjects; i++)
@@ -276,12 +268,12 @@ namespace OpenSage.Logic.Object
             if (unknownInt11 != 999999)
             {
                 var state = _stateMachine.GetState(unknownInt11);
-                state.Load(new Data.Sav.SaveFileReader(reader));
+                state.Load(reader);
             }
 
             var unknownInt12 = reader.ReadUInt32();
-            var unknownBool8 = reader.ReadBooleanChecked();
-            var unknownBool9 = reader.ReadBooleanChecked();
+            var unknownBool8 = reader.ReadBoolean();
+            var unknownBool9 = reader.ReadBoolean();
             var unknownInt13 = reader.ReadUInt32();
             var unknownInt14 = reader.ReadUInt32();
 
@@ -300,14 +292,14 @@ namespace OpenSage.Logic.Object
             var unknownInt19 = reader.ReadUInt32(); // 0
             var unknownInt20 = reader.ReadUInt32(); // 0
             var unknownInt21 = reader.ReadUInt32(); // 0
-            var unknownBool10 = reader.ReadBooleanChecked();
-            var unknownBool11 = reader.ReadBooleanChecked();
-            var unknownInt22 = reader.ReadBooleanChecked(); // 0
-            var unknownInt22_2 = reader.ReadBooleanChecked(); // 0
-            var guardAreaPolygonTriggerName = reader.ReadBytePrefixedAsciiString();
-            var attackPriorityName = reader.ReadBytePrefixedAsciiString();
+            var unknownBool10 = reader.ReadBoolean();
+            var unknownBool11 = reader.ReadBoolean();
+            var unknownInt22 = reader.ReadBoolean(); // 0
+            var unknownInt22_2 = reader.ReadBoolean(); // 0
+            var guardAreaPolygonTriggerName = reader.ReadAsciiString();
+            var attackPriorityName = reader.ReadAsciiString();
             var unknownInt23 = reader.ReadUInt32(); // 0
-            var unknownBool12 = reader.ReadBooleanChecked();
+            var unknownBool12 = reader.ReadBoolean();
             var unknownInt23_1 = reader.ReadUInt32(); // 0
 
             var unknownInt24 = reader.ReadUInt32();
@@ -316,15 +308,11 @@ namespace OpenSage.Logic.Object
                 throw new InvalidDataException();
             }
 
-            var unknownBool13 = reader.ReadBooleanChecked();
-            var unknownBool14 = reader.ReadBooleanChecked();
+            var unknownBool13 = reader.ReadBoolean();
+            var unknownBool14 = reader.ReadBoolean();
             if (unknownBool14)
             {
-                var unknownVersion4 = reader.ReadVersion();
-                if (unknownVersion4 != 1)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.ReadVersion(1);
 
                 var unknownCount1 = reader.ReadUInt32(); // 2
                 for (var i = 0; i < unknownCount1; i++)
@@ -332,28 +320,28 @@ namespace OpenSage.Logic.Object
                     var id = reader.ReadUInt32();
                     var position2 = reader.ReadVector3();
                     var unknown25 = reader.ReadUInt32();
-                    var unknownBool15 = reader.ReadBooleanChecked();
+                    var unknownBool15 = reader.ReadBoolean();
                     var nextId = reader.ReadUInt32();
                 }
 
-                var unknownBool16 = reader.ReadBooleanChecked();
+                var unknownBool16 = reader.ReadBoolean();
                 var unknownInt25 = reader.ReadUInt32();
                 var unknownInt26 = reader.ReadUInt32(); // 1
-                var unknownBool17 = reader.ReadBooleanChecked();
+                var unknownBool17 = reader.ReadBoolean();
             }
 
             var unknownInt27 = reader.ReadUInt32();
             var unknownPosition = reader.ReadVector3();
-            reader.ReadBytes(5 * 4);
+            reader.__Skip(5 * 4);
 
             var unknownPos1 = reader.ReadPoint2D();
             var unknownPos2 = reader.ReadPoint2D();
 
-            reader.ReadBytes(46);
+            reader.__Skip(46);
 
-            _locomotorSet.Load(new Data.Sav.SaveFileReader(reader));
+            _locomotorSet.Load(reader);
 
-            var currentLocomotorTemplateName = reader.ReadBytePrefixedAsciiString();
+            var currentLocomotorTemplateName = reader.ReadAsciiString();
             CurrentLocomotor = currentLocomotorTemplateName != ""
                 ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
                 : null;

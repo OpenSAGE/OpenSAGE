@@ -7,7 +7,7 @@ using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Sav
+namespace OpenSage
 {
     public sealed class SaveFileReader
     {
@@ -114,7 +114,7 @@ namespace OpenSage.Data.Sav
 
             var result = new BitArray<TEnum>();
 
-            var stringToValueMap = Ini.IniParser.GetEnumMap<TEnum>();
+            var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
 
             var count = ReadUInt32();
             for (var i = 0; i < count; i++)
@@ -163,13 +163,13 @@ namespace OpenSage.Data.Sav
             _binaryReader.BaseStream.Read(spanBytes);
         }
 
-        public uint BeginSegment()
+        public uint BeginSegment(string segmentName)
         {
             var segmentLength = _binaryReader.ReadUInt32();
 
             var currentPosition = _binaryReader.BaseStream.Position;
 
-            _segments.Push(new Segment(currentPosition, currentPosition + segmentLength));
+            _segments.Push(new Segment(currentPosition, currentPosition + segmentLength, segmentName));
 
             return segmentLength;
         }
@@ -180,28 +180,33 @@ namespace OpenSage.Data.Sav
 
             if (_binaryReader.BaseStream.Position != segment.End)
             {
-                Console.WriteLine("Skipped segment in .sav file");
-                _binaryReader.BaseStream.Position = segment.End;
+                //Console.WriteLine("Skipped segment in .sav file");
+                //_binaryReader.BaseStream.Position = segment.End;
 
-                //throw new InvalidDataException();
+                throw new InvalidStateException($"Stream position expected to be at 0x{segment.End:X8} but was at 0x{_binaryReader.BaseStream.Position:X8} while reading {segment.Name}");
             }
         }
 
-        private readonly struct Segment
-        {
-            public readonly long Start;
-            public readonly long End;
-
-            public Segment(long start, long end)
-            {
-                Start = start;
-                End = end;
-            }
-        }
+        private record struct Segment(long Start, long End, string Name);
 
         public void __Skip(int numBytes)
         {
             _binaryReader.BaseStream.Position += numBytes;
+        }
+    }
+
+    public sealed class InvalidStateException : Exception
+    {
+        public InvalidStateException()
+            : base()
+        {
+
+        }
+
+        public InvalidStateException(string message)
+            : base(message)
+        {
+
         }
     }
 }

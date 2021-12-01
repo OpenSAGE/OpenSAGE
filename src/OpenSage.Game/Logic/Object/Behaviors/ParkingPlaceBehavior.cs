@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Logic.Object.Production;
 
 namespace OpenSage.Logic.Object
@@ -225,13 +223,9 @@ namespace OpenSage.Logic.Object
         private int SlotToHangar(int slot) => slot / 2 + 1;
         private int SlotToRunway(int slot) => slot % 2 + 1;
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 3)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(3);
 
             base.Load(reader);
 

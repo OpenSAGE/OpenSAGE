@@ -1,5 +1,5 @@
-﻿using OpenSage.Data.Ini;
-using FixedMath.NET;
+﻿using FixedMath.NET;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -23,6 +23,13 @@ namespace OpenSage.Logic.Object
         {
             get => Fix64.Zero;
             internal set { }
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
         }
     }
 

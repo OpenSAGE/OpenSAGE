@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
-using OpenSage.FileFormats;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
@@ -467,17 +465,13 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("DoorState", ref _currentDoorState);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown = reader.ReadBytes(89);
+            reader.__Skip(89);
         }
     }
 

@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers
 {
     // I found, in .sav files, modules called ModuleTag_SMCHelper.
     // Searching in the RA3 SDK, I found ObjectSMCHelper, with the comment
@@ -12,13 +9,9 @@ namespace OpenSage.Logic.Object.Helpers
     {
         // TODO
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
         }

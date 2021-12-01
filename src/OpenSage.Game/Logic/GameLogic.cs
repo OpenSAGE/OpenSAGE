@@ -52,7 +52,7 @@ namespace OpenSage.Logic
 
                 var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
 
-                reader.BeginSegment();
+                reader.BeginSegment(objectDefinition.Name);
 
                 gameObject.Load(reader);
 

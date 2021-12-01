@@ -105,6 +105,80 @@ namespace OpenSage.Logic.Object
                 }
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            for (var i = 0; i < 36; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var numberApproachPositions = reader.ReadInt32();
+
+            var unknownBool = reader.ReadBoolean();
+
+            var numberApproachPositions2 = reader.ReadInt32();
+
+            for (var i = 0; i < numberApproachPositions2; i++)
+            {
+                for (var j = 0; j < 12; j++)
+                {
+                    var unknown = reader.ReadByte();
+                    if (unknown != 0)
+                    {
+                        throw new InvalidStateException();
+                    }
+                }
+            }
+
+            var numberApproachPositions3 = reader.ReadInt32();
+
+            for (var i = 0; i < numberApproachPositions3; i++)
+            {
+                var unknown = reader.ReadInt32();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var numberApproachPositions4 = reader.ReadInt32();
+
+            for (var i = 0; i < numberApproachPositions4; i++)
+            {
+                var unknown = reader.ReadBoolean();
+                if (unknown)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown1 = reader.ReadInt32();
+            if (unknown1 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown2 = reader.ReadUInt16();
+            if (unknown2 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown3 = reader.ReadBoolean();
+            if (!unknown3)
+            {
+                throw new InvalidStateException();
+            }
+        }
     }
 
     public abstract class DockUpdateModuleData : UpdateModuleData

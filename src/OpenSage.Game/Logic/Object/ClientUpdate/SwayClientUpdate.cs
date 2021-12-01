@@ -1,7 +1,5 @@
-﻿using System.IO;
-using OpenSage.Client;
+﻿using OpenSage.Client;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,13 +13,9 @@ namespace OpenSage.Logic.Object
             _isActive = true;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
@@ -32,7 +26,7 @@ namespace OpenSage.Logic.Object
             var unknownFloat5 = reader.ReadSingle();
             var unknownShort1 = reader.ReadUInt16();
 
-            _isActive = reader.ReadBooleanChecked();
+            _isActive = reader.ReadBoolean();
         }
     }
 

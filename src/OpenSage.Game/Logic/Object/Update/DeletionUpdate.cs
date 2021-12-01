@@ -30,6 +30,15 @@ namespace OpenSage.Logic.Object
                 _gameObject.Destroy();
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknown = reader.ReadUInt32();
+        }
     }
 
 

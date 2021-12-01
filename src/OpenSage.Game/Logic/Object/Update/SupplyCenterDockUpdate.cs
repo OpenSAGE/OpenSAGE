@@ -37,6 +37,13 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+        }
     }
 
     public sealed class SupplyCenterDockUpdateModuleData : DockUpdateModuleData

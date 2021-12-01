@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -394,11 +392,11 @@ namespace OpenSage.Client
                 for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
                 {
                     var moduleTag = reader.ReadAsciiString();
-
-                    reader.BeginSegment();
-
                     var module = GetModuleByTag(moduleTag);
-                    module.Load(reader.Inner);
+
+                    reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");
+
+                    module.Load(reader);
 
                     reader.EndSegment();
                 }

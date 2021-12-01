@@ -1,7 +1,5 @@
-﻿using System.IO;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,21 +19,17 @@ namespace OpenSage.Logic.Object
                 gameObject.GameContext);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBooleanChecked();
+            var unknown1 = reader.ReadBoolean();
 
-            _collideWeapon.Load(new Data.Sav.SaveFileReader(reader));
+            _collideWeapon.Load(reader);
 
-            var unknown2 = reader.ReadBooleanChecked();
+            var unknown2 = reader.ReadBoolean();
         }
     }
 

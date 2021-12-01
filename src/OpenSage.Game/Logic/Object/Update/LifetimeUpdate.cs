@@ -27,6 +27,15 @@ namespace OpenSage.Logic.Object
 
             if (context.Time.TotalTime > _lifeTime) _gameObject.Die(_moduleData.DeathType, context.Time);
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknown = reader.ReadUInt32();
+        }
     }
 
     public sealed class LifetimeUpdateModuleData : UpdateModuleData

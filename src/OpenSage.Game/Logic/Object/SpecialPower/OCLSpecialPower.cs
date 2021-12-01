@@ -40,6 +40,13 @@ namespace OpenSage.Logic.Object
         {
             return _moduleData.SpecialPower.Value == specialPower;
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+        }
     }
 
     public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData

@@ -2,11 +2,9 @@
 
 namespace OpenSage.Logic.Object
 {
+    // Order of these values is from a comment in DamageFX.ini
     public enum DamageType
     {
-        [IniEnum("DEFAULT")]
-        Default = 0,
-
         [IniEnum("EXPLOSION")]
         Explosion,
 

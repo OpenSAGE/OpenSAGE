@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic.AI.AIStates
+﻿namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class IdleState : State
     {

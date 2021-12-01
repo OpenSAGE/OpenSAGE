@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -18,22 +16,13 @@ namespace OpenSage.Logic.Object
 
         internal virtual void DrawInspector() { }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             // The following version number is probably from extra base class in the inheritance hierarchy.
             // Since we don't have that at the moment, just read it here.
-
-            var extraVersion = reader.ReadVersion();
-            if (extraVersion != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
         }

@@ -33,56 +33,29 @@ namespace OpenSage.Logic.Object
             contained.IsSelectable = false;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var numObjectsInside = reader.ReadUInt32();
-            for (var i = 0; i < numObjectsInside; i++)
+            var unknownInt1 = reader.ReadInt32();
+            if (unknownInt1 != 1)
             {
-                var objectId = reader.ReadUInt32();
+                throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadBytes(6);
-
-            var unknown2 = reader.ReadBytes(13);
-
-            var statusCount = reader.ReadUInt32();
-            for (var i = 0; i < statusCount; i++)
+            var unknownInt2 = reader.ReadInt32();
+            if (unknownInt2 != 0)
             {
-                var someStatus = reader.ReadBytePrefixedAsciiString(); // "LOADED"
+                throw new InvalidStateException();
             }
 
-            // Where does the 32 come from?
-            for (var i = 0; i < 32; i++)
+            var unknownBool = reader.ReadBoolean();
+            if (unknownBool)
             {
-                var someTransform = reader.ReadMatrix4x3Transposed();
+                throw new InvalidStateException();
             }
-
-            var unknown3 = reader.ReadInt32(); // -1
-
-            var numObjectsInside2 = reader.ReadUInt32();
-            var capacity = reader.ReadUInt32(); // Maybe
-
-            var unknown4 = reader.ReadBytes(14);
-
-            var unknownCount = reader.ReadUInt16();
-            for (var i = 0; i < unknownCount; i++)
-            {
-                var unknown5 = reader.ReadUInt32();
-                var unknown6 = reader.ReadUInt32();
-            }
-
-            var unknown7 = reader.ReadUInt32();
-            var unknown8 = reader.ReadUInt32();
-
-            var unknown9 = reader.ReadBytes(5);
         }
     }
 

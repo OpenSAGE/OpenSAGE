@@ -5,6 +5,15 @@ namespace OpenSage.Logic.Object
     public sealed class StealthDetectorUpdate : UpdateModule
     {
         // TODO
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBoolean();
+        }
     }
 
     /// <summary>

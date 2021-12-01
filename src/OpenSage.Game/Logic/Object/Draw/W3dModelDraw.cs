@@ -388,13 +388,9 @@ namespace OpenSage.Logic.Object
             ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(SaveFileReader reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.ReadVersion(2);
 
             base.Load(reader);
 
@@ -410,13 +406,13 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            var unknownBool1 = reader.ReadBooleanChecked();
+            var unknownBool1 = reader.ReadBoolean();
             if (unknownBool1)
             {
                 throw new InvalidDataException();
             }
 
-            var unknownBool2 = reader.ReadBooleanChecked();
+            var unknownBool2 = reader.ReadBoolean();
             if (unknownBool2)
             {
                 var unknownInt = reader.ReadInt32();

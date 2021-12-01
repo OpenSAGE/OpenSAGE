@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -16,7 +16,28 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<ArmorTemplate> FieldParseTable = new IniParseTable<ArmorTemplate>
         {
             { "DamageScalar", (parser, x) => x.DamageScalar = parser.ParsePercentage() },
-            { "Armor", (parser, x) => { var armorValue = ArmorValue.Parse(parser); x.Values.Add(armorValue.DamageType, armorValue); } },
+            {
+                "Armor",
+                (parser, x) =>
+                {
+                    var damageTypeString = parser.ParseString();
+                    var percent = parser.ParsePercentage();
+
+                    if (string.Equals(damageTypeString, "DEFAULT", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        for (var i = 0; i < x.Values.Length; i++)
+                        {
+                            x.Values[i] = percent;
+                        }
+                    }
+                    else
+                    {
+                        var damageType = IniParser.ParseEnum<DamageType>(damageTypeString);
+                        x.Values[(int)damageType] = percent;
+                    }
+                    
+                }
+            },
             { "FlankedPenalty", (parser, x) => x.FlankedPenalty = parser.ParsePercentage() }
         };
 
@@ -26,44 +47,18 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public Percentage DamageScalar { get; private set; }
 
-        public Dictionary<DamageType, ArmorValue> Values { get; } = new Dictionary<DamageType, ArmorValue>();
+        public Percentage[] Values { get; } = new Percentage[Enum.GetValues(typeof(DamageType)).Length];
 
         [AddedIn(SageGame.Bfme2)]
         public Percentage FlankedPenalty { get; private set; }
-
-        internal Percentage GetDamagePercent(DamageType damageType)
-        {
-            if (Values.TryGetValue(damageType, out var result))
-            {
-                return result.Percent;
-            }
-
-            if (Values.TryGetValue(DamageType.Default, out result))
-            {
-                return result.Percent;
-            }
-
-            return new Percentage(1);
-        }
-    }
-
-    public sealed class ArmorValue
-    {
-        internal static ArmorValue Parse(IniParser parser)
-        {
-            return new ArmorValue
-            {
-                DamageType = parser.ParseEnum<DamageType>(),
-                Percent = parser.ParsePercentage()
-            };
-        }
-
-        public DamageType DamageType { get; private set; }
 
         /// <summary>
         /// If this is 0%, the object will not be harmed at all by the specified <see cref="DamageType"/>.
         /// If this is 100%, the object will receive the full damage amount.
         /// </summary>
-        public Percentage Percent { get; private set; }
+        internal Percentage GetDamagePercent(DamageType damageType)
+        {
+            return Values[(int) damageType];
+        }
     }
 }
