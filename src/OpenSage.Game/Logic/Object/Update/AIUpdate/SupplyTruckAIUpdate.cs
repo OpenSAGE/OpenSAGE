@@ -30,10 +30,6 @@ namespace OpenSage.Logic.Object
             var unknown2 = reader.ReadInt32();
 
             var unknown7 = reader.ReadBoolean();
-            if (unknown7)
-            {
-                throw new InvalidStateException();
-            }
         }
     }
 

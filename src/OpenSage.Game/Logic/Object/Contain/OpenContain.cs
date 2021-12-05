@@ -58,7 +58,7 @@ namespace OpenSage.Logic.Object
 
             var hasNoFirePoints = reader.ReadBoolean();
 
-            for (var i = 0; i < 15; i++)
+            for (var i = 0; i < 13; i++)
             {
                 var unknown7 = reader.ReadByte();
                 if (unknown7 != 0)
@@ -67,11 +67,15 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            var unknown8 = reader.ReadInt32();
-            if (unknown8 != 1)
+            var unknown9Count = reader.ReadUInt16();
+            for (var i = 0; i < unknown9Count; i++)
             {
-                throw new InvalidStateException();
+                var objectId = reader.ReadObjectID();
+
+                var unknown10 = reader.ReadInt32();
             }
+
+            var unknown8 = reader.ReadInt32();
         }
     }
 

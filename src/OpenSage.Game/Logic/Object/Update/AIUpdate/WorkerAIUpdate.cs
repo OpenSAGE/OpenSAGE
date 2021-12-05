@@ -268,6 +268,7 @@ namespace OpenSage.Logic.Object
         public WorkerAIUpdateStateMachine2()
         {
             AddState(0, new WorkerUnknown0State());
+            AddState(1, new WorkerUnknown1State());
             AddState(4, new WorkerUnknown4State());
         }
 
@@ -279,6 +280,14 @@ namespace OpenSage.Logic.Object
         }
 
         private sealed class WorkerUnknown0State : State
+        {
+            internal override void Load(SaveFileReader reader)
+            {
+                
+            }
+        }
+
+        private sealed class WorkerUnknown1State : State
         {
             internal override void Load(SaveFileReader reader)
             {

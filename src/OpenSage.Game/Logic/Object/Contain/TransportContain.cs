@@ -45,17 +45,13 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownInt2 = reader.ReadInt32();
-            if (unknownInt2 != 0)
-            {
-                throw new InvalidStateException();
-            }
-
             var unknownBool = reader.ReadBoolean();
             if (unknownBool)
             {
                 throw new InvalidStateException();
             }
+
+            var frameSomething = reader.ReadUInt32();
         }
     }
 

@@ -171,6 +171,33 @@ namespace OpenSage.Logic.Object
                 _gameObject.Die(DeathType.Exploded, context.Time);
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            for (var i = 0; i < 16; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown1 = reader.ReadInt32();
+
+            for (var i = 0; i < 5; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+        }
     }
 
     public sealed class SlavedUpdateModuleData : UpdateModuleData
