@@ -1,29 +1,30 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
-
-namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object
 {
-    public sealed class Animation : BaseAsset
+    public sealed class Animation
     {
-        internal static Animation Parse(IniParser parser)
+        internal void Load(SaveFileReader reader)
         {
-            return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("Animation", name),
-                FieldParseTable);
+            reader.ReadVersion(1);
+
+            var currentImageIndex = reader.ReadUInt16();
+            var lastUpdatedFrame = reader.ReadUInt32();
+
+            var unknown = reader.ReadUInt16();
+
+            var unknown2 = reader.ReadByte();
+            if (unknown2 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var lastImageIndex = reader.ReadUInt16();
+            var animationDelayFrames = reader.ReadUInt32();
+
+            var unknownFloat = reader.ReadSingle();
+            if (unknownFloat != 1.0f)
+            {
+                throw new InvalidStateException();
+            }
         }
-
-        private static readonly IniParseTable<Animation> FieldParseTable = new IniParseTable<Animation>
-        {
-            { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationDelay", (parser, x) => x.AnimationDelay = parser.ParseInteger() },
-            { "RandomizeStartFrame", (parser, x) => x.RandomizeStartFrame = parser.ParseBoolean() },
-            { "NumberImages", (parser, x) => parser.ParseInteger() },
-            { "Image", (parser, x) => x.Images.Add(parser.ParseAssetReference()) },
-        };
-
-        public AnimationMode AnimationMode { get; private set; }
-        public int AnimationDelay { get; private set; }
-        public bool RandomizeStartFrame { get; private set; }
-        public List<string> Images { get; } = new List<string>();
     }
 }

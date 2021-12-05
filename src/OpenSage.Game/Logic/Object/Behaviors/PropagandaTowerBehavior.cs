@@ -11,7 +11,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            var frameSomething = reader.ReadUInt32();
+
+            var count = reader.ReadUInt16();
+            for (var i = 0; i < count; i++)
+            {
+                var objectId = reader.ReadObjectID();
+            }
         }
     }
 

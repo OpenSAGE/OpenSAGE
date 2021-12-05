@@ -126,11 +126,7 @@ namespace OpenSage.Logic.Object
 
             var frameSomething = reader.ReadUInt32();
 
-            var unknown10 = reader.ReadUInt32();
-            if (unknown10 != 0xFFFFFFFF)
-            {
-                throw new InvalidStateException();
-            }
+            var frameSomething3 = reader.ReadUInt32();
 
             var unknownBool1 = reader.ReadBoolean();
             if (unknownBool1)
@@ -146,16 +142,12 @@ namespace OpenSage.Logic.Object
 
             var unknownBool3 = reader.ReadBoolean();
 
-            var unknownBool4 = reader.ReadBoolean();
-            if (unknownBool4)
-            {
-                throw new InvalidStateException();
-            }
+            var indestructible = reader.ReadBoolean();
 
             var unknown12 = reader.ReadUInt16();
-            if (unknown12 != 0)
+            for (var i = 0; i < unknown12; i++)
             {
-                throw new InvalidStateException();
+                var particleSystemId = reader.ReadUInt32();
             }
 
             var armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();

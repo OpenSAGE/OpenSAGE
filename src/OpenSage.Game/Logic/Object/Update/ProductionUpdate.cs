@@ -471,7 +471,85 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(89);
+            var productionJobCount = reader.ReadUInt16();
+            for (var i = 0; i < productionJobCount; i++)
+            {
+                var productionJobType = reader.ReadEnum<ProductionJobType>();
+
+                var templateName = reader.ReadAsciiString();
+
+                ProductionJob productionJob;
+                switch (productionJobType)
+                {
+                    case ProductionJobType.Unit:
+                        productionJob = new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(templateName));
+                        break;
+
+                    case ProductionJobType.Upgrade:
+                        productionJob = new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(templateName));
+                        break;
+
+                    default:
+                        throw new InvalidStateException();
+                }
+
+                var jobId = reader.ReadUInt32();
+
+                var unknownFloat = reader.ReadSingle();
+
+                var unknown1 = reader.ReadInt32(); // Maybe progress
+                var unknown2 = reader.ReadInt32();
+                var unknown3 = reader.ReadInt32();
+                var unknown4 = reader.ReadInt32();
+
+                _productionQueue.Add(productionJob);
+            }
+
+            var nextJobId = reader.ReadUInt32();
+
+            var productionJobCount2 = reader.ReadUInt32();
+            if (productionJobCount2 != productionJobCount)
+            {
+                throw new InvalidStateException();
+            }
+
+            var frameSomething = reader.ReadUInt32();
+
+            for (var i = 0; i < 4; i++)
+            {
+                var frameSomething3 = reader.ReadUInt32();
+
+                var frameSomething4 = reader.ReadUInt32();
+
+                var frameSomething2 = reader.ReadUInt32();
+
+                var unknown12 = reader.ReadInt32();
+                if (unknown12 != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            for (var i = 0; i < 2; i++)
+            {
+                var unknown1 = reader.ReadBoolean();
+                if (!unknown1)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown2 = reader.ReadUInt32();
+                if (unknown2 != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknownBool = reader.ReadBoolean();
+            if (unknownBool)
+            {
+                throw new InvalidStateException();
+            }
         }
     }
 

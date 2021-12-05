@@ -25,11 +25,7 @@ namespace OpenSage.Logic.Object
             var stateMachine = new WorkerAIUpdateStateMachine2();
             stateMachine.Load(reader);
 
-            var unknown1 = reader.ReadInt32();
-            if (unknown1 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            var dockId = reader.ReadObjectID();
 
             var unknown2 = reader.ReadInt32();
 

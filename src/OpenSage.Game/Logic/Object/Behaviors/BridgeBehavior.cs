@@ -5,13 +5,27 @@ namespace OpenSage.Logic.Object
 {
     public sealed class BridgeBehavior : UpdateModule
     {
+        private readonly uint[] _towerIds = new uint[4];
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            for (var i = 0; i < _towerIds.Length; i++)
+            {
+                _towerIds[i] = reader.ReadObjectID();
+            }
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
         }
     }
 

@@ -16,7 +16,82 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            for (var i = 0; i < 4; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var someObjectId = reader.ReadObjectID();
+
+            var unknown1 = reader.ReadUInt32();
+
+            for (var i = 0; i < 4; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown15 = reader.ReadBoolean();
+
+            var unknown2 = reader.ReadBoolean();
+
+            var unknown16 = reader.ReadBoolean();
+            var unknown17 = reader.ReadBoolean();
+            var unknown18 = reader.ReadBoolean();
+            var unknown19 = reader.ReadBoolean();
+
+            var unknown4 = reader.ReadBoolean();
+
+            var unknown20 = reader.ReadInt32();
+            if (unknown20 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown21 = reader.ReadBoolean();
+
+            var unknown5 = reader.ReadInt32();
+
+            var unknown6 = reader.ReadInt32();
+
+            for (var i = 0; i < 2; i++)
+            {
+                var unknown7 = reader.ReadBoolean();
+                if (!unknown7)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown8 = reader.ReadSingle();
+                var unknown9 = reader.ReadSingle();
+                var unknown10 = reader.ReadSingle();
+                var unknown11 = reader.ReadVector3();
+
+                var unknown12 = reader.ReadUInt32();
+                if (unknown12 != 0xFACADE)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown13 = reader.ReadUInt32();
+                if (unknown13 != 0xFACADE)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown14 = reader.ReadUInt32();
+                if (unknown14 != 0xFACADE)
+                {
+                    throw new InvalidStateException();
+                }
+            }
         }
     }
 

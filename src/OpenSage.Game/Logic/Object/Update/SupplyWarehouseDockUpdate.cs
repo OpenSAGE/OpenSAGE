@@ -36,6 +36,15 @@ namespace OpenSage.Logic.Object
                 _gameObject.Die(DeathType.Normal, context.Time);
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            _currentBoxes = reader.ReadInt32();
+        }
     }
 
     public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData

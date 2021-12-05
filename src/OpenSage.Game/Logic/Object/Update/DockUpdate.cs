@@ -112,14 +112,9 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 36; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            var position1 = reader.ReadVector3();
+            var position2 = reader.ReadVector3();
+            var position3 = reader.ReadVector3();
 
             var numberApproachPositions = reader.ReadInt32();
 
@@ -129,25 +124,14 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < numberApproachPositions2; i++)
             {
-                for (var j = 0; j < 12; j++)
-                {
-                    var unknown = reader.ReadByte();
-                    if (unknown != 0)
-                    {
-                        throw new InvalidStateException();
-                    }
-                }
+                var position4 = reader.ReadVector3();
             }
 
             var numberApproachPositions3 = reader.ReadInt32();
 
             for (var i = 0; i < numberApproachPositions3; i++)
             {
-                var unknown = reader.ReadInt32();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
+                var objectId = reader.ReadObjectID();
             }
 
             var numberApproachPositions4 = reader.ReadInt32();
@@ -155,20 +139,12 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < numberApproachPositions4; i++)
             {
                 var unknown = reader.ReadBoolean();
-                if (unknown)
-                {
-                    throw new InvalidStateException();
-                }
             }
 
-            var unknown1 = reader.ReadInt32();
-            if (unknown1 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            var someObjectId = reader.ReadObjectID();
 
             var unknown2 = reader.ReadUInt16();
-            if (unknown2 != 0)
+            if (unknown2 != 0 && unknown2 != 1)
             {
                 throw new InvalidStateException();
             }

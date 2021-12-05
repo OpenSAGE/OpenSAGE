@@ -125,29 +125,25 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
+            // Following is same as DozerAIUpdate.Load
+
             var unknown1 = reader.ReadInt32();
             if (unknown1 != 3)
             {
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 24; i++)
+            for (var i = 0; i < 3; i++)
             {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
+                var objectId = reader.ReadObjectID();
+
+                var unknown = reader.ReadInt32();
             }
 
             var stateMachine1 = new WorkerAIUpdateStateMachine1();
             stateMachine1.Load(reader);
 
             var unknown2 = reader.ReadInt32();
-            if (unknown2 != -1)
-            {
-                throw new InvalidStateException();
-            }
 
             var unknown3 = reader.ReadInt32();
             if (unknown3 != 3)
@@ -159,10 +155,6 @@ namespace OpenSage.Logic.Object
             {
                 var unknown4 = reader.ReadBoolean();
                 var unknownPos = reader.ReadVector3();
-                if (unknown4 && unknownPos != Vector3.Zero)
-                {
-                    throw new InvalidStateException();
-                }
             }
 
             var unknown5 = reader.ReadInt32();
@@ -222,6 +214,7 @@ namespace OpenSage.Logic.Object
         public WorkerAIUpdateStateMachine1()
         {
             AddState(0, new WorkerUnknown0State());
+            AddState(1, new WorkerUnknown1State());
         }
 
         internal override void Load(SaveFileReader reader)
@@ -242,12 +235,39 @@ namespace OpenSage.Logic.Object
                 var unknown3 = reader.ReadBoolean();
             }
         }
+
+        private sealed class WorkerUnknown1State : State
+        {
+            internal override void Load(SaveFileReader reader)
+            {
+                reader.ReadVersion(1);
+
+                var unknown1 = reader.ReadInt32();
+                if (unknown1 != 0)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown2 = reader.ReadInt32();
+                if (unknown2 != 1)
+                {
+                    throw new InvalidStateException();
+                }
+
+                var unknown3 = reader.ReadBoolean();
+                if (unknown3)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+        }
     }
 
     internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
     {
         public WorkerAIUpdateStateMachine2()
         {
+            AddState(0, new WorkerUnknown0State());
             AddState(4, new WorkerUnknown4State());
         }
 
@@ -256,6 +276,14 @@ namespace OpenSage.Logic.Object
             reader.ReadVersion(1);
 
             base.Load(reader);
+        }
+
+        private sealed class WorkerUnknown0State : State
+        {
+            internal override void Load(SaveFileReader reader)
+            {
+                
+            }
         }
 
         private sealed class WorkerUnknown4State : State

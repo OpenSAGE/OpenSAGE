@@ -42,9 +42,8 @@ namespace OpenSage.Logic.Object.Production
 
     public enum ProductionJobType
     {
-        Unit,
-        Upgrade,
-        Science
+        Unit = 1,
+        Upgrade = 2,
     }
 
     public enum ProductionJobResult

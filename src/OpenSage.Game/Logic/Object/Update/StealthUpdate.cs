@@ -15,11 +15,7 @@ namespace OpenSage.Logic.Object
 
             var frameSomething = reader.ReadUInt32();
 
-            var unknownInt1 = reader.ReadInt32();
-            if (unknownInt1 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            var frameSomething2 = reader.ReadUInt32();
 
             var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)

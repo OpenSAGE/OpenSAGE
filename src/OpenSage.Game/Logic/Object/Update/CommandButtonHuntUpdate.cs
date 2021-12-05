@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CommandButtonHuntUpdate : UpdateModule
     {
-        // TODO
+        private string _commandButtonName;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadByte();
+            _commandButtonName = reader.ReadAsciiString();
         }
     }
 

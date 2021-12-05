@@ -33,6 +33,13 @@ namespace OpenSage.Logic.Object
                 _gameObject.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+        }
     }
 
     public sealed class MaxHealthUpgradeModuleData : UpgradeModuleData

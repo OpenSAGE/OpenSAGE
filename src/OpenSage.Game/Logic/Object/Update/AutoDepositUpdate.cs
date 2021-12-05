@@ -40,7 +40,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            var frameSomething = reader.ReadUInt32();
+
+            var unknownBool1 = reader.ReadBoolean();
+
+            var unknownBool2 = reader.ReadBoolean();
         }
     }
 

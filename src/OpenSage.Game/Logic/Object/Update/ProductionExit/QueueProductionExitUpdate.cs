@@ -17,6 +17,22 @@ namespace OpenSage.Logic.Object
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
 
         public int ExitDelay => _moduleData.ExitDelay;
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            for (var i = 0; i < 25; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+        }
     }
 
     public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData

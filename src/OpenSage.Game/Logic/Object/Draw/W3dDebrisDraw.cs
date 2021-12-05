@@ -73,6 +73,28 @@ namespace OpenSage.Logic.Object
         {
             _modelInstance.Update(time);
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var modelName = reader.ReadAsciiString();
+
+            for (var i = 0; i < 7; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown1 = reader.ReadUInt32();
+            var unknown2 = reader.ReadUInt32();
+            var unknown3 = reader.ReadBoolean();
+        }
     }
 
     /// <summary>

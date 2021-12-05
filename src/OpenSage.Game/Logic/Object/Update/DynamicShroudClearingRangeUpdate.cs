@@ -11,7 +11,33 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            var unknown1 = reader.ReadUInt32();
+            var unknown2 = reader.ReadUInt32();
+            var unknown3 = reader.ReadUInt32();
+            var unknown4 = reader.ReadUInt32();
+            var unknown5 = reader.ReadUInt32();
+            var unknown6 = reader.ReadUInt32();
+            var unknown7 = reader.ReadUInt32();
+
+            var unknown7_1 = reader.ReadBoolean();
+            if (!unknown7_1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown8 = reader.ReadUInt32();
+            if (unknown8 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown9 = reader.ReadSingle();
+            if (unknown9 != 300.0f)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown10 = reader.ReadSingle();
         }
     }
 

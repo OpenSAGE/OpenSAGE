@@ -11,7 +11,50 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            var unknown2 = reader.ReadUInt32();
+
+            var unknownBool = reader.ReadBoolean();
+            if (unknownBool)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown1 = reader.ReadUInt16();
+            if (unknown1 != 40)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < 800; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown3 = reader.ReadUInt32();
+            if (unknown3 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < 120; i++)
+            {
+                var unknown = reader.ReadVector3();
+            }
+
+            var unknown4 = reader.ReadBoolean();
+
+            for (var i = 0; i < 13; i++)
+            {
+                var unknown = reader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
         }
     }
 
