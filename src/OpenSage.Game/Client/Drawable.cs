@@ -372,6 +372,9 @@ namespace OpenSage.Client
                 {
                     throw new InvalidDataException();
                 }
+
+                var animation = new Animation();
+                animation.Load(reader);
             }
 
             var unknownBool2 = reader.ReadBoolean();

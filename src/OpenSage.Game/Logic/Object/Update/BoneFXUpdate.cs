@@ -1,17 +1,54 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class BoneFXUpdate : UpdateModule
     {
+        private readonly List<uint> _particleSystemIds = new();
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            var particleSystemCount = reader.ReadUInt16();
+            for (var i = 0; i < particleSystemCount; i++)
+            {
+                _particleSystemIds.Add(reader.ReadUInt32());
+            }
+
+            for (var i = 0; i < 96; i++)
+            {
+                var unknown = reader.ReadInt32();
+                if (unknown != -1)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            for (var i = 0; i < 289; i++)
+            {
+                var unknown = reader.ReadInt32();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            var unknown1 = reader.ReadInt32();
+            if (unknown1 != 1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown2 = reader.ReadBoolean();
+            if (!unknown2)
+            {
+                throw new InvalidStateException();
+            }
         }
     }
 

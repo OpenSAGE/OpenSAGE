@@ -9,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SlowDeathBehavior : UpdateModule
+    public class SlowDeathBehavior : UpdateModule
     {
         private readonly SlowDeathBehaviorModuleData _moduleData;
 

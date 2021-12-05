@@ -26,6 +26,13 @@ namespace OpenSage.Logic.Object
                 _gameObject.Definition.CommandSet = _defaultCommandSet;
             }
         }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+        }
     }
 
     /// <summary>

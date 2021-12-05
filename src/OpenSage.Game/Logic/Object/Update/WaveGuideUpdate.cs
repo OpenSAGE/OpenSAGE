@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 920; i++)
+            for (var i = 0; i < 2330; i++)
             {
                 var unknownByte = reader.ReadByte();
                 if (unknownByte != 0)

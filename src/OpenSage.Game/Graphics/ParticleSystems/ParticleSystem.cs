@@ -600,7 +600,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             LoadTemplateData(reader);
 
-            var unknown17 = reader.ReadUInt32();
+            var particleSystemId = reader.ReadUInt32();
+
             reader.__Skip(9);
             var transform = reader.ReadMatrix4x3Transposed();
             var unknown19 = reader.ReadBoolean();

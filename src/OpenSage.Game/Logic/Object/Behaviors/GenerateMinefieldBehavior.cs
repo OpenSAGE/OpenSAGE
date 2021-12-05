@@ -24,7 +24,9 @@ namespace OpenSage.Logic.Object
 
             _upgradeLogic.Load(reader);
 
-            for (var i = 0; i < 14; i++)
+            var unknown1 = reader.ReadBoolean();
+
+            for (var i = 0; i < 13; i++)
             {
                 var unknown = reader.ReadByte();
                 if (unknown != 0)

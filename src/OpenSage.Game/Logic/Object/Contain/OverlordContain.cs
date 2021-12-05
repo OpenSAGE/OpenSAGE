@@ -2,6 +2,27 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class OverlordContain : TransportContain
+    {
+        internal OverlordContain(OverlordContainModuleData moduleData)
+            : base(moduleData)
+        {
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
+
+            var unknown = reader.ReadBoolean();
+            if (unknown)
+            {
+                throw new InvalidStateException();
+            }
+        }
+    }
+
     /// <summary>
     /// Like Transport, but when full, passes transport queries along to first passenger 
     /// (redirects like tunnel).
@@ -22,5 +43,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ExperienceSinkForRider { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new OverlordContain(this);
+        }
     }
 }

@@ -10,7 +10,16 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // TODO
+            for (var i = 0; i < 20; i++)
+            {
+                var objectId = reader.ReadObjectID();
+            }
+
+            var unknown1 = reader.ReadUInt32();
+
+            var unknown2 = reader.ReadUInt32();
+
+            var unknownObjectId = reader.ReadObjectID();
         }
     }
 

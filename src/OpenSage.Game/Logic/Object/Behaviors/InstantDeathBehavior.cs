@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class InstantDeathBehavior : BehaviorModule
+    public sealed class InstantDeathBehavior : DieModule
     {
         private readonly GameObject _gameObject;
         private readonly InstantDeathBehaviorModuleData _moduleData;
@@ -32,6 +32,13 @@ namespace OpenSage.Logic.Object
                 rotation,
                 translation,
                 context.GameContext));
+        }
+
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            base.Load(reader);
         }
     }
 

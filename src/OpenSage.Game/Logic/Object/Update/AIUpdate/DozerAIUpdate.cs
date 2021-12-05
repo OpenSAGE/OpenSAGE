@@ -25,23 +25,17 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 24; i++)
+            for (var i = 0; i < 3; i++)
             {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
+                var objectId = reader.ReadObjectID();
+
+                var unknown = reader.ReadInt32();
             }
 
             var stateMachine = new WorkerAIUpdateStateMachine1();
             stateMachine.Load(reader);
 
             var unknown2 = reader.ReadInt32();
-            if (unknown2 != -1)
-            {
-                throw new InvalidStateException();
-            }
 
             var unknown3 = reader.ReadInt32();
             if (unknown3 != 3)
@@ -53,10 +47,6 @@ namespace OpenSage.Logic.Object
             {
                 var unknown4 = reader.ReadBoolean();
                 var unknownPos = reader.ReadVector3();
-                if (unknown4 && unknownPos != Vector3.Zero)
-                {
-                    throw new InvalidStateException();
-                }
             }
 
             var unknown5 = reader.ReadInt32();
