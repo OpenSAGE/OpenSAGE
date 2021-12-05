@@ -5,6 +5,7 @@ namespace OpenSage.Logic.Object
     public sealed class RadarUpdate : UpdateModule
     {
         private uint _radarExtendEndFrame;
+        private bool _isRadarExtending;
         private bool _isRadarExtended;
 
         internal override void Load(SaveFileReader reader)
@@ -17,11 +18,7 @@ namespace OpenSage.Logic.Object
 
             _isRadarExtended = reader.ReadBoolean();
 
-            var unknown2 = reader.ReadBoolean();
-            if (!unknown2)
-            {
-                throw new InvalidStateException();
-            }
+            _isRadarExtending = reader.ReadBoolean();
         }
     }
 
