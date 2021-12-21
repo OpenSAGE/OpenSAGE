@@ -344,6 +344,14 @@ namespace OpenSage.FileFormats
                 reader.ReadInt32());
         }
 
+        public static Point3D ReadPoint3D(this BinaryReader reader)
+        {
+            return new Point3D(
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32());
+        }
+
         public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)
         {
             return new IndexedTriangle(

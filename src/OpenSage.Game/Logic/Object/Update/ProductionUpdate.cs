@@ -702,13 +702,13 @@ namespace OpenSage.Logic.Object
         [IniEnum("DISABLED_FREEFALL")]
         Freefall,
 
-        TemporarilyBusy,
-
         [IniEnum("DISABLED_SCRIPT_DISABLED")]
         ScriptDisabled,
 
         [IniEnum("DISABLED_SCRIPT_UNDERPOWERED")]
         ScriptUnderpowered,
+
+        TemporarilyBusy,
 
         Infiltrated,
     }

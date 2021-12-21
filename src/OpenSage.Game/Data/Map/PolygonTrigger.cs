@@ -34,7 +34,7 @@ namespace OpenSage.Data.Map
         public ColorRgb RiverColor { get; private set; }
         public float RiverAlpha { get; private set; }
 
-        public MapVector3i[] Points { get; private set; }
+        public Point3D[] Points { get; private set; }
 
         public Rectangle Bounds { get; private set; }
 
@@ -83,11 +83,11 @@ namespace OpenSage.Data.Map
             }
 
             var numPoints = reader.ReadUInt32();
-            result.Points = new MapVector3i[numPoints];
+            result.Points = new Point3D[numPoints];
 
             for (var i = 0; i < numPoints; i++)
             {
-                result.Points[i] = MapVector3i.Parse(reader);
+                result.Points[i] = reader.ReadPoint3D();
             }
 
             return result;
@@ -132,7 +132,7 @@ namespace OpenSage.Data.Map
 
             foreach (var point in Points)
             {
-                point.WriteTo(writer);
+                writer.Write(point);
             }
         }
 
@@ -177,7 +177,7 @@ namespace OpenSage.Data.Map
 
             for (var i = 0; i < numPoints; i++)
             {
-                Points[i] = MapVector3i.Parse(reader.Inner);
+                Points[i] = reader.ReadPoint3D();
             }
 
             var topLeft = reader.ReadPoint2D();
