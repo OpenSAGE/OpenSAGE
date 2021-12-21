@@ -16,27 +16,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 4; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(4);
 
             var someObjectId = reader.ReadObjectID();
 
             var unknown1 = reader.ReadUInt32();
 
-            for (var i = 0; i < 4; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(4);
 
             var unknown15 = reader.ReadBoolean();
 
@@ -49,11 +35,7 @@ namespace OpenSage.Logic.Object
 
             var unknown4 = reader.ReadBoolean();
 
-            var unknown20 = reader.ReadInt32();
-            if (unknown20 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(4);
 
             var unknown21 = reader.ReadBoolean();
 

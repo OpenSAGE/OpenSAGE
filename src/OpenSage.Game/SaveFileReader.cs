@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
@@ -16,10 +15,14 @@ namespace OpenSage
 
         public BinaryReader Inner => _binaryReader;
 
-        internal SaveFileReader(BinaryReader binaryReader)
+        public readonly SageGame SageGame;
+
+        internal SaveFileReader(BinaryReader binaryReader, SageGame sageGame)
         {
             _binaryReader = binaryReader;
             _segments = new Stack<Segment>();
+
+            SageGame = sageGame;
         }
 
         public byte ReadVersion(byte maximumVersion)
@@ -36,6 +39,8 @@ namespace OpenSage
 
         public sbyte ReadSByte() => _binaryReader.ReadSByte();
 
+        public short ReadInt16() => _binaryReader.ReadInt16();
+
         public ushort ReadUInt16() => _binaryReader.ReadUInt16();
 
         public int ReadInt32() => _binaryReader.ReadInt32();
@@ -45,6 +50,8 @@ namespace OpenSage
         public bool ReadBoolean() => _binaryReader.ReadBooleanChecked();
 
         public uint ReadObjectID() => ReadUInt32();
+
+        public uint ReadFrame() => ReadUInt32();
 
         public string ReadAsciiString() => _binaryReader.ReadBytePrefixedAsciiString();
 
@@ -74,6 +81,12 @@ namespace OpenSage
             where TEnum : struct
         {
             return _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
+        }
+
+        public TEnum ReadEnumByteFlags<TEnum>()
+            where TEnum : struct
+        {
+            return _binaryReader.ReadByteAsEnumFlags<TEnum>();
         }
 
         public Matrix4x3 ReadMatrix4x3(bool readVersion = true)
@@ -110,9 +123,15 @@ namespace OpenSage
         public BitArray<TEnum> ReadBitArray<TEnum>()
             where TEnum : Enum
         {
-            ReadVersion(1);
-
             var result = new BitArray<TEnum>();
+            ReadBitArray(result);
+            return result;
+        }
+
+        public void ReadBitArray<TEnum>(BitArray<TEnum> result)
+            where TEnum : Enum
+        {
+            ReadVersion(1);
 
             var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
 
@@ -120,11 +139,9 @@ namespace OpenSage
             for (var i = 0; i < count; i++)
             {
                 var stringValue = ReadAsciiString();
-                var enumValue = (TEnum)stringToValueMap[stringValue];
+                var enumValue = (TEnum) stringToValueMap[stringValue];
                 result.Set(enumValue, true);
             }
-
-            return result;
         }
 
         public ColorRgbF ReadColorRgbF() => _binaryReader.ReadColorRgbF();
@@ -156,22 +173,36 @@ namespace OpenSage
             }
         }
 
-        public void ReadSpan<T>(Span<T> span)
-            where T : unmanaged
-        {
-            var spanBytes = MemoryMarshal.Cast<T, byte>(span);
-            _binaryReader.BaseStream.Read(spanBytes);
-        }
-
         public uint BeginSegment(string segmentName)
         {
-            var segmentLength = _binaryReader.ReadUInt32();
+            if (SageGame >= SageGame.Bfme)
+            {
+                var blokHeader = _binaryReader.ReadFourCc(bigEndian: true);
+                if (blokHeader != "BLOK")
+                {
+                    throw new InvalidStateException();
+                }
 
-            var currentPosition = _binaryReader.BaseStream.Position;
+                var segmentEnd = _binaryReader.ReadUInt32();
 
-            _segments.Push(new Segment(currentPosition, currentPosition + segmentLength, segmentName));
+                var currentPosition = _binaryReader.BaseStream.Position;
 
-            return segmentLength;
+                var segmentLength = (uint)(segmentEnd - currentPosition);
+
+                _segments.Push(new Segment(currentPosition, segmentEnd, segmentName));
+
+                return segmentLength;
+            }
+            else
+            {
+                var segmentLength = _binaryReader.ReadUInt32();
+
+                var currentPosition = _binaryReader.BaseStream.Position;
+
+                _segments.Push(new Segment(currentPosition, currentPosition + segmentLength, segmentName));
+
+                return segmentLength;
+            }
         }
 
         public void EndSegment()
@@ -180,18 +211,22 @@ namespace OpenSage
 
             if (_binaryReader.BaseStream.Position != segment.End)
             {
-                //Console.WriteLine("Skipped segment in .sav file");
-                //_binaryReader.BaseStream.Position = segment.End;
-
                 throw new InvalidStateException($"Stream position expected to be at 0x{segment.End:X8} but was at 0x{_binaryReader.BaseStream.Position:X8} while reading {segment.Name}");
             }
         }
 
         private record struct Segment(long Start, long End, string Name);
 
-        public void __Skip(int numBytes)
+        public void SkipUnknownBytes(int numBytes)
         {
-            _binaryReader.BaseStream.Position += numBytes;
+            for (var i = 0; i < numBytes; i++)
+            {
+                var unknown = _binaryReader.ReadByte();
+                if (unknown != 0)
+                {
+                    throw new InvalidStateException($"Expected byte (index {i}) at position 0x{_binaryReader.BaseStream.Position - 1:X8} to be 0 but it was {unknown}");
+                }
+            }
         }
     }
 

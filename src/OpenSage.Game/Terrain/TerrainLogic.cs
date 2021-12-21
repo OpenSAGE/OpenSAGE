@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Terrain
+﻿namespace OpenSage.Terrain
 {
     public sealed class TerrainLogic
     {
@@ -11,17 +8,7 @@ namespace OpenSage.Terrain
 
             reader.ReadVersion(2);
 
-            var unknown = reader.ReadInt32();
-            if (unknown != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown2 = reader.ReadInt32();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(8);
         }
     }
 }

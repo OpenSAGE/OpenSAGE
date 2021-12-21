@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,6 +17,18 @@ namespace OpenSage.Logic.Object
         private Vector3 _velocity;
 
         private Vector3 _cumulativeForces;
+
+        private Vector3 _unknownVector1;
+        private Vector3 _unknownVector2;
+        private Vector3 _unknownVector3;
+        private Vector3 _unknownVector4;
+        private int _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownFrame;
+        private float _unknownFloat1;
 
         public float Mass
         {
@@ -96,17 +106,31 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(52);
+            _unknownVector1 = reader.ReadVector3();
 
-            var unknown2 = reader.ReadUInt32();
+            _unknownVector2 = reader.ReadVector3();
 
-            var unknown3 = reader.ReadUInt32();
+            _unknownVector3 = reader.ReadVector3();
 
-            var unknown4 = reader.ReadSingle();
+            _unknownVector4 = reader.ReadVector3();
 
-            reader.__Skip(20);
+            _unknownInt1 = reader.ReadInt32();
 
-            var unknown6 = reader.ReadSingle();
+            _unknownInt2 = reader.ReadUInt32();
+
+            _unknownInt3 = reader.ReadUInt32();
+
+            _mass = reader.ReadSingle();
+
+            _unknownInt4 = reader.ReadUInt32();
+
+            _unknownInt5 = reader.ReadUInt32();
+
+            _unknownFrame = reader.ReadFrame();
+
+            reader.SkipUnknownBytes(8);
+
+            _unknownFloat1 = reader.ReadSingle();
         }
     }
 

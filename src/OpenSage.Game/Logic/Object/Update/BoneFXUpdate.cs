@@ -29,14 +29,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            for (var i = 0; i < 289; i++)
-            {
-                var unknown = reader.ReadInt32();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(289 * 4);
 
             var unknown1 = reader.ReadInt32();
             if (unknown1 != 1)

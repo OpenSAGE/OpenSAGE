@@ -267,11 +267,7 @@ namespace OpenSage
         {
             reader.ReadVersion(1);
 
-            var unknown1 = reader.ReadByte();
-            if (unknown1 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             var unknown2 = reader.ReadBoolean();
 

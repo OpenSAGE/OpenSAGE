@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -277,11 +276,7 @@ namespace OpenSage.Logic.Object
             var unknownInt13 = reader.ReadUInt32();
             var unknownInt14 = reader.ReadUInt32();
 
-            var unknownFloat1 = reader.ReadSingle();
-            if (unknownFloat1 != 999999)
-            {
-                //throw new InvalidDataException();
-            }
+            var unknownFloat1 = reader.ReadSingle(); // 999999
 
             var unknownInt15 = reader.ReadUInt32(); // 2
             var unknownInt16 = reader.ReadUInt32(); // 3
@@ -305,7 +300,7 @@ namespace OpenSage.Logic.Object
             var unknownInt24 = reader.ReadUInt32();
             if (unknownInt24 != 0x7FFFFFFF)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownBool13 = reader.ReadBoolean();
@@ -332,12 +327,32 @@ namespace OpenSage.Logic.Object
 
             var unknownInt27 = reader.ReadUInt32();
             var unknownPosition = reader.ReadVector3();
-            reader.__Skip(5 * 4);
+            reader.SkipUnknownBytes(12);
+            var unknownObjectId = reader.ReadObjectID();
+            var unknownFloat20 = reader.ReadSingle();
 
             var unknownPos1 = reader.ReadPoint2D();
             var unknownPos2 = reader.ReadPoint2D();
 
-            reader.__Skip(46);
+            var unknownFrame = reader.ReadFrame();
+            var unknownFrame2 = reader.ReadFrame();
+            var unknownPos3 = reader.ReadVector3();
+
+            reader.SkipUnknownBytes(1);
+
+            var unknownBool23 = reader.ReadBoolean();
+            var unknownBool20 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(5);
+
+            var unknownBool21 = reader.ReadBoolean();
+            var unknownBool22 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(8);
+
+            var unknownObjectId2 = reader.ReadObjectID();
+
+            reader.SkipUnknownBytes(4);
 
             _locomotorSet.Load(reader);
 
@@ -349,14 +364,10 @@ namespace OpenSage.Logic.Object
             var unknownInt29 = reader.ReadUInt32();
             if (unknownInt29 != 0 && unknownInt29 != 3 && unknownInt29 != uint.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownInt30 = reader.ReadUInt32();
-            if (unknownInt30 != 1) // 0, 1
-            {
-                //throw new InvalidDataException();
-            }
+            var unknownInt30 = reader.ReadUInt32(); // 0, 1
 
             var angleSomething = reader.ReadSingle();
 
@@ -365,7 +376,7 @@ namespace OpenSage.Logic.Object
                 var unknownInt31 = reader.ReadUInt32();
                 if (unknownInt31 != 0)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
             }
 
@@ -379,16 +390,12 @@ namespace OpenSage.Logic.Object
             var unknownInt33 = reader.ReadInt32();
             if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2 && unknownInt33 != -2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var frameSomething = reader.ReadUInt32();
 
-            var unknownInt34 = reader.ReadInt32();
-            if (unknownInt34 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
         }
     }
 

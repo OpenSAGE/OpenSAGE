@@ -1,6 +1,4 @@
-﻿using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic
+﻿namespace OpenSage.Logic
 {
     public sealed class CampaignManager
     {
@@ -22,12 +20,13 @@ namespace OpenSage.Logic
             if (version >= 5)
             {
                 var unknownBool = reader.ReadBoolean();
-                if (unknownBool)
-                {
 
-                }
+                reader.SkipUnknownBytes(4);
+            }
 
-                reader.__Skip(4);
+            if (version == 1 && reader.SageGame >= SageGame.Bfme)
+            {
+                var unknownBool2 = reader.ReadBoolean();
             }
         }
     }

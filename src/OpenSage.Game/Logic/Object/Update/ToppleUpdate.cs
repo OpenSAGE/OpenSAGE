@@ -122,17 +122,7 @@ namespace OpenSage.Logic.Object
             _toppleAngle = reader.ReadSingle();
             var unknownFloat6 = reader.ReadSingle();
 
-            var unknownUint4 = reader.ReadUInt32();
-            if (unknownUint4 != 0)
-            {
-                throw new InvalidStateException();
-            }
-
-            var unknownUint5 = reader.ReadUInt32();
-            if (unknownUint5 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(8);
 
             var unknownBool6 = reader.ReadBoolean();
             if (unknownBool6)

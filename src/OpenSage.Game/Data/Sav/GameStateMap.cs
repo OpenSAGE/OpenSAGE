@@ -15,6 +15,14 @@ namespace OpenSage.Data.Sav
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 
+            if (reader.SageGame >= SageGame.Bfme)
+            {
+                var unknown4 = reader.ReadUInt32();
+                var unknown5 = reader.ReadUInt32();
+
+                mapSize -= 8;
+            }
+
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(
                 game.ContentManager.UserDataFileSystem.RootDirectory,
@@ -34,6 +42,11 @@ namespace OpenSage.Data.Sav
 
             var unknown2 = reader.ReadUInt32(); // 586
             var unknown3 = reader.ReadUInt32(); // 3220
+
+            if (reader.SageGame >= SageGame.Bfme)
+            {
+                var unknown6 = reader.ReadBoolean();
+            }
 
             if (gameType == GameType.Skirmish)
             {

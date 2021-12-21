@@ -343,7 +343,7 @@ namespace OpenSage.Scripting
 
         public int ObjectCountNearbyEnemies(string gameObject, string radius)
         {
-            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Team.Owner.Enemies.Count; //placeholder
+            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Owner.Enemies.Count; //placeholder
         }
 
         public int ObjectGetHealthFraction(string gameObject)
@@ -363,7 +363,7 @@ namespace OpenSage.Scripting
 
         public string ObjectTeamName(string gameObject) //EXAMPLE C&C3: "teamPlayer_2"
         {
-            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Team.Name;
+            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Name;
         }
 
         public string ObjectPlayerSide(string gameObject) //EXAMPLE C&C3: "{0,0}ED46C05A" BFME: "Isengard""

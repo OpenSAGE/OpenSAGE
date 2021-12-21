@@ -28,17 +28,7 @@ namespace OpenSage.Data.Map
             Name = reader.ReadAsciiString();
             Position = reader.ReadVector3();
 
-            var unknown1 = reader.ReadUInt32();
-            if (unknown1 != 0u)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0u)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(8);
 
             Angle = reader.ReadSingle();
 
@@ -46,11 +36,7 @@ namespace OpenSage.Data.Map
 
             Rebuilds = reader.ReadByte();
 
-            var unknown5 = reader.ReadUInt32();
-            if (unknown5 != 0u)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
 
             StartingHealth = reader.ReadUInt32();
 
@@ -62,14 +48,15 @@ namespace OpenSage.Data.Map
             var unknown11 = reader.ReadUInt32();
             var unknown12 = reader.ReadBoolean();
 
-            for (var i = 0; i < 50; i++)
-            {
-                var unknown13 = reader.ReadByte();
-                if (unknown13 != 0)
-                {
-                    //throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(40);
+
+            var unknown13 = reader.ReadBoolean();
+
+            var unknown14 = reader.ReadInt32();
+
+            var unknown15 = reader.ReadBoolean();
+
+            var unknown16 = reader.ReadInt32();
         }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)

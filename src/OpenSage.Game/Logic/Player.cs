@@ -4,7 +4,6 @@ using System.IO;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -14,6 +13,8 @@ namespace OpenSage.Logic
     [DebuggerDisplay("[Player: {Name}]")]
     public class Player
     {
+        public const int MaxPlayers = 16;
+
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly AssetStore _assetStore;
@@ -384,10 +385,7 @@ namespace OpenSage.Logic
 
             var upgradeQueueCount = reader.ReadUInt16();
 
-            if (reader.ReadBoolean())
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             _sciencesDisabled.Load(reader);
             _sciencesHidden.Load(reader);
@@ -404,7 +402,11 @@ namespace OpenSage.Logic
                 upgrade.Load(reader);
             }
 
-            reader.__Skip(9);
+            var unknown1 = reader.ReadUInt32();
+
+            var unknown2 = reader.ReadBoolean();
+
+            var unknown3 = reader.ReadUInt32();
 
             var hasInsufficientPower = reader.ReadBoolean();
 
@@ -413,13 +415,13 @@ namespace OpenSage.Logic
 
             if (reader.ReadByte() != 2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var playerId = reader.ReadUInt32();
             if (playerId != Id)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var numTeamTemplates = reader.ReadUInt16();
@@ -429,7 +431,7 @@ namespace OpenSage.Logic
                 var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
                 if (teamTemplate.Owner != this)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
                 _teamTemplates.Add(teamTemplate);
             }
@@ -445,7 +447,7 @@ namespace OpenSage.Logic
             var isAIPlayer = reader.ReadBoolean();
             if (isAIPlayer != (AIPlayer != null))
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
             if (isAIPlayer)
             {
@@ -458,32 +460,18 @@ namespace OpenSage.Logic
                 _supplyManager.Load(reader);
             }
 
-            var somePlayerType = reader.ReadBoolean();
-            if (somePlayerType)
+            var hasTunnelManager = reader.ReadBoolean();
+            if (hasTunnelManager)
             {
-                reader.ReadVersion(1);
-
-                var tunnels = new ObjectIdSet();
-                tunnels.Load(reader);
-
-                var containedCount = reader.ReadUInt32();
-                for (var i = 0; i < containedCount; i++)
-                {
-                    var containedObjectId = reader.ReadObjectID();
-                }
-
-                var tunnelCount = reader.ReadUInt32();
-                if (tunnelCount != tunnels.Count)
-                {
-                    throw new InvalidDataException();
-                }
+                var tunnelManager = new TunnelManager();
+                tunnelManager.Load(reader);
             }
 
             var defaultTeamId = reader.ReadUInt32();
             DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
             if (DefaultTeam.Template.Owner != this)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             _sciences.Load(reader);
@@ -509,36 +497,18 @@ namespace OpenSage.Logic
             GeneralsExperienceMultiplier = reader.ReadSingle();
             ShowOnScoreScreen = reader.ReadBoolean();
 
-            reader.__Skip(87);
-
-            var suppliesCollected = reader.ReadUInt32();
-            var moneySpent = reader.ReadUInt32();
-
-            reader.__Skip(156);
-
-            var unknown8 = reader.ReadUInt32();
-
-            var buildingsCreated = new PlayerStatObjectCollection();
-            buildingsCreated.Load(reader);
-
-            var numPlayers = reader.ReadUInt16();
-            for (var i = 0; i < numPlayers; i++)
+            var attackedByPlayerIds = new bool[16];
+            for (var i = 0; i < attackedByPlayerIds.Length; i++)
             {
-                var playerObjectsDestroyed = new PlayerStatObjectCollection();
-                playerObjectsDestroyed.Load(reader);
+                attackedByPlayerIds[i] = reader.ReadBoolean();
             }
 
-            var unitsCreated = new PlayerStatObjectCollection();
-            unitsCreated.Load(reader);
+            reader.SkipUnknownBytes(70);
 
-            var buildingsCaptured = new PlayerStatObjectCollection();
-            buildingsCaptured.Load(reader);
+            var scoreManager = new PlayerScoreManager();
+            scoreManager.Load(reader);
 
-            var unknown11 = reader.ReadUInt32();
-            if (unknown11 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
 
             var numControlGroups = reader.ReadUInt16();
             for (var i = 0; i < numControlGroups; i++)
@@ -549,13 +519,13 @@ namespace OpenSage.Logic
 
             if (!reader.ReadBoolean())
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var destroyedObjects = new ObjectIdSet();
             destroyedObjects.Load(reader);
 
-            reader.__Skip(14);
+            reader.SkipUnknownBytes(14);
         }
 
         public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore, bool isSkirmish)
@@ -667,7 +637,7 @@ namespace OpenSage.Logic
             var playerId = reader.ReadUInt32();
             if (playerId != _owner.Id)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownBool1 = reader.ReadBoolean();
@@ -676,26 +646,18 @@ namespace OpenSage.Logic
             var unknown2 = reader.ReadUInt32();
             if (unknown2 != 2 && unknown2 != 0)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown3 = reader.ReadInt32();
             if (unknown3 != 0 && unknown3 != -1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 50 && unknown4 != 51 && unknown4 != 8 && unknown4 != 35)
-            {
-                //throw new InvalidDataException();
-            }
+            var unknown4 = reader.ReadUInt32(); // 50, 51, 8, 35
 
-            var unknown5 = reader.ReadUInt32();
-            if (unknown5 != 0 && unknown5 != 50)
-            {
-                //throw new InvalidDataException();
-            }
+            var unknown5 = reader.ReadUInt32(); // 0, 50
 
             var unknown6 = reader.ReadUInt32();
             if (unknown6 != 10)
@@ -705,36 +667,25 @@ namespace OpenSage.Logic
 
             var unknown7 = reader.ReadObjectID();
 
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0 && unknown8 != 1)
-            {
-                //throw new InvalidDataException();
-            }
+            var unknown8 = reader.ReadUInt32(); // 0, 1
 
             var unknown9 = reader.ReadUInt32();
             if (unknown9 != 1 && unknown9 != 0 && unknown9 != 2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown10 = reader.ReadInt32();
             if (unknown10 != -1 && unknown10 != 0 && unknown10 != 1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownPosition = reader.ReadVector3();
             var unknownBool8 = reader.ReadBoolean();
             var unknownFloat = reader.ReadSingle();
 
-            for (var i = 0; i < 22; i++)
-            {
-                var unknownByte = reader.ReadByte();
-                if (unknownByte != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(22);
         }
 
         private sealed class AIPlayerUnknownThing
@@ -756,14 +707,7 @@ namespace OpenSage.Logic
 
                 var unknownInt4 = reader.ReadUInt32();
 
-                for (var j = 0; j < 7; j++)
-                {
-                    var unknownByte = reader.ReadByte();
-                    if (unknownByte != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
+                reader.SkipUnknownBytes(7);
             }
         }
 
@@ -806,14 +750,7 @@ namespace OpenSage.Logic
             var unknownFloat1 = reader.ReadSingle();
             var unknownFloat2 = reader.ReadSingle();
 
-            for (var i = 0; i < 16; i++)
-            {
-                var unknownByte = reader.ReadByte();
-                if (unknownByte != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(16);
         }
     }
 
@@ -1004,6 +941,113 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             Money = reader.ReadUInt32();
+        }
+    }
+
+    public sealed class TunnelManager
+    {
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var tunnels = new ObjectIdSet();
+            tunnels.Load(reader);
+
+            var containedCount = reader.ReadUInt32();
+            for (var i = 0; i < containedCount; i++)
+            {
+                var containedObjectId = reader.ReadObjectID();
+            }
+
+            var tunnelCount = reader.ReadUInt32();
+            if (tunnelCount != tunnels.Count)
+            {
+                throw new InvalidStateException();
+            }
+        }
+    }
+
+    public sealed class PlayerScoreManager
+    {
+        private uint _suppliesCollected;
+        private uint _moneySpent;
+
+        private uint[] _numUnitsDestroyedPerPlayer;
+        private uint _numUnitsBuilt;
+        private uint _numUnitsLost;
+
+        private uint[] _numBuildingsDestroyedPerPlayer;
+        private uint _numBuildingsBuilt;
+        private uint _numBuildingsLost;
+
+        private uint _numObjectsCaptured;
+
+        private uint _playerId;
+
+        private readonly PlayerStatObjectCollection _objectsBuilt = new();
+        private readonly PlayerStatObjectCollection[] _objectsDestroyedPerPlayer;
+        private readonly PlayerStatObjectCollection _objectsLost = new();
+        private readonly PlayerStatObjectCollection _objectsCaptured = new();
+
+        internal PlayerScoreManager()
+        {
+            _numUnitsDestroyedPerPlayer = new uint[Player.MaxPlayers];
+
+            _numBuildingsDestroyedPerPlayer = new uint[Player.MaxPlayers];
+
+            _objectsDestroyedPerPlayer = new PlayerStatObjectCollection[Player.MaxPlayers];
+            for (var i = 0; i < _objectsDestroyedPerPlayer.Length; i++)
+            {
+                _objectsDestroyedPerPlayer[i] = new PlayerStatObjectCollection();
+            }
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            _suppliesCollected = reader.ReadUInt32();
+            _moneySpent = reader.ReadUInt32();
+
+            for (var i = 0; i < _numUnitsDestroyedPerPlayer.Length; i++)
+            {
+                _numUnitsDestroyedPerPlayer[i] = reader.ReadUInt32();
+            }
+
+            _numUnitsBuilt = reader.ReadUInt32();
+
+            _numUnitsLost = reader.ReadUInt32();
+
+            for (var i = 0; i < _numBuildingsDestroyedPerPlayer.Length; i++)
+            {
+                _numBuildingsDestroyedPerPlayer[i] = reader.ReadUInt32();
+            }
+
+            _numBuildingsBuilt = reader.ReadUInt32();
+
+            _numBuildingsLost = reader.ReadUInt32();
+
+            _numObjectsCaptured = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(8);
+
+            _playerId = reader.ReadUInt32();
+
+            _objectsBuilt.Load(reader);
+
+            if (reader.ReadUInt16() != _objectsDestroyedPerPlayer.Length)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < _objectsDestroyedPerPlayer.Length; i++)
+            {
+                _objectsDestroyedPerPlayer[i].Load(reader);
+            }
+
+            _objectsLost.Load(reader);
+
+            _objectsCaptured.Load(reader);
         }
     }
 }

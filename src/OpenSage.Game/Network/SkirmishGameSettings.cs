@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using OpenSage.Data.Sav;
+﻿using System.Linq;
 
 namespace OpenSage.Network
 {
@@ -84,7 +82,7 @@ namespace OpenSage.Network
             var numPlayers = reader.ReadUInt32(); // 8
             if (numPlayers != MaxNumberOfPlayers)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             Slots = new SkirmishSlot[MaxNumberOfPlayers];
@@ -94,11 +92,7 @@ namespace OpenSage.Network
                 Slots[i].Load(reader);
             }
 
-            var unknown14 = reader.ReadInt32();
-            if (unknown14 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
 
             MapName = reader.ReadAsciiString();
 

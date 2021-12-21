@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Audio;
+using OpenSage.Client;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -103,6 +104,10 @@ namespace OpenSage
 
         public readonly PartitionCellManager PartitionCellManager;
 
+        internal readonly GameLogic GameLogic;
+
+        internal readonly GameClient GameClient;
+
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -156,6 +161,10 @@ namespace OpenSage
             };
 
             contentManager.GraphicsDevice.WaitForIdle();
+
+            GameLogic = new GameLogic(this);
+
+            GameClient = new GameClient(this, GameLogic);
         }
 
         private void LoadObjects(
@@ -569,7 +578,7 @@ namespace OpenSage
                 var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    var team = gameObject.Team;
+                    var team = gameObject.TeamTemplate;
                     if (team?.Name == $"Player_{playerSetting.StartPosition}_Inherit")
                     {
                         var castleBehavior = gameObject.FindBehavior<CastleBehavior>();

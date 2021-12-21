@@ -15,14 +15,7 @@ namespace OpenSage.Logic.Object
 
             var frameSomething = reader.ReadInt32();
 
-            for (var i = 0; i < 29; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(29);
 
             var unknown2 = reader.ReadUInt16();
             if (unknown2 != 1)
@@ -36,14 +29,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 23; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(23);
         }
     }
 

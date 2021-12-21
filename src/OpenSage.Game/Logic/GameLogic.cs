@@ -65,17 +65,28 @@ namespace OpenSage.Logic
                 reader.EndSegment();
             }
 
-            reader.ReadByte(); // 3
+            // Don't know why this is duplicated here. It's also loaded by a top-level .sav chunk.
+            var campaignManager = new CampaignManager();
+            campaignManager.Load(reader);
 
-            var sideName = reader.ReadAsciiString();
-            var missionName = reader.ReadAsciiString();
+            var unknown1 = reader.ReadBoolean();
+            if (!unknown1)
+            {
+                throw new InvalidStateException();
+            }
 
-            reader.__Skip(12);
+            reader.SkipUnknownBytes(2);
+
+            var unknown1_1 = reader.ReadBoolean();
+            if (!unknown1_1)
+            {
+                throw new InvalidStateException();
+            }
 
             var numPolygonTriggers = reader.ReadUInt32();
             if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
             for (var i = 0; i < numPolygonTriggers; i++)
             {
@@ -86,11 +97,7 @@ namespace OpenSage.Logic
 
             _rankLevelLimit = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
 
             while (true)
             {
@@ -109,23 +116,23 @@ namespace OpenSage.Logic
 
             if (!reader.ReadBoolean())
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             if (!reader.ReadBoolean())
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             if (!reader.ReadBoolean())
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown3 = reader.ReadUInt32();
             if (unknown3 != uint.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             // Command button overrides
@@ -137,18 +144,10 @@ namespace OpenSage.Logic
                     break;
                 }
 
-                var unknownBool1 = reader.ReadBoolean();
-                if (unknownBool1)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.SkipUnknownBytes(1);
             }
 
-            var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
         }
     }
 

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using OpenSage.Content;
-using OpenSage.Data.Sav;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
@@ -104,7 +102,7 @@ namespace OpenSage.Logic
             var numPlayers = reader.ReadUInt32();
             if (numPlayers != _players.Count)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numPlayers; i++)

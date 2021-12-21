@@ -17,27 +17,13 @@ namespace OpenSage.Logic.Object
                 var objectId = reader.ReadObjectID();
             }
 
-            var unknown2 = reader.ReadUInt16();
-            if (unknown2 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(2);
 
             var frameSomething = reader.ReadUInt32();
 
             var frameSomething2 = reader.ReadUInt32();
 
-            var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 0)
-            {
-                throw new InvalidStateException();
-            }
-
-            var unknown5 = reader.ReadUInt32();
-            if (unknown5 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(8);
 
             var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
 
@@ -58,14 +44,7 @@ namespace OpenSage.Logic.Object
 
             var hasNoFirePoints = reader.ReadBoolean();
 
-            for (var i = 0; i < 13; i++)
-            {
-                var unknown7 = reader.ReadByte();
-                if (unknown7 != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(13);
 
             var unknown9Count = reader.ReadUInt16();
             for (var i = 0; i < unknown9Count; i++)

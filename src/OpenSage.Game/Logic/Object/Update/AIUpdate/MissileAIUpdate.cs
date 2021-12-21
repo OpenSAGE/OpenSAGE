@@ -116,11 +116,7 @@ namespace OpenSage.Logic.Object
 
             var currentPositionMaybe = reader.ReadVector3();
 
-            var unknownInt3 = reader.ReadInt32();
-            if (unknownInt3 != 0) // 0, 0x20000
-            {
-                //throw new InvalidDataException();
-            }
+            var unknownInt3 = reader.ReadInt32(); // 0, 0x20000
 
             var unknownInt4 = reader.ReadInt32(); // 1960
         }

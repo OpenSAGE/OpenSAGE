@@ -12,7 +12,9 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(16);
+            reader.SkipUnknownBytes(12);
+
+            var unknown = reader.ReadUInt32();
         }
     }
 

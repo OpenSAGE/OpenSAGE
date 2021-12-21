@@ -1,7 +1,5 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {
@@ -12,6 +10,20 @@ namespace OpenSage.Logic.Object
         private readonly WeaponStateMachine _stateMachine;
 
         private int _currentRounds;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+        private uint _unknownFrame4;
+        private uint _unknownObjectId;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownInt6;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
 
         public readonly int WeaponIndex;
 
@@ -122,18 +134,42 @@ namespace OpenSage.Logic.Object
             reader.ReadVersion(3);
 
             var templateName = reader.ReadAsciiString();
-
-            reader.__Skip(13 * 4);
-
-            var count = reader.ReadUInt16();
-
-            if (count > 0)
+            if (templateName != Template.Name)
             {
-                throw new NotImplementedException();
+                throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadBoolean();
-            var unknown2 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
+
+            _unknownInt2 = reader.ReadUInt32();
+
+            _unknownInt3 = reader.ReadUInt32();
+
+            _unknownFrame1 = reader.ReadFrame();
+
+            reader.SkipUnknownBytes(4);
+
+            _unknownFrame2 = reader.ReadFrame();
+
+            _unknownFrame3 = reader.ReadFrame();
+
+            _unknownFrame4 = reader.ReadFrame();
+
+            _unknownObjectId = reader.ReadObjectID();
+
+            reader.SkipUnknownBytes(4);
+
+            _unknownInt4 = reader.ReadUInt32();
+
+            _unknownInt5 = reader.ReadUInt32();
+
+            _unknownInt6 = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(2);
+
+            _unknownBool1 = reader.ReadBoolean();
+
+            _unknownBool2 = reader.ReadBoolean();
         }
 
         internal void DrawInspector()

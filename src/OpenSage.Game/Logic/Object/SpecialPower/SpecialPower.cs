@@ -6,6 +6,9 @@ namespace OpenSage.Logic.Object
 {
     public class SpecialPowerModule : BehaviorModule
     {
+        private uint _countdownStartFrame;
+        private uint _countdownEndFrame;
+
         internal virtual void Activate(Vector3 position)
         {
         }
@@ -16,7 +19,17 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(16);
+            _countdownStartFrame = reader.ReadFrame();
+
+            var unknownInt = reader.ReadUInt32();
+            if (unknownInt != 1 && unknownInt != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            _countdownEndFrame = reader.ReadFrame();
+
+            reader.SkipUnknownBytes(4);
         }
     }
 

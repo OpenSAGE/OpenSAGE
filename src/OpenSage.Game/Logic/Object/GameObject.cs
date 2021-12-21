@@ -7,9 +7,7 @@ using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics.Cameras;
@@ -21,6 +19,7 @@ using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using FixedMath.NET;
 using OpenSage.Terrain;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -68,7 +67,7 @@ namespace OpenSage.Logic.Object
                         name = name.Split('/')[1];
                     }
                     var team = teamFactory.FindTeamTemplateByName(name);
-                    gameObject.Team = team;
+                    gameObject.TeamTemplate = team;
                     gameObject.Owner = team?.Owner;
                 }
             }
@@ -124,10 +123,15 @@ namespace OpenSage.Logic.Object
 
         public readonly ObjectDefinition Definition;
 
+        private readonly Geometry _geometry;
+
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
 
         private bool _objectMoved;
+
+        private uint _createdByObjectID;
+        private uint _builtByObjectID;
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
@@ -231,7 +235,9 @@ namespace OpenSage.Logic.Object
 
         string IInspectable.Name => "GameObject";
 
-        public TeamTemplate Team { get; set; }
+        public TeamTemplate TeamTemplate { get; set; }
+
+        public Team Team { get; private set; }
 
         public bool IsSelectable { get; set; }
         public bool IsProjectile { get; private set; } = false;
@@ -397,6 +403,8 @@ namespace OpenSage.Logic.Object
                 AIUpdate = AddDisposable(((AIUpdateModuleData) objectDefinition.AIUpdate.Value.Data).CreateAIUpdate(this));
                 AddModule(objectDefinition.AIUpdate.Value.Tag, AIUpdate);
             }
+
+            _geometry = Definition.Geometry.Clone();
 
             var allGeometries = new List<Geometry>
             {
@@ -1057,31 +1065,66 @@ namespace OpenSage.Logic.Object
             var transform = reader.ReadMatrix4x3();
             SetTransformMatrix(transform.ToMatrix4x4());
 
-            var unknownInt1 = reader.ReadUInt32(); // Maybe team ID?
-            var unknownInt2 = reader.ReadUInt32(); // Looks like an object ID
-            var unknownInt3 = reader.ReadUInt32();
+            var teamId = reader.ReadUInt32();
+            Team = GameContext.Scene3D.TeamFactory.FindTeamById(teamId);
 
-            var drawableID = reader.ReadUInt32();
+            _createdByObjectID = reader.ReadObjectID();
+
+            _builtByObjectID = reader.ReadUInt32();
+
+            Drawable.DrawableID = reader.ReadUInt32();
 
             _name = reader.ReadAsciiString();
 
-            reader.__Skip(6);
+            var unknown51 = reader.ReadUInt32();
 
-            var geometry = new Geometry();
+            var unknown52 = reader.ReadByte();
 
-            geometry.Load(reader);
+            var unknownFlags = reader.ReadEnumByteFlags<GameObjectUnknownFlags>();
 
-            reader.ReadVersion(1);
-            var position = reader.ReadVector3();
-            var unknown = reader.ReadSingle(); // 360
-            reader.__Skip(29);
-            var unknown16 = reader.ReadSingle(); // 360
-            var unknown17 = reader.ReadSingle(); // 360
-            reader.__Skip(4);
+            _geometry.Load(reader);
+
+            var shroudRevealSomething1 = new ShroudReveal();
+            shroudRevealSomething1.Load(reader);
+
+            var shroudRevealSomething2 = new ShroudReveal();
+            shroudRevealSomething2.Load(reader);
+
+            var visionRange = reader.ReadSingle();
+            var shroudClearingRange = reader.ReadSingle();
+
+            reader.SkipUnknownBytes(4);
 
             var disabledTypes = reader.ReadBitArray<DisabledType>();
 
-            reader.__Skip(75);
+            reader.SkipUnknownBytes(1);
+
+            for (var i = 0; i < 9; i++)
+            {
+                var unknown61 = reader.ReadInt32();
+                if (unknown61 != 0 && unknown61 != 0x3FFFFFFF)
+                {
+                    throw new InvalidStateException();
+                }
+            }
+
+            reader.SkipUnknownBytes(8);
+
+            var veterancyHelper = new ObjectVeterancyHelper();
+            veterancyHelper.Load(reader);
+
+            var containerId = reader.ReadObjectID();
+
+            var containedFrame = reader.ReadUInt32();
+
+            // TODO: This goes up to 100, not 1, as other code in GameObject expects
+            BuildProgress = reader.ReadSingle();
+
+            var unknown55 = reader.ReadByte();
+            if (unknown55 != 1)
+            {
+                throw new InvalidStateException();
+            }
 
             var numUpgrades = reader.ReadUInt16();
             for (var i = 0; i < numUpgrades; i++)
@@ -1093,7 +1136,7 @@ namespace OpenSage.Logic.Object
 
             var team = reader.ReadAsciiString(); // teamPlyrAmerica
 
-            reader.__Skip(16);
+            reader.SkipUnknownBytes(16);
 
             var someCount = reader.ReadByte();
             reader.ReadUInt32();
@@ -1109,7 +1152,23 @@ namespace OpenSage.Logic.Object
                 reader.ReadBoolean();
             }
 
-            reader.__Skip(17);
+            var unknown66 = reader.ReadInt32();
+            if (unknown66 != 1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown67 = reader.ReadInt32();
+            if (unknown67 != 0 && unknown67 != 1)
+            {
+                throw new InvalidStateException();
+            }
+
+            IsSelectable = reader.ReadBoolean();
+
+            var frameSomething = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(4);
 
             // Modules
             var numModules = reader.ReadUInt16();
@@ -1125,13 +1184,29 @@ namespace OpenSage.Logic.Object
                 reader.EndSegment();
             }
 
-            reader.__Skip(9);
-            var someCount2 = reader.ReadUInt32();
-            for (var i = 0; i < someCount2; i++)
+            var healedByObjectId = reader.ReadObjectID();
+            var healedEndFrame = reader.ReadUInt32();
+
+            reader.ReadBitArray(WeaponSetConditions);
+
+            var weaponBonusTypes = reader.ReadUInt32();
+
+            var weaponBonusTypesBitArray = new BitArray<WeaponBonusType>();
+            var weaponBonusTypeCount = EnumUtility.GetEnumCount<WeaponBonusType>();
+            for (var i = 0; i < weaponBonusTypeCount; i++)
             {
-                var condition = reader.ReadAsciiString();
+                var weaponBonusBit = (weaponBonusTypes >> i) & 1;
+                weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
-            reader.__Skip(7);
+
+            for (var i = 0; i < 3; i++)
+            {
+                var unknown71 = reader.ReadByte();
+                if (unknown71 != 0 && unknown71 != 1 && unknown71 != 2 && unknown71 != 3 && unknown71 != 0xFF)
+                {
+                    throw new InvalidStateException();
+                }
+            }
 
             var weaponSet = new WeaponSet(this);
             weaponSet.Load(reader);
@@ -1220,6 +1295,37 @@ namespace OpenSage.Logic.Object
                     behaviorModule.DrawInspector();
                 }
             }
+        }
+
+        [Flags]
+        private enum GameObjectUnknownFlags
+        {
+            None = 0,
+            Unknown1 = 1,
+            Unknown2 = 2,
+            Unknown4 = 4,
+            Unknown8 = 8,
+        }
+    }
+
+    internal sealed class ObjectVeterancyHelper
+    {
+        private VeterancyLevel _veterancyLevel;
+        private int _experiencePoints;
+        private uint _experienceSinkObjectId;
+        private float _experienceScalar;
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            _veterancyLevel = reader.ReadEnum<VeterancyLevel>();
+
+            _experiencePoints = reader.ReadInt32();
+
+            _experienceSinkObjectId = reader.ReadObjectID();
+
+            _experienceScalar = reader.ReadSingle();
         }
     }
 }

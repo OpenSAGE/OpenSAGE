@@ -82,14 +82,7 @@ namespace OpenSage.Logic.Object
 
             var modelName = reader.ReadAsciiString();
 
-            for (var i = 0; i < 7; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(7);
 
             var unknown1 = reader.ReadUInt32();
             var unknown2 = reader.ReadUInt32();

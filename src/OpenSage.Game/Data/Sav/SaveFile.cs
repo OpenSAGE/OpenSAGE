@@ -1,10 +1,8 @@
 ﻿using System.IO;
 using System.Text;
-using OpenSage.Client;
+using OpenSage.FileFormats;
 using OpenSage.Graphics.Cameras;
 using OpenSage.IO;
-using OpenSage.Logic;
-using OpenSage.Terrain;
 
 namespace OpenSage.Data.Sav
 {
@@ -15,7 +13,7 @@ namespace OpenSage.Data.Sav
             using (var stream = entry.Open())
             using (var binaryReader = new BinaryReader(stream, Encoding.Unicode, true))
             {
-                var reader = new SaveFileReader(binaryReader);
+                var reader = new SaveFileReader(binaryReader, SageGame.CncGenerals);
 
                 while (true)
                 {
@@ -34,7 +32,7 @@ namespace OpenSage.Data.Sav
                 }
             }
 
-            throw new InvalidDataException();
+            throw new InvalidStateException();
         }
 
         public static void Load(FileSystemEntry entry, Game game)
@@ -47,15 +45,30 @@ namespace OpenSage.Data.Sav
         {
             using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
 
-            var reader = new SaveFileReader(binaryReader);
+            var reader = new SaveFileReader(binaryReader, game.SageGame);
+
+            if (reader.SageGame >= SageGame.Bfme)
+            {
+                var header1 = reader.Inner.ReadFourCc(bigEndian: true);
+                if (header1 != "EALA")
+                {
+                    throw new InvalidStateException();
+                }
+
+                var header2 = reader.Inner.ReadFourCc(bigEndian: true);
+                if (header2 != "RTS1")
+                {
+                    throw new InvalidStateException();
+                }
+
+                var header3 = reader.ReadUInt32();
+                if (header3 != 0)
+                {
+                    throw new InvalidStateException();
+                }
+            }
 
             var gameState = new GameState();
-            GameLogic gameLogic = null;
-            GameClient gameClient = null;
-            CampaignManager campaignManager = null;
-            var terrainLogic = new TerrainLogic();
-            var terrainVisual = new TerrainVisual();
-            var ghostObjectManager = new GhostObjectManager();
 
             while (true)
             {
@@ -64,12 +77,12 @@ namespace OpenSage.Data.Sav
                 {
                     if (stream.Position != stream.Length)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidStateException();
                     }
                     break;
                 }
 
-                reader.BeginSegment(chunkName);
+                var chunkLength = reader.BeginSegment(chunkName);
 
                 switch (chunkName)
                 {
@@ -78,8 +91,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_Campaign":
-                        campaignManager = new CampaignManager();
-                        campaignManager.Load(reader);
+                        game.CampaignManager.Load(reader);
                         break;
 
                     case "CHUNK_GameStateMap":
@@ -88,7 +100,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_TerrainLogic":
-                        terrainLogic.Load(reader);
+                        game.TerrainLogic.Load(reader);
                         break;
 
                     case "CHUNK_TeamFactory":
@@ -100,8 +112,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_GameLogic":
-                        gameLogic = new GameLogic(game.Scene3D);
-                        gameLogic.Load(reader);
+                        game.Scene3D.GameLogic.Load(reader);
                         break;
 
                     case "CHUNK_ParticleSystem":
@@ -125,8 +136,7 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_GameClient":
-                        gameClient = new GameClient(game.Scene3D, gameLogic);
-                        gameClient.Load(reader);
+                        game.Scene3D.GameClient.Load(reader);
                         break;
 
                     case "CHUNK_InGameUI":
@@ -138,11 +148,23 @@ namespace OpenSage.Data.Sav
                         break;
 
                     case "CHUNK_TerrainVisual":
-                        terrainVisual.Load(reader, game);
+                        game.TerrainVisual.Load(reader, game);
                         break;
 
                     case "CHUNK_GhostObject":
-                        ghostObjectManager.Load(reader, gameLogic, game);
+                        game.GhostObjectManager.Load(reader, game.Scene3D.GameLogic, game);
+                        break;
+
+                    case "CHUNK_LivingWorldLogic":
+                        stream.Position += chunkLength;
+                        break;
+
+                    case "CHUNK_Audio":
+                        stream.Position += chunkLength;
+                        break;
+
+                    case "CHUNK_Palantir":
+                        stream.Position += chunkLength;
                         break;
 
                     default:
@@ -157,8 +179,8 @@ namespace OpenSage.Data.Sav
             if (!game.InGame)
             {
                 game.StartCampaign(
-                    campaignManager.CampaignName,
-                    campaignManager.MissionName);
+                    game.CampaignManager.CampaignName,
+                    game.CampaignManager.MissionName);
             }
         }
     }

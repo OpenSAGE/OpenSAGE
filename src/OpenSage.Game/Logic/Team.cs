@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -31,7 +29,7 @@ namespace OpenSage.Logic
             var id = reader.ReadUInt32();
             if (id != Id)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var numObjects = reader.ReadUInt16();
@@ -40,34 +38,20 @@ namespace OpenSage.Logic
                 ObjectIds.Add(reader.ReadObjectID());
             }
 
-            for (var i = 0; i < 1; i++)
-            {
-                var unknownByte = reader.ReadByte();
-                if (unknownByte != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(1);
 
             _enteredOrExitedPolygonTrigger = reader.ReadBoolean();
 
             _isAlive = reader.ReadBoolean();
 
-            for (var i = 0; i < 5; i++)
-            {
-                var unknown1 = reader.ReadBoolean();
-                if (unknown1 != false)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(5);
 
             _numDestroyedSomething = reader.ReadUInt32();
 
             var unknown11 = reader.ReadUInt32();
             if (unknown11 != 0 && unknown11 != ObjectIds.Count)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var waypointID = reader.ReadUInt32();
@@ -75,29 +59,15 @@ namespace OpenSage.Logic
             var unknown13 = reader.ReadUInt16();
             if (unknown13 != 16)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < unknown13; i++)
             {
                 var unknown19 = reader.ReadBoolean();
-                if (unknown19 != false)
-                {
-                    //throw new InvalidDataException();
-                }
             }
 
-            var unknown14 = reader.ReadBoolean();
-            if (unknown14 != false)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown15 = reader.ReadBoolean();
-            if (unknown15 != false)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(2);
 
             TargetObjectID = reader.ReadObjectID();
 

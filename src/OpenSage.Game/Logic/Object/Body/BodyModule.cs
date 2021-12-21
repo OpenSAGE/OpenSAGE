@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Data.Ini;
@@ -28,7 +27,7 @@ namespace OpenSage.Logic.Object
             var unknownFloat = reader.ReadSingle();
             if (unknownFloat != 1.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
         }
 

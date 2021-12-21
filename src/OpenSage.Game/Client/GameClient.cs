@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Sav;
+﻿using System.Collections.Generic;
 using OpenSage.Logic;
 
 namespace OpenSage.Client
@@ -7,6 +7,8 @@ namespace OpenSage.Client
     {
         private readonly GameLogic _gameLogic;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
+        private readonly Dictionary<uint, Drawable> _drawablesById = new();
+        private readonly List<string> _briefingTexts = new();
 
         private uint _currentFrame;
 
@@ -37,13 +39,15 @@ namespace OpenSage.Client
 
                 gameObject.Drawable.Load(reader);
 
+                _drawablesById[gameObject.Drawable.DrawableID] = gameObject.Drawable;
+
                 reader.EndSegment();
             }
 
             var numBriefingTexts = reader.ReadUInt32();
             for (var i = 0; i < numBriefingTexts; i++)
             {
-                var gadgetBriefingText = reader.ReadAsciiString();
+                _briefingTexts.Add(reader.ReadAsciiString());
             }
         }
     }

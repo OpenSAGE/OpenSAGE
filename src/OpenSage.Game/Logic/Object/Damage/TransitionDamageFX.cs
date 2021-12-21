@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
@@ -11,6 +12,9 @@ namespace OpenSage.Logic.Object
     public sealed class TransitionDamageFX : DamageModule
     {
         private readonly TransitionDamageFXModuleData _moduleData;
+
+        private const int NumParticleSystemsPerDamageType = 12;
+        private readonly uint[] _particleSystemIds = new uint[EnumUtility.GetEnumCount<BodyDamageType>() * NumParticleSystemsPerDamageType];
 
         public TransitionDamageFX(TransitionDamageFXModuleData moduleData)
         {
@@ -57,7 +61,10 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(192);
+            for (var i = 0; i < _particleSystemIds.Length; i++)
+            {
+                _particleSystemIds[i] = reader.ReadUInt32();
+            }
         }
     }
 

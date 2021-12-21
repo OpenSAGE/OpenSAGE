@@ -406,11 +406,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             var unknownBool2 = reader.ReadBoolean();
             if (unknownBool2)

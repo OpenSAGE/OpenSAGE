@@ -135,11 +135,23 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(12);
+            var frameSinkStart = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadSingle();
+            var frameMidpoint = reader.ReadUInt32();
 
-            var unknown3 = reader.ReadUInt32();
+            var frameDestruction = reader.ReadUInt32();
+
+            var slowDeathScale = reader.ReadSingle();
+
+            var flags = reader.ReadEnumFlags<SlowDeathBehaviorFlags>();
+        }
+
+        [Flags]
+        private enum SlowDeathBehaviorFlags
+        {
+            None = 0,
+            BegunSlowDeath = 1,
+            ReachedMidpoint = 2,
         }
     }
 

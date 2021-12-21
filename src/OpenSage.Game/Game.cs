@@ -99,6 +99,14 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
+        public CampaignManager CampaignManager { get; } = new CampaignManager();
+
+        public Terrain.TerrainLogic TerrainLogic { get; } = new Terrain.TerrainLogic();
+
+        public Terrain.TerrainVisual TerrainVisual { get; } = new Terrain.TerrainVisual();
+
+        public GhostObjectManager GhostObjectManager { get; } = new GhostObjectManager();
+
         /// <summary>
         /// The current logic frame. Increments depending on game speed; by default once per 200ms.
         /// </summary>
@@ -478,6 +486,10 @@ namespace OpenSage
                 if (UserDataFolder is not null && Directory.Exists(UserDataFolder))
                 {
                     ContentManager.UserDataFileSystem = AddDisposable(new DiskFileSystem(UserDataFolder));
+                }
+                if (SageGame >= SageGame.Bfme && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
+                {
+                    ContentManager.UserDataFileSystem = AddDisposable(new DiskFileSystem(UserAppDataFolder));
                 }
                 // TODO
                 //if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))

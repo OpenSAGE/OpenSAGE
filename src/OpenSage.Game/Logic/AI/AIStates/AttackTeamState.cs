@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic.AI.AIStates
+﻿namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackTeamState : State
     {
@@ -19,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
             var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             _stateMachine.Load(reader);
