@@ -24,14 +24,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 20; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(20);
         }
     }
 

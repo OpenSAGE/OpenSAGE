@@ -32,17 +32,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownInt3 = reader.ReadInt32();
-            if (unknownInt3 != 0)
-            {
-                throw new InvalidStateException();
-            }
-
-            var unknownInt4 = reader.ReadInt32();
-            if (unknownInt4 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(8);
         }
     }
 

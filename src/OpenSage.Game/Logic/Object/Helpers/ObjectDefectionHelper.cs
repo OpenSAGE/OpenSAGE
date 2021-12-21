@@ -10,7 +10,12 @@
 
             base.Load(reader);
 
-            reader.__Skip(13);
+            var frameStart = reader.ReadUInt32();
+            var frameEnd = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(4);
+
+            var unknown = reader.ReadBoolean();
         }
     }
 }

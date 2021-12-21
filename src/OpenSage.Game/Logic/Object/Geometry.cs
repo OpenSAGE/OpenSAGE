@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {

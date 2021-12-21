@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
@@ -173,7 +172,7 @@ namespace OpenSage.Data.Map
             var numPoints = reader.ReadUInt32();
             if (numPoints != Points.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numPoints; i++)
@@ -203,11 +202,7 @@ namespace OpenSage.Data.Map
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 
-            var unknown = reader.ReadBoolean();
-            if (unknown)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 

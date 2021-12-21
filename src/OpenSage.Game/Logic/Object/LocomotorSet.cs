@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {
@@ -83,12 +81,8 @@ namespace OpenSage.Logic.Object
             }
 
             _surfaces = reader.ReadEnumFlags<Surfaces>();
-            
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1 != false)
-            {
-                throw new InvalidDataException();
-            }
+
+            reader.SkipUnknownBytes(1);
         }
     }
 }

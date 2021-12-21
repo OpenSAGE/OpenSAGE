@@ -2,23 +2,34 @@
 {
     public sealed class Animation
     {
+        private readonly AnimationTemplate _template;
+
+        private ushort _currentImageIndex;
+        private uint _lastUpdatedFrame;
+
+        private ushort _unknown;
+
+        private ushort _lastImageIndex;
+        private uint _animationDelayFrames;
+
+        public Animation(AnimationTemplate template)
+        {
+            _template = template;
+        }
+
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            var currentImageIndex = reader.ReadUInt16();
-            var lastUpdatedFrame = reader.ReadUInt32();
+            _currentImageIndex = reader.ReadUInt16();
+            _lastUpdatedFrame = reader.ReadUInt32();
 
-            var unknown = reader.ReadUInt16();
+            _unknown = reader.ReadUInt16();
 
-            var unknown2 = reader.ReadByte();
-            if (unknown2 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
 
-            var lastImageIndex = reader.ReadUInt16();
-            var animationDelayFrames = reader.ReadUInt32();
+            _lastImageIndex = reader.ReadUInt16();
+            _animationDelayFrames = reader.ReadUInt32();
 
             var unknownFloat = reader.ReadSingle();
             if (unknownFloat != 1.0f)

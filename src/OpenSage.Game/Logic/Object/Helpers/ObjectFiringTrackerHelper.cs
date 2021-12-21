@@ -2,7 +2,8 @@
 {
     internal sealed class ObjectFiringTrackerHelper : UpdateModule
     {
-        // TODO
+        private uint _numShotsFiredAtLastTarget;
+        private uint _lastTargetObjectId;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -10,7 +11,11 @@
 
             base.Load(reader);
 
-            reader.__Skip(12);
+            _numShotsFiredAtLastTarget = reader.ReadUInt32();
+
+            _lastTargetObjectId = reader.ReadObjectID();
+
+            reader.SkipUnknownBytes(4);
         }
     }
 }

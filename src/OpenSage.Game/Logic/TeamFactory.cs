@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -113,7 +110,7 @@ namespace OpenSage.Logic
             var count = reader.ReadUInt16();
             if (count != _teamTemplatesById.Count)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < count; i++)

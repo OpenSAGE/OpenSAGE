@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
 using OpenSage.Logic;
 
 namespace OpenSage.Scripting
@@ -133,11 +131,7 @@ namespace OpenSage.Scripting
 
             var numTimersAndCounters = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
 
             for (var i = 1; i < numTimersAndCounters; i++)
             {
@@ -149,7 +143,7 @@ namespace OpenSage.Scripting
             var numTimersAndCounters2 = reader.ReadUInt32();
             if (numTimersAndCounters2 != numTimersAndCounters)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var numFlags = reader.ReadUInt32();
@@ -163,14 +157,12 @@ namespace OpenSage.Scripting
             var numFlags2 = reader.ReadUInt32();
             if (numFlags2 != numFlags)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var numAttackPrioritySets = reader.ReadUInt16();
 
-            reader.__Skip(8); // TODO
-
-            for (var i = 1; i < numAttackPrioritySets; i++)
+            for (var i = 0; i < numAttackPrioritySets; i++)
             {
                 var attackPriority = new AttackPriority();
                 attackPriority.Load(reader);
@@ -179,19 +171,19 @@ namespace OpenSage.Scripting
             var numAttackPrioritySets2 = reader.ReadUInt32();
             if (numAttackPrioritySets2 != numAttackPrioritySets)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown7 = reader.ReadInt32();
             if (unknown7 != -1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown8 = reader.ReadInt32();
             if (unknown8 != -1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownCount = reader.ReadUInt16();
@@ -201,20 +193,21 @@ namespace OpenSage.Scripting
                 var someId = reader.ReadUInt32();
             }
 
-            var unknown9 = reader.ReadByte();
-            if (unknown9 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             CameraFadeOverlay.Load(reader);
 
-            reader.__Skip(12);
+            for (var i = 0; i < 4; i++)
+            {
+                reader.ReadVersion(1);
+
+                reader.SkipUnknownBytes(2);
+            }
 
             var numSpecialPowerSets = reader.ReadUInt16(); // Maybe not sides, maybe player count?
             for (var i = 0; i < numSpecialPowerSets; i++)
             {
-                var version = reader.ReadByte();
+                reader.ReadVersion(1);
 
                 var numSpecialPowers = reader.ReadUInt16();
                 for (var j = 0; j < numSpecialPowers; j++)
@@ -227,31 +220,23 @@ namespace OpenSage.Scripting
             var numUnknown1Sets = reader.ReadUInt16();
             for (var i = 0; i < numUnknown1Sets; i++)
             {
-                var version = reader.ReadByte();
+                reader.ReadVersion(1);
 
-                var count = reader.ReadUInt16();
-                if (count != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.SkipUnknownBytes(2);
             }
 
             var numUnknown2Sets = reader.ReadUInt16();
             for (var i = 0; i < numUnknown2Sets; i++)
             {
-                var version = reader.ReadByte();
+                reader.ReadVersion(1);
 
-                var count = reader.ReadUInt16();
-                if (count != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.SkipUnknownBytes(2);
             }
 
             var numUpgradeSets = reader.ReadUInt16();
             for (var i = 0; i < numUpgradeSets; i++)
             {
-                var version = reader.ReadByte();
+                reader.ReadVersion(1);
 
                 var numUpgrades = reader.ReadUInt16();
                 for (var j = 0; j < numUpgrades; j++)
@@ -264,7 +249,7 @@ namespace OpenSage.Scripting
             var numScienceSets = reader.ReadUInt16();
             for (var i = 0; i < numScienceSets; i++)
             {
-                var version = reader.ReadByte();
+                reader.ReadVersion(1);
 
                 var numSciences = reader.ReadUInt16();
                 for (var j = 0; j < numSciences; j++)
@@ -276,14 +261,10 @@ namespace OpenSage.Scripting
             var unknown14_1 = reader.ReadByte();
             if (unknown14_1 != 1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown14_2 = reader.ReadUInt16();
-            if (unknown14_2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(2);
 
             for (var i = 0; i < 6; i++)
             {
@@ -293,20 +274,16 @@ namespace OpenSage.Scripting
             var unknown16 = reader.ReadUInt32();
             if (unknown16 != 150)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknown17 = reader.ReadUInt32();
             if (unknown17 != 0 && unknown17 != 1 && unknown17 != 2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown18 = reader.ReadByte();
-            if (unknown18 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             var numMapReveals = reader.ReadUInt16();
             for (var i = 0; i < numMapReveals; i++)
@@ -327,16 +304,12 @@ namespace OpenSage.Scripting
             var unknown20 = reader.ReadByte();
             if (unknown20 != 1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var musicTrack = reader.ReadAsciiString();
 
-            var unknown21 = reader.ReadByte();
-            if (unknown21 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 }

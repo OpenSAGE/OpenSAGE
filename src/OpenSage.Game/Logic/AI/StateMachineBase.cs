@@ -39,11 +39,7 @@ namespace OpenSage.Logic.AI
             var currentStateID = reader.ReadUInt32();
             _currentState = GetState(currentStateID);
 
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
             _currentState.Load(reader);
 

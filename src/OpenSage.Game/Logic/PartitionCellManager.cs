@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -10,6 +10,7 @@ namespace OpenSage.Logic
     {
         private readonly Game _game;
         private readonly float _partitionCellSize;
+        private readonly List<ShroudReveal> _shroudReveals = new();
 
         private int _numCellsX;
         private int _numCellsY;
@@ -47,13 +48,13 @@ namespace OpenSage.Logic
             var partitionCellSize = reader.ReadSingle();
             if (partitionCellSize != _partitionCellSize)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var partitionCellCount = reader.ReadUInt32();
             if (partitionCellCount != _cells.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < partitionCellCount; i++)
@@ -95,14 +96,12 @@ namespace OpenSage.Logic
             File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
 #endif
 
-            var someOtherCount = reader.ReadUInt32();
-            for (var i = 0; i < someOtherCount; i++)
+            var shroudRevealCount = reader.ReadUInt32();
+            for (var i = 0; i < shroudRevealCount; i++)
             {
-                reader.ReadVersion(1);
-                var position = reader.ReadVector3();
-                var visionRange = reader.ReadSingle();
-                reader.ReadUInt16();
-                var frameSomething = reader.ReadUInt32();
+                var shroudReveal = new ShroudReveal();
+                shroudReveal.Load(reader);
+                _shroudReveals.Add(shroudReveal);
             }
         }
 
@@ -172,14 +171,16 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            var valuesSpan = Values.AsSpan();
-            reader.ReadSpan(valuesSpan);
-
             for (var i = 0; i < Values.Length; i++)
             {
-                if (Values[i].Unknown != 0)
+                ref var value = ref Values[i];
+
+                value.State = reader.ReadInt16();
+                value.Unknown = reader.ReadInt16();
+
+                if (value.Unknown != 0)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
             }
         }
@@ -189,5 +190,23 @@ namespace OpenSage.Logic
     {
         public short State;
         public short Unknown;
+    }
+
+    public sealed class ShroudReveal
+    {
+        public Vector3 Position;
+        public float VisionRange;
+        public ushort Unknown;
+        public uint FrameSomething;
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            Position = reader.ReadVector3();
+            VisionRange = reader.ReadSingle();
+            Unknown = reader.ReadUInt16();
+            FrameSomething = reader.ReadUInt32();
+        }
     }
 }

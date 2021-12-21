@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
@@ -128,7 +127,7 @@ namespace OpenSage.Scripting
 
             if (numScripts != Scripts.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numScripts; i++)

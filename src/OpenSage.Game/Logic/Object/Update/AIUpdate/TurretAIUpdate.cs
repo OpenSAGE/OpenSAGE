@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -200,7 +199,7 @@ namespace OpenSage.Logic.Object
             var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             // Angles maybe.

@@ -16,10 +16,6 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             var unknown = reader.ReadUInt32();
-            if (unknown != 0)
-            {
-                //throw new InvalidDataException();
-            }
         }
     }
 

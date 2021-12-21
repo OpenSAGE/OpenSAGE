@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Scripting
 {
@@ -114,7 +113,7 @@ namespace OpenSage.Scripting
 
             if (numScripts != Scripts.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numScripts; i++)
@@ -126,7 +125,7 @@ namespace OpenSage.Scripting
 
             if (numScriptGroups != ScriptGroups.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numScriptGroups; i++)

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Sav;
 using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
@@ -53,7 +52,7 @@ namespace OpenSage.Data.Map
             var numSides = reader.ReadUInt32();
             if (numSides != ScriptLists.Length)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             for (var i = 0; i < numSides; i++)

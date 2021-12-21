@@ -37,23 +37,7 @@ namespace OpenSage.Logic
             _angle = reader.ReadSingle();
             _position = reader.ReadVector3();
 
-            var unknown6 = reader.ReadUInt32();
-            if (unknown6 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown7 = reader.ReadUInt32();
-            if (unknown7 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(12);
 
             for (var i = 0; i < 16; i++)
             {
@@ -61,7 +45,7 @@ namespace OpenSage.Logic
 
                 if (numModels > 0 && i != 2)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
 
                 var modelInstances = new ModelInstance[numModels];
@@ -77,7 +61,7 @@ namespace OpenSage.Logic
                     var scale = reader.ReadSingle();
                     if (scale != 1.0f)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidStateException();
                     }
 
                     var houseColor = reader.ReadColorRgba();
@@ -92,7 +76,7 @@ namespace OpenSage.Logic
                     var numMeshes = reader.ReadUInt32();
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidStateException();
                     }
 
                     for (var k = 0; k < numMeshes; k++)
@@ -103,7 +87,7 @@ namespace OpenSage.Logic
 
                         if (meshName != model.SubObjects[k].FullName)
                         {
-                            throw new InvalidDataException();
+                            throw new InvalidStateException();
                         }
 
                         // TODO: meshTransform is actually absolute, not relative.

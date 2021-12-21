@@ -87,11 +87,7 @@ namespace OpenSage.Logic.Object
 
             var unknownInt2 = reader.ReadInt32();
 
-            var unknownInt3 = reader.ReadInt32();
-            if (unknownInt3 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(4);
 
             var unknownBool2 = reader.ReadBoolean();
             if (!unknownBool2)
@@ -102,11 +98,7 @@ namespace OpenSage.Logic.Object
             var unknownInt4 = reader.ReadUInt16();
             for (var i = 0; i < unknownInt4; i++)
             {
-                var unknown1 = reader.ReadInt32();
-                if (unknown1 != 0)
-                {
-                    throw new InvalidStateException();
-                }
+                reader.SkipUnknownBytes(4);
             }
 
             var unknownBool3 = reader.ReadBoolean();
@@ -133,11 +125,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownInt7 = reader.ReadInt32();
-            if (unknownInt7 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(4);
         }
     }
 

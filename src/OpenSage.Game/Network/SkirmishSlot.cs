@@ -1,7 +1,5 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using LiteNetLib.Utils;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Network
 {
@@ -179,7 +177,7 @@ namespace OpenSage.Network
             var unknown1 = reader.ReadUInt16();
             if (unknown1 != 1u)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             ColorIndex = (sbyte) reader.ReadInt32();

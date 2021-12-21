@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Terrain
+﻿namespace OpenSage.Terrain
 {
     public sealed class TerrainVisual
     {
@@ -21,20 +18,13 @@ namespace OpenSage.Terrain
 
                 // Don't know why, but this gives the correct length for this array.
                 var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
-                for (var i = 0; i < dataCount; i++)
-                {
-                    var unknown3 = reader.ReadByte();
-                    if (unknown3 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
+                reader.SkipUnknownBytes(dataCount);
             }
 
             var area = reader.ReadUInt32();
             if (area != game.Scene3D.MapFile.HeightMapData.Area)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var width = game.Scene3D.MapFile.HeightMapData.Width;

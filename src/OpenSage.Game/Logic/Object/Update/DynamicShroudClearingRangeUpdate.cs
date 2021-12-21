@@ -25,11 +25,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(4);
 
             var unknown9 = reader.ReadSingle();
             if (unknown9 != 300.0f)

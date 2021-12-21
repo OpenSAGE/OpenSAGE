@@ -11,6 +11,9 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly BezierProjectileBehaviorData _moduleData;
 
+        private uint _launcherObjectId;
+        private uint _targetObjectId;
+
         internal FXList DetonationFX { get; set; }
 
         internal BezierProjectileBehavior(GameObject gameObject, BezierProjectileBehaviorData moduleData)
@@ -101,7 +104,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(12);
+            _launcherObjectId = reader.ReadObjectID();
+
+            _targetObjectId = reader.ReadObjectID();
+
+            var unknown1 = reader.ReadUInt32();
 
             for (var i = 0; i < 7; i++)
             {

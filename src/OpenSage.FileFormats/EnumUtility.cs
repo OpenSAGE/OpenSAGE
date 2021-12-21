@@ -24,5 +24,11 @@ namespace OpenSage.FileFormats
             // TODO: Is it faster to cache this?
             return Enum.IsDefined(typeof(TEnum), value);
         }
+
+        public static int GetEnumCount<TEnum>()
+            where TEnum : Enum
+        {
+            return Enum.GetNames(typeof(TEnum)).Length;
+        }
     }
 }

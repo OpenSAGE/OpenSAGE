@@ -4,19 +4,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class HordeUpdate : UpdateModule
     {
+        private bool _unknownBool;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknownBool1 = reader.ReadBoolean();
+            _unknownBool = reader.ReadBoolean();
 
-            var unknownBool2 = reader.ReadBoolean();
-            if (unknownBool2)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 

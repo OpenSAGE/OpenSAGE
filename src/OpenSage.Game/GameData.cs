@@ -1635,6 +1635,8 @@ namespace OpenSage
         [IniEnum("DRONE_SPOTTING")]
         DroneSpotting,
 
+        __Unknown,
+
         [IniEnum("ENTHUSIASTIC")]
         Enthusiastic,
 
@@ -1677,11 +1679,11 @@ namespace OpenSage
         [IniEnum("SOLO_AI_HARD")]
         SoloAIHard,
 
-        [IniEnum("FANATICISM"), AddedIn(SageGame.CncGeneralsZeroHour)]
-        Fanaticism,
-
         [IniEnum("TARGET_FAERIE_FIRE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         TargetFaerieFire,
+
+        [IniEnum("FANATICISM"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Fanaticism,
 
         [IniEnum("FRENZY_ONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         FrenzyOne,

@@ -49,6 +49,10 @@ namespace OpenSage.Graphics.ParticleSystems
         private int _timer;
         private int _nextBurst;
 
+        private uint _systemId;
+        private uint _slaveSystemId;
+        private uint _masterSystemId;
+
         private readonly Particle[] _particles;
         private readonly List<int> _deadList;
 
@@ -600,71 +604,49 @@ namespace OpenSage.Graphics.ParticleSystems
 
             LoadTemplateData(reader);
 
-            var particleSystemId = reader.ReadUInt32();
+            _systemId = reader.ReadUInt32();
 
-            reader.__Skip(9);
+            var attachedToDrawableId = reader.ReadUInt32();
+            var attachedToObjectId = reader.ReadObjectID();
+
+            var isIdentityTransform = reader.ReadBoolean();
             var transform = reader.ReadMatrix4x3Transposed();
-            var unknown19 = reader.ReadBoolean();
+
+            var isIdentityTransform2 = reader.ReadBoolean();
             var transform2 = reader.ReadMatrix4x3Transposed();
+
             var unknown20 = reader.ReadUInt32(); // Maybe _nextBurst
             var unknown21 = reader.ReadUInt32();
             var unknown22 = reader.ReadUInt32();
             var unknown23 = reader.ReadUInt32();
             var unknown24 = reader.ReadUInt32();
-            reader.__Skip(6);
+            var hasInfiniteLifetime = reader.ReadBoolean();
+            var unknown51 = reader.ReadSingle();
+            var unknown52 = reader.ReadBoolean();
             for (var j = 0; j < 6; j++)
             {
-                var unknown25 = reader.ReadSingle(); // All 1
+                var unknown25 = reader.ReadSingle();
+                if (unknown25 != 1.0f)
+                {
+                    throw new InvalidStateException();
+                }
             }
-            reader.__Skip(33);
+
+            var position = reader.ReadVector3();
+
+            var positionPrevious = reader.ReadVector3();
+
+            var unknown50 = reader.ReadBoolean();
+
+            _slaveSystemId = reader.ReadUInt32();
+
+            _masterSystemId = reader.ReadUInt32();
+
             var numParticles = reader.ReadUInt32();
             for (var j = 0; j < numParticles; j++)
             {
-                var unknown26 = reader.ReadBoolean();
-                var unknown27 = reader.ReadBoolean();
-                var unknown28 = reader.ReadVector3();
-                var particlePosition = reader.ReadVector3();
-                var anotherPosition = reader.ReadVector3();
-                var particleVelocityDamping = reader.ReadSingle();
-                var unknown29 = reader.ReadSingle(); // 0
-                var unknown30 = reader.ReadSingle(); // 0
-                var unknown31 = reader.ReadSingle(); // 3.78, maybe AngleZ
-                var unknown32 = reader.ReadSingle(); // 0
-                var unknown33 = reader.ReadSingle(); // 0
-                var unknown34 = reader.ReadSingle(); // 0
-                var unknown34_ = reader.ReadSingle();
-                var unknown35 = reader.ReadSingle(); // 17.8
-                var unknown36 = reader.ReadSingle(); // 0.04
-                var particleSizeRateDamping = reader.ReadSingle();
-                for (var k = 0; k < 8; k++)
-                {
-                    var alphaKeyframeAlpha = reader.ReadSingle();
-                    var alphaKeyframeTime = reader.ReadUInt32();
-                    var alphaKeyframe = new ParticleAlphaKeyframe(
-                        alphaKeyframeTime,
-                        alphaKeyframeAlpha);
-                }
-                for (var k = 0; k < 8; k++)
-                {
-                    var colorKeyframeColor = reader.ReadColorRgbF();
-                    var colorKeyframeTime = reader.ReadUInt32();
-                    var colorKeyframe = new ParticleColorKeyframe(
-                        colorKeyframeTime,
-                        colorKeyframeColor.ToVector3());
-                }
-                var unknown37 = reader.ReadSingle();
-                var unknown38 = reader.ReadBoolean();
-                var unknown39 = reader.ReadSingle();
-                reader.__Skip(28); // All 0
-                var unknown40 = reader.ReadUInt32(); // 49
-                var unknown41 = reader.ReadUInt32(); // 1176
-                var particleAlpha = reader.ReadSingle(); // 1.0
-                var unknown42 = reader.ReadUInt32(); // 0
-                var unknown43 = reader.ReadUInt32(); // 1
-                var unknown44 = reader.ReadVector3(); // (0.35, 0.35, 0.35)
-                reader.__Skip(12); // All 0
-                var unknown45 = reader.ReadUInt32(); // 1
-                reader.__Skip(8); // All 0
+                var particle = new Particle();
+                particle.Load(reader);
             }
         }
 
@@ -728,7 +710,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.ReadAsciiString(); // SlaveSystemName
 
-            reader.__Skip(13);
+            reader.SkipUnknownBytes(13);
 
             var velocityType = reader.ReadEnum<ParticleVelocityType>();
             var unknown10 = reader.ReadUInt32();

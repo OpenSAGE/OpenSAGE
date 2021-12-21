@@ -11,6 +11,9 @@ namespace OpenSage.Logic.Object
         private TimeSpan _lifeTime;
         private bool _initial = true;
 
+        // TODO: This shouold replace _lifeTime above
+        private uint _frameToDie;
+
         public LifetimeUpdate(GameObject gameObject, LifetimeUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
@@ -34,7 +37,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadUInt32();
+            _frameToDie = reader.ReadFrame();
         }
     }
 

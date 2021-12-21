@@ -1,7 +1,4 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic.AI.AIStates
+﻿namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class GuardInTunnelNetworkState : State
     {
@@ -19,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
             var unknownBool = reader.ReadBoolean();
             if (!unknownBool)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             _stateMachine.Load(reader);

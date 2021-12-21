@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics;
@@ -33,12 +32,41 @@ namespace OpenSage.Client
 
         private readonly List<ClientUpdateModule> _clientUpdateModules;
 
-        public uint DrawableID { get; private set; }
+        public uint DrawableID { get; internal set; }
+
+        private Matrix4x3 _transformMatrix;
 
         private ColorFlashHelper _selectionFlashHelper;
         private ColorFlashHelper _scriptedFlashHelper;
 
         private ObjectDecalType _objectDecalType;
+
+        private float _unknownFloat2;
+        private float _unknownFloat3;
+        private float _unknownFloat4;
+        private float _unknownFloat6;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownInt6;
+
+        private readonly float[] _unknownFloats = new float[19];
+
+        private uint _unknownInt7;
+
+        private uint _flashFrameCount;
+        private ColorRgba _flashColor;
+
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
+        private bool _someMatrixIsIdentity;
+        private Matrix4x3 _someMatrix;
+
+        private Animation _animation;
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
@@ -260,7 +288,7 @@ namespace OpenSage.Client
             var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
             CopyModelConditionFlags(modelConditionFlags);
 
-            var transform = reader.ReadMatrix4x3();
+            _transformMatrix = reader.ReadMatrix4x3();
 
             var hasSelectionFlashHelper = reader.ReadBoolean();
             if (hasSelectionFlashHelper)
@@ -278,109 +306,100 @@ namespace OpenSage.Client
 
             _objectDecalType = reader.ReadEnum<ObjectDecalType>();
 
-            for (var i = 0; i < 6; i++)
+            var unknownFloat1 = reader.ReadSingle();
+            if (unknownFloat1 != 1)
             {
-                var unknownFloat = reader.ReadSingle();
+                throw new InvalidStateException();
             }
+
+            _unknownFloat2 = reader.ReadSingle(); // 0, 1
+
+            _unknownFloat3 = reader.ReadSingle(); // 0, 1
+
+            _unknownFloat4 = reader.ReadSingle(); // 0, 1
+
+            var unknownFloat5 = reader.ReadSingle();
+            if (unknownFloat5 != 0)
+            {
+                throw new InvalidStateException();
+            }
+
+            _unknownFloat6 = reader.ReadSingle(); // 0, 1
 
             var objectId = reader.ReadUInt32();
             if (objectId != GameObject.ID)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownInt1 = reader.ReadUInt32();
-            if (unknownInt1 != 0 && unknownInt1 != 1 && unknownInt1 != 2 && unknownInt1 != 3)
-            {
-                throw new InvalidDataException();
-            }
+            _unknownInt1 = reader.ReadUInt32();
 
-            for (var i = 0; i < 5; i++)
-            {
-                var unknownInt = reader.ReadUInt32();
-                if (unknownInt != 0 && unknownInt != 1)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            _unknownInt2 = reader.ReadUInt32(); // 0, 1
+
+            _unknownInt3 = reader.ReadUInt32();
+
+            _unknownInt4 = reader.ReadUInt32();
+
+            _unknownInt5 = reader.ReadUInt32();
+
+            _unknownInt6 = reader.ReadUInt32();
 
             var unknownBool4 = reader.ReadBoolean();
             if (unknownBool4)
             {
                 for (var j = 0; j < 19; j++)
                 {
-                    reader.ReadSingle();
+                    _unknownFloats[j] = reader.ReadSingle();
                 }
             }
 
             LoadModules(reader);
 
-            var unknownInt4 = reader.ReadUInt32();
-            if (unknownInt4 != 0)
+            _unknownInt7 = reader.ReadUInt32();
+
+            _flashFrameCount = reader.ReadUInt32();
+            _flashColor = reader.ReadColorRgba();
+
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(4);
+
+            _someMatrixIsIdentity = reader.ReadBoolean();
+
+            _someMatrix = reader.ReadMatrix4x3(false);
+
+            var unknownFloat10 = reader.ReadSingle();
+            if (unknownFloat10 != 1)
             {
-                //throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var flashFrameCount = reader.ReadUInt32();
-            var flashColor = reader.ReadColorRgba();
+            reader.SkipUnknownBytes(8);
 
-            var unknownBool5 = reader.ReadBoolean();
-            var unknownBool7 = reader.ReadBoolean();
-
-            var unknownInt7 = reader.ReadUInt32();
-            if (unknownInt7 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool6 = reader.ReadBoolean();
-
-            var unknownMatrix = reader.ReadMatrix4x3(false);
-
-            var unknownFloat2 = reader.ReadSingle();
-            if (unknownFloat2 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt2 = reader.ReadUInt32();
-            if (unknownInt2 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt3 = reader.ReadUInt32();
-            if (unknownInt3 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool1 = reader.ReadBoolean();
-
-            if (unknownBool1)
+            var hasAnimation2D = reader.ReadBoolean();
+            if (hasAnimation2D)
             {
                 var animation2DName = reader.ReadAsciiString();
 
-                var unknown = reader.ReadUInt32();
-                if (unknown != 0)
-                {
-                    throw new InvalidDataException();
-                }
+                reader.SkipUnknownBytes(4);
 
                 var animation2DName2 = reader.ReadAsciiString();
                 if (animation2DName2 != animation2DName)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
 
-                var animation = new Animation();
-                animation.Load(reader);
+                var animationTemplate = _gameContext.AssetLoadContext.AssetStore.Animations.GetByName(animation2DName);
+
+                _animation = new Animation(animationTemplate);
+                _animation.Load(reader);
             }
 
             var unknownBool2 = reader.ReadBoolean();
             if (!unknownBool2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
         }
 

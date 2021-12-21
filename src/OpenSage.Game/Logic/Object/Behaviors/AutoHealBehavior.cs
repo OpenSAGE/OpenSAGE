@@ -4,13 +4,19 @@ namespace OpenSage.Logic.Object
 {
     // It looks from the .sav files that this actually inherits from UpdateModule,
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
-    public sealed class AutoHealBehavior : UpdateModule
+    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule
     {
-        public AutoHealBehavior()
+        private readonly UpgradeLogic _upgradeLogic;
+
+        public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
         {
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
         }
 
-        // TODO
+        void IUpgradeableModule.OnTrigger(BehaviorUpdateContext context, bool triggered)
+        {
+            // TODO
+        }
 
         internal override void Load(SaveFileReader reader)
         {
@@ -18,15 +24,22 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.__Skip(11);
+            _upgradeLogic.Load(reader);
+
+            reader.SkipUnknownBytes(4);
+
+            var frameSomething = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(1);
         }
     }
 
-    public sealed class AutoHealBehaviorModuleData : UpgradeModuleData
+    public sealed class AutoHealBehaviorModuleData : UpdateModuleData
     {
         internal static AutoHealBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<AutoHealBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        private static readonly IniParseTable<AutoHealBehaviorModuleData> FieldParseTable =
+            new IniParseTableChild<AutoHealBehaviorModuleData, UpgradeLogicData>(x => x.UpgradeData, UpgradeLogicData.FieldParseTable)
             .Concat(new IniParseTable<AutoHealBehaviorModuleData>
             {
                 { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseFloat() },
@@ -49,6 +62,8 @@ namespace OpenSage.Logic.Object
                 { "RespawnMinimumDelay", (parser, x) => x.RespawnMinimumDelay = parser.ParseInteger() },
                 { "HealOnlyIfNotUnderAttack", (parser, x) => x.HealOnlyIfNotUnderAttack = parser.ParseBoolean() }
             });
+
+        public UpgradeLogicData UpgradeData { get; } = new();
 
         public float HealingAmount { get; private set; }
         public int HealingDelay { get; private set; }
@@ -94,7 +109,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoHealBehavior();
+            return new AutoHealBehavior(this);
         }
     }
 }

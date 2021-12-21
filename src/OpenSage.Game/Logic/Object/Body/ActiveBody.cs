@@ -10,6 +10,8 @@ namespace OpenSage.Logic.Object
     public class ActiveBody : BodyModule
     {
         private readonly ActiveBodyModuleData _moduleData;
+        private readonly List<uint> _particleSystemIds = new();
+        private BodyDamageType _damageType;
 
         protected readonly GameObject GameObject;
 
@@ -84,10 +86,10 @@ namespace OpenSage.Logic.Object
             var maxHealth2 = reader.ReadSingle();
             if (maxHealth1 != maxHealth2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadUInt32();
+            _damageType = reader.ReadEnum<BodyDamageType>();
 
             var frameSomething2 = reader.ReadUInt32();
 
@@ -144,10 +146,10 @@ namespace OpenSage.Logic.Object
 
             var indestructible = reader.ReadBoolean();
 
-            var unknown12 = reader.ReadUInt16();
-            for (var i = 0; i < unknown12; i++)
+            var particleSystemCount = reader.ReadUInt16();
+            for (var i = 0; i < particleSystemCount; i++)
             {
-                var particleSystemId = reader.ReadUInt32();
+                _particleSystemIds.Add(reader.ReadUInt32());
             }
 
             var armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();

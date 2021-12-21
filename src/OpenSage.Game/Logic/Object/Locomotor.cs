@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -361,59 +359,47 @@ namespace OpenSage.Logic.Object
             var positionSomething = reader.ReadVector3();
 
             var unknownFloat1 = reader.ReadSingle();
-            if (unknownFloat1 != 1.0f)
-            {
-                //throw new InvalidDataException();
-            }
 
             var unknownFloat2 = reader.ReadSingle();
             if (unknownFloat2 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownFloat3 = reader.ReadSingle();
             if (unknownFloat3 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownFloat4 = reader.ReadSingle();
             if (unknownFloat4 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownFloat5 = reader.ReadSingle();
             if (unknownFloat5 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat6 = reader.ReadSingle();
-            if (unknownFloat6 != 99999.0f) // 99999, 0
-            {
-                //throw new InvalidDataException();
-            }
+            var unknownFloat6 = reader.ReadSingle(); // 99999, 0
 
             var unknownFloat7 = reader.ReadSingle();
             if (unknownFloat7 != 1.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0) // 0, 4
-            {
-                //throw new InvalidDataException();
-            }
+            var unknown2 = reader.ReadUInt32(); // 0, 4
 
             var unknown3 = reader.ReadSingle(); // 0, 100
 
             var unknownFloat8 = reader.ReadSingle();
             if (unknownFloat8 != 1.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var unknownFloat9 = reader.ReadSingle(); // 0.4849...

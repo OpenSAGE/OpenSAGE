@@ -18,14 +18,7 @@ namespace OpenSage.Logic.Object
                 _towerIds[i] = reader.ReadObjectID();
             }
 
-            for (var i = 0; i < 7; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(7);
         }
     }
 

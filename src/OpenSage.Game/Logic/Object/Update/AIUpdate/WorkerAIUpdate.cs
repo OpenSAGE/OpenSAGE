@@ -242,11 +242,7 @@ namespace OpenSage.Logic.Object
             {
                 reader.ReadVersion(1);
 
-                var unknown1 = reader.ReadInt32();
-                if (unknown1 != 0)
-                {
-                    throw new InvalidStateException();
-                }
+                reader.SkipUnknownBytes(4);
 
                 var unknown2 = reader.ReadInt32();
                 if (unknown2 != 1)
@@ -254,11 +250,7 @@ namespace OpenSage.Logic.Object
                     throw new InvalidStateException();
                 }
 
-                var unknown3 = reader.ReadBoolean();
-                if (unknown3)
-                {
-                    throw new InvalidStateException();
-                }
+                reader.SkipUnknownBytes(1);
             }
         }
     }
