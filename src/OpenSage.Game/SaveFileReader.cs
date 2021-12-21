@@ -65,6 +65,8 @@ namespace OpenSage
 
         public Point2D ReadPoint2D() => _binaryReader.ReadPoint2D();
 
+        public Point3D ReadPoint3D() => _binaryReader.ReadPoint3D();
+
         public TEnum ReadEnum<TEnum>()
             where TEnum : struct
         {

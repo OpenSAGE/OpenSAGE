@@ -197,6 +197,13 @@ namespace OpenSage.FileFormats
             writer.Write(value.W);
         }
 
+        public static void Write(this BinaryWriter writer, in Point3D value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
+            writer.Write(value.Z);
+        }
+
         public static void Write(this BinaryWriter writer, in RectangleF value)
         {
             writer.Write(value.X);

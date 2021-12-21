@@ -133,6 +133,32 @@ namespace OpenSage.Logic.Object
         private uint _createdByObjectID;
         private uint _builtByObjectID;
 
+        private uint _unknown1;
+        private byte _unknown2;
+        private GameObjectUnknownFlags _unknownFlags;
+        private readonly ShroudReveal _shroudRevealSomething1 = new();
+        private readonly ShroudReveal _shroudRevealSomething2 = new();
+        private float _visionRange;
+        private float _shroudClearingRange;
+        private BitArray<DisabledType> _disabledTypes;
+        private readonly uint[] _disabledTypesFrames = new uint[9];
+        private readonly ObjectVeterancyHelper _veterancyHelper = new();
+        private uint _containerId;
+        private uint _containedFrame;
+        private string _teamName;
+        private uint _enteredOrExitedPolygonTriggerFrame;
+        private Point3D _integerPosition;
+        private PolygonTriggerState[] _polygonTriggersState;
+        private int _unknown5;
+        private uint _unknownFrame;
+        private uint _healedByObjectId;
+        private uint _healedEndFrame;
+        private uint _weaponBonusTypes;
+        private byte _weaponSomethingPrimary;
+        private byte _weaponSomethingSecondary;
+        private byte _weaponSomethingTertiary;
+        private BitArray<SpecialPowerType> _specialPowers;
+
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
         public Vector3 EulerAngles => _transform.EulerAngles;
@@ -960,14 +986,21 @@ namespace OpenSage.Logic.Object
             switch (upgrade.Type)
             {
                 case UpgradeType.Object:
-                    _upgrades.Add(upgrade.Name);
+                    DoObjectUpgrade(upgrade);
                     break;
+
                 case UpgradeType.Player:
                     Owner.AddUpgrade(upgrade, UpgradeStatus.Completed);
                     break;
+
                 default:
                     throw new InvalidOperationException("This should not happen");
             }
+        }
+
+        private void DoObjectUpgrade(UpgradeTemplate upgrade)
+        {
+            _upgrades.Add(upgrade.Name);
         }
 
         public void RemoveUpgrade(UpgradeTemplate upgrade)
@@ -1076,52 +1109,45 @@ namespace OpenSage.Logic.Object
 
             _name = reader.ReadAsciiString();
 
-            var unknown51 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
-            var unknown52 = reader.ReadByte();
+            _unknown2 = reader.ReadByte();
 
-            var unknownFlags = reader.ReadEnumByteFlags<GameObjectUnknownFlags>();
+            _unknownFlags = reader.ReadEnumByteFlags<GameObjectUnknownFlags>();
 
             _geometry.Load(reader);
 
-            var shroudRevealSomething1 = new ShroudReveal();
-            shroudRevealSomething1.Load(reader);
+            _shroudRevealSomething1.Load(reader);
 
-            var shroudRevealSomething2 = new ShroudReveal();
-            shroudRevealSomething2.Load(reader);
+            _shroudRevealSomething2.Load(reader);
 
-            var visionRange = reader.ReadSingle();
-            var shroudClearingRange = reader.ReadSingle();
+            _visionRange = reader.ReadSingle();
+            _shroudClearingRange = reader.ReadSingle();
 
             reader.SkipUnknownBytes(4);
 
-            var disabledTypes = reader.ReadBitArray<DisabledType>();
+            _disabledTypes = reader.ReadBitArray<DisabledType>();
 
             reader.SkipUnknownBytes(1);
 
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < _disabledTypesFrames.Length; i++)
             {
-                var unknown61 = reader.ReadInt32();
-                if (unknown61 != 0 && unknown61 != 0x3FFFFFFF)
-                {
-                    throw new InvalidStateException();
-                }
+                _disabledTypesFrames[i] = reader.ReadFrame();
             }
 
             reader.SkipUnknownBytes(8);
 
-            var veterancyHelper = new ObjectVeterancyHelper();
-            veterancyHelper.Load(reader);
+            _veterancyHelper.Load(reader);
 
-            var containerId = reader.ReadObjectID();
+            _containerId = reader.ReadObjectID();
 
-            var containedFrame = reader.ReadUInt32();
+            _containedFrame = reader.ReadUInt32();
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
             BuildProgress = reader.ReadSingle();
 
-            var unknown55 = reader.ReadByte();
-            if (unknown55 != 1)
+            var unknown3 = reader.ReadByte();
+            if (unknown3 != 1)
             {
                 throw new InvalidStateException();
             }
@@ -1131,42 +1157,36 @@ namespace OpenSage.Logic.Object
             {
                 var upgradeName = reader.ReadAsciiString();
                 var upgrade = _gameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(upgradeName);
-                Upgrade(upgrade);
+                DoObjectUpgrade(upgrade);
             }
 
-            var team = reader.ReadAsciiString(); // teamPlyrAmerica
+            // Not always (but usually is) the same as the teamId above implies.
+            _teamName = reader.ReadAsciiString();
 
             reader.SkipUnknownBytes(16);
 
-            var someCount = reader.ReadByte();
-            reader.ReadUInt32();
-            reader.ReadUInt32();
-            reader.ReadUInt32();
-            reader.ReadUInt32();
+            var polygonTriggerStateCount = reader.ReadByte();
+            _polygonTriggersState = new PolygonTriggerState[polygonTriggerStateCount];
 
-            for (var i = 0; i < someCount; i++)
+            _enteredOrExitedPolygonTriggerFrame = reader.ReadFrame();
+            _integerPosition = reader.ReadPoint3D();
+
+            for (var i = 0; i < polygonTriggerStateCount; i++)
             {
-                var someString1 = reader.ReadAsciiString(); // OuterPerimeter7, InnerPerimeter7
-                reader.ReadBoolean();
-                reader.ReadBoolean();
-                reader.ReadBoolean();
+                _polygonTriggersState[i].Load(reader, _gameContext);
             }
 
-            var unknown66 = reader.ReadInt32();
-            if (unknown66 != 1)
+            var unknown4 = reader.ReadInt32();
+            if (unknown4 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown67 = reader.ReadInt32();
-            if (unknown67 != 0 && unknown67 != 1)
-            {
-                throw new InvalidStateException();
-            }
+            _unknown5 = reader.ReadInt32(); // 0, 1
 
             IsSelectable = reader.ReadBoolean();
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame = reader.ReadFrame();
 
             reader.SkipUnknownBytes(4);
 
@@ -1184,38 +1204,42 @@ namespace OpenSage.Logic.Object
                 reader.EndSegment();
             }
 
-            var healedByObjectId = reader.ReadObjectID();
-            var healedEndFrame = reader.ReadUInt32();
+            _healedByObjectId = reader.ReadObjectID();
+            _healedEndFrame = reader.ReadFrame();
 
             reader.ReadBitArray(WeaponSetConditions);
 
-            var weaponBonusTypes = reader.ReadUInt32();
+            _weaponBonusTypes = reader.ReadUInt32();
 
             var weaponBonusTypesBitArray = new BitArray<WeaponBonusType>();
             var weaponBonusTypeCount = EnumUtility.GetEnumCount<WeaponBonusType>();
             for (var i = 0; i < weaponBonusTypeCount; i++)
             {
-                var weaponBonusBit = (weaponBonusTypes >> i) & 1;
+                var weaponBonusBit = (_weaponBonusTypes >> i) & 1;
                 weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
 
-            for (var i = 0; i < 3; i++)
+            _weaponSomethingPrimary = reader.ReadByte();
+            _weaponSomethingSecondary = reader.ReadByte();
+            _weaponSomethingTertiary = reader.ReadByte();
+
+            _weaponSet.Load(reader);
+
+            _specialPowers = reader.ReadBitArray<SpecialPowerType>();
+
+            reader.SkipUnknownBytes(1);
+
+            var unknown6 = reader.ReadBoolean();
+            if (!unknown6)
             {
-                var unknown71 = reader.ReadByte();
-                if (unknown71 != 0 && unknown71 != 1 && unknown71 != 2 && unknown71 != 3 && unknown71 != 0xFF)
-                {
-                    throw new InvalidStateException();
-                }
+                throw new InvalidStateException();
             }
 
-            var weaponSet = new WeaponSet(this);
-            weaponSet.Load(reader);
-
-            var specialPowers = reader.ReadBitArray<SpecialPowerType>();
-
-            reader.ReadBoolean(); // 0
-            reader.ReadBoolean(); // 1
-            reader.ReadBoolean(); // 1
+            var unknown7 = reader.ReadBoolean();
+            if (!unknown7)
+            {
+                throw new InvalidStateException();
+            }
         }
 
         void IInspectable.DrawInspector()
@@ -1326,6 +1350,25 @@ namespace OpenSage.Logic.Object
             _experienceSinkObjectId = reader.ReadObjectID();
 
             _experienceScalar = reader.ReadSingle();
+        }
+    }
+
+    internal struct PolygonTriggerState
+    {
+        public PolygonTrigger PolygonTrigger;
+        public bool EnteredThisFrame;
+        public bool IsInside;
+
+        internal void Load(SaveFileReader reader, GameContext gameContext)
+        {
+            var polygonTriggerName = reader.ReadAsciiString();
+            PolygonTrigger = gameContext.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
+
+            EnteredThisFrame = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(1);
+
+            IsInside = reader.ReadBoolean();
         }
     }
 }
