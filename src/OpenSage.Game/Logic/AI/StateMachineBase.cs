@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Numerics;
 
 namespace OpenSage.Logic.AI
 {
     internal abstract class StateMachineBase
     {
         private readonly Dictionary<uint, State> _states;
+
+        private uint _unknownFrame;
+        private uint _unknownInt1;
         private State _currentState;
+        private uint _unknownInt2;
+        private Vector3 _unknownPosition;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
 
         protected StateMachineBase()
         {
@@ -19,7 +26,7 @@ namespace OpenSage.Logic.AI
             _states.Add(id, state);
         }
 
-        public State GetState(uint id)
+        protected State GetState(uint id)
         {
             if (_states.TryGetValue(id, out var result))
             {
@@ -33,8 +40,8 @@ namespace OpenSage.Logic.AI
         {
             reader.ReadVersion(1);
 
-            var frameSomething2 = reader.ReadUInt32();
-            var unknownInt4 = reader.ReadUInt32();
+            _unknownFrame = reader.ReadUInt32();
+            _unknownInt1 = reader.ReadUInt32();
 
             var currentStateID = reader.ReadUInt32();
             _currentState = GetState(currentStateID);
@@ -43,10 +50,10 @@ namespace OpenSage.Logic.AI
 
             _currentState.Load(reader);
 
-            var unknownInt9 = reader.ReadUInt32();
-            var positionSomething3 = reader.ReadVector3();
-            var unknownBool4 = reader.ReadBoolean();
-            var unknownBool5 = reader.ReadBoolean();
+            _unknownInt2 = reader.ReadUInt32();
+            _unknownPosition = reader.ReadVector3();
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
         }
     }
 }

@@ -181,6 +181,13 @@ namespace OpenSage.Gui.InGame
             { "RadiusCursorTemplate", (parser, x) => x.AddRadiusCursor(RadiusCursor.Parse(parser)) }
         };
 
+        private uint _unknown1;
+        private bool _unknown2;
+        private bool _unknown3;
+        private bool _unknown4;
+        private uint _unknown5;
+        private readonly List<SuperweaponSomething> _superweaponSomethings = new();
+
         private void AddRadiusCursor(RadiusCursor radiusCursor)
         {
             RadiusCursors.Add(radiusCursor.Name, radiusCursor);
@@ -361,27 +368,42 @@ namespace OpenSage.Gui.InGame
         {
             reader.ReadVersion(2);
 
-            reader.ReadUInt32(); // 0
-            reader.ReadBoolean();
-            reader.ReadBoolean();
-            reader.ReadBoolean();
-            reader.ReadUInt32(); // 0
+            _unknown1 = reader.ReadUInt32(); // 0
+            _unknown2 = reader.ReadBoolean();
+            _unknown3 = reader.ReadBoolean();
+            _unknown4 = reader.ReadBoolean();
+            _unknown5 = reader.ReadUInt32(); // 0
 
             // TODO: Superweapon something...
             var something = reader.ReadUInt32();
             while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
             {
-                var someString1 = reader.ReadAsciiString();
-                var someString2 = reader.ReadAsciiString();
-                var unknown1 = reader.ReadUInt32();
-                var unknown2 = reader.ReadUInt32(); // 0xFFFFFFFF
-                reader.ReadBoolean();
-                reader.ReadBoolean();
-                reader.ReadBoolean();
+                _superweaponSomethings.Add(new SuperweaponSomething
+                {
+                    UnknownString1 = reader.ReadAsciiString(),
+                    UnknownString2 = reader.ReadAsciiString(),
+                    UnknownInt1 = reader.ReadUInt32(),
+                    UnknownInt2 = reader.ReadUInt32(), // 0xFFFFFFFF
+                    UnknownBool1 = reader.ReadBoolean(),
+                    UnknownBool2 = reader.ReadBoolean(),
+                    UnknownBool3 = reader.ReadBoolean(),
+                });
 
                 something = reader.ReadUInt32();
             }
         }
+    }
+
+    internal sealed class SuperweaponSomething
+    {
+        public string UnknownString1;
+        public string UnknownString2;
+        public uint UnknownInt1;
+        public uint UnknownInt2;
+        public bool UnknownBool1;
+        public bool UnknownBool2;
+        public bool UnknownBool3;
+        public uint UnknownInt3;
     }
 
     public sealed class RadiusCursor

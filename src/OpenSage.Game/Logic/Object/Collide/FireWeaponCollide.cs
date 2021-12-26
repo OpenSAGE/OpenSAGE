@@ -6,7 +6,10 @@ namespace OpenSage.Logic.Object
     public sealed class FireWeaponCollide : CollideModule
     {
         private readonly FireWeaponCollideModuleData _moduleData;
+
+        private bool _unknown1;
         private readonly Weapon _collideWeapon;
+        private bool _unknown2;
 
         internal FireWeaponCollide(GameObject gameObject, FireWeaponCollideModuleData moduleData)
         {
@@ -25,11 +28,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBoolean();
+            _unknown1 = reader.ReadBoolean();
 
             _collideWeapon.Load(reader);
 
-            var unknown2 = reader.ReadBoolean();
+            _unknown2 = reader.ReadBoolean();
         }
     }
 

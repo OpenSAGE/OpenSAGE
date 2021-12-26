@@ -36,6 +36,22 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameObject _gameObject;
         private readonly float _baseSpeed;
+
+        private uint _frameSomething;
+        private Vector3 _positionSomething;
+        private float _unknownFloat1;
+        private float _unknownFloat2 = 99999.0f;
+        private float _unknownFloat3 = 99999.0f;
+        private float _unknownFloat4 = 99999.0f;
+        private float _unknownFloat5 = 99999.0f;
+        private float _unknownFloat6 = 99999.0f;
+        private float _unknownFloat7 = 1.0f;
+        private uint _unknownInt1;
+        private float _unknownFloat8;
+        private float _unknownFloat9;
+        private float _unknownFloat10;
+        private float _unknownFloat11;
+
         public readonly LocomotorTemplate LocomotorTemplate;
 
         public float LiftFactor;
@@ -354,57 +370,61 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(2);
 
-            var frameSomething = reader.ReadUInt32();
+            _frameSomething = reader.ReadFrame();
 
-            var positionSomething = reader.ReadVector3();
+            _positionSomething = reader.ReadVector3();
 
-            var unknownFloat1 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
 
-            var unknownFloat2 = reader.ReadSingle();
-            if (unknownFloat2 != 99999.0f)
+            _unknownFloat2 = reader.ReadSingle(); // 99999
+            if (_unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownFloat3 = reader.ReadSingle();
-            if (unknownFloat3 != 99999.0f)
+            _unknownFloat3 = reader.ReadSingle(); // 99999
+            if (_unknownFloat3 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownFloat4 = reader.ReadSingle();
-            if (unknownFloat4 != 99999.0f)
+            _unknownFloat4 = reader.ReadSingle(); // 99999
+            if (_unknownFloat4 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownFloat5 = reader.ReadSingle();
-            if (unknownFloat5 != 99999.0f)
+            _unknownFloat5 = reader.ReadSingle(); // 99999
+            if (_unknownFloat5 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownFloat6 = reader.ReadSingle(); // 99999, 0
-
-            var unknownFloat7 = reader.ReadSingle();
-            if (unknownFloat7 != 1.0f)
+            _unknownFloat6 = reader.ReadSingle(); // 99999, 0
+            if (_unknownFloat6 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown2 = reader.ReadUInt32(); // 0, 4
-
-            var unknown3 = reader.ReadSingle(); // 0, 100
-
-            var unknownFloat8 = reader.ReadSingle();
-            if (unknownFloat8 != 1.0f)
+            _unknownFloat7 = reader.ReadSingle(); // 1
+            if (_unknownFloat7 != 1.0f)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownFloat9 = reader.ReadSingle(); // 0.4849...
+            _unknownInt1 = reader.ReadUInt32(); // 0, 4
 
-            var unknownFloat10 = reader.ReadSingle(); // 0.0892...
+            _unknownFloat8 = reader.ReadSingle(); // 0, 100
+
+            _unknownFloat9 = reader.ReadSingle();
+            if (_unknownFloat9 != 1.0f)
+            {
+                throw new InvalidStateException();
+            }
+
+            _unknownFloat10 = reader.ReadSingle(); // 0.4849...
+
+            _unknownFloat11 = reader.ReadSingle(); // 0.0892...
         }
     }
 }

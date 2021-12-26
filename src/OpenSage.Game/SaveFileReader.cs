@@ -150,6 +150,8 @@ namespace OpenSage
 
         public ColorRgba ReadColorRgba() => _binaryReader.ReadColorRgba();
 
+        public ColorRgba ReadColorRgbaInt() => _binaryReader.ReadColorRgbaInt();
+
         public DateTime ReadDateTime() => _binaryReader.ReadDateTime();
 
         public RandomVariable ReadRandomVariable() => _binaryReader.ReadRandomVariable();
@@ -157,6 +159,21 @@ namespace OpenSage
         public RandomAlphaKeyframe ReadRandomAlphaKeyframe() => RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
 
         public RgbColorKeyframe ReadRgbColorKeyframe() => RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
+
+        public void ReadObjectNameAndIdSet(List<ObjectNameAndId> set)
+        {
+            ReadVersion(1);
+
+            var numItems = ReadUInt16();
+            for (var j = 0; j < numItems; j++)
+            {
+                set.Add(new ObjectNameAndId
+                {
+                    Name = ReadAsciiString(),
+                    ObjectId = ReadObjectID()
+                });
+            }
+        }
 
         public unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
         {
@@ -245,5 +262,11 @@ namespace OpenSage
         {
 
         }
+    }
+
+    public struct ObjectNameAndId
+    {
+        public string Name;
+        public uint ObjectId;
     }
 }

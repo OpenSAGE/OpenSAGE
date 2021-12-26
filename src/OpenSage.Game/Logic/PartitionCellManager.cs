@@ -164,7 +164,7 @@ namespace OpenSage.Logic
 
         internal PartitionCell()
         {
-            Values = new PartitionCellValue[16];
+            Values = new PartitionCellValue[Player.MaxPlayers];
         }
 
         internal void Load(SaveFileReader reader)

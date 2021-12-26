@@ -32,6 +32,54 @@ namespace OpenSage.Logic.Object
 
         private Vector3? _targetDirection;
 
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private float _unknownFloat1;
+        private uint _unknownInt6;
+        private uint _unknownInt7;
+        private uint _unknownInt8;
+        private uint _unknownInt9;
+        private uint _unknownInt10;
+        private uint _unknownInt11;
+        private uint _unknownInt12;
+        private uint _unknownInt13;
+        private bool _unknownBool3;
+        private bool _unknownBool4;
+        private bool _unknownBool5;
+        private bool _unknownBool6;
+        private string _guardAreaPolygonTriggerName;
+        private string _attackPriorityName;
+        private uint _unknownInt14;
+        private bool _unknownBool7;
+        private uint _unknownInt15;
+        private bool _unknownBool8;
+        private PathfindingPath _path;
+        private uint _unknownInt16;
+        private Vector3 _unknownPosition1;
+        private uint _unknownObjectId;
+        private float _unknownFloat2;
+        private Point2D _unknownPos2D1;
+        private Point2D _unknownPos2D2;
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private Vector3 _unknownPosition2;
+        private bool _unknownBool9;
+        private bool _unknownBool10;
+        private bool _unknownBool11;
+        private bool _unknownBool12;
+        private uint _unknownObjectId2;
+        private uint _unknownInt17;
+        private uint _unknownInt18;
+        private float _angleSomething;
+        private int _unknownInt19;
+        private int _unknownInt20;
+        private uint _unknownFrame3;
+
         /// <summary>
         /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
         /// </summary>
@@ -244,113 +292,81 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownInt2 = reader.ReadUInt32();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
 
             _stateMachine.Load(reader);
 
-            var waypointName = reader.ReadAsciiString();
+            _unknownInt3 = reader.ReadUInt32();
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
+            _unknownInt4 = reader.ReadUInt32();
+            _unknownInt5 = reader.ReadUInt32();
 
-            var hasTargetTeam = reader.ReadBoolean();
-            if (hasTargetTeam)
-            {
-                reader.ReadVersion(1);
+            _unknownFloat1 = reader.ReadSingle(); // 999999
 
-                var numTeamObjects = reader.ReadUInt16();
-                for (var i = 0; i < numTeamObjects; i++)
-                {
-                    var teamObjectId = reader.ReadUInt32();
-                }
-            }
+            _unknownInt6 = reader.ReadUInt32(); // 2
+            _unknownInt7 = reader.ReadUInt32(); // 3
+            _unknownInt8 = reader.ReadUInt32(); // 3
+            _unknownInt9 = reader.ReadUInt32(); // 3
 
-            var unknownInt11 = reader.ReadUInt32();
-            if (unknownInt11 != 999999)
-            {
-                var state = _stateMachine.GetState(unknownInt11);
-                state.Load(reader);
-            }
+            _unknownInt10 = reader.ReadUInt32(); // 0
+            _unknownInt11 = reader.ReadUInt32(); // 0
+            _unknownInt12 = reader.ReadUInt32(); // 0
+            _unknownInt13 = reader.ReadUInt32(); // 0
+            _unknownBool3 = reader.ReadBoolean();
+            _unknownBool4 = reader.ReadBoolean();
+            _unknownBool5 = reader.ReadBoolean(); // 0
+            _unknownBool6 = reader.ReadBoolean(); // 0
+            _guardAreaPolygonTriggerName = reader.ReadAsciiString();
+            _attackPriorityName = reader.ReadAsciiString();
+            _unknownInt14 = reader.ReadUInt32(); // 0
+            _unknownBool7 = reader.ReadBoolean();
+            _unknownInt15 = reader.ReadUInt32(); // 0
 
-            var unknownInt12 = reader.ReadUInt32();
-            var unknownBool8 = reader.ReadBoolean();
-            var unknownBool9 = reader.ReadBoolean();
-            var unknownInt13 = reader.ReadUInt32();
-            var unknownInt14 = reader.ReadUInt32();
-
-            var unknownFloat1 = reader.ReadSingle(); // 999999
-
-            var unknownInt15 = reader.ReadUInt32(); // 2
-            var unknownInt16 = reader.ReadUInt32(); // 3
-            var unknownInt17 = reader.ReadUInt32(); // 3
-            var unknownInt17_1 = reader.ReadUInt32(); // 3
-
-            var unknownInt18 = reader.ReadUInt32(); // 0
-            var unknownInt19 = reader.ReadUInt32(); // 0
-            var unknownInt20 = reader.ReadUInt32(); // 0
-            var unknownInt21 = reader.ReadUInt32(); // 0
-            var unknownBool10 = reader.ReadBoolean();
-            var unknownBool11 = reader.ReadBoolean();
-            var unknownInt22 = reader.ReadBoolean(); // 0
-            var unknownInt22_2 = reader.ReadBoolean(); // 0
-            var guardAreaPolygonTriggerName = reader.ReadAsciiString();
-            var attackPriorityName = reader.ReadAsciiString();
-            var unknownInt23 = reader.ReadUInt32(); // 0
-            var unknownBool12 = reader.ReadBoolean();
-            var unknownInt23_1 = reader.ReadUInt32(); // 0
-
-            var unknownInt24 = reader.ReadUInt32();
-            if (unknownInt24 != 0x7FFFFFFF)
+            var unknownInt16 = reader.ReadUInt32();
+            if (unknownInt16 != 0x7FFFFFFF)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownBool13 = reader.ReadBoolean();
-            var unknownBool14 = reader.ReadBoolean();
-            if (unknownBool14)
+            _unknownBool8 = reader.ReadBoolean();
+
+            var hasPath = reader.ReadBoolean();
+            if (hasPath)
             {
-                reader.ReadVersion(1);
-
-                var unknownCount1 = reader.ReadUInt32(); // 2
-                for (var i = 0; i < unknownCount1; i++)
-                {
-                    var id = reader.ReadUInt32();
-                    var position2 = reader.ReadVector3();
-                    var unknown25 = reader.ReadUInt32();
-                    var unknownBool15 = reader.ReadBoolean();
-                    var nextId = reader.ReadUInt32();
-                }
-
-                var unknownBool16 = reader.ReadBoolean();
-                var unknownInt25 = reader.ReadUInt32();
-                var unknownInt26 = reader.ReadUInt32(); // 1
-                var unknownBool17 = reader.ReadBoolean();
+                _path = new PathfindingPath();
+                _path.Load(reader);
             }
 
-            var unknownInt27 = reader.ReadUInt32();
-            var unknownPosition = reader.ReadVector3();
+            _unknownInt16 = reader.ReadUInt32();
+            _unknownPosition1 = reader.ReadVector3();
+
             reader.SkipUnknownBytes(12);
-            var unknownObjectId = reader.ReadObjectID();
-            var unknownFloat20 = reader.ReadSingle();
 
-            var unknownPos1 = reader.ReadPoint2D();
-            var unknownPos2 = reader.ReadPoint2D();
+            _unknownObjectId = reader.ReadObjectID();
+            _unknownFloat2 = reader.ReadSingle();
 
-            var unknownFrame = reader.ReadFrame();
-            var unknownFrame2 = reader.ReadFrame();
-            var unknownPos3 = reader.ReadVector3();
+            _unknownPos2D1 = reader.ReadPoint2D();
+            _unknownPos2D2 = reader.ReadPoint2D();
+
+            _unknownFrame1 = reader.ReadFrame();
+            _unknownFrame2 = reader.ReadFrame();
+            _unknownPosition2 = reader.ReadVector3();
 
             reader.SkipUnknownBytes(1);
 
-            var unknownBool23 = reader.ReadBoolean();
-            var unknownBool20 = reader.ReadBoolean();
+            _unknownBool9 = reader.ReadBoolean();
+            _unknownBool10 = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(5);
 
-            var unknownBool21 = reader.ReadBoolean();
-            var unknownBool22 = reader.ReadBoolean();
+            _unknownBool11 = reader.ReadBoolean();
+            _unknownBool12 = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(8);
 
-            var unknownObjectId2 = reader.ReadObjectID();
+            _unknownObjectId2 = reader.ReadObjectID();
 
             reader.SkipUnknownBytes(4);
 
@@ -361,39 +377,32 @@ namespace OpenSage.Logic.Object
                 ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
                 : null;
 
-            var unknownInt29 = reader.ReadUInt32();
-            if (unknownInt29 != 0 && unknownInt29 != 3 && unknownInt29 != uint.MaxValue)
+            _unknownInt17 = reader.ReadUInt32();
+            if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownInt30 = reader.ReadUInt32(); // 0, 1
+            _unknownInt18 = reader.ReadUInt32(); // 0, 1
 
-            var angleSomething = reader.ReadSingle();
+            _angleSomething = reader.ReadSingle();
 
-            for (var i = 0; i < 2; i++)
-            {
-                var unknownInt31 = reader.ReadUInt32();
-                if (unknownInt31 != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+            reader.SkipUnknownBytes(8);
 
             if (_moduleData.Turret != null)
             {
                 _turretAIUpdate.Load(reader);
             }
 
-            var unknownInt32 = reader.ReadInt32(); // -1, 258
+            _unknownInt19 = reader.ReadInt32(); // -1, 258
 
-            var unknownInt33 = reader.ReadInt32();
-            if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2 && unknownInt33 != -2)
+            _unknownInt20 = reader.ReadInt32();
+            if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
             {
                 throw new InvalidStateException();
             }
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame3 = reader.ReadFrame();
 
             reader.SkipUnknownBytes(4);
         }
@@ -530,5 +539,50 @@ namespace OpenSage.Logic.Object
     public sealed class UnitAITargetChooserData : BaseAITargetChooserData
     {
 
+    }
+
+    internal sealed class PathfindingPath
+    {
+        private readonly List<PathPoint> _points = new();
+        private bool _unknownBool1;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool2;
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var numPathPoints = reader.ReadUInt32();
+            for (var i = 0; i < numPathPoints; i++)
+            {
+                var pathPoint = new PathPoint();
+                pathPoint.Load(reader);
+                _points.Add(pathPoint);
+            }
+
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32(); // 1
+            _unknownBool2 = reader.ReadBoolean();
+        }
+    }
+
+    internal sealed class PathPoint
+    {
+        private uint _id;
+        private Vector3 _position;
+        private uint _unknownInt1;
+        private bool _unknownBool1;
+        private uint _nextId;
+
+        internal void Load(SaveFileReader reader)
+        {
+            _id = reader.ReadUInt32();
+            _position = reader.ReadVector3();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownBool1 = reader.ReadBoolean();
+            _nextId = reader.ReadUInt32();
+        }
     }
 }

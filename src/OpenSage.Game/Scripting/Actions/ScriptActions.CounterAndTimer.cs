@@ -5,19 +5,19 @@
         [ScriptAction(ScriptActionType.IncrementCounter, "Scripting/Counters/Increment counter", "Add {1} to counter {0}")]
         public static void IncrementCounter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string counterName, int incrementBy)
         {
-            context.Scripting.Counters[counterName] += incrementBy;
+            context.Scripting.AddCounterValue(counterName, incrementBy);
         }
 
         [ScriptAction(ScriptActionType.DecrementCounter, "Scripting/Counters/Decrement counter", "Subtract {1} from counter {0}")]
         public static void DecrementCounter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string counterName, int decrementBy)
         {
-            context.Scripting.Counters[counterName] -= decrementBy;
+            context.Scripting.SubtractCounterValue(counterName, decrementBy);
         }
 
         [ScriptAction(ScriptActionType.SetCounter, "Scripting/Counters/Set counter to value", "Set counter {0} to value {1}")]
         public static void SetCounter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string counterName, int value)
         {
-            context.Scripting.Counters[counterName] = value;
+            context.Scripting.SetCounterValue(counterName, value);
         }
 
         [ScriptAction(ScriptActionType.SetTimer, "Scripting/Timers/Set frame countdown timer", "Set timer {0} to expire in {1} frames")]
@@ -34,8 +34,7 @@
 
         private static void SetFrameTimerInternal(string timerName, int durationFrames, ScriptExecutionContext context)
         {
-            context.Scripting.Counters[timerName] = durationFrames;
-            context.Scripting.Timers.StartTimer(timerName);
+            context.Scripting.SetTimerValue(timerName, durationFrames);
         }
     }
 }
