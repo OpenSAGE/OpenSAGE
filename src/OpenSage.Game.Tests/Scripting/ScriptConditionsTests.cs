@@ -31,7 +31,7 @@ namespace OpenSage.Tests.Scripting
         [InlineData(ScriptingComparison.GreaterThan, 6, false)]
         public void TestCounter(ScriptingComparison comparison, int compareValue, bool expectedResult)
         {
-            _fixture.Game.Scripting.Counters["MyCounter"] = 5;
+            _fixture.Game.Scripting.SetCounterValue("MyCounter", 5);
 
             var condition = new ScriptCondition(
                 ScriptConditionType.Counter,

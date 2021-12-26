@@ -35,6 +35,20 @@ namespace OpenSage.Logic
 
         private readonly List<TeamTemplate> _teamTemplates;
 
+        private uint _unknown1;
+        private bool _unknown2;
+        private uint _unknown3;
+        private bool _hasInsufficientPower;
+        private BuildListItem[] _buildListItems;
+        private TunnelManager _tunnelManager;
+        private uint _unknown4;
+        private uint _unknown5;
+        private bool _unknown6;
+        private readonly bool[] _attackedByPlayerIds = new bool[MaxPlayers];
+        private readonly PlayerScoreManager _scoreManager = new();
+        private readonly List<ObjectIdSet> _controlGroups = new();
+        private readonly ObjectIdSet _destroyedObjects = new();
+
         public uint Id { get; }
         public PlayerTemplate Template { get; }
         public string Name { get; internal set; }
@@ -402,13 +416,13 @@ namespace OpenSage.Logic
                 upgrade.Load(reader);
             }
 
-            var unknown1 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadBoolean();
+            _unknown2 = reader.ReadBoolean();
 
-            var unknown3 = reader.ReadUInt32();
+            _unknown3 = reader.ReadUInt32();
 
-            var hasInsufficientPower = reader.ReadBoolean();
+            _hasInsufficientPower = reader.ReadBoolean();
 
             _upgradesInProgress.Load(reader);
             UpgradesCompleted.Load(reader);
@@ -437,11 +451,11 @@ namespace OpenSage.Logic
             }
 
             var buildListItemCount = reader.ReadUInt16();
-            var buildListItems = new BuildListItem[buildListItemCount];
+            _buildListItems = new BuildListItem[buildListItemCount];
             for (var i = 0; i < buildListItemCount; i++)
             {
-                buildListItems[i] = new BuildListItem();
-                buildListItems[i].Load(reader);
+                _buildListItems[i] = new BuildListItem();
+                _buildListItems[i].Load(reader);
             }
 
             var isAIPlayer = reader.ReadBoolean();
@@ -463,8 +477,8 @@ namespace OpenSage.Logic
             var hasTunnelManager = reader.ReadBoolean();
             if (hasTunnelManager)
             {
-                var tunnelManager = new TunnelManager();
-                tunnelManager.Load(reader);
+                _tunnelManager = new TunnelManager();
+                _tunnelManager.Load(reader);
             }
 
             var defaultTeamId = reader.ReadUInt32();
@@ -481,8 +495,8 @@ namespace OpenSage.Logic
             SkillPointsTotal = reader.ReadUInt32();
             SkillPointsAvailable = reader.ReadUInt32();
 
-            var unknown4 = reader.ReadUInt32(); // 800
-            var unknown5 = reader.ReadUInt32(); // 0
+            _unknown4 = reader.ReadUInt32(); // 800
+            _unknown5 = reader.ReadUInt32(); // 0
 
             Name = reader.ReadUnicodeString();
 
@@ -492,21 +506,19 @@ namespace OpenSage.Logic
             CanBuildUnits = reader.ReadBoolean();
             CanBuildBuildings = reader.ReadBoolean();
 
-            var unknown6 = reader.ReadBoolean();
+            _unknown6 = reader.ReadBoolean();
 
             GeneralsExperienceMultiplier = reader.ReadSingle();
             ShowOnScoreScreen = reader.ReadBoolean();
 
-            var attackedByPlayerIds = new bool[16];
-            for (var i = 0; i < attackedByPlayerIds.Length; i++)
+            for (var i = 0; i < _attackedByPlayerIds.Length; i++)
             {
-                attackedByPlayerIds[i] = reader.ReadBoolean();
+                _attackedByPlayerIds[i] = reader.ReadBoolean();
             }
 
             reader.SkipUnknownBytes(70);
 
-            var scoreManager = new PlayerScoreManager();
-            scoreManager.Load(reader);
+            _scoreManager.Load(reader);
 
             reader.SkipUnknownBytes(4);
 
@@ -515,6 +527,8 @@ namespace OpenSage.Logic
             {
                 var controlGroup = new ObjectIdSet();
                 controlGroup.Load(reader);
+
+                _controlGroups.Add(controlGroup);
             }
 
             if (!reader.ReadBoolean())
@@ -522,8 +536,7 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var destroyedObjects = new ObjectIdSet();
-            destroyedObjects.Load(reader);
+            _destroyedObjects.Load(reader);
 
             reader.SkipUnknownBytes(14);
         }

@@ -26,6 +26,10 @@ namespace OpenSage.Logic.Object
 
         private int _doorIndex;
 
+        private uint _nextJobId;
+        private uint _unknownFrame1;
+        private ProductionUpdateSomething[] _unknownSomethings = new ProductionUpdateSomething[4];
+
         public GameObject ParentHorde;
 
         private enum DoorState
@@ -475,37 +479,21 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < productionJobCount; i++)
             {
                 var productionJobType = reader.ReadEnum<ProductionJobType>();
-
                 var templateName = reader.ReadAsciiString();
 
-                ProductionJob productionJob;
-                switch (productionJobType)
+                var productionJob = productionJobType switch
                 {
-                    case ProductionJobType.Unit:
-                        productionJob = new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(templateName));
-                        break;
+                    ProductionJobType.Unit => new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(templateName)),
+                    ProductionJobType.Upgrade => new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(templateName)),
+                    _ => throw new InvalidStateException(),
+                };
 
-                    case ProductionJobType.Upgrade:
-                        productionJob = new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(templateName));
-                        break;
-
-                    default:
-                        throw new InvalidStateException();
-                }
-
-                var jobId = reader.ReadUInt32();
-
-                var unknownFloat = reader.ReadSingle();
-
-                var unknown1 = reader.ReadInt32(); // Maybe progress
-                var unknown2 = reader.ReadInt32();
-                var unknown3 = reader.ReadInt32();
-                var unknown4 = reader.ReadInt32();
+                productionJob.Load(reader);
 
                 _productionQueue.Add(productionJob);
             }
 
-            var nextJobId = reader.ReadUInt32();
+            _nextJobId = reader.ReadUInt32();
 
             var productionJobCount2 = reader.ReadUInt32();
             if (productionJobCount2 != productionJobCount)
@@ -513,17 +501,12 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame1 = reader.ReadUInt32();
 
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < _unknownSomethings.Length; i++)
             {
-                var frameSomething3 = reader.ReadUInt32();
-
-                var frameSomething4 = reader.ReadUInt32();
-
-                var frameSomething2 = reader.ReadUInt32();
-
-                reader.SkipUnknownBytes(4);
+                _unknownSomethings[i] = new ProductionUpdateSomething();
+                _unknownSomethings[i].Load(reader);
             }
 
             for (var i = 0; i < 2; i++)
@@ -537,11 +520,7 @@ namespace OpenSage.Logic.Object
                 reader.SkipUnknownBytes(4);
             }
 
-            var unknownBool = reader.ReadBoolean();
-            if (unknownBool)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 
@@ -711,5 +690,23 @@ namespace OpenSage.Logic.Object
         TemporarilyBusy,
 
         Infiltrated,
+    }
+
+    internal sealed class ProductionUpdateSomething
+    {
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+
+        internal void Load(SaveFileReader reader)
+        {
+            _unknownFrame1 = reader.ReadUInt32();
+
+            _unknownFrame2 = reader.ReadUInt32();
+
+            _unknownFrame3 = reader.ReadUInt32();
+
+            reader.SkipUnknownBytes(4);
+        }
     }
 }

@@ -8,8 +8,12 @@ namespace OpenSage.Logic.Object
         private readonly Weapon[] _weapons;
         private WeaponTemplateSet _currentWeaponTemplateSet;
         private WeaponSlot _currentWeaponSlot;
+        private uint _unknown1;
         private uint _filledWeaponSlots;
         private WeaponAntiFlags _combinedAntiMask;
+        private uint _unknown2;
+        private bool _unknown3;
+        private bool _unknown4;
 
         internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
 
@@ -82,15 +86,15 @@ namespace OpenSage.Logic.Object
 
             _currentWeaponSlot = reader.ReadEnum<WeaponSlot>();
 
-            var unknown2 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
             _filledWeaponSlots = reader.ReadUInt32();
             _combinedAntiMask = reader.ReadEnumFlags<WeaponAntiFlags>();
 
-            var unknown5 = reader.ReadUInt32();
+            _unknown2 = reader.ReadUInt32();
 
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
+            _unknown3 = reader.ReadBoolean();
+            _unknown4 = reader.ReadBoolean();
         }
     }
 }

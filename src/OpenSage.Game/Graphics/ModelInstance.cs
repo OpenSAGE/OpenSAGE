@@ -6,6 +6,7 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -52,6 +53,11 @@ namespace OpenSage.Graphics
         public readonly ModelBoneInstance[] ModelBoneInstances;
 
         public readonly List<AnimationInstance> AnimationInstances;
+
+        // TODO: Use this.
+        public ColorRgba HouseColor;
+
+        public readonly bool[] UnknownBools;
 
         internal ModelInstance(Model model, AssetLoadContext loadContext)
         {
@@ -131,6 +137,8 @@ namespace OpenSage.Graphics
                     };
                 }
             }
+
+            UnknownBools = new bool[model.SubObjects.Length];
         }
 
         public void Update(in TimeInterval gameTime)

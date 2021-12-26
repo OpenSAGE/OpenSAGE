@@ -8,6 +8,13 @@ namespace OpenSage.Logic.Object.Production
         private readonly int _duration;
         private float _passed;
 
+        private uint _jobId;
+        private float _unknownFloat;
+        private int _unknownInt1;
+        private int _unknownInt2;
+        private int _unknownInt3;
+        private int _unknownInt4;
+
         public ProductionJobType Type { get; }
 
         public float Progress => Math.Max(0, Math.Min(1, (float) (_passed / _duration)));
@@ -37,6 +44,18 @@ namespace OpenSage.Logic.Object.Production
             UpgradeDefinition = definition;
             Type = ProductionJobType.Upgrade;
             _duration = (int) (definition.BuildTime * 1000.0f);
+        }
+
+        internal void Load(SaveFileReader reader)
+        {
+            _jobId = reader.ReadUInt32();
+
+            _unknownFloat = reader.ReadSingle();
+
+            _unknownInt1 = reader.ReadInt32(); // Maybe progress
+            _unknownInt2 = reader.ReadInt32();
+            _unknownInt3 = reader.ReadInt32();
+            _unknownInt4 = reader.ReadInt32();
         }
     }
 

@@ -2,13 +2,15 @@
 {
     public sealed class TerrainVisual
     {
+        private bool _unknownBool;
+
         internal void Load(SaveFileReader reader, Game game)
         {
             reader.ReadVersion(2);
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
+            _unknownBool = reader.ReadBoolean();
+            if (_unknownBool)
             {
                 reader.ReadVersion(1);
 

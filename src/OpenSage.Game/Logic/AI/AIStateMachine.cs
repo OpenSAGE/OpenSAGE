@@ -1,10 +1,16 @@
-﻿using OpenSage.Data.Sav;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
 
 namespace OpenSage.Logic.AI
 {
     internal sealed class AIStateMachine : StateMachineBase
     {
+        private readonly List<Vector3> _targetPositions = new();
+        private string _targetWaypointName;
+        private TargetTeam _targetTeam;
+        private State _stateSomething;
+
         public AIStateMachine()
         {
             AddState(0, new IdleState());
@@ -43,10 +49,26 @@ namespace OpenSage.Logic.AI
 
             base.Load(reader);
 
-            var numPositionsSomething = reader.ReadUInt32();
-            for (var i = 0; i < numPositionsSomething; i++)
+            var numTargetPositions = reader.ReadUInt32();
+            for (var i = 0; i < numTargetPositions; i++)
             {
-                var positionSomething = reader.ReadVector3();
+                _targetPositions.Add(reader.ReadVector3());
+            }
+
+            _targetWaypointName = reader.ReadAsciiString();
+
+            var hasTargetTeam = reader.ReadBoolean();
+            if (hasTargetTeam)
+            {
+                _targetTeam ??= new TargetTeam();
+                _targetTeam.Load(reader);
+            }
+
+            var stateSomethingId = reader.ReadUInt32();
+            if (stateSomethingId != 999999)
+            {
+                _stateSomething = GetState(stateSomethingId);
+                _stateSomething.Load(reader);
             }
         }
     }
@@ -102,6 +124,22 @@ namespace OpenSage.Logic.AI
             reader.ReadVersion(1);
 
             base.Load(reader);
+        }
+    }
+
+    internal sealed class TargetTeam
+    {
+        private readonly List<uint> _objectIds = new();
+
+        internal void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(1);
+
+            var numTeamObjects = reader.ReadUInt16();
+            for (var i = 0; i < numTeamObjects; i++)
+            {
+                _objectIds.Add(reader.ReadObjectID());
+            }
         }
     }
 }

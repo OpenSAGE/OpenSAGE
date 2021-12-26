@@ -1,6 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Logic.Object;
 
@@ -8,6 +7,8 @@ namespace OpenSage.Logic
 {
     public sealed class GhostObject
     {
+        public uint OriginalObjectId;
+
         private GameObject _gameObject;
 
         private ObjectGeometry _geometryType;
@@ -17,6 +18,21 @@ namespace OpenSage.Logic
 
         private float _angle;
         private Vector3 _position;
+
+        private readonly List<ModelInstance>[] _modelsPerPlayer;
+
+        private bool _hasUnknownThing;
+        private byte _unknownByte;
+        private uint _unknownInt;
+
+        internal GhostObject()
+        {
+            _modelsPerPlayer = new List<ModelInstance>[Player.MaxPlayers];
+            for (var i = 0; i < _modelsPerPlayer.Length; i++)
+            {
+                _modelsPerPlayer[i] = new List<ModelInstance>();
+            }
+        }
 
         internal void Load(SaveFileReader reader, GameLogic gameLogic, Game game)
         {
@@ -39,16 +55,9 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(12);
 
-            for (var i = 0; i < 16; i++)
+            for (var i = 0; i < Player.MaxPlayers; i++)
             {
                 var numModels = reader.ReadByte();
-
-                if (numModels > 0 && i != 2)
-                {
-                    throw new InvalidStateException();
-                }
-
-                var modelInstances = new ModelInstance[numModels];
 
                 for (var j = 0; j < numModels; j++)
                 {
@@ -56,7 +65,8 @@ namespace OpenSage.Logic
 
                     var model = game.AssetStore.Models.GetByName(modelName);
                     var modelInstance = model.CreateInstance(game.AssetStore.LoadContext);
-                    modelInstances[j] = modelInstance;
+
+                    _modelsPerPlayer[i].Add(modelInstance);
 
                     var scale = reader.ReadSingle();
                     if (scale != 1.0f)
@@ -64,8 +74,7 @@ namespace OpenSage.Logic
                         throw new InvalidStateException();
                     }
 
-                    var houseColor = reader.ReadColorRgba();
-                    // TODO: Use house color.
+                    modelInstance.HouseColor = reader.ReadColorRgba();
 
                     reader.ReadVersion(1);
 
@@ -82,13 +91,14 @@ namespace OpenSage.Logic
                     for (var k = 0; k < numMeshes; k++)
                     {
                         var meshName = reader.ReadAsciiString();
-                        var meshBool = reader.ReadBoolean();
-                        var meshTransform = reader.ReadMatrix4x3Transposed();
-
                         if (meshName != model.SubObjects[k].FullName)
                         {
                             throw new InvalidStateException();
                         }
+
+                        modelInstance.UnknownBools[k] = reader.ReadBoolean();
+
+                        var meshTransform = reader.ReadMatrix4x3Transposed();
 
                         // TODO: meshTransform is actually absolute, not relative.
                         modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
@@ -96,11 +106,11 @@ namespace OpenSage.Logic
                 }
             }
 
-            var unknown = reader.ReadBoolean();
-            if (unknown)
+            _hasUnknownThing = reader.ReadBoolean();
+            if (_hasUnknownThing)
             {
-                reader.ReadByte();
-                reader.ReadUInt32();
+                _unknownByte = reader.ReadByte();
+                _unknownInt = reader.ReadUInt32();
             }
         }
     }

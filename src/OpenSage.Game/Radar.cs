@@ -3,8 +3,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data;
-using OpenSage.Data.Sav;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -21,6 +19,10 @@ namespace OpenSage
         private readonly RadarItemCollection _hiddenItems;
 
         private readonly List<RadarEvent> _radarEvents;
+
+        private bool _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
 
         internal Radar(Scene3D scene, AssetStore assetStore, string mapPath)
         {
@@ -269,7 +271,7 @@ namespace OpenSage
 
             reader.SkipUnknownBytes(1);
 
-            var unknown2 = reader.ReadBoolean();
+            _unknown1 = reader.ReadBoolean();
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);
@@ -287,8 +289,8 @@ namespace OpenSage
                 _radarEvents.Add(radarEvent);
             }
 
-            var unknown3 = reader.ReadUInt32();
-            var unknown4 = reader.ReadUInt32();
+            _unknown2 = reader.ReadUInt32();
+            _unknown3 = reader.ReadUInt32();
         }
     }
 
@@ -331,27 +333,35 @@ namespace OpenSage
         public RadarEventType Type;
         public Vector3 Position;
 
+        private bool _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
+        private uint _unknown4;
+        private ColorRgba _color1;
+        private ColorRgba _color2;
+        private uint _unknown5;
+        private uint _unknown6;
+        private bool _unknown7;
+
         public void Load(SaveFileReader reader)
         {
             Type = reader.ReadEnum<RadarEventType>();
 
-            var unknown1 = reader.ReadBoolean();
+            _unknown1 = reader.ReadBoolean();
 
-            var unknown2 = reader.ReadUInt32();
-            var unknown3 = reader.ReadUInt32();
-            var unknown4 = reader.ReadUInt32();
+            _unknown2 = reader.ReadUInt32();
+            _unknown3 = reader.ReadUInt32();
+            _unknown4 = reader.ReadUInt32();
 
-            for (var i = 0; i < 8; i++)
-            {
-                var unknown5 = reader.ReadUInt32();
-            }
+            _color1 = reader.ReadColorRgbaInt();
+            _color2 = reader.ReadColorRgbaInt();
 
             Position = reader.ReadVector3();
 
-            var unknown6 = reader.ReadUInt32();
-            var unknown7 = reader.ReadUInt32();
+            _unknown5 = reader.ReadUInt32();
+            _unknown6 = reader.ReadUInt32();
 
-            var unknown8 = reader.ReadBoolean();
+            _unknown7 = reader.ReadBoolean();
         }
     }
 
