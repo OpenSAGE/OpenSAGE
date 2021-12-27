@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class PoisonedBehavior : UpdateModule
     {
-        // TODO
+        private uint _unknown;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(12);
 
-            var unknown = reader.ReadUInt32();
+            _unknown = reader.ReadUInt32();
         }
     }
 

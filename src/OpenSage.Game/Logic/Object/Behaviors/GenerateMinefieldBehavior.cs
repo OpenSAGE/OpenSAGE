@@ -5,6 +5,7 @@ namespace OpenSage.Logic.Object
     public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModule
     {
         private readonly UpgradeLogic _upgradeLogic;
+        private bool _unknown;
 
         internal GenerateMinefieldBehavior(GenerateMinefieldBehaviorModuleData moduleData)
         {
@@ -24,7 +25,7 @@ namespace OpenSage.Logic.Object
 
             _upgradeLogic.Load(reader);
 
-            var unknown1 = reader.ReadBoolean();
+            _unknown = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(13);
         }

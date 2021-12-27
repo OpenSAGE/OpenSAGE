@@ -7,6 +7,7 @@ namespace OpenSage.Logic.Object
     public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule
     {
         private readonly UpgradeLogic _upgradeLogic;
+        private uint _unknownFrame;
 
         public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
         {
@@ -28,7 +29,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame = reader.ReadFrame();
 
             reader.SkipUnknownBytes(1);
         }

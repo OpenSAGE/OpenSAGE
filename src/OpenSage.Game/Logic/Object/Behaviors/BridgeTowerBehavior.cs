@@ -4,14 +4,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class BridgeTowerBehavior : BehaviorModule
     {
+        private int _unknown1;
+        private int _unknown2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadInt32();
-            var unknown2 = reader.ReadInt32();
+            _unknown1 = reader.ReadInt32();
+            _unknown2 = reader.ReadInt32();
         }
     }
 

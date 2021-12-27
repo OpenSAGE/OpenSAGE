@@ -2,7 +2,9 @@
 {
     internal sealed class ObjectDefectionHelper : ObjectHelperModule
     {
-        // TODO
+        private uint _frameStart;
+        private uint _frameEnd;
+        private bool _unknown;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -10,12 +12,12 @@
 
             base.Load(reader);
 
-            var frameStart = reader.ReadUInt32();
-            var frameEnd = reader.ReadUInt32();
+            _frameStart = reader.ReadUInt32();
+            _frameEnd = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(4);
 
-            var unknown = reader.ReadBoolean();
+            _unknown = reader.ReadBoolean();
         }
     }
 }

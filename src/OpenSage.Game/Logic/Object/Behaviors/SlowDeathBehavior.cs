@@ -20,6 +20,12 @@ namespace OpenSage.Logic.Object
         private TimeSpan _midpointTime;
         private TimeSpan _destructionTime;
 
+        private uint _frameSinkStart;
+        private uint _frameMidpoint;
+        private uint _frameDestruction;
+        private float _slowDeathScale;
+        private SlowDeathBehaviorFlags _flags;
+
         public int ProbabilityModifier => _moduleData.ProbabilityModifier;
 
         internal SlowDeathBehavior(SlowDeathBehaviorModuleData moduleData)
@@ -135,15 +141,15 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var frameSinkStart = reader.ReadUInt32();
+            _frameSinkStart = reader.ReadFrame();
 
-            var frameMidpoint = reader.ReadUInt32();
+            _frameMidpoint = reader.ReadFrame();
 
-            var frameDestruction = reader.ReadUInt32();
+            _frameDestruction = reader.ReadFrame();
 
-            var slowDeathScale = reader.ReadSingle();
+            _slowDeathScale = reader.ReadSingle();
 
-            var flags = reader.ReadEnumFlags<SlowDeathBehaviorFlags>();
+            _flags = reader.ReadEnumFlags<SlowDeathBehaviorFlags>();
         }
 
         [Flags]

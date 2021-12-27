@@ -1,9 +1,12 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class AssaultTransportAIUpdate : AIUpdate
     {
+        private readonly List<AssaultTransportMember> _members = new();
+
         internal AssaultTransportAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
         {
@@ -20,11 +23,20 @@ namespace OpenSage.Logic.Object
             var memberCount = reader.ReadInt32();
             for (var i = 0; i < memberCount; i++)
             {
-                var objectId = reader.ReadUInt32();
-                var unknownBool = reader.ReadBoolean();
+                _members.Add(new AssaultTransportMember
+                {
+                    ObjectId = reader.ReadObjectID(),
+                    Unknown = reader.ReadBoolean()
+                });
             }
 
             reader.SkipUnknownBytes(26);
+        }
+
+        private struct AssaultTransportMember
+        {
+            public uint ObjectId;
+            public bool Unknown;
         }
     }
 

@@ -5,17 +5,20 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StealthUpdate : UpdateModule
     {
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            _unknownFrame1 = reader.ReadUInt32();
 
-            var frameSomething = reader.ReadUInt32();
-
-            var frameSomething2 = reader.ReadUInt32();
+            _unknownFrame2 = reader.ReadUInt32();
 
             var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)
@@ -23,8 +26,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownFloat2 = reader.ReadSingle();
 
             var unknownInt2 = reader.ReadInt32();
             if (unknownInt2 != -1)

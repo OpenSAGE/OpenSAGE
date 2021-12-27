@@ -18,6 +18,8 @@ namespace OpenSage.Logic
 
         private uint _rankLevelLimit;
 
+        internal uint NextObjectId;
+
         public GameLogic(Scene3D scene3D)
         {
             _scene3D = scene3D;

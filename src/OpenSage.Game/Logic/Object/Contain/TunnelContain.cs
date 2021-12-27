@@ -5,14 +5,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TunnelContain : OpenContainModule
     {
+        private bool _unknown1;
+        private bool _unknown2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadBoolean();
-            var unknown2 = reader.ReadBoolean();
+            _unknown1 = reader.ReadBoolean();
+            _unknown2 = reader.ReadBoolean();
         }
     }
 

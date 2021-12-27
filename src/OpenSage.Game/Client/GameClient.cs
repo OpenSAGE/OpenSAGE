@@ -12,6 +12,8 @@ namespace OpenSage.Client
 
         private uint _currentFrame;
 
+        internal uint NextDrawableId;
+
         public GameClient(Scene3D scene3D, GameLogic gameLogic)
         {
             _gameLogic = gameLogic;

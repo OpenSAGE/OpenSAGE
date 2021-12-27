@@ -2,6 +2,8 @@
 {
     public abstract class CreateModule : BehaviorModule
     {
+        private bool _unknown;
+
         internal virtual void Execute(BehaviorUpdateContext context) { }
 
         internal override void Load(SaveFileReader reader)
@@ -10,7 +12,7 @@
 
             base.Load(reader);
 
-            var unknownBool = reader.ReadBoolean();
+            _unknown = reader.ReadBoolean();
         }
     }
 

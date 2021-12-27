@@ -1,10 +1,22 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class OpenContainModule : UpdateModule
     {
+        private readonly List<uint> _containedObjectIds = new();
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private BitArray<ModelConditionFlag> _modelConditionFlags;
+        private readonly Matrix4x3[] _unknownTransforms = new Matrix4x3[32];
+        private uint _nextFirePointIndex;
+        private uint _numFirePoints;
+        private bool _hasNoFirePoints;
+        private readonly List<OpenContainSomething> _unknownList = new();
+        private int _unknownInt;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
@@ -14,23 +26,23 @@ namespace OpenSage.Logic.Object
             var numObjectsInside = reader.ReadUInt32();
             for (var i = 0; i < numObjectsInside; i++)
             {
-                var objectId = reader.ReadObjectID();
+                _containedObjectIds.Add(reader.ReadObjectID());
             }
 
             reader.SkipUnknownBytes(2);
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame1 = reader.ReadFrame();
 
-            var frameSomething2 = reader.ReadUInt32();
+            _unknownFrame2 = reader.ReadFrame();
 
             reader.SkipUnknownBytes(8);
 
-            var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
+            _modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
 
             // Where does the 32 come from?
-            for (var i = 0; i < 32; i++)
+            for (var i = 0; i < _unknownTransforms.Length; i++)
             {
-                var someTransform = reader.ReadMatrix4x3Transposed();
+                _unknownTransforms[i] = reader.ReadMatrix4x3Transposed();
             }
 
             var unknown6 = reader.ReadInt32();
@@ -39,22 +51,30 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var nextFirePointIndex = reader.ReadUInt32();
-            var numFirePoints = reader.ReadUInt32();
+            _nextFirePointIndex = reader.ReadUInt32();
+            _numFirePoints = reader.ReadUInt32();
 
-            var hasNoFirePoints = reader.ReadBoolean();
+            _hasNoFirePoints = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(13);
 
             var unknown9Count = reader.ReadUInt16();
             for (var i = 0; i < unknown9Count; i++)
             {
-                var objectId = reader.ReadObjectID();
-
-                var unknown10 = reader.ReadInt32();
+                _unknownList.Add(new OpenContainSomething
+                {
+                    ObjectId = reader.ReadObjectID(),
+                    Unknown = reader.ReadInt32()
+                });
             }
 
-            var unknown8 = reader.ReadInt32();
+            _unknownInt = reader.ReadInt32();
+        }
+
+        private struct OpenContainSomething
+        {
+            public uint ObjectId;
+            public int Unknown;
         }
     }
 

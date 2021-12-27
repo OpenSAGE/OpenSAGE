@@ -13,6 +13,10 @@ namespace OpenSage.Logic.Object
 
         private uint _launcherObjectId;
         private uint _targetObjectId;
+        private uint _unknown1;
+        private readonly float[] _unknownFloats = new float[7];
+        private string _weaponThatFiredThis;
+        private uint _unknown2;
 
         internal FXList DetonationFX { get; set; }
 
@@ -108,16 +112,16 @@ namespace OpenSage.Logic.Object
 
             _targetObjectId = reader.ReadObjectID();
 
-            var unknown1 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
             for (var i = 0; i < 7; i++)
             {
-                var unknown2 = reader.ReadSingle();
+                _unknownFloats[i] = reader.ReadSingle();
             }
 
-            var weaponThatFiredThis = reader.ReadAsciiString();
+            _weaponThatFiredThis = reader.ReadAsciiString();
 
-            var unknown3 = reader.ReadUInt32();
+            _unknown2 = reader.ReadUInt32();
         }
     }
 

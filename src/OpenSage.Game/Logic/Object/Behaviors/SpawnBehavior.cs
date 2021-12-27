@@ -12,7 +12,16 @@ namespace OpenSage.Logic.Object
         private List<GameObject> _spawnedUnits;
         private bool _initial;
         private IProductionExit _productionExit;
-  
+
+        private bool _unknownBool1;
+        private string _templateName;
+        private int _unknownInt1;
+        private int _unknownInt2;
+        private readonly List<uint> _unknownIntList = new();
+        private readonly List<uint> _unknownObjectList = new();
+        private ushort _unknownInt3;
+        private int _unknownInt4;
+
         internal SpawnBehavior(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -79,13 +88,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownBool1 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
 
-            var templateName = reader.ReadAsciiString();
+            _templateName = reader.ReadAsciiString();
 
-            var unknownInt1 = reader.ReadInt32();
+            _unknownInt1 = reader.ReadInt32();
 
-            var unknownInt2 = reader.ReadInt32();
+            _unknownInt2 = reader.ReadInt32();
 
             reader.SkipUnknownBytes(4);
 
@@ -98,7 +107,7 @@ namespace OpenSage.Logic.Object
             var unknownInt4 = reader.ReadUInt16();
             for (var i = 0; i < unknownInt4; i++)
             {
-                reader.SkipUnknownBytes(4);
+                _unknownIntList.Add(reader.ReadUInt32());
             }
 
             var unknownBool3 = reader.ReadBoolean();
@@ -110,17 +119,17 @@ namespace OpenSage.Logic.Object
             var objectCount = reader.ReadUInt16();
             for (var i = 0; i < objectCount; i++)
             {
-                var objectId = reader.ReadObjectID();
+                _unknownObjectList.Add(reader.ReadObjectID());
             }
 
-            var unknownInt5 = reader.ReadUInt16();
-            if (unknownInt5 != 0 && unknownInt5 != 1)
+            _unknownInt3 = reader.ReadUInt16();
+            if (_unknownInt3 != 0 && _unknownInt3 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownInt6 = reader.ReadInt32();
-            if (unknownInt6 != objectCount && unknownInt6 != -1)
+            _unknownInt4 = reader.ReadInt32();
+            if (_unknownInt4 != objectCount && _unknownInt4 != -1)
             {
                 throw new InvalidStateException();
             }

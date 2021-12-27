@@ -26,9 +26,13 @@ namespace OpenSage.Tests.Data.Sav
 
             using var stream = File.OpenRead(fullPath);
 
-            SaveFile.LoadFromStream(stream, _fixture.Game);
+            var sageGame = Enum.Parse<SageGame>(relativePath.Substring(0, relativePath.IndexOf(Path.DirectorySeparatorChar)));
 
-            _fixture.Game.EndGame();
+            var game = _fixture.GetGame(sageGame);
+
+            SaveFile.LoadFromStream(stream, game);
+
+            game.EndGame();
         }
 
         public static IEnumerable<object[]> GetSaveFiles()

@@ -40,8 +40,8 @@ namespace OpenSage.Data.Sav
 
             reader.EndSegment();
 
-            var unknown2 = reader.ReadUInt32(); // 586
-            var unknown3 = reader.ReadUInt32(); // 3220
+            var nextObjectId = reader.ReadUInt32();
+            var nextDrawableId = reader.ReadUInt32();
 
             if (reader.SageGame >= SageGame.Bfme)
             {
