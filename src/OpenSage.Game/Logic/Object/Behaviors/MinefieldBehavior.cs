@@ -5,15 +5,18 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MinefieldBehavior : UpdateModule
     {
+        private uint _numVirtualMachines;
+        private uint _unknownFrame;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var numVirtualMachines = reader.ReadUInt32();
+            _numVirtualMachines = reader.ReadUInt32();
 
-            var frameSomething = reader.ReadInt32();
+            _unknownFrame = reader.ReadFrame();
 
             reader.SkipUnknownBytes(29);
 

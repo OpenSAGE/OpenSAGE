@@ -7,6 +7,9 @@ namespace OpenSage.Logic
         private bool _enteredOrExitedPolygonTrigger;
         private bool _isAlive;
         private uint _numDestroyedSomething;
+        private uint _unknown1;
+        private uint _waypointId;
+        private readonly bool[] _unknownBools = new bool[16];
 
         public readonly TeamTemplate Template;
         public uint Id { get; internal set; }
@@ -48,23 +51,23 @@ namespace OpenSage.Logic
 
             _numDestroyedSomething = reader.ReadUInt32();
 
-            var unknown11 = reader.ReadUInt32();
-            if (unknown11 != 0 && unknown11 != ObjectIds.Count)
+            _unknown1 = reader.ReadUInt32();
+            if (_unknown1 != 0 && _unknown1 != ObjectIds.Count)
             {
                 throw new InvalidStateException();
             }
 
-            var waypointID = reader.ReadUInt32();
+            _waypointId = reader.ReadUInt32();
 
-            var unknown13 = reader.ReadUInt16();
-            if (unknown13 != 16)
+            var unknownCount = reader.ReadUInt16();
+            if (unknownCount != _unknownBools.Length)
             {
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < unknown13; i++)
+            for (var i = 0; i < unknownCount; i++)
             {
-                var unknown19 = reader.ReadBoolean();
+                _unknownBools[i] = reader.ReadBoolean();
             }
 
             reader.SkipUnknownBytes(2);

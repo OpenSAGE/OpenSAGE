@@ -4,6 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StructureBody : ActiveBody
     {
+        private uint _unknown;
+
         internal StructureBody(GameObject gameObject, StructureBodyModuleData moduleData)
             : base(gameObject, moduleData)
         {
@@ -15,7 +17,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadUInt32();
+            _unknown = reader.ReadUInt32();
         }
     }
 

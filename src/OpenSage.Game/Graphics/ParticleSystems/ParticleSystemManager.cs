@@ -14,6 +14,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly List<ParticleSystem> _particleSystems;
 
+        private uint _unknown1;
+
         public ParticleSystemManager(AssetLoadContext assetLoadContext)
         {
             _loadContext = assetLoadContext;
@@ -99,7 +101,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.ReadVersion(1);
 
-            var unknown = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
             var count = reader.ReadUInt32();
             for (var i = 0; i < count; i++)

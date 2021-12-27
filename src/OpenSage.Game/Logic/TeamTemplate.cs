@@ -10,6 +10,7 @@ namespace OpenSage.Logic
         private readonly List<Team> _teams;
 
         private string _attackPriorityName;
+        private bool _unknown1;
         private TeamTemplateData _templateData;
 
         public readonly TeamFactory TeamFactory;
@@ -60,7 +61,7 @@ namespace OpenSage.Logic
 
             _attackPriorityName = reader.ReadAsciiString();
 
-            var unknown2 = reader.ReadBoolean();
+            _unknown1 = reader.ReadBoolean();
 
             _templateData.Load(reader);
 

@@ -99,6 +99,8 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
+        public GameState GameState { get; } = new GameState();
+
         public CampaignManager CampaignManager { get; } = new CampaignManager();
 
         public Terrain.TerrainLogic TerrainLogic { get; } = new Terrain.TerrainLogic();

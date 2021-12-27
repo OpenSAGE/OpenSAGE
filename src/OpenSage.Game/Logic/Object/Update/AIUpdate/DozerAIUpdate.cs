@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -6,6 +7,12 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DozerAIUpdate : AIUpdate
     {
+        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
+        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
+        private int _unknown2;
+        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
+        private int _unknown4;
+
         internal DozerAIUpdate(GameObject gameObject, DozerAIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
         {
@@ -25,17 +32,18 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < _unknownList1.Length; i++)
             {
-                var objectId = reader.ReadObjectID();
-
-                var unknown = reader.ReadInt32();
+                _unknownList1[i] = new DozerSomething1
+                {
+                    ObjectId = reader.ReadObjectID(),
+                    Unknown = reader.ReadInt32()
+                };
             }
 
-            var stateMachine = new WorkerAIUpdateStateMachine1();
-            stateMachine.Load(reader);
+            _stateMachine.Load(reader);
 
-            var unknown2 = reader.ReadInt32();
+            _unknown2 = reader.ReadInt32();
 
             var unknown3 = reader.ReadInt32();
             if (unknown3 != 3)
@@ -43,13 +51,28 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < _unknownList2.Length; i++)
             {
-                var unknown4 = reader.ReadBoolean();
-                var unknownPos = reader.ReadVector3();
+                _unknownList2[i] = new DozerSomething2
+                {
+                    UnknownBool = reader.ReadBoolean(),
+                    UnknownPos = reader.ReadVector3()
+                };
             }
 
-            var unknown5 = reader.ReadInt32();
+            _unknown4 = reader.ReadInt32();
+        }
+
+        private struct DozerSomething1
+        {
+            public uint ObjectId;
+            public int Unknown;
+        }
+
+        private struct DozerSomething2
+        {
+            public bool UnknownBool;
+            public Vector3 UnknownPos;
         }
     }
 

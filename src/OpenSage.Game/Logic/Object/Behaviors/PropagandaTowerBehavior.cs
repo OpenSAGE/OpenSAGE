@@ -1,22 +1,26 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class PropagandaTowerBehavior : UpdateModule
     {
+        private uint _unknownFrame;
+        private readonly List<uint> _objectIds = new();
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame = reader.ReadFrame();
 
             var count = reader.ReadUInt16();
             for (var i = 0; i < count; i++)
             {
-                var objectId = reader.ReadObjectID();
+                _objectIds.Add(reader.ReadObjectID());
             }
         }
     }

@@ -8,6 +8,9 @@
         private uint _unknown;
         private uint _difficultyMaybe;
 
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
         internal void Load(SaveFileReader reader)
         {
             var version = reader.ReadVersion(5);
@@ -19,14 +22,14 @@
 
             if (version >= 5)
             {
-                var unknownBool = reader.ReadBoolean();
+                _unknownBool1 = reader.ReadBoolean();
 
                 reader.SkipUnknownBytes(4);
             }
 
             if (version == 1 && reader.SageGame >= SageGame.Bfme)
             {
-                var unknownBool2 = reader.ReadBoolean();
+                _unknownBool2 = reader.ReadBoolean();
             }
         }
     }

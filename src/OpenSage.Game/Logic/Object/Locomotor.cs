@@ -401,10 +401,6 @@ namespace OpenSage.Logic.Object
             }
 
             _unknownFloat6 = reader.ReadSingle(); // 99999, 0
-            if (_unknownFloat6 != 99999.0f)
-            {
-                throw new InvalidStateException();
-            }
 
             _unknownFloat7 = reader.ReadSingle(); // 1
             if (_unknownFloat7 != 1.0f)

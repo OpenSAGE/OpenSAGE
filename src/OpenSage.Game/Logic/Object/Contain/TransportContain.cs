@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         private readonly TransportContainModuleData _moduleData;
         private readonly List<GameObject> _contained;
 
+        private uint _unknownFrame;
+
         internal TransportContain(TransportContainModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -45,13 +47,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownBool = reader.ReadBoolean();
-            if (unknownBool)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame = reader.ReadFrame();
         }
     }
 

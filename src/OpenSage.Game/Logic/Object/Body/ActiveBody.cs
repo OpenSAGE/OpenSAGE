@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using FixedMath.NET;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
+using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -11,7 +11,19 @@ namespace OpenSage.Logic.Object
     {
         private readonly ActiveBodyModuleData _moduleData;
         private readonly List<uint> _particleSystemIds = new();
+
+        private float _currentHealth1;
+        private float _currentHealth2;
+        private float _maxHealth;
         private BodyDamageType _damageType;
+        private uint _unknownFrame1;
+        private DamageType _lastDamageType;
+        private DamageData _lastDamage;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+        private bool _unknownBool;
+        private bool _indestructible;
+        private BitArray<ArmorSetCondition> _armorSetConditions;
 
         protected readonly GameObject GameObject;
 
@@ -79,72 +91,33 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var currentHealth1 = reader.ReadSingle(); // These two values
-            var currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
+            _currentHealth1 = reader.ReadSingle(); // These two values
+            _currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
 
-            var maxHealth1 = reader.ReadSingle();
+            _maxHealth = reader.ReadSingle();
             var maxHealth2 = reader.ReadSingle();
-            if (maxHealth1 != maxHealth2)
+            if (_maxHealth != maxHealth2)
             {
                 throw new InvalidStateException();
             }
 
             _damageType = reader.ReadEnum<BodyDamageType>();
 
-            var frameSomething2 = reader.ReadUInt32();
+            _unknownFrame1 = reader.ReadFrame();
 
-            var unknown3 = reader.ReadUInt32(); // DamageType?
+            _lastDamageType = (DamageType) reader.ReadUInt32(); // -1 if no last damage
 
-            {
-                reader.ReadVersion(1);
+            _lastDamage.Load(reader);
 
-                {
-                    reader.ReadVersion(1);
+            _unknownFrame2 = reader.ReadFrame();
 
-                    var objectID = reader.ReadObjectID();
+            _unknownFrame3 = reader.ReadFrame();
 
-                    var unknown5 = reader.ReadUInt16();
+            reader.SkipUnknownBytes(2);
 
-                    var unknown6 = reader.ReadUInt32();
+            _unknownBool = reader.ReadBoolean();
 
-                    var unknown7 = reader.ReadUInt32();
-
-                    var unknown8 = reader.ReadSingle();
-                }
-
-                {
-                    reader.ReadVersion(1);
-
-                    var unknown4 = reader.ReadSingle();
-                    var unknown5 = reader.ReadSingle();
-
-                    var unknown6 = reader.ReadBoolean();
-                    if (unknown6)
-                    {
-                        throw new InvalidStateException();
-                    }
-                }
-            }
-
-            var frameSomething = reader.ReadUInt32();
-
-            var frameSomething3 = reader.ReadUInt32();
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidStateException();
-            }
-
-            var unknownBool2 = reader.ReadBoolean();
-            if (unknownBool2)
-            {
-                throw new InvalidStateException();
-            }
-
-            var unknownBool3 = reader.ReadBoolean();
-
-            var indestructible = reader.ReadBoolean();
+            _indestructible = reader.ReadBoolean();
 
             var particleSystemCount = reader.ReadUInt16();
             for (var i = 0; i < particleSystemCount; i++)
@@ -152,7 +125,7 @@ namespace OpenSage.Logic.Object
                 _particleSystemIds.Add(reader.ReadUInt32());
             }
 
-            var armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();
+            _armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();
         }
     }
 

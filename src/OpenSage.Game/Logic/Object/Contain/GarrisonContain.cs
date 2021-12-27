@@ -1,38 +1,39 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class GarrisonContain : OpenContainModule
     {
+        private uint _unknown1;
+        private readonly Vector3[] _positions = new Vector3[120];
+        private bool _unknown2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown2 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
 
-            var unknownBool = reader.ReadBoolean();
-            if (unknownBool)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
 
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 40)
+            var unknown2 = reader.ReadUInt16();
+            if (unknown2 != 40)
             {
                 throw new InvalidStateException();
             }
 
             reader.SkipUnknownBytes(804);
 
-            for (var i = 0; i < 120; i++)
+            for (var i = 0; i < _positions.Length; i++)
             {
-                var unknown = reader.ReadVector3();
+                _positions[i] = reader.ReadVector3();
             }
 
-            var unknown4 = reader.ReadBoolean();
+            _unknown2 = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(13);
         }

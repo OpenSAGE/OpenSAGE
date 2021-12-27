@@ -11,11 +11,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadBoolean();
-            if (unknown)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 

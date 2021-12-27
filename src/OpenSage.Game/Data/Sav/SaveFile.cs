@@ -68,8 +68,6 @@ namespace OpenSage.Data.Sav
                 }
             }
 
-            var gameState = new GameState();
-
             while (true)
             {
                 var chunkName = reader.ReadAsciiString();
@@ -87,7 +85,7 @@ namespace OpenSage.Data.Sav
                 switch (chunkName)
                 {
                     case "CHUNK_GameState":
-                        gameState.Load(reader);
+                        game.GameState.Load(reader);
                         break;
 
                     case "CHUNK_Campaign":
