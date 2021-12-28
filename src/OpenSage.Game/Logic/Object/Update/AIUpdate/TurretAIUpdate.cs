@@ -14,6 +14,14 @@ namespace OpenSage.Logic.Object
         private TimeSpan _waitUntil;
         private TurretAIStates _turretAIstate;
 
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+        private uint _unknownFrame1;
+        private uint _unknownInt1;
+        private uint _unknownFrame2;
+        private readonly bool[] _unknownBools = new bool[7];
+        private uint _unknownFrame3;
+
         public enum TurretAIStates
         {
             Disabled,
@@ -203,21 +211,21 @@ namespace OpenSage.Logic.Object
             }
 
             // Angles maybe.
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownFloat2 = reader.ReadSingle();
 
-            var frameSomething2 = reader.ReadUInt32();
+            _unknownFrame1 = reader.ReadFrame();
 
-            var unknownInt4 = reader.ReadUInt32(); // 0, 1
+            _unknownInt1 = reader.ReadUInt32(); // 0, 1
 
-            var frameSomething3 = reader.ReadUInt32();
+            _unknownFrame2 = reader.ReadFrame();
 
             for (var i = 0; i < 7; i++)
             {
-                var unknownBool2 = reader.ReadBoolean();
+                _unknownBools[i] = reader.ReadBoolean();
             }
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame3 = reader.ReadFrame();
         }
     }
 

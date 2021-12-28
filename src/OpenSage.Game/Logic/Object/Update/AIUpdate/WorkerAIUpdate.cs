@@ -11,7 +11,17 @@ namespace OpenSage.Logic.Object
 {
     public class WorkerAIUpdate : SupplyAIUpdate
     {
-        private WorkerAIUpdateModuleData _moduleData;
+        private readonly WorkerAIUpdateModuleData _moduleData;
+
+        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
+        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
+        private int _unknown2;
+        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
+        private int _unknown4;
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine2 = new();
+        private uint _unknownObjectId;
+        private int _unknown5;
+        private readonly WorkerAIUpdateStateMachine3 _stateMachine3 = new();
 
         internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -133,17 +143,18 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < _unknownList1.Length; i++)
             {
-                var objectId = reader.ReadObjectID();
-
-                var unknown = reader.ReadInt32();
+                _unknownList1[i] = new DozerSomething1
+                {
+                    ObjectId = reader.ReadObjectID(),
+                    Unknown = reader.ReadInt32()
+                };
             }
 
-            var stateMachine1 = new WorkerAIUpdateStateMachine1();
-            stateMachine1.Load(reader);
+            _stateMachine.Load(reader);
 
-            var unknown2 = reader.ReadInt32();
+            _unknown2 = reader.ReadInt32();
 
             var unknown3 = reader.ReadInt32();
             if (unknown3 != 3)
@@ -151,29 +162,26 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < _unknownList2.Length; i++)
             {
-                var unknown4 = reader.ReadBoolean();
-                var unknownPos = reader.ReadVector3();
+                _unknownList2[i] = new DozerSomething2
+                {
+                    UnknownBool = reader.ReadBoolean(),
+                    UnknownPos = reader.ReadVector3()
+                };
             }
 
-            var unknown5 = reader.ReadInt32();
+            _unknown4 = reader.ReadInt32();
 
-            var stateMachine2 = new WorkerAIUpdateStateMachine2();
-            stateMachine2.Load(reader);
+            _stateMachine2.Load(reader);
 
-            var unknownObjectId = reader.ReadObjectID();
+            _unknownObjectId = reader.ReadObjectID();
 
-            var unknown6 = reader.ReadInt32();
+            _unknown5 = reader.ReadInt32();
 
-            var unknown7 = reader.ReadBoolean();
-            if (unknown7)
-            {
-                throw new InvalidStateException();
-            }
+            reader.SkipUnknownBytes(1);
 
-            var stateMachine3 = new WorkerAIUpdateStateMachine3();
-            stateMachine3.Load(reader);
+            _stateMachine3.Load(reader);
         }
 
         private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase

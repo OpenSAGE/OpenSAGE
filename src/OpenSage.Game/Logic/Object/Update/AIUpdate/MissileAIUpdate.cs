@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
+using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
 {
@@ -12,6 +13,21 @@ namespace OpenSage.Logic.Object
 
         private MissileState _state;
         private TimeSpan _nextStateChangeTime;
+
+        private Vector3 _unknownPosition;
+        private uint _stateMaybe;
+        private uint _unknownFrame1;
+        private uint _launcherObjectId;
+        private uint _unknownObjectId;
+        private bool _unknownBool1;
+        private uint _unknownFrame2;
+        private float _unknownFloat1;
+        private WeaponTemplate _weaponTemplate;
+        private FXParticleSystemTemplate _exhaustParticleSystemTemplate;
+        private bool _unknownBool2;
+        private Vector3 _currentPositionMaybe;
+        private int _unknownInt1;
+        private int _unknownInt2;
 
         internal FXList DetonationFX { get; set; }
 
@@ -78,11 +94,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownPosition = reader.ReadVector3();
+            _unknownPosition = reader.ReadVector3();
 
-            var stateMaybe = reader.ReadUInt32();
+            _stateMaybe = reader.ReadUInt32();
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame1 = reader.ReadFrame();
 
             var unknownInt1 = reader.ReadInt32();
             if (unknownInt1 != int.MaxValue)
@@ -90,15 +106,15 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var launcherObjectId = reader.ReadUInt32();
+            _launcherObjectId = reader.ReadObjectID();
 
-            var objectIdSomething = reader.ReadUInt32();
+            _unknownObjectId = reader.ReadObjectID();
 
-            var unknownBool1 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
 
-            var frameSomething2 = reader.ReadUInt32();
+            _unknownFrame2 = reader.ReadFrame();
 
-            var unknownFloat1 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
 
             var unknownFloat2 = reader.ReadSingle();
             if (unknownFloat2 != 99999.0f)
@@ -107,18 +123,18 @@ namespace OpenSage.Logic.Object
             }
 
             var weaponTemplateName = reader.ReadAsciiString();
-            var weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
+            _weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
             var exhaustParticleSystemTemplateName = reader.ReadAsciiString();
-            var exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
+            _exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
-            var unknownBool2 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
 
-            var currentPositionMaybe = reader.ReadVector3();
+            _currentPositionMaybe = reader.ReadVector3();
 
-            var unknownInt3 = reader.ReadInt32(); // 0, 0x20000
+            _unknownInt1 = reader.ReadInt32(); // 0, 0x20000
 
-            var unknownInt4 = reader.ReadInt32(); // 1960
+            _unknownInt2 = reader.ReadInt32(); // 1960
         }
 
         private enum MissileState

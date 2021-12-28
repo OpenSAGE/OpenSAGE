@@ -4,7 +4,12 @@ namespace OpenSage.Logic.Object
 {
     public class SupplyTruckAIUpdate : SupplyAIUpdate
     {
-        private SupplyTruckAIUpdateModuleData _moduleData;
+        private readonly SupplyTruckAIUpdateModuleData _moduleData;
+
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine = new();
+        private uint _dockId;
+        private int _unknownInt;
+        private bool _unknownBool;
 
         internal SupplyTruckAIUpdate(GameObject gameObject, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -25,11 +30,11 @@ namespace OpenSage.Logic.Object
             var stateMachine = new WorkerAIUpdateStateMachine2();
             stateMachine.Load(reader);
 
-            var dockId = reader.ReadObjectID();
+            _dockId = reader.ReadObjectID();
 
-            var unknown2 = reader.ReadInt32();
+            _unknownInt = reader.ReadInt32();
 
-            var unknown7 = reader.ReadBoolean();
+            _unknownBool = reader.ReadBoolean();
         }
     }
 

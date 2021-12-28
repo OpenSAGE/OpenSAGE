@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -62,18 +61,18 @@ namespace OpenSage.Logic.Object
 
             _unknown4 = reader.ReadInt32();
         }
+    }
 
-        private struct DozerSomething1
-        {
-            public uint ObjectId;
-            public int Unknown;
-        }
+    internal struct DozerSomething1
+    {
+        public uint ObjectId;
+        public int Unknown;
+    }
 
-        private struct DozerSomething2
-        {
-            public bool UnknownBool;
-            public Vector3 UnknownPos;
-        }
+    internal struct DozerSomething2
+    {
+        public bool UnknownBool;
+        public Vector3 UnknownPos;
     }
 
     /// <summary>
