@@ -39,7 +39,8 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
             reader.ReadVersion(1);
 
-            var objectId = reader.ReadObjectID();
+            uint objectId = 0;
+            reader.ReadObjectID(ref objectId);
             _gameObject = gameLogic.GetObjectById(objectId);
 
             _geometryType = reader.ReadEnum<ObjectGeometry>();

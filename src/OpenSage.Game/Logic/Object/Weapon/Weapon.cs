@@ -150,12 +150,9 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             reader.ReadFrame(ref _unknownFrame2);
-
             reader.ReadFrame(ref _unknownFrame3);
-
             reader.ReadFrame(ref _unknownFrame4);
-
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
 
             reader.SkipUnknownBytes(4);
 

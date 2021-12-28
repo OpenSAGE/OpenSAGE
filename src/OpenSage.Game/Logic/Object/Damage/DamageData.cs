@@ -26,7 +26,7 @@
         {
             reader.ReadVersion(1);
 
-            ObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref ObjectId);
 
             Unknown1 = reader.ReadUInt16();
 

@@ -344,7 +344,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(12);
 
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
             _unknownFloat2 = reader.ReadSingle();
 
             _unknownPos2D1 = reader.ReadPoint2D();
@@ -366,7 +366,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(8);
 
-            _unknownObjectId2 = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId2);
 
             reader.SkipUnknownBytes(4);
 

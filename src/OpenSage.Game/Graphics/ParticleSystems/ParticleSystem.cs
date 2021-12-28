@@ -624,7 +624,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _systemId = reader.ReadUInt32();
 
             _attachedToDrawableId = reader.ReadUInt32();
-            _attachedToObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _attachedToObjectId);
 
             _isIdentityTransform = reader.ReadBoolean();
             _transform = reader.ReadMatrix4x3Transposed();

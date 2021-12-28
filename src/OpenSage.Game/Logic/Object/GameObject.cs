@@ -102,7 +102,9 @@ namespace OpenSage.Logic.Object
 
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
-        public uint ID { get; private set; }
+        private uint _id;
+
+        public uint ID => _id;
 
         public Percentage ProductionModifier { get; set; } = new Percentage(1);
         public Fix64 HealthModifier { get; set; }
@@ -1093,7 +1095,7 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(7);
 
-            ID = reader.ReadObjectID();
+            reader.ReadObjectID(ref _id);
 
             var transform = reader.ReadMatrix4x3();
             SetTransformMatrix(transform.ToMatrix4x4());
@@ -1101,7 +1103,7 @@ namespace OpenSage.Logic.Object
             var teamId = reader.ReadUInt32();
             Team = GameContext.Scene3D.TeamFactory.FindTeamById(teamId);
 
-            _createdByObjectID = reader.ReadObjectID();
+            reader.ReadObjectID(ref _createdByObjectID);
 
             _builtByObjectID = reader.ReadUInt32();
 
@@ -1139,9 +1141,9 @@ namespace OpenSage.Logic.Object
 
             _veterancyHelper.Load(reader);
 
-            _containerId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _containerId);
 
-            _containedFrame = reader.ReadUInt32();
+            reader.ReadFrame(ref _containedFrame);
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
             BuildProgress = reader.ReadSingle();
@@ -1206,7 +1208,7 @@ namespace OpenSage.Logic.Object
                 reader.EndSegment();
             }
 
-            _healedByObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _healedByObjectId);
             reader.ReadFrame(ref _healedEndFrame);
 
             reader.ReadBitArray(WeaponSetConditions);
@@ -1349,7 +1351,7 @@ namespace OpenSage.Logic.Object
 
             _experiencePoints = reader.ReadInt32();
 
-            _experienceSinkObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _experienceSinkObjectId);
 
             _experienceScalar = reader.ReadSingle();
         }

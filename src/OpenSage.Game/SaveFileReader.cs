@@ -50,12 +50,9 @@ namespace OpenSage
 
         public bool ReadBoolean() => _binaryReader.ReadBooleanChecked();
 
-        public uint ReadObjectID() => ReadUInt32();
+        public void ReadObjectID(ref uint value) => value = ReadUInt32();
 
-        public void ReadFrame(ref uint value)
-        {
-            value = ReadUInt32();
-        }
+        public void ReadFrame(ref uint value) => value = ReadUInt32();
 
         public string ReadAsciiString() => _binaryReader.ReadBytePrefixedAsciiString();
 
@@ -171,11 +168,14 @@ namespace OpenSage
             var numItems = ReadUInt16();
             for (var j = 0; j < numItems; j++)
             {
-                set.Add(new ObjectNameAndId
+                var objectNameAndId = new ObjectNameAndId
                 {
-                    Name = ReadAsciiString(),
-                    ObjectId = ReadObjectID()
-                });
+                    Name = ReadAsciiString()
+                };
+
+                ReadObjectID(ref objectNameAndId.ObjectId);
+
+                set.Add(objectNameAndId);
             }
         }
 

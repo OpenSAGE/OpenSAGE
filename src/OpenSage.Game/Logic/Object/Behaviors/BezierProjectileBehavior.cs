@@ -108,9 +108,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _launcherObjectId = reader.ReadObjectID();
-
-            _targetObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _launcherObjectId);
+            reader.ReadObjectID(ref _targetObjectId);
 
             _unknown1 = reader.ReadUInt32();
 

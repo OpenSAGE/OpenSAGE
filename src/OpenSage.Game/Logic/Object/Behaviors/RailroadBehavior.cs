@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
 
             _unknownInt1 = reader.ReadUInt32();
 

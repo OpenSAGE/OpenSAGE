@@ -119,7 +119,9 @@ namespace OpenSage.Logic.Object
             var objectCount = reader.ReadUInt16();
             for (var i = 0; i < objectCount; i++)
             {
-                _unknownObjectList.Add(reader.ReadObjectID());
+                uint objectId = 0;
+                reader.ReadObjectID(ref objectId);
+                _unknownObjectList.Add(objectId);
             }
 
             _unknownInt3 = reader.ReadUInt16();

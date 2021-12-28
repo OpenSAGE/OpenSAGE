@@ -20,7 +20,7 @@ namespace OpenSage.Logic
             {
                 var ghostObject = new GhostObject();
 
-                ghostObject.OriginalObjectId = reader.ReadObjectID();
+                reader.ReadObjectID(ref ghostObject.OriginalObjectId);
                 
                 ghostObject.Load(reader, gameLogic, game);
 

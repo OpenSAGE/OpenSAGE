@@ -23,11 +23,10 @@ namespace OpenSage.Logic.Object
             var memberCount = reader.ReadInt32();
             for (var i = 0; i < memberCount; i++)
             {
-                _members.Add(new AssaultTransportMember
-                {
-                    ObjectId = reader.ReadObjectID(),
-                    Unknown = reader.ReadBoolean()
-                });
+                var member = new AssaultTransportMember();
+                reader.ReadObjectID(ref member.ObjectId);
+                member.Unknown = reader.ReadBoolean();
+                _members.Add(member);
             }
 
             reader.SkipUnknownBytes(26);

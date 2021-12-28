@@ -142,7 +142,9 @@ namespace OpenSage.Logic.Object
             var numberApproachPositions3 = reader.ReadInt32();
             for (var i = 0; i < numberApproachPositions3; i++)
             {
-                _approachObjectIds.Add(reader.ReadObjectID());
+                uint objectId = 0;
+                reader.ReadObjectID(ref objectId);
+                _approachObjectIds.Add(objectId);
             }
 
             var numberApproachPositions4 = reader.ReadInt32();
@@ -151,7 +153,7 @@ namespace OpenSage.Logic.Object
                 _unknownBools.Add(reader.ReadBoolean());
             }
 
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
 
             _unknownInt1 = reader.ReadUInt16();
             if (_unknownInt1 != 0 && _unknownInt1 != 1)
