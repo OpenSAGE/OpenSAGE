@@ -13,7 +13,7 @@
 
             _numShotsFiredAtLastTarget = reader.ReadUInt32();
 
-            _lastTargetObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _lastTargetObjectId);
 
             reader.SkipUnknownBytes(4);
         }

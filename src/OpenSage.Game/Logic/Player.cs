@@ -694,7 +694,7 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
 
             _unknownInt5 = reader.ReadUInt32(); // 0, 1
 
@@ -742,19 +742,26 @@ namespace OpenSage.Logic
 
         private sealed class AIPlayerUnknownOtherThing
         {
+            private string _objectName;
+            private uint _objectId;
+            private uint _unknownInt1;
+            private uint _unknownInt2;
+            private bool _unknownBool1;
+            private bool _unknownBool2;
+
             internal void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var objectName = reader.ReadAsciiString();
+                _objectName = reader.ReadAsciiString();
 
-                var objectId = reader.ReadObjectID();
+                reader.ReadObjectID(ref _objectId);
 
-                var unknownInt1 = reader.ReadUInt32(); // 0
-                var unknownInt2 = reader.ReadUInt32(); // 1
+                _unknownInt1 = reader.ReadUInt32(); // 0
+                _unknownInt2 = reader.ReadUInt32(); // 1
 
-                var unknownBool5 = reader.ReadBoolean();
-                var unknownBool6 = reader.ReadBoolean();
+                _unknownBool1 = reader.ReadBoolean();
+                _unknownBool2 = reader.ReadBoolean();
             }
         }
     }
@@ -975,21 +982,25 @@ namespace OpenSage.Logic
 
     public sealed class TunnelManager
     {
+        private readonly ObjectIdSet _tunnelIds = new();
+        private readonly List<uint> _containedObjectIds = new();
+
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            var tunnels = new ObjectIdSet();
-            tunnels.Load(reader);
+            _tunnelIds.Load(reader);
 
             var containedCount = reader.ReadUInt32();
             for (var i = 0; i < containedCount; i++)
             {
-                var containedObjectId = reader.ReadObjectID();
+                uint containedObjectId = 0;
+                reader.ReadObjectID(ref containedObjectId);
+                _containedObjectIds.Add(containedObjectId);
             }
 
             var tunnelCount = reader.ReadUInt32();
-            if (tunnelCount != tunnels.Count)
+            if (tunnelCount != _tunnelIds.Count)
             {
                 throw new InvalidStateException();
             }

@@ -38,7 +38,9 @@ namespace OpenSage.Logic
             var numObjects = reader.ReadUInt16();
             for (var i = 0; i < numObjects; i++)
             {
-                ObjectIds.Add(reader.ReadObjectID());
+                uint objectId = 0;
+                reader.ReadObjectID(ref objectId);
+                ObjectIds.Add(objectId);
             }
 
             reader.SkipUnknownBytes(1);
@@ -72,7 +74,7 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(2);
 
-            TargetObjectID = reader.ReadObjectID();
+            reader.ReadObjectID(ref TargetObjectID);
 
             TeamToTeamRelationships.Load(reader);
             TeamToPlayerRelationships.Load(reader);

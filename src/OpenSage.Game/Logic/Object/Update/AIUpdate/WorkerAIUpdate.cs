@@ -145,11 +145,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _unknownList1.Length; i++)
             {
-                _unknownList1[i] = new DozerSomething1
-                {
-                    ObjectId = reader.ReadObjectID(),
-                    Unknown = reader.ReadInt32()
-                };
+                reader.ReadObjectID(ref _unknownList1[i].ObjectId);
+                _unknownList1[i].Unknown = reader.ReadInt32();
             }
 
             _stateMachine.Load(reader);
@@ -175,7 +172,7 @@ namespace OpenSage.Logic.Object
 
             _stateMachine2.Load(reader);
 
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
 
             _unknown5 = reader.ReadInt32();
 

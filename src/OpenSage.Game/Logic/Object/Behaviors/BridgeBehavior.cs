@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _towerIds.Length; i++)
             {
-                _towerIds[i] = reader.ReadObjectID();
+                reader.ReadObjectID(ref _towerIds[i]);
             }
 
             reader.SkipUnknownBytes(7);

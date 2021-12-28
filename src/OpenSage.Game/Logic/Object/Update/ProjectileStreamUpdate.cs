@@ -4,22 +4,27 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ProjectileStreamUpdate : UpdateModule
     {
+        private readonly uint[] _objectIds = new uint[20];
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownObjectId;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            for (var i = 0; i < 20; i++)
+            for (var i = 0; i < _objectIds.Length; i++)
             {
-                var objectId = reader.ReadObjectID();
+                reader.ReadObjectID(ref _objectIds[i]);
             }
 
-            var unknown1 = reader.ReadUInt32();
+            _unknownInt1 = reader.ReadUInt32();
 
-            var unknown2 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
 
-            var unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _unknownObjectId);
         }
     }
 

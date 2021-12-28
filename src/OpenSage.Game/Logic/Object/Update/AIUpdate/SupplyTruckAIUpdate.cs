@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
             var stateMachine = new WorkerAIUpdateStateMachine2();
             stateMachine.Load(reader);
 
-            _dockId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _dockId);
 
             _unknownInt = reader.ReadInt32();
 

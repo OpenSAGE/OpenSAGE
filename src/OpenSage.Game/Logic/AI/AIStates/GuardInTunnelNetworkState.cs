@@ -42,30 +42,33 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            _guardObjectId = reader.ReadObjectID();
-
+            reader.ReadObjectID(ref _guardObjectId);
             reader.ReadVector3(ref _guardPosition);
         }
 
         private sealed class GuardInTunnelNetworkIdleState : State
         {
+            private uint _unknownInt;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var unknownInt1 = reader.ReadUInt32();
+                _unknownInt = reader.ReadUInt32();
             }
         }
 
         private sealed class GuardInTunnelNetworkEnterTunnelState : EnterContainerState
         {
+            private uint _unknownInt;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
                 base.Load(reader);
 
-                var unknownInt1 = reader.ReadUInt32();
+                _unknownInt = reader.ReadUInt32();
             }
         }
     }

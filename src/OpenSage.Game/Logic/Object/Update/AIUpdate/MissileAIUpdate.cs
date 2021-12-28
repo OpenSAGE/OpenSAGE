@@ -106,9 +106,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _launcherObjectId = reader.ReadObjectID();
-
-            _unknownObjectId = reader.ReadObjectID();
+            reader.ReadObjectID(ref _launcherObjectId);
+            reader.ReadObjectID(ref _unknownObjectId);
 
             _unknownBool1 = reader.ReadBoolean();
 

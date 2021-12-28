@@ -343,11 +343,12 @@ namespace OpenSage.Scripting
             var unknownCount = reader.ReadUInt16();
             for (var i = 0; i < unknownCount; i++)
             {
-                _unknownSomethings.Add(new ObjectNameAndId
+                var objectNameAndId = new ObjectNameAndId
                 {
                     Name = reader.ReadAsciiString(),
-                    ObjectId = reader.ReadObjectID()
-                });
+                };
+                reader.ReadObjectID(ref objectNameAndId.ObjectId);
+                _unknownSomethings.Add(objectNameAndId);
             }
 
             reader.SkipUnknownBytes(1);

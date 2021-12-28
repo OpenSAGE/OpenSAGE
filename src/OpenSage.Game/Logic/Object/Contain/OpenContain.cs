@@ -26,7 +26,9 @@ namespace OpenSage.Logic.Object
             var numObjectsInside = reader.ReadUInt32();
             for (var i = 0; i < numObjectsInside; i++)
             {
-                _containedObjectIds.Add(reader.ReadObjectID());
+                uint containedObjectId = 0;
+                reader.ReadObjectID(ref containedObjectId);
+                _containedObjectIds.Add(containedObjectId);
             }
 
             reader.SkipUnknownBytes(2);
@@ -61,11 +63,10 @@ namespace OpenSage.Logic.Object
             var unknown9Count = reader.ReadUInt16();
             for (var i = 0; i < unknown9Count; i++)
             {
-                _unknownList.Add(new OpenContainSomething
-                {
-                    ObjectId = reader.ReadObjectID(),
-                    Unknown = reader.ReadInt32()
-                });
+                var something = new OpenContainSomething();
+                reader.ReadObjectID(ref something.ObjectId);
+                something.Unknown = reader.ReadInt32();
+                _unknownList.Add(something);
             }
 
             _unknownInt = reader.ReadInt32();

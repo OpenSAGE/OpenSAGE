@@ -20,7 +20,9 @@ namespace OpenSage.Logic.Object
             var count = reader.ReadUInt16();
             for (var i = 0; i < count; i++)
             {
-                _objectIds.Add(reader.ReadObjectID());
+                uint objectId = 0;
+                reader.ReadObjectID(ref objectId);
+                _objectIds.Add(objectId);
             }
         }
     }
