@@ -5,19 +5,28 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DynamicShroudClearingRangeUpdate : UpdateModule
     {
+        private uint _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
+        private uint _unknown4;
+        private uint _unknown5;
+        private uint _unknown6;
+        private uint _unknown7;
+        private float _unknownFloat;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadUInt32();
-            var unknown2 = reader.ReadUInt32();
-            var unknown3 = reader.ReadUInt32();
-            var unknown4 = reader.ReadUInt32();
-            var unknown5 = reader.ReadUInt32();
-            var unknown6 = reader.ReadUInt32();
-            var unknown7 = reader.ReadUInt32();
+            _unknown1 = reader.ReadUInt32();
+            _unknown2 = reader.ReadUInt32();
+            _unknown3 = reader.ReadUInt32();
+            _unknown4 = reader.ReadUInt32();
+            _unknown5 = reader.ReadUInt32();
+            _unknown6 = reader.ReadUInt32();
+            _unknown7 = reader.ReadUInt32();
 
             var unknown7_1 = reader.ReadBoolean();
             if (!unknown7_1)
@@ -33,7 +42,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknown10 = reader.ReadSingle();
+            _unknownFloat = reader.ReadSingle();
         }
     }
 

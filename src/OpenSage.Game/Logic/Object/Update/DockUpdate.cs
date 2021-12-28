@@ -13,6 +13,17 @@ namespace OpenSage.Logic.Object
         private Queue<SupplyAIUpdate> _unitsApproaching;
         private bool _usesWaitingBones;
 
+        private Vector3 _position1;
+        private Vector3 _position2;
+        private Vector3 _position3;
+        private int _numApproachPositions1;
+        private bool _unknownBool;
+        private readonly List<Vector3> _approachPositions = new();
+        private readonly List<uint> _approachObjectIds = new();
+        private readonly List<bool> _unknownBools = new();
+        private uint _unknownObjectId;
+        private ushort _unknownInt1;
+
         internal DockUpdate(GameObject gameObject, DockUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
@@ -112,39 +123,36 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var position1 = reader.ReadVector3();
-            var position2 = reader.ReadVector3();
-            var position3 = reader.ReadVector3();
+            _position1 = reader.ReadVector3();
+            _position2 = reader.ReadVector3();
+            _position3 = reader.ReadVector3();
 
-            var numberApproachPositions = reader.ReadInt32();
+            _numApproachPositions1 = reader.ReadInt32();
 
-            var unknownBool = reader.ReadBoolean();
+            _unknownBool = reader.ReadBoolean();
 
             var numberApproachPositions2 = reader.ReadInt32();
-
             for (var i = 0; i < numberApproachPositions2; i++)
             {
-                var position4 = reader.ReadVector3();
+                _approachPositions.Add(reader.ReadVector3());
             }
 
             var numberApproachPositions3 = reader.ReadInt32();
-
             for (var i = 0; i < numberApproachPositions3; i++)
             {
-                var objectId = reader.ReadObjectID();
+                _approachObjectIds.Add(reader.ReadObjectID());
             }
 
             var numberApproachPositions4 = reader.ReadInt32();
-
             for (var i = 0; i < numberApproachPositions4; i++)
             {
-                var unknown = reader.ReadBoolean();
+                _unknownBools.Add(reader.ReadBoolean());
             }
 
-            var someObjectId = reader.ReadObjectID();
+            _unknownObjectId = reader.ReadObjectID();
 
-            var unknown2 = reader.ReadUInt16();
-            if (unknown2 != 0 && unknown2 != 1)
+            _unknownInt1 = reader.ReadUInt16();
+            if (_unknownInt1 != 0 && _unknownInt1 != 1)
             {
                 throw new InvalidStateException();
             }

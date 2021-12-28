@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StructureToppleUpdate : UpdateModule
     {
-        // TODO
+        private float _unknownFloat;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(20);
 
-            var unknownFloat = reader.ReadSingle();
+            _unknownFloat = reader.ReadSingle();
 
             reader.SkipUnknownBytes(8);
 
