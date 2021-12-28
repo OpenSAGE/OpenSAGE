@@ -28,7 +28,10 @@ namespace OpenSage.Logic.Object
                 _initial = false;
             }
 
-            if (context.Time.TotalTime > _lifeTime) _gameObject.Die(_moduleData.DeathType, context.Time);
+            if (context.Time.TotalTime > _lifeTime)
+            {
+                _gameObject.Die(_moduleData.DeathType, context.Time);
+            }
         }
 
         internal override void Load(SaveFileReader reader)

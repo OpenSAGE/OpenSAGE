@@ -17,8 +17,14 @@ namespace OpenSage.Graphics.ParticleSystems
         public float SizeRate;
         public float SizeRateDamping;
 
+        public float AngleX;
+        public float AngleY;
         public float AngleZ;
+
+        public float AngularRateX;
+        public float AngularRateY;
         public float AngularRateZ;
+
         public float AngularDamping;
 
         public int Lifetime;
@@ -29,6 +35,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public List<ParticleAlphaKeyframe> AlphaKeyframes;
         public float Alpha;
+
+        public List<ParticleColorKeyframe> ColorKeyframes;
+
+        public bool IsParticleUpTowardsEmitter;
+        public float UnknownFloat;
+        public uint ParticleId;
+        public uint UnknownInt2;
+        public uint UnknownInt3;
+        public uint UnknownInt4;
+        public uint UnknownInt5;
+        public Vector3 UnknownVector;
+        public uint UnknownInt6;
 
         public void Load(SaveFileReader reader)
         {
@@ -43,12 +61,12 @@ namespace OpenSage.Graphics.ParticleSystems
 
             VelocityDamping = reader.ReadSingle();
 
-            reader.ReadSingle(); // AngleX
-            reader.ReadSingle(); // AngleY
+            AngleX = reader.ReadSingle();
+            AngleY = reader.ReadSingle();
             AngleZ = reader.ReadSingle();
 
-            reader.ReadSingle(); // AngularRateX
-            reader.ReadSingle(); // AngularRateY
+            AngularRateX = reader.ReadSingle();
+            AngularRateY = reader.ReadSingle();
             AngularRateZ = reader.ReadSingle();
 
             Lifetime = reader.ReadInt32();
@@ -63,43 +81,43 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 var alphaKeyframeAlpha = reader.ReadSingle();
                 var alphaKeyframeTime = reader.ReadUInt32();
-                var alphaKeyframe = new ParticleAlphaKeyframe(
+                AlphaKeyframes.Add(new ParticleAlphaKeyframe(
                     alphaKeyframeTime,
-                    alphaKeyframeAlpha);
+                    alphaKeyframeAlpha));
             }
 
             for (var i = 0; i < 8; i++)
             {
                 var colorKeyframeColor = reader.ReadVector3();
                 var colorKeyframeTime = reader.ReadUInt32();
-                var colorKeyframe = new ParticleColorKeyframe(
+                ColorKeyframes.Add(new ParticleColorKeyframe(
                     colorKeyframeTime,
-                    colorKeyframeColor);
+                    colorKeyframeColor));
             }
 
             ColorScale = reader.ReadSingle();
 
-            reader.ReadBoolean(); // IsParticleUpTowardsEmitter
+            IsParticleUpTowardsEmitter = reader.ReadBoolean();
 
-            var unknown1 = reader.ReadSingle();
+            UnknownFloat = reader.ReadSingle();
 
-            reader.ReadUInt32(); // ParticleID
+            ParticleId = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(24);
 
-            var unknown2 = reader.ReadUInt32(); // 49
-            var unknown3 = reader.ReadUInt32(); // 1176
+            UnknownInt2 = reader.ReadUInt32(); // 49
+            UnknownInt3 = reader.ReadUInt32(); // 1176
 
             Alpha = reader.ReadSingle();
 
-            var unknown4 = reader.ReadUInt32(); // 0
-            var unknown5 = reader.ReadUInt32(); // 1
+            UnknownInt4 = reader.ReadUInt32(); // 0
+            UnknownInt5 = reader.ReadUInt32(); // 1
 
             Color = reader.ReadVector3();
 
-            var unknown6 = reader.ReadVector3();
+            UnknownVector = reader.ReadVector3();
 
-            var unknown7 = reader.ReadUInt32(); // 1
+            UnknownInt6 = reader.ReadUInt32(); // 1
 
             reader.SkipUnknownBytes(8);
         }
