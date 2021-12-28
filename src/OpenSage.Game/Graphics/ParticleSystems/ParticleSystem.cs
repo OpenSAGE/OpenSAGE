@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -50,10 +49,27 @@ namespace OpenSage.Graphics.ParticleSystems
         private int _nextBurst;
 
         private uint _systemId;
+        private uint _attachedToDrawableId;
+        private uint _attachedToObjectId;
+        private bool _isIdentityTransform;
+        private Matrix4x3 _transform;
+        private bool _isIdentityTransform2;
+        private Matrix4x3 _transform2;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private bool _hasInfiniteLifetime;
+        private float _unknownFloat1;
+        private bool _unknownBool1;
+        private Vector3 _position;
+        private Vector3 _positionPrevious;
+        private bool _unknownBool2;
         private uint _slaveSystemId;
         private uint _masterSystemId;
 
-        private readonly Particle[] _particles;
+        private Particle[] _particles;
         private readonly List<int> _deadList;
 
         private readonly DeviceBuffer _vertexBuffer;
@@ -159,6 +175,7 @@ namespace OpenSage.Graphics.ParticleSystems
             for (var i = 0; i < _particles.Length; i++)
             {
                 _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
+                _particles[i].ColorKeyframes = new List<ParticleColorKeyframe>();
                 _particles[i].Dead = true;
             }
 
@@ -606,24 +623,25 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _systemId = reader.ReadUInt32();
 
-            var attachedToDrawableId = reader.ReadUInt32();
-            var attachedToObjectId = reader.ReadObjectID();
+            _attachedToDrawableId = reader.ReadUInt32();
+            _attachedToObjectId = reader.ReadObjectID();
 
-            var isIdentityTransform = reader.ReadBoolean();
-            var transform = reader.ReadMatrix4x3Transposed();
+            _isIdentityTransform = reader.ReadBoolean();
+            _transform = reader.ReadMatrix4x3Transposed();
 
-            var isIdentityTransform2 = reader.ReadBoolean();
-            var transform2 = reader.ReadMatrix4x3Transposed();
+            _isIdentityTransform2 = reader.ReadBoolean();
+            _transform2 = reader.ReadMatrix4x3Transposed();
 
-            var unknown20 = reader.ReadUInt32(); // Maybe _nextBurst
-            var unknown21 = reader.ReadUInt32();
-            var unknown22 = reader.ReadUInt32();
-            var unknown23 = reader.ReadUInt32();
-            var unknown24 = reader.ReadUInt32();
-            var hasInfiniteLifetime = reader.ReadBoolean();
-            var unknown51 = reader.ReadSingle();
-            var unknown52 = reader.ReadBoolean();
-            for (var j = 0; j < 6; j++)
+            _unknownInt1 = reader.ReadUInt32(); // Maybe _nextBurst
+            _unknownInt2 = reader.ReadUInt32();
+            _unknownInt3 = reader.ReadUInt32();
+            _unknownInt4 = reader.ReadUInt32();
+            _unknownInt5 = reader.ReadUInt32();
+            _hasInfiniteLifetime = reader.ReadBoolean();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownBool1 = reader.ReadBoolean();
+
+            for (var i = 0; i < 6; i++)
             {
                 var unknown25 = reader.ReadSingle();
                 if (unknown25 != 1.0f)
@@ -632,21 +650,27 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            var position = reader.ReadVector3();
+            _position = reader.ReadVector3();
 
-            var positionPrevious = reader.ReadVector3();
+            _positionPrevious = reader.ReadVector3();
 
-            var unknown50 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
 
             _slaveSystemId = reader.ReadUInt32();
 
             _masterSystemId = reader.ReadUInt32();
 
             var numParticles = reader.ReadUInt32();
-            for (var j = 0; j < numParticles; j++)
+
+            // TODO: Shouldn't do this.
+            _particles = new Particle[numParticles];
+
+            for (var i = 0; i < numParticles; i++)
             {
-                var particle = new Particle();
-                particle.Load(reader);
+                _particles[i] = new Particle();
+                _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
+                _particles[i].ColorKeyframes = new List<ParticleColorKeyframe>();
+                _particles[i].Load(reader);
             }
         }
 

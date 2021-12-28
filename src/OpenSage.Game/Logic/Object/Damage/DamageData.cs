@@ -19,7 +19,7 @@
         public uint ObjectId;
         public ushort Unknown1;
         public DamageType DamageType;
-        public uint Unknown3;
+        public DeathType DeathType;
         public float Unknown4;
 
         internal void Load(SaveFileReader reader)
@@ -32,7 +32,7 @@
 
             DamageType = reader.ReadEnum<DamageType>();
 
-            Unknown3 = reader.ReadUInt32();
+            DeathType = reader.ReadEnum<DeathType>();
 
             Unknown4 = reader.ReadSingle();
         }

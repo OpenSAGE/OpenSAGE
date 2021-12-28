@@ -6,6 +6,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly FlammableUpdateModuleData _moduleData;
 
+        private FlammableState _state;
         private uint _aflameEndFrame;
         private uint _nextDamageFrame;
         private float _remainingDamageBeforeCatchingFire;
@@ -25,11 +26,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadInt32();
-            if (unknown != 0 && unknown != 1)
-            {
-                throw new InvalidStateException();
-            }
+            _state = reader.ReadEnum<FlammableState>();
 
             _aflameEndFrame = reader.ReadFrame();
 
@@ -40,6 +37,12 @@ namespace OpenSage.Logic.Object
             _remainingDamageBeforeCatchingFire = reader.ReadSingle();
 
             _startedTakingFlameDamageFrame = reader.ReadFrame();
+        }
+
+        private enum FlammableState
+        {
+            Inactive = 0,
+            Aflame = 1,
         }
     }
 
