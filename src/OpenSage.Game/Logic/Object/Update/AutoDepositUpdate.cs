@@ -11,6 +11,10 @@ namespace OpenSage.Logic.Object
 
         private TimeSpan _waitUntil;
 
+        private uint _unknownFrame;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
         internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -40,11 +44,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var frameSomething = reader.ReadUInt32();
+            _unknownFrame = reader.ReadUInt32();
 
-            var unknownBool1 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
 
-            var unknownBool2 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
         }
     }
 

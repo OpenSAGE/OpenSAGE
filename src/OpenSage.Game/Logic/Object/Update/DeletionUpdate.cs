@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         private TimeSpan _lifeTime;
         private bool _initial = true;
 
+        private uint _unknown;
+
         public DeletionUpdate(GameObject gameObject, DeletionUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
@@ -37,7 +39,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadUInt32();
+            _unknown = reader.ReadUInt32();
         }
     }
 

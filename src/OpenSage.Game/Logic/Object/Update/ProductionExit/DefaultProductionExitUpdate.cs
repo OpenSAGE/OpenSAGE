@@ -7,6 +7,9 @@ namespace OpenSage.Logic.Object
     {
         private readonly DefaultProductionExitUpdateModuleData _moduleData;
 
+        private Vector3 _unknownPos;
+        private bool _unknownBool;
+
         internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -22,8 +25,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownPos = reader.ReadVector3();
-            var unknownBool = reader.ReadBoolean();
+            _unknownPos = reader.ReadVector3();
+            _unknownBool = reader.ReadBoolean();
         }
     }
 
