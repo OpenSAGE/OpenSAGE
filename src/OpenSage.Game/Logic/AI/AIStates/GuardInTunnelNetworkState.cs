@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using System.Numerics;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class GuardInTunnelNetworkState : State
     {
@@ -25,6 +27,9 @@
 
     internal sealed class GuardInTunnelNetworkStateMachine : StateMachineBase
     {
+        private uint _guardObjectId;
+        private Vector3 _guardPosition;
+
         public GuardInTunnelNetworkStateMachine()
         {
             AddState(5001, new GuardInTunnelNetworkIdleState());
@@ -37,9 +42,9 @@
 
             base.Load(reader);
 
-            var guardObjectId = reader.ReadObjectID();
+            _guardObjectId = reader.ReadObjectID();
 
-            var guardPosition = reader.ReadVector3();
+            reader.ReadVector3(ref _guardPosition);
         }
 
         private sealed class GuardInTunnelNetworkIdleState : State

@@ -106,13 +106,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownVector1 = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownVector1);
 
-            _unknownVector2 = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownVector2);
 
-            _unknownVector3 = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownVector3);
 
-            _unknownVector4 = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownVector4);
 
             _unknownInt1 = reader.ReadInt32();
 
@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
 
             _unknownInt5 = reader.ReadUInt32();
 
-            _unknownFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(8);
 

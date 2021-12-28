@@ -35,9 +35,10 @@ namespace OpenSage
             return result;
         }
 
-        public byte ReadByte() => _binaryReader.ReadByte();
-
-        public sbyte ReadSByte() => _binaryReader.ReadSByte();
+        public void ReadByte(ref byte value)
+        {
+            value = _binaryReader.ReadByte();
+        }
 
         public short ReadInt16() => _binaryReader.ReadInt16();
 
@@ -51,7 +52,10 @@ namespace OpenSage
 
         public uint ReadObjectID() => ReadUInt32();
 
-        public uint ReadFrame() => ReadUInt32();
+        public void ReadFrame(ref uint value)
+        {
+            value = ReadUInt32();
+        }
 
         public string ReadAsciiString() => _binaryReader.ReadBytePrefixedAsciiString();
 
@@ -61,7 +65,7 @@ namespace OpenSage
 
         public Vector2 ReadVector2() => _binaryReader.ReadVector2();
 
-        public Vector3 ReadVector3() => _binaryReader.ReadVector3();
+        public void ReadVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
 
         public Point2D ReadPoint2D() => _binaryReader.ReadPoint2D();
 

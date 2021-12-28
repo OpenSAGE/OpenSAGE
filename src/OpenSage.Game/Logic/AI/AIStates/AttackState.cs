@@ -1,10 +1,13 @@
-﻿using OpenSage.Data.Sav;
+﻿using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackState : State
     {
         private readonly AttackStateMachine _stateMachine;
+
+        private bool _unknownBool;
+        private Vector3 _unknownPosition;
 
         public AttackState()
         {
@@ -15,8 +18,8 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.ReadVersion(1);
 
-            var unknownBool2 = reader.ReadBoolean();
-            var positionSomething = reader.ReadVector3();
+            _unknownBool = reader.ReadBoolean();
+            reader.ReadVector3(ref _unknownPosition);
 
             _stateMachine.Load(reader);
         }
@@ -41,29 +44,39 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackMoveTowardsTargetState : MoveTowardsState
         {
+            private Vector3 _unknownPosition;
+            private uint _unknownFrame;
+            private bool _unknownBool1;
+            private bool _unknownBool2;
+            private bool _unknownBool3;
+            private bool _unknownBool4;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
                 base.Load(reader);
 
-                var positionSomething2 = reader.ReadVector3();
-                var frameSomething = reader.ReadUInt32();
-                var unknownBool1 = reader.ReadBoolean();
-                var unknownBool2 = reader.ReadBoolean();
-                var unknownBool3 = reader.ReadBoolean();
-                var unknownBool4 = reader.ReadBoolean();
+                reader.ReadVector3(ref _unknownPosition);
+                reader.ReadFrame(ref _unknownFrame);
+                _unknownBool1 = reader.ReadBoolean();
+                _unknownBool2 = reader.ReadBoolean();
+                _unknownBool3 = reader.ReadBoolean();
+                _unknownBool4 = reader.ReadBoolean();
             }
         }
 
         private sealed class AttackAimWeaponState : State
         {
+            private bool _unknownBool1;
+            private bool _unknownBool2;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var unknownBool1 = reader.ReadBoolean();
-                var unknownBool2 = reader.ReadBoolean();
+                _unknownBool1 = reader.ReadBoolean();
+                _unknownBool2 = reader.ReadBoolean();
             }
         }
 

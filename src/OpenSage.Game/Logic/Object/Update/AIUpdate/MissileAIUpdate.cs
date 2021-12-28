@@ -94,11 +94,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownPosition = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownPosition);
 
             _stateMaybe = reader.ReadUInt32();
 
-            _unknownFrame1 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame1);
 
             var unknownInt1 = reader.ReadInt32();
             if (unknownInt1 != int.MaxValue)
@@ -112,7 +112,7 @@ namespace OpenSage.Logic.Object
 
             _unknownBool1 = reader.ReadBoolean();
 
-            _unknownFrame2 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame2);
 
             _unknownFloat1 = reader.ReadSingle();
 
@@ -130,7 +130,7 @@ namespace OpenSage.Logic.Object
 
             _unknownBool2 = reader.ReadBoolean();
 
-            _currentPositionMaybe = reader.ReadVector3();
+            reader.ReadVector3(ref _currentPositionMaybe);
 
             _unknownInt1 = reader.ReadInt32(); // 0, 0x20000
 

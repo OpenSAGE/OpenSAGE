@@ -51,7 +51,7 @@ namespace OpenSage.Logic.AI
             _currentState.Load(reader);
 
             _unknownInt2 = reader.ReadUInt32();
-            _unknownPosition = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownPosition);
             _unknownBool1 = reader.ReadBoolean();
             _unknownBool2 = reader.ReadBoolean();
         }

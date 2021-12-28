@@ -203,7 +203,7 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            Position = reader.ReadVector3();
+            reader.ReadVector3(ref Position);
             VisionRange = reader.ReadSingle();
             Unknown = reader.ReadUInt16();
             FrameSomething = reader.ReadUInt32();

@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _countdownStartFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _countdownStartFrame);
 
             _unknown = reader.ReadUInt32();
             if (_unknown != 1 && _unknown != 0)
@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _countdownEndFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _countdownEndFrame);
 
             reader.SkipUnknownBytes(4);
         }

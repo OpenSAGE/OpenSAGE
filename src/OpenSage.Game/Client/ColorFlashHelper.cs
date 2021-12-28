@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Client
 {
@@ -19,10 +18,10 @@ namespace OpenSage.Client
         {
             reader.ReadVersion(1);
 
-            _increasingColorDelta = reader.ReadVector3();
-            _decreasingColorDelta = reader.ReadVector3();
-            _targetColor = reader.ReadVector3();
-            _currentColor = reader.ReadVector3();
+            reader.ReadVector3(ref _increasingColorDelta);
+            reader.ReadVector3(ref _decreasingColorDelta);
+            reader.ReadVector3(ref _targetColor);
+            reader.ReadVector3(ref _currentColor);
             _holdFrames = reader.ReadUInt32();
             _isActive = reader.ReadBoolean();
             _state = reader.ReadEnumByte<ColorFlashState>();

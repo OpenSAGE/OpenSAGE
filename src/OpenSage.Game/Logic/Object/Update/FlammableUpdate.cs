@@ -28,15 +28,15 @@ namespace OpenSage.Logic.Object
 
             _state = reader.ReadEnum<FlammableState>();
 
-            _aflameEndFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _aflameEndFrame);
 
             reader.SkipUnknownBytes(4);
 
-            _nextDamageFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _nextDamageFrame);
 
             _remainingDamageBeforeCatchingFire = reader.ReadSingle();
 
-            _startedTakingFlameDamageFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _startedTakingFlameDamageFrame);
         }
 
         private enum FlammableState

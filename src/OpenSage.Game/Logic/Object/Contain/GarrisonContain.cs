@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _positions.Length; i++)
             {
-                _positions[i] = reader.ReadVector3();
+                reader.ReadVector3(ref _positions[i]);
             }
 
             _unknown2 = reader.ReadBoolean();

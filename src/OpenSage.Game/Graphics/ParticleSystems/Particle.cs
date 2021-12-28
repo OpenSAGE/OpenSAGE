@@ -53,11 +53,11 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadVersion(1);
             reader.ReadVersion(1);
 
-            Velocity = reader.ReadVector3();
+            reader.ReadVector3(ref Velocity);
 
-            Position = reader.ReadVector3();
+            reader.ReadVector3(ref Position);
 
-            EmitterPosition = reader.ReadVector3();
+            reader.ReadVector3(ref EmitterPosition);
 
             VelocityDamping = reader.ReadSingle();
 
@@ -88,7 +88,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             for (var i = 0; i < 8; i++)
             {
-                var colorKeyframeColor = reader.ReadVector3();
+                Vector3 colorKeyframeColor = default;
+                reader.ReadVector3(ref colorKeyframeColor);
                 var colorKeyframeTime = reader.ReadUInt32();
                 ColorKeyframes.Add(new ParticleColorKeyframe(
                     colorKeyframeTime,
@@ -113,9 +114,9 @@ namespace OpenSage.Graphics.ParticleSystems
             UnknownInt4 = reader.ReadUInt32(); // 0
             UnknownInt5 = reader.ReadUInt32(); // 1
 
-            Color = reader.ReadVector3();
+            reader.ReadVector3(ref Color);
 
-            UnknownVector = reader.ReadVector3();
+            reader.ReadVector3(ref UnknownVector);
 
             UnknownInt6 = reader.ReadUInt32(); // 1
 

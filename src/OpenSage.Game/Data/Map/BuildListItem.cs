@@ -1,15 +1,16 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {
     public sealed class BuildListItem
     {
+        private Vector3 _position;
+
         public string BuildingName { get; private set; }
         public string Name { get; private set; }
-        public Vector3 Position { get; private set; }
+        public Vector3 Position => _position;
         public float Angle { get; private set; }
         public bool StructureAlreadyBuilt { get; private set; }
         public uint Rebuilds { get; private set; }
@@ -26,7 +27,7 @@ namespace OpenSage.Data.Map
 
             BuildingName = reader.ReadAsciiString();
             Name = reader.ReadAsciiString();
-            Position = reader.ReadVector3();
+            reader.ReadVector3(ref _position);
 
             reader.SkipUnknownBytes(8);
 
@@ -34,9 +35,9 @@ namespace OpenSage.Data.Map
 
             var unknown3 = reader.ReadBoolean();
 
-            Rebuilds = reader.ReadByte();
+            Rebuilds = reader.ReadUInt32();
 
-            reader.SkipUnknownBytes(4);
+            reader.SkipUnknownBytes(1);
 
             StartingHealth = reader.ReadUInt32();
 
@@ -67,7 +68,7 @@ namespace OpenSage.Data.Map
 
                 Name = reader.ReadUInt16PrefixedAsciiString(),
 
-                Position = reader.ReadVector3(),
+                _position = reader.ReadVector3(),
                 Angle = reader.ReadSingle(),
 
                 StructureAlreadyBuilt = reader.ReadBooleanChecked()

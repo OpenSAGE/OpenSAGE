@@ -141,11 +141,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _frameSinkStart = reader.ReadFrame();
+            reader.ReadFrame(ref _frameSinkStart);
 
-            _frameMidpoint = reader.ReadFrame();
+            reader.ReadFrame(ref _frameMidpoint);
 
-            _frameDestruction = reader.ReadFrame();
+            reader.ReadFrame(ref _frameDestruction);
 
             _slowDeathScale = reader.ReadSingle();
 

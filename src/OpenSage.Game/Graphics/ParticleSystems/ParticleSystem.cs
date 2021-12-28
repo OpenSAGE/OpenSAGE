@@ -650,9 +650,9 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            _position = reader.ReadVector3();
+            reader.ReadVector3(ref _position);
 
-            _positionPrevious = reader.ReadVector3();
+            reader.ReadVector3(ref _positionPrevious);
 
             _unknownBool2 = reader.ReadBoolean();
 
@@ -728,7 +728,8 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadRandomVariable(); // BurstCount
             reader.ReadRandomVariable(); // InitialDelay
 
-            reader.ReadVector3(); // DriftVelocity
+            Vector3 driftVelocity = default;
+            reader.ReadVector3(ref driftVelocity);
 
             reader.ReadSingle(); // Gravity
 
@@ -768,11 +769,14 @@ namespace OpenSage.Graphics.ParticleSystems
                 case ParticleVolumeType.Point:
                     break;
                 case ParticleVolumeType.Line:
-                    var lineStartPoint = reader.ReadVector3();
-                    var lineEndPoint = reader.ReadVector3();
+                    Vector3 lineStartPoint = default;
+                    Vector3 lineEndPoint = default;
+                    reader.ReadVector3(ref lineStartPoint);
+                    reader.ReadVector3(ref lineEndPoint);
                     break;
                 case ParticleVolumeType.Box:
-                    var halfSize = reader.ReadVector3();
+                    Vector3 halfSize = default;
+                    reader.ReadVector3(ref halfSize);
                     break;
                 case ParticleVolumeType.Sphere:
                     var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file

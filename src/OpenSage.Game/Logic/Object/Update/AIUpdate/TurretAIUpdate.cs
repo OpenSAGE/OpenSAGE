@@ -214,18 +214,18 @@ namespace OpenSage.Logic.Object
             _unknownFloat1 = reader.ReadSingle();
             _unknownFloat2 = reader.ReadSingle();
 
-            _unknownFrame1 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame1);
 
             _unknownInt1 = reader.ReadUInt32(); // 0, 1
 
-            _unknownFrame2 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame2);
 
             for (var i = 0; i < 7; i++)
             {
                 _unknownBools[i] = reader.ReadBoolean();
             }
 
-            _unknownFrame3 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame3);
         }
     }
 

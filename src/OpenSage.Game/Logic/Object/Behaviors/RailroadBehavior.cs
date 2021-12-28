@@ -78,7 +78,7 @@ namespace OpenSage.Logic.Object
                 _unknownFloat1 = reader.ReadSingle();
                 _unknownFloat2 = reader.ReadSingle();
                 _unknownFloat3 = reader.ReadSingle();
-                _unknownVector = reader.ReadVector3();
+                reader.ReadVector3(ref _unknownVector);
 
                 var unknown12 = reader.ReadUInt32();
                 if (unknown12 != 0xFACADE)

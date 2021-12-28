@@ -407,7 +407,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _unknownSomething.Length; i++)
             {
-                var unknownCount = reader.ReadByte();
+                byte unknownCount = 0;
+                reader.ReadByte(ref unknownCount);
                 for (var j = 0; j < unknownCount; j++)
                 {
                     _unknownSomething[i].Add(new W3dModelDrawSomething

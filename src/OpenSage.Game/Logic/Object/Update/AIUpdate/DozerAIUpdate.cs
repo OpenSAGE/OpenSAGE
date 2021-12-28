@@ -54,9 +54,9 @@ namespace OpenSage.Logic.Object
             {
                 _unknownList2[i] = new DozerSomething2
                 {
-                    UnknownBool = reader.ReadBoolean(),
-                    UnknownPos = reader.ReadVector3()
+                    UnknownBool = reader.ReadBoolean()
                 };
+                reader.ReadVector3(ref _unknownList2[i].UnknownPos);
             }
 
             _unknown4 = reader.ReadInt32();

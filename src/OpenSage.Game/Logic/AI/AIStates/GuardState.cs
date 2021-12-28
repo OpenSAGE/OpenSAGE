@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.AI.AIStates
@@ -24,6 +25,11 @@ namespace OpenSage.Logic.AI.AIStates
 
     internal sealed class GuardStateMachine : StateMachineBase
     {
+        private uint _guardObjectId;
+        private uint _guardObjectId2;
+        private Vector3 _guardPosition;
+        private string _guardPolygonTriggerName;
+
         public GuardStateMachine()
         {
             AddState(5001, new GuardIdleState());
@@ -37,22 +43,24 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var guardObjectId = reader.ReadObjectID();
+            _guardObjectId = reader.ReadObjectID();
 
-            var guardObjectId2 = reader.ReadObjectID();
+            _guardObjectId2 = reader.ReadObjectID();
 
-            var guardPosition = reader.ReadVector3();
+            reader.ReadVector3(ref _guardPosition);
 
-            var guardPolygonTriggerName = reader.ReadAsciiString();
+            _guardPolygonTriggerName = reader.ReadAsciiString();
         }
 
         private sealed class GuardIdleState : State
         {
+            private uint _unknownInt;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var unknownInt1 = reader.ReadUInt32();
+                _unknownInt = reader.ReadUInt32();
             }
         }
 
@@ -66,11 +74,13 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardMoveState : State
         {
+            private uint _unknownInt;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var unknownInt1 = reader.ReadUInt32();
+                _unknownInt = reader.ReadUInt32();
             }
         }
     }

@@ -318,7 +318,7 @@ namespace OpenSage.Graphics.Cameras
             reader.ReadVersion(1);
 
             _yaw = reader.ReadSingle();
-            _terrainPosition = reader.ReadVector3();
+            reader.ReadVector3(ref _terrainPosition);
         }
 
         internal void DrawInspector()

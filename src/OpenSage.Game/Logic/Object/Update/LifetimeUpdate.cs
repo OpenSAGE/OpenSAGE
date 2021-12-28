@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _frameToDie = reader.ReadFrame();
+            reader.ReadFrame(ref _frameToDie);
         }
     }
 
