@@ -5,6 +5,13 @@ namespace OpenSage.Logic.Object
 {
     public sealed class SwayClientUpdate : ClientUpdateModule
     {
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+        private float _unknownFloat3;
+        private float _unknownFloat4;
+        private float _unknownFloat5;
+        private ushort _unknownShort;
+
         // TODO: Set this to false when ToppleUpdate starts toppling tree.
         private bool _isActive;
 
@@ -19,12 +26,12 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
-            var unknownFloat3 = reader.ReadSingle();
-            var unknownFloat4 = reader.ReadSingle();
-            var unknownFloat5 = reader.ReadSingle();
-            var unknownShort1 = reader.ReadUInt16();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownFloat2 = reader.ReadSingle();
+            _unknownFloat3 = reader.ReadSingle();
+            _unknownFloat4 = reader.ReadSingle();
+            _unknownFloat5 = reader.ReadSingle();
+            _unknownShort = reader.ReadUInt16();
 
             _isActive = reader.ReadBoolean();
         }

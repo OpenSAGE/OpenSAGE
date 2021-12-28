@@ -17,6 +17,11 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _gameContext;
         private ModelInstance _modelInstance;
 
+        private string _modelName;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool;
+
         internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameContext context)
         {
             _data = data;
@@ -80,13 +85,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var modelName = reader.ReadAsciiString();
+            _modelName = reader.ReadAsciiString();
 
             reader.SkipUnknownBytes(7);
 
-            var unknown1 = reader.ReadUInt32();
-            var unknown2 = reader.ReadUInt32();
-            var unknown3 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
+            _unknownBool = reader.ReadBoolean();
         }
     }
 
