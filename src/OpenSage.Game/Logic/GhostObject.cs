@@ -45,19 +45,22 @@ namespace OpenSage.Logic
             _geometryType = reader.ReadEnum<ObjectGeometry>();
 
             // Sometimes there's a 0xC0, when it should be 0x0.
-            _geometryIsSmall = reader.ReadByte() == 1;
+            byte geometryIsSmall = 0;
+            reader.ReadByte(ref geometryIsSmall);
+            _geometryIsSmall = geometryIsSmall == 1;
 
             _geometryMajorRadius = reader.ReadSingle();
             _geometryMinorRadius = reader.ReadSingle();
 
             _angle = reader.ReadSingle();
-            _position = reader.ReadVector3();
+            reader.ReadVector3(ref _position);
 
             reader.SkipUnknownBytes(12);
 
             for (var i = 0; i < Player.MaxPlayers; i++)
             {
-                var numModels = reader.ReadByte();
+                byte numModels = 0;
+                reader.ReadByte(ref numModels);
 
                 for (var j = 0; j < numModels; j++)
                 {
@@ -109,7 +112,7 @@ namespace OpenSage.Logic
             _hasUnknownThing = reader.ReadBoolean();
             if (_hasUnknownThing)
             {
-                _unknownByte = reader.ReadByte();
+                reader.ReadByte(ref _unknownByte);
                 _unknownInt = reader.ReadUInt32();
             }
         }

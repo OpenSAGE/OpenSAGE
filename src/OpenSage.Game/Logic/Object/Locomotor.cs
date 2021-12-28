@@ -370,9 +370,9 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(2);
 
-            _frameSomething = reader.ReadFrame();
+            reader.ReadFrame(ref _frameSomething);
 
-            _positionSomething = reader.ReadVector3();
+            reader.ReadVector3(ref _positionSomething);
 
             _unknownFloat1 = reader.ReadSingle();
 

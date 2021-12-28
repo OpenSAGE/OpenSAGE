@@ -405,7 +405,8 @@ namespace OpenSage.Scripting
                 _sciences[i].Load(reader);
             }
 
-            var unknown14_1 = reader.ReadByte();
+            byte unknown14_1 = 1;
+            reader.ReadByte(ref unknown14_1);
             if (unknown14_1 != 1)
             {
                 throw new InvalidStateException();
@@ -452,7 +453,8 @@ namespace OpenSage.Scripting
                 _objectTypeLists.Add(objectTypeList);
             }
 
-            var unknown20 = reader.ReadByte();
+            byte unknown20 = 1;
+            reader.ReadByte(ref unknown20);
             if (unknown20 != 1)
             {
                 throw new InvalidStateException();

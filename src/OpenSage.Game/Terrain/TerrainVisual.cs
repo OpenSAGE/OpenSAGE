@@ -37,7 +37,9 @@
             {
                 for (var x = 0; x < width; x++)
                 {
-                    elevations[x, y] = reader.ReadByte();
+                    var elevation = (byte)elevations[x, y];
+                    reader.ReadByte(ref elevation);
+                    elevations[x, y] = elevation;
                 }
             }
 

@@ -117,7 +117,7 @@ namespace OpenSage.Logic.Object
 
             _toppleSpeed = reader.ReadSingle();
             _toppleAcceleration = reader.ReadSingle();
-            _toppleDirection = reader.ReadVector3();
+            reader.ReadVector3(ref _toppleDirection);
             _toppleState = reader.ReadEnum<ToppleState>();
             _toppleAngle = reader.ReadSingle();
             var unknownFloat6 = reader.ReadSingle();

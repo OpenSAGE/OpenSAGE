@@ -52,7 +52,9 @@ namespace OpenSage.Logic.AI
             var numTargetPositions = reader.ReadUInt32();
             for (var i = 0; i < numTargetPositions; i++)
             {
-                _targetPositions.Add(reader.ReadVector3());
+                Vector3 targetPosition = default;
+                reader.ReadVector3(ref targetPosition);
+                _targetPositions.Add(targetPosition);
             }
 
             _targetWaypointName = reader.ReadAsciiString();

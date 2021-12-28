@@ -1111,7 +1111,7 @@ namespace OpenSage.Logic.Object
 
             _unknown1 = reader.ReadUInt32();
 
-            _unknown2 = reader.ReadByte();
+            reader.ReadByte(ref _unknown2);
 
             _unknownFlags = reader.ReadEnumByteFlags<GameObjectUnknownFlags>();
 
@@ -1132,7 +1132,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _disabledTypesFrames.Length; i++)
             {
-                _disabledTypesFrames[i] = reader.ReadFrame();
+                reader.ReadFrame(ref _disabledTypesFrames[i]);
             }
 
             reader.SkipUnknownBytes(8);
@@ -1146,7 +1146,8 @@ namespace OpenSage.Logic.Object
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
             BuildProgress = reader.ReadSingle();
 
-            var unknown3 = reader.ReadByte();
+            byte unknown3 = 1;
+            reader.ReadByte(ref unknown3);
             if (unknown3 != 1)
             {
                 throw new InvalidStateException();
@@ -1165,10 +1166,11 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(16);
 
-            var polygonTriggerStateCount = reader.ReadByte();
+            byte polygonTriggerStateCount = 0;
+            reader.ReadByte(ref polygonTriggerStateCount);
             _polygonTriggersState = new PolygonTriggerState[polygonTriggerStateCount];
 
-            _enteredOrExitedPolygonTriggerFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _enteredOrExitedPolygonTriggerFrame);
             _integerPosition = reader.ReadPoint3D();
 
             for (var i = 0; i < polygonTriggerStateCount; i++)
@@ -1186,7 +1188,7 @@ namespace OpenSage.Logic.Object
 
             IsSelectable = reader.ReadBoolean();
 
-            _unknownFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(4);
 
@@ -1205,7 +1207,7 @@ namespace OpenSage.Logic.Object
             }
 
             _healedByObjectId = reader.ReadObjectID();
-            _healedEndFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _healedEndFrame);
 
             reader.ReadBitArray(WeaponSetConditions);
 
@@ -1219,9 +1221,9 @@ namespace OpenSage.Logic.Object
                 weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
 
-            _weaponSomethingPrimary = reader.ReadByte();
-            _weaponSomethingSecondary = reader.ReadByte();
-            _weaponSomethingTertiary = reader.ReadByte();
+            reader.ReadByte(ref _weaponSomethingPrimary);
+            reader.ReadByte(ref _weaponSomethingSecondary);
+            reader.ReadByte(ref _weaponSomethingTertiary);
 
             _weaponSet.Load(reader);
 

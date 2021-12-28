@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
@@ -427,15 +428,14 @@ namespace OpenSage.Logic
             _upgradesInProgress.Load(reader);
             UpgradesCompleted.Load(reader);
 
-            if (reader.ReadByte() != 2)
             {
-                throw new InvalidStateException();
-            }
+                reader.ReadVersion(2);
 
-            var playerId = reader.ReadUInt32();
-            if (playerId != Id)
-            {
-                throw new InvalidStateException();
+                var playerId = reader.ReadUInt32();
+                if (playerId != Id)
+                {
+                    throw new InvalidStateException();
+                }
             }
 
             var numTeamTemplates = reader.ReadUInt16();
@@ -622,6 +622,22 @@ namespace OpenSage.Logic
     {
         private readonly Player _owner;
 
+        private AIPlayerUnknownThing[] _unknownThings;
+        private AIPlayerUnknownThing[] _unknownThings2;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+        private uint _unknownInt1;
+        private int _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownObjectId;
+        private uint _unknownInt5;
+        private uint _unknownInt6;
+        private int _unknownInt7;
+        private Vector3 _unknownPosition;
+        private bool _unknownBool3;
+        private float _unknownFloat;
+
         internal AIPlayer(Player owner)
         {
             _owner = owner;
@@ -632,19 +648,19 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             var unknownCount = reader.ReadUInt16();
-            var unknownThings = new AIPlayerUnknownThing[unknownCount];
+            _unknownThings = new AIPlayerUnknownThing[unknownCount];
             for (var i = 0; i < unknownCount; i++)
             {
-                unknownThings[i] = new AIPlayerUnknownThing();
-                unknownThings[i].Load(reader);
+                _unknownThings[i] = new AIPlayerUnknownThing();
+                _unknownThings[i].Load(reader);
             }
 
             var unknownCount2 = reader.ReadUInt16();
-            var unknownThings2 = new AIPlayerUnknownThing[unknownCount2];
+            _unknownThings2 = new AIPlayerUnknownThing[unknownCount2];
             for (var i = 0; i < unknownCount2; i++)
             {
-                unknownThings2[i] = new AIPlayerUnknownThing();
-                unknownThings2[i].Load(reader);
+                _unknownThings2[i] = new AIPlayerUnknownThing();
+                _unknownThings2[i].Load(reader);
             }
 
             var playerId = reader.ReadUInt32();
@@ -653,24 +669,24 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 2 && unknown2 != 0)
+            _unknownInt1 = reader.ReadUInt32();
+            if (_unknownInt1 != 2 && _unknownInt1 != 0)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown3 = reader.ReadInt32();
-            if (unknown3 != 0 && unknown3 != -1)
+            _unknownInt2 = reader.ReadInt32();
+            if (_unknownInt2 != 0 && _unknownInt2 != -1)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown4 = reader.ReadUInt32(); // 50, 51, 8, 35
+            _unknownInt3 = reader.ReadUInt32(); // 50, 51, 8, 35
 
-            var unknown5 = reader.ReadUInt32(); // 0, 50
+            _unknownInt4 = reader.ReadUInt32(); // 0, 50
 
             var unknown6 = reader.ReadUInt32();
             if (unknown6 != 10)
@@ -678,25 +694,25 @@ namespace OpenSage.Logic
                 throw new InvalidDataException();
             }
 
-            var unknown7 = reader.ReadObjectID();
+            _unknownObjectId = reader.ReadObjectID();
 
-            var unknown8 = reader.ReadUInt32(); // 0, 1
+            _unknownInt5 = reader.ReadUInt32(); // 0, 1
 
-            var unknown9 = reader.ReadUInt32();
-            if (unknown9 != 1 && unknown9 != 0 && unknown9 != 2)
+            _unknownInt6 = reader.ReadUInt32();
+            if (_unknownInt6 != 1 && _unknownInt6 != 0 && _unknownInt6 != 2)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown10 = reader.ReadInt32();
-            if (unknown10 != -1 && unknown10 != 0 && unknown10 != 1)
+            _unknownInt7 = reader.ReadInt32();
+            if (_unknownInt7 != -1 && _unknownInt7 != 0 && _unknownInt7 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            var unknownPosition = reader.ReadVector3();
-            var unknownBool8 = reader.ReadBoolean();
-            var unknownFloat = reader.ReadSingle();
+            reader.ReadVector3(ref _unknownPosition);
+            _unknownBool3 = reader.ReadBoolean();
+            _unknownFloat = reader.ReadSingle();
 
             reader.SkipUnknownBytes(22);
         }

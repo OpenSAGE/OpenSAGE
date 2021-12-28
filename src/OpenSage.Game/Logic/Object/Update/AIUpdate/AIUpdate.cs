@@ -340,7 +340,7 @@ namespace OpenSage.Logic.Object
             }
 
             _unknownInt16 = reader.ReadUInt32();
-            _unknownPosition1 = reader.ReadVector3();
+            reader.ReadVector3(ref _unknownPosition1);
 
             reader.SkipUnknownBytes(12);
 
@@ -350,9 +350,9 @@ namespace OpenSage.Logic.Object
             _unknownPos2D1 = reader.ReadPoint2D();
             _unknownPos2D2 = reader.ReadPoint2D();
 
-            _unknownFrame1 = reader.ReadFrame();
-            _unknownFrame2 = reader.ReadFrame();
-            _unknownPosition2 = reader.ReadVector3();
+            reader.ReadFrame(ref _unknownFrame1);
+            reader.ReadFrame(ref _unknownFrame2);
+            reader.ReadVector3(ref _unknownPosition2);
 
             reader.SkipUnknownBytes(1);
 
@@ -402,7 +402,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownFrame3 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }
@@ -579,7 +579,7 @@ namespace OpenSage.Logic.Object
         internal void Load(SaveFileReader reader)
         {
             _id = reader.ReadUInt32();
-            _position = reader.ReadVector3();
+            reader.ReadVector3(ref _position);
             _unknownInt1 = reader.ReadUInt32();
             _unknownBool1 = reader.ReadBoolean();
             _nextId = reader.ReadUInt32();

@@ -49,7 +49,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            _unknownFrame = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame);
         }
     }
 

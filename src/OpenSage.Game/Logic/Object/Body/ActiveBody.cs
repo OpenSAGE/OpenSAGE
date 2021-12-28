@@ -103,15 +103,15 @@ namespace OpenSage.Logic.Object
 
             _damageType = reader.ReadEnum<BodyDamageType>();
 
-            _unknownFrame1 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame1);
 
             _lastDamageType = (DamageType) reader.ReadUInt32(); // -1 if no last damage
 
             _lastDamage.Load(reader);
 
-            _unknownFrame2 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame2);
 
-            _unknownFrame3 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(2);
 

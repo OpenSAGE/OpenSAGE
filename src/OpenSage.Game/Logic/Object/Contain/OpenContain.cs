@@ -31,9 +31,9 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(2);
 
-            _unknownFrame1 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame1);
 
-            _unknownFrame2 = reader.ReadFrame();
+            reader.ReadFrame(ref _unknownFrame2);
 
             reader.SkipUnknownBytes(8);
 
