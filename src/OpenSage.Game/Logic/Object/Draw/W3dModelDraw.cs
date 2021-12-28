@@ -39,6 +39,11 @@ namespace OpenSage.Logic.Object
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
+        private readonly List<W3dModelDrawSomething>[] _unknownSomething;
+        private bool _hasUnknownThing;
+        private int _unknownInt;
+        private float _unknownFloat;
+
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
@@ -118,6 +123,12 @@ namespace OpenSage.Logic.Object
 
             _generalsTransitionStates = data.GeneralsTransitionStates;
             _bfmeTransitionStates = data.BfmeTransitionStates;
+
+            _unknownSomething = new List<W3dModelDrawSomething>[3];
+            for (var i = 0; i < _unknownSomething.Length; i++)
+            {
+                _unknownSomething[i] = new List<W3dModelDrawSomething>();
+            }
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish(ModelConditionState conditionState)
@@ -394,26 +405,35 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < _unknownSomething.Length; i++)
             {
                 var unknownCount = reader.ReadByte();
                 for (var j = 0; j < unknownCount; j++)
                 {
-                    var unknown1 = reader.ReadUInt32();
-
-                    var unknown2 = reader.ReadSingle();
-                    var unknown3 = reader.ReadSingle();
+                    _unknownSomething[i].Add(new W3dModelDrawSomething
+                    {
+                        UnknownInt = reader.ReadUInt32(),
+                        UnknownFloat1 = reader.ReadSingle(),
+                        UnknownFloat2 = reader.ReadSingle()
+                    });
                 }
             }
 
             reader.SkipUnknownBytes(1);
 
-            var unknownBool2 = reader.ReadBoolean();
-            if (unknownBool2)
+            _hasUnknownThing = reader.ReadBoolean();
+            if (_hasUnknownThing)
             {
-                var unknownInt = reader.ReadInt32();
-                var unknownFloat = reader.ReadSingle();
+                _unknownInt = reader.ReadInt32();
+                _unknownFloat = reader.ReadSingle();
             }
+        }
+
+        private struct W3dModelDrawSomething
+        {
+            public uint UnknownInt;
+            public float UnknownFloat1;
+            public float UnknownFloat2;
         }
     }
 

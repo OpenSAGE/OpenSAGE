@@ -1,10 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class RailroadBehavior : PhysicsBehavior
     {
+        private uint _unknownObjectId;
+        private uint _unknownInt1;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private bool _unknownBool4;
+        private bool _unknownBool5;
+        private bool _unknownBool6;
+        private bool _unknownBool7;
+        private bool _unknownBool8;
+        private int _unknownInt2;
+        private int _unknownInt3;
+        private readonly RailroadBehaviorSomething _something1 = new();
+        private readonly RailroadBehaviorSomething _something2 = new();
+
         internal RailroadBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
@@ -18,43 +34,51 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            var someObjectId = reader.ReadObjectID();
+            _unknownObjectId = reader.ReadObjectID();
 
-            var unknown1 = reader.ReadUInt32();
-
-            reader.SkipUnknownBytes(4);
-
-            var unknown15 = reader.ReadBoolean();
-
-            var unknown2 = reader.ReadBoolean();
-
-            var unknown16 = reader.ReadBoolean();
-            var unknown17 = reader.ReadBoolean();
-            var unknown18 = reader.ReadBoolean();
-            var unknown19 = reader.ReadBoolean();
-
-            var unknown4 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(4);
 
-            var unknown21 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
 
-            var unknown5 = reader.ReadInt32();
+            _unknownBool2 = reader.ReadBoolean();
 
-            var unknown6 = reader.ReadInt32();
+            _unknownBool3 = reader.ReadBoolean();
+            _unknownBool4 = reader.ReadBoolean();
+            _unknownBool5 = reader.ReadBoolean();
+            _unknownBool6 = reader.ReadBoolean();
 
-            for (var i = 0; i < 2; i++)
+            _unknownBool7 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(4);
+
+            _unknownBool8 = reader.ReadBoolean();
+
+            _unknownInt2 = reader.ReadInt32();
+
+            _unknownInt3 = reader.ReadInt32();
+
+            _something1.Load(reader);
+
+            _something2.Load(reader);
+        }
+
+        private sealed class RailroadBehaviorSomething
+        {
+            private float _unknownFloat1;
+            private float _unknownFloat2;
+            private float _unknownFloat3;
+            private Vector3 _unknownVector;
+
+            internal void Load(SaveFileReader reader)
             {
-                var unknown7 = reader.ReadBoolean();
-                if (!unknown7)
-                {
-                    throw new InvalidStateException();
-                }
+                reader.ReadVersion(1);
 
-                var unknown8 = reader.ReadSingle();
-                var unknown9 = reader.ReadSingle();
-                var unknown10 = reader.ReadSingle();
-                var unknown11 = reader.ReadVector3();
+                _unknownFloat1 = reader.ReadSingle();
+                _unknownFloat2 = reader.ReadSingle();
+                _unknownFloat3 = reader.ReadSingle();
+                _unknownVector = reader.ReadVector3();
 
                 var unknown12 = reader.ReadUInt32();
                 if (unknown12 != 0xFACADE)
