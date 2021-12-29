@@ -14,7 +14,8 @@ namespace OpenSage.Logic
 
             _unknown1 = reader.ReadUInt32();
 
-            var ghostObjectCount = reader.ReadUInt16();
+            var ghostObjectCount = (ushort)_ghostObjects.Count;
+            reader.ReadUInt16(ref ghostObjectCount);
 
             for (var i = 0; i < ghostObjectCount; i++)
             {

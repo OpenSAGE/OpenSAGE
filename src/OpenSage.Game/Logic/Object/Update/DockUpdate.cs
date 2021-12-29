@@ -155,7 +155,7 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _unknownObjectId);
 
-            _unknownInt1 = reader.ReadUInt16();
+            reader.ReadUInt16(ref _unknownInt1);
             if (_unknownInt1 != 0 && _unknownInt1 != 1)
             {
                 throw new InvalidStateException();

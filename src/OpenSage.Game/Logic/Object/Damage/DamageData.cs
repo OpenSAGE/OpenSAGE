@@ -27,8 +27,7 @@
             reader.ReadVersion(1);
 
             reader.ReadObjectID(ref ObjectId);
-
-            Unknown1 = reader.ReadUInt16();
+            reader.ReadUInt16(ref Unknown1);
 
             DamageType = reader.ReadEnum<DamageType>();
 

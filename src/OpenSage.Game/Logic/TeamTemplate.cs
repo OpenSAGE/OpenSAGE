@@ -65,7 +65,8 @@ namespace OpenSage.Logic
 
             _templateData.Load(reader);
 
-            var teamCount = reader.ReadUInt16();
+            var teamCount = (ushort) _teams.Count;
+            reader.ReadUInt16(ref teamCount);
 
             for (var i = 0; i < teamCount; i++)
             {

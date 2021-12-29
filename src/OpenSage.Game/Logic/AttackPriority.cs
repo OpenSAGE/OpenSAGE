@@ -32,7 +32,8 @@ namespace OpenSage.Logic
 
             var unknown = reader.ReadUInt32(); // Probably default value?
 
-            var numTargets = reader.ReadUInt16();
+            var numTargets = (ushort)Targets.Count;
+            reader.ReadUInt16(ref numTargets);
 
             for (var i = 0; i < numTargets; i++)
             {

@@ -21,14 +21,14 @@
         {
             reader.ReadVersion(1);
 
-            _currentImageIndex = reader.ReadUInt16();
+            reader.ReadUInt16(ref _currentImageIndex);
             _lastUpdatedFrame = reader.ReadUInt32();
 
-            _unknown = reader.ReadUInt16();
+            reader.ReadUInt16(ref _unknown);
 
             reader.SkipUnknownBytes(1);
 
-            _lastImageIndex = reader.ReadUInt16();
+            reader.ReadUInt16(ref _lastImageIndex);
             _animationDelayFrames = reader.ReadUInt32();
 
             var unknownFloat = reader.ReadSingle();

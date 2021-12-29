@@ -137,7 +137,9 @@ namespace OpenSage.Logic.AI
         {
             reader.ReadVersion(1);
 
-            var numTeamObjects = reader.ReadUInt16();
+            ushort numTeamObjects = (ushort)_objectIds.Count;
+            reader.ReadUInt16(ref numTeamObjects);
+
             for (var i = 0; i < numTeamObjects; i++)
             {
                 uint objectId = 0;

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         private readonly GameObject _gameObject;
         private readonly ProductionUpdateModuleData _moduleData;
-        private readonly List<ProductionJob> _productionQueue = new List<ProductionJob>();
+        private readonly List<ProductionJob> _productionQueue = new();
 
         private DoorState _currentDoorState;
         private TimeSpan _currentStepEnd;
@@ -475,16 +475,18 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var productionJobCount = reader.ReadUInt16();
-            for (var i = 0; i < productionJobCount; i++)
+            var productionQueueCount = (ushort) _productionQueue.Count;
+            reader.ReadUInt16(ref productionQueueCount);
+
+            for (var i = 0; i < productionQueueCount; i++)
             {
                 var productionJobType = reader.ReadEnum<ProductionJobType>();
                 var templateName = reader.ReadAsciiString();
 
                 var productionJob = productionJobType switch
                 {
-                    ProductionJobType.Unit => new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(templateName)),
-                    ProductionJobType.Upgrade => new ProductionJob(_gameObject.GameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(templateName)),
+                    ProductionJobType.Unit => new ProductionJob(reader.AssetStore.ObjectDefinitions.GetByName(templateName)),
+                    ProductionJobType.Upgrade => new ProductionJob(reader.AssetStore.Upgrades.GetByName(templateName)),
                     _ => throw new InvalidStateException(),
                 };
 
@@ -496,7 +498,7 @@ namespace OpenSage.Logic.Object
             _nextJobId = reader.ReadUInt32();
 
             var productionJobCount2 = reader.ReadUInt32();
-            if (productionJobCount2 != productionJobCount)
+            if (productionJobCount2 != _productionQueue.Count)
             {
                 throw new InvalidStateException();
             }

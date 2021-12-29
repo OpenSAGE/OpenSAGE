@@ -49,7 +49,8 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < gameObjectsCount; i++)
             {
-                var objectDefinitionId = reader.ReadUInt16();
+                ushort objectDefinitionId = 0;
+                reader.ReadUInt16(ref objectDefinitionId);
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                 var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
@@ -184,7 +185,9 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var name = reader.ReadAsciiString();
-                var id = reader.ReadUInt16();
+
+                ushort id = 0;
+                reader.ReadUInt16(ref id);
 
                 _nameLookup.Add(id, name);
             }

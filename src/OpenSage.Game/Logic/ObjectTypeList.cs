@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
@@ -20,8 +19,10 @@ namespace OpenSage.Logic
 
             Name = reader.ReadAsciiString();
 
-            var numObjects = reader.ReadUInt16();
-            for (var j = 0; j < numObjects; j++)
+            var numObjects = (ushort)_objectTypes.Count;
+            reader.ReadUInt16(ref numObjects);
+
+            for (var i = 0; i < numObjects; i++)
             {
                 _objectTypes.Add(reader.ReadAsciiString());
             }

@@ -35,7 +35,9 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var numObjects = reader.ReadUInt16();
+            var numObjects = (ushort) ObjectIds.Count;
+            reader.ReadUInt16(ref numObjects);
+
             for (var i = 0; i < numObjects; i++)
             {
                 uint objectId = 0;
@@ -61,7 +63,9 @@ namespace OpenSage.Logic
 
             _waypointId = reader.ReadUInt32();
 
-            var unknownCount = reader.ReadUInt16();
+            var unknownCount = (ushort) _unknownBools.Length;
+            reader.ReadUInt16(ref unknownCount);
+
             if (unknownCount != _unknownBools.Length)
             {
                 throw new InvalidStateException();

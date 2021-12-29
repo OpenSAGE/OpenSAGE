@@ -20,7 +20,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            var unknown2 = reader.ReadUInt16();
+            ushort unknown2 = 40;
+            reader.ReadUInt16(ref unknown2);
             if (unknown2 != 40)
             {
                 throw new InvalidStateException();

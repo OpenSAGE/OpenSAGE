@@ -175,8 +175,8 @@ namespace OpenSage.Logic
             {
                 ref var value = ref Values[i];
 
-                value.State = reader.ReadInt16();
-                value.Unknown = reader.ReadInt16();
+                reader.ReadInt16(ref value.State);
+                reader.ReadInt16(ref value.Unknown);
 
                 if (value.Unknown != 0)
                 {
@@ -205,7 +205,7 @@ namespace OpenSage.Logic
 
             reader.ReadVector3(ref Position);
             VisionRange = reader.ReadSingle();
-            Unknown = reader.ReadUInt16();
+            reader.ReadUInt16(ref Unknown);
             FrameSomething = reader.ReadUInt32();
         }
     }

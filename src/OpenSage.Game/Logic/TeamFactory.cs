@@ -107,7 +107,9 @@ namespace OpenSage.Logic
 
             _lastTeamId = reader.ReadUInt32();
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) _teamTemplatesById.Count;
+            reader.ReadUInt16(ref count);
+
             if (count != _teamTemplatesById.Count)
             {
                 throw new InvalidStateException();
