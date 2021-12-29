@@ -627,10 +627,10 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadObjectID(ref _attachedToObjectId);
 
             reader.ReadBoolean(ref _isIdentityTransform);
-            _transform = reader.ReadMatrix4x3Transposed();
+            reader.ReadMatrix4x3Transposed(ref _transform);
 
             reader.ReadBoolean(ref _isIdentityTransform2);
-            _transform2 = reader.ReadMatrix4x3Transposed();
+            reader.ReadMatrix4x3Transposed(ref _transform2);
 
             _unknownInt1 = reader.ReadUInt32(); // Maybe _nextBurst
             _unknownInt2 = reader.ReadUInt32();
@@ -697,40 +697,71 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             var texture = "";
-            reader.ReadAsciiString(ref texture); // Texture
+            reader.ReadAsciiString(ref texture);
 
-            reader.ReadRandomVariable(); // AngleX
-            reader.ReadRandomVariable(); // AngleY
-            reader.ReadRandomVariable(); // AngleZ
+            RandomVariable angleX = default;
+            reader.ReadRandomVariable(ref angleX);
 
-            reader.ReadRandomVariable(); // AngularRateX
-            reader.ReadRandomVariable(); // AngularRateY
-            reader.ReadRandomVariable(); // AngularRateZ
+            RandomVariable angleY = default;
+            reader.ReadRandomVariable(ref angleY);
 
-            reader.ReadRandomVariable(); // AngularDamping
-            reader.ReadRandomVariable(); // VelocityDamping
-            reader.ReadRandomVariable(); // Lifetime
+            RandomVariable angleZ = default;
+            reader.ReadRandomVariable(ref angleZ);
+
+            RandomVariable angularRateX = default;
+            reader.ReadRandomVariable(ref angularRateX);
+
+            RandomVariable angularRateY = default;
+            reader.ReadRandomVariable(ref angularRateY);
+
+            RandomVariable angularRateZ = default;
+            reader.ReadRandomVariable(ref angularRateZ);
+
+            RandomVariable angularDamping = default;
+            reader.ReadRandomVariable(ref angularDamping);
+
+            RandomVariable velocityDamping = default;
+            reader.ReadRandomVariable(ref velocityDamping);
+
+            RandomVariable lifetime = default;
+            reader.ReadRandomVariable(ref lifetime);
 
             reader.ReadUInt32(); // SystemLifetime
 
-            reader.ReadRandomVariable(); // Size
-            reader.ReadRandomVariable(); // StartSizeRate
-            reader.ReadRandomVariable(); // SizeRate
-            reader.ReadRandomVariable(); // SizeRateDamping
+            RandomVariable size = default;
+            reader.ReadRandomVariable(ref size);
 
-            for (var j = 0; j < 8; j++)
+            RandomVariable startSizeRate = default;
+            reader.ReadRandomVariable(ref startSizeRate);
+
+            RandomVariable sizeRate = default;
+            reader.ReadRandomVariable(ref sizeRate);
+
+            RandomVariable sizeRateDamping = default;
+            reader.ReadRandomVariable(ref sizeRateDamping);
+
+            for (var i = 0; i < 8; i++)
             {
-                reader.ReadRandomAlphaKeyframe(); // AlphaKeyframes
+                RandomAlphaKeyframe keyframe = default;
+                reader.ReadRandomAlphaKeyframe(ref keyframe);
             }
-            for (var j = 0; j < 8; j++)
+            for (var i = 0; i < 8; i++)
             {
-                reader.ReadRgbColorKeyframe(); // ColorKeyframes
+                RgbColorKeyframe keyframe = default;
+                reader.ReadRgbColorKeyframe(ref keyframe); // ColorKeyframes
             }
 
-            reader.ReadRandomVariable(); // ColorScale
-            reader.ReadRandomVariable(); // BurstDelay
-            reader.ReadRandomVariable(); // BurstCount
-            reader.ReadRandomVariable(); // InitialDelay
+            RandomVariable colorScale = default;
+            reader.ReadRandomVariable(ref colorScale);
+
+            RandomVariable burstDelay = default;
+            reader.ReadRandomVariable(ref burstDelay);
+
+            RandomVariable burstCount = default;
+            reader.ReadRandomVariable(ref burstCount);
+
+            RandomVariable initialDelay = default;
+            reader.ReadRandomVariable(ref initialDelay);
 
             Vector3 driftVelocity = default;
             reader.ReadVector3(ref driftVelocity);
@@ -748,23 +779,32 @@ namespace OpenSage.Graphics.ParticleSystems
             switch (velocityType)
             {
                 case ParticleVelocityType.Ortho:
-                    var velocityOrthoX = reader.ReadRandomVariable();
-                    var velocityOrthoY = reader.ReadRandomVariable();
-                    var velocityOrthoZ = reader.ReadRandomVariable();
+                    RandomVariable velocityOrthoX = default;
+                    reader.ReadRandomVariable(ref velocityOrthoX);
+                    RandomVariable velocityOrthoY = default;
+                    reader.ReadRandomVariable(ref velocityOrthoY);
+                    RandomVariable velocityOrthoZ = default;
+                    reader.ReadRandomVariable(ref velocityOrthoZ);
                     break;
                 case ParticleVelocityType.Spherical:
-                    var velocitySpherical = reader.ReadRandomVariable();
+                    RandomVariable velocitySpherical = default;
+                    reader.ReadRandomVariable(ref velocitySpherical);
                     break;
                 case ParticleVelocityType.Hemispherical:
-                    var velocityHemispherical = reader.ReadRandomVariable();
+                    RandomVariable velocityHemispherical = default;
+                    reader.ReadRandomVariable(ref velocityHemispherical);
                     break;
                 case ParticleVelocityType.Cylindrical:
-                    var velocityCylindricalRadial = reader.ReadRandomVariable();
-                    var velocityCylindricalNormal = reader.ReadRandomVariable();
+                    RandomVariable velocityCylindricalRadial = default;
+                    reader.ReadRandomVariable(ref velocityCylindricalRadial);
+                    RandomVariable velocityCylindricalNormal = default;
+                    reader.ReadRandomVariable(ref velocityCylindricalNormal);
                     break;
                 case ParticleVelocityType.Outward:
-                    var velocityOutward = reader.ReadRandomVariable();
-                    var velocityOutwardOther = reader.ReadRandomVariable();
+                    RandomVariable velocityOutward = default;
+                    reader.ReadRandomVariable(ref velocityOutward);
+                    RandomVariable velocityOutwardOther = default;
+                    reader.ReadRandomVariable(ref velocityOutwardOther);
                     break;
                 default:
                     throw new NotImplementedException();

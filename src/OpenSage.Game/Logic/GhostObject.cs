@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -79,11 +80,12 @@ namespace OpenSage.Logic
                         throw new InvalidStateException();
                     }
 
-                    modelInstance.HouseColor = reader.ReadColorRgba();
+                    reader.ReadColorRgba(ref modelInstance.HouseColor);
 
                     reader.ReadVersion(1);
 
-                    var modelTransform = reader.ReadMatrix4x3Transposed();
+                    var modelTransform = Matrix4x3.Identity;
+                    reader.ReadMatrix4x3Transposed(ref modelTransform);
 
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
@@ -105,7 +107,8 @@ namespace OpenSage.Logic
 
                         reader.ReadBoolean(ref modelInstance.UnknownBools[k]);
 
-                        var meshTransform = reader.ReadMatrix4x3Transposed();
+                        var meshTransform = Matrix4x3.Identity;
+                        reader.ReadMatrix4x3Transposed(ref meshTransform);
 
                         // TODO: meshTransform is actually absolute, not relative.
                         modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();

@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
             _unknown1 = reader.ReadUInt32();
 
             _filledWeaponSlots = reader.ReadUInt32();
-            _combinedAntiMask = reader.ReadEnumFlags<WeaponAntiFlags>();
+            reader.ReadEnumFlags(ref _combinedAntiMask);
 
             _unknown2 = reader.ReadUInt32();
 

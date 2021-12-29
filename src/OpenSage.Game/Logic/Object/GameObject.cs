@@ -1097,7 +1097,8 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _id);
 
-            var transform = reader.ReadMatrix4x3();
+            var transform = Matrix4x3.Identity;
+            reader.ReadMatrix4x3(ref transform);
             SetTransformMatrix(transform.ToMatrix4x4());
 
             var teamId = reader.ReadUInt32();
@@ -1114,8 +1115,7 @@ namespace OpenSage.Logic.Object
             _unknown1 = reader.ReadUInt32();
 
             reader.ReadByte(ref _unknown2);
-
-            _unknownFlags = reader.ReadEnumByteFlags<GameObjectUnknownFlags>();
+            reader.ReadEnumByteFlags(ref _unknownFlags);
 
             _geometry.Load(reader);
 
@@ -1177,7 +1177,7 @@ namespace OpenSage.Logic.Object
             _polygonTriggersState = new PolygonTriggerState[polygonTriggerStateCount];
 
             reader.ReadFrame(ref _enteredOrExitedPolygonTriggerFrame);
-            _integerPosition = reader.ReadPoint3D();
+            reader.ReadPoint3D(ref _integerPosition);
 
             for (var i = 0; i < polygonTriggerStateCount; i++)
             {

@@ -289,7 +289,7 @@ namespace OpenSage.Client
             var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
             CopyModelConditionFlags(modelConditionFlags);
 
-            _transformMatrix = reader.ReadMatrix4x3();
+            reader.ReadMatrix4x3(ref _transformMatrix);
 
             var hasSelectionFlashHelper = _selectionFlashHelper != null;
             reader.ReadBoolean(ref hasSelectionFlashHelper);
@@ -361,7 +361,7 @@ namespace OpenSage.Client
             _unknownInt7 = reader.ReadUInt32();
 
             _flashFrameCount = reader.ReadUInt32();
-            _flashColor = reader.ReadColorRgba();
+            reader.ReadColorRgba(ref _flashColor);
 
             reader.ReadBoolean(ref _unknownBool1);
             reader.ReadBoolean(ref _unknownBool2);
@@ -370,7 +370,7 @@ namespace OpenSage.Client
 
             reader.ReadBoolean(ref _someMatrixIsIdentity);
 
-            _someMatrix = reader.ReadMatrix4x3(false);
+            reader.ReadMatrix4x3(ref _someMatrix, false);
 
             var unknownFloat10 = reader.ReadSingle();
             if (unknownFloat10 != 1)

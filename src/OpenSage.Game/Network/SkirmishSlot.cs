@@ -176,7 +176,7 @@ namespace OpenSage.Network
         internal void Load(SaveFileReader reader)
         {
             reader.ReadEnum(ref _state);
-            PlayerName = reader.ReadUnicodeString();
+            reader.ReadUnicodeString(ref _playerName);
 
             ushort unknown1 = 1;
             reader.ReadUInt16(ref unknown1);
