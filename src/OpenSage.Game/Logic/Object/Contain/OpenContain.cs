@@ -47,7 +47,8 @@ namespace OpenSage.Logic.Object
                 _unknownTransforms[i] = reader.ReadMatrix4x3Transposed();
             }
 
-            var unknown6 = reader.ReadInt32();
+            var unknown6 = -1;
+            reader.ReadInt32(ref unknown6);
             if (unknown6 != -1)
             {
                 throw new InvalidStateException();
@@ -66,11 +67,11 @@ namespace OpenSage.Logic.Object
             {
                 var something = new OpenContainSomething();
                 reader.ReadObjectID(ref something.ObjectId);
-                something.Unknown = reader.ReadInt32();
+                reader.ReadInt32(ref something.Unknown);
                 _unknownList.Add(something);
             }
 
-            _unknownInt = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt);
         }
 
         private struct OpenContainSomething

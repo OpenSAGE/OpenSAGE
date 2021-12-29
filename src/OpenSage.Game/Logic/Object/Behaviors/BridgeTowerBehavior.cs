@@ -13,8 +13,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknown1 = reader.ReadInt32();
-            _unknown2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknown1);
+            reader.ReadInt32(ref _unknown2);
         }
     }
 

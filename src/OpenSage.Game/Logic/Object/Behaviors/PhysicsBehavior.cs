@@ -107,14 +107,10 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.ReadVector3(ref _unknownVector1);
-
             reader.ReadVector3(ref _unknownVector2);
-
             reader.ReadVector3(ref _unknownVector3);
-
             reader.ReadVector3(ref _unknownVector4);
-
-            _unknownInt1 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt1);
 
             _unknownInt2 = reader.ReadUInt32();
 

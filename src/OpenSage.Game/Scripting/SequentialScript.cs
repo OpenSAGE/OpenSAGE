@@ -2,12 +2,12 @@
 {
     internal sealed class SequentialScript
     {
-        public uint Unknown1 { get; private set; }
-        public uint TeamID { get; private set; }
-        public string ScriptName { get; private set; }
-        public uint ScriptActionIndex { get; private set; }
-        public uint LoopsRemaining { get; private set; }
-        public int Unknown2 { get; private set; }
+        public uint Unknown1;
+        public uint TeamID;
+        public string ScriptName;
+        public uint ScriptActionIndex;
+        public uint LoopsRemaining;
+        public int Unknown2 = -1;
 
         public void Load(SaveFileReader reader)
         {
@@ -20,7 +20,7 @@
             ScriptActionIndex = reader.ReadUInt32();
             LoopsRemaining = reader.ReadUInt32();
 
-            Unknown2 = reader.ReadInt32();
+            reader.ReadInt32(ref Unknown2);
             if (Unknown2 != -1)
             {
                 throw new InvalidStateException();

@@ -47,7 +47,7 @@ namespace OpenSage
 
         public void ReadUInt16(ref ushort value) => value = _binaryReader.ReadUInt16();
 
-        public int ReadInt32() => _binaryReader.ReadInt32();
+        public void ReadInt32(ref int value) => value = _binaryReader.ReadInt32();
 
         public uint ReadUInt32() => _binaryReader.ReadUInt32();
 

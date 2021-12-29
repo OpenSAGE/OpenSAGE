@@ -16,9 +16,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownFrame1 = reader.ReadUInt32();
-
-            _unknownFrame2 = reader.ReadUInt32();
+            reader.ReadFrame(ref _unknownFrame1);
+            reader.ReadFrame(ref _unknownFrame2);
 
             var unknownBool1 = reader.ReadBoolean();
             if (!unknownBool1)
@@ -29,7 +28,8 @@ namespace OpenSage.Logic.Object
             _unknownFloat1 = reader.ReadSingle();
             _unknownFloat2 = reader.ReadSingle();
 
-            var unknownInt2 = reader.ReadInt32();
+            var unknownInt2 = -1;
+            reader.ReadInt32(ref unknownInt2);
             if (unknownInt2 != -1)
             {
                 throw new InvalidStateException();

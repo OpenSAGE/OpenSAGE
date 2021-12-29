@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownFrame = reader.ReadUInt32();
+            reader.ReadFrame(ref _unknownFrame);
 
             _unknownBool1 = reader.ReadBoolean();
 

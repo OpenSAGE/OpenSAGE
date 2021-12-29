@@ -1182,13 +1182,14 @@ namespace OpenSage.Logic.Object
                 _polygonTriggersState[i].Load(reader, _gameContext);
             }
 
-            var unknown4 = reader.ReadInt32();
+            var unknown4 = 1;
+            reader.ReadInt32(ref unknown4);
             if (unknown4 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            _unknown5 = reader.ReadInt32(); // 0, 1
+            reader.ReadInt32(ref _unknown5); // 0, 1
 
             IsSelectable = reader.ReadBoolean();
 
@@ -1351,9 +1352,7 @@ namespace OpenSage.Logic.Object
             reader.ReadVersion(1);
 
             reader.ReadEnum(ref _veterancyLevel);
-
-            _experiencePoints = reader.ReadInt32();
-
+            reader.ReadInt32(ref _experiencePoints);
             reader.ReadObjectID(ref _experienceSinkObjectId);
 
             _experienceScalar = reader.ReadSingle();

@@ -92,7 +92,7 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            ProductionPriority = reader.ReadInt32();
+            reader.ReadInt32(ref ProductionPriority);
         }
     }
 }

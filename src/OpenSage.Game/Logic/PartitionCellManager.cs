@@ -206,7 +206,7 @@ namespace OpenSage.Logic
             reader.ReadVector3(ref Position);
             VisionRange = reader.ReadSingle();
             reader.ReadUInt16(ref Unknown);
-            FrameSomething = reader.ReadUInt32();
+            reader.ReadFrame(ref FrameSomething);
         }
     }
 }

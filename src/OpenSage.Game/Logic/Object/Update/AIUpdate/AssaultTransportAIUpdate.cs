@@ -20,7 +20,9 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var memberCount = reader.ReadInt32();
+            var memberCount = _members.Count;
+            reader.ReadInt32(ref memberCount);
+
             for (var i = 0; i < memberCount; i++)
             {
                 var member = new AssaultTransportMember();

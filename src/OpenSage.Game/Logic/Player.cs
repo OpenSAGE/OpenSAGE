@@ -689,7 +689,7 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            _unknownInt2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt2);
             if (_unknownInt2 != 0 && _unknownInt2 != -1)
             {
                 throw new InvalidStateException();
@@ -715,7 +715,7 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            _unknownInt7 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt7);
             if (_unknownInt7 != -1 && _unknownInt7 != 0 && _unknownInt7 != 1)
             {
                 throw new InvalidStateException();
@@ -787,6 +787,11 @@ namespace OpenSage.Logic
 
     public sealed class SkirmishAIPlayer : AIPlayer
     {
+        private int _unknownInt1;
+        private int _unknownInt2;
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+
         internal SkirmishAIPlayer(Player owner)
             : base(owner)
         {
@@ -799,11 +804,11 @@ namespace OpenSage.Logic
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadInt32();
-            var unknownInt2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt1);
+            reader.ReadInt32(ref _unknownInt2);
 
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownFloat2 = reader.ReadSingle();
 
             reader.SkipUnknownBytes(16);
         }

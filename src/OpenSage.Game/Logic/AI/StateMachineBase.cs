@@ -40,7 +40,7 @@ namespace OpenSage.Logic.AI
         {
             reader.ReadVersion(1);
 
-            _unknownFrame = reader.ReadUInt32();
+            reader.ReadFrame(ref _unknownFrame);
             _unknownInt1 = reader.ReadUInt32();
 
             var currentStateID = reader.ReadUInt32();

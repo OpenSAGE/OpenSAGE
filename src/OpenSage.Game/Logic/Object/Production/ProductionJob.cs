@@ -52,10 +52,10 @@ namespace OpenSage.Logic.Object.Production
 
             _unknownFloat = reader.ReadSingle();
 
-            _unknownInt1 = reader.ReadInt32(); // Maybe progress
-            _unknownInt2 = reader.ReadInt32();
-            _unknownInt3 = reader.ReadInt32();
-            _unknownInt4 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt1); // Maybe progress
+            reader.ReadInt32(ref _unknownInt2);
+            reader.ReadInt32(ref _unknownInt3);
+            reader.ReadInt32(ref _unknownInt4);
         }
     }
 

@@ -77,15 +77,19 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState6 : MoveTowardsState
     {
+        private int _unknownInt;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadInt32();
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
+            reader.ReadInt32(ref _unknownInt);
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
         }
     }
 
@@ -137,7 +141,7 @@ namespace OpenSage.Logic.AI
         {
             reader.ReadVersion(1);
 
-            ushort numTeamObjects = (ushort)_objectIds.Count;
+            var numTeamObjects = (ushort)_objectIds.Count;
             reader.ReadUInt16(ref numTeamObjects);
 
             for (var i = 0; i < numTeamObjects; i++)
