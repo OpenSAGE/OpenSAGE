@@ -12,7 +12,7 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
             reader.ReadVersion(1);
 
-            _unknown1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
 
             var ghostObjectCount = (ushort)_ghostObjects.Count;
             reader.ReadUInt16(ref ghostObjectCount);

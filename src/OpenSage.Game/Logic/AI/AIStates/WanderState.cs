@@ -1,9 +1,10 @@
-﻿using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic.AI.AIStates
+﻿namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class WanderState : FollowWaypointsState
     {
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+
         public WanderState()
             : base(false)
         {
@@ -16,8 +17,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var unknownInt0 = reader.ReadUInt32();
-            var unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
         }
     }
 }

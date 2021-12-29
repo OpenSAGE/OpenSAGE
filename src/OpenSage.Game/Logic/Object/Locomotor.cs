@@ -408,8 +408,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownInt1 = reader.ReadUInt32(); // 0, 4
-
+            reader.ReadUInt32(ref _unknownInt1); // 0, 4
             reader.ReadSingle(ref _unknownFloat8); // 0, 100
 
             reader.ReadSingle(ref _unknownFloat9);

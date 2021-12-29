@@ -105,7 +105,9 @@ namespace OpenSage.Logic.Object
             reader.ReadEnum(ref _damageType);
             reader.ReadFrame(ref _unknownFrame1);
 
-            _lastDamageType = (DamageType) reader.ReadUInt32(); // -1 if no last damage
+            var lastDamageType = (uint)_lastDamageType;
+            reader.ReadUInt32(ref lastDamageType);
+            _lastDamageType = (DamageType)lastDamageType; // -1 if no last damage
 
             _lastDamage.Load(reader);
 
@@ -122,7 +124,9 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < particleSystemCount; i++)
             {
-                _particleSystemIds.Add(reader.ReadUInt32());
+                var particleSystemId = 0u;
+                reader.ReadUInt32(ref particleSystemId);
+                _particleSystemIds.Add(particleSystemId);
             }
 
             reader.ReadBitArray(ref _armorSetConditions);

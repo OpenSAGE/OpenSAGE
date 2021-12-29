@@ -498,9 +498,10 @@ namespace OpenSage.Logic.Object
                 _productionQueue.Add(productionJob);
             }
 
-            _nextJobId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _nextJobId);
 
-            var productionJobCount2 = reader.ReadUInt32();
+            var productionJobCount2 = (uint)_productionQueue.Count;
+            reader.ReadUInt32(ref productionJobCount2);
             if (productionJobCount2 != _productionQueue.Count)
             {
                 throw new InvalidStateException();

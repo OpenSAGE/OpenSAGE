@@ -32,7 +32,8 @@ namespace OpenSage.Client
 
         private readonly List<ClientUpdateModule> _clientUpdateModules;
 
-        public uint DrawableID { get; internal set; }
+        // TODO: Make this a property.
+        public uint DrawableID;
 
         private Matrix4x3 _transformMatrix;
 
@@ -284,7 +285,7 @@ namespace OpenSage.Client
         {
             reader.ReadVersion(5);
 
-            DrawableID = reader.ReadUInt32();
+            reader.ReadUInt32(ref DrawableID);
 
             var modelConditionFlags = new BitArray<ModelConditionFlag>();
             reader.ReadBitArray(ref modelConditionFlags);
@@ -330,23 +331,19 @@ namespace OpenSage.Client
 
             reader.ReadSingle(ref _unknownFloat6); // 0, 1
 
-            var objectId = reader.ReadUInt32();
+            var objectId = GameObject.ID;
+            reader.ReadUInt32(ref objectId);
             if (objectId != GameObject.ID)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownInt1 = reader.ReadUInt32();
-
-            _unknownInt2 = reader.ReadUInt32(); // 0, 1
-
-            _unknownInt3 = reader.ReadUInt32();
-
-            _unknownInt4 = reader.ReadUInt32();
-
-            _unknownInt5 = reader.ReadUInt32();
-
-            _unknownInt6 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2); // 0, 1
+            reader.ReadUInt32(ref _unknownInt3);
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _unknownInt5);
+            reader.ReadUInt32(ref _unknownInt6);
 
             reader.ReadBoolean(ref _hasUnknownFloats);
             if (_hasUnknownFloats)
@@ -359,9 +356,9 @@ namespace OpenSage.Client
 
             LoadModules(reader);
 
-            _unknownInt7 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt7);
 
-            _flashFrameCount = reader.ReadUInt32();
+            reader.ReadUInt32(ref _flashFrameCount);
             reader.ReadColorRgba(ref _flashColor);
 
             reader.ReadBoolean(ref _unknownBool1);

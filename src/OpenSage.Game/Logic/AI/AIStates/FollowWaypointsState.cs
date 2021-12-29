@@ -25,12 +25,12 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            _unknownInt1 = reader.ReadUInt32();
-            _unknownInt2 = reader.ReadUInt32();
-            _unknownInt3 = reader.ReadUInt32();
-            _unknownInt4 = reader.ReadUInt32();
-            _waypointIdMaybe1 = reader.ReadUInt32();
-            _waypointIdMaybe2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
+            reader.ReadUInt32(ref _unknownInt3);
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _waypointIdMaybe1);
+            reader.ReadUInt32(ref _waypointIdMaybe2);
             reader.ReadBoolean(ref _unknownBool);
         }
     }

@@ -13,12 +13,11 @@
         {
             reader.ReadVersion(1);
 
-            Unknown1 = reader.ReadUInt32();
-
-            TeamID = reader.ReadUInt32();
+            reader.ReadUInt32(ref Unknown1);
+            reader.ReadUInt32(ref TeamID);
             reader.ReadAsciiString(ref ScriptName);
-            ScriptActionIndex = reader.ReadUInt32();
-            LoopsRemaining = reader.ReadUInt32();
+            reader.ReadUInt32(ref ScriptActionIndex);
+            reader.ReadUInt32(ref LoopsRemaining);
 
             reader.ReadInt32(ref Unknown2);
             if (Unknown2 != -1)

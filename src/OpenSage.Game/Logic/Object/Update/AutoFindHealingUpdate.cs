@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class AutoFindHealingUpdate : UpdateModule
     {
-        // TODO
+        private uint _unknown;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown);
         }
     }
 

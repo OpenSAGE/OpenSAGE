@@ -20,10 +20,8 @@ namespace OpenSage.Logic.Object
                 reader.ReadObjectID(ref _objectIds[i]);
             }
 
-            _unknownInt1 = reader.ReadUInt32();
-
-            _unknownInt2 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
             reader.ReadObjectID(ref _unknownObjectId);
         }
     }

@@ -6,6 +6,8 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly bool _asTeam;
 
+        private uint _waypointId;
+
         public FollowWaypointsExactState(bool asTeam)
         {
             _asTeam = asTeam;
@@ -17,7 +19,7 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var waypointId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _waypointId);
         }
     }
 }

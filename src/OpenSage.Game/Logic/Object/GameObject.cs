@@ -1101,19 +1101,15 @@ namespace OpenSage.Logic.Object
             reader.ReadMatrix4x3(ref transform);
             SetTransformMatrix(transform.ToMatrix4x4());
 
-            var teamId = reader.ReadUInt32();
+            var teamId = Team?.Id ?? 0u;
+            reader.ReadUInt32(ref teamId);
             Team = GameContext.Scene3D.TeamFactory.FindTeamById(teamId);
 
             reader.ReadObjectID(ref _createdByObjectID);
-
-            _builtByObjectID = reader.ReadUInt32();
-
-            Drawable.DrawableID = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _builtByObjectID);
+            reader.ReadUInt32(ref Drawable.DrawableID);
             reader.ReadAsciiString(ref _name);
-
-            _unknown1 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknown1);
             reader.ReadByte(ref _unknown2);
             reader.ReadEnumByteFlags(ref _unknownFlags);
 
@@ -1216,10 +1212,8 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _healedByObjectId);
             reader.ReadFrame(ref _healedEndFrame);
-
             reader.ReadBitArray(ref WeaponSetConditions);
-
-            _weaponBonusTypes = reader.ReadUInt32();
+            reader.ReadUInt32(ref _weaponBonusTypes);
 
             var weaponBonusTypesBitArray = new BitArray<WeaponBonusType>();
             var weaponBonusTypeCount = EnumUtility.GetEnumCount<WeaponBonusType>();

@@ -29,7 +29,8 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            var id = reader.ReadUInt32();
+            var id = Id;
+            reader.ReadUInt32(ref id);
             if (id != Id)
             {
                 throw new InvalidStateException();
@@ -52,15 +53,15 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(5);
 
-            _numDestroyedSomething = reader.ReadUInt32();
+            reader.ReadUInt32(ref _numDestroyedSomething);
 
-            _unknown1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
             if (_unknown1 != 0 && _unknown1 != ObjectIds.Count)
             {
                 throw new InvalidStateException();
             }
 
-            _waypointId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _waypointId);
 
             var unknownCount = (ushort) _unknownBools.Length;
             reader.ReadUInt16(ref unknownCount);

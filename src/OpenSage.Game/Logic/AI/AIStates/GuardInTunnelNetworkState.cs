@@ -55,7 +55,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.ReadVersion(1);
 
-                _unknownInt = reader.ReadUInt32();
+                reader.ReadUInt32(ref _unknownInt);
             }
         }
 
@@ -69,7 +69,7 @@ namespace OpenSage.Logic.AI.AIStates
 
                 base.Load(reader);
 
-                _unknownInt = reader.ReadUInt32();
+                reader.ReadUInt32(ref _unknownInt);
             }
         }
     }

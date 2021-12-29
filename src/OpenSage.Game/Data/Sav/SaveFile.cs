@@ -62,7 +62,7 @@ namespace OpenSage.Data.Sav
                     throw new InvalidStateException();
                 }
 
-                var header3 = reader.ReadUInt32();
+                var header3 = reader.Inner.ReadUInt32();
                 if (header3 != 0)
                 {
                     throw new InvalidStateException();

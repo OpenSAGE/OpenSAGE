@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _particleSystemIds.Length; i++)
             {
-                _particleSystemIds[i] = reader.ReadUInt32();
+                reader.ReadUInt32(ref _particleSystemIds[i]);
             }
         }
     }

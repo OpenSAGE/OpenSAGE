@@ -106,7 +106,9 @@ namespace OpenSage.Logic.Object
             reader.ReadUInt16(ref unknownInt4);
             for (var i = 0; i < unknownInt4; i++)
             {
-                _unknownIntList.Add(reader.ReadUInt32());
+                var value = 0u;
+                reader.ReadUInt32(ref value);
+                _unknownIntList.Add(value);
             }
 
             var unknownBool3 = true;

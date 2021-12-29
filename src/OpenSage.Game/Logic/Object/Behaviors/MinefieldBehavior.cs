@@ -14,8 +14,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _numVirtualMachines = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _numVirtualMachines);
             reader.ReadFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(29);

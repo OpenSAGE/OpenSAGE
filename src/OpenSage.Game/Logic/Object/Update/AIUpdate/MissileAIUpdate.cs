@@ -95,9 +95,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.ReadVector3(ref _unknownPosition);
-
-            _stateMaybe = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _stateMaybe);
             reader.ReadFrame(ref _unknownFrame1);
 
             var unknownInt1 = int.MaxValue;

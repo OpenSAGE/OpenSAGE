@@ -621,22 +621,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
             LoadTemplateData(reader);
 
-            _systemId = reader.ReadUInt32();
-
-            _attachedToDrawableId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _systemId);
+            reader.ReadUInt32(ref _attachedToDrawableId);
             reader.ReadObjectID(ref _attachedToObjectId);
-
             reader.ReadBoolean(ref _isIdentityTransform);
             reader.ReadMatrix4x3Transposed(ref _transform);
-
             reader.ReadBoolean(ref _isIdentityTransform2);
             reader.ReadMatrix4x3Transposed(ref _transform2);
-
-            _unknownInt1 = reader.ReadUInt32(); // Maybe _nextBurst
-            _unknownInt2 = reader.ReadUInt32();
-            _unknownInt3 = reader.ReadUInt32();
-            _unknownInt4 = reader.ReadUInt32();
-            _unknownInt5 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1); // Maybe _nextBurst
+            reader.ReadUInt32(ref _unknownInt2);
+            reader.ReadUInt32(ref _unknownInt3);
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _unknownInt5);
             reader.ReadBoolean(ref _hasInfiniteLifetime);
             reader.ReadSingle(ref _unknownFloat1);
             reader.ReadBoolean(ref _unknownBool1);
@@ -654,12 +650,11 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadVector3(ref _position);
             reader.ReadVector3(ref _positionPrevious);
             reader.ReadBoolean(ref _unknownBool2);
+            reader.ReadUInt32(ref _slaveSystemId);
+            reader.ReadUInt32(ref _masterSystemId);
 
-            _slaveSystemId = reader.ReadUInt32();
-
-            _masterSystemId = reader.ReadUInt32();
-
-            var numParticles = reader.ReadUInt32();
+            var numParticles = 0u;
+            reader.ReadUInt32(ref numParticles);
 
             // TODO: Shouldn't do this.
             _particles = new Particle[numParticles];
@@ -727,7 +722,8 @@ namespace OpenSage.Graphics.ParticleSystems
             RandomVariable lifetime = default;
             reader.ReadRandomVariable(ref lifetime);
 
-            reader.ReadUInt32(); // SystemLifetime
+            var systemLifetime = 0u;
+            reader.ReadUInt32(ref systemLifetime);
 
             RandomVariable size = default;
             reader.ReadRandomVariable(ref size);
@@ -777,7 +773,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             ParticleVelocityType velocityType = default;
             reader.ReadEnum(ref velocityType);
-            var unknown10 = reader.ReadUInt32();
+            var unknown10 = 0u;
+            reader.ReadUInt32(ref unknown10);
             switch (velocityType)
             {
                 case ParticleVelocityType.Ortho:
@@ -840,7 +837,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 default:
                     throw new NotImplementedException();
             }
-            var unknown11 = reader.ReadUInt32();
+            var unknown11 = 0u;
+            reader.ReadUInt32(ref unknown11);
             ParticleSystemWindMotion windMotion = default;
             reader.ReadEnum(ref windMotion);
             var unknown12 = 0.0f;

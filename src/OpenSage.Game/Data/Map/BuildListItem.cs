@@ -50,19 +50,17 @@ namespace OpenSage.Data.Map
 
             reader.ReadSingle(ref _angle);
             reader.ReadBoolean(ref _unknownBool1);
-
-            _rebuilds = reader.ReadUInt32();
+            reader.ReadUInt32(ref _rebuilds);
 
             reader.SkipUnknownBytes(1);
 
-            _startingHealth = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _startingHealth);
             reader.ReadBoolean(ref _unknownBool2);
             reader.ReadBoolean(ref _unknownBool3);
             reader.ReadBoolean(ref _unknownBool4);
             reader.ReadBoolean(ref _unknownBool5);
-            _unknownInt1 = reader.ReadUInt32();
-            _unknownInt2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
             reader.ReadBoolean(ref _unknownBool6);
 
             reader.SkipUnknownBytes(40);

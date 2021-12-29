@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
 
             reader.ReadFrame(ref _countdownStartFrame);
 
-            _unknown = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown);
             if (_unknown != 1 && _unknown != 0)
             {
                 throw new InvalidStateException();

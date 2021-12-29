@@ -101,9 +101,11 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.ReadVersion(1);
 
-            _unknown1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
 
-            var count = reader.ReadUInt32();
+            var count = (uint)_particleSystems.Count;
+            reader.ReadUInt32(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 var templateName = "";

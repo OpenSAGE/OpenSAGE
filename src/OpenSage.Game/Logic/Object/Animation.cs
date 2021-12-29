@@ -28,7 +28,7 @@
             reader.SkipUnknownBytes(1);
 
             reader.ReadUInt16(ref _lastImageIndex);
-            _animationDelayFrames = reader.ReadUInt32();
+            reader.ReadUInt32(ref _animationDelayFrames);
 
             var unknownFloat = 1.0f;
             reader.ReadSingle(ref unknownFloat);

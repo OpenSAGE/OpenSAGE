@@ -169,7 +169,8 @@ namespace OpenSage.Data.Map
         {
             reader.ReadVersion(1);
 
-            var numPoints = reader.ReadUInt32();
+            var numPoints = (uint)Points.Length;
+            reader.ReadUInt32(ref numPoints);
             if (numPoints != Points.Length)
             {
                 throw new InvalidStateException();

@@ -34,11 +34,12 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(9);
 
-            _currentFrame = reader.ReadUInt32();
+            reader.ReadUInt32(ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
-            var gameObjectsCount = reader.ReadUInt32();
+            var gameObjectsCount = (uint)_objects.Count;
+            reader.ReadUInt32(ref gameObjectsCount);
 
             _objects.Clear();
             _objects.Capacity = (int)gameObjectsCount;
@@ -84,19 +85,21 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var numPolygonTriggers = reader.ReadUInt32();
+            var numPolygonTriggers = (uint)_scene3D.MapFile.PolygonTriggers.Triggers.Length;
+            reader.ReadUInt32(ref numPolygonTriggers);
             if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
             {
                 throw new InvalidStateException();
             }
             for (var i = 0; i < numPolygonTriggers; i++)
             {
-                var id = reader.ReadUInt32();
+                var id = 0u;
+                reader.ReadUInt32(ref id);
                 var polygonTrigger = _scene3D.MapFile.PolygonTriggers.GetPolygonTriggerById(id);
                 polygonTrigger.Load(reader);
             }
 
-            _rankLevelLimit = reader.ReadUInt32();
+            reader.ReadUInt32(ref _rankLevelLimit);
 
             reader.SkipUnknownBytes(4);
 
@@ -139,7 +142,8 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var unknown3 = reader.ReadUInt32();
+            var unknown3 = uint.MaxValue;
+            reader.ReadUInt32(ref unknown3);
             if (unknown3 != uint.MaxValue)
             {
                 throw new InvalidStateException();
@@ -192,7 +196,9 @@ namespace OpenSage.Logic
 
             _nameLookup.Clear();
 
-            var count = reader.ReadUInt32();
+            var count = (uint)_nameLookup.Count;
+            reader.ReadUInt32(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 var name = "";

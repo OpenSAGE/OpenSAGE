@@ -110,8 +110,7 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _launcherObjectId);
             reader.ReadObjectID(ref _targetObjectId);
-
-            _unknown1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
 
             for (var i = 0; i < 7; i++)
             {
@@ -119,8 +118,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.ReadAsciiString(ref _weaponThatFiredThis);
-
-            _unknown2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown2);
         }
     }
 

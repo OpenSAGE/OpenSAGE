@@ -89,7 +89,8 @@ namespace OpenSage.Logic
 
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
-                    var numMeshes = reader.ReadUInt32();
+                    var numMeshes = (uint)model.SubObjects.Length;
+                    reader.ReadUInt32(ref numMeshes);
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
                         throw new InvalidStateException();
@@ -120,7 +121,7 @@ namespace OpenSage.Logic
             if (_hasUnknownThing)
             {
                 reader.ReadByte(ref _unknownByte);
-                _unknownInt = reader.ReadUInt32();
+                reader.ReadUInt32(ref _unknownInt);
             }
         }
     }

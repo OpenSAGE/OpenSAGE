@@ -291,8 +291,8 @@ namespace OpenSage
                 _radarEvents.Add(radarEvent);
             }
 
-            _unknown2 = reader.ReadUInt32();
-            _unknown3 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown2);
+            reader.ReadUInt32(ref _unknown3);
         }
     }
 
@@ -349,20 +349,15 @@ namespace OpenSage
         public void Load(SaveFileReader reader)
         {
             reader.ReadEnum(ref Type);
-
             reader.ReadBoolean(ref _unknown1);
-
-            _unknown2 = reader.ReadUInt32();
-            _unknown3 = reader.ReadUInt32();
-            _unknown4 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknown2);
+            reader.ReadUInt32(ref _unknown3);
+            reader.ReadUInt32(ref _unknown4);
             reader.ReadColorRgbaInt(ref _color1);
             reader.ReadColorRgbaInt(ref _color2);
             reader.ReadVector3(ref Position);
-
-            _unknown5 = reader.ReadUInt32();
-            _unknown6 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknown5);
+            reader.ReadUInt32(ref _unknown6);
             reader.ReadBoolean(ref _unknown7);
         }
     }

@@ -17,8 +17,8 @@
 
             reader.ReadAsciiString(ref CampaignName);
             reader.ReadAsciiString(ref MissionName);
-            _unknown = reader.ReadUInt32();
-            _difficultyMaybe = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown);
+            reader.ReadUInt32(ref _difficultyMaybe);
 
             if (version >= 5)
             {

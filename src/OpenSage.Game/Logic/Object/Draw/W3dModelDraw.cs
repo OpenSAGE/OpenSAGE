@@ -411,11 +411,9 @@ namespace OpenSage.Logic.Object
                 reader.ReadByte(ref unknownCount);
                 for (var j = 0; j < unknownCount; j++)
                 {
-                    var something = new W3dModelDrawSomething
-                    {
-                        UnknownInt = reader.ReadUInt32(),
-                    };
+                    var something = new W3dModelDrawSomething();
 
+                    reader.ReadUInt32(ref something.UnknownInt);
                     reader.ReadSingle(ref something.UnknownFloat1);
                     reader.ReadSingle(ref something.UnknownFloat2);
 

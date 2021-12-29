@@ -12,8 +12,8 @@
 
             base.Load(reader);
 
-            _frameStart = reader.ReadUInt32();
-            _frameEnd = reader.ReadUInt32();
+            reader.ReadUInt32(ref _frameStart);
+            reader.ReadUInt32(ref _frameEnd);
 
             reader.SkipUnknownBytes(4);
 

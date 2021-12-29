@@ -368,14 +368,15 @@ namespace OpenSage.Gui.InGame
         {
             reader.ReadVersion(2);
 
-            _unknown1 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknown1); // 0
             reader.ReadBoolean(ref _unknown2);
             reader.ReadBoolean(ref _unknown3);
             reader.ReadBoolean(ref _unknown4);
-            _unknown5 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
-            var something = reader.ReadUInt32();
+            var something = 0u;
+            reader.ReadUInt32(ref something);
             while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
             {
                 var item = new SuperweaponSomething();
@@ -383,15 +384,15 @@ namespace OpenSage.Gui.InGame
                 reader.ReadAsciiString(ref item.UnknownString1);
                 reader.ReadAsciiString(ref item.UnknownString2);
 
-                item.UnknownInt1 = reader.ReadUInt32();
-                item.UnknownInt2 = reader.ReadUInt32(); // 0xFFFFFFFF
+                reader.ReadUInt32(ref item.UnknownInt1);
+                reader.ReadUInt32(ref item.UnknownInt2); // 0xFFFFFFFF
                 reader.ReadBoolean(ref item.UnknownBool1);
                 reader.ReadBoolean(ref item.UnknownBool2);
                 reader.ReadBoolean(ref item.UnknownBool3);
 
                 _superweaponSomethings.Add(item);
 
-                something = reader.ReadUInt32();
+                reader.ReadUInt32(ref something);
             }
         }
     }
