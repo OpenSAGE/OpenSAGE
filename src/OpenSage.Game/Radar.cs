@@ -281,7 +281,9 @@ namespace OpenSage
 
             _radarEvents.Clear();
 
-            var numRadarEvents = reader.ReadUInt16();
+            var numRadarEvents = (ushort) _radarEvents.Count;
+            reader.ReadUInt16(ref numRadarEvents);
+
             for (var i = 0; i < numRadarEvents; i++)
             {
                 var radarEvent = new RadarEvent();
@@ -300,7 +302,8 @@ namespace OpenSage
         {
             reader.ReadVersion(1);
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.ReadUInt16(ref count);
 
             for (var i = 0; i < count; i++)
             {

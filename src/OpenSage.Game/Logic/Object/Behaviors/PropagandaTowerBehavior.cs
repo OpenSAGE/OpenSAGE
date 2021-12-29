@@ -17,7 +17,9 @@ namespace OpenSage.Logic.Object
 
             reader.ReadFrame(ref _unknownFrame);
 
-            var count = reader.ReadUInt16();
+            var count = (ushort)_objectIds.Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 uint objectId = 0;

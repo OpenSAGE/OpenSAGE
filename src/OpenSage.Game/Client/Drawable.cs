@@ -407,10 +407,14 @@ namespace OpenSage.Client
         {
             reader.ReadVersion(1);
 
-            var numModuleGroups = reader.ReadUInt16();
+            ushort numModuleGroups = 0;
+            reader.ReadUInt16(ref numModuleGroups);
+
             for (var i = 0; i < numModuleGroups; i++)
             {
-                var numModules = reader.ReadUInt16();
+                ushort numModules = 0;
+                reader.ReadUInt16(ref numModules);
+
                 for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
                 {
                     var moduleTag = reader.ReadAsciiString();

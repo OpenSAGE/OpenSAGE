@@ -1155,7 +1155,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var numUpgrades = reader.ReadUInt16();
+            var numUpgrades = (ushort)_upgrades.Count;
+            reader.ReadUInt16(ref numUpgrades);
+
             for (var i = 0; i < numUpgrades; i++)
             {
                 var upgradeName = reader.ReadAsciiString();
@@ -1195,7 +1197,8 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             // Modules
-            var numModules = reader.ReadUInt16();
+            ushort numModules = 0;
+            reader.ReadUInt16(ref numModules);
             for (var i = 0; i < numModules; i++)
             {
                 var moduleTag = reader.ReadAsciiString();

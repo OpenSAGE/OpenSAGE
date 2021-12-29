@@ -60,7 +60,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(13);
 
-            var unknown9Count = reader.ReadUInt16();
+            var unknown9Count = (ushort)_unknownList.Count;
+            reader.ReadUInt16(ref unknown9Count);
             for (var i = 0; i < unknown9Count; i++)
             {
                 var something = new OpenContainSomething();

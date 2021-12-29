@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
@@ -16,13 +17,15 @@ namespace OpenSage
         public BinaryReader Inner => _binaryReader;
 
         public readonly SageGame SageGame;
+        public readonly AssetStore AssetStore;
 
-        internal SaveFileReader(BinaryReader binaryReader, SageGame sageGame)
+        internal SaveFileReader(BinaryReader binaryReader, Game game)
         {
             _binaryReader = binaryReader;
             _segments = new Stack<Segment>();
 
-            SageGame = sageGame;
+            SageGame = game.SageGame;
+            AssetStore = game.AssetStore;
         }
 
         public byte ReadVersion(byte maximumVersion)
@@ -40,9 +43,9 @@ namespace OpenSage
             value = _binaryReader.ReadByte();
         }
 
-        public short ReadInt16() => _binaryReader.ReadInt16();
+        public void ReadInt16(ref short value) => value = _binaryReader.ReadInt16();
 
-        public ushort ReadUInt16() => _binaryReader.ReadUInt16();
+        public void ReadUInt16(ref ushort value) => value = _binaryReader.ReadUInt16();
 
         public int ReadInt32() => _binaryReader.ReadInt32();
 
@@ -165,7 +168,9 @@ namespace OpenSage
         {
             ReadVersion(1);
 
-            var numItems = ReadUInt16();
+            var numItems = (ushort)set.Count;
+            ReadUInt16(ref numItems);
+
             for (var j = 0; j < numItems; j++)
             {
                 var objectNameAndId = new ObjectNameAndId
@@ -178,6 +183,8 @@ namespace OpenSage
                 set.Add(objectNameAndId);
             }
         }
+
+        public delegate T ReadListItemCallback<T>(SaveFileReader reader);
 
         public unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
         {

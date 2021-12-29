@@ -2,14 +2,18 @@
 {
     internal sealed class IdleState : State
     {
+        private ushort _unknownShort;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
         internal override void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            var unknownShort1 = reader.ReadUInt16();
+            reader.ReadUInt16(ref _unknownShort);
 
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
         }
     }
 }

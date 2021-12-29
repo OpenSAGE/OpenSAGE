@@ -28,10 +28,13 @@ namespace OpenSage.Client
 
             _objectDefinitionLookupTable.Load(reader);
 
-            var drawablesCount = reader.ReadUInt16();
+            ushort drawablesCount = 0;
+            reader.ReadUInt16(ref drawablesCount);
+
             for (var i = 0; i < drawablesCount; i++)
             {
-                var objectDefinitionId = reader.ReadUInt16();
+                ushort objectDefinitionId = 0;
+                reader.ReadUInt16(ref objectDefinitionId);
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                 reader.BeginSegment(objectDefinition.Name);

@@ -40,7 +40,7 @@ namespace OpenSage.Logic
         private bool _unknown2;
         private uint _unknown3;
         private bool _hasInsufficientPower;
-        private BuildListItem[] _buildListItems;
+        private readonly List<BuildListItem> _buildListItems = new();
         private TunnelManager _tunnelManager;
         private uint _unknown4;
         private uint _unknown5;
@@ -398,7 +398,8 @@ namespace OpenSage.Logic
 
             BankAccount.Load(reader);
 
-            var upgradeQueueCount = reader.ReadUInt16();
+            var upgradeQueueCount = (ushort)_upgrades.Count;
+            reader.ReadUInt16(ref upgradeQueueCount);
 
             reader.SkipUnknownBytes(1);
 
@@ -438,7 +439,9 @@ namespace OpenSage.Logic
                 }
             }
 
-            var numTeamTemplates = reader.ReadUInt16();
+            var numTeamTemplates = (ushort) _teamTemplates.Count;
+            reader.ReadUInt16(ref numTeamTemplates);
+
             for (var i = 0; i < numTeamTemplates; i++)
             {
                 var teamTemplateId = reader.ReadUInt32();
@@ -450,12 +453,14 @@ namespace OpenSage.Logic
                 _teamTemplates.Add(teamTemplate);
             }
 
-            var buildListItemCount = reader.ReadUInt16();
-            _buildListItems = new BuildListItem[buildListItemCount];
+            var buildListItemCount = (ushort) _buildListItems.Count;
+            reader.ReadUInt16(ref buildListItemCount);
+
             for (var i = 0; i < buildListItemCount; i++)
             {
-                _buildListItems[i] = new BuildListItem();
-                _buildListItems[i].Load(reader);
+                var buildListItem = new BuildListItem();
+                buildListItem.Load(reader);
+                _buildListItems.Add(buildListItem);
             }
 
             var isAIPlayer = reader.ReadBoolean();
@@ -522,7 +527,9 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(4);
 
-            var numControlGroups = reader.ReadUInt16();
+            var numControlGroups = (ushort)_controlGroups.Count;
+            reader.ReadUInt16(ref numControlGroups);
+
             for (var i = 0; i < numControlGroups; i++)
             {
                 var controlGroup = new ObjectIdSet();
@@ -622,8 +629,8 @@ namespace OpenSage.Logic
     {
         private readonly Player _owner;
 
-        private AIPlayerUnknownThing[] _unknownThings;
-        private AIPlayerUnknownThing[] _unknownThings2;
+        private readonly List<AIPlayerUnknownThing> _unknownThings = new();
+        private readonly List<AIPlayerUnknownThing> _unknownThings2 = new();
         private bool _unknownBool1;
         private bool _unknownBool2;
         private uint _unknownInt1;
@@ -647,20 +654,24 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            var unknownCount = reader.ReadUInt16();
-            _unknownThings = new AIPlayerUnknownThing[unknownCount];
+            var unknownCount = (ushort) _unknownThings.Count;
+            reader.ReadUInt16(ref unknownCount);
+
             for (var i = 0; i < unknownCount; i++)
             {
-                _unknownThings[i] = new AIPlayerUnknownThing();
-                _unknownThings[i].Load(reader);
+                var thing = new AIPlayerUnknownThing();
+                thing.Load(reader);
+                _unknownThings.Add(thing);
             }
 
-            var unknownCount2 = reader.ReadUInt16();
-            _unknownThings2 = new AIPlayerUnknownThing[unknownCount2];
+            var unknownCount2 = (ushort) _unknownThings2.Count;
+            reader.ReadUInt16(ref unknownCount2);
+
             for (var i = 0; i < unknownCount2; i++)
             {
-                _unknownThings2[i] = new AIPlayerUnknownThing();
-                _unknownThings2[i].Load(reader);
+                var thing = new AIPlayerUnknownThing();
+                thing.Load(reader);
+                _unknownThings2.Add(thing);
             }
 
             var playerId = reader.ReadUInt32();
@@ -719,22 +730,30 @@ namespace OpenSage.Logic
 
         private sealed class AIPlayerUnknownThing
         {
+            private readonly List<AIPlayerUnknownOtherThing> _unknownThings = new();
+            private bool _unknownBool;
+            private uint _unknownInt1;
+            private uint _unknownInt2;
+
             internal void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(1);
 
-                var count = reader.ReadUInt16();
+                var count = (ushort) _unknownThings.Count;
+                reader.ReadUInt16(ref count);
+
                 for (var i = 0; i < count; i++)
                 {
                     var otherThing = new AIPlayerUnknownOtherThing();
                     otherThing.Load(reader);
+                    _unknownThings.Add(otherThing);
                 }
 
-                var unknownBool7 = reader.ReadBoolean();
+                _unknownBool = reader.ReadBoolean();
 
-                var unknownInt2_1 = reader.ReadUInt32(); // 11
+                _unknownInt1 = reader.ReadUInt32(); // 11
 
-                var unknownInt4 = reader.ReadUInt32();
+                _unknownInt2 = reader.ReadUInt32();
 
                 reader.SkipUnknownBytes(7);
             }
@@ -819,12 +838,7 @@ namespace OpenSage.Logic
 
     public sealed class PlayerRelationships
     {
-        private readonly Dictionary<uint, RelationshipType> _store;
-
-        public PlayerRelationships()
-        {
-            _store = new Dictionary<uint, RelationshipType>();
-        }
+        private readonly Dictionary<uint, RelationshipType> _store = new();
 
         internal void Load(SaveFileReader reader)
         {
@@ -832,7 +846,9 @@ namespace OpenSage.Logic
 
             _store.Clear();
 
-            var count = reader.ReadUInt16();
+            var count = (ushort)_store.Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 var playerOrTeamId = reader.ReadUInt32();
@@ -857,7 +873,9 @@ namespace OpenSage.Logic
 
             Clear();
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 var name = reader.ReadAsciiString();
@@ -879,7 +897,9 @@ namespace OpenSage.Logic
 
             Clear();
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 Add(reader.ReadAsciiString());
@@ -897,7 +917,9 @@ namespace OpenSage.Logic
 
             Clear();
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 Add(reader.ReadUInt32());
@@ -925,7 +947,9 @@ namespace OpenSage.Logic
 
             reader.ReadVersion(1);
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.ReadUInt16(ref count);
+
             for (var i = 0; i < count; i++)
             {
                 var objectType = reader.ReadAsciiString();
@@ -1075,7 +1099,9 @@ namespace OpenSage.Logic
 
             _objectsBuilt.Load(reader);
 
-            if (reader.ReadUInt16() != _objectsDestroyedPerPlayer.Length)
+            var numObjectsDestroyedPerPlayer = (ushort) _objectsDestroyedPerPlayer.Length;
+            reader.ReadUInt16(ref numObjectsDestroyedPerPlayer);
+            if (numObjectsDestroyedPerPlayer != _objectsDestroyedPerPlayer.Length)
             {
                 throw new InvalidStateException();
             }

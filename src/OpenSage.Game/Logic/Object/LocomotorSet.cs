@@ -66,7 +66,9 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(1);
 
-            var numLocomotorTemplates = reader.ReadUInt16();
+            var numLocomotorTemplates = (ushort) _locomotors.Count;
+            reader.ReadUInt16(ref numLocomotorTemplates);
+
             for (var i = 0; i < numLocomotorTemplates; i++)
             {
                 var locomotorTemplateName = reader.ReadAsciiString();

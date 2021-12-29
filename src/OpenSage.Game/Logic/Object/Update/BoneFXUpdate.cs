@@ -14,7 +14,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var particleSystemCount = reader.ReadUInt16();
+            var particleSystemCount = (ushort)_particleSystemIds.Count;
+            reader.ReadUInt16(ref particleSystemCount);
             for (var i = 0; i < particleSystemCount; i++)
             {
                 _particleSystemIds.Add(reader.ReadUInt32());

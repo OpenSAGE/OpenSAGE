@@ -8,12 +8,12 @@ namespace OpenSage.Data.Sav
 {
     public static class SaveFile
     {
-        public static GameState GetGameState(FileSystemEntry entry)
+        public static GameState GetGameState(FileSystemEntry entry, Game game)
         {
             using (var stream = entry.Open())
             using (var binaryReader = new BinaryReader(stream, Encoding.Unicode, true))
             {
-                var reader = new SaveFileReader(binaryReader, SageGame.CncGenerals);
+                var reader = new SaveFileReader(binaryReader, game);
 
                 while (true)
                 {
@@ -45,7 +45,7 @@ namespace OpenSage.Data.Sav
         {
             using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
 
-            var reader = new SaveFileReader(binaryReader, game.SageGame);
+            var reader = new SaveFileReader(binaryReader, game);
 
             if (reader.SageGame >= SageGame.Bfme)
             {

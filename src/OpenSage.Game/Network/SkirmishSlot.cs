@@ -174,8 +174,9 @@ namespace OpenSage.Network
             State = reader.ReadEnum<SkirmishSlotState>();
             PlayerName = reader.ReadUnicodeString();
 
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 1u)
+            ushort unknown1 = 1;
+            reader.ReadUInt16(ref unknown1);
+            if (unknown1 != 1)
             {
                 throw new InvalidStateException();
             }

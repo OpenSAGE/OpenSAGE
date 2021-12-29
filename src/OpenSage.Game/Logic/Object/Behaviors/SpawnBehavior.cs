@@ -104,7 +104,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownInt4 = reader.ReadUInt16();
+            var unknownInt4 = (ushort)_unknownIntList.Count;
+            reader.ReadUInt16(ref unknownInt4);
             for (var i = 0; i < unknownInt4; i++)
             {
                 _unknownIntList.Add(reader.ReadUInt32());
@@ -116,7 +117,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var objectCount = reader.ReadUInt16();
+            var objectCount = (ushort)_unknownObjectList.Count;
+            reader.ReadUInt16(ref objectCount);
             for (var i = 0; i < objectCount; i++)
             {
                 uint objectId = 0;
@@ -124,7 +126,7 @@ namespace OpenSage.Logic.Object
                 _unknownObjectList.Add(objectId);
             }
 
-            _unknownInt3 = reader.ReadUInt16();
+            reader.ReadUInt16(ref _unknownInt3);
             if (_unknownInt3 != 0 && _unknownInt3 != 1)
             {
                 throw new InvalidStateException();

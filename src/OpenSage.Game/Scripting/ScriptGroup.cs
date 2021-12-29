@@ -123,7 +123,8 @@ namespace OpenSage.Scripting
         {
             reader.ReadVersion(1);
 
-            var numScripts = reader.ReadUInt16();
+            var numScripts = (ushort) Scripts.Length;
+            reader.ReadUInt16(ref numScripts);
 
             if (numScripts != Scripts.Length)
             {

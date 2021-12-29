@@ -22,10 +22,10 @@ namespace OpenSage.Scripting
         internal CameraFadeOverlay CameraFadeOverlay;
 
         private readonly ScriptingFlag[] _flags = new ScriptingFlag[128];
-        private uint _numFlags;
+        private ushort _numFlags;
 
         private readonly ScriptingCounter[] _counters = new ScriptingCounter[128];
-        private uint _numCounters;
+        private ushort _numCounters;
 
         private readonly List<AttackPriority> _attackPriorities = new();
         private readonly List<ObjectNameAndId> _unknownSomethings = new();
@@ -272,7 +272,9 @@ namespace OpenSage.Scripting
         {
             reader.ReadVersion(5);
 
-            var numSequentialScripts = reader.ReadUInt16();
+            var numSequentialScripts = (ushort) _sequentialScripts.Count;
+            reader.ReadUInt16(ref numSequentialScripts);
+
             for (var i = 0; i < numSequentialScripts; i++)
             {
                 var sequentialScript = new SequentialScript();
@@ -280,7 +282,7 @@ namespace OpenSage.Scripting
                 _sequentialScripts.Add(sequentialScript);
             }
 
-            _numCounters = reader.ReadUInt16();
+            reader.ReadUInt16(ref _numCounters);
 
             for (var i = 0; i < _numCounters; i++)
             {
@@ -297,7 +299,7 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            _numFlags = reader.ReadUInt16();
+            reader.ReadUInt16(ref _numFlags);
 
             for (var i = 0; i < _numFlags; i++)
             {
@@ -313,7 +315,8 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            var numAttackPrioritySets = reader.ReadUInt16();
+            var numAttackPrioritySets = (ushort) _attackPriorities.Count;
+            reader.ReadUInt16(ref numAttackPrioritySets);
 
             for (var i = 0; i < numAttackPrioritySets; i++)
             {
@@ -340,7 +343,9 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            var unknownCount = reader.ReadUInt16();
+            var unknownCount = (ushort) _unknownSomethings.Count;
+            reader.ReadUInt16(ref unknownCount);
+
             for (var i = 0; i < unknownCount; i++)
             {
                 var objectNameAndId = new ObjectNameAndId
@@ -362,7 +367,9 @@ namespace OpenSage.Scripting
                 reader.SkipUnknownBytes(2);
             }
 
-            var numSpecialPowerSets = reader.ReadUInt16();
+            var numSpecialPowerSets = (ushort) _specialPowers.Length;
+            reader.ReadUInt16(ref numSpecialPowerSets);
+
             if (numSpecialPowerSets != _specialPowers.Length)
             {
                 throw new InvalidStateException();
@@ -373,7 +380,9 @@ namespace OpenSage.Scripting
                 reader.ReadObjectNameAndIdSet(_specialPowers[i]);
             }
 
-            var numUnknown1Sets = reader.ReadUInt16();
+            ushort numUnknown1Sets = 0;
+            reader.ReadUInt16(ref numUnknown1Sets);
+
             for (var i = 0; i < numUnknown1Sets; i++)
             {
                 reader.ReadVersion(1);
@@ -381,7 +390,9 @@ namespace OpenSage.Scripting
                 reader.SkipUnknownBytes(2);
             }
 
-            var numUnknown2Sets = reader.ReadUInt16();
+            ushort numUnknown2Sets = 0;
+            reader.ReadUInt16(ref numUnknown2Sets);
+
             for (var i = 0; i < numUnknown2Sets; i++)
             {
                 reader.ReadVersion(1);
@@ -389,7 +400,9 @@ namespace OpenSage.Scripting
                 reader.SkipUnknownBytes(2);
             }
 
-            var numUpgradeSets = reader.ReadUInt16();
+            var numUpgradeSets = (ushort)_upgrades.Length;
+            reader.ReadUInt16(ref numUpgradeSets);
+
             if (numUpgradeSets != _upgrades.Length)
             {
                 throw new InvalidStateException();
@@ -400,7 +413,14 @@ namespace OpenSage.Scripting
                 reader.ReadObjectNameAndIdSet(_upgrades[i]);
             }
 
-            var numScienceSets = reader.ReadUInt16();
+            var numScienceSets = (ushort) _sciences.Length;
+            reader.ReadUInt16(ref numScienceSets);
+
+            if (numScienceSets != _sciences.Length)
+            {
+                throw new InvalidStateException();
+            }
+
             for (var i = 0; i < numScienceSets; i++)
             {
                 _sciences[i].Load(reader);
@@ -434,7 +454,9 @@ namespace OpenSage.Scripting
 
             reader.SkipUnknownBytes(1);
 
-            var numMapReveals = reader.ReadUInt16();
+            var numMapReveals = (ushort) _mapReveals.Count;
+            reader.ReadUInt16(ref numMapReveals);
+
             for (var i = 0; i < numMapReveals; i++)
             {
                 _mapReveals.Add(new MapReveal
@@ -446,7 +468,9 @@ namespace OpenSage.Scripting
                 });
             }
 
-            var numObjectTypeLists = reader.ReadUInt16();
+            var numObjectTypeLists = (ushort) _objectTypeLists.Count;
+            reader.ReadUInt16(ref numObjectTypeLists);
+
             for (var i = 0; i < numObjectTypeLists; i++)
             {
                 var objectTypeList = new ObjectTypeList();
