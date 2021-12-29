@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknown = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown);
         }
     }
 

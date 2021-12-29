@@ -45,11 +45,11 @@ namespace OpenSage.Scripting
             reader.ReadSingle(ref To);
 
             reader.ReadSingle(ref CurrentValue);
-            CurrentFrame = reader.ReadUInt32();
+            reader.ReadUInt32(ref CurrentFrame);
 
-            FramesIncrease = reader.ReadUInt32();
-            FramesHold = reader.ReadUInt32();
-            FramesDecrease = reader.ReadUInt32();
+            reader.ReadUInt32(ref FramesIncrease);
+            reader.ReadUInt32(ref FramesHold);
+            reader.ReadUInt32(ref FramesDecrease);
         }
 
         public void Update()

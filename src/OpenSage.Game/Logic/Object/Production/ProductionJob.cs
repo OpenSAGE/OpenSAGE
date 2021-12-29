@@ -48,8 +48,7 @@ namespace OpenSage.Logic.Object.Production
 
         internal void Load(SaveFileReader reader)
         {
-            _jobId = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _jobId);
             reader.ReadSingle(ref _unknownFloat);
             reader.ReadInt32(ref _unknownInt1); // Maybe progress
             reader.ReadInt32(ref _unknownInt2);

@@ -49,13 +49,13 @@ namespace OpenSage
 
         public void ReadInt32(ref int value) => value = _binaryReader.ReadInt32();
 
-        public uint ReadUInt32() => _binaryReader.ReadUInt32();
+        public void ReadUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
 
         public void ReadBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
 
-        public void ReadObjectID(ref uint value) => value = ReadUInt32();
+        public void ReadObjectID(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public void ReadFrame(ref uint value) => value = ReadUInt32();
+        public void ReadFrame(ref uint value) => value = _binaryReader.ReadUInt32();
 
         public void ReadAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
@@ -133,7 +133,8 @@ namespace OpenSage
 
             var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
 
-            var count = ReadUInt32();
+            var count = _binaryReader.ReadUInt32();
+
             for (var i = 0; i < count; i++)
             {
                 var stringValue = "";

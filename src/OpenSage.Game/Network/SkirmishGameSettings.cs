@@ -83,14 +83,15 @@ namespace OpenSage.Network
         {
             reader.ReadVersion(2);
 
-            _unknownInt1 = reader.ReadUInt32(); // 25600 (160^2)
+            reader.ReadUInt32(ref _unknownInt1); // 25600 (160^2)
             reader.ReadInt32(ref _unknownInt2);
             reader.ReadBoolean(ref _unknownBool1);
             reader.ReadBoolean(ref _unknownBool2);
             reader.ReadBoolean(ref _unknownBool3);
-            _unknownInt3 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknownInt3); // 0
 
-            var numPlayers = reader.ReadUInt32(); // 8
+            var numPlayers = (uint)MaxNumberOfPlayers;
+            reader.ReadUInt32(ref numPlayers); // 8
             if (numPlayers != MaxNumberOfPlayers)
             {
                 throw new InvalidStateException();
@@ -106,12 +107,10 @@ namespace OpenSage.Network
             reader.SkipUnknownBytes(4);
 
             reader.ReadAsciiString(ref _mapName);
-
-            _mapFileCrc = reader.ReadUInt32();
-            _mapFileSize = reader.ReadUInt32();
-
-            _unknownInt4 = reader.ReadUInt32();
-            _unknownInt5 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _mapFileCrc);
+            reader.ReadUInt32(ref _mapFileSize);
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _unknownInt5);
         }
     }
 }

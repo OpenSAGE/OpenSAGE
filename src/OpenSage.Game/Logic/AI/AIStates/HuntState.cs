@@ -4,6 +4,8 @@
     {
         private readonly AttackAreaStateMachine _stateMachine;
 
+        private uint _unknownInt;
+
         public HuntState()
         {
             _stateMachine = new AttackAreaStateMachine();
@@ -22,7 +24,7 @@
 
             _stateMachine.Load(reader);
 
-            var unknownInt = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt);
         }
     }
 }

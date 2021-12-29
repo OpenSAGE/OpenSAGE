@@ -49,7 +49,8 @@ namespace OpenSage.Data.Map
         {
             reader.ReadVersion(1);
 
-            var numSides = reader.ReadUInt32();
+            var numSides = (uint)ScriptLists.Length;
+            reader.ReadUInt32(ref numSides);
             if (numSides != ScriptLists.Length)
             {
                 throw new InvalidStateException();

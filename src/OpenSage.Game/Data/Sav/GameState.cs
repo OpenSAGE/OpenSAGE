@@ -22,7 +22,7 @@ namespace OpenSage.Data.Sav
             reader.ReadUnicodeString(ref DisplayName);
             reader.ReadAsciiString(ref MapFileName);
             reader.ReadAsciiString(ref Side);
-            MissionIndex = reader.ReadUInt32();
+            reader.ReadUInt32(ref MissionIndex);
         }
     }
 }

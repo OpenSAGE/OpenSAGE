@@ -52,7 +52,8 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var partitionCellCount = reader.ReadUInt32();
+            var partitionCellCount = (uint)_cells.Length;
+            reader.ReadUInt32(ref partitionCellCount);
             if (partitionCellCount != _cells.Length)
             {
                 throw new InvalidStateException();
@@ -97,7 +98,8 @@ namespace OpenSage.Logic
             File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
 #endif
 
-            var shroudRevealCount = reader.ReadUInt32();
+            var shroudRevealCount = (uint)_shroudReveals.Count;
+            reader.ReadUInt32(ref shroudRevealCount);
             for (var i = 0; i < shroudRevealCount; i++)
             {
                 var shroudReveal = new ShroudReveal();

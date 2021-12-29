@@ -14,8 +14,7 @@ namespace OpenSage.Logic.AI.AIStates
             base.Load(reader);
 
             reader.ReadVector3(ref _unknownPos);
-
-            _unknownInt = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt);
 
             reader.SkipUnknownBytes(4);
         }

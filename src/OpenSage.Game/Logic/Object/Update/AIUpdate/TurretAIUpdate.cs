@@ -216,9 +216,7 @@ namespace OpenSage.Logic.Object
             reader.ReadSingle(ref _unknownFloat2);
 
             reader.ReadFrame(ref _unknownFrame1);
-
-            _unknownInt1 = reader.ReadUInt32(); // 0, 1
-
+            reader.ReadUInt32(ref _unknownInt1); // 0, 1
             reader.ReadFrame(ref _unknownFrame2);
 
             for (var i = 0; i < 7; i++)

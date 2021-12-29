@@ -24,7 +24,7 @@ namespace OpenSage.Client
         {
             reader.ReadVersion(3);
 
-            _currentFrame = reader.ReadUInt32();
+            reader.ReadUInt32(ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
@@ -39,7 +39,9 @@ namespace OpenSage.Client
 
                 reader.BeginSegment(objectDefinition.Name);
 
-                var objectID = reader.ReadUInt32();
+                var objectID = 0u;
+                reader.ReadUInt32(ref objectID);
+
                 var gameObject = _gameLogic.GetObjectById(objectID);
 
                 gameObject.Drawable.Load(reader);
@@ -49,7 +51,8 @@ namespace OpenSage.Client
                 reader.EndSegment();
             }
 
-            var numBriefingTexts = reader.ReadUInt32();
+            var numBriefingTexts = (uint)_briefingTexts.Count;
+            reader.ReadUInt32(ref numBriefingTexts);
             for (var i = 0; i < numBriefingTexts; i++)
             {
                 var briefingText = "";

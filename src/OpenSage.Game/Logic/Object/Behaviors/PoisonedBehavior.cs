@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(12);
 
-            _unknown = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown);
         }
     }
 

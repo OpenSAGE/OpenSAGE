@@ -11,8 +11,7 @@
 
             base.Load(reader);
 
-            _numShotsFiredAtLastTarget = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _numShotsFiredAtLastTarget);
             reader.ReadObjectID(ref _lastTargetObjectId);
 
             reader.SkipUnknownBytes(4);

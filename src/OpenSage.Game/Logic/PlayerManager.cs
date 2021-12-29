@@ -99,7 +99,8 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            var numPlayers = reader.ReadUInt32();
+            var numPlayers = (uint)_players.Count;
+            reader.ReadUInt32(ref numPlayers);
             if (numPlayers != _players.Count)
             {
                 throw new InvalidStateException();

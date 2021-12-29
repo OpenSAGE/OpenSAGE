@@ -35,8 +35,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             reader.ReadObjectID(ref _unknownObjectId);
-
-            _unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
 
             reader.SkipUnknownBytes(4);
 
@@ -75,19 +74,22 @@ namespace OpenSage.Logic.Object
                 reader.ReadSingle(ref _unknownFloat3);
                 reader.ReadVector3(ref _unknownVector);
 
-                var unknown12 = reader.ReadUInt32();
+                var unknown12 = 0xFACADEu;
+                reader.ReadUInt32(ref unknown12);
                 if (unknown12 != 0xFACADE)
                 {
                     throw new InvalidStateException();
                 }
 
-                var unknown13 = reader.ReadUInt32();
+                var unknown13 = 0xFACADEu;
+                reader.ReadUInt32(ref unknown13);
                 if (unknown13 != 0xFACADE)
                 {
                     throw new InvalidStateException();
                 }
 
-                var unknown14 = reader.ReadUInt32();
+                var unknown14 = 0xFACADEu;
+                reader.ReadUInt32(ref unknown14);
                 if (unknown14 != 0xFACADE)
                 {
                     throw new InvalidStateException();

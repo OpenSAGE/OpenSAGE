@@ -20,12 +20,11 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.ReadBoolean(ref _unknownBool1);
-
-            _unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
 
             reader.SkipUnknownBytes(4);
 
-            _unknownInt2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(16);
 
@@ -38,8 +37,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(7);
 
-            _unknownInt3 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknownInt3);
             reader.ReadBoolean(ref _unknownBool2);
 
             reader.SkipUnknownBytes(1);

@@ -59,18 +59,20 @@ namespace OpenSage.Logic
             return new AttackPriorityTarget
             {
                 _target = parser.ParseAssetReference(),
-                Value = parser.ParseUnsignedInteger()
+                _value = parser.ParseUnsignedInteger()
             };
         }
 
         private string _target;
         public string Target => _target;
-        public uint Value { get; private set; }
+
+        private uint _value;
+        public uint Value => _value;
 
         internal void Load(SaveFileReader reader)
         {
             reader.ReadAsciiString(ref _target);
-            Value = reader.ReadUInt32();
+            reader.ReadUInt32(ref _value);
         }
     }
 }

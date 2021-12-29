@@ -9,6 +9,8 @@ namespace OpenSage.Logic.AI
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
+
+        private uint _stateSomethingId;
         private State _stateSomething;
 
         public AIStateMachine()
@@ -49,7 +51,9 @@ namespace OpenSage.Logic.AI
 
             base.Load(reader);
 
-            var numTargetPositions = reader.ReadUInt32();
+            var numTargetPositions = (uint)_targetPositions.Count;
+            reader.ReadUInt32(ref numTargetPositions);
+
             for (var i = 0; i < numTargetPositions; i++)
             {
                 Vector3 targetPosition = default;
@@ -67,10 +71,10 @@ namespace OpenSage.Logic.AI
                 _targetTeam.Load(reader);
             }
 
-            var stateSomethingId = reader.ReadUInt32();
-            if (stateSomethingId != 999999)
+            reader.ReadUInt32(ref _stateSomethingId);
+            if (_stateSomethingId != 999999)
             {
-                _stateSomething = GetState(stateSomethingId);
+                _stateSomething = GetState(_stateSomethingId);
                 _stateSomething.Load(reader);
             }
         }

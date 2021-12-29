@@ -56,7 +56,8 @@ namespace OpenSage.Logic
             reader.ReadVersion(2);
 
             // This will be the same as the existing Owner, unless control of this team has been transferred.
-            var ownerPlayerId = reader.ReadUInt32();
+            var ownerPlayerId = Owner.Id;
+            reader.ReadUInt32(ref ownerPlayerId);
             Owner = players.GetPlayerByIndex(ownerPlayerId);
 
             reader.ReadAsciiString(ref _attackPriorityName);
@@ -69,7 +70,8 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < teamCount; i++)
             {
-                var id = reader.ReadUInt32();
+                var id = 0u;
+                reader.ReadUInt32(ref id);
 
                 var team = FindTeamById(id);
                 if (team == null)

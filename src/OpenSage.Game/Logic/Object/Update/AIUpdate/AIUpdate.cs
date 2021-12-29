@@ -292,36 +292,37 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownInt1 = reader.ReadUInt32();
-            _unknownInt2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
 
             _stateMachine.Load(reader);
 
-            _unknownInt3 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt3);
             reader.ReadBoolean(ref _unknownBool1);
             reader.ReadBoolean(ref _unknownBool2);
-            _unknownInt4 = reader.ReadUInt32();
-            _unknownInt5 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _unknownInt5);
             reader.ReadSingle(ref _unknownFloat1); // 999999
-            _unknownInt6 = reader.ReadUInt32(); // 2
-            _unknownInt7 = reader.ReadUInt32(); // 3
-            _unknownInt8 = reader.ReadUInt32(); // 3
-            _unknownInt9 = reader.ReadUInt32(); // 3
-            _unknownInt10 = reader.ReadUInt32(); // 0
-            _unknownInt11 = reader.ReadUInt32(); // 0
-            _unknownInt12 = reader.ReadUInt32(); // 0
-            _unknownInt13 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknownInt6); // 2
+            reader.ReadUInt32(ref _unknownInt7); // 3
+            reader.ReadUInt32(ref _unknownInt8); // 3
+            reader.ReadUInt32(ref _unknownInt9); // 3
+            reader.ReadUInt32(ref _unknownInt10); // 0
+            reader.ReadUInt32(ref _unknownInt11); // 0
+            reader.ReadUInt32(ref _unknownInt12); // 0
+            reader.ReadUInt32(ref _unknownInt13); // 0
             reader.ReadBoolean(ref _unknownBool3);
             reader.ReadBoolean(ref _unknownBool4);
             reader.ReadBoolean(ref _unknownBool5); // 0
             reader.ReadBoolean(ref _unknownBool6); // 0
             reader.ReadAsciiString(ref _guardAreaPolygonTriggerName);
             reader.ReadAsciiString(ref _attackPriorityName);
-            _unknownInt14 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknownInt14); // 0
             reader.ReadBoolean(ref _unknownBool7);
-            _unknownInt15 = reader.ReadUInt32(); // 0
+            reader.ReadUInt32(ref _unknownInt15); // 0
 
-            var unknownInt16 = reader.ReadUInt32();
+            var unknownInt16 = 0x7FFFFFFFu;
+            reader.ReadUInt32(ref unknownInt16);
             if (unknownInt16 != 0x7FFFFFFF)
             {
                 throw new InvalidStateException();
@@ -337,7 +338,7 @@ namespace OpenSage.Logic.Object
                 _path.Load(reader);
             }
 
-            _unknownInt16 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt16);
             reader.ReadVector3(ref _unknownPosition1);
 
             reader.SkipUnknownBytes(12);
@@ -375,14 +376,13 @@ namespace OpenSage.Logic.Object
                 ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
                 : null;
 
-            _unknownInt17 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt17);
             if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownInt18 = reader.ReadUInt32(); // 0, 1
-
+            reader.ReadUInt32(ref _unknownInt18); // 0, 1
             reader.ReadSingle(ref _angleSomething);
 
             reader.SkipUnknownBytes(8);
@@ -551,7 +551,9 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(1);
 
-            var numPathPoints = reader.ReadUInt32();
+            var numPathPoints = (uint)_points.Count;
+            reader.ReadUInt32(ref numPathPoints);
+
             for (var i = 0; i < numPathPoints; i++)
             {
                 var pathPoint = new PathPoint();
@@ -560,8 +562,8 @@ namespace OpenSage.Logic.Object
             }
 
             reader.ReadBoolean(ref _unknownBool1);
-            _unknownInt1 = reader.ReadUInt32();
-            _unknownInt2 = reader.ReadUInt32(); // 1
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2); // 1
             reader.ReadBoolean(ref _unknownBool2);
         }
     }
@@ -576,11 +578,11 @@ namespace OpenSage.Logic.Object
 
         internal void Load(SaveFileReader reader)
         {
-            _id = reader.ReadUInt32();
+            reader.ReadUInt32(ref _id);
             reader.ReadVector3(ref _position);
-            _unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
             reader.ReadBoolean(ref _unknownBool1);
-            _nextId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _nextId);
         }
     }
 }

@@ -30,6 +30,8 @@
 
     internal sealed class DockStateMachine : StateMachineBase
     {
+        private uint _unknownInt;
+
         public DockStateMachine()
         {
             AddState(0, new DockApproachDockState());
@@ -45,7 +47,7 @@
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt);
         }
 
         private sealed class DockApproachDockState : MoveTowardsState
@@ -60,11 +62,13 @@
 
         private sealed class DockUnknown1State : State
         {
+            private uint _unknownInt;
+
             internal override void Load(SaveFileReader reader)
             {
                 reader.ReadVersion(2);
 
-                var unknownInt = reader.ReadUInt32();
+                reader.ReadUInt32(ref _unknownInt);
             }
         }
 

@@ -22,7 +22,7 @@ namespace OpenSage.Client
             reader.ReadVector3(ref _decreasingColorDelta);
             reader.ReadVector3(ref _targetColor);
             reader.ReadVector3(ref _currentColor);
-            _holdFrames = reader.ReadUInt32();
+            reader.ReadUInt32(ref _holdFrames);
             reader.ReadBoolean(ref _isActive);
             reader.ReadEnumByte(ref _state);
         }

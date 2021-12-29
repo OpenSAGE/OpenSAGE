@@ -22,8 +22,11 @@ namespace OpenSage.Data.Sav
 
             if (reader.SageGame >= SageGame.Bfme)
             {
-                var unknown4 = reader.ReadUInt32();
-                var unknown5 = reader.ReadUInt32();
+                var unknown4 = 0u;
+                reader.ReadUInt32(ref unknown4);
+
+                var unknown5 = 0u;
+                reader.ReadUInt32(ref unknown5);
 
                 mapSize -= 8;
             }
@@ -45,8 +48,11 @@ namespace OpenSage.Data.Sav
 
             reader.EndSegment();
 
-            var nextObjectId = reader.ReadUInt32();
-            var nextDrawableId = reader.ReadUInt32();
+            var nextObjectId = 0u;
+            reader.ReadUInt32(ref nextObjectId);
+
+            var nextDrawableId = 0u;
+            reader.ReadUInt32(ref nextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {

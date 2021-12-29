@@ -10,7 +10,10 @@ namespace OpenSage.Logic.AI
 
         private uint _unknownFrame;
         private uint _unknownInt1;
+
+        private uint _currentStateId;
         private State _currentState;
+
         private uint _unknownInt2;
         private Vector3 _unknownPosition;
         private bool _unknownBool1;
@@ -41,16 +44,16 @@ namespace OpenSage.Logic.AI
             reader.ReadVersion(1);
 
             reader.ReadFrame(ref _unknownFrame);
-            _unknownInt1 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt1);
 
-            var currentStateID = reader.ReadUInt32();
-            _currentState = GetState(currentStateID);
+            reader.ReadUInt32(ref _currentStateId);
+            _currentState = GetState(_currentStateId);
 
             reader.SkipUnknownBytes(1);
 
             _currentState.Load(reader);
 
-            _unknownInt2 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt2);
             reader.ReadVector3(ref _unknownPosition);
             reader.ReadBoolean(ref _unknownBool1);
             reader.ReadBoolean(ref _unknownBool2);

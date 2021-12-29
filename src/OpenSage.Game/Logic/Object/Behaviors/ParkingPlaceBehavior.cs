@@ -229,7 +229,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown1 = reader.ReadUInt32();
+            var unknown1 = 4u;
+            reader.ReadUInt32(ref unknown1);
             if (unknown1 != 4)
             {
                 throw new InvalidStateException();
@@ -237,7 +238,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(17);
 
-            var unknown2 = reader.ReadUInt32();
+            var unknown2 = 2u;
+            reader.ReadUInt32(ref unknown2);
             if (unknown2 != 2)
             {
                 throw new InvalidStateException();
@@ -245,7 +247,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(29);
 
-            var unknown3 = reader.ReadUInt32();
+            var unknown3 = 0x3FFFFFFFu;
+            reader.ReadUInt32(ref unknown3);
             if (unknown3 != 0x3FFFFFFF)
             {
                 throw new InvalidStateException();

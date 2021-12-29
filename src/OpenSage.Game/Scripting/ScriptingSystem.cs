@@ -293,7 +293,8 @@ namespace OpenSage.Scripting
                 reader.ReadBoolean(ref counter.IsTimer);
             }
 
-            var numTimersAndCounters2 = reader.ReadUInt32();
+            var numTimersAndCounters2 = (uint)_numCounters;
+            reader.ReadUInt32(ref numTimersAndCounters2);
             if (numTimersAndCounters2 != _numCounters)
             {
                 throw new InvalidStateException();
@@ -309,7 +310,8 @@ namespace OpenSage.Scripting
                 reader.ReadAsciiString(ref flag.Name);
             }
 
-            var numFlags2 = reader.ReadUInt32();
+            var numFlags2 = (uint)_numFlags;
+            reader.ReadUInt32(ref numFlags2);
             if (numFlags2 != _numFlags)
             {
                 throw new InvalidStateException();
@@ -325,7 +327,8 @@ namespace OpenSage.Scripting
                 _attackPriorities.Add(attackPriority);
             }
 
-            var numAttackPrioritySets2 = reader.ReadUInt32();
+            var numAttackPrioritySets2 = (uint)numAttackPrioritySets;
+            reader.ReadUInt32(ref numAttackPrioritySets2);
             if (numAttackPrioritySets2 != numAttackPrioritySets)
             {
                 throw new InvalidStateException();
@@ -442,13 +445,14 @@ namespace OpenSage.Scripting
                 reader.ReadSingle(ref _unknownFloats[i]);
             }
 
-            var unknown16 = reader.ReadUInt32();
+            var unknown16 = 150u;
+            reader.ReadUInt32(ref unknown16);
             if (unknown16 != 150)
             {
                 throw new InvalidStateException();
             }
 
-            _unknown17 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown17);
             if (_unknown17 != 0 && _unknown17 != 1 && _unknown17 != 2)
             {
                 throw new InvalidStateException();

@@ -89,14 +89,10 @@ namespace OpenSage.Logic.Object
             }
 
             reader.ReadEnum(ref _currentWeaponSlot);
-
-            _unknown1 = reader.ReadUInt32();
-
-            _filledWeaponSlots = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
+            reader.ReadUInt32(ref _filledWeaponSlots);
             reader.ReadEnumFlags(ref _combinedAntiMask);
-
-            _unknown2 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknown2);
             reader.ReadBoolean(ref _unknown3);
             reader.ReadBoolean(ref _unknown4);
         }

@@ -23,7 +23,9 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var numObjectsInside = reader.ReadUInt32();
+            var numObjectsInside = (uint)_containedObjectIds.Count;
+            reader.ReadUInt32(ref numObjectsInside);
+
             for (var i = 0; i < numObjectsInside; i++)
             {
                 uint containedObjectId = 0;
@@ -54,9 +56,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _nextFirePointIndex = reader.ReadUInt32();
-            _numFirePoints = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _nextFirePointIndex);
+            reader.ReadUInt32(ref _numFirePoints);
             reader.ReadBoolean(ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);

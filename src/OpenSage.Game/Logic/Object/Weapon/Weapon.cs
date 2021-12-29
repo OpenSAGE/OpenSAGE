@@ -140,12 +140,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownInt1 = reader.ReadUInt32();
-
-            _unknownInt2 = reader.ReadUInt32();
-
-            _unknownInt3 = reader.ReadUInt32();
-
+            reader.ReadUInt32(ref _unknownInt1);
+            reader.ReadUInt32(ref _unknownInt2);
+            reader.ReadUInt32(ref _unknownInt3);
             reader.ReadFrame(ref _unknownFrame1);
 
             reader.SkipUnknownBytes(4);
@@ -157,11 +154,9 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            _unknownInt4 = reader.ReadUInt32();
-
-            _unknownInt5 = reader.ReadUInt32();
-
-            _unknownInt6 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknownInt4);
+            reader.ReadUInt32(ref _unknownInt5);
+            reader.ReadUInt32(ref _unknownInt6);
 
             reader.SkipUnknownBytes(2);
 

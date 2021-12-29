@@ -20,13 +20,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknown1 = reader.ReadUInt32();
-            _unknown2 = reader.ReadUInt32();
-            _unknown3 = reader.ReadUInt32();
-            _unknown4 = reader.ReadUInt32();
-            _unknown5 = reader.ReadUInt32();
-            _unknown6 = reader.ReadUInt32();
-            _unknown7 = reader.ReadUInt32();
+            reader.ReadUInt32(ref _unknown1);
+            reader.ReadUInt32(ref _unknown2);
+            reader.ReadUInt32(ref _unknown3);
+            reader.ReadUInt32(ref _unknown4);
+            reader.ReadUInt32(ref _unknown5);
+            reader.ReadUInt32(ref _unknown6);
+            reader.ReadUInt32(ref _unknown7);
 
             var unknown7_1 = true;
             reader.ReadBoolean(ref unknown7_1);

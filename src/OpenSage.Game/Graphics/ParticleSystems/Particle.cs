@@ -73,7 +73,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 var alphaKeyframeAlpha = 0.0f;
                 reader.ReadSingle(ref alphaKeyframeAlpha);
 
-                var alphaKeyframeTime = reader.ReadUInt32();
+                var alphaKeyframeTime = 0u;
+                reader.ReadUInt32(ref alphaKeyframeTime);
 
                 AlphaKeyframes.Add(new ParticleAlphaKeyframe(
                     alphaKeyframeTime,
@@ -84,7 +85,10 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 Vector3 colorKeyframeColor = default;
                 reader.ReadVector3(ref colorKeyframeColor);
-                var colorKeyframeTime = reader.ReadUInt32();
+
+                var colorKeyframeTime = 0u;
+                reader.ReadUInt32(ref colorKeyframeTime);
+
                 ColorKeyframes.Add(new ParticleColorKeyframe(
                     colorKeyframeTime,
                     colorKeyframeColor));
@@ -93,23 +97,18 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadSingle(ref ColorScale);
             reader.ReadBoolean(ref IsParticleUpTowardsEmitter);
             reader.ReadSingle(ref UnknownFloat);
-
-            ParticleId = reader.ReadUInt32();
+            reader.ReadUInt32(ref ParticleId);
 
             reader.SkipUnknownBytes(24);
 
-            UnknownInt2 = reader.ReadUInt32(); // 49
-            UnknownInt3 = reader.ReadUInt32(); // 1176
-
+            reader.ReadUInt32(ref UnknownInt2); // 49
+            reader.ReadUInt32(ref UnknownInt3); // 1176
             reader.ReadSingle(ref Alpha);
-
-            UnknownInt4 = reader.ReadUInt32(); // 0
-            UnknownInt5 = reader.ReadUInt32(); // 1
-
+            reader.ReadUInt32(ref UnknownInt4); // 0
+            reader.ReadUInt32(ref UnknownInt5); // 1
             reader.ReadVector3(ref Color);
             reader.ReadVector3(ref UnknownVector);
-
-            UnknownInt6 = reader.ReadUInt32(); // 1
+            reader.ReadUInt32(ref UnknownInt6); // 1
 
             reader.SkipUnknownBytes(8);
         }

@@ -105,7 +105,7 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            _lastTeamId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _lastTeamId);
 
             var count = (ushort) _teamTemplatesById.Count;
             reader.ReadUInt16(ref count);
@@ -117,7 +117,8 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < count; i++)
             {
-                var id = reader.ReadUInt32();
+                var id = 0u;
+                reader.ReadUInt32(ref id);
                 var teamTemplate = _teamTemplatesById[id];
                 teamTemplate.Load(reader, players);
             }

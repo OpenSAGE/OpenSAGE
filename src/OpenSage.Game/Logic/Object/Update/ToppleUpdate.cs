@@ -125,7 +125,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(9);
 
-            _stumpId = reader.ReadUInt32();
+            reader.ReadUInt32(ref _stumpId);
         }
 
         private enum ToppleState
