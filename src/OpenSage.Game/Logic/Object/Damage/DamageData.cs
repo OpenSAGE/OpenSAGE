@@ -2,20 +2,21 @@
 {
     public struct DamageData
     {
-        public DamageDataInput Input;
-        public DamageDataOutput Output;
+        public DamageDataRequest Request;
+        public DamageDataResult Result;
 
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            Input.Load(reader);
-            Output.Load(reader);
+            Request.Load(reader);
+            Result.Load(reader);
         }
     }
 
-    public struct DamageDataInput
+    public struct DamageDataRequest
     {
+        // These values are the damage inputs that are to be done to the body.
         public uint ObjectId;
         public ushort Unknown1;
         public DamageType DamageType;
@@ -30,14 +31,13 @@
             reader.ReadUInt16(ref Unknown1);
             reader.ReadEnum(ref DamageType);
             reader.ReadEnum(ref DeathType);
-
-            Unknown4 = reader.ReadSingle();
+            reader.ReadSingle(ref Unknown4);
         }
     }
 
-    public struct DamageDataOutput
+    public struct DamageDataResult
     {
-        // These are the damage that is to be applied to the body.
+        // These values are the actual damage that the body calculates for itself.
         public float Unknown1;
         public float Unknown2;
 
@@ -45,8 +45,8 @@
         {
             reader.ReadVersion(1);
 
-            Unknown1 = reader.ReadSingle();
-            Unknown2 = reader.ReadSingle();
+            reader.ReadSingle(ref Unknown1);
+            reader.ReadSingle(ref Unknown2);
 
             reader.SkipUnknownBytes(1);
         }

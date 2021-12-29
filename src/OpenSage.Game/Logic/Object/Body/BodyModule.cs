@@ -24,7 +24,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownFloat = reader.ReadSingle();
+            var unknownFloat = 1.0f;
+            reader.ReadSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();

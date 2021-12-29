@@ -201,7 +201,8 @@ namespace OpenSage.Data.Map
             // height = (bottomRight.Y - topLeft.Y) * 0.5
             //
             // As it is, this "radius" is significantly larger than it should be.
-            var _ = reader.ReadSingle();
+            var buggyRadius = 0.0f;
+            reader.ReadSingle(ref buggyRadius);
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 

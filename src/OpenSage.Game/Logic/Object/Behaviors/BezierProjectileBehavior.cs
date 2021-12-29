@@ -115,7 +115,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < 7; i++)
             {
-                _unknownFloats[i] = reader.ReadSingle();
+                reader.ReadSingle(ref _unknownFloats[i]);
             }
 
             reader.ReadAsciiString(ref _weaponThatFiredThis);

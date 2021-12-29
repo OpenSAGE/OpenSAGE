@@ -37,13 +37,14 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            var unknown9 = reader.ReadSingle();
+            var unknown9 = 300.0f;
+            reader.ReadSingle(ref unknown9);
             if (unknown9 != 300.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat);
         }
     }
 

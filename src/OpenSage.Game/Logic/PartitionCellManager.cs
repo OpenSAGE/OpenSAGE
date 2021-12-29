@@ -45,7 +45,8 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(2);
 
-            var partitionCellSize = reader.ReadSingle();
+            var partitionCellSize = _partitionCellSize;
+            reader.ReadSingle(ref partitionCellSize);
             if (partitionCellSize != _partitionCellSize)
             {
                 throw new InvalidStateException();
@@ -204,7 +205,7 @@ namespace OpenSage.Logic
             reader.ReadVersion(1);
 
             reader.ReadVector3(ref Position);
-            VisionRange = reader.ReadSingle();
+            reader.ReadSingle(ref VisionRange);
             reader.ReadUInt16(ref Unknown);
             reader.ReadFrame(ref FrameSomething);
         }

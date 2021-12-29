@@ -116,7 +116,7 @@ namespace OpenSage.Logic.Object
 
             _unknownInt3 = reader.ReadUInt32();
 
-            _mass = reader.ReadSingle();
+            reader.ReadSingle(ref _mass);
 
             _unknownInt4 = reader.ReadUInt32();
 
@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(8);
 
-            _unknownFloat1 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
         }
     }
 

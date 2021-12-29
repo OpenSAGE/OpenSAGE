@@ -30,7 +30,8 @@
             reader.ReadUInt16(ref _lastImageIndex);
             _animationDelayFrames = reader.ReadUInt32();
 
-            var unknownFloat = reader.ReadSingle();
+            var unknownFloat = 1.0f;
+            reader.ReadSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();

@@ -281,7 +281,7 @@ namespace OpenSage.Logic.Object
 
         public TimeSpan? LifeTime { get; set; }
 
-        public float BuildProgress { get; set; }
+        public float BuildProgress;
 
         public bool Destroyed { get; set; }
 
@@ -1123,8 +1123,8 @@ namespace OpenSage.Logic.Object
 
             _shroudRevealSomething2.Load(reader);
 
-            _visionRange = reader.ReadSingle();
-            _shroudClearingRange = reader.ReadSingle();
+            reader.ReadSingle(ref _visionRange);
+            reader.ReadSingle(ref _shroudClearingRange);
 
             reader.SkipUnknownBytes(4);
 
@@ -1146,7 +1146,7 @@ namespace OpenSage.Logic.Object
             reader.ReadFrame(ref _containedFrame);
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
-            BuildProgress = reader.ReadSingle();
+            reader.ReadSingle(ref BuildProgress);
 
             byte unknown3 = 1;
             reader.ReadByte(ref unknown3);
@@ -1358,8 +1358,7 @@ namespace OpenSage.Logic.Object
             reader.ReadEnum(ref _veterancyLevel);
             reader.ReadInt32(ref _experiencePoints);
             reader.ReadObjectID(ref _experienceSinkObjectId);
-
-            _experienceScalar = reader.ReadSingle();
+            reader.ReadSingle(ref _experienceScalar);
         }
     }
 

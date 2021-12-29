@@ -41,10 +41,10 @@ namespace OpenSage.Scripting
         {
             reader.ReadEnum(ref FadeType);
 
-            From = reader.ReadSingle();
-            To = reader.ReadSingle();
+            reader.ReadSingle(ref From);
+            reader.ReadSingle(ref To);
 
-            CurrentValue = reader.ReadSingle();
+            reader.ReadSingle(ref CurrentValue);
             CurrentFrame = reader.ReadUInt32();
 
             FramesIncrease = reader.ReadUInt32();

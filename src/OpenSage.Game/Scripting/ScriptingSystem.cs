@@ -439,7 +439,7 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < 6; i++)
             {
-                _unknownFloats[i] = reader.ReadSingle();
+                reader.ReadSingle(ref _unknownFloats[i]);
             }
 
             var unknown16 = reader.ReadUInt32();
@@ -465,7 +465,7 @@ namespace OpenSage.Scripting
 
                 reader.ReadAsciiString(ref mapReveal.Name);
                 reader.ReadAsciiString(ref mapReveal.Waypoint);
-                mapReveal.Radius = reader.ReadSingle();
+                reader.ReadSingle(ref mapReveal.Radius);
                 reader.ReadAsciiString(ref mapReveal.Player);
 
                 _mapReveals.Add(mapReveal);

@@ -411,12 +411,15 @@ namespace OpenSage.Logic.Object
                 reader.ReadByte(ref unknownCount);
                 for (var j = 0; j < unknownCount; j++)
                 {
-                    _unknownSomething[i].Add(new W3dModelDrawSomething
+                    var something = new W3dModelDrawSomething
                     {
                         UnknownInt = reader.ReadUInt32(),
-                        UnknownFloat1 = reader.ReadSingle(),
-                        UnknownFloat2 = reader.ReadSingle()
-                    });
+                    };
+
+                    reader.ReadSingle(ref something.UnknownFloat1);
+                    reader.ReadSingle(ref something.UnknownFloat2);
+
+                    _unknownSomething[i].Add(something);
                 }
             }
 
@@ -426,7 +429,7 @@ namespace OpenSage.Logic.Object
             if (_hasUnknownThing)
             {
                 reader.ReadInt32(ref _unknownInt);
-                _unknownFloat = reader.ReadSingle();
+                reader.ReadSingle(ref _unknownFloat);
             }
         }
 

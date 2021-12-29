@@ -54,33 +54,27 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.ReadVersion(1);
 
             reader.ReadVector3(ref Velocity);
-
             reader.ReadVector3(ref Position);
-
             reader.ReadVector3(ref EmitterPosition);
-
-            VelocityDamping = reader.ReadSingle();
-
-            AngleX = reader.ReadSingle();
-            AngleY = reader.ReadSingle();
-            AngleZ = reader.ReadSingle();
-
-            AngularRateX = reader.ReadSingle();
-            AngularRateY = reader.ReadSingle();
-            AngularRateZ = reader.ReadSingle();
-
+            reader.ReadSingle(ref VelocityDamping);
+            reader.ReadSingle(ref AngleX);
+            reader.ReadSingle(ref AngleY);
+            reader.ReadSingle(ref AngleZ);
+            reader.ReadSingle(ref AngularRateX);
+            reader.ReadSingle(ref AngularRateY);
+            reader.ReadSingle(ref AngularRateZ);
             reader.ReadInt32(ref Lifetime);
-
-            Size = reader.ReadSingle();
-
-            SizeRate = reader.ReadSingle();
-
-            SizeRateDamping = reader.ReadSingle();
+            reader.ReadSingle(ref Size);
+            reader.ReadSingle(ref SizeRate);
+            reader.ReadSingle(ref SizeRateDamping);
 
             for (var i = 0; i < 8; i++)
             {
-                var alphaKeyframeAlpha = reader.ReadSingle();
+                var alphaKeyframeAlpha = 0.0f;
+                reader.ReadSingle(ref alphaKeyframeAlpha);
+
                 var alphaKeyframeTime = reader.ReadUInt32();
+
                 AlphaKeyframes.Add(new ParticleAlphaKeyframe(
                     alphaKeyframeTime,
                     alphaKeyframeAlpha));
@@ -96,11 +90,9 @@ namespace OpenSage.Graphics.ParticleSystems
                     colorKeyframeColor));
             }
 
-            ColorScale = reader.ReadSingle();
-
+            reader.ReadSingle(ref ColorScale);
             reader.ReadBoolean(ref IsParticleUpTowardsEmitter);
-
-            UnknownFloat = reader.ReadSingle();
+            reader.ReadSingle(ref UnknownFloat);
 
             ParticleId = reader.ReadUInt32();
 
@@ -109,13 +101,12 @@ namespace OpenSage.Graphics.ParticleSystems
             UnknownInt2 = reader.ReadUInt32(); // 49
             UnknownInt3 = reader.ReadUInt32(); // 1176
 
-            Alpha = reader.ReadSingle();
+            reader.ReadSingle(ref Alpha);
 
             UnknownInt4 = reader.ReadUInt32(); // 0
             UnknownInt5 = reader.ReadUInt32(); // 1
 
             reader.ReadVector3(ref Color);
-
             reader.ReadVector3(ref UnknownVector);
 
             UnknownInt6 = reader.ReadUInt32(); // 1

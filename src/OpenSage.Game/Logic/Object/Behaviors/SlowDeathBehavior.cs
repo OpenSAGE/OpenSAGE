@@ -142,13 +142,9 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.ReadFrame(ref _frameSinkStart);
-
             reader.ReadFrame(ref _frameMidpoint);
-
             reader.ReadFrame(ref _frameDestruction);
-
-            _slowDeathScale = reader.ReadSingle();
-
+            reader.ReadSingle(ref _slowDeathScale);
             reader.ReadEnumFlags(ref _flags);
         }
 

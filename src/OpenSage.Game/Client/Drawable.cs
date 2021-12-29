@@ -310,25 +310,25 @@ namespace OpenSage.Client
 
             reader.ReadEnum(ref _objectDecalType);
 
-            var unknownFloat1 = reader.ReadSingle();
+            var unknownFloat1 = 1.0f;
+            reader.ReadSingle(ref unknownFloat1);
             if (unknownFloat1 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat2 = reader.ReadSingle(); // 0, 1
+            reader.ReadSingle(ref _unknownFloat2); // 0, 1
+            reader.ReadSingle(ref _unknownFloat3); // 0, 1
+            reader.ReadSingle(ref _unknownFloat4); // 0, 1
 
-            _unknownFloat3 = reader.ReadSingle(); // 0, 1
-
-            _unknownFloat4 = reader.ReadSingle(); // 0, 1
-
-            var unknownFloat5 = reader.ReadSingle();
+            var unknownFloat5 = 0.0f;
+            reader.ReadSingle(ref unknownFloat5);
             if (unknownFloat5 != 0)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat6 = reader.ReadSingle(); // 0, 1
+            reader.ReadSingle(ref _unknownFloat6); // 0, 1
 
             var objectId = reader.ReadUInt32();
             if (objectId != GameObject.ID)
@@ -353,7 +353,7 @@ namespace OpenSage.Client
             {
                 for (var j = 0; j < 19; j++)
                 {
-                    _unknownFloats[j] = reader.ReadSingle();
+                    reader.ReadSingle(ref _unknownFloats[j]);
                 }
             }
 
@@ -373,7 +373,8 @@ namespace OpenSage.Client
 
             reader.ReadMatrix4x3(ref _someMatrix, false);
 
-            var unknownFloat10 = reader.ReadSingle();
+            var unknownFloat10 = 1.0f;
+            reader.ReadSingle(ref unknownFloat10);
             if (unknownFloat10 != 1)
             {
                 throw new InvalidStateException();

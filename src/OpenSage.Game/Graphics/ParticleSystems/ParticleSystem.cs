@@ -638,12 +638,13 @@ namespace OpenSage.Graphics.ParticleSystems
             _unknownInt4 = reader.ReadUInt32();
             _unknownInt5 = reader.ReadUInt32();
             reader.ReadBoolean(ref _hasInfiniteLifetime);
-            _unknownFloat1 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
             reader.ReadBoolean(ref _unknownBool1);
 
             for (var i = 0; i < 6; i++)
             {
-                var unknown25 = reader.ReadSingle();
+                var unknown25 = 1.0f;
+                reader.ReadSingle(ref unknown25);
                 if (unknown25 != 1.0f)
                 {
                     throw new InvalidStateException();
@@ -766,7 +767,8 @@ namespace OpenSage.Graphics.ParticleSystems
             Vector3 driftVelocity = default;
             reader.ReadVector3(ref driftVelocity);
 
-            reader.ReadSingle(); // Gravity
+            var gravity = 0.0f;
+            reader.ReadSingle(ref gravity); // Gravity
 
             var slaveSystemName = "";
             reader.ReadAsciiString(ref slaveSystemName); // SlaveSystemName
@@ -826,11 +828,14 @@ namespace OpenSage.Graphics.ParticleSystems
                     reader.ReadVector3(ref halfSize);
                     break;
                 case ParticleVolumeType.Sphere:
-                    var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
+                    var volumeSphereRadius = 0.0f;
+                    reader.ReadSingle(ref volumeSphereRadius); // Interesting, value doesn't match ini file
                     break;
                 case ParticleVolumeType.Cylinder:
-                    var volumeCylinderRadius = reader.ReadSingle();
-                    var volumeCylinderLength = reader.ReadSingle();
+                    var volumeCylinderRadius = 0.0f;
+                    reader.ReadSingle(ref volumeCylinderRadius);
+                    var volumeCylinderLength = 0.0f;
+                    reader.ReadSingle(ref volumeCylinderLength);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -838,16 +843,26 @@ namespace OpenSage.Graphics.ParticleSystems
             var unknown11 = reader.ReadUInt32();
             ParticleSystemWindMotion windMotion = default;
             reader.ReadEnum(ref windMotion);
-            var unknown12 = reader.ReadSingle();
-            var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
-            var windAngleChangeMin = reader.ReadSingle();
-            var windAngleChangeMax = reader.ReadSingle();
-            var unknown14 = reader.ReadSingle();
-            var windPingPongStartAngleMin = reader.ReadSingle();
-            var windPingPongStartAngleMax = reader.ReadSingle();
-            var unknown15 = reader.ReadSingle();
-            var windPingPongEndAngleMin = reader.ReadSingle();
-            var windPingPongEndAngleMax = reader.ReadSingle();
+            var unknown12 = 0.0f;
+            reader.ReadSingle(ref unknown12);
+            var unknown13 = 0.0f;
+            reader.ReadSingle(ref unknown13); // Almost same as WindAngleChangeMin
+            var windAngleChangeMin = 0.0f;
+            reader.ReadSingle(ref windAngleChangeMin);
+            var windAngleChangeMax = 0.0f;
+            reader.ReadSingle(ref windAngleChangeMax);
+            var unknown14 = 0.0f;
+            reader.ReadSingle(ref unknown14);
+            var windPingPongStartAngleMin = 0.0f;
+            reader.ReadSingle(ref windPingPongStartAngleMin);
+            var windPingPongStartAngleMax = 0.0f;
+            reader.ReadSingle(ref windPingPongStartAngleMax);
+            var unknown15 = 0.0f;
+            reader.ReadSingle(ref unknown15);
+            var windPingPongEndAngleMin = 0.0f;
+            reader.ReadSingle(ref windPingPongEndAngleMin);
+            var windPingPongEndAngleMax = 0.0f;
+            reader.ReadSingle(ref windPingPongEndAngleMax);
 
             var unknown16 = false;
             reader.ReadBoolean(ref unknown16);

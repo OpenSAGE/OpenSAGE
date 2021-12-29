@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownFloat = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat);
         }
     }
 

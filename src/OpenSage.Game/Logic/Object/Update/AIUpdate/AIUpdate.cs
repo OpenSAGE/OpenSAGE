@@ -302,7 +302,7 @@ namespace OpenSage.Logic.Object
             reader.ReadBoolean(ref _unknownBool2);
             _unknownInt4 = reader.ReadUInt32();
             _unknownInt5 = reader.ReadUInt32();
-            _unknownFloat1 = reader.ReadSingle(); // 999999
+            reader.ReadSingle(ref _unknownFloat1); // 999999
             _unknownInt6 = reader.ReadUInt32(); // 2
             _unknownInt7 = reader.ReadUInt32(); // 3
             _unknownInt8 = reader.ReadUInt32(); // 3
@@ -343,8 +343,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(12);
 
             reader.ReadObjectID(ref _unknownObjectId);
-            _unknownFloat2 = reader.ReadSingle();
-
+            reader.ReadSingle(ref _unknownFloat2);
             reader.ReadPoint2D(ref _unknownPos2D1);
             reader.ReadPoint2D(ref _unknownPos2D2);
             reader.ReadFrame(ref _unknownFrame1);
@@ -384,7 +383,7 @@ namespace OpenSage.Logic.Object
 
             _unknownInt18 = reader.ReadUInt32(); // 0, 1
 
-            _angleSomething = reader.ReadSingle();
+            reader.ReadSingle(ref _angleSomething);
 
             reader.SkipUnknownBytes(8);
 
