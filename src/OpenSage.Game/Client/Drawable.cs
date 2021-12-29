@@ -380,17 +380,19 @@ namespace OpenSage.Client
             var hasAnimation2D = reader.ReadBoolean();
             if (hasAnimation2D)
             {
-                var animation2DName = reader.ReadAsciiString();
+                var animation2DName = _animation?.Template.Name;
+                reader.ReadAsciiString(ref animation2DName);
 
                 reader.SkipUnknownBytes(4);
 
-                var animation2DName2 = reader.ReadAsciiString();
+                var animation2DName2 = animation2DName;
+                reader.ReadAsciiString(ref animation2DName2);
                 if (animation2DName2 != animation2DName)
                 {
                     throw new InvalidStateException();
                 }
 
-                var animationTemplate = _gameContext.AssetLoadContext.AssetStore.Animations.GetByName(animation2DName);
+                var animationTemplate = reader.AssetStore.Animations.GetByName(animation2DName);
 
                 _animation = new Animation(animationTemplate);
                 _animation.Load(reader);
@@ -417,7 +419,8 @@ namespace OpenSage.Client
 
                 for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
                 {
-                    var moduleTag = reader.ReadAsciiString();
+                    var moduleTag = "";
+                    reader.ReadAsciiString(ref moduleTag);
                     var module = GetModuleByTag(moduleTag);
 
                     reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");

@@ -133,7 +133,8 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(3);
 
-            var templateName = reader.ReadAsciiString();
+            var templateName = Template.Name;
+            reader.ReadAsciiString(ref templateName);
             if (templateName != Template.Name)
             {
                 throw new InvalidStateException();

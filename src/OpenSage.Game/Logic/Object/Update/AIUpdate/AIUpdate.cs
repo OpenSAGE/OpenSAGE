@@ -318,8 +318,8 @@ namespace OpenSage.Logic.Object
             _unknownBool4 = reader.ReadBoolean();
             _unknownBool5 = reader.ReadBoolean(); // 0
             _unknownBool6 = reader.ReadBoolean(); // 0
-            _guardAreaPolygonTriggerName = reader.ReadAsciiString();
-            _attackPriorityName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _guardAreaPolygonTriggerName);
+            reader.ReadAsciiString(ref _attackPriorityName);
             _unknownInt14 = reader.ReadUInt32(); // 0
             _unknownBool7 = reader.ReadBoolean();
             _unknownInt15 = reader.ReadUInt32(); // 0
@@ -372,7 +372,9 @@ namespace OpenSage.Logic.Object
 
             _locomotorSet.Load(reader);
 
-            var currentLocomotorTemplateName = reader.ReadAsciiString();
+            var currentLocomotorTemplateName = "";
+            reader.ReadAsciiString(ref currentLocomotorTemplateName);
+
             CurrentLocomotor = currentLocomotorTemplateName != ""
                 ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
                 : null;

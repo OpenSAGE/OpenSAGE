@@ -65,7 +65,8 @@ namespace OpenSage.Logic
 
                 for (var j = 0; j < numModels; j++)
                 {
-                    var modelName = reader.ReadAsciiString();
+                    var modelName = "";
+                    reader.ReadAsciiString(ref modelName);
 
                     var model = game.AssetStore.Models.GetByName(modelName);
                     var modelInstance = model.CreateInstance(game.AssetStore.LoadContext);
@@ -94,7 +95,9 @@ namespace OpenSage.Logic
 
                     for (var k = 0; k < numMeshes; k++)
                     {
-                        var meshName = reader.ReadAsciiString();
+                        var meshName = "";
+                        reader.ReadAsciiString(ref meshName);
+
                         if (meshName != model.SubObjects[k].FullName)
                         {
                             throw new InvalidStateException();

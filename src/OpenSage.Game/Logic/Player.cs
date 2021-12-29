@@ -408,8 +408,9 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < upgradeQueueCount; i++)
             {
-                var upgradeName = reader.ReadAsciiString();
-                var upgradeTemplate = _assetStore.Upgrades.GetByName(upgradeName);
+                var upgradeName = "";
+                reader.ReadAsciiString(ref upgradeName);
+                var upgradeTemplate = reader.AssetStore.Upgrades.GetByName(upgradeName);
 
                 // Use UpgradeStatus.Invalid temporarily because we're going to load the
                 // actual queued / completed status below.
@@ -772,8 +773,7 @@ namespace OpenSage.Logic
             {
                 reader.ReadVersion(1);
 
-                _objectName = reader.ReadAsciiString();
-
+                reader.ReadAsciiString(ref _objectName);
                 reader.ReadObjectID(ref _objectId);
 
                 _unknownInt1 = reader.ReadUInt32(); // 0
@@ -886,7 +886,8 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < count; i++)
             {
-                var name = reader.ReadAsciiString();
+                var name = "";
+                reader.ReadAsciiString(ref name);
 
                 var science = _assetStore.Sciences.GetByName(name);
 
@@ -910,7 +911,9 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < count; i++)
             {
-                Add(reader.ReadAsciiString());
+                var item = "";
+                reader.ReadAsciiString(ref item);
+                Add(item);
             }
         }
     }
@@ -960,7 +963,9 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < count; i++)
             {
-                var objectType = reader.ReadAsciiString();
+                var objectType = "";
+                reader.ReadAsciiString(ref objectType);
+
                 var total = reader.ReadUInt32();
 
                 Add(objectType, total);

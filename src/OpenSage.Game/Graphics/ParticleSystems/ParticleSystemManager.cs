@@ -106,7 +106,9 @@ namespace OpenSage.Graphics.ParticleSystems
             var count = reader.ReadUInt32();
             for (var i = 0; i < count; i++)
             {
-                var templateName = reader.ReadAsciiString();
+                var templateName = "";
+                reader.ReadAsciiString(ref templateName);
+
                 if (templateName != string.Empty)
                 {
                     var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);

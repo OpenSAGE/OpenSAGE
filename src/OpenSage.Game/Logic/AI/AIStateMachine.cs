@@ -57,7 +57,7 @@ namespace OpenSage.Logic.AI
                 _targetPositions.Add(targetPosition);
             }
 
-            _targetWaypointName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _targetWaypointName);
 
             var hasTargetTeam = reader.ReadBoolean();
             if (hasTargetTeam)

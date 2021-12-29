@@ -16,7 +16,7 @@
             Unknown1 = reader.ReadUInt32();
 
             TeamID = reader.ReadUInt32();
-            ScriptName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref ScriptName);
             ScriptActionIndex = reader.ReadUInt32();
             LoopsRemaining = reader.ReadUInt32();
 

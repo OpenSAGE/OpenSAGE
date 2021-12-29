@@ -71,7 +71,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < numLocomotorTemplates; i++)
             {
-                var locomotorTemplateName = reader.ReadAsciiString();
+                var locomotorTemplateName = "";
+                reader.ReadAsciiString(ref locomotorTemplateName);
 
                 var locomotorTemplate = _gameObject.GameContext.AssetLoadContext.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 

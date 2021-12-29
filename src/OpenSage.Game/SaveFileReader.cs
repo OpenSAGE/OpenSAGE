@@ -57,7 +57,7 @@ namespace OpenSage
 
         public void ReadFrame(ref uint value) => value = ReadUInt32();
 
-        public string ReadAsciiString() => _binaryReader.ReadBytePrefixedAsciiString();
+        public void ReadAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
         public string ReadUnicodeString() => _binaryReader.ReadBytePrefixedUnicodeString();
 
@@ -144,8 +144,11 @@ namespace OpenSage
             var count = ReadUInt32();
             for (var i = 0; i < count; i++)
             {
-                var stringValue = ReadAsciiString();
+                var stringValue = "";
+                ReadAsciiString(ref stringValue);
+
                 var enumValue = (TEnum) stringToValueMap[stringValue];
+
                 result.Set(enumValue, true);
             }
         }
@@ -173,11 +176,9 @@ namespace OpenSage
 
             for (var j = 0; j < numItems; j++)
             {
-                var objectNameAndId = new ObjectNameAndId
-                {
-                    Name = ReadAsciiString()
-                };
+                var objectNameAndId = new ObjectNameAndId();
 
+                ReadAsciiString(ref objectNameAndId.Name);
                 ReadObjectID(ref objectNameAndId.ObjectId);
 
                 set.Add(objectNameAndId);

@@ -52,7 +52,9 @@ namespace OpenSage.Client
             var numBriefingTexts = reader.ReadUInt32();
             for (var i = 0; i < numBriefingTexts; i++)
             {
-                _briefingTexts.Add(reader.ReadAsciiString());
+                var briefingText = "";
+                reader.ReadAsciiString(ref briefingText);
+                _briefingTexts.Add(briefingText);
             }
         }
     }

@@ -122,11 +122,13 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var weaponTemplateName = reader.ReadAsciiString();
-            _weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
+            var weaponTemplateName = _weaponTemplate?.Name;
+            reader.ReadAsciiString(ref weaponTemplateName);
+            _weaponTemplate = reader.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
-            var exhaustParticleSystemTemplateName = reader.ReadAsciiString();
-            _exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
+            var exhaustParticleSystemTemplateName = _exhaustParticleSystemTemplate?.Name;
+            reader.ReadAsciiString(ref exhaustParticleSystemTemplateName);
+            _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
             _unknownBool2 = reader.ReadBoolean();
 

@@ -9,28 +9,35 @@ namespace OpenSage.Logic
         internal static AttackPriority Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x._name = name,
                 FieldParseTable);
         }
 
         private static readonly IniParseTable<AttackPriority> FieldParseTable = new IniParseTable<AttackPriority>
         {
-            { "Default", (parser, x) => x.Default = parser.ParseInteger() },
+            { "Default", (parser, x) => x._default = parser.ParseInteger() },
             { "Target", (parser, x) => x.Targets.Add(AttackPriorityTarget.Parse(parser)) }
         };
 
-        public string Name { get; private set; }
+        private string _name;
+        public string Name => _name;
 
-        public int Default { get; private set; }
+        private int _default;
+        public int Default => _default;
+
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
 
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
 
-            Name = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _name);
 
-            var unknown = reader.ReadUInt32(); // Probably default value?
+            reader.ReadUInt32(ref _default);
+            if (_default != 1)
+            {
+                throw new InvalidStateException();
+            }
 
             var numTargets = (ushort)Targets.Count;
             reader.ReadUInt16(ref numTargets);
@@ -51,17 +58,18 @@ namespace OpenSage.Logic
         {
             return new AttackPriorityTarget
             {
-                Target = parser.ParseAssetReference(),
+                _target = parser.ParseAssetReference(),
                 Value = parser.ParseUnsignedInteger()
             };
         }
 
-        public string Target { get; private set; }
+        private string _target;
+        public string Target => _target;
         public uint Value { get; private set; }
 
         internal void Load(SaveFileReader reader)
         {
-            Target = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _target);
             Value = reader.ReadUInt32();
         }
     }

@@ -62,7 +62,8 @@ namespace OpenSage.Logic.Object
 
             // This is the object definition which defined the WeaponSet
             // (either a normal object or DefaultThingTemplate)
-            var objectDefinitionName = reader.ReadAsciiString();
+            var objectDefinitionName = "";
+            reader.ReadAsciiString(ref objectDefinitionName);
 
             var conditions = reader.ReadBitArray<WeaponSetConditions>();
 

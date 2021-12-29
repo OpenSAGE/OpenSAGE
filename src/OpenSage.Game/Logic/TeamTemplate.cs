@@ -59,7 +59,7 @@ namespace OpenSage.Logic
             var ownerPlayerId = reader.ReadUInt32();
             Owner = players.GetPlayerByIndex(ownerPlayerId);
 
-            _attackPriorityName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _attackPriorityName);
 
             _unknown1 = reader.ReadBoolean();
 

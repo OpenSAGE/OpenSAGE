@@ -6,7 +6,7 @@ namespace OpenSage.Logic
     {
         private readonly HashSet<string> _objectTypes;
 
-        public string Name { get; private set; }
+        public string Name;
 
         public ObjectTypeList()
         {
@@ -17,14 +17,16 @@ namespace OpenSage.Logic
         {
             reader.ReadVersion(1);
 
-            Name = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref Name);
 
             var numObjects = (ushort)_objectTypes.Count;
             reader.ReadUInt16(ref numObjects);
 
             for (var i = 0; i < numObjects; i++)
             {
-                _objectTypes.Add(reader.ReadAsciiString());
+                var objectType = "";
+                reader.ReadAsciiString(ref objectType);
+                _objectTypes.Add(objectType);
             }
         }
     }
