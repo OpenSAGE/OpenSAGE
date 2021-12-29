@@ -59,17 +59,15 @@ namespace OpenSage
 
         public void ReadAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
-        public string ReadUnicodeString() => _binaryReader.ReadBytePrefixedUnicodeString();
+        public void ReadUnicodeString(ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
 
         public float ReadSingle() => _binaryReader.ReadSingle();
 
-        public Vector2 ReadVector2() => _binaryReader.ReadVector2();
-
         public void ReadVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
 
-        public Point2D ReadPoint2D() => _binaryReader.ReadPoint2D();
+        public void ReadPoint2D(ref Point2D value) => value = _binaryReader.ReadPoint2D();
 
-        public Point3D ReadPoint3D() => _binaryReader.ReadPoint3D();
+        public void ReadPoint3D(ref Point3D value) => value = _binaryReader.ReadPoint3D();
 
         public void ReadEnum<TEnum>(ref TEnum value)
             where TEnum : struct
@@ -77,25 +75,25 @@ namespace OpenSage
             value = _binaryReader.ReadUInt32AsEnum<TEnum>();
         }
 
-        public TEnum ReadEnumByte<TEnum>()
+        public void ReadEnumByte<TEnum>(ref TEnum value)
             where TEnum : struct
         {
-            return _binaryReader.ReadByteAsEnum<TEnum>();
+            value = _binaryReader.ReadByteAsEnum<TEnum>();
         }
 
-        public TEnum ReadEnumFlags<TEnum>()
+        public void ReadEnumFlags<TEnum>(ref TEnum value)
             where TEnum : struct
         {
-            return _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
+            value = _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
         }
 
-        public TEnum ReadEnumByteFlags<TEnum>()
+        public void ReadEnumByteFlags<TEnum>(ref TEnum value)
             where TEnum : struct
         {
-            return _binaryReader.ReadByteAsEnumFlags<TEnum>();
+            value = _binaryReader.ReadByteAsEnumFlags<TEnum>();
         }
 
-        public Matrix4x3 ReadMatrix4x3(bool readVersion = true)
+        public void ReadMatrix4x3(ref Matrix4x3 value, bool readVersion = true)
         {
             if (readVersion)
             {
@@ -117,14 +115,14 @@ namespace OpenSage
             var m33 = _binaryReader.ReadSingle();
             var m43 = _binaryReader.ReadSingle();
 
-            return new Matrix4x3(
+            value = new Matrix4x3(
                 m11, m12, m13,
                 m21, m22, m23,
                 m31, m32, m33,
                 m41, m42, m43);
         }
 
-        public Matrix4x3 ReadMatrix4x3Transposed() => _binaryReader.ReadMatrix4x3Transposed();
+        public void ReadMatrix4x3Transposed(ref Matrix4x3 value) => value = _binaryReader.ReadMatrix4x3Transposed();
 
         public BitArray<TEnum> ReadBitArray<TEnum>()
             where TEnum : Enum
@@ -153,19 +151,17 @@ namespace OpenSage
             }
         }
 
-        public ColorRgbF ReadColorRgbF() => _binaryReader.ReadColorRgbF();
+        public void ReadColorRgba(ref ColorRgba value) => value = _binaryReader.ReadColorRgba();
 
-        public ColorRgba ReadColorRgba() => _binaryReader.ReadColorRgba();
-
-        public ColorRgba ReadColorRgbaInt() => _binaryReader.ReadColorRgbaInt();
+        public void ReadColorRgbaInt(ref ColorRgba value) => _binaryReader.ReadColorRgbaInt();
 
         public DateTime ReadDateTime() => _binaryReader.ReadDateTime();
 
-        public RandomVariable ReadRandomVariable() => _binaryReader.ReadRandomVariable();
+        public void ReadRandomVariable(ref RandomVariable value) => value = _binaryReader.ReadRandomVariable();
 
-        public RandomAlphaKeyframe ReadRandomAlphaKeyframe() => RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
+        public void ReadRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value = RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
 
-        public RgbColorKeyframe ReadRgbColorKeyframe() => RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
+        public void ReadRgbColorKeyframe(ref RgbColorKeyframe value) => value = RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
 
         public void ReadObjectNameAndIdSet(List<ObjectNameAndId> set)
         {

@@ -177,11 +177,14 @@ namespace OpenSage.Data.Map
 
             for (var i = 0; i < numPoints; i++)
             {
-                Points[i] = reader.ReadPoint3D();
+                reader.ReadPoint3D(ref Points[i]);
             }
 
-            var topLeft = reader.ReadPoint2D();
-            var bottomRight = reader.ReadPoint2D();
+            var topLeft = Bounds.TopLeft;
+            reader.ReadPoint2D(ref topLeft);
+
+            var bottomRight = Bounds.BottomRight;
+            reader.ReadPoint2D(ref bottomRight);
 
             Bounds = Rectangle.FromCorners(topLeft, bottomRight);
 

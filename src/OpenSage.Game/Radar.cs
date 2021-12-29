@@ -326,8 +326,8 @@ namespace OpenSage
         {
             reader.ReadVersion(1);
 
-            ObjectId = reader.ReadUInt32();
-            Color = reader.ReadColorRgba();
+            reader.ReadObjectID(ref ObjectId);
+            reader.ReadColorRgba(ref Color);
         }
     }
 
@@ -356,9 +356,8 @@ namespace OpenSage
             _unknown3 = reader.ReadUInt32();
             _unknown4 = reader.ReadUInt32();
 
-            _color1 = reader.ReadColorRgbaInt();
-            _color2 = reader.ReadColorRgbaInt();
-
+            reader.ReadColorRgbaInt(ref _color1);
+            reader.ReadColorRgbaInt(ref _color2);
             reader.ReadVector3(ref Position);
 
             _unknown5 = reader.ReadUInt32();

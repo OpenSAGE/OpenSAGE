@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
             // Where does the 32 come from?
             for (var i = 0; i < _unknownTransforms.Length; i++)
             {
-                _unknownTransforms[i] = reader.ReadMatrix4x3Transposed();
+                reader.ReadMatrix4x3Transposed(ref _unknownTransforms[i]);
             }
 
             var unknown6 = -1;

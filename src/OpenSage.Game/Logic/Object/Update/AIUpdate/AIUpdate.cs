@@ -345,9 +345,8 @@ namespace OpenSage.Logic.Object
             reader.ReadObjectID(ref _unknownObjectId);
             _unknownFloat2 = reader.ReadSingle();
 
-            _unknownPos2D1 = reader.ReadPoint2D();
-            _unknownPos2D2 = reader.ReadPoint2D();
-
+            reader.ReadPoint2D(ref _unknownPos2D1);
+            reader.ReadPoint2D(ref _unknownPos2D2);
             reader.ReadFrame(ref _unknownFrame1);
             reader.ReadFrame(ref _unknownFrame2);
             reader.ReadVector3(ref _unknownPosition2);

@@ -52,7 +52,7 @@ namespace OpenSage.Logic
 
         public uint Id { get; }
         public PlayerTemplate Template { get; }
-        public string Name { get; internal set; }
+        public string Name;
         public string DisplayName { get; private set; }
 
         public string Side { get; private set; }
@@ -507,7 +507,7 @@ namespace OpenSage.Logic
             _unknown4 = reader.ReadUInt32(); // 800
             _unknown5 = reader.ReadUInt32(); // 0
 
-            Name = reader.ReadUnicodeString();
+            reader.ReadUnicodeString(ref Name);
 
             _playerToPlayerRelationships.Load(reader);
             _playerToTeamRelationships.Load(reader);

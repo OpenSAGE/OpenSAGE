@@ -24,7 +24,7 @@ namespace OpenSage.Client
             reader.ReadVector3(ref _currentColor);
             _holdFrames = reader.ReadUInt32();
             reader.ReadBoolean(ref _isActive);
-            _state = reader.ReadEnumByte<ColorFlashState>();
+            reader.ReadEnumByte(ref _state);
         }
 
         private enum ColorFlashState : byte

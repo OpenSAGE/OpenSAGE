@@ -83,7 +83,7 @@ namespace OpenSage.Logic.Object
                 _locomotors.Add(locomotor);
             }
 
-            _surfaces = reader.ReadEnumFlags<Surfaces>();
+            reader.ReadEnumFlags(ref _surfaces);
 
             reader.SkipUnknownBytes(1);
         }

@@ -149,7 +149,7 @@ namespace OpenSage.Logic.Object
 
             _slowDeathScale = reader.ReadSingle();
 
-            _flags = reader.ReadEnumFlags<SlowDeathBehaviorFlags>();
+            reader.ReadEnumFlags(ref _flags);
         }
 
         [Flags]
