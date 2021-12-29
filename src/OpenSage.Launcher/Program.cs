@@ -20,7 +20,7 @@ namespace OpenSage.Launcher
     {
         public sealed class Options
         {
-            [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend.")]
+            [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend (Direct3D11,Vulkan,OpenGL,Metal,OpenGLES).")]
             public GraphicsBackend? Renderer { get; set; }
 
             [Option("noshellmap", Default = false, Required = false, HelpText = "Disables loading the shell map, speeding up startup time.")]
