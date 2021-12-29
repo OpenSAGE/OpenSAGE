@@ -15,6 +15,10 @@ namespace OpenSage.Network
 
     public class SkirmishSlot
     {
+        private int _colorChosen;
+        private int _startPositionChosen;
+        private int _playerTemplateIndexChosen;
+
         public SkirmishSlot(int index)
         {
             Index = index;
@@ -181,18 +185,27 @@ namespace OpenSage.Network
                 throw new InvalidStateException();
             }
 
-            ColorIndex = (sbyte) reader.ReadInt32();
-            StartPosition = (byte) reader.ReadInt32();
+            int colorIndex = ColorIndex;
+            reader.ReadInt32(ref colorIndex);
+            ColorIndex = (sbyte)colorIndex;
+
+            int startPosition = StartPosition;
+            reader.ReadInt32(ref startPosition);
+            StartPosition = (byte)startPosition;
 
             // Bit ugly... this is really an index into player templates,
             // but FactionIndex only counts playable sides... and also is 1-based.
-            FactionIndex = (byte) (reader.ReadInt32() - 1);
+            int factionIndex = FactionIndex;
+            reader.ReadInt32(ref factionIndex);
+            FactionIndex = (byte)(factionIndex - 1);
 
-            Team = (sbyte) reader.ReadInt32();
+            int team = Team;
+            reader.ReadInt32(ref team);
+            Team = (sbyte)team;
 
-            var colorChosen = reader.ReadInt32();
-            var startPositionChosen = reader.ReadInt32();
-            var playerTemplateIndexChosen = reader.ReadInt32();
+            reader.ReadInt32(ref _colorChosen);
+            reader.ReadInt32(ref _startPositionChosen);
+            reader.ReadInt32(ref _playerTemplateIndexChosen);
         }
     }
 }

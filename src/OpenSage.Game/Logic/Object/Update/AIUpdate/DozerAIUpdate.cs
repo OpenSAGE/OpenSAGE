@@ -25,7 +25,8 @@ namespace OpenSage.Logic.Object
 
             // Following is same as WorkerAIUpdate.Load
 
-            var unknown1 = reader.ReadInt32();
+            var unknown1 = 3;
+            reader.ReadInt32(ref unknown1);
             if (unknown1 != 3)
             {
                 throw new InvalidStateException();
@@ -34,14 +35,15 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < _unknownList1.Length; i++)
             {
                 reader.ReadObjectID(ref _unknownList1[i].ObjectId);
-                _unknownList1[i].Unknown = reader.ReadInt32();
+                reader.ReadInt32(ref _unknownList1[i].Unknown);
             }
 
             _stateMachine.Load(reader);
 
-            _unknown2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknown2);
 
-            var unknown3 = reader.ReadInt32();
+            var unknown3 = 3;
+            reader.ReadInt32(ref unknown3);
             if (unknown3 != 3)
             {
                 throw new InvalidStateException();
@@ -56,7 +58,7 @@ namespace OpenSage.Logic.Object
                 reader.ReadVector3(ref _unknownList2[i].UnknownPos);
             }
 
-            _unknown4 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknown4);
         }
     }
 

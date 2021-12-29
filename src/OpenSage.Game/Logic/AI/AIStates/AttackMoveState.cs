@@ -1,10 +1,11 @@
-﻿using OpenSage.Data.Sav;
-
-namespace OpenSage.Logic.AI.AIStates
+﻿namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackMoveState : MoveTowardsState
     {
         private readonly AttackMoveStateMachine _stateMachine;
+
+        private int _unknownInt1;
+        private int _unknownInt2;
 
         public AttackMoveState()
         {
@@ -17,8 +18,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadInt32();
-            var unknownInt2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt1);
+            reader.ReadInt32(ref _unknownInt2);
 
             _stateMachine.Load(reader);
         }

@@ -394,9 +394,9 @@ namespace OpenSage.Logic.Object
                 _turretAIUpdate.Load(reader);
             }
 
-            _unknownInt19 = reader.ReadInt32(); // -1, 258
+            reader.ReadInt32(ref _unknownInt19); // -1, 258
 
-            _unknownInt20 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt20);
             if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
             {
                 throw new InvalidStateException();

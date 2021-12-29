@@ -55,9 +55,8 @@ namespace OpenSage.Logic.Object
 
             _unknownBool8 = reader.ReadBoolean();
 
-            _unknownInt2 = reader.ReadInt32();
-
-            _unknownInt3 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt2);
+            reader.ReadInt32(ref _unknownInt3);
 
             _something1.Load(reader);
 

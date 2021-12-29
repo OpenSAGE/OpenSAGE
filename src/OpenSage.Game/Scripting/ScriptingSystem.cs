@@ -288,7 +288,7 @@ namespace OpenSage.Scripting
             {
                 ref var counter = ref _counters[i];
 
-                counter.Value = reader.ReadInt32();
+                reader.ReadInt32(ref counter.Value);
                 counter.Name = reader.ReadAsciiString();
                 counter.IsTimer = reader.ReadBoolean();
             }
@@ -331,13 +331,15 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadInt32();
+            var unknown1 = -1;
+            reader.ReadInt32(ref unknown1);
             if (unknown1 != -1)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown2 = reader.ReadInt32();
+            var unknown2 = -1;
+            reader.ReadInt32(ref unknown2);
             if (unknown2 != -1)
             {
                 throw new InvalidStateException();

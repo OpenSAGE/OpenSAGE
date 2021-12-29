@@ -6,7 +6,24 @@ namespace OpenSage.Data.Map
 {
     public sealed class BuildListItem
     {
+        private string _buildingName;
+        private string _name;
         private Vector3 _position;
+        private float _angle;
+        private bool _unknownBool1;
+        private uint _rebuilds;
+        private uint _startingHealth;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private bool _unknownBool4;
+        private bool _unknownBool5;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool6;
+        private bool _unknownBool7;
+        private int _unknownInt3;
+        private bool _unknownBool8;
+        private int _unknownInt4;
 
         public string BuildingName { get; private set; }
         public string Name { get; private set; }
@@ -25,15 +42,15 @@ namespace OpenSage.Data.Map
         {
             reader.ReadVersion(2);
 
-            BuildingName = reader.ReadAsciiString();
-            Name = reader.ReadAsciiString();
+            _buildingName = reader.ReadAsciiString();
+            _name = reader.ReadAsciiString();
             reader.ReadVector3(ref _position);
 
             reader.SkipUnknownBytes(8);
 
             Angle = reader.ReadSingle();
 
-            var unknown3 = reader.ReadBoolean();
+            _unknownBool1 = reader.ReadBoolean();
 
             Rebuilds = reader.ReadUInt32();
 
@@ -41,23 +58,23 @@ namespace OpenSage.Data.Map
 
             StartingHealth = reader.ReadUInt32();
 
-            var unknown6 = reader.ReadBoolean();
-            var unknown7 = reader.ReadBoolean();
-            var unknown8 = reader.ReadBoolean();
-            var unknown9 = reader.ReadBoolean();
-            var unknown10 = reader.ReadUInt32();
-            var unknown11 = reader.ReadUInt32();
-            var unknown12 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
+            _unknownBool3 = reader.ReadBoolean();
+            _unknownBool4 = reader.ReadBoolean();
+            _unknownBool5 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
+            _unknownBool6 = reader.ReadBoolean();
 
             reader.SkipUnknownBytes(40);
 
-            var unknown13 = reader.ReadBoolean();
+            _unknownBool7 = reader.ReadBoolean();
 
-            var unknown14 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt3);
 
-            var unknown15 = reader.ReadBoolean();
+            _unknownBool7 = reader.ReadBoolean();
 
-            var unknown16 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt4);
         }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)

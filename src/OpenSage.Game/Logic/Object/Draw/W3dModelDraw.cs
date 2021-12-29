@@ -425,7 +425,7 @@ namespace OpenSage.Logic.Object
             _hasUnknownThing = reader.ReadBoolean();
             if (_hasUnknownThing)
             {
-                _unknownInt = reader.ReadInt32();
+                reader.ReadInt32(ref _unknownInt);
                 _unknownFloat = reader.ReadSingle();
             }
         }

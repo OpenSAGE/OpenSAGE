@@ -27,12 +27,10 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var stateMachine = new WorkerAIUpdateStateMachine2();
-            stateMachine.Load(reader);
+            _stateMachine.Load(reader);
 
             reader.ReadObjectID(ref _dockId);
-
-            _unknownInt = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt);
 
             _unknownBool = reader.ReadBoolean();
         }

@@ -92,9 +92,8 @@ namespace OpenSage.Logic.Object
 
             _templateName = reader.ReadAsciiString();
 
-            _unknownInt1 = reader.ReadInt32();
-
-            _unknownInt2 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt1);
+            reader.ReadInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(4);
 
@@ -132,7 +131,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownInt4 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknownInt4);
             if (_unknownInt4 != objectCount && _unknownInt4 != -1)
             {
                 throw new InvalidStateException();

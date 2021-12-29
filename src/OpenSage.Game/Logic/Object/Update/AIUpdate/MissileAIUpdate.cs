@@ -100,7 +100,8 @@ namespace OpenSage.Logic.Object
 
             reader.ReadFrame(ref _unknownFrame1);
 
-            var unknownInt1 = reader.ReadInt32();
+            var unknownInt1 = int.MaxValue;
+            reader.ReadInt32(ref unknownInt1);
             if (unknownInt1 != int.MaxValue)
             {
                 throw new InvalidStateException();
@@ -130,10 +131,8 @@ namespace OpenSage.Logic.Object
             _unknownBool2 = reader.ReadBoolean();
 
             reader.ReadVector3(ref _currentPositionMaybe);
-
-            _unknownInt1 = reader.ReadInt32(); // 0, 0x20000
-
-            _unknownInt2 = reader.ReadInt32(); // 1960
+            reader.ReadInt32(ref _unknownInt1); // 0, 0x20000
+            reader.ReadInt32(ref _unknownInt2); // 1960
         }
 
         private enum MissileState

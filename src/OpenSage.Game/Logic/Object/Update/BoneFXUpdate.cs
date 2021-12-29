@@ -23,7 +23,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < 96; i++)
             {
-                var unknown = reader.ReadInt32();
+                var unknown = -1;
+                reader.ReadInt32(ref unknown);
                 if (unknown != -1)
                 {
                     throw new InvalidStateException();
@@ -32,7 +33,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(289 * 4);
 
-            var unknown1 = reader.ReadInt32();
+            var unknown1 = 1;
+            reader.ReadInt32(ref unknown1);
             if (unknown1 != 1)
             {
                 throw new InvalidStateException();

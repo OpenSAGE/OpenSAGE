@@ -69,7 +69,7 @@ namespace OpenSage.Graphics.ParticleSystems
             AngularRateY = reader.ReadSingle();
             AngularRateZ = reader.ReadSingle();
 
-            Lifetime = reader.ReadInt32();
+            reader.ReadInt32(ref Lifetime);
 
             Size = reader.ReadSingle();
 

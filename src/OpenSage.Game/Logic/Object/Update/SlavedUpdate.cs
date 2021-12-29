@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
         private TimeSpan _waitUntil;
         private RepairStatus _repairStatus;
 
+        private int _unknown;
+
         private enum RepairStatus
         {
             INITIAL,
@@ -180,7 +182,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(16);
 
-            var unknown1 = reader.ReadInt32();
+            reader.ReadInt32(ref _unknown);
 
             reader.SkipUnknownBytes(5);
         }

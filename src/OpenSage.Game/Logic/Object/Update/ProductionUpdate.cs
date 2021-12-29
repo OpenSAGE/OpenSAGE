@@ -505,7 +505,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownFrame1 = reader.ReadUInt32();
+            reader.ReadFrame(ref _unknownFrame1);
 
             for (var i = 0; i < _unknownSomethings.Length; i++)
             {
@@ -704,11 +704,9 @@ namespace OpenSage.Logic.Object
 
         internal void Load(SaveFileReader reader)
         {
-            _unknownFrame1 = reader.ReadUInt32();
-
-            _unknownFrame2 = reader.ReadUInt32();
-
-            _unknownFrame3 = reader.ReadUInt32();
+            reader.ReadFrame(ref _unknownFrame1);
+            reader.ReadFrame(ref _unknownFrame2);
+            reader.ReadFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }

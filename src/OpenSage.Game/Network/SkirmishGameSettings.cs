@@ -12,6 +12,17 @@ namespace OpenSage.Network
         private string _mapName;
         private SkirmishGameStatus _status;
 
+        private uint _unknownInt1;
+        private int _unknownInt2;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private uint _unknownInt3;
+        private uint _mapFileCrc;
+        private uint _mapFileSize;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+
         public SkirmishGameSettings(bool isHost)
         {
             IsHost = isHost;
@@ -72,12 +83,12 @@ namespace OpenSage.Network
         {
             reader.ReadVersion(2);
 
-            var unknown5 = reader.ReadUInt32(); // 25600 (160^2)
-            var unknown6 = reader.ReadInt32();
-            var unknown7 = reader.ReadBoolean();
-            var unknown8 = reader.ReadBoolean();
-            var unknown9 = reader.ReadBoolean();
-            var unknown10 = reader.ReadUInt32(); // 0
+            _unknownInt1 = reader.ReadUInt32(); // 25600 (160^2)
+            reader.ReadInt32(ref _unknownInt2);
+            _unknownBool1 = reader.ReadBoolean();
+            _unknownBool2 = reader.ReadBoolean();
+            _unknownBool3 = reader.ReadBoolean();
+            _unknownInt3 = reader.ReadUInt32(); // 0
 
             var numPlayers = reader.ReadUInt32(); // 8
             if (numPlayers != MaxNumberOfPlayers)
@@ -96,11 +107,11 @@ namespace OpenSage.Network
 
             MapName = reader.ReadAsciiString();
 
-            var mapFileCrc = reader.ReadUInt32();
-            var mapFileSize = reader.ReadUInt32();
+            _mapFileCrc = reader.ReadUInt32();
+            _mapFileSize = reader.ReadUInt32();
 
-            var unknown12 = reader.ReadUInt32();
-            var unknown13 = reader.ReadUInt32();
+            _unknownInt4 = reader.ReadUInt32();
+            _unknownInt5 = reader.ReadUInt32();
         }
     }
 }

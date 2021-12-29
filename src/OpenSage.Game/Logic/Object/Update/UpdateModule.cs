@@ -2,7 +2,7 @@
 {
     public abstract class UpdateModule : BehaviorModule
     {
-        private int _frameSomething;
+        private uint _frameSomething;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -11,7 +11,7 @@
             base.Load(reader);
 
             // Maybe some kind of frame timer? But sometimes it's -2.
-            _frameSomething = reader.ReadInt32();
+            reader.ReadFrame(ref _frameSomething);
         }
     }
 

@@ -43,7 +43,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _currentBoxes = reader.ReadInt32();
+            reader.ReadInt32(ref _currentBoxes);
         }
     }
 

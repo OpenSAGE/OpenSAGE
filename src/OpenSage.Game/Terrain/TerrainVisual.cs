@@ -15,8 +15,10 @@
                 reader.ReadVersion(1);
 
                 // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
-                var gridCellsX = reader.ReadInt32();
-                var gridCellsY = reader.ReadInt32();
+                var gridCellsX = 0;
+                reader.ReadInt32(ref gridCellsX);
+                var gridCellsY = 0;
+                reader.ReadInt32(ref gridCellsY);
 
                 // Don't know why, but this gives the correct length for this array.
                 var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;

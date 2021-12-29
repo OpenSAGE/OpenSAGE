@@ -41,7 +41,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknownInt1 = reader.ReadInt32();
+            var unknownInt1 = 1;
+            reader.ReadInt32(ref unknownInt1);
             if (unknownInt1 != 1)
             {
                 throw new InvalidStateException();
