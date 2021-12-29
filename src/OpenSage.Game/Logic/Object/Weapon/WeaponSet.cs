@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Sav;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -65,7 +66,8 @@ namespace OpenSage.Logic.Object
             var objectDefinitionName = "";
             reader.ReadAsciiString(ref objectDefinitionName);
 
-            var conditions = reader.ReadBitArray<WeaponSetConditions>();
+            var conditions = new BitArray<WeaponSetConditions>();
+            reader.ReadBitArray(ref conditions);
 
             _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
 

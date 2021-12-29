@@ -124,18 +124,12 @@ namespace OpenSage
 
         public void ReadMatrix4x3Transposed(ref Matrix4x3 value) => value = _binaryReader.ReadMatrix4x3Transposed();
 
-        public BitArray<TEnum> ReadBitArray<TEnum>()
-            where TEnum : Enum
-        {
-            var result = new BitArray<TEnum>();
-            ReadBitArray(result);
-            return result;
-        }
-
-        public void ReadBitArray<TEnum>(BitArray<TEnum> result)
+        public void ReadBitArray<TEnum>(ref BitArray<TEnum> result)
             where TEnum : Enum
         {
             ReadVersion(1);
+
+            result.SetAll(false);
 
             var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
 
@@ -153,9 +147,9 @@ namespace OpenSage
 
         public void ReadColorRgba(ref ColorRgba value) => value = _binaryReader.ReadColorRgba();
 
-        public void ReadColorRgbaInt(ref ColorRgba value) => _binaryReader.ReadColorRgbaInt();
+        public void ReadColorRgbaInt(ref ColorRgba value) => value = _binaryReader.ReadColorRgbaInt();
 
-        public DateTime ReadDateTime() => _binaryReader.ReadDateTime();
+        public void ReadDateTime(ref DateTime value) => value = _binaryReader.ReadDateTime();
 
         public void ReadRandomVariable(ref RandomVariable value) => value = _binaryReader.ReadRandomVariable();
 
@@ -180,8 +174,6 @@ namespace OpenSage
                 set.Add(objectNameAndId);
             }
         }
-
-        public delegate T ReadListItemCallback<T>(SaveFileReader reader);
 
         public unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
         {

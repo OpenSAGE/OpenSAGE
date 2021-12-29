@@ -286,7 +286,8 @@ namespace OpenSage.Client
 
             DrawableID = reader.ReadUInt32();
 
-            var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
+            var modelConditionFlags = new BitArray<ModelConditionFlag>();
+            reader.ReadBitArray(ref modelConditionFlags);
             CopyModelConditionFlags(modelConditionFlags);
 
             reader.ReadMatrix4x3(ref _transformMatrix);

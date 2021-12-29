@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
 
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
 
-        internal readonly BitArray<WeaponSetConditions> WeaponSetConditions;
+        internal BitArray<WeaponSetConditions> WeaponSetConditions;
         private readonly WeaponSet _weaponSet;
 
         public readonly ObjectDefinition Definition;
@@ -142,7 +142,7 @@ namespace OpenSage.Logic.Object
         private readonly ShroudReveal _shroudRevealSomething2 = new();
         private float _visionRange;
         private float _shroudClearingRange;
-        private BitArray<DisabledType> _disabledTypes;
+        private BitArray<DisabledType> _disabledTypes = new();
         private readonly uint[] _disabledTypesFrames = new uint[9];
         private readonly ObjectVeterancyHelper _veterancyHelper = new();
         private uint _containerId;
@@ -159,7 +159,7 @@ namespace OpenSage.Logic.Object
         private byte _weaponSomethingPrimary;
         private byte _weaponSomethingSecondary;
         private byte _weaponSomethingTertiary;
-        private BitArray<SpecialPowerType> _specialPowers;
+        private BitArray<SpecialPowerType> _specialPowers = new();
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
@@ -1128,7 +1128,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            _disabledTypes = reader.ReadBitArray<DisabledType>();
+            reader.ReadBitArray(ref _disabledTypes);
 
             reader.SkipUnknownBytes(1);
 
@@ -1217,7 +1217,7 @@ namespace OpenSage.Logic.Object
             reader.ReadObjectID(ref _healedByObjectId);
             reader.ReadFrame(ref _healedEndFrame);
 
-            reader.ReadBitArray(WeaponSetConditions);
+            reader.ReadBitArray(ref WeaponSetConditions);
 
             _weaponBonusTypes = reader.ReadUInt32();
 
@@ -1235,7 +1235,7 @@ namespace OpenSage.Logic.Object
 
             _weaponSet.Load(reader);
 
-            _specialPowers = reader.ReadBitArray<SpecialPowerType>();
+            reader.ReadBitArray(ref _specialPowers);
 
             reader.SkipUnknownBytes(1);
 
