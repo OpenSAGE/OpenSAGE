@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CrushDie : DieModule
     {
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -615,7 +615,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -668,7 +668,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        private void LoadTemplateData(SaveFileReader reader)
+        private void LoadTemplateData(StatePersister reader)
         {
             // What follows is almost an exact replica of ParticleSystemTemplate,
             // with a few extra fields here and there.

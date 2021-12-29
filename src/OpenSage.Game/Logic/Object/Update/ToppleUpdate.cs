@@ -110,7 +110,7 @@ namespace OpenSage.Logic.Object
             context.GameObject.Kill(DeathType.Toppled, context.Time);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

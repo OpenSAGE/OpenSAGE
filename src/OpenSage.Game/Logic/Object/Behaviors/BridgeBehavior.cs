@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly uint[] _towerIds = new uint[4];
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

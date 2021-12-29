@@ -14,7 +14,7 @@ namespace OpenSage.Client
 
         // TODO: Actual implementation
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
             _gameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, triggered);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

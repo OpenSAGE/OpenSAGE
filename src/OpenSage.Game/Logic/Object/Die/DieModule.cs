@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class DieModule : BehaviorModule
     {
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

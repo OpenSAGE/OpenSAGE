@@ -41,7 +41,7 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 
@@ -170,7 +170,7 @@ namespace OpenSage.Logic
             Values = new PartitionCellValue[Player.MaxPlayers];
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -202,7 +202,7 @@ namespace OpenSage.Logic
         public ushort Unknown;
         public uint FrameSomething;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

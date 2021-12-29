@@ -100,7 +100,7 @@ namespace OpenSage.Logic.Object
             ImGui.DragFloat3("Velocity", ref _velocity);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

@@ -364,7 +364,7 @@ namespace OpenSage.Gui.InGame
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

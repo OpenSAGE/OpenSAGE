@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
         private float _unknownFloat1;
         private float _unknownFloat2;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

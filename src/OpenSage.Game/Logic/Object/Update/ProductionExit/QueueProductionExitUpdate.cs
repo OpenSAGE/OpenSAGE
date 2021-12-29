@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
 
         public int ExitDelay => _moduleData.ExitDelay;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

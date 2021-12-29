@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
 {
     public abstract class ClientUpdateModule : ModuleBase
     {
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
             

@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object.Production
             _duration = (int) (definition.BuildTime * 1000.0f);
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadUInt32(ref _jobId);
             reader.ReadSingle(ref _unknownFloat);

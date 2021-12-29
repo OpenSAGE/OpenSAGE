@@ -223,7 +223,7 @@ namespace OpenSage.Logic.Object
         private int SlotToHangar(int slot) => slot / 2 + 1;
         private int SlotToRunway(int slot) => slot % 2 + 1;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(3);
 

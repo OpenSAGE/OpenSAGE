@@ -12,7 +12,7 @@ namespace OpenSage.Data.Sav
         public string Side;
         public uint MissionIndex;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

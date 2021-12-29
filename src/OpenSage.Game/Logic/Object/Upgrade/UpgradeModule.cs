@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
         internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered) { }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -130,7 +130,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

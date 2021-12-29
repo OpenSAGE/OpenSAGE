@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     {
         private bool _rodsExtended;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

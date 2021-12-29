@@ -37,7 +37,7 @@ namespace OpenSage.Scripting
                 RenderPipeline.GameOutputDescription));
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadEnum(ref FadeType);
 

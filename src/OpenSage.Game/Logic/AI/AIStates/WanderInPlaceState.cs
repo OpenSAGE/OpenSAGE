@@ -7,7 +7,7 @@ namespace OpenSage.Logic.AI.AIStates
         private Vector3 _unknownPos;
         private uint _unknownInt;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

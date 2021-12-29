@@ -13,7 +13,7 @@ namespace OpenSage.Logic
             _objectTypes = new HashSet<string>();
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 
@@ -65,7 +65,7 @@ namespace OpenSage.Logic.Object
             private float _unknownFloat3;
             private Vector3 _unknownVector;
 
-            internal void Load(SaveFileReader reader)
+            internal void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 

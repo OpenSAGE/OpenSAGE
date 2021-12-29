@@ -45,7 +45,7 @@ namespace OpenSage.Logic.AI
             AddState(40, new WanderInPlaceState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -86,7 +86,7 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -113,7 +113,7 @@ namespace OpenSage.Logic.AI
             _stateMachine = new AIState32StateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -130,7 +130,7 @@ namespace OpenSage.Logic.AI
             AddState(0, new IdleState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -142,7 +142,7 @@ namespace OpenSage.Logic.AI
     {
         private readonly List<uint> _objectIds = new();
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

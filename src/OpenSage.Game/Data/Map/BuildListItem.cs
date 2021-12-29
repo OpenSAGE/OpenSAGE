@@ -38,7 +38,7 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

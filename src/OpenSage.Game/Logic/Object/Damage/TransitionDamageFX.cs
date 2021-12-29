@@ -55,7 +55,7 @@ namespace OpenSage.Logic.Object
             // TODO: FXLists
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

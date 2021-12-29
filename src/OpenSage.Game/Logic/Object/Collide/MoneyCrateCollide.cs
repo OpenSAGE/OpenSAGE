@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MoneyCrateCollide : CrateCollide
     {
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

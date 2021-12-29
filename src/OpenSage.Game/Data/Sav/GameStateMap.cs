@@ -5,7 +5,7 @@ namespace OpenSage.Data.Sav
 {
     internal static class GameStateMap
     {
-        internal static void Load(SaveFileReader reader, Game game)
+        internal static void Load(StatePersister reader, Game game)
         {
             reader.ReadVersion(2);
 

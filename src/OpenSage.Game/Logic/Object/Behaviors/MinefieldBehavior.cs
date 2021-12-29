@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
         private uint _numVirtualMachines;
         private uint _unknownFrame;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

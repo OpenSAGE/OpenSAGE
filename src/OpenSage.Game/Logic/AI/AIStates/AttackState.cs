@@ -14,7 +14,7 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new AttackStateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -35,7 +35,7 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(3, new AttackFireWeaponState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool3;
             private bool _unknownBool4;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -71,7 +71,7 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool1;
             private bool _unknownBool2;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -82,7 +82,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackFireWeaponState : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
             }

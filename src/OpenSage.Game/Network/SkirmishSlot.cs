@@ -173,7 +173,7 @@ namespace OpenSage.Network
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadEnum(ref _state);
             reader.ReadUnicodeString(ref _playerName);

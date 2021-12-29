@@ -30,7 +30,7 @@ namespace OpenSage.Logic
             return _objects[(int)id];
         }
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(9);
 
@@ -190,7 +190,7 @@ namespace OpenSage.Logic
             throw new InvalidOperationException();
         }
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

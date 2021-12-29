@@ -13,7 +13,7 @@ namespace OpenSage.Data.Sav
             using (var stream = entry.Open())
             using (var binaryReader = new BinaryReader(stream, Encoding.Unicode, true))
             {
-                var reader = new SaveFileReader(binaryReader, game);
+                var reader = new StatePersister(binaryReader, game);
 
                 while (true)
                 {
@@ -46,7 +46,7 @@ namespace OpenSage.Data.Sav
         {
             using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
 
-            var reader = new SaveFileReader(binaryReader, game);
+            var reader = new StatePersister(binaryReader, game);
 
             if (reader.SageGame >= SageGame.Bfme)
             {

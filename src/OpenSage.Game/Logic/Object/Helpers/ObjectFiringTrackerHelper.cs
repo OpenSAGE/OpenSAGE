@@ -5,7 +5,7 @@
         private uint _numShotsFiredAtLastTarget;
         private uint _lastTargetObjectId;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

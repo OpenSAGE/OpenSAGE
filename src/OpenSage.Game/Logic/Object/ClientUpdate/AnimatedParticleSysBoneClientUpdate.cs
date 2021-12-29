@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class AnimatedParticleSysBoneClientUpdate : ClientUpdateModule
     {
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -11,7 +11,7 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new GuardStateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -36,7 +36,7 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(5003, new GuardMoveState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 
@@ -52,7 +52,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -62,7 +62,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardUnknown5002State : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
             }
@@ -72,7 +72,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 

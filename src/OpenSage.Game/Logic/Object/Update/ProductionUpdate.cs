@@ -469,7 +469,7 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("DoorState", ref _currentDoorState);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -705,7 +705,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownFrame2;
         private uint _unknownFrame3;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadFrame(ref _unknownFrame1);
             reader.ReadFrame(ref _unknownFrame2);

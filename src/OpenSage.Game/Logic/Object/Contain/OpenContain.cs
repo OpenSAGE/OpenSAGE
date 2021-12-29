@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
         private readonly List<OpenContainSomething> _unknownList = new();
         private int _unknownInt;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

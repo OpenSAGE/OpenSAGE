@@ -17,7 +17,7 @@
             internal set => _status = value;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

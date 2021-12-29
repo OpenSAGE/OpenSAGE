@@ -5,7 +5,7 @@
         public DamageDataRequest Request;
         public DamageDataResult Result;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -23,7 +23,7 @@
         public DeathType DeathType;
         public float Unknown4;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -41,7 +41,7 @@
         public float Unknown1;
         public float Unknown2;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

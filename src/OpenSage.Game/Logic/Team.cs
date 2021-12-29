@@ -25,7 +25,7 @@ namespace OpenSage.Logic
             Id = id;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

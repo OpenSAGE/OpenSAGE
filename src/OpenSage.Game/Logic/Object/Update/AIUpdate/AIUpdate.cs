@@ -286,7 +286,7 @@ namespace OpenSage.Logic.Object
             // TODO: Locomotor?
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(4);
 
@@ -547,7 +547,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownInt2;
         private bool _unknownBool2;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -576,7 +576,7 @@ namespace OpenSage.Logic.Object
         private bool _unknownBool1;
         private uint _nextId;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadUInt32(ref _id);
             reader.ReadVector3(ref _position);
