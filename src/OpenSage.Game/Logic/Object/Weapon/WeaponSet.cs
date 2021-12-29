@@ -84,7 +84,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            _currentWeaponSlot = reader.ReadEnum<WeaponSlot>();
+            reader.ReadEnum(ref _currentWeaponSlot);
 
             _unknown1 = reader.ReadUInt32();
 

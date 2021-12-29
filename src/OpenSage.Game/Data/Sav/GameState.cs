@@ -4,7 +4,9 @@ namespace OpenSage.Data.Sav
 {
     public sealed class GameState
     {
-        public SaveGameType GameType { get; private set; }
+        private SaveGameType _gameType;
+
+        public SaveGameType GameType => _gameType;
         public string MapPath { get; private set; }
         public DateTime Timestamp { get; private set; }
         public string DisplayName { get; private set; }
@@ -16,7 +18,7 @@ namespace OpenSage.Data.Sav
         {
             reader.ReadVersion(2);
 
-            GameType = reader.ReadEnum<SaveGameType>();
+            reader.ReadEnum(ref _gameType);
             MapPath = reader.ReadAsciiString();
             Timestamp = reader.ReadDateTime();
             DisplayName = reader.ReadUnicodeString();

@@ -171,7 +171,7 @@ namespace OpenSage.Network
 
         internal void Load(SaveFileReader reader)
         {
-            State = reader.ReadEnum<SkirmishSlotState>();
+            reader.ReadEnum(ref _state);
             PlayerName = reader.ReadUnicodeString();
 
             ushort unknown1 = 1;

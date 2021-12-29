@@ -304,7 +304,7 @@ namespace OpenSage.Client
                 _scriptedFlashHelper.Load(reader);
             }
 
-            _objectDecalType = reader.ReadEnum<ObjectDecalType>();
+            reader.ReadEnum<ObjectDecalType>(ref _objectDecalType);
 
             var unknownFloat1 = reader.ReadSingle();
             if (unknownFloat1 != 1)

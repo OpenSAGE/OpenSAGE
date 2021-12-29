@@ -674,7 +674,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void LoadTemplateData(SaveFileReader reader)
+        private void LoadTemplateData(SaveFileReader reader)
         {
             // What follows is almost an exact replica of ParticleSystemTemplate,
             // with a few extra fields here and there.
@@ -683,14 +683,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.ReadBoolean(); // IsOneShot
 
-            if (reader.ReadEnum<ParticleSystemShader>() != Template.Shader)
+            ParticleSystemShader shader = default;
+            reader.ReadEnum(ref shader);
+            if (shader != Template.Shader)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            if (reader.ReadEnum<ParticleSystemType>() != Template.Type)
+            ParticleSystemType type = default;
+            reader.ReadEnum(ref type);
+            if (type != Template.Type)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             reader.ReadAsciiString(); // Texture
@@ -737,7 +741,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.SkipUnknownBytes(13);
 
-            var velocityType = reader.ReadEnum<ParticleVelocityType>();
+            ParticleVelocityType velocityType = default;
+            reader.ReadEnum(ref velocityType);
             var unknown10 = reader.ReadUInt32();
             switch (velocityType)
             {
@@ -763,7 +768,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 default:
                     throw new NotImplementedException();
             }
-            var volumeType = reader.ReadEnum<ParticleVolumeType>();
+            ParticleVolumeType volumeType = default;
+            reader.ReadEnum(ref volumeType);
             switch (volumeType)
             {
                 case ParticleVolumeType.Point:
@@ -789,7 +795,8 @@ namespace OpenSage.Graphics.ParticleSystems
                     throw new NotImplementedException();
             }
             var unknown11 = reader.ReadUInt32();
-            var windMotion = reader.ReadEnum<ParticleSystemWindMotion>();
+            ParticleSystemWindMotion windMotion = default;
+            reader.ReadEnum(ref windMotion);
             var unknown12 = reader.ReadSingle();
             var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
             var windAngleChangeMin = reader.ReadSingle();

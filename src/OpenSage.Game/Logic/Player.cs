@@ -852,7 +852,10 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var playerOrTeamId = reader.ReadUInt32();
-                var relationship = reader.ReadEnum<RelationshipType>();
+
+                RelationshipType relationship = default;
+                reader.ReadEnum(ref relationship);
+
                 _store[playerOrTeamId] = relationship;
             }
         }

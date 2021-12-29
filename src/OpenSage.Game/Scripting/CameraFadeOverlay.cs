@@ -39,7 +39,7 @@ namespace OpenSage.Scripting
 
         internal void Load(SaveFileReader reader)
         {
-            FadeType = reader.ReadEnum<CameraFadeType>();
+            reader.ReadEnum(ref FadeType);
 
             From = reader.ReadSingle();
             To = reader.ReadSingle();
