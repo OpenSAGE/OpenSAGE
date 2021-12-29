@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownFrame3;
         private bool _unknownBool;
         private bool _indestructible;
-        private BitArray<ArmorSetCondition> _armorSetConditions;
+        private BitArray<ArmorSetCondition> _armorSetConditions = new();
 
         protected readonly GameObject GameObject;
 
@@ -124,7 +124,7 @@ namespace OpenSage.Logic.Object
                 _particleSystemIds.Add(reader.ReadUInt32());
             }
 
-            _armorSetConditions = reader.ReadBitArray<ArmorSetCondition>();
+            reader.ReadBitArray(ref _armorSetConditions);
         }
     }
 
