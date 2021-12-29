@@ -289,7 +289,7 @@ namespace OpenSage.Scripting
                 ref var counter = ref _counters[i];
 
                 reader.ReadInt32(ref counter.Value);
-                counter.Name = reader.ReadAsciiString();
+                reader.ReadAsciiString(ref counter.Name);
                 counter.IsTimer = reader.ReadBoolean();
             }
 
@@ -306,7 +306,7 @@ namespace OpenSage.Scripting
                 ref var flag = ref _flags[i];
 
                 flag.Value = reader.ReadBoolean();
-                flag.Name = reader.ReadAsciiString();
+                reader.ReadAsciiString(ref flag.Name);
             }
 
             var numFlags2 = reader.ReadUInt32();
@@ -350,11 +350,11 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < unknownCount; i++)
             {
-                var objectNameAndId = new ObjectNameAndId
-                {
-                    Name = reader.ReadAsciiString(),
-                };
+                var objectNameAndId = new ObjectNameAndId();
+
+                reader.ReadAsciiString(ref objectNameAndId.Name);
                 reader.ReadObjectID(ref objectNameAndId.ObjectId);
+
                 _unknownSomethings.Add(objectNameAndId);
             }
 
@@ -461,13 +461,14 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < numMapReveals; i++)
             {
-                _mapReveals.Add(new MapReveal
-                {
-                    Name = reader.ReadAsciiString(),
-                    Waypoint = reader.ReadAsciiString(),
-                    Radius = reader.ReadSingle(),
-                    Player = reader.ReadAsciiString()
-                });
+                var mapReveal = new MapReveal();
+
+                reader.ReadAsciiString(ref mapReveal.Name);
+                reader.ReadAsciiString(ref mapReveal.Waypoint);
+                mapReveal.Radius = reader.ReadSingle();
+                reader.ReadAsciiString(ref mapReveal.Player);
+
+                _mapReveals.Add(mapReveal);
             }
 
             var numObjectTypeLists = (ushort) _objectTypeLists.Count;
@@ -487,7 +488,7 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            _musicTrackName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _musicTrackName);
 
             reader.SkipUnknownBytes(1);
         }

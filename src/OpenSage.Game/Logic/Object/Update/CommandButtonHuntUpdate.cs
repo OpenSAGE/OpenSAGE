@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _commandButtonName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _commandButtonName);
         }
     }
 

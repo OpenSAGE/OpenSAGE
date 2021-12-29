@@ -4,26 +4,24 @@ namespace OpenSage.Data.Sav
 {
     public sealed class GameState
     {
-        private SaveGameType _gameType;
-
-        public SaveGameType GameType => _gameType;
-        public string MapPath { get; private set; }
-        public DateTime Timestamp { get; private set; }
-        public string DisplayName { get; private set; }
-        public string MapFileName { get; private set; }
-        public string Side { get; private set; }
-        public uint MissionIndex { get; private set; }
+        public SaveGameType GameType;
+        public string MapPath;
+        public DateTime Timestamp;
+        public string DisplayName;
+        public string MapFileName;
+        public string Side;
+        public uint MissionIndex;
 
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(2);
 
-            reader.ReadEnum(ref _gameType);
-            MapPath = reader.ReadAsciiString();
+            reader.ReadEnum(ref GameType);
+            reader.ReadAsciiString(ref MapPath);
             Timestamp = reader.ReadDateTime();
             DisplayName = reader.ReadUnicodeString();
-            MapFileName = reader.ReadAsciiString();
-            Side = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref MapFileName);
+            reader.ReadAsciiString(ref Side);
             MissionIndex = reader.ReadUInt32();
         }
     }

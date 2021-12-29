@@ -9,8 +9,11 @@ namespace OpenSage.Data.Sav
         {
             reader.ReadVersion(2);
 
-            var mapPath1 = reader.ReadAsciiString();
-            var mapPath2 = reader.ReadAsciiString();
+            var mapPath1 = "";
+            reader.ReadAsciiString(ref mapPath1);
+
+            var mapPath2 = "";
+            reader.ReadAsciiString(ref mapPath2);
 
             var gameType = GameType.SinglePlayer;
             reader.ReadEnum(ref gameType);

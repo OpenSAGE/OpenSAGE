@@ -105,7 +105,7 @@ namespace OpenSage.Network
 
             reader.SkipUnknownBytes(4);
 
-            MapName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _mapName);
 
             _mapFileCrc = reader.ReadUInt32();
             _mapFileSize = reader.ReadUInt32();

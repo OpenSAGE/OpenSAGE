@@ -1109,7 +1109,7 @@ namespace OpenSage.Logic.Object
 
             Drawable.DrawableID = reader.ReadUInt32();
 
-            _name = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _name);
 
             _unknown1 = reader.ReadUInt32();
 
@@ -1160,13 +1160,15 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < numUpgrades; i++)
             {
-                var upgradeName = reader.ReadAsciiString();
+                var upgradeName = "";
+                reader.ReadAsciiString(ref upgradeName);
+
                 var upgrade = _gameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(upgradeName);
                 DoObjectUpgrade(upgrade);
             }
 
             // Not always (but usually is) the same as the teamId above implies.
-            _teamName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _teamName);
 
             reader.SkipUnknownBytes(16);
 
@@ -1202,7 +1204,9 @@ namespace OpenSage.Logic.Object
             reader.ReadUInt16(ref numModules);
             for (var i = 0; i < numModules; i++)
             {
-                var moduleTag = reader.ReadAsciiString();
+                var moduleTag = "";
+                reader.ReadAsciiString(ref moduleTag);
+
                 var module = GetModuleByTag(moduleTag);
 
                 reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
@@ -1367,7 +1371,9 @@ namespace OpenSage.Logic.Object
 
         internal void Load(SaveFileReader reader, GameContext gameContext)
         {
-            var polygonTriggerName = reader.ReadAsciiString();
+            var polygonTriggerName = PolygonTrigger?.Name;
+            reader.ReadAsciiString(ref polygonTriggerName);
+
             PolygonTrigger = gameContext.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
 
             EnteredThisFrame = reader.ReadBoolean();

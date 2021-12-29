@@ -2,8 +2,8 @@
 {
     public sealed class CampaignManager
     {
-        public string CampaignName { get; private set; }
-        public string MissionName { get; private set; }
+        public string CampaignName;
+        public string MissionName;
 
         private uint _unknown;
         private uint _difficultyMaybe;
@@ -15,8 +15,8 @@
         {
             var version = reader.ReadVersion(5);
 
-            CampaignName = reader.ReadAsciiString();
-            MissionName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref CampaignName);
+            reader.ReadAsciiString(ref MissionName);
             _unknown = reader.ReadUInt32();
             _difficultyMaybe = reader.ReadUInt32();
 

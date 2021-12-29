@@ -697,7 +697,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 throw new InvalidStateException();
             }
 
-            reader.ReadAsciiString(); // Texture
+            var texture = "";
+            reader.ReadAsciiString(ref texture); // Texture
 
             reader.ReadRandomVariable(); // AngleX
             reader.ReadRandomVariable(); // AngleY
@@ -737,7 +738,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.ReadSingle(); // Gravity
 
-            reader.ReadAsciiString(); // SlaveSystemName
+            var slaveSystemName = "";
+            reader.ReadAsciiString(ref slaveSystemName); // SlaveSystemName
 
             reader.SkipUnknownBytes(13);
 

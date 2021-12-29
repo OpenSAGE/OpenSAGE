@@ -28,12 +28,12 @@ namespace OpenSage.Data.Map
         public string BuildingName { get; private set; }
         public string Name { get; private set; }
         public Vector3 Position => _position;
-        public float Angle { get; private set; }
+        public float Angle => _angle;
         public bool StructureAlreadyBuilt { get; private set; }
-        public uint Rebuilds { get; private set; }
+        public uint Rebuilds => _rebuilds;
         public string Script { get; private set; }
         public bool Unknown1 { get; private set; }
-        public uint StartingHealth { get; private set; }
+        public uint StartingHealth => _startingHealth;
         public bool Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
@@ -42,21 +42,21 @@ namespace OpenSage.Data.Map
         {
             reader.ReadVersion(2);
 
-            _buildingName = reader.ReadAsciiString();
-            _name = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _buildingName);
+            reader.ReadAsciiString(ref _name);
             reader.ReadVector3(ref _position);
 
             reader.SkipUnknownBytes(8);
 
-            Angle = reader.ReadSingle();
+            _angle = reader.ReadSingle();
 
             _unknownBool1 = reader.ReadBoolean();
 
-            Rebuilds = reader.ReadUInt32();
+            _rebuilds = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(1);
 
-            StartingHealth = reader.ReadUInt32();
+            _startingHealth = reader.ReadUInt32();
 
             _unknownBool2 = reader.ReadBoolean();
             _unknownBool3 = reader.ReadBoolean();
@@ -72,7 +72,7 @@ namespace OpenSage.Data.Map
 
             reader.ReadInt32(ref _unknownInt3);
 
-            _unknownBool7 = reader.ReadBoolean();
+            _unknownBool8 = reader.ReadBoolean();
 
             reader.ReadInt32(ref _unknownInt4);
         }
@@ -86,7 +86,7 @@ namespace OpenSage.Data.Map
                 Name = reader.ReadUInt16PrefixedAsciiString(),
 
                 _position = reader.ReadVector3(),
-                Angle = reader.ReadSingle(),
+                _angle = reader.ReadSingle(),
 
                 StructureAlreadyBuilt = reader.ReadBooleanChecked()
             };
@@ -98,11 +98,11 @@ namespace OpenSage.Data.Map
                 result.Unknown1 = reader.ReadBooleanChecked();
             }
 
-            result.Rebuilds = reader.ReadUInt32();
+            result._rebuilds = reader.ReadUInt32();
 
             result.Script = reader.ReadUInt16PrefixedAsciiString();
 
-            result.StartingHealth = reader.ReadUInt32();
+            result._startingHealth = reader.ReadUInt32();
 
             // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
             result.Unknown2 = reader.ReadBooleanChecked();

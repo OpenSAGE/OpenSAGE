@@ -85,7 +85,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _modelName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _modelName);
 
             reader.SkipUnknownBytes(7);
 

@@ -118,7 +118,7 @@ namespace OpenSage.Logic.Object
                 _unknownFloats[i] = reader.ReadSingle();
             }
 
-            _weaponThatFiredThis = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _weaponThatFiredThis);
 
             _unknown2 = reader.ReadUInt32();
         }

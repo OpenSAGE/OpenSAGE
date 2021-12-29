@@ -483,7 +483,8 @@ namespace OpenSage.Logic.Object
                 var productionJobType = ProductionJobType.Unit;
                 reader.ReadEnum(ref productionJobType);
 
-                var templateName = reader.ReadAsciiString();
+                var templateName = "";
+                reader.ReadAsciiString(ref templateName);
 
                 var productionJob = productionJobType switch
                 {

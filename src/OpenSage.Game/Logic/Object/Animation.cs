@@ -2,7 +2,7 @@
 {
     public sealed class Animation
     {
-        private readonly AnimationTemplate _template;
+        public readonly AnimationTemplate Template;
 
         private ushort _currentImageIndex;
         private uint _lastUpdatedFrame;
@@ -14,7 +14,7 @@
 
         public Animation(AnimationTemplate template)
         {
-            _template = template;
+            Template = template;
         }
 
         internal void Load(SaveFileReader reader)
@@ -22,8 +22,7 @@
             reader.ReadVersion(1);
 
             reader.ReadUInt16(ref _currentImageIndex);
-            _lastUpdatedFrame = reader.ReadUInt32();
-
+            reader.ReadFrame(ref _lastUpdatedFrame);
             reader.ReadUInt16(ref _unknown);
 
             reader.SkipUnknownBytes(1);

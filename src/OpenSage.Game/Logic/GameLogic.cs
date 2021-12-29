@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Content;
-using OpenSage.Data.Sav;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
@@ -11,8 +9,9 @@ namespace OpenSage.Logic
     {
         private readonly Scene3D _scene3D;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
-        private readonly List<GameObject> _objects;
-        private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides;
+        private readonly List<GameObject> _objects = new();
+        private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides = new();
+        private readonly List<string> _commandSetNamesPrefixedWithCommandButtonIndex = new();
 
         private uint _currentFrame;
 
@@ -24,9 +23,6 @@ namespace OpenSage.Logic
         {
             _scene3D = scene3D;
             _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(scene3D.AssetLoadContext.AssetStore.ObjectDefinitions);
-            _objects = new List<GameObject>();
-
-            _techTreeOverrides = new Dictionary<string, ObjectBuildableType>();
         }
 
         public GameObject GetObjectById(uint id)
@@ -104,7 +100,9 @@ namespace OpenSage.Logic
 
             while (true)
             {
-                var objectDefinitionName = reader.ReadAsciiString();
+                var objectDefinitionName = "";
+                reader.ReadAsciiString(ref objectDefinitionName);
+
                 if (objectDefinitionName == "")
                 {
                     break;
@@ -142,11 +140,15 @@ namespace OpenSage.Logic
             // Command button overrides
             while (true)
             {
-                var commandSetNamePrefixedWithCommandButtonIndex = reader.ReadAsciiString();
+                var commandSetNamePrefixedWithCommandButtonIndex = "";
+                reader.ReadAsciiString(ref commandSetNamePrefixedWithCommandButtonIndex);
+
                 if (commandSetNamePrefixedWithCommandButtonIndex == "")
                 {
                     break;
                 }
+
+                _commandSetNamesPrefixedWithCommandButtonIndex.Add(commandSetNamePrefixedWithCommandButtonIndex);
 
                 reader.SkipUnknownBytes(1);
             }
@@ -185,7 +187,8 @@ namespace OpenSage.Logic
             var count = reader.ReadUInt32();
             for (var i = 0; i < count; i++)
             {
-                var name = reader.ReadAsciiString();
+                var name = "";
+                reader.ReadAsciiString(ref name);
 
                 ushort id = 0;
                 reader.ReadUInt16(ref id);

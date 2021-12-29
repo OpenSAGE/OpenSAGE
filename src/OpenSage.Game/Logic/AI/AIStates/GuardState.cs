@@ -46,8 +46,7 @@ namespace OpenSage.Logic.AI.AIStates
             reader.ReadObjectID(ref _guardObjectId);
             reader.ReadObjectID(ref _guardObjectId2);
             reader.ReadVector3(ref _guardPosition);
-
-            _guardPolygonTriggerName = reader.ReadAsciiString();
+            reader.ReadAsciiString(ref _guardPolygonTriggerName);
         }
 
         private sealed class GuardIdleState : State
