@@ -97,7 +97,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

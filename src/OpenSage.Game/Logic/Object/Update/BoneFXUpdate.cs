@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly List<uint> _particleSystemIds = new();
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

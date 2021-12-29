@@ -95,7 +95,7 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader, Game game)
+        internal void Load(StatePersister reader, Game game)
         {
             reader.ReadVersion(1);
 

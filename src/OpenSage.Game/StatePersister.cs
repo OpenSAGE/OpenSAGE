@@ -9,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage
 {
-    public sealed class SaveFileReader
+    public sealed class StatePersister
     {
         private readonly BinaryReader _binaryReader;
         private readonly Stack<Segment> _segments;
@@ -19,7 +19,7 @@ namespace OpenSage
         public readonly SageGame SageGame;
         public readonly AssetStore AssetStore;
 
-        internal SaveFileReader(BinaryReader binaryReader, Game game)
+        internal StatePersister(BinaryReader binaryReader, Game game)
         {
             _binaryReader = binaryReader;
             _segments = new Stack<Segment>();

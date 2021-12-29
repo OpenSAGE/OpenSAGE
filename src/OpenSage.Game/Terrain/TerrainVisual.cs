@@ -4,7 +4,7 @@
     {
         private bool _unknownBool;
 
-        internal void Load(SaveFileReader reader, Game game)
+        internal void Load(StatePersister reader, Game game)
         {
             reader.ReadVersion(2);
             reader.ReadVersion(1);

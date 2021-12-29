@@ -366,7 +366,7 @@ namespace OpenSage.Logic.Object
 
         public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(LocomotorTemplate);
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

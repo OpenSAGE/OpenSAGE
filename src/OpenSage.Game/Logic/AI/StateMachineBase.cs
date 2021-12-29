@@ -39,7 +39,7 @@ namespace OpenSage.Logic.AI
             throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
         }
 
-        internal virtual void Load(SaveFileReader reader)
+        internal virtual void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

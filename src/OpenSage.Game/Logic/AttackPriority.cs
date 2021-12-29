@@ -27,7 +27,7 @@ namespace OpenSage.Logic
 
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -69,7 +69,7 @@ namespace OpenSage.Logic
         private uint _value;
         public uint Value => _value;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadAsciiString(ref _target);
             reader.ReadUInt32(ref _value);

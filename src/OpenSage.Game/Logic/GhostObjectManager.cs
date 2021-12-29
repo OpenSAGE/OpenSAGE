@@ -7,7 +7,7 @@ namespace OpenSage.Logic
         private readonly List<GhostObject> _ghostObjects = new();
         private uint _unknown1;
 
-        internal void Load(SaveFileReader reader, GameLogic gameLogic, Game game)
+        internal void Load(StatePersister reader, GameLogic gameLogic, Game game)
         {
             reader.ReadVersion(1);
             reader.ReadVersion(1);

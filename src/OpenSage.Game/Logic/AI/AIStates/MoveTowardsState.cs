@@ -12,7 +12,7 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _unknownInt3;
         private bool _unknownBool2;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

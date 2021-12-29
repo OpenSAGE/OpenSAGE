@@ -392,7 +392,7 @@ namespace OpenSage.Logic
             return false;
         }
 
-        internal void Load(SaveFileReader reader, Game game)
+        internal void Load(StatePersister reader, Game game)
         {
             reader.ReadVersion(8);
 
@@ -654,7 +654,7 @@ namespace OpenSage.Logic
             _owner = owner;
         }
 
-        internal virtual void Load(SaveFileReader reader)
+        internal virtual void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -739,7 +739,7 @@ namespace OpenSage.Logic
             private uint _unknownInt1;
             private uint _unknownInt2;
 
-            internal void Load(SaveFileReader reader)
+            internal void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -770,7 +770,7 @@ namespace OpenSage.Logic
             private bool _unknownBool1;
             private bool _unknownBool2;
 
-            internal void Load(SaveFileReader reader)
+            internal void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -797,7 +797,7 @@ namespace OpenSage.Logic
 
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -823,7 +823,7 @@ namespace OpenSage.Logic
             _supplyCenters = new ObjectIdSet();
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -843,7 +843,7 @@ namespace OpenSage.Logic
     {
         private readonly Dictionary<uint, RelationshipType> _store = new();
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -874,7 +874,7 @@ namespace OpenSage.Logic
             _assetStore = assetStore;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -899,7 +899,7 @@ namespace OpenSage.Logic
     // Maybe we shouldn't use a generic container like this.
     public sealed class StringSet : HashSet<string>
     {
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -921,7 +921,7 @@ namespace OpenSage.Logic
     // Maybe we shouldn't use a generic container like this.
     public sealed class ObjectIdSet : HashSet<uint>
     {
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -943,7 +943,7 @@ namespace OpenSage.Logic
     {
         public readonly PlayerStatObjectCollection UnitsDestroyed = new PlayerStatObjectCollection();
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             // After 0x10, 3rd entry is ObjectsDestroyed?
             // After 0x10, 17th entry is ObjectsLost?
@@ -953,7 +953,7 @@ namespace OpenSage.Logic
 
     internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>
     {
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             Clear();
 
@@ -1011,7 +1011,7 @@ namespace OpenSage.Logic
             Money += amount;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -1024,7 +1024,7 @@ namespace OpenSage.Logic
         private readonly ObjectIdSet _tunnelIds = new();
         private readonly List<uint> _containedObjectIds = new();
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -1084,7 +1084,7 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

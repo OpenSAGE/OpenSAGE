@@ -19,7 +19,7 @@ namespace OpenSage.Logic.AI.AIStates
             _asTeam = asTeam;
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -399,7 +399,7 @@ namespace OpenSage.Logic.Object
             ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

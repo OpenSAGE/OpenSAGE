@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

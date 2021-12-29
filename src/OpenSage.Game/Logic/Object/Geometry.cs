@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         public bool IsActive;
         public float FrontAngle;
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
             reader.ReadEnum(ref Type);

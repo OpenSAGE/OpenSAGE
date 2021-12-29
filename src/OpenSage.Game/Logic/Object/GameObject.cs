@@ -1091,7 +1091,7 @@ namespace OpenSage.Logic.Object
             _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(7);
 
@@ -1345,7 +1345,7 @@ namespace OpenSage.Logic.Object
         private uint _experienceSinkObjectId;
         private float _experienceScalar;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -1362,7 +1362,7 @@ namespace OpenSage.Logic.Object
         public bool EnteredThisFrame;
         public bool IsInside;
 
-        internal void Load(SaveFileReader reader, GameContext gameContext)
+        internal void Load(StatePersister reader, GameContext gameContext)
         {
             var polygonTriggerName = PolygonTrigger?.Name;
             reader.ReadAsciiString(ref polygonTriggerName);

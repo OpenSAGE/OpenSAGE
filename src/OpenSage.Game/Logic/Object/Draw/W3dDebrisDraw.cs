@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Object
             _modelInstance.Update(time);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

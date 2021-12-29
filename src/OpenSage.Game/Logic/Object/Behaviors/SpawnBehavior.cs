@@ -82,7 +82,7 @@ namespace OpenSage.Logic.Object
             // TODO: respawn killed/dead units
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 

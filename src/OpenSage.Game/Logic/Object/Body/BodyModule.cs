@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
 
         public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

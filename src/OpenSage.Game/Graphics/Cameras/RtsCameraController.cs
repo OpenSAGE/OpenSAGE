@@ -313,7 +313,7 @@ namespace OpenSage.Graphics.Cameras
             TerrainPosition = gameObject.Translation;
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

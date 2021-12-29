@@ -11,7 +11,7 @@
             _stateMachine = new DockStateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -41,7 +41,7 @@
             AddState(5, new DockWaitForActionState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -52,7 +52,7 @@
 
         private sealed class DockApproachDockState : MoveTowardsState
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(2);
 
@@ -64,7 +64,7 @@
         {
             private uint _unknownInt;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(2);
 
@@ -84,7 +84,7 @@
         {
             // Time spent in this state matches SupplyWarehouseActionDelay
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
             }

@@ -4,7 +4,7 @@
     {
         public string Tag { get; internal set; }
 
-        internal virtual void Load(SaveFileReader reader)
+        internal virtual void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
         }

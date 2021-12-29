@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -48,7 +48,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public Vector3 UnknownVector;
         public uint UnknownInt6;
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
             reader.ReadVersion(1);

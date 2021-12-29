@@ -11,7 +11,7 @@
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             var version = reader.ReadVersion(5);
 

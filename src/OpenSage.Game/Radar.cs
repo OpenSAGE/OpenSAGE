@@ -265,7 +265,7 @@ namespace OpenSage
             DrawFrustumLine(terrain3.Value, terrain0.Value);
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -298,7 +298,7 @@ namespace OpenSage
 
     internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>
     {
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -322,7 +322,7 @@ namespace OpenSage
         public uint ObjectId;
         public ColorRgba Color;
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -346,7 +346,7 @@ namespace OpenSage
         private uint _unknown6;
         private bool _unknown7;
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadEnum(ref Type);
             reader.ReadBoolean(ref _unknown1);

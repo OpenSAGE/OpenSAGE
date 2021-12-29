@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
             context.GameContext.ObjectCreationLists.Create(_moduleData.CreationList.Value, context);
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

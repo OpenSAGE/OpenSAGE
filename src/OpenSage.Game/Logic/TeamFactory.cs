@@ -101,7 +101,7 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(SaveFileReader reader, PlayerManager players)
+        internal void Load(StatePersister reader, PlayerManager players)
         {
             reader.ReadVersion(1);
 

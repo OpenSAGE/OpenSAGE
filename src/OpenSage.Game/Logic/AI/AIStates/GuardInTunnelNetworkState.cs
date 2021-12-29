@@ -11,7 +11,7 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new GuardInTunnelNetworkStateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -37,7 +37,7 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(5003, new GuardInTunnelNetworkEnterTunnelState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(2);
 
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -63,7 +63,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 

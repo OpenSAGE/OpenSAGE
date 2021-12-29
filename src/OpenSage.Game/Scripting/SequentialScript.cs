@@ -9,7 +9,7 @@
         public uint LoopsRemaining;
         public int Unknown2 = -1;
 
-        public void Load(SaveFileReader reader)
+        public void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

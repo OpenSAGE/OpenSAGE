@@ -11,7 +11,7 @@
             _stateMachine = new AttackAreaStateMachine();
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -36,7 +36,7 @@
             AddState(10, new AttackState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

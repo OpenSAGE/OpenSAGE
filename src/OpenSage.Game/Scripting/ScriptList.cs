@@ -105,7 +105,7 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -281,7 +281,7 @@ namespace OpenSage.Client
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(5);
 
@@ -409,7 +409,7 @@ namespace OpenSage.Client
             }
         }
 
-        private void LoadModules(SaveFileReader reader)
+        private void LoadModules(StatePersister reader)
         {
             reader.ReadVersion(1);
 

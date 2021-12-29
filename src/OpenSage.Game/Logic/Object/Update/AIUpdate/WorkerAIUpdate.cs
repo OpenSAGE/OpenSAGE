@@ -129,7 +129,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -188,7 +188,7 @@ namespace OpenSage.Logic.Object
                 AddState(1, new WorkerUnknown1State());
             }
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -197,7 +197,7 @@ namespace OpenSage.Logic.Object
 
             private sealed class WorkerUnknown0State : State
             {
-                internal override void Load(SaveFileReader reader)
+                internal override void Load(StatePersister reader)
                 {
                     // No version?
                 }
@@ -205,7 +205,7 @@ namespace OpenSage.Logic.Object
 
             private sealed class WorkerUnknown1State : State
             {
-                internal override void Load(SaveFileReader reader)
+                internal override void Load(StatePersister reader)
                 {
                     // No version?
                 }
@@ -221,7 +221,7 @@ namespace OpenSage.Logic.Object
             AddState(1, new WorkerUnknown1State());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -234,7 +234,7 @@ namespace OpenSage.Logic.Object
             private int _unknown2;
             private bool _unknown3;
 
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -246,7 +246,7 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown1State : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
 
@@ -273,7 +273,7 @@ namespace OpenSage.Logic.Object
             AddState(4, new WorkerUnknown4State());
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
@@ -282,7 +282,7 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown0State : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 
             }
@@ -290,7 +290,7 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown1State : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 
             }
@@ -298,7 +298,7 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown4State : State
         {
-            internal override void Load(SaveFileReader reader)
+            internal override void Load(StatePersister reader)
             {
                 reader.ReadVersion(1);
             }

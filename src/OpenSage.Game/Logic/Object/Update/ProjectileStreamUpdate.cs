@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownInt2;
         private uint _unknownObjectId;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

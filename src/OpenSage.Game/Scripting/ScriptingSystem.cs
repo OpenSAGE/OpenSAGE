@@ -268,7 +268,7 @@ namespace OpenSage.Scripting
             CameraFadeOverlay.Update();
         }
 
-        internal void Load(SaveFileReader reader)
+        internal void Load(StatePersister reader)
         {
             reader.ReadVersion(5);
 

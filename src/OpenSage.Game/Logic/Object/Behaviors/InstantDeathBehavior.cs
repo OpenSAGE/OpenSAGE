@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
                 context.GameContext));
         }
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

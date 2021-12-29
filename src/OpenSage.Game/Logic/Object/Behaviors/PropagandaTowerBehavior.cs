@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownFrame;
         private readonly List<uint> _objectIds = new();
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 

@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
         private readonly Vector3[] _positions = new Vector3[120];
         private bool _unknown2;
 
-        internal override void Load(SaveFileReader reader)
+        internal override void Load(StatePersister reader)
         {
             reader.ReadVersion(1);
 
