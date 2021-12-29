@@ -11,7 +11,9 @@ namespace OpenSage.Data.Sav
 
             var mapPath1 = reader.ReadAsciiString();
             var mapPath2 = reader.ReadAsciiString();
-            var gameType = reader.ReadEnum<GameType>();
+
+            var gameType = GameType.SinglePlayer;
+            reader.ReadEnum(ref gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 

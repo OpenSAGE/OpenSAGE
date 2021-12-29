@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _state = reader.ReadEnum<FlammableState>();
+            reader.ReadEnum(ref _state);
 
             reader.ReadFrame(ref _aflameEndFrame);
 

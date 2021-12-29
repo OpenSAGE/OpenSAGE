@@ -43,7 +43,7 @@ namespace OpenSage.Logic
             reader.ReadObjectID(ref objectId);
             _gameObject = gameLogic.GetObjectById(objectId);
 
-            _geometryType = reader.ReadEnum<ObjectGeometry>();
+            reader.ReadEnum<ObjectGeometry>(ref _geometryType);
 
             // Sometimes there's a 0xC0, when it should be 0x0.
             byte geometryIsSmall = 0;

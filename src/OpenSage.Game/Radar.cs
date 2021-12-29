@@ -348,7 +348,7 @@ namespace OpenSage
 
         public void Load(SaveFileReader reader)
         {
-            Type = reader.ReadEnum<RadarEventType>();
+            reader.ReadEnum(ref Type);
 
             _unknown1 = reader.ReadBoolean();
 

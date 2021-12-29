@@ -101,7 +101,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _damageType = reader.ReadEnum<BodyDamageType>();
+            reader.ReadEnum<BodyDamageType>(ref _damageType);
 
             reader.ReadFrame(ref _unknownFrame1);
 

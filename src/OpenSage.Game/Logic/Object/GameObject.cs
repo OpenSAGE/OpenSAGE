@@ -1350,7 +1350,7 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(1);
 
-            _veterancyLevel = reader.ReadEnum<VeterancyLevel>();
+            reader.ReadEnum(ref _veterancyLevel);
 
             _experiencePoints = reader.ReadInt32();
 

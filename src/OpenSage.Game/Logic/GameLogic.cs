@@ -110,7 +110,8 @@ namespace OpenSage.Logic
                     break;
                 }
 
-                var buildableStatus = reader.ReadEnum<ObjectBuildableType>();
+                ObjectBuildableType buildableStatus = default;
+                reader.ReadEnum(ref buildableStatus);
 
                 _techTreeOverrides.Add(
                     objectDefinitionName,

@@ -71,10 +71,10 @@ namespace OpenSage
 
         public Point3D ReadPoint3D() => _binaryReader.ReadPoint3D();
 
-        public TEnum ReadEnum<TEnum>()
+        public void ReadEnum<TEnum>(ref TEnum value)
             where TEnum : struct
         {
-            return _binaryReader.ReadUInt32AsEnum<TEnum>();
+            value = _binaryReader.ReadUInt32AsEnum<TEnum>();
         }
 
         public TEnum ReadEnumByte<TEnum>()

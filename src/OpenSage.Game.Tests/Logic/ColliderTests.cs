@@ -74,9 +74,8 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var geometry = new Geometry
+            var geometry = new Geometry(ObjectGeometry.Sphere)
             {
-                Type = ObjectGeometry.Sphere,
                 Height = 10,
                 MajorRadius = radius
             };
@@ -93,13 +92,12 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var geometry = new Geometry
-                {
-                    Type = ObjectGeometry.Box,
-                    Height = 10,
-                    MajorRadius = width,
-                    MinorRadius = height
-                };
+            var geometry = new Geometry(ObjectGeometry.Box)
+            {
+                Height = 10,
+                MajorRadius = width,
+                MinorRadius = height
+            };
 
             var collider = Collider.Create(geometry, transform);
             Assert.Equal(expected, collider.Intersects(rect));

@@ -28,10 +28,8 @@
 
             reader.ReadObjectID(ref ObjectId);
             reader.ReadUInt16(ref Unknown1);
-
-            DamageType = reader.ReadEnum<DamageType>();
-
-            DeathType = reader.ReadEnum<DeathType>();
+            reader.ReadEnum(ref DamageType);
+            reader.ReadEnum(ref DeathType);
 
             Unknown4 = reader.ReadSingle();
         }
