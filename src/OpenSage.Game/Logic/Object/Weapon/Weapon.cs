@@ -165,9 +165,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(2);
 
-            _unknownBool1 = reader.ReadBoolean();
-
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
         }
 
         internal void DrawInspector()

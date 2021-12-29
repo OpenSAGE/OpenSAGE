@@ -6,20 +6,21 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class Geometry
     {
-        private ObjectGeometry _type;
+        private float _unknownFloat1;
+        private float _unknownFloat2;
 
         public Geometry() { }
 
         public Geometry(ObjectGeometry type)
         {
-            _type = type;
+            Type = type;
         }
 
         internal static Geometry Parse(IniParser parser)
         {
             return new Geometry()
             {
-                _type = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
+                Type = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
                 IsSmall = parser.ParseAttributeBoolean("IsSmall"),
                 Height = parser.ParseAttributeInteger("Height"),
                 MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
@@ -28,27 +29,27 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string Name { get; set; }
-        public ObjectGeometry Type => _type;
-        public bool IsSmall { get; set; }
-        public float Height { get; set; }
-        public float MajorRadius { get; set; }
-        public float MinorRadius { get; set; }
-        public int OffsetX { get; set; }
-        public Vector3 Offset { get; set; }
-        public bool IsActive { get; set; }
-        public float FrontAngle { get; set; }
+        public string Name;
+        public ObjectGeometry Type;
+        public bool IsSmall;
+        public float Height;
+        public float MajorRadius;
+        public float MinorRadius;
+        public int OffsetX;
+        public Vector3 Offset;
+        public bool IsActive;
+        public float FrontAngle;
 
         public void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
-            reader.ReadEnum(ref _type);
-            IsSmall = reader.ReadBoolean();
+            reader.ReadEnum(ref Type);
+            reader.ReadBoolean(ref IsSmall);
             Height = reader.ReadSingle();
             MajorRadius = reader.ReadSingle();
             MinorRadius = reader.ReadSingle();
-            var unknown1 = reader.ReadSingle();
-            var unknown2 = reader.ReadSingle();
+            _unknownFloat1 = reader.ReadSingle();
+            _unknownFloat2 = reader.ReadSingle();
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

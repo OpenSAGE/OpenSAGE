@@ -127,8 +127,7 @@ namespace OpenSage.Logic.Object
             reader.ReadVector3(ref _position2);
             reader.ReadVector3(ref _position3);
             reader.ReadInt32(ref _numApproachPositions1);
-
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
 
             var numberApproachPositions2 = _approachPositions.Count;
             reader.ReadInt32(ref numberApproachPositions2);
@@ -155,7 +154,9 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < numberApproachPositions4; i++)
             {
-                _unknownBools.Add(reader.ReadBoolean());
+                var value = false;
+                reader.ReadBoolean(ref value);
+                _unknownBools.Add(value);
             }
 
             reader.ReadObjectID(ref _unknownObjectId);
@@ -166,7 +167,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknown3 = reader.ReadBoolean();
+            var unknown3 = true;
+            reader.ReadBoolean(ref unknown3);
             if (!unknown3)
             {
                 throw new InvalidStateException();

@@ -18,11 +18,11 @@ namespace OpenSage.Logic.AI.AIStates
 
             reader.ReadVector3(ref _unknownPosition1);
             _unknownInt1 = reader.ReadUInt32();
-            _unknownBool1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
             reader.ReadVector3(ref _unknownPosition2);
             _unknownInt2 = reader.ReadUInt32();
             _unknownInt3 = reader.ReadUInt32();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool2);
         }
     }
 }

@@ -516,7 +516,8 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < 2; i++)
             {
-                var unknown1 = reader.ReadBoolean();
+                var unknown1 = true;
+                reader.ReadBoolean(ref unknown1);
                 if (!unknown1)
                 {
                     throw new InvalidStateException();

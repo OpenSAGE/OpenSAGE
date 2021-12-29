@@ -14,8 +14,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknown1 = reader.ReadBoolean();
-            _unknown2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown1);
+            reader.ReadBoolean(ref _unknown2);
         }
     }
 

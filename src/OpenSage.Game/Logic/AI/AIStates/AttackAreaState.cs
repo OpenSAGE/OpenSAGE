@@ -13,7 +13,8 @@
         {
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();

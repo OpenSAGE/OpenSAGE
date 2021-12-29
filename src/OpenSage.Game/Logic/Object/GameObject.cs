@@ -267,7 +267,7 @@ namespace OpenSage.Logic.Object
 
         public Team Team { get; private set; }
 
-        public bool IsSelectable { get; set; }
+        public bool IsSelectable;
         public bool IsProjectile { get; private set; } = false;
         public bool CanAttack { get; private set; }
 
@@ -1192,9 +1192,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.ReadInt32(ref _unknown5); // 0, 1
-
-            IsSelectable = reader.ReadBoolean();
-
+            reader.ReadBoolean(ref IsSelectable);
             reader.ReadFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(4);
@@ -1241,13 +1239,15 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            var unknown6 = reader.ReadBoolean();
+            var unknown6 = true;
+            reader.ReadBoolean(ref unknown6);
             if (!unknown6)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown7 = reader.ReadBoolean();
+            var unknown7 = true;
+            reader.ReadBoolean(ref unknown7);
             if (!unknown7)
             {
                 throw new InvalidStateException();
@@ -1376,11 +1376,11 @@ namespace OpenSage.Logic.Object
 
             PolygonTrigger = gameContext.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
 
-            EnteredThisFrame = reader.ReadBoolean();
+            reader.ReadBoolean(ref EnteredThisFrame);
 
             reader.SkipUnknownBytes(1);
 
-            IsInside = reader.ReadBoolean();
+            reader.ReadBoolean(ref IsInside);
         }
     }
 }

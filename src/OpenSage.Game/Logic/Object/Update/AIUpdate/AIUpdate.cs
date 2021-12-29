@@ -298,30 +298,27 @@ namespace OpenSage.Logic.Object
             _stateMachine.Load(reader);
 
             _unknownInt3 = reader.ReadUInt32();
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
             _unknownInt4 = reader.ReadUInt32();
             _unknownInt5 = reader.ReadUInt32();
-
             _unknownFloat1 = reader.ReadSingle(); // 999999
-
             _unknownInt6 = reader.ReadUInt32(); // 2
             _unknownInt7 = reader.ReadUInt32(); // 3
             _unknownInt8 = reader.ReadUInt32(); // 3
             _unknownInt9 = reader.ReadUInt32(); // 3
-
             _unknownInt10 = reader.ReadUInt32(); // 0
             _unknownInt11 = reader.ReadUInt32(); // 0
             _unknownInt12 = reader.ReadUInt32(); // 0
             _unknownInt13 = reader.ReadUInt32(); // 0
-            _unknownBool3 = reader.ReadBoolean();
-            _unknownBool4 = reader.ReadBoolean();
-            _unknownBool5 = reader.ReadBoolean(); // 0
-            _unknownBool6 = reader.ReadBoolean(); // 0
+            reader.ReadBoolean(ref _unknownBool3);
+            reader.ReadBoolean(ref _unknownBool4);
+            reader.ReadBoolean(ref _unknownBool5); // 0
+            reader.ReadBoolean(ref _unknownBool6); // 0
             reader.ReadAsciiString(ref _guardAreaPolygonTriggerName);
             reader.ReadAsciiString(ref _attackPriorityName);
             _unknownInt14 = reader.ReadUInt32(); // 0
-            _unknownBool7 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool7);
             _unknownInt15 = reader.ReadUInt32(); // 0
 
             var unknownInt16 = reader.ReadUInt32();
@@ -330,9 +327,10 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownBool8 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool8);
 
-            var hasPath = reader.ReadBoolean();
+            var hasPath = _path != null;
+            reader.ReadBoolean(ref hasPath);
             if (hasPath)
             {
                 _path = new PathfindingPath();
@@ -356,13 +354,13 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            _unknownBool9 = reader.ReadBoolean();
-            _unknownBool10 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool9);
+            reader.ReadBoolean(ref _unknownBool10);
 
             reader.SkipUnknownBytes(5);
 
-            _unknownBool11 = reader.ReadBoolean();
-            _unknownBool12 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool11);
+            reader.ReadBoolean(ref _unknownBool12);
 
             reader.SkipUnknownBytes(8);
 
@@ -563,10 +561,10 @@ namespace OpenSage.Logic.Object
                 _points.Add(pathPoint);
             }
 
-            _unknownBool1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
             _unknownInt1 = reader.ReadUInt32();
             _unknownInt2 = reader.ReadUInt32(); // 1
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool2);
         }
     }
 
@@ -583,7 +581,7 @@ namespace OpenSage.Logic.Object
             _id = reader.ReadUInt32();
             reader.ReadVector3(ref _position);
             _unknownInt1 = reader.ReadUInt32();
-            _unknownBool1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
             _nextId = reader.ReadUInt32();
         }
     }

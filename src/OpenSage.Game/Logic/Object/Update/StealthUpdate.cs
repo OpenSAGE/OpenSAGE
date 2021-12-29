@@ -19,7 +19,8 @@ namespace OpenSage.Logic.Object
             reader.ReadFrame(ref _unknownFrame1);
             reader.ReadFrame(ref _unknownFrame2);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();

@@ -85,9 +85,9 @@ namespace OpenSage.Network
 
             _unknownInt1 = reader.ReadUInt32(); // 25600 (160^2)
             reader.ReadInt32(ref _unknownInt2);
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
-            _unknownBool3 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
+            reader.ReadBoolean(ref _unknownBool3);
             _unknownInt3 = reader.ReadUInt32(); // 0
 
             var numPlayers = reader.ReadUInt32(); // 8

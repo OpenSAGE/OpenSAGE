@@ -73,7 +73,8 @@ namespace OpenSage.Logic.Object
             // Later games have up to 5.
             for (var i = 0; i < 3; i++)
             {
-                var slotFilled = reader.ReadBoolean();
+                var slotFilled = _weapons[i] != null;
+                reader.ReadBoolean(ref slotFilled);
                 if (slotFilled)
                 {
                     _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
@@ -94,8 +95,8 @@ namespace OpenSage.Logic.Object
 
             _unknown2 = reader.ReadUInt32();
 
-            _unknown3 = reader.ReadBoolean();
-            _unknown4 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown3);
+            reader.ReadBoolean(ref _unknown4);
         }
     }
 }

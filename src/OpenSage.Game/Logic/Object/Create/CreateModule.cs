@@ -12,7 +12,7 @@
 
             base.Load(reader);
 
-            _unknown = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown);
         }
     }
 

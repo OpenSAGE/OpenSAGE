@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Numerics;
-using OpenSage.Data.Sav;
+﻿using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -17,7 +15,8 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
 
             _stateMachine.Load(reader);
         }

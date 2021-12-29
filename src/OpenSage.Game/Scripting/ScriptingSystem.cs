@@ -290,7 +290,7 @@ namespace OpenSage.Scripting
 
                 reader.ReadInt32(ref counter.Value);
                 reader.ReadAsciiString(ref counter.Name);
-                counter.IsTimer = reader.ReadBoolean();
+                reader.ReadBoolean(ref counter.IsTimer);
             }
 
             var numTimersAndCounters2 = reader.ReadUInt32();
@@ -305,7 +305,7 @@ namespace OpenSage.Scripting
             {
                 ref var flag = ref _flags[i];
 
-                flag.Value = reader.ReadBoolean();
+                reader.ReadBoolean(ref flag.Value);
                 reader.ReadAsciiString(ref flag.Name);
             }
 

@@ -109,9 +109,7 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _launcherObjectId);
             reader.ReadObjectID(ref _unknownObjectId);
-
-            _unknownBool1 = reader.ReadBoolean();
-
+            reader.ReadBoolean(ref _unknownBool1);
             reader.ReadFrame(ref _unknownFrame2);
 
             _unknownFloat1 = reader.ReadSingle();
@@ -130,8 +128,7 @@ namespace OpenSage.Logic.Object
             reader.ReadAsciiString(ref exhaustParticleSystemTemplateName);
             _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
-            _unknownBool2 = reader.ReadBoolean();
-
+            reader.ReadBoolean(ref _unknownBool2);
             reader.ReadVector3(ref _currentPositionMaybe);
             reader.ReadInt32(ref _unknownInt1); // 0, 0x20000
             reader.ReadInt32(ref _unknownInt2); // 1960

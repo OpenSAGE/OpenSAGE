@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
 
             _upgradeLogic.Load(reader);
 
-            _unknown = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown);
 
             reader.SkipUnknownBytes(13);
         }

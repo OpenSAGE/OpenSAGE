@@ -33,7 +33,7 @@ namespace OpenSage.Logic
 
             reader.ReadAsciiString(ref _name);
 
-            reader.ReadUInt32(ref _default);
+            reader.ReadInt32(ref _default);
             if (_default != 1)
             {
                 throw new InvalidStateException();

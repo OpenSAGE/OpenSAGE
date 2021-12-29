@@ -53,6 +53,7 @@ namespace OpenSage.Client
         private uint _unknownInt5;
         private uint _unknownInt6;
 
+        private bool _hasUnknownFloats;
         private readonly float[] _unknownFloats = new float[19];
 
         private uint _unknownInt7;
@@ -290,21 +291,23 @@ namespace OpenSage.Client
 
             _transformMatrix = reader.ReadMatrix4x3();
 
-            var hasSelectionFlashHelper = reader.ReadBoolean();
+            var hasSelectionFlashHelper = _selectionFlashHelper != null;
+            reader.ReadBoolean(ref hasSelectionFlashHelper);
             if (hasSelectionFlashHelper)
             {
                 _selectionFlashHelper ??= new ColorFlashHelper();
                 _selectionFlashHelper.Load(reader);
             }
 
-            var hasScriptedFlashHelper = reader.ReadBoolean();
+            var hasScriptedFlashHelper = _scriptedFlashHelper != null;
+            reader.ReadBoolean(ref hasScriptedFlashHelper);
             if (hasScriptedFlashHelper)
             {
                 _scriptedFlashHelper ??= new ColorFlashHelper();
                 _scriptedFlashHelper.Load(reader);
             }
 
-            reader.ReadEnum<ObjectDecalType>(ref _objectDecalType);
+            reader.ReadEnum(ref _objectDecalType);
 
             var unknownFloat1 = reader.ReadSingle();
             if (unknownFloat1 != 1)
@@ -344,8 +347,8 @@ namespace OpenSage.Client
 
             _unknownInt6 = reader.ReadUInt32();
 
-            var unknownBool4 = reader.ReadBoolean();
-            if (unknownBool4)
+            reader.ReadBoolean(ref _hasUnknownFloats);
+            if (_hasUnknownFloats)
             {
                 for (var j = 0; j < 19; j++)
                 {
@@ -360,12 +363,12 @@ namespace OpenSage.Client
             _flashFrameCount = reader.ReadUInt32();
             _flashColor = reader.ReadColorRgba();
 
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
 
             reader.SkipUnknownBytes(4);
 
-            _someMatrixIsIdentity = reader.ReadBoolean();
+            reader.ReadBoolean(ref _someMatrixIsIdentity);
 
             _someMatrix = reader.ReadMatrix4x3(false);
 
@@ -377,7 +380,8 @@ namespace OpenSage.Client
 
             reader.SkipUnknownBytes(8);
 
-            var hasAnimation2D = reader.ReadBoolean();
+            var hasAnimation2D = _animation != null;
+            reader.ReadBoolean(ref hasAnimation2D);
             if (hasAnimation2D)
             {
                 var animation2DName = _animation?.Template.Name;
@@ -398,7 +402,8 @@ namespace OpenSage.Client
                 _animation.Load(reader);
             }
 
-            var unknownBool2 = reader.ReadBoolean();
+            var unknownBool2 = true;
+            reader.ReadBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();

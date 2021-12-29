@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             {
                 var member = new AssaultTransportMember();
                 reader.ReadObjectID(ref member.ObjectId);
-                member.Unknown = reader.ReadBoolean();
+                reader.ReadBoolean(ref member.Unknown);
                 _members.Add(member);
             }
 

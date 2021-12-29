@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StealthDetectorUpdate : UpdateModule
     {
-        // TODO
+        private bool _unknown;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown);
         }
     }
 

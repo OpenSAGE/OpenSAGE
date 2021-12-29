@@ -369,9 +369,9 @@ namespace OpenSage.Gui.InGame
             reader.ReadVersion(2);
 
             _unknown1 = reader.ReadUInt32(); // 0
-            _unknown2 = reader.ReadBoolean();
-            _unknown3 = reader.ReadBoolean();
-            _unknown4 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown2);
+            reader.ReadBoolean(ref _unknown3);
+            reader.ReadBoolean(ref _unknown4);
             _unknown5 = reader.ReadUInt32(); // 0
 
             // TODO: Superweapon something...
@@ -385,9 +385,9 @@ namespace OpenSage.Gui.InGame
 
                 item.UnknownInt1 = reader.ReadUInt32();
                 item.UnknownInt2 = reader.ReadUInt32(); // 0xFFFFFFFF
-                item.UnknownBool1 = reader.ReadBoolean();
-                item.UnknownBool2 = reader.ReadBoolean();
-                item.UnknownBool3 = reader.ReadBoolean();
+                reader.ReadBoolean(ref item.UnknownBool1);
+                reader.ReadBoolean(ref item.UnknownBool2);
+                reader.ReadBoolean(ref item.UnknownBool3);
 
                 _superweaponSomethings.Add(item);
 

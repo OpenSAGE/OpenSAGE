@@ -23,7 +23,7 @@ namespace OpenSage.Client
             reader.ReadVector3(ref _targetColor);
             reader.ReadVector3(ref _currentColor);
             _holdFrames = reader.ReadUInt32();
-            _isActive = reader.ReadBoolean();
+            reader.ReadBoolean(ref _isActive);
             _state = reader.ReadEnumByte<ColorFlashState>();
         }
 

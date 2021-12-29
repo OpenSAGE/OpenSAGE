@@ -40,21 +40,17 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            _unknownBool1 = reader.ReadBoolean();
-
-            _unknownBool2 = reader.ReadBoolean();
-
-            _unknownBool3 = reader.ReadBoolean();
-            _unknownBool4 = reader.ReadBoolean();
-            _unknownBool5 = reader.ReadBoolean();
-            _unknownBool6 = reader.ReadBoolean();
-
-            _unknownBool7 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
+            reader.ReadBoolean(ref _unknownBool3);
+            reader.ReadBoolean(ref _unknownBool4);
+            reader.ReadBoolean(ref _unknownBool5);
+            reader.ReadBoolean(ref _unknownBool6);
+            reader.ReadBoolean(ref _unknownBool7);
 
             reader.SkipUnknownBytes(4);
 
-            _unknownBool8 = reader.ReadBoolean();
-
+            reader.ReadBoolean(ref _unknownBool8);
             reader.ReadInt32(ref _unknownInt2);
             reader.ReadInt32(ref _unknownInt3);
 

@@ -17,7 +17,7 @@
 
             reader.SkipUnknownBytes(4);
 
-            _unknown = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown);
         }
     }
 }

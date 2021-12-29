@@ -6,6 +6,14 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly bool _asTeam;
 
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _waypointIdMaybe1;
+        private uint _waypointIdMaybe2;
+        private bool _unknownBool;
+
         public FollowWaypointsState(bool asTeam)
         {
             _asTeam = asTeam;
@@ -17,13 +25,13 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            var unknownInt0 = reader.ReadUInt32();
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownInt3 = reader.ReadUInt32();
-            var waypointIdMaybe = reader.ReadUInt32();
-            var waypointId2Maybe = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
+            _unknownInt1 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
+            _unknownInt3 = reader.ReadUInt32();
+            _unknownInt4 = reader.ReadUInt32();
+            _waypointIdMaybe1 = reader.ReadUInt32();
+            _waypointIdMaybe2 = reader.ReadUInt32();
+            reader.ReadBoolean(ref _unknownBool);
         }
     }
 }

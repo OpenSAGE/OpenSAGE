@@ -68,7 +68,8 @@ namespace OpenSage.Logic
             var campaignManager = new CampaignManager();
             campaignManager.Load(reader);
 
-            var unknown1 = reader.ReadBoolean();
+            var unknown1 = true;
+            reader.ReadBoolean(ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -76,7 +77,8 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(2);
 
-            var unknown1_1 = reader.ReadBoolean();
+            var unknown1_1 = true;
+            reader.ReadBoolean(ref unknown1_1);
             if (!unknown1_1)
             {
                 throw new InvalidStateException();
@@ -116,17 +118,23 @@ namespace OpenSage.Logic
                     buildableStatus);
             }
 
-            if (!reader.ReadBoolean())
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
+            if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
-            if (!reader.ReadBoolean())
+            var unknownBool2 = true;
+            reader.ReadBoolean(ref unknownBool2);
+            if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
-            if (!reader.ReadBoolean())
+            var unknownBool3 = true;
+            reader.ReadBoolean(ref unknownBool3);
+            if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }

@@ -60,8 +60,7 @@ namespace OpenSage.Logic
             Owner = players.GetPlayerByIndex(ownerPlayerId);
 
             reader.ReadAsciiString(ref _attackPriorityName);
-
-            _unknown1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown1);
 
             _templateData.Load(reader);
 

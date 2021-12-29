@@ -51,7 +51,7 @@ namespace OpenSage
 
         public uint ReadUInt32() => _binaryReader.ReadUInt32();
 
-        public bool ReadBoolean() => _binaryReader.ReadBooleanChecked();
+        public void ReadBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
 
         public void ReadObjectID(ref uint value) => value = ReadUInt32();
 

@@ -18,7 +18,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.ReadVersion(1);
 
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
             reader.ReadVector3(ref _unknownPosition);
 
             _stateMachine.Load(reader);
@@ -59,10 +59,10 @@ namespace OpenSage.Logic.AI.AIStates
 
                 reader.ReadVector3(ref _unknownPosition);
                 reader.ReadFrame(ref _unknownFrame);
-                _unknownBool1 = reader.ReadBoolean();
-                _unknownBool2 = reader.ReadBoolean();
-                _unknownBool3 = reader.ReadBoolean();
-                _unknownBool4 = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool1);
+                reader.ReadBoolean(ref _unknownBool2);
+                reader.ReadBoolean(ref _unknownBool3);
+                reader.ReadBoolean(ref _unknownBool4);
             }
         }
 
@@ -75,8 +75,8 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.ReadVersion(1);
 
-                _unknownBool1 = reader.ReadBoolean();
-                _unknownBool2 = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool1);
+                reader.ReadBoolean(ref _unknownBool2);
             }
         }
 
