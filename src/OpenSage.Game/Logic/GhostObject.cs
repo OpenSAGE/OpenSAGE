@@ -103,7 +103,7 @@ namespace OpenSage.Logic
                             throw new InvalidStateException();
                         }
 
-                        modelInstance.UnknownBools[k] = reader.ReadBoolean();
+                        reader.ReadBoolean(ref modelInstance.UnknownBools[k]);
 
                         var meshTransform = reader.ReadMatrix4x3Transposed();
 
@@ -113,7 +113,7 @@ namespace OpenSage.Logic
                 }
             }
 
-            _hasUnknownThing = reader.ReadBoolean();
+            reader.ReadBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
                 reader.ReadByte(ref _unknownByte);

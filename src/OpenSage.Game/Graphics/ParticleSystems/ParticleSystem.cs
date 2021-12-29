@@ -626,10 +626,10 @@ namespace OpenSage.Graphics.ParticleSystems
             _attachedToDrawableId = reader.ReadUInt32();
             reader.ReadObjectID(ref _attachedToObjectId);
 
-            _isIdentityTransform = reader.ReadBoolean();
+            reader.ReadBoolean(ref _isIdentityTransform);
             _transform = reader.ReadMatrix4x3Transposed();
 
-            _isIdentityTransform2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _isIdentityTransform2);
             _transform2 = reader.ReadMatrix4x3Transposed();
 
             _unknownInt1 = reader.ReadUInt32(); // Maybe _nextBurst
@@ -637,9 +637,9 @@ namespace OpenSage.Graphics.ParticleSystems
             _unknownInt3 = reader.ReadUInt32();
             _unknownInt4 = reader.ReadUInt32();
             _unknownInt5 = reader.ReadUInt32();
-            _hasInfiniteLifetime = reader.ReadBoolean();
+            reader.ReadBoolean(ref _hasInfiniteLifetime);
             _unknownFloat1 = reader.ReadSingle();
-            _unknownBool1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
 
             for (var i = 0; i < 6; i++)
             {
@@ -651,10 +651,8 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             reader.ReadVector3(ref _position);
-
             reader.ReadVector3(ref _positionPrevious);
-
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool2);
 
             _slaveSystemId = reader.ReadUInt32();
 
@@ -681,7 +679,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.ReadVersion(1);
 
-            reader.ReadBoolean(); // IsOneShot
+            var isOneShot = false;
+            reader.ReadBoolean(ref isOneShot); // IsOneShot
 
             ParticleSystemShader shader = default;
             reader.ReadEnum(ref shader);
@@ -809,7 +808,9 @@ namespace OpenSage.Graphics.ParticleSystems
             var unknown15 = reader.ReadSingle();
             var windPingPongEndAngleMin = reader.ReadSingle();
             var windPingPongEndAngleMax = reader.ReadSingle();
-            var unknown16 = reader.ReadBoolean();
+
+            var unknown16 = false;
+            reader.ReadBoolean(ref unknown16);
         }
     }
 

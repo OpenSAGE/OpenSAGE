@@ -31,8 +31,7 @@ namespace OpenSage.Logic.Object
 
             reader.ReadObjectID(ref _dockId);
             reader.ReadInt32(ref _unknownInt);
-
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
         }
     }
 

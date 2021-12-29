@@ -47,9 +47,8 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(1);
 
-            _enteredOrExitedPolygonTrigger = reader.ReadBoolean();
-
-            _isAlive = reader.ReadBoolean();
+            reader.ReadBoolean(ref _enteredOrExitedPolygonTrigger);
+            reader.ReadBoolean(ref _isAlive);
 
             reader.SkipUnknownBytes(5);
 
@@ -73,7 +72,7 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < unknownCount; i++)
             {
-                _unknownBools[i] = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBools[i]);
             }
 
             reader.SkipUnknownBytes(2);

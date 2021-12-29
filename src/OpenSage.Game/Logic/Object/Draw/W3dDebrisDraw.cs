@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
 
             _unknownInt1 = reader.ReadUInt32();
             _unknownInt2 = reader.ReadUInt32();
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
         }
     }
 

@@ -11,9 +11,8 @@
             reader.ReadVersion(1);
 
             reader.ReadUInt16(ref _unknownShort);
-
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
         }
     }
 }

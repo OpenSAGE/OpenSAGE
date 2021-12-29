@@ -50,7 +50,8 @@ namespace OpenSage.Data.Sav
 
             if (reader.SageGame >= SageGame.Bfme)
             {
-                var unknown6 = reader.ReadBoolean();
+                var unknown6 = false;
+                reader.ReadBoolean(ref unknown6);
             }
 
             if (gameType == GameType.Skirmish)

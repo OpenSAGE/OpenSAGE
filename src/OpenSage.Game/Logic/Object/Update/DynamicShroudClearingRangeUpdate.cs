@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
             _unknown6 = reader.ReadUInt32();
             _unknown7 = reader.ReadUInt32();
 
-            var unknown7_1 = reader.ReadBoolean();
+            var unknown7_1 = true;
+            reader.ReadBoolean(ref unknown7_1);
             if (!unknown7_1)
             {
                 throw new InvalidStateException();

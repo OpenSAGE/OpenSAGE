@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
             _nextFirePointIndex = reader.ReadUInt32();
             _numFirePoints = reader.ReadUInt32();
 
-            _hasNoFirePoints = reader.ReadBoolean();
+            reader.ReadBoolean(ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);
 

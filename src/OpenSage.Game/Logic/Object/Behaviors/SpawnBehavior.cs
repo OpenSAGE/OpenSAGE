@@ -88,15 +88,15 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownBool1 = reader.ReadBoolean();
-
+            reader.ReadBoolean(ref _unknownBool1);
             reader.ReadAsciiString(ref _templateName);
             reader.ReadInt32(ref _unknownInt1);
             reader.ReadInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(4);
 
-            var unknownBool2 = reader.ReadBoolean();
+            var unknownBool2 = true;
+            reader.ReadBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
@@ -109,7 +109,8 @@ namespace OpenSage.Logic.Object
                 _unknownIntList.Add(reader.ReadUInt32());
             }
 
-            var unknownBool3 = reader.ReadBoolean();
+            var unknownBool3 = true;
+            reader.ReadBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();

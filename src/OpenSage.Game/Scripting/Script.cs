@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
@@ -19,7 +18,7 @@ namespace OpenSage.Scripting
         public string ConditionsComment { get; private set; }
         public string ActionsComment { get; private set; }
 
-        public bool IsActive { get; set; } // TODO: Make this private.
+        public bool IsActive; // TODO: Make this private.
         public bool DeactivateUponSuccess { get; private set; }
 
         public bool ActiveInEasy { get; private set; }
@@ -324,7 +323,8 @@ namespace OpenSage.Scripting
         internal void Load(SaveFileReader reader)
         {
             reader.ReadVersion(1);
-            IsActive = reader.ReadBoolean();
+
+            reader.ReadBoolean(ref IsActive);
         }
 
         public Script Copy(string appendix)

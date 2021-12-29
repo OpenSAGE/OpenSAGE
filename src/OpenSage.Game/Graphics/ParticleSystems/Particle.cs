@@ -98,7 +98,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             ColorScale = reader.ReadSingle();
 
-            IsParticleUpTowardsEmitter = reader.ReadBoolean();
+            reader.ReadBoolean(ref IsParticleUpTowardsEmitter);
 
             UnknownFloat = reader.ReadSingle();
 

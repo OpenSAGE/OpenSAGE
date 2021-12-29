@@ -4,6 +4,8 @@
     {
         private readonly DockStateMachine _stateMachine;
 
+        private bool _unknownBool2;
+
         public DockState()
         {
             _stateMachine = new DockStateMachine();
@@ -13,7 +15,8 @@
         {
             reader.ReadVersion(1);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
@@ -21,7 +24,7 @@
 
             _stateMachine.Load(reader);
 
-            var unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool2);
         }
     }
 

@@ -5,7 +5,13 @@ namespace OpenSage.Logic.Object
 {
     public class SpecialAbilityUpdate : UpdateModule
     {
-        // TODO
+        private bool _unknownBool1;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private float _unknownFloat;
 
         internal override void Load(SaveFileReader reader)
         {
@@ -13,17 +19,18 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var unknown3 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
 
-            var unknown8 = reader.ReadUInt32();
+            _unknownInt1 = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(4);
 
-            var unknown4 = reader.ReadUInt32();
+            _unknownInt2 = reader.ReadUInt32();
 
             reader.SkipUnknownBytes(16);
 
-            var unknown1 = reader.ReadBoolean();
+            var unknown1 = true;
+            reader.ReadBoolean(ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -31,21 +38,22 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(7);
 
-            var unknown5 = reader.ReadUInt32();
+            _unknownInt3 = reader.ReadUInt32();
 
-            var unknown7 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool2);
 
             reader.SkipUnknownBytes(1);
 
-            var unknown9 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool3);
 
-            var unknown2 = reader.ReadBoolean();
+            var unknown2 = true;
+            reader.ReadBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();
             }
 
-            var unknown6 = reader.ReadSingle();
+            _unknownFloat = reader.ReadSingle();
         }
     }
 

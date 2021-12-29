@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            var unknown2 = reader.ReadBoolean();
+            var unknown2 = true;
+            reader.ReadBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

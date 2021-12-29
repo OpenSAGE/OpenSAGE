@@ -271,7 +271,7 @@ namespace OpenSage
 
             reader.SkipUnknownBytes(1);
 
-            _unknown1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown1);
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);
@@ -350,7 +350,7 @@ namespace OpenSage
         {
             reader.ReadEnum(ref Type);
 
-            _unknown1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown1);
 
             _unknown2 = reader.ReadUInt32();
             _unknown3 = reader.ReadUInt32();
@@ -364,7 +364,7 @@ namespace OpenSage
             _unknown5 = reader.ReadUInt32();
             _unknown6 = reader.ReadUInt32();
 
-            _unknown7 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown7);
         }
     }
 

@@ -421,11 +421,11 @@ namespace OpenSage.Logic
 
             _unknown1 = reader.ReadUInt32();
 
-            _unknown2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown2);
 
             _unknown3 = reader.ReadUInt32();
 
-            _hasInsufficientPower = reader.ReadBoolean();
+            reader.ReadBoolean(ref _hasInsufficientPower);
 
             _upgradesInProgress.Load(reader);
             UpgradesCompleted.Load(reader);
@@ -464,7 +464,8 @@ namespace OpenSage.Logic
                 _buildListItems.Add(buildListItem);
             }
 
-            var isAIPlayer = reader.ReadBoolean();
+            var isAIPlayer = AIPlayer != null;
+            reader.ReadBoolean(ref isAIPlayer);
             if (isAIPlayer != (AIPlayer != null))
             {
                 throw new InvalidStateException();
@@ -474,13 +475,15 @@ namespace OpenSage.Logic
                 AIPlayer.Load(reader);
             }
 
-            var hasSupplyManager = reader.ReadBoolean();
+            var hasSupplyManager = _supplyManager != null;
+            reader.ReadBoolean(ref hasSupplyManager);
             if (hasSupplyManager)
             {
                 _supplyManager.Load(reader);
             }
 
-            var hasTunnelManager = reader.ReadBoolean();
+            var hasTunnelManager = _tunnelManager != null;
+            reader.ReadBoolean(ref hasTunnelManager);
             if (hasTunnelManager)
             {
                 _tunnelManager = new TunnelManager();
@@ -509,17 +512,16 @@ namespace OpenSage.Logic
             _playerToPlayerRelationships.Load(reader);
             _playerToTeamRelationships.Load(reader);
 
-            CanBuildUnits = reader.ReadBoolean();
-            CanBuildBuildings = reader.ReadBoolean();
-
-            _unknown6 = reader.ReadBoolean();
+            reader.ReadBoolean(ref CanBuildUnits);
+            reader.ReadBoolean(ref CanBuildBuildings);
+            reader.ReadBoolean(ref _unknown6);
 
             GeneralsExperienceMultiplier = reader.ReadSingle();
-            ShowOnScoreScreen = reader.ReadBoolean();
+            reader.ReadBoolean(ref ShowOnScoreScreen);
 
             for (var i = 0; i < _attackedByPlayerIds.Length; i++)
             {
-                _attackedByPlayerIds[i] = reader.ReadBoolean();
+                reader.ReadBoolean(ref _attackedByPlayerIds[i]);
             }
 
             reader.SkipUnknownBytes(70);
@@ -539,7 +541,9 @@ namespace OpenSage.Logic
                 _controlGroups.Add(controlGroup);
             }
 
-            if (!reader.ReadBoolean())
+            var unknown = true;
+            reader.ReadBoolean(ref unknown);
+            if (!unknown)
             {
                 throw new InvalidStateException();
             }
@@ -681,8 +685,8 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
 
             _unknownInt1 = reader.ReadUInt32();
             if (_unknownInt1 != 2 && _unknownInt1 != 0)
@@ -723,7 +727,7 @@ namespace OpenSage.Logic
             }
 
             reader.ReadVector3(ref _unknownPosition);
-            _unknownBool3 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool3);
             _unknownFloat = reader.ReadSingle();
 
             reader.SkipUnknownBytes(22);
@@ -750,7 +754,7 @@ namespace OpenSage.Logic
                     _unknownThings.Add(otherThing);
                 }
 
-                _unknownBool = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool);
 
                 _unknownInt1 = reader.ReadUInt32(); // 11
 
@@ -779,8 +783,8 @@ namespace OpenSage.Logic
                 _unknownInt1 = reader.ReadUInt32(); // 0
                 _unknownInt2 = reader.ReadUInt32(); // 1
 
-                _unknownBool1 = reader.ReadBoolean();
-                _unknownBool2 = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool1);
+                reader.ReadBoolean(ref _unknownBool2);
             }
         }
     }

@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
 
             reader.SkipUnknownBytes(1);
         }

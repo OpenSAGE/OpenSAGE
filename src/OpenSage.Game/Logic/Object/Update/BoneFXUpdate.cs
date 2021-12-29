@@ -40,7 +40,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknown2 = reader.ReadBoolean();
+            var unknown2 = true;
+            reader.ReadBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

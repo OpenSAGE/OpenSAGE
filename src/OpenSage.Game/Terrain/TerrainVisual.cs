@@ -9,7 +9,7 @@
             reader.ReadVersion(2);
             reader.ReadVersion(1);
 
-            _unknownBool = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
             if (_unknownBool)
             {
                 reader.ReadVersion(1);

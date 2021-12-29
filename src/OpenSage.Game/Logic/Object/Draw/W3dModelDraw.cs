@@ -422,7 +422,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            _hasUnknownThing = reader.ReadBoolean();
+            reader.ReadBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
                 reader.ReadInt32(ref _unknownInt);

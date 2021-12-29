@@ -22,14 +22,14 @@
 
             if (version >= 5)
             {
-                _unknownBool1 = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool1);
 
                 reader.SkipUnknownBytes(4);
             }
 
             if (version == 1 && reader.SageGame >= SageGame.Bfme)
             {
-                _unknownBool2 = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBool2);
             }
         }
     }

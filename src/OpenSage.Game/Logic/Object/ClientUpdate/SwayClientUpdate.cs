@@ -32,8 +32,7 @@ namespace OpenSage.Logic.Object
             _unknownFloat4 = reader.ReadSingle();
             _unknownFloat5 = reader.ReadSingle();
             reader.ReadUInt16(ref _unknownShort);
-
-            _isActive = reader.ReadBoolean();
+            reader.ReadBoolean(ref _isActive);
         }
     }
 

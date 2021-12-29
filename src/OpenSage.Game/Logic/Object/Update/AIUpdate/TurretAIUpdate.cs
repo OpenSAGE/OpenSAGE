@@ -204,7 +204,8 @@ namespace OpenSage.Logic.Object
         {
             reader.ReadVersion(2);
 
-            var unknownBool1 = reader.ReadBoolean();
+            var unknownBool1 = true;
+            reader.ReadBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
@@ -222,7 +223,7 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < 7; i++)
             {
-                _unknownBools[i] = reader.ReadBoolean();
+                reader.ReadBoolean(ref _unknownBools[i]);
             }
 
             reader.ReadFrame(ref _unknownFrame3);

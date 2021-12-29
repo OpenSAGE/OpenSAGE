@@ -59,7 +59,8 @@ namespace OpenSage.Logic.AI
 
             reader.ReadAsciiString(ref _targetWaypointName);
 
-            var hasTargetTeam = reader.ReadBoolean();
+            var hasTargetTeam = _targetTeam != null;
+            reader.ReadBoolean(ref hasTargetTeam);
             if (hasTargetTeam)
             {
                 _targetTeam ??= new TargetTeam();
@@ -88,8 +89,8 @@ namespace OpenSage.Logic.AI
             base.Load(reader);
 
             reader.ReadInt32(ref _unknownInt);
-            _unknownBool1 = reader.ReadBoolean();
-            _unknownBool2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool1);
+            reader.ReadBoolean(ref _unknownBool2);
         }
     }
 

@@ -15,7 +15,8 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.ReadVersion(1);
 
-            var unknownBool = reader.ReadBoolean();
+            var unknownBool = true;
+            reader.ReadBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();

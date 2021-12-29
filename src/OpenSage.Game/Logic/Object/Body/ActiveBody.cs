@@ -101,8 +101,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.ReadEnum<BodyDamageType>(ref _damageType);
-
+            reader.ReadEnum(ref _damageType);
             reader.ReadFrame(ref _unknownFrame1);
 
             _lastDamageType = (DamageType) reader.ReadUInt32(); // -1 if no last damage
@@ -110,14 +109,12 @@ namespace OpenSage.Logic.Object
             _lastDamage.Load(reader);
 
             reader.ReadFrame(ref _unknownFrame2);
-
             reader.ReadFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(2);
 
-            _unknownBool = reader.ReadBoolean();
-
-            _indestructible = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknownBool);
+            reader.ReadBoolean(ref _indestructible);
 
             var particleSystemCount = (ushort) _particleSystemIds.Count;
             reader.ReadUInt16(ref particleSystemCount);

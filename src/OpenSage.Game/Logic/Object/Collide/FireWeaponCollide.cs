@@ -28,11 +28,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknown1 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown1);
 
             _collideWeapon.Load(reader);
 
-            _unknown2 = reader.ReadBoolean();
+            reader.ReadBoolean(ref _unknown2);
         }
     }
 
