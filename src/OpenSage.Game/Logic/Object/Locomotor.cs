@@ -374,35 +374,35 @@ namespace OpenSage.Logic.Object
 
             reader.ReadVector3(ref _positionSomething);
 
-            _unknownFloat1 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
 
-            _unknownFloat2 = reader.ReadSingle(); // 99999
+            reader.ReadSingle(ref _unknownFloat2); // 99999
             if (_unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat3 = reader.ReadSingle(); // 99999
+            reader.ReadSingle(ref _unknownFloat3); // 99999
             if (_unknownFloat3 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat4 = reader.ReadSingle(); // 99999
+            reader.ReadSingle(ref _unknownFloat4); // 99999
             if (_unknownFloat4 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat5 = reader.ReadSingle(); // 99999
+            reader.ReadSingle(ref _unknownFloat5); // 99999
             if (_unknownFloat5 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat6 = reader.ReadSingle(); // 99999, 0
+            reader.ReadSingle(ref _unknownFloat6); // 99999, 0
 
-            _unknownFloat7 = reader.ReadSingle(); // 1
+            reader.ReadSingle(ref _unknownFloat7); // 1
             if (_unknownFloat7 != 1.0f)
             {
                 throw new InvalidStateException();
@@ -410,17 +410,16 @@ namespace OpenSage.Logic.Object
 
             _unknownInt1 = reader.ReadUInt32(); // 0, 4
 
-            _unknownFloat8 = reader.ReadSingle(); // 0, 100
+            reader.ReadSingle(ref _unknownFloat8); // 0, 100
 
-            _unknownFloat9 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat9);
             if (_unknownFloat9 != 1.0f)
             {
                 throw new InvalidStateException();
             }
 
-            _unknownFloat10 = reader.ReadSingle(); // 0.4849...
-
-            _unknownFloat11 = reader.ReadSingle(); // 0.0892...
+            reader.ReadSingle(ref _unknownFloat10); // 0.4849...
+            reader.ReadSingle(ref _unknownFloat11); // 0.0892...
         }
     }
 }

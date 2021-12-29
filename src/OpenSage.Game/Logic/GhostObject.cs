@@ -51,10 +51,9 @@ namespace OpenSage.Logic
             reader.ReadByte(ref geometryIsSmall);
             _geometryIsSmall = geometryIsSmall == 1;
 
-            _geometryMajorRadius = reader.ReadSingle();
-            _geometryMinorRadius = reader.ReadSingle();
-
-            _angle = reader.ReadSingle();
+            reader.ReadSingle(ref _geometryMajorRadius);
+            reader.ReadSingle(ref _geometryMinorRadius);
+            reader.ReadSingle(ref _angle);
             reader.ReadVector3(ref _position);
 
             reader.SkipUnknownBytes(12);
@@ -74,7 +73,8 @@ namespace OpenSage.Logic
 
                     _modelsPerPlayer[i].Add(modelInstance);
 
-                    var scale = reader.ReadSingle();
+                    var scale = 1.0f;
+                    reader.ReadSingle(ref scale);
                     if (scale != 1.0f)
                     {
                         throw new InvalidStateException();

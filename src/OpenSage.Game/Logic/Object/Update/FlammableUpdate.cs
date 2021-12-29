@@ -27,15 +27,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.ReadEnum(ref _state);
-
             reader.ReadFrame(ref _aflameEndFrame);
 
             reader.SkipUnknownBytes(4);
 
             reader.ReadFrame(ref _nextDamageFrame);
-
-            _remainingDamageBeforeCatchingFire = reader.ReadSingle();
-
+            reader.ReadSingle(ref _remainingDamageBeforeCatchingFire);
             reader.ReadFrame(ref _startedTakingFlameDamageFrame);
         }
 

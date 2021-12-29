@@ -48,8 +48,7 @@ namespace OpenSage.Data.Map
 
             reader.SkipUnknownBytes(8);
 
-            _angle = reader.ReadSingle();
-
+            reader.ReadSingle(ref _angle);
             reader.ReadBoolean(ref _unknownBool1);
 
             _rebuilds = reader.ReadUInt32();

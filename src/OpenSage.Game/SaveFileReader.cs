@@ -61,7 +61,7 @@ namespace OpenSage
 
         public void ReadUnicodeString(ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
 
-        public float ReadSingle() => _binaryReader.ReadSingle();
+        public void ReadSingle(ref float value) => value = _binaryReader.ReadSingle();
 
         public void ReadVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
 

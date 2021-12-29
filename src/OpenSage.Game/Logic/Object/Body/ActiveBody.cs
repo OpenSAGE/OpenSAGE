@@ -91,11 +91,12 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _currentHealth1 = reader.ReadSingle(); // These two values
-            _currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
+            reader.ReadSingle(ref _currentHealth1); // These two values
+            reader.ReadSingle(ref _currentHealth2); // are almost but not quite the same.
+            reader.ReadSingle(ref _maxHealth);
 
-            _maxHealth = reader.ReadSingle();
-            var maxHealth2 = reader.ReadSingle();
+            var maxHealth2 = _maxHealth;
+            reader.ReadSingle(ref maxHealth2);
             if (_maxHealth != maxHealth2)
             {
                 throw new InvalidStateException();

@@ -317,7 +317,7 @@ namespace OpenSage.Graphics.Cameras
         {
             reader.ReadVersion(1);
 
-            _yaw = reader.ReadSingle();
+            reader.ReadSingle(ref _yaw);
             reader.ReadVector3(ref _terrainPosition);
         }
 

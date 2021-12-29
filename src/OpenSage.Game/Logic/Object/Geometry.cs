@@ -45,11 +45,11 @@ namespace OpenSage.Logic.Object
             reader.ReadVersion(1);
             reader.ReadEnum(ref Type);
             reader.ReadBoolean(ref IsSmall);
-            Height = reader.ReadSingle();
-            MajorRadius = reader.ReadSingle();
-            MinorRadius = reader.ReadSingle();
-            _unknownFloat1 = reader.ReadSingle();
-            _unknownFloat2 = reader.ReadSingle();
+            reader.ReadSingle(ref Height);
+            reader.ReadSingle(ref MajorRadius);
+            reader.ReadSingle(ref MinorRadius);
+            reader.ReadSingle(ref _unknownFloat1);
+            reader.ReadSingle(ref _unknownFloat2);
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

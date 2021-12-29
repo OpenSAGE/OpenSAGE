@@ -515,8 +515,7 @@ namespace OpenSage.Logic
             reader.ReadBoolean(ref CanBuildUnits);
             reader.ReadBoolean(ref CanBuildBuildings);
             reader.ReadBoolean(ref _unknown6);
-
-            GeneralsExperienceMultiplier = reader.ReadSingle();
+            reader.ReadSingle(ref GeneralsExperienceMultiplier);
             reader.ReadBoolean(ref ShowOnScoreScreen);
 
             for (var i = 0; i < _attackedByPlayerIds.Length; i++)
@@ -728,7 +727,7 @@ namespace OpenSage.Logic
 
             reader.ReadVector3(ref _unknownPosition);
             reader.ReadBoolean(ref _unknownBool3);
-            _unknownFloat = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(22);
         }
@@ -810,9 +809,8 @@ namespace OpenSage.Logic
 
             reader.ReadInt32(ref _unknownInt1);
             reader.ReadInt32(ref _unknownInt2);
-
-            _unknownFloat1 = reader.ReadSingle();
-            _unknownFloat2 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
+            reader.ReadSingle(ref _unknownFloat2);
 
             reader.SkipUnknownBytes(16);
         }

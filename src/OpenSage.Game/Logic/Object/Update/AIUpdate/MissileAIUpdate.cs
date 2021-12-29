@@ -111,10 +111,10 @@ namespace OpenSage.Logic.Object
             reader.ReadObjectID(ref _unknownObjectId);
             reader.ReadBoolean(ref _unknownBool1);
             reader.ReadFrame(ref _unknownFrame2);
+            reader.ReadSingle(ref _unknownFloat1);
 
-            _unknownFloat1 = reader.ReadSingle();
-
-            var unknownFloat2 = reader.ReadSingle();
+            var unknownFloat2 = 99999.0f;
+            reader.ReadSingle(ref unknownFloat2);
             if (unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();

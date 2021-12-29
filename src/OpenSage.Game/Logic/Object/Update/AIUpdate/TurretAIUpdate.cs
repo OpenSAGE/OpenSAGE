@@ -212,8 +212,8 @@ namespace OpenSage.Logic.Object
             }
 
             // Angles maybe.
-            _unknownFloat1 = reader.ReadSingle();
-            _unknownFloat2 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
+            reader.ReadSingle(ref _unknownFloat2);
 
             reader.ReadFrame(ref _unknownFrame1);
 

@@ -50,8 +50,7 @@ namespace OpenSage.Logic.Object.Production
         {
             _jobId = reader.ReadUInt32();
 
-            _unknownFloat = reader.ReadSingle();
-
+            reader.ReadSingle(ref _unknownFloat);
             reader.ReadInt32(ref _unknownInt1); // Maybe progress
             reader.ReadInt32(ref _unknownInt2);
             reader.ReadInt32(ref _unknownInt3);

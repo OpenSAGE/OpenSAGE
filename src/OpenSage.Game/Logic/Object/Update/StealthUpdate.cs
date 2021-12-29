@@ -26,8 +26,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            _unknownFloat1 = reader.ReadSingle();
-            _unknownFloat2 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
+            reader.ReadSingle(ref _unknownFloat2);
 
             var unknownInt2 = -1;
             reader.ReadInt32(ref unknownInt2);

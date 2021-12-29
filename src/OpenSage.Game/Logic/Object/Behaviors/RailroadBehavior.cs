@@ -70,9 +70,9 @@ namespace OpenSage.Logic.Object
             {
                 reader.ReadVersion(1);
 
-                _unknownFloat1 = reader.ReadSingle();
-                _unknownFloat2 = reader.ReadSingle();
-                _unknownFloat3 = reader.ReadSingle();
+                reader.ReadSingle(ref _unknownFloat1);
+                reader.ReadSingle(ref _unknownFloat2);
+                reader.ReadSingle(ref _unknownFloat3);
                 reader.ReadVector3(ref _unknownVector);
 
                 var unknown12 = reader.ReadUInt32();

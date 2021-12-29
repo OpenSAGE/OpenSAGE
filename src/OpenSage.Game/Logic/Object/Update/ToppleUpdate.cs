@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
         private float _toppleSpeed;
         private Vector3 _toppleDirection;
         private float _toppleAngle;
+        private float _unknownFloat;
         private uint _stumpId;
 
         internal ToppleUpdate(ToppleUpdateModuleData moduleData)
@@ -115,12 +116,12 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _toppleSpeed = reader.ReadSingle();
-            _toppleAcceleration = reader.ReadSingle();
+            reader.ReadSingle(ref _toppleSpeed);
+            reader.ReadSingle(ref _toppleAcceleration);
             reader.ReadVector3(ref _toppleDirection);
             reader.ReadEnum(ref _toppleState);
-            _toppleAngle = reader.ReadSingle();
-            var unknownFloat6 = reader.ReadSingle();
+            reader.ReadSingle(ref _toppleAngle);
+            reader.ReadSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(9);
 

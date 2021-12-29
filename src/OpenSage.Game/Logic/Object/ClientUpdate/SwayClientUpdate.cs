@@ -26,11 +26,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _unknownFloat1 = reader.ReadSingle();
-            _unknownFloat2 = reader.ReadSingle();
-            _unknownFloat3 = reader.ReadSingle();
-            _unknownFloat4 = reader.ReadSingle();
-            _unknownFloat5 = reader.ReadSingle();
+            reader.ReadSingle(ref _unknownFloat1);
+            reader.ReadSingle(ref _unknownFloat2);
+            reader.ReadSingle(ref _unknownFloat3);
+            reader.ReadSingle(ref _unknownFloat4);
+            reader.ReadSingle(ref _unknownFloat5);
             reader.ReadUInt16(ref _unknownShort);
             reader.ReadBoolean(ref _isActive);
         }
